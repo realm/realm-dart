@@ -40,7 +40,7 @@ realm_log_level_e calucale_minimum_log_level() {
 }
 
 RLM_API void realm_dart_release_logger(Dart_Port port) {
-    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex); 
+    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
     if ((dart_send_ports.find(port) != dart_send_ports.end()))
     {
         dart_send_ports.erase(port);
