@@ -75,13 +75,17 @@ class _RealmCore implements RealmCoreScheduler {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
-  final encryptionKeySize = 64;
+  final encryptionKeySize = 64; 
+  static _RealmCore? _instance;
 
-  _RealmCore() {
+  _RealmCore._() {
     scheduler = Scheduler.init(this);
     _initDefaultLogger();
   }
 
+  factory _RealmCore() {
+    return _instance ??= _RealmCore._();
+  }
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
   //   _realmLib.realm_dart_gc();

@@ -21,9 +21,9 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:logging/logging.dart';
-import 'package:realm_dart/src/realm_class.dart' show RealmInternal;
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
+import '../lib/src/realm_class.dart' show RealmInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
