@@ -21,15 +21,17 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:logging/logging.dart';
+import 'package:realm_dart/src/realm_class.dart' show RealmInternal;
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+  await setupTests(args, logOnlyOnError: false);
 
   baasTest('Realm.logger', (configuration) async {
-    await Isolate.run(() async {
+    Logger defaultLogger = RealmInternal.defaultLogger;
+    try {
       Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
       configuration = AppConfiguration(
         configuration.appId,
@@ -55,11 +57,14 @@ Future<void> main([List<String>? args]) async {
           RealmLogLevel.info: 1,
         },
       );
-    });
+    } finally {
+      Realm.logger = defaultLogger;
+    }
   });
 
   baasTest('Change Realm.logger level at runtime', (configuration) async {
-    await Isolate.run(() async {
+    Logger defaultLogger = RealmInternal.defaultLogger;
+    try {
       int count = 0;
       final completer = Completer<void>();
       try {
@@ -87,13 +92,15 @@ Future<void> main([List<String>? args]) async {
       } catch (error) {
         completer.completeError(error);
       }
-    });
+    } finally {
+      Realm.logger = defaultLogger;
+    }
   });
 
   baasTest('Realm loggers log messages in all the isolates', (configuration) async {
-    int isolatesCount = 3;
-    List<int> results = await Isolate.run(() async {
-      List<int> results = [];
+    Logger defaultLogger = RealmInternal.defaultLogger;
+    try {
+      int isolatesCount = 3;
 
       // Isolate Main  with level Error
       final mainIsolate = predefineNewLoggerAndThrows("Main isolate", configuration, RealmLogLevel.error);
@@ -124,21 +131,18 @@ Future<void> main([List<String>? args]) async {
       int logCountAfterClosingIsolates = await predefineNewLoggerAndThrows("Main isolate", configuration, RealmLogLevel.error);
       Realm.logger.level = RealmLogLevel.info;
 
-      results.add(log1);
-      results.add(log1);
-      results.add(logMain);
-      results.add(logCountAfterClosingIsolates);
-      return results;
-    });
-    expect(results[0], isolatesCount, reason: "Isolate 1");
-    expect(results[1], isolatesCount, reason: "Isolate 2");
-    expect(results[2], isolatesCount, reason: "Main isolate logs count");
-    expect(results[3], 1, reason: "Main isolate logs count after closing isolates");
+      expect(log1, isolatesCount, reason: "Isolate 1");
+      expect(log2, isolatesCount, reason: "Isolate 2");
+      expect(logMain, isolatesCount, reason: "Main isolate logs count");
+      expect(logCountAfterClosingIsolates, 1, reason: "Main isolate logs count after closing isolates");
+    } finally {
+      Realm.logger = defaultLogger;
+    }
   });
 
   baasTest('Logger set to Off for first isolates', (configuration) async {
-    List<int> results = await Isolate.run(() async {
-      List<int> results = [];
+    Logger defaultLogger = RealmInternal.defaultLogger;
+    try {
       int entrypointLogCount = 0;
       Realm.logger.level = RealmLogLevel.off;
       Realm.logger.onRecord.listen((event) {
@@ -148,19 +152,27 @@ Future<void> main([List<String>? args]) async {
       int log1Count = await Isolate.run(() async {
         return await attachToLoggerAndThrows("Isolate 1", configuration, logLevel: RealmLogLevel.error);
       });
-      results.add(log1Count);
+      expect(log1Count, 1);
 
       int log2Count = await Isolate.run(() async {
         return await attachToLoggerAndThrows("Isolate 2", configuration, logLevel: RealmLogLevel.error);
       });
-      results.add(log2Count);
-      results.add(entrypointLogCount);
-      return results;
-    });
-    expect(results[0], 1);
-    expect(results[1], 1);
-    expect(results[2], 0);
+      expect(log2Count, 1);
+      expect(entrypointLogCount, 0);
+    } finally {
+      Realm.logger = defaultLogger;
+    }
   });
+
+  test('Log messages', () async {
+    RealmInternal.defaultLogger.onRecord.listen((event) {
+      print(event);
+    });
+    var config = Configuration.local([Car.schema]);
+    var realm = getRealm(config);
+
+    //expect(result, 2);
+  }, skip: "not finished");
 }
 
 Future<int> predefineNewLoggerAndThrows(String isolateName, AppConfiguration appConfig, Level logLevel) async {

@@ -592,11 +592,13 @@ class _RealmCore implements RealmCoreScheduler {
     _realmLib.realm_set_auto_refresh(realm.handle._pointer, false);
   }
 
+  @override
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
   }
 
+  @override
   void invokeScheduler(SchedulerHandle schedulerHandle) {
     _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
@@ -1670,6 +1672,7 @@ class _RealmCore implements RealmCoreScheduler {
     });
   }
 
+  @override
   void loggerLogMessage(int level, String message) {
     final message_level = LevelExt.fromInt(level);
     Realm.logger.log(message_level, message);
