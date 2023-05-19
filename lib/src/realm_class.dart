@@ -489,12 +489,8 @@ class Realm implements Finalizable {
 
   static Logger? _logger;
 
-  /// The logger to use for logging.
+  /// The logger to use for Realm logging in this `Isolate`
   /// The default log level is [RealmLogLevel.info].
-  /// The level could be changed per isolate.
-  /// To manage the log level at runtime use `Realm.logger.level` setter.
-  /// To listen to the log event use `Realm.logger.onRecord.listen`.
-  /// It is also possible to set a new instance of custom [Logger].
   static Logger get logger {
     if (_logger == null) {
       _logger = RealmInternal.defaultLogger;
