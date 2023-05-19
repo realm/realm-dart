@@ -164,15 +164,14 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  test('Log messages', () async {
-    RealmInternal.defaultLogger.onRecord.listen((event) {
-      print(event);
-    });
-    var config = Configuration.local([Car.schema]);
-    var realm = getRealm(config);
+  // test('Log messages', () async {
+  //   int count = await logDefault(() async {
+  //     var config = Configuration.local([Car.schema]);
+  //     var realm = getRealm(config);
+  //   }, 2);
 
-    //expect(result, 2);
-  }, skip: "not finished");
+  //   expect(count, 2);
+  // });
 }
 
 Future<int> predefineNewLoggerAndThrows(String isolateName, AppConfiguration appConfig, Level logLevel) async {
@@ -204,6 +203,21 @@ Future<int> attachToLoggerAndThrows(String isolateName, AppConfiguration appConf
   try {
     await simulateError(appConfig);
     count = await completer.future.timeout(Duration(seconds: 2), onTimeout: () => throw Exception("Stop waiting for logs"));
+  } catch (error) {
+    completer.complete(count);
+  }
+  return count;
+}
+
+Future<int> logDefault(void Function() action, int expectedCount) async {
+  final completer = Completer<int>();
+  int count = 0;
+  RealmInternal.defaultLogger.onRecord.listen((event) {
+    count++;
+  });
+  try {
+    action();
+    count = await completer.future.timeout(Duration(seconds: 5), onTimeout: () => throw Exception("Stop waiting for logs"));
   } catch (error) {
     completer.complete(count);
   }

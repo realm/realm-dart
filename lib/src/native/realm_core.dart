@@ -75,7 +75,7 @@ class _RealmCore implements RealmCoreScheduler {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
-  final encryptionKeySize = 64; 
+  final encryptionKeySize = 64;
   static _RealmCore? _instance;
 
   _RealmCore._() {
