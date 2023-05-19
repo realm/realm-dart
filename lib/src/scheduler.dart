@@ -28,7 +28,7 @@ class Scheduler {
   late final SchedulerHandle handle;
   final RawReceivePort receivePort = RawReceivePort();
 
-Scheduler._() {
+  Scheduler._() {
     _receivePortFinalizer.attach(this, receivePort, detach: this);
 
     receivePort.handler = (dynamic message) {
