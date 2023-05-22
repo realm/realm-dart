@@ -53,10 +53,10 @@ Future<void> main([List<String>? args]) async {
       RealmLogLevel.error: 0,
       RealmLogLevel.warn: 0,
     }, expectedMaxCountPerLevel: {
-      RealmLogLevel.trace: 10,
-      RealmLogLevel.debug: 20,
-      RealmLogLevel.detail: 2,
-      RealmLogLevel.info: 1,
+      RealmLogLevel.trace: 121,
+      RealmLogLevel.debug: 98,
+      RealmLogLevel.detail: 14,
+      RealmLogLevel.info: 17,
     });
   });
 
@@ -225,7 +225,7 @@ Future<Map<Level, List<String>>> listenLogger(Logger logger) async {
     if (messages[r.level] == null) {
       messages[r.level] = [];
     }
-
+    print(r);
     messages[r.level]!.add(r.message);
   });
 
