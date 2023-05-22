@@ -28,7 +28,7 @@
 std::recursive_mutex dart_logger_mutex;
 bool is_core_logger_callback_set = false;
 std::map<Dart_Port, realm_log_level_e> dart_send_ports;
-realm_log_level_e default_log_level;
+realm_log_level_e current_core_log_level;
 
 realm_log_level_e calucale_minimum_log_level() {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
@@ -36,11 +36,16 @@ realm_log_level_e calucale_minimum_log_level() {
         [](std::pair<Dart_Port, realm_log_level_e> const& prev, std::pair<Dart_Port, realm_log_level_e> const& next) {
         return prev.second < next.second;
     });
-    return (min_element != dart_send_ports.end()) ? min_element->second : default_log_level;
+    if (min_element != dart_send_ports.end()) {
+        return min_element->second;
+    }
+
+    return current_core_log_level;
 }
 
 RLM_API void realm_dart_release_logger(Dart_Port port) {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
+
     if (dart_send_ports.find(port) != dart_send_ports.end())
     {
         dart_send_ports.erase(port);
@@ -69,25 +74,30 @@ bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const ch
 
 void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message) {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
+
     for (auto itr = dart_send_ports.begin(); itr != dart_send_ports.end(); ++itr) {
         Dart_Port port = itr->first;
         send_message_to_scheduler(port, level, message);
     }
 }
 
-RLM_API bool realm_dart_init_default_logger(realm_log_level_e level) {
+RLM_API bool realm_dart_init_core_logger(realm_log_level_e level) {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
+
     if (is_core_logger_callback_set) {
         return false;
     }
-    default_log_level = level;
-    realm_set_log_callback(realm_dart_logger_callback, default_log_level, nullptr, nullptr);
+
+    current_core_log_level = level;
+    realm_set_log_callback(realm_dart_logger_callback, current_core_log_level, nullptr, nullptr);
     is_core_logger_callback_set = true;
-    return true;
+
+    return is_core_logger_callback_set;
 }
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port) {
     std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
+
     auto port_item = dart_send_ports.find(port);
     if (port_item == dart_send_ports.end() || port_item->second != level) {
         dart_send_ports[port] = level;

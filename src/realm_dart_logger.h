@@ -25,7 +25,10 @@
 
 RLM_API void realm_dart_release_logger(Dart_Port port);
 
-RLM_API bool realm_dart_init_default_logger(realm_log_level_e level);
+/**
+ * Returns `true` if Realm Core logger was initialized.
+ */
+RLM_API bool realm_dart_init_core_logger(realm_log_level_e level);
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port);
 

@@ -52,6 +52,7 @@ part 'decimal128.dart';
 
 const bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
 
+// This variable allows access to realm native library even before RealmCore is created. For Decimal128 for example
 final _realmLib = () {
   final result = RealmLibrary(initRealm());
   final nativeLibraryVersion = result.realm_dart_library_version().cast<Utf8>().toDartString();
@@ -65,26 +66,43 @@ final _realmLib = () {
 
 // stamped into the library by the build system (see prepare-release.yml)
 const libraryVersion = '1.0.3';
-final realmCore = _RealmCore();
+_RealmCore realmCore = _RealmCore();
 
-class _RealmCore implements RealmCoreScheduler {
+// All access to Realm Core functionality goes through this class
+class _RealmCore {
   // From realm.h. Currently not exported from the shared library
+  // ignore: unused_field, constant_identifier_names
   static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
-  // ignore: unused_field
+  // ignore: unused_field, constant_identifier_names
   static const int RLM_INVALID_PROPERTY_KEY = -1;
-  // ignore: unused_field
+  // ignore: unused_field, constant_identifier_names
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   final encryptionKeySize = 64;
-  static _RealmCore? _instance;
+  late Logger defaultRealmLogger;
+  // ignore: unused_field
+  static late final _RealmCore _instance;
 
-  _RealmCore._() {
-    scheduler = Scheduler.init(this);
-    _initDefaultLogger();
+  _RealmCore() {
+    // This disables creation of a second _RealmCore instance effectivelly making `realmCore` global variable readonly
+    _instance = this;
+
+    // This prevents reentrancy if `realmCore` global variable is accessed during _RealmCore construction
+    realmCore = this;
+    defaultRealmLogger = _initDefaultLogger(scheduler);
   }
 
-  factory _RealmCore() {
-    return _instance ??= _RealmCore._();
+  Logger _initDefaultLogger(Scheduler scheduler) {
+    final logger = Logger.detached('Realm')..level = Level.INFO;
+
+    bool isDefaultLogger = _realmLib.realm_dart_init_core_logger(logger.level.toInt());
+    if (isDefaultLogger) {
+      logger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
+    }
+
+    loggerSetLogLevel(logger.level);
+
+    return logger;
   }
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
@@ -596,13 +614,11 @@ class _RealmCore implements RealmCoreScheduler {
     _realmLib.realm_set_auto_refresh(realm.handle._pointer, false);
   }
 
-  @override
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
   }
 
-  @override
   void invokeScheduler(SchedulerHandle schedulerHandle) {
     _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
   }
@@ -1676,23 +1692,13 @@ class _RealmCore implements RealmCoreScheduler {
     });
   }
 
-  @override
   void loggerLogMessage(int level, String message) {
     final message_level = LevelExt.fromInt(level);
     Realm.logger.log(message_level, message);
   }
 
-  void _initDefaultLogger() {
-    Level defaultLevel = RealmInternal.defaultLogger.level;
-    bool isDefaultLogger = _realmLib.realm_dart_init_default_logger(defaultLevel.toInt());
-    if (isDefaultLogger && !RealmInternal.isUserLogger) {
-      RealmInternal.defaultLogger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
-    }
-    loggerSetLogLevel(defaultLevel);
-  }
-
   void loggerSetLogLevel(Level logLevel) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt(), scheduler.receivePort.sendPort.nativePort);
+    _realmLib.realm_dart_set_log_level(logLevel.toInt(), scheduler.nativePort);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {

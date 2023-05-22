@@ -487,24 +487,17 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static Logger? _logger;
+  static Logger _logger = _RealmLogger(realmCore.defaultRealmLogger);
 
   /// The logger to use for Realm logging in this `Isolate`
   /// The default log level is [RealmLogLevel.info].
   static Logger get logger {
-    if (_logger == null) {
-      _logger = RealmInternal.defaultLogger;
-      // In case Realm.logger.onRecord is used in an isolate with no other realm implementations
-      // we must guarantee that the logger is initialized and its level is properly set to realm core.
-      realmCore.loggerSetLogLevel(_logger!.level);
-    }
-    return _logger!;
+    return _logger;
   }
 
   static set logger(Logger value) {
-    _logger?.clearListeners();
-    _logger = _RealmLogger(value, userDefinedLogger: true);
-    realmCore.loggerSetLogLevel(_logger!.level);
+    _logger.clearListeners();
+    _logger = _RealmLogger(value);
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -674,12 +667,6 @@ extension RealmInternal on Realm {
 
     return _handle;
   }
-
-  /// Initializes the logger if null. Used in RealmCore.
-  static Logger get defaultLogger => Realm._logger ??= _RealmLogger(Logger.detached('Realm')..level = RealmLogLevel.info);
-
-  // Returns true if the users have defined their own logger
-  static bool get isUserLogger => Realm._logger != null && (Realm._logger as _RealmLogger).isUserLogger;
 
   static Realm getUnowned(Configuration config, RealmHandle handle, {bool isInMigration = false}) {
     return Realm._(config, handle, isInMigration);
@@ -959,14 +946,15 @@ class RealmLogLevel {
   static const off = Level.OFF;
 }
 
-/// Represents a logger that manages the realm log level at runtime.
-/// @nodoc
+// A Logger wrapper that allows setting the log level in Realm Core
+//// @nodoc
 class _RealmLogger implements Logger {
   final Logger _logger;
-  bool isUserLogger = false;
-  _RealmLogger(Logger logger, {bool userDefinedLogger = false})
-      : _logger = (logger is _RealmLogger) ? logger._logger : logger,
-        isUserLogger = userDefinedLogger;
+ 
+   _RealmLogger(Logger logger)
+      : _logger = (logger is _RealmLogger) ? logger._logger : logger
+  {  realmCore.loggerSetLogLevel(_logger.level);
+  }
 
   @override
   Level get level => _logger.level;
@@ -974,7 +962,7 @@ class _RealmLogger implements Logger {
   @override
   set level(Level? value) {
     _logger.level = value;
-    realmCore.loggerSetLogLevel((value ?? Level.OFF));
+    realmCore.loggerSetLogLevel(value ?? Level.OFF);
   }
 
   @override
