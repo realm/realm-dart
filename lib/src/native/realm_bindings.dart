@@ -3557,6 +3557,7 @@ class RealmLibrary {
           void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>();
 
+  /// Returns `true` if Realm Core logger was initialized.
   bool realm_dart_init_core_logger(
     int level,
   ) {

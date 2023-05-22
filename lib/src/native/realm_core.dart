@@ -79,7 +79,7 @@ class _RealmCore {
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   final encryptionKeySize = 64;
-  late Logger defaultRealmLogger;
+  late final Logger defaultRealmLogger;
   // ignore: unused_field
   static late final _RealmCore _instance;
 
