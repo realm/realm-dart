@@ -21,7 +21,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
 import '../lib/src/configuration.dart';

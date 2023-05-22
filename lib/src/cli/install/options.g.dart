@@ -32,6 +32,7 @@ Options _$parseOptionsResult(ArgResults result) => Options(
         _$FlavorEnumMapBuildCli,
         result['flavor'] as String,
       ),
+      force: result['force'] as bool,
       debug: result['debug'] as bool,
     );
 
@@ -64,6 +65,12 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   )
   ..addFlag(
     'debug',
+    help: 'Download binary from http://localhost:8000/.',
+    hide: true,
+  )
+  ..addFlag(
+    'force',
+    help: 'Force install, even if we would normally skip it.',
     hide: true,
   );
 

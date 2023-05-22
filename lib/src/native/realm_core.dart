@@ -28,7 +28,8 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:realm_common/realm_common.dart';
+import 'package:realm_common/realm_common.dart' hide Decimal128;
+import 'package:realm_common/realm_common.dart' as common show Decimal128;
 
 import '../app.dart';
 import '../collections.dart';
@@ -47,9 +48,24 @@ import '../user.dart';
 import '../set.dart';
 import 'realm_bindings.dart';
 
-late RealmLibrary _realmLib;
+part 'decimal128.dart';
 
-final _RealmCore realmCore = _RealmCore();
+const bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
+
+final _realmLib = () {
+  final result = RealmLibrary(initRealm());
+  final nativeLibraryVersion = result.realm_dart_library_version().cast<Utf8>().toDartString();
+  if (libraryVersion != nativeLibraryVersion) {
+    final additionMessage =
+        isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
+    throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
+  }
+  return result;
+}();
+
+// stamped into the library by the build system (see prepare-release.yml)
+const libraryVersion = '1.0.3';
+final realmCore = _RealmCore();
 
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -59,33 +75,7 @@ class _RealmCore {
   // ignore: unused_field
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
-  final int encryptionKeySize = 64;
-
-  static Object noopUserdata = Object();
-
-  final bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
-
-  // Hide the RealmCore class and make it a singleton
-  static _RealmCore? _instance;
-  late final int isolateKey;
-
-  _RealmCore._() {
-    final lib = initRealm();
-    _realmLib = RealmLibrary(lib);
-    if (libraryVersion != nativeLibraryVersion) {
-      final additionMessage =
-          isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
-      throw RealmException('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
-    }
-  }
-
-  factory _RealmCore() {
-    return _instance ??= _RealmCore._();
-  }
-
-  // stamped into the library by the build system (see prepare-release.yml)
-  static const libraryVersion = '1.0.3';
-  late String nativeLibraryVersion = _realmLib.realm_dart_library_version().cast<Utf8>().toDartString();
+  final encryptionKeySize = 64;
 
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
@@ -1695,7 +1685,7 @@ class _RealmCore {
       _realmLib.realm_sync_client_config_set_log_level(handle._pointer, Realm.logger.level.toInt());
 
       final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-      final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), scheduler.handle._pointer);
+      final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(const Object(), logCallback.cast(), scheduler.handle._pointer);
       _realmLib.realm_sync_client_config_set_log_callback(handle._pointer, _realmLib.addresses.realm_dart_sync_client_log_callback, logCallbackUserdata.cast(),
           _realmLib.addresses.realm_dart_userdata_async_free);
 
@@ -2568,7 +2558,7 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
     _releaseCore();
 
     if (!isUnowned) {
-      _realmLib.realm_dettach_finalizer(_finalizableHandle, this);
+      _realmLib.realm_detach_finalizer(_finalizableHandle, this);
 
       _realmLib.realm_release(_pointer.cast());
     }
@@ -2872,6 +2862,9 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
       realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
     } else if (value is RealmValue) {
       return _intoRealmValue(value.value, realm_value, allocator);
+    } else if (value is Decimal128) {
+      realm_value.ref.values.decimal128 = value.value;
+      realm_value.ref.type = realm_value_type.RLM_TYPE_DECIMAL128;
     } else {
       throw RealmException("Property type ${value.runtimeType} not supported");
     }
@@ -2909,7 +2902,9 @@ extension on Pointer<realm_value_t> {
         final nanoseconds = ref.values.timestamp.nanoseconds;
         return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
-        throw Exception("Not implemented");
+        var decimal = ref.values.decimal128; // NOTE: Does not copy the struct!
+        decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
+        return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
       case realm_value_type.RLM_TYPE_UUID:

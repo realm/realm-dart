@@ -88,9 +88,9 @@ class BaasClient {
 
   final String _baseUrl;
   final String? _clusterName;
-  final String _differentiator;
   final Map<String, String> _headers;
-  late final String _appSuffix = '-${shortenDifferentiator(_differentiator)}-$_clusterName';
+  final String _appSuffix;
+  final String _sharedAppSuffix;
 
   late String _groupId;
   late String publicRSAKey = '';
@@ -98,7 +98,8 @@ class BaasClient {
   BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
       : _baseUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _differentiator = differentiator ?? 'local';
+        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}-$_clusterName',
+        _sharedAppSuffix = '-shared-$_clusterName';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
@@ -118,8 +119,8 @@ class BaasClient {
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
-  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? _differentiator) async {
-    final BaasClient result = BaasClient._(baseUrl, _differentiator, cluster);
+  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? differentiator) async {
+    final BaasClient result = BaasClient._(baseUrl, differentiator, cluster);
 
     await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
 
@@ -133,6 +134,21 @@ class BaasClient {
   /// then it will create the test applications and return them.
   /// @nodoc
   Future<Map<String, BaasApp>> getOrCreateApps() async {
+    final result = await _getExistingApps();
+    await _createAppIfNotExists(result, defaultAppName, _appSuffix);
+    await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
+    await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
+    return result;
+  }
+
+  Future<Map<String, BaasApp>> getOrCreateSharedApps() async {
+    final result = await _getExistingApps();
+    await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
+    await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
+    return result;
+  }
+
+  Future<Map<String, BaasApp>> _getExistingApps() async {
     final result = <String, BaasApp>{};
     var apps = await _getApps();
     if (apps.isNotEmpty) {
@@ -140,19 +156,13 @@ class BaasClient {
         result[app.name] = app;
       }
     }
-    await _createAppIfNotExists(result, defaultAppName);
-    await _createAppIfNotExists(result, "autoConfirm", confirmationType: "auto");
-    await _createAppIfNotExists(result, "emailConfirm", confirmationType: "email");
-
     return result;
   }
 
-  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, {String? confirmationType}) async {
+  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
     final existingApp = existingApps[appName];
-    if (existingApp != null) {
-      print('Found existing app ${existingApp.clientAppId}');
-    } else {
-      existingApps[appName] = await _createApp(appName, confirmationType: confirmationType);
+    if (existingApp == null) {
+      existingApps[appName] = await _createApp(appName, appSuffix, confirmationType: confirmationType);
     }
   }
 
@@ -161,12 +171,15 @@ class BaasClient {
     return apps
         .map((dynamic doc) {
           final name = doc['name'] as String;
-          if (!name.endsWith(_appSuffix)) {
+          final String appName;
+          if (name.endsWith(_appSuffix)) {
+            appName = name.substring(0, name.length - _appSuffix.length);
+          } else if (name.endsWith(_sharedAppSuffix)) {
+            appName = name.substring(0, name.length - _sharedAppSuffix.length);
+          } else {
             return null;
           }
-
-          final appName = name.substring(0, name.length - _appSuffix.length);
-          return BaasApp(doc['_id'] as String, doc['client_app_id'] as String, appName);
+          return BaasApp(doc['_id'] as String, doc['client_app_id'] as String, appName, name);
         })
         .where((doc) => doc != null)
         .map((doc) => doc!)
@@ -174,11 +187,16 @@ class BaasClient {
   }
 
   Future<void> updateAppConfirmFunction(String name, [String? source]) async {
+    final uniqueName = "$name$_appSuffix";
+    final uniqueSharedAppName = "$name$_sharedAppSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
-    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    dynamic doc = docs.firstWhere((dynamic d) {
+      return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
+    }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
+    final appUniqueName = doc['name'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name);
+    final app = BaasApp(appId, clientAppId, name, appUniqueName);
 
     final dynamic functions = await _get('groups/$_groupId/apps/$appId/functions');
     dynamic function = functions.firstWhere((dynamic f) => f["name"] == "confirmFunc", orElse: () => throw Exception("Func 'confirmFunc' not found"));
@@ -187,50 +205,53 @@ class BaasClient {
     await _updateFunction(app, 'confirmFunc', confirmFuncId, source ?? _confirmFuncSource);
   }
 
-  Future<BaasApp> _createApp(String name, {String? confirmationType}) async {
-    print('Creating app $name$_appSuffix');
+  Future<BaasApp> _createApp(String name, String suffix, {String? confirmationType}) async {
+    final uniqueName = "$name$suffix";
+    print('Creating app $uniqueName');
 
-    final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$name$_appSuffix" }');
-    final appId = doc['_id'] as String;
-    final clientAppId = doc['client_app_id'] as String;
+    BaasApp? app;
+    try {
+      final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$uniqueName" }');
+      final appId = doc['_id'] as String;
+      final clientAppId = doc['client_app_id'] as String;
 
-    final app = BaasApp(appId, clientAppId, name);
+      app = BaasApp(appId, clientAppId, name, uniqueName);
 
-    final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
-    final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
-    final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
-    await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
-    await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
-    await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
-    await _createFunction(app, 'triggerClientResetOnSyncServer', _triggerClientResetFuncSource, runAsSystem: true);
+      final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
+      final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
+      final authFuncId = await _createFunction(app, 'authFunc', _authFuncSource);
+      await _createFunction(app, 'userFuncNoArgs', _userFuncNoArgs);
+      await _createFunction(app, 'userFuncOneArg', _userFuncOneArg);
+      await _createFunction(app, 'userFuncTwoArgs', _userFuncTwoArgs);
+      await _createFunction(app, 'triggerClientResetOnSyncServer', _triggerClientResetFuncSource, runAsSystem: true);
 
-    await enableProvider(app, 'anon-user');
-    await enableProvider(app, 'local-userpass', config: '''{
-      "autoConfirm": ${(confirmationType == "auto").toString()},
-      "confirmEmailSubject": "Confirmation required",
-      "confirmationFunctionName": "confirmFunc",
-      "confirmationFunctionId": "$confirmFuncId",
-      "emailConfirmationUrl": "http://localhost/confirmEmail",
-      "resetFunctionName": "resetFunc",
-      "resetFunctionId": "$resetFuncId",
-      "resetPasswordSubject": "",
-      "resetPasswordUrl": "http://localhost/resetPassword",
-      "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
-      "runResetFunction": true
-    }''');
+      await enableProvider(app, 'anon-user');
+      await enableProvider(app, 'local-userpass', config: '''{
+        "autoConfirm": ${(confirmationType == "auto").toString()},
+        "confirmEmailSubject": "Confirmation required",
+        "confirmationFunctionName": "confirmFunc",
+        "confirmationFunctionId": "$confirmFuncId",
+        "emailConfirmationUrl": "http://localhost/confirmEmail",
+        "resetFunctionName": "resetFunc",
+        "resetFunctionId": "$resetFuncId",
+        "resetPasswordSubject": "",
+        "resetPasswordUrl": "http://localhost/resetPassword",
+        "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
+        "runResetFunction": true
+      }''');
 
-    await enableProvider(app, 'api-key');
+      await enableProvider(app, 'api-key');
 
-    if (publicRSAKey.isNotEmpty) {
-      String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
-      final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
-      String keyName = createSecretResult['name'] as String;
+      if (publicRSAKey.isNotEmpty) {
+        String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
+        final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+        String keyName = createSecretResult['name'] as String;
 
-      await enableProvider(app, 'custom-token', config: '''{
+        await enableProvider(app, 'custom-token', config: '''{
           "audience": "mongodb.com",
           "signingAlgorithm": "RS256",
           "useJWKURI": false
-           }''', secretConfig: '''{
+            }''', secretConfig: '''{
           "signingKeys": ["$keyName"]
           }''', metadataFelds: '''{
             "required": false,
@@ -277,17 +298,17 @@ class BaasClient {
             "name": "company",
             "field_name": "company"
           }''');
-    }
-    if (confirmationType == null) {
-      await enableProvider(app, 'custom-function', config: '''{
+      }
+      if (confirmationType == null) {
+        await enableProvider(app, 'custom-function', config: '''{
             "authFunctionName": "authFunc",
             "authFunctionId": "$authFuncId"
             }''');
 
-      const facebookSecret = "876750ac6d06618b323dee591602897f";
-      final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
-      String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
-      await enableProvider(app, 'oauth2-facebook', config: '''{
+        const facebookSecret = "876750ac6d06618b323dee591602897f";
+        final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+        String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
+        await enableProvider(app, 'oauth2-facebook', config: '''{
           "clientId": "1265617494254819"
           }''', secretConfig: '''{
           "clientSecret": "$facebookClientSecretKeyName"
@@ -327,20 +348,20 @@ class BaasClient {
             "required": false,
             "name": "picture"
           }''');
-    }
+      }
 
-    print('Creating database db_$name$_appSuffix');
+      print('Creating database db_$uniqueName');
 
-    await _createMongoDBService(
-      app,
-      syncConfig: '''{
+      await _createMongoDBService(
+        app,
+        syncConfig: '''{
         "flexible_sync": {
           "state": "enabled",
-          "database_name": "db_$name$_appSuffix",
+          "database_name": "db_$uniqueName",
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
-      rules: '''{        
+        rules: '''{        
         "roles": [
           {
             "name": "all",
@@ -357,12 +378,17 @@ class BaasClient {
           }
         ]
       }''',
-    );
-    await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
+      );
+      await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
 
-    //create email/password user for tests
-    final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
-    print("Create user result: $createUserResult");
+      //create email/password user for tests
+      final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
+      print("Create user result: $createUserResult");
+    } catch (error) {
+      print(error);
+      app ??= BaasApp._empty(name);
+      app.error = error;
+    }
     return app;
   }
 
@@ -442,6 +468,8 @@ class BaasClient {
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
     final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
 
+    await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
+
     // The cluster linking must be separated from enabling sync because Atlas
     // takes a few seconds to provision a user for BaaS, meaning enabling sync
     // will fail if we attempt to do it with the same request. It's nondeterministic
@@ -450,7 +478,6 @@ class BaasClient {
     while (true) {
       try {
         await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', syncConfig);
-        await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
         break;
       } catch (err) {
         if (attempt++ < 24) {
@@ -541,19 +568,28 @@ class BaasClient {
   }
 
   Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
+    final uniqueName = "$name$_appSuffix";
+    final uniqueSharedAppName = "$name$_sharedAppSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
-    dynamic doc = docs.firstWhere((dynamic d) => d["name"] == "$name$_appSuffix", orElse: () => throw Exception("BAAS app not found"));
+    dynamic doc = docs.firstWhere((dynamic d) {
+      return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
+    }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
+    final appUniqueName = doc['name'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name);
+    final app = BaasApp(appId, clientAppId, name, appUniqueName);
 
     final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
     dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
     final mongoServiceId = service['_id'] as String;
     final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];
+    final dynamic clusterName = configDocs['clusterName'];
     flexibleSync["is_recovery_mode_disabled"] = !enable;
-    String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': flexibleSync});
+    String data = jsonEncode(<String, dynamic>{
+      if (clusterName != null) 'clusterName': clusterName,
+      'flexible_sync': flexibleSync,
+    });
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
   }
 }
@@ -562,8 +598,14 @@ class BaasApp {
   final String appId;
   final String clientAppId;
   final String name;
+  final String uniqueName;
+  Object? error;
 
-  BaasApp(this.appId, this.clientAppId, this.name);
+  BaasApp(this.appId, this.clientAppId, this.name, this.uniqueName);
+  BaasApp._empty(this.name)
+      : appId = "",
+        clientAppId = "",
+        uniqueName = "";
 
   @override
   String toString() {

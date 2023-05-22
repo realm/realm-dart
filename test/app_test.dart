@@ -20,7 +20,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 
 import '../lib/realm.dart';
@@ -367,10 +367,13 @@ Future<void> testLogger(
   await realm.syncSession.waitForDownload();
 
   // Check count of various levels
-  for (final e in messages.entries) {
-    expect(e.value.length, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt), reason: 'Unexpected number of ${e.key} messages:\n  ${e.value.join("\n  ")}');
-    expect(e.value.length, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt),
-        reason: 'Unexpected number of ${e.key} messages:\n  ${e.value.join("\n  ")}');
+  for (final e in maxExpectedCounts.entries) {
+    final count = messages[e.key]?.length ?? 0;
+    expect(count, lessThanOrEqualTo(e.value), reason: 'To many ${e.key} messages:\n  ${messages[e.key]?.join("\n  ")}');
+  }
+  for (final e in minExpectedCounts.entries) {
+    final count = messages[e.key]?.length ?? 0;
+    expect(count, greaterThanOrEqualTo(e.value), reason: 'To few ${e.key} messages:\n  ${messages[e.key]?.join("\n  ")}');
   }
 }
 
