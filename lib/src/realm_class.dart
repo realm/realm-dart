@@ -950,10 +950,9 @@ class RealmLogLevel {
 //// @nodoc
 class _RealmLogger implements Logger {
   final Logger _logger;
- 
-   _RealmLogger(Logger logger)
-      : _logger = (logger is _RealmLogger) ? logger._logger : logger
-  {  realmCore.loggerSetLogLevel(_logger.level);
+
+  _RealmLogger(Logger logger) : _logger = (logger is _RealmLogger) ? logger._logger : logger {
+    realmCore.loggerSetLogLevel(_logger.level);
   }
 
   @override

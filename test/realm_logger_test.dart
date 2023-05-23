@@ -21,7 +21,6 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:logging/logging.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -29,7 +28,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  baasTest('Realm.logger expected messages from levels', (configuration) async {
+  baasTest('Realm.logger expected messages for log levels', (configuration) async {
     Map<Level, List<String>> logMessages = await Isolate.run(() async {
       Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
 
@@ -54,7 +53,7 @@ Future<void> main([List<String>? args]) async {
         expectedMessagesFromLevels: [RealmLogLevel.trace, RealmLogLevel.debug, RealmLogLevel.detail, RealmLogLevel.info]);
   });
 
-  baasTest('Change Realm.logger level at runtime', (configuration) async {
+  baasTest('Realm.logger level changed at runtime', (configuration) async {
     Map<String, int> logsCount = await Isolate.run(() async {
       Map<String, int> results = {};
       Realm.logger.level = RealmLogLevel.error;
@@ -77,7 +76,7 @@ Future<void> main([List<String>? args]) async {
     expect(logsCount["Attempt 1"], 0);
   });
 
-  baasTest('Realm loggers logs the same messages in all the isolates', (configuration) async {
+  baasTest('Realm.logger logs messages from all the isolates', (configuration) async {
     String generatedName = generateRandomString(15);
     String rootIsolateName = "Root", isolate1Name = "Isolate1", isolate2Name = "Isolate2", rootIsolateAfterKillIsolatesName = "AfterKillIsolates";
 
@@ -129,7 +128,7 @@ Future<void> main([List<String>? args]) async {
     expect(results[rootIsolateAfterKillIsolatesName], 1, reason: "Root isolate logs count after closing the other isolates");
   });
 
-  baasTest('Logger set to Off for root isolate does not prevent the other isolates to receive logs', (configuration) async {
+  baasTest('Realm.logger level set to Off in the root isolate does not prevent the other isolates to receive logs', (configuration) async {
     String generatedName = generateRandomString(15);
     String rootIsolateName = "Root", isolate1Name = "Isolate1", isolate2Name = "Isolate2";
 
@@ -163,7 +162,7 @@ Future<void> main([List<String>? args]) async {
     expect(results[rootIsolateName], 0);
   });
 
-  test('Attach logger befor an action', () async {
+  test('Realm.logger - attached listener before an action', () async {
     final path = generateRandomRealmPath();
 
     int count = await Isolate.run(() async {
@@ -181,7 +180,7 @@ Future<void> main([List<String>? args]) async {
     expect(count, 1);
   });
 
-  test('Attach logger after an action', () async {
+  test('Realm.logger - attached listener after an action', () async {
     final path = generateRandomRealmPath();
     int count = await Isolate.run(() async {
       action() {
@@ -197,8 +196,7 @@ Future<void> main([List<String>? args]) async {
     expect(count, 1);
   });
 
-  
-  test('Attached logger in root isolate receive the logs from the other isolate', () async {
+  test('Realm.logger - attached listener in root isolate receives the logs from another isolate', () async {
     final path = generateRandomRealmPath();
     String rootIsolateName = "Root", isolate1Name = "Isolate1";
 
