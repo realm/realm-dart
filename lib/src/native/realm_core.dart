@@ -1706,6 +1706,10 @@ class _RealmCore {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
+      // TODO: Remove later
+      // Disable multiplexing for now due to: https://github.com/realm/realm-core/issues/6656
+      _realmLib.realm_sync_client_config_set_multiplex_sessions(handle._pointer, false);
+      // <-- end
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toCharPtr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMilliseconds);
