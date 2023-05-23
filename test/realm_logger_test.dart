@@ -135,11 +135,11 @@ Future<void> main([List<String>? args]) async {
 
     Map<String, int> results = await Isolate.run(() async {
       Map<String, int> results = {};
-      int entrypointLogCount = 0;
+      int rootLogCount = 0;
       action() async => simulateError(configuration, generatedName);
       Realm.logger.level = RealmLogLevel.off;
       Realm.logger.onRecord.listen((event) {
-        entrypointLogCount++;
+        rootLogCount++;
       });
 
       int log1Count = await Isolate.run(() async {
@@ -154,7 +154,7 @@ Future<void> main([List<String>? args]) async {
       });
 
       results.addEntries([MapEntry(isolate2Name, log2Count)]);
-      results.addEntries([MapEntry(rootIsolateName, entrypointLogCount)]);
+      results.addEntries([MapEntry(rootIsolateName, rootLogCount)]);
       return results;
     });
 
@@ -195,6 +195,38 @@ Future<void> main([List<String>? args]) async {
       return matchedMessagesCount(messages[isolateName], "Open file: $path", RealmLogLevel.info);
     });
     expect(count, 1);
+  });
+
+  
+  test('Attached logger in root isolate receive the logs from the other isolate', () async {
+    final path = generateRandomRealmPath();
+    String rootIsolateName = "Root", isolate1Name = "Isolate1";
+
+    Map<String, int> results = await Isolate.run(() async {
+      Map<String, int> results = {};
+      List<LogRecord> rootEvents = [];
+      Realm.logger.onRecord.listen((event) {
+        rootEvents.add(event);
+      });
+
+      int isolate1LogsCount = await Isolate.run(() async {
+        action() {
+          var config = Configuration.local([Car.schema], path: path);
+          final realm = Realm(config);
+          realm.close();
+        }
+
+        final messages = await attachToLoggerAfterAction(isolate1Name, action);
+        return matchedMessagesCount(messages[isolate1Name], "Open file: $path", RealmLogLevel.info);
+      });
+      results.addEntries([MapEntry(isolate1Name, isolate1LogsCount)]);
+      int rootLogsCount = matchedMessagesCount(rootEvents, "Open file: $path", RealmLogLevel.info);
+      results.addEntries([MapEntry(rootIsolateName, rootLogsCount)]);
+      return results;
+    });
+
+    expect(results[isolate1Name], 1);
+    expect(results[rootIsolateName], 1);
   });
 }
 
