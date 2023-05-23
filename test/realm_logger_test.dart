@@ -36,19 +36,7 @@ Future<void> main([List<String>? args]) async {
       final allMessages = await _attachToLoggerBeforeAction("root isolate", () => _simulateLogs(generatedMessage));
       return _matchedMessagesCountPerLevel(allMessages, generatedMessage);
     });
-
-    _expectLogMessages(logMessages, notExpectedMessagesFromLevels: [
-      RealmLogLevel.all,
-      RealmLogLevel.off
-    ], expectedMessagesFromLevels: [
-      RealmLogLevel.trace,
-      RealmLogLevel.debug,
-      RealmLogLevel.detail,
-      RealmLogLevel.info,
-      RealmLogLevel.fatal,
-      RealmLogLevel.error,
-      RealmLogLevel.warn,
-    ]);
+    expectAllLevelLogs(logMessages);
   });
 
   test('Realm.logger expected messages after action completed', () async {
@@ -58,22 +46,10 @@ Future<void> main([List<String>? args]) async {
       final allMessages = await _attachToLoggerAfterAction("root isolate", () => _simulateLogs(generatedMessage));
       return _matchedMessagesCountPerLevel(allMessages, generatedMessage);
     });
-
-    _expectLogMessages(logMessages, notExpectedMessagesFromLevels: [
-      RealmLogLevel.all,
-      RealmLogLevel.off
-    ], expectedMessagesFromLevels: [
-      RealmLogLevel.trace,
-      RealmLogLevel.debug,
-      RealmLogLevel.detail,
-      RealmLogLevel.info,
-      RealmLogLevel.fatal,
-      RealmLogLevel.error,
-      RealmLogLevel.warn,
-    ]);
+    expectAllLevelLogs(logMessages);
   });
 
-  baasTest('Realm.logger - changing the level', (configuration) async {
+  baasTest('Realm.logger level changed', (configuration) async {
     Map<String, Map<Level, int>> logMessages = await Isolate.run(() async {
       Map<String, Map<Level, int>> results = {};
       Realm.logger.level = RealmLogLevel.error;
@@ -91,21 +67,7 @@ Future<void> main([List<String>? args]) async {
     expectErrorLogs(logMessages, "Attempt 0");
 
     //After setting the log level to "Off" the logger won't receive the error
-    expect(logMessages["Attempt 1"], isNotNull);
-    _expectLogMessages(
-      logMessages["Attempt 1"]!,
-      notExpectedMessagesFromLevels: [
-        RealmLogLevel.all,
-        RealmLogLevel.off,
-        RealmLogLevel.trace,
-        RealmLogLevel.debug,
-        RealmLogLevel.detail,
-        RealmLogLevel.info,
-        RealmLogLevel.error,
-        RealmLogLevel.warn,
-        RealmLogLevel.fatal,
-      ],
-    );
+    expectNoLogs(logMessages, "Attempt 1");
   });
 
   test('Realm.logger logs messages from all the isolates', () async {
@@ -339,4 +301,37 @@ void expectErrorLogs(Map<String, Map<Level, int>> logMessages, String expectedNa
       RealmLogLevel.fatal,
     ],
   );
+}
+
+void expectNoLogs(Map<String, Map<Level, int>> logMessages, String expectedName) {
+  expect(logMessages[expectedName], isNotNull);
+  _expectLogMessages(
+    logMessages[expectedName]!,
+    notExpectedMessagesFromLevels: [
+      RealmLogLevel.all,
+      RealmLogLevel.off,
+      RealmLogLevel.trace,
+      RealmLogLevel.debug,
+      RealmLogLevel.detail,
+      RealmLogLevel.info,
+      RealmLogLevel.error,
+      RealmLogLevel.warn,
+      RealmLogLevel.fatal,
+    ],
+  );
+}
+
+void expectAllLevelLogs(Map<Level, int> logMessages) {
+  _expectLogMessages(logMessages, notExpectedMessagesFromLevels: [
+    RealmLogLevel.all,
+    RealmLogLevel.off
+  ], expectedMessagesFromLevels: [
+    RealmLogLevel.trace,
+    RealmLogLevel.debug,
+    RealmLogLevel.detail,
+    RealmLogLevel.info,
+    RealmLogLevel.fatal,
+    RealmLogLevel.error,
+    RealmLogLevel.warn,
+  ]);
 }
