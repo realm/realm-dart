@@ -21,6 +21,7 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'package:logging/logging.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -28,7 +29,7 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  baasTest('Realm.logger', (configuration) async {
+  baasTest('Realm.logger expected messages from levels', (configuration) async {
     Map<Level, List<String>> logMessages = await Isolate.run(() async {
       Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
 
@@ -48,117 +49,123 @@ Future<void> main([List<String>? args]) async {
       return await logMessages;
     });
 
-    expectLogMessages(logMessages, expectedMinCountPerLevel: {
-      RealmLogLevel.fatal: 0,
-      RealmLogLevel.error: 0,
-      RealmLogLevel.warn: 0,
-    }, expectedMaxCountPerLevel: {
-      RealmLogLevel.trace: 121,
-      RealmLogLevel.debug: 98,
-      RealmLogLevel.detail: 14,
-      RealmLogLevel.info: 17,
-    });
+    expectLogMessages(logMessages,
+        notExpectedMessagesFromLevels: [RealmLogLevel.fatal, RealmLogLevel.error, RealmLogLevel.warn],
+        expectedMessagesFromLevels: [RealmLogLevel.trace, RealmLogLevel.debug, RealmLogLevel.detail, RealmLogLevel.info]);
   });
 
   baasTest('Change Realm.logger level at runtime', (configuration) async {
     Map<String, int> logsCount = await Isolate.run(() async {
       Map<String, int> results = {};
       Realm.logger.level = RealmLogLevel.error;
+
       for (var i = 0; i < 2; i++) {
         String attemptNum = "Attempt $i";
-        String functionName = generateRandomString(15);
-        action() async => simulateError(configuration, functionName);
+        String generatedName = generateRandomString(15);
+        action() async => simulateError(configuration, generatedName);
         final messages = await attachToLoggerBeforeAction(attemptNum, action);
-        final matches = getErrorsCount(messages[attemptNum], functionName);
+         final matches = matchedMessagesCount(messages[attemptNum], generatedName, RealmLogLevel.error);
         results.addEntries([MapEntry(attemptNum, matches)]);
+
         Realm.logger.level = RealmLogLevel.off;
       }
       return results;
     });
+
     expect(logsCount["Attempt 0"], 1);
     //After setting the log level to "Off" the logger won't receive the error
     expect(logsCount["Attempt 1"], 0);
   });
 
   baasTest('Realm loggers logs the same messages in all the isolates', (configuration) async {
-    int isolatesCount = 3;
-    String functionName = generateRandomString(15);
+    String generatedName = generateRandomString(15);
+    String rootIsolateName = "Root", isolate1Name = "Isolate1", isolate2Name = "Isolate2", rootIsolateAfterKillIsolatesName = "AfterKillIsolates";
+
     Map<String, int> results = await Isolate.run(() async {
       Map<String, int> results = {};
-      action() async => simulateError(configuration, functionName);
-      // Root Isolate  with level Error
-      final rootIsolate = attachToLoggerBeforeAction("Root", action, setNewLogger: true, logLevel: RealmLogLevel.error);
+      action() async => simulateError(configuration, generatedName);
 
-      // Isolate 1 with level Error
+      // Root Isolate  with level Error. Attach to a new logger.
+      final rootIsolate = attachToLoggerBeforeAction(rootIsolateName, action, setNewLogger: true, logLevel: RealmLogLevel.error);
+
+      // Isolate 1 with level Error. Attach to the existing logger.
       ReceivePort isolate1ReceivePort = ReceivePort();
       final isolate1 = await Isolate.spawn((SendPort sendPort) async {
-        final messages = await attachToLoggerBeforeAction("Isolate1", action, setNewLogger: true, logLevel: RealmLogLevel.error);
-        sendPort.send(getErrorsCount(messages["Isolate1"], functionName));
+        final messages = await attachToLoggerBeforeAction(isolate1Name, action, logLevel: RealmLogLevel.error);
+        final matches = matchedMessagesCount(messages[isolate1Name], generatedName, RealmLogLevel.error);
+        sendPort.send(matches);
       }, isolate1ReceivePort.sendPort);
 
-      // Isolate 2 with level Error
+      // Isolate 2 with level Error. Attach to a new logger.
       ReceivePort isolate2ReceivePort = ReceivePort();
       final isolate2 = await Isolate.spawn((SendPort sendPort) async {
-        final messages = await attachToLoggerBeforeAction("Isolate2", action, setNewLogger: true, logLevel: RealmLogLevel.error);
-        sendPort.send(getErrorsCount(messages["Isolate2"], functionName));
+        final messages = await attachToLoggerBeforeAction(isolate2Name, action, setNewLogger: true, logLevel: RealmLogLevel.error);
+        final matches = matchedMessagesCount(messages[isolate2Name], generatedName, RealmLogLevel.error);
+        sendPort.send(matches);
       }, isolate2ReceivePort.sendPort);
 
       final rootMessages = await rootIsolate;
-      final rootMatches = getErrorsCount(rootMessages["Root"], functionName);
+      final rootMatches = matchedMessagesCount(rootMessages[rootIsolateName], generatedName, RealmLogLevel.error);
+      results.addEntries([MapEntry(rootIsolateName, rootMatches)]);
 
-      results.addEntries([MapEntry("Isolate1", await isolate1ReceivePort.first as int)]);
-      results.addEntries([MapEntry("Isolate2", await isolate2ReceivePort.first as int)]);
-      results.addEntries([MapEntry("Root", rootMatches)]);
+      results.addEntries([MapEntry(isolate1Name, await isolate1ReceivePort.first as int)]);
+      results.addEntries([MapEntry(isolate2Name, await isolate2ReceivePort.first as int)]);
 
       isolate1ReceivePort.close();
       isolate1.kill(priority: Isolate.immediate);
       isolate2ReceivePort.close();
       isolate2.kill(priority: Isolate.immediate);
 
-      final lastMessages = await attachToLoggerBeforeAction("After closing", action, setNewLogger: true, logLevel: RealmLogLevel.error);
-      final lastMatches = getErrorsCount(lastMessages["After closing"], functionName);
-      results.addEntries([MapEntry("After closing", lastMatches)]);
+      // Root Isolate  with level Error. Attach to the new logger create at the begining.
+      final lastMessages = await attachToLoggerBeforeAction(rootIsolateAfterKillIsolatesName, action, logLevel: RealmLogLevel.error);
+      final lastMatches = matchedMessagesCount(lastMessages[rootIsolateAfterKillIsolatesName], generatedName, RealmLogLevel.error);
+      results.addEntries([MapEntry(rootIsolateAfterKillIsolatesName, lastMatches)]);
       return results;
     });
-    expect(results["Isolate1"], isolatesCount, reason: "Isolate 1");
-    expect(results["Isolate2"], isolatesCount, reason: "Isolate 2");
-    expect(results["Root"], isolatesCount, reason: "Root isolate logs count");
-    expect(results["After closing"], 1, reason: "Root isolate logs count after closing the other isolates");
+
+    expect(results[isolate1Name], 3, reason: "Isolate 1");
+    expect(results[isolate2Name], 3, reason: "Isolate 2");
+    expect(results[rootIsolateName], 3, reason: "Root isolate logs count");
+    expect(results[rootIsolateAfterKillIsolatesName], 1, reason: "Root isolate logs count after closing the other isolates");
   });
 
   baasTest('Logger set to Off for root isolate does not prevent the other isolates to receive logs', (configuration) async {
-    String functionName = generateRandomString(15);
+    String generatedName = generateRandomString(15);
+    String rootIsolateName = "Root", isolate1Name = "Isolate1", isolate2Name = "Isolate2";
+
     Map<String, int> results = await Isolate.run(() async {
       Map<String, int> results = {};
       int entrypointLogCount = 0;
-      action() async => simulateError(configuration, functionName);
+      action() async => simulateError(configuration, generatedName);
       Realm.logger.level = RealmLogLevel.off;
       Realm.logger.onRecord.listen((event) {
         entrypointLogCount++;
       });
 
       int log1Count = await Isolate.run(() async {
-        final messages = await attachToLoggerBeforeAction("Isolate 1", action, logLevel: RealmLogLevel.error);
-        return getErrorsCount(messages["Isolate 1"], functionName);
+        final messages = await attachToLoggerBeforeAction(isolate1Name, action, logLevel: RealmLogLevel.error);
+        return matchedMessagesCount(messages[isolate1Name], generatedName, RealmLogLevel.error);
       });
-      results.addEntries([MapEntry("Isolate 1", log1Count)]);
+      results.addEntries([MapEntry(isolate1Name, log1Count)]);
 
       int log2Count = await Isolate.run(() async {
-        final messages = await attachToLoggerBeforeAction("Isolate 2", action, logLevel: RealmLogLevel.error);
-        return getErrorsCount(messages["Isolate 2"], functionName);
+        final messages = await attachToLoggerBeforeAction(isolate2Name, action, logLevel: RealmLogLevel.error);
+        return matchedMessagesCount(messages[isolate2Name], generatedName, RealmLogLevel.error);
       });
 
-      results.addEntries([MapEntry("Isolate 2", log2Count)]);
-      results.addEntries([MapEntry("Root", entrypointLogCount)]);
+      results.addEntries([MapEntry(isolate2Name, log2Count)]);
+      results.addEntries([MapEntry(rootIsolateName, entrypointLogCount)]);
       return results;
     });
-    expect(results["Isolate 1"], 1);
-    expect(results["Isolate 2"], 1);
-    expect(results["Root"], 0);
+
+    expect(results[isolate1Name], 1);
+    expect(results[isolate2Name], 1);
+    expect(results[rootIsolateName], 0);
   });
 
-  test('Attach logger befor opening realm', () async {
+  test('Attach logger befor an action', () async {
     final path = generateRandomRealmPath();
+
     int count = await Isolate.run(() async {
       action() {
         var config = Configuration.local([Car.schema], path: path);
@@ -166,15 +173,15 @@ Future<void> main([List<String>? args]) async {
         realm.close();
       }
 
-      String isolateName = "First isolate";
+      String isolateName = "Root isolate";
       final messages = await attachToLoggerBeforeAction(isolateName, action);
-      final matches = messages[isolateName]?.where((element) => element.level == Level.INFO && element.message.contains("Open file: $path")).length;
-      return matches ?? 0;
+      return matchedMessagesCount(messages[isolateName], "Open file: $path", RealmLogLevel.info);
     });
+
     expect(count, 1);
   });
 
-  test('Attach logger after opennig realm', () async {
+  test('Attach logger after an action', () async {
     final path = generateRandomRealmPath();
     int count = await Isolate.run(() async {
       action() {
@@ -183,10 +190,9 @@ Future<void> main([List<String>? args]) async {
         realm.close();
       }
 
-      String isolateName = "First isolate";
+      String isolateName = "Root isolate";
       final messages = await attachToLoggerAfterAction(isolateName, action);
-      final matches = messages[isolateName]?.where((element) => element.level == Level.INFO && element.message.contains("Open file: $path")).length;
-      return matches ?? 0;
+      return matchedMessagesCount(messages[isolateName], "Open file: $path", RealmLogLevel.info);
     });
     expect(count, 1);
   });
@@ -196,7 +202,7 @@ Future<Map<String, List<LogRecord>>> attachToLoggerBeforeAction(String isolateNa
     {Level? logLevel, bool setNewLogger = false}) async {
   final completer = Completer<void>();
   List<LogRecord> events = [];
-  Map<String, List<LogRecord>> messages = {isolateName: events};
+
   if (setNewLogger) {
     Realm.logger = Logger.detached(generateRandomString(10))
       ..level = logLevel ?? RealmLogLevel.info
@@ -218,7 +224,8 @@ Future<Map<String, List<LogRecord>>> attachToLoggerBeforeAction(String isolateNa
   } catch (error) {
     completer.complete();
   }
-  return messages;
+
+  return {isolateName: events};
 }
 
 Future<Map<String, List<LogRecord>>> attachToLoggerAfterAction(String isolateName, FutureOr<void> Function() action,
@@ -264,8 +271,8 @@ Future<void> simulateError(AppConfiguration configuration, String functionName) 
   }
 }
 
-int getErrorsCount(List<LogRecord>? logRecords, String functionName) {
-  final matches = logRecords?.where((element) => element.level == RealmLogLevel.error && element.message.contains(functionName));
+int matchedMessagesCount(List<LogRecord>? logRecords, String functionName, Level level) {
+  final matches = logRecords?.where((element) => element.level == level && element.message.contains(functionName));
   return matches?.length ?? 0;
 }
 
@@ -286,18 +293,18 @@ Future<Map<Level, List<String>>> listenLogger(Logger logger) async {
 
 void expectLogMessages(
   Map<Level, List<String>> actualMessages, {
-  Map<Level, int> expectedMinCountPerLevel = const {},
-  Map<Level, int> expectedMaxCountPerLevel = const {},
+  List<Level> notExpectedMessagesFromLevels = const [],
+  List<Level> expectedMessagesFromLevels = const [],
 }) {
   // Check count of various levels
 
-  for (final e in expectedMaxCountPerLevel.entries) {
-    final int count = actualMessages[e.key]?.length ?? 0;
-    expect(count, lessThanOrEqualTo(e.value), reason: 'To many ${e.key} messages:\n  ${actualMessages[e.key]?.join("\n  ")}');
+  for (final level in expectedMessagesFromLevels) {
+    final int count = actualMessages[level]?.length ?? 0;
+    expect(count, greaterThan(0), reason: 'There is no messages from $level');
   }
 
-  for (final e in expectedMinCountPerLevel.entries) {
-    final count = actualMessages[e.key]?.length ?? 0;
-    expect(count, greaterThanOrEqualTo(e.value), reason: 'To few ${e.key} messages:\n  ${actualMessages[e.key]?.join("\n  ")}');
+  for (final level in notExpectedMessagesFromLevels) {
+    final count = actualMessages[level]?.length ?? 0;
+    expect(count, 0, reason: 'Messages from level $level are not expected:\n  ${actualMessages[level]?.join("\n  ")}');
   }
 }
