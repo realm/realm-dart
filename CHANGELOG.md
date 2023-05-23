@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* `RealmResultsChanges.isCleared` is deprecated. Its value was not set correctly. It is fixed to return true if the results `isEmpty` ([#1265](https://github.com/realm/realm-dart/pull/1265)). We are considering changing this API in future releases ([#1278](https://github.com/realm/realm-dart/issues/1278)).
+* Fixed `RealmResultsChanges.isCleared` which was never set. It now returns `true` if the results collection is empty in the notification callback. This field is also marked as `deprecated` and will be removed in future. Use `RealmResultsChanges.results.isEmpty` instead.([#1265](https://github.com/realm/realm-dart/pull/1265)). ([#1278](https://github.com/realm/realm-dart/issues/1278)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
