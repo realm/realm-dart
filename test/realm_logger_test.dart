@@ -36,7 +36,7 @@ Future<void> main([List<String>? args]) async {
       final allMessages = await _attachToLoggerBeforeAction("root isolate", () => _simulateLogs(generatedMessage));
       return _matchedMessagesCountPerLevel(allMessages, generatedMessage);
     });
-    expectAllLevelLogs(logMessages);
+    _expectAllLevelLogs(logMessages);
   });
 
   test('Realm.logger expected messages after action completed', () async {
@@ -46,7 +46,7 @@ Future<void> main([List<String>? args]) async {
       final allMessages = await _attachToLoggerAfterAction("root isolate", () => _simulateLogs(generatedMessage));
       return _matchedMessagesCountPerLevel(allMessages, generatedMessage);
     });
-    expectAllLevelLogs(logMessages);
+    _expectAllLevelLogs(logMessages);
   });
 
   baasTest('Realm.logger level changed', (configuration) async {
@@ -64,10 +64,10 @@ Future<void> main([List<String>? args]) async {
       }
       return results;
     });
-    expectErrorLogs(logMessages, "Attempt 0");
+    _expectErrorLogs(logMessages, "Attempt 0");
 
     //After setting the log level to "Off" the logger won't receive the error
-    expectNoLogs(logMessages, "Attempt 1");
+    _expectNoLogs(logMessages, "Attempt 1");
   });
 
   test('Realm.logger logs messages from all the isolates', () async {
@@ -283,7 +283,7 @@ void _expectLogMessages(
   }
 }
 
-void expectErrorLogs(Map<String, Map<Level, int>> logMessages, String expectedName) {
+void _expectErrorLogs(Map<String, Map<Level, int>> logMessages, String expectedName) {
   expect(logMessages[expectedName], isNotNull);
   _expectLogMessages(
     logMessages[expectedName]!,
@@ -303,7 +303,7 @@ void expectErrorLogs(Map<String, Map<Level, int>> logMessages, String expectedNa
   );
 }
 
-void expectNoLogs(Map<String, Map<Level, int>> logMessages, String expectedName) {
+void _expectNoLogs(Map<String, Map<Level, int>> logMessages, String expectedName) {
   expect(logMessages[expectedName], isNotNull);
   _expectLogMessages(
     logMessages[expectedName]!,
@@ -321,7 +321,7 @@ void expectNoLogs(Map<String, Map<Level, int>> logMessages, String expectedName)
   );
 }
 
-void expectAllLevelLogs(Map<Level, int> logMessages) {
+void _expectAllLevelLogs(Map<Level, int> logMessages) {
   _expectLogMessages(logMessages, notExpectedMessagesFromLevels: [
     RealmLogLevel.all,
     RealmLogLevel.off
