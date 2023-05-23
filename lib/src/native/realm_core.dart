@@ -1701,6 +1701,12 @@ class _RealmCore {
     _realmLib.realm_dart_set_log_level(logLevel.toInt(), schedulerPort);
   }
 
+  void loggerLog(Level logLevel, String message) {
+    return using((arena) {
+      _realmLib.realm_dart_log(logLevel.toInt(), message.toCharPtr(arena));
+    });
+  }
+
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());

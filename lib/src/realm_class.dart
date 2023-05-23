@@ -755,6 +755,10 @@ extension RealmInternal on Realm {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
   }
+
+  static void log(Level level, String message) {
+    realmCore.loggerLog(level, message);
+  }
 }
 
 /// @nodoc
