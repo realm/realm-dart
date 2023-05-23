@@ -784,7 +784,3 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
   print("Splunk logs: $splunk");
 }
-
-Future<void> waitFutureWithTimeout(Future<void> future, {String? timeoutError, int seconds = 300}) async {
-  return future.timeout(Duration(seconds: seconds), onTimeout: () => throw Exception(timeoutError ?? "Timeout waiting a future to complete."));
-}
