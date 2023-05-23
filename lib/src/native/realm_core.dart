@@ -1472,13 +1472,10 @@ class _RealmCore {
       final app_id = configuration.appId.toCharPtr(arena);
       final handle = AppConfigHandle._(_realmLib.realm_app_config_new(app_id, httpTransport._pointer));
 
-      _realmLib.realm_app_config_set_platform(handle._pointer, Platform.operatingSystem.toCharPtr(arena));
       _realmLib.realm_app_config_set_platform_version(handle._pointer, Platform.operatingSystemVersion.toCharPtr(arena));
 
       _realmLib.realm_app_config_set_sdk(handle._pointer, 'Dart'.toCharPtr(arena));
       _realmLib.realm_app_config_set_sdk_version(handle._pointer, libraryVersion.toCharPtr(arena));
-
-      _realmLib.realm_app_config_set_cpu_arch(handle._pointer, getRealmLibraryCpuArchitecture().toCharPtr(arena));
 
       final deviceName = getDeviceName();
       _realmLib.realm_app_config_set_device_name(handle._pointer, deviceName.toCharPtr(arena));
@@ -2473,6 +2470,7 @@ class _RealmCore {
             user.handle._pointer,
             functionName.toCharPtr(arena),
             argsAsJSON?.toCharPtr(arena) ?? nullptr,
+            nullptr,
             Pointer.fromFunction(_call_app_function_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
