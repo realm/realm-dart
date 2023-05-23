@@ -73,7 +73,7 @@ Future<void> main([List<String>? args]) async {
     ]);
   });
 
-  baasTest('Realm.logger level changed at runtime', (configuration) async {
+  baasTest('Realm.logger - changing the level', (configuration) async {
     Map<String, Map<Level, int>> logMessages = await Isolate.run(() async {
       Map<String, Map<Level, int>> results = {};
       Realm.logger.level = RealmLogLevel.error;
@@ -160,7 +160,7 @@ Future<void> main([List<String>? args]) async {
     expect(results[rootIsolateAfterKillIsolatesName], 1, reason: "Root isolate logs count after closing the other isolates");
   });
 
-  baasTest('Realm.logger level set to Off in the root isolate does not prevent the other isolates to receive logs', (configuration) async {
+  test('Realm.logger level set to Off in the root isolate does not prevent the other isolates to receive logs', () async {
     String generatedName = generateRandomString(15);
     String rootIsolateName = "Root", isolate1Name = "Isolate1", isolate2Name = "Isolate2";
 
