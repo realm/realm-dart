@@ -100,7 +100,7 @@ class _RealmCore {
       logger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
     }
 
-    loggerSetLogLevel(logger.level);
+    loggerSetLogLevel(logger.level, scheduler.nativePort);
 
     return logger;
   }
@@ -1697,8 +1697,8 @@ class _RealmCore {
     Realm.logger.log(message_level, message);
   }
 
-  void loggerSetLogLevel(Level logLevel) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt(), scheduler.nativePort);
+  void loggerSetLogLevel(Level logLevel, int schedulerPort) {
+    _realmLib.realm_dart_set_log_level(logLevel.toInt(), schedulerPort);
   }
 
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
