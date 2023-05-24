@@ -148,8 +148,3 @@ RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable) {
 RLM_API const char* realm_get_library_cpu_arch() {
     return cpuArch.c_str();
 }
-
-RLM_API void realm_dart_log(realm_log_level_e level, const char* message) {
-    auto logger = realm::util::Logger::get_default_logger();
-    logger->log(realm::util::Logger::Level(level), message);
-}

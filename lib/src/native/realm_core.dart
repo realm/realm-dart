@@ -1692,18 +1692,13 @@ class _RealmCore {
     });
   }
 
-  void loggerLogMessage(int level, String message) {
-    final message_level = LevelExt.fromInt(level);
-    Realm.logger.log(message_level, message);
-  }
-
   void loggerSetLogLevel(Level logLevel, int schedulerPort) {
     _realmLib.realm_dart_set_log_level(logLevel.toInt(), schedulerPort);
   }
 
-  void loggerLog(Level logLevel, String message) {
+  void logMessageForTesting(Level logLevel, String message) {
     return using((arena) {
-      _realmLib.realm_dart_log(logLevel.toInt(), message.toCharPtr(arena));
+      _realmLib.realm_dart_log_message_for_testing(logLevel.toInt(), message.toCharPtr(arena));
     });
   }
 

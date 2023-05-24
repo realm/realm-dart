@@ -3615,22 +3615,23 @@ class RealmLibrary {
   late final _realm_dart_library_version = _realm_dart_library_versionPtr
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
-  void realm_dart_log(
+  void realm_dart_log_message_for_testing(
     int level,
     ffi.Pointer<ffi.Char> message,
   ) {
-    return _realm_dart_log(
+    return _realm_dart_log_message_for_testing(
       level,
       message,
     );
   }
 
-  late final _realm_dart_logPtr = _lookup<
+  late final _realm_dart_log_message_for_testingPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Int32, ffi.Pointer<ffi.Char>)>>('realm_dart_log');
-  late final _realm_dart_log = _realm_dart_logPtr
-      .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+          ffi.Void Function(ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_dart_log_message_for_testing');
+  late final _realm_dart_log_message_for_testing =
+      _realm_dart_log_message_for_testingPtr
+          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(
     Object handle,
@@ -10937,7 +10938,8 @@ class _SymbolAddresses {
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
-      get realm_dart_log => _library._realm_dart_logPtr;
+      get realm_dart_log_message_for_testing =>
+          _library._realm_dart_log_message_for_testingPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
       get realm_dart_object_to_persistent_handle =>
           _library._realm_dart_object_to_persistent_handlePtr;

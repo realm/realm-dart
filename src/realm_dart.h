@@ -55,6 +55,6 @@ RLM_API void realm_detach_finalizer(void* finalizableHandle, Dart_Handle handle)
 
 RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable);
 
-RLM_API void  realm_dart_log(realm_log_level_e level, const char* message);
+
 
 #endif // REALM_DART_H

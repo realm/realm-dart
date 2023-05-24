@@ -106,3 +106,6 @@ RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port) {
     }
 }
 
+RLM_API void realm_dart_log_message_for_testing(realm_log_level_e level, const char* message) {
+    realm_dart_logger_callback(nullptr, level, message);
+}
