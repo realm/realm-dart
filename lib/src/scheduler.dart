@@ -1,4 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
 //
 // Copyright 2022 Realm Inc.
 //
@@ -15,27 +14,36 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
 import 'dart:ffi';
 import 'dart:isolate';
-
 import 'native/realm_core.dart';
+
+import 'realm_class.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
 final Scheduler scheduler = Scheduler._();
 
 class Scheduler {
   late final SchedulerHandle handle;
-  final RawReceivePort receivePort = RawReceivePort();
+  final RawReceivePort _receivePort = RawReceivePort();
+
+  int get nativePort => _receivePort.sendPort.nativePort;
 
   Scheduler._() {
-    _receivePortFinalizer.attach(this, receivePort, detach: this);
+    _receivePortFinalizer.attach(this, _receivePort, detach: this);
 
-    receivePort.handler = (dynamic message) {
-      realmCore.invokeScheduler(handle);
+    _receivePort.handler = (dynamic message) {
+      if (message is List) {
+        // currently the only `message as List` is from the logger.
+        final level = message[0] as int;
+        final text = message[1] as String;
+        Realm.logger.log(LevelExt.fromInt(level), text);
+      } else {
+        realmCore.invokeScheduler(handle);
+      }
     };
 
-    final sendPort = receivePort.sendPort;
+    final sendPort = _receivePort.sendPort;
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
   }
 
@@ -43,8 +51,7 @@ class Scheduler {
     if (handle.released) {
       return;
     }
-
-    receivePort.close();
+    _receivePort.close();
     _receivePortFinalizer.detach(this);
     handle.release();
   }
