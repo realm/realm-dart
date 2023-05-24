@@ -94,6 +94,7 @@ class _RealmCore {
 
   Logger _initDefaultLogger(Scheduler scheduler) {
     final logger = Logger.detached('Realm')..level = Level.INFO;
+    logger.onLevelChanged.listen((logLevel) => loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
 
     bool isDefaultLogger = _realmLib.realm_dart_init_core_logger(logger.level.toInt());
     if (isDefaultLogger) {
@@ -104,6 +105,7 @@ class _RealmCore {
 
     return logger;
   }
+  
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
   //   _realmLib.realm_dart_gc();
