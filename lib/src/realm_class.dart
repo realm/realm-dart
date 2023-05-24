@@ -756,8 +756,8 @@ extension RealmInternal on Realm {
     }
   }
 
-  static void logMessageForTesting(Level level, String message) {
-    realmCore.logMessageForTesting(level, message);
+  static void logMessageForTesting(Level logLevel, String message) {
+    realmCore.logMessageForTesting(logLevel, message);
   }
 }
 
