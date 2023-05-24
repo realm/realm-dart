@@ -1034,4 +1034,7 @@ class _RealmLogger implements Logger {
   void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
     _logger.warning(message, error, stackTrace);
   }
+  
+  @override
+  Stream<Level?> get onLevelChanged => _logger.onLevelChanged;
 }
