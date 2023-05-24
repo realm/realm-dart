@@ -32,4 +32,6 @@ RLM_API bool realm_dart_init_core_logger(realm_log_level_e level);
 
 RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port);
 
+RLM_API void  realm_dart_log_message_for_testing(realm_log_level_e level, const char* message);
+
 #endif // REALM_DART_LOGGER_H

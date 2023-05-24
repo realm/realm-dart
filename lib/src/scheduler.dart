@@ -18,6 +18,8 @@ import 'dart:ffi';
 import 'dart:isolate';
 import 'native/realm_core.dart';
 
+import 'realm_class.dart';
+
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
 final Scheduler scheduler = Scheduler._();
 
@@ -32,7 +34,10 @@ class Scheduler {
 
     _receivePort.handler = (dynamic message) {
       if (message is List) {
-        realmCore.loggerLogMessage(message[0] as int, message[1] as String);
+        // currently the only `message as List` is from the logger.
+        final level = message[0] as int;
+        final text = message[1] as String;
+        Realm.logger.log(LevelExt.fromInt(level), text);
       } else {
         realmCore.invokeScheduler(handle);
       }

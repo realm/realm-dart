@@ -756,8 +756,8 @@ extension RealmInternal on Realm {
     }
   }
 
-  static void log(Level level, String message) {
-    realmCore.loggerLog(level, message);
+  static void logMessageForTesting(Level logLevel, String message) {
+    realmCore.logMessageForTesting(logLevel, message);
   }
 }
 
@@ -1034,4 +1034,7 @@ class _RealmLogger implements Logger {
   void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
     _logger.warning(message, error, stackTrace);
   }
+  
+  @override
+  Stream<Level?> get onLevelChanged => _logger.onLevelChanged;
 }
