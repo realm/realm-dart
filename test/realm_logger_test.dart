@@ -43,7 +43,7 @@ class LoggedMessage {
 
   const LoggedMessage(this.level, this.message);
 
-  factory LoggedMessage.empty() => LoggedMessage(RealmLogLevel.off, "");
+  factory LoggedMessage.empty() => const LoggedMessage(RealmLogLevel.off, "");
 
   @override
   // ignore: hash_and_equals
@@ -107,7 +107,7 @@ Future<void> main([List<String>? args]) async {
       openARealm();
       result.add(await completer.future);
 
-      Realm.logger.level = RealmLogLevel.info;
+      Realm.logger.level = RealmLogLevel.trace;
       completer = Completer<LoggedMessage>();
       openARealm();
       result.add(await completer.future);
@@ -123,7 +123,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(actual[0].level, RealmLogLevel.trace);
     expect(actual[1].level, RealmLogLevel.debug);
-    expect(actual[2].level, RealmLogLevel.info);
+    expect(actual[2].level, RealmLogLevel.trace);
     expect(actual[3].level, RealmLogLevel.debug);
   });
 
@@ -213,9 +213,9 @@ Future<void> main([List<String>? args]) async {
 
     //first isolate should have collected all the messages
     expect(actual.length, 4);
-    expect(actual[0], LoggedMessage(RealmLogLevel.error, "2"));
-    expect(actual[1], LoggedMessage(RealmLogLevel.error, "2"));
-    expect(actual[2], LoggedMessage(RealmLogLevel.error, "first only"));
-    expect(actual[3], LoggedMessage(RealmLogLevel.trace, "3"));
+    expect(actual[0], const LoggedMessage(RealmLogLevel.error, "2"));
+    expect(actual[1], const LoggedMessage(RealmLogLevel.error, "2"));
+    expect(actual[2], const LoggedMessage(RealmLogLevel.error, "first only"));
+    expect(actual[3], const LoggedMessage(RealmLogLevel.trace, "3"));
   });
 }
