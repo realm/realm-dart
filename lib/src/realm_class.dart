@@ -501,8 +501,11 @@ class Realm implements Finalizable {
     }
 
     _logger.clearListeners();
+    realmCore.realmLoggerLevelChangedSubscipiton.cancel();
     _logger = value;
-    _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
+    realmCore.loggerSetLogLevel(_logger.level, scheduler.nativePort);
+    realmCore.realmLoggerLevelChangedSubscipiton =
+        _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
