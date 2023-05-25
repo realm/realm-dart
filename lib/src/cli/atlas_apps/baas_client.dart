@@ -623,15 +623,11 @@ class BaasClient {
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
   }
 
-  String getDatabaseName(String appName) {
-    return "db_$appName$_appSuffix";
-  }
-
   Future<void> createSchema(BaasApp app, {required String serviceName, required String collectionName, required dynamic schema}) async {
     print('Create schema $collectionName for ${app.clientAppId}');
 
     final urlSchema = 'groups/$_groupId/apps/$app/schemas';
-    dynamic metadata = '{"database": "${getDatabaseName(app.name)}", "collection": "$collectionName", "data_source": "$serviceName"}';
+    dynamic metadata = '{"database": "db_${app.uniqueName}", "collection": "$collectionName", "data_source": "$serviceName"}';
     String fullSchema = '{"metadata": $metadata, "schema": $schema }';
     await _post(urlSchema, fullSchema);
   }
