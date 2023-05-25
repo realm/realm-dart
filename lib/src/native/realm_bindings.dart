@@ -3439,20 +3439,6 @@ class RealmLibrary {
       _realm_dart_delete_persistent_handlePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_delete_weak_handle(
-    ffi.Pointer<ffi.Void> handle,
-  ) {
-    return _realm_dart_delete_weak_handle(
-      handle,
-    );
-  }
-
-  late final _realm_dart_delete_weak_handlePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_delete_weak_handle');
-  late final _realm_dart_delete_weak_handle = _realm_dart_delete_weak_handlePtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
   ffi.Pointer<ffi.Char> realm_dart_get_device_name() {
     return _realm_dart_get_device_name();
   }
@@ -10884,9 +10870,6 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
-      get realm_dart_delete_weak_handle =>
-          _library._realm_dart_delete_weak_handlePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_get_device_name => _library._realm_dart_get_device_namePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>

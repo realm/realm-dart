@@ -30,7 +30,6 @@ RLM_API Dart_Handle realm_dart_weak_handle_to_object(void* handle);
 RLM_API void* realm_dart_object_to_persistent_handle(Dart_Handle handle);
 RLM_API Dart_Handle realm_dart_persistent_handle_to_object(void* handle);
 RLM_API void realm_dart_delete_persistent_handle(void* handle);
-RLM_API void realm_dart_delete_weak_handle(void* handle);
 
 // implemented for iOS and Android only
 RLM_API const char* realm_dart_get_files_path();
