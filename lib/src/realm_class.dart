@@ -798,7 +798,6 @@ abstract class NotificationsController implements Finalizable {
 
 /// Specifies the criticality level above which messages will be logged
 /// by the default sync client logger.
-///
 /// {@category Realm}
 class RealmLogLevel {
   /// Log everything. This will seriously harm the performance of the
