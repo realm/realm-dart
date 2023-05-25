@@ -123,12 +123,15 @@ class RealmLibrary {
   ///
   /// @param serialized_ejson_args The arguments array to invoke the function with,
   /// serialized as an Extended JSON string.
+  /// @param service_name The name of the remote service whose system function to call. Can be null,
+  /// in which case the called function is expected to be a user function.
   /// @return true, if no error occurred.
   bool realm_app_call_function(
     ffi.Pointer<realm_app_t> arg0,
     ffi.Pointer<realm_user_t> arg1,
     ffi.Pointer<ffi.Char> function_name,
     ffi.Pointer<ffi.Char> serialized_ejson_args,
+    ffi.Pointer<ffi.Char> service_name,
     realm_return_string_func_t callback,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -138,6 +141,7 @@ class RealmLibrary {
       arg1,
       function_name,
       serialized_ejson_args,
+      service_name,
       callback,
       userdata,
       userdata_free,
@@ -151,6 +155,7 @@ class RealmLibrary {
               ffi.Pointer<realm_user_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>,
               realm_return_string_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>>('realm_app_call_function');
@@ -158,6 +163,7 @@ class RealmLibrary {
       bool Function(
           ffi.Pointer<realm_app_t>,
           ffi.Pointer<realm_user_t>,
+          ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>,
           realm_return_string_func_t,
@@ -205,22 +211,22 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
-  void realm_app_config_set_cpu_arch(
+  void realm_app_config_set_bundle_id(
     ffi.Pointer<realm_app_config_t> config,
-    ffi.Pointer<ffi.Char> cpu_arch,
+    ffi.Pointer<ffi.Char> bundle_id,
   ) {
-    return _realm_app_config_set_cpu_arch(
+    return _realm_app_config_set_bundle_id(
       config,
-      cpu_arch,
+      bundle_id,
     );
   }
 
-  late final _realm_app_config_set_cpu_archPtr = _lookup<
+  late final _realm_app_config_set_bundle_idPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_cpu_arch');
-  late final _realm_app_config_set_cpu_arch =
-      _realm_app_config_set_cpu_archPtr.asFunction<
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_bundle_id');
+  late final _realm_app_config_set_bundle_id =
+      _realm_app_config_set_bundle_idPtr.asFunction<
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
@@ -355,25 +361,6 @@ class RealmLibrary {
       'realm_app_config_set_local_app_version');
   late final _realm_app_config_set_local_app_version =
       _realm_app_config_set_local_app_versionPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
-
-  void realm_app_config_set_platform(
-    ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-  ) {
-    return _realm_app_config_set_platform(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_app_config_set_platformPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_platform');
-  late final _realm_app_config_set_platform =
-      _realm_app_config_set_platformPtr.asFunction<
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
@@ -1007,30 +994,6 @@ class RealmLibrary {
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>();
 
-  /// @note this API will be removed and it is now deprecated in favour of realm_app_create
-  ///
-  /// Get an existing @a realm_app_t* instance with the same app id, or create it with the
-  /// configuration if it doesn't exist.
-  ///
-  /// @return A non-null pointer if no error occurred.
-  ffi.Pointer<realm_app_t> realm_app_get(
-    ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<realm_sync_client_config_t> arg1,
-  ) {
-    return _realm_app_get(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_app_getPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<realm_sync_client_config_t>)>>('realm_app_get');
-  late final _realm_app_get = _realm_app_getPtr.asFunction<
-      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
-          ffi.Pointer<realm_sync_client_config_t>)>();
-
   /// Get the list of active users in this @a app.
   /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
   /// If data is not copied the function will return true and set  `out_n` with the capacity needed.
@@ -1085,26 +1048,6 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>)>>('realm_app_get_app_id');
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
-
-  /// @note this API will be removed and it is now deprecated in favour of realm_app_create
-  ///
-  /// Get an existing @a realm_app_t* instance from the cache.
-  ///
-  /// @return Cached app instance, or null if no cached app exists for this @a app_id.
-  ffi.Pointer<realm_app_t> realm_app_get_cached(
-    ffi.Pointer<ffi.Char> app_id,
-  ) {
-    return _realm_app_get_cached(
-      app_id,
-    );
-  }
-
-  late final _realm_app_get_cachedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_app_t> Function(
-              ffi.Pointer<ffi.Char>)>>('realm_app_get_cached');
-  late final _realm_app_get_cached = _realm_app_get_cachedPtr
-      .asFunction<ffi.Pointer<realm_app_t> Function(ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_user_t> realm_app_get_current_user(
     ffi.Pointer<realm_app_t> arg0,
@@ -7800,6 +7743,25 @@ class RealmLibrary {
           ffi.Pointer<realm_object_t> Function(
               ffi.Pointer<realm_results_t>, int)>();
 
+  /// Return the query associated to the results passed as argument.
+  ///
+  /// @param results the ptr to a valid results object.
+  /// @return a valid ptr to realm_query_t if no error has occured
+  ffi.Pointer<realm_query_t> realm_results_get_query(
+    ffi.Pointer<realm_results_t> results,
+  ) {
+    return _realm_results_get_query(
+      results,
+    );
+  }
+
+  late final _realm_results_get_queryPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_query_t> Function(
+              ffi.Pointer<realm_results_t>)>>('realm_results_get_query');
+  late final _realm_results_get_query = _realm_results_get_queryPtr.asFunction<
+      ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>)>();
+
   /// Set the boolean passed as argument to true or false whether the realm_results passed is valid or not
   /// @return true/false if no exception has occured.
   bool realm_results_is_valid(
@@ -11423,6 +11385,7 @@ abstract class realm_errno {
   static const int RLM_ERR_APP_UNKNOWN = 4351;
   static const int RLM_ERR_MAINTENANCE_IN_PROGRESS = 4352;
   static const int RLM_ERR_USERPASS_TOKEN_INVALID = 4353;
+  static const int RLM_ERR_INVALID_SERVER_RESPONSE = 4354;
   static const int RLM_ERR_WEBSOCKET_RESOLVE_FAILED_ERROR = 4400;
   static const int RLM_ERR_WEBSOCKET_CONNECTION_CLOSED_CLIENT_ERROR = 4401;
   static const int RLM_ERR_WEBSOCKET_CONNECTION_CLOSED_SERVER_ERROR = 4402;
