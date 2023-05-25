@@ -2567,6 +2567,24 @@ class RealmLibrary {
   late final _realm_config_get_schema_mode = _realm_config_get_schema_modePtr
       .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
 
+  /// Get the subset schema mode.
+  ///
+  /// This function cannot fail.
+  int realm_config_get_schema_subset_mode(
+    ffi.Pointer<realm_config_t> arg0,
+  ) {
+    return _realm_config_get_schema_subset_mode(
+      arg0,
+    );
+  }
+
+  late final _realm_config_get_schema_subset_modePtr = _lookup<
+          ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<realm_config_t>)>>(
+      'realm_config_get_schema_subset_mode');
+  late final _realm_config_get_schema_subset_mode =
+      _realm_config_get_schema_subset_modePtr
+          .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
+
   /// Get the schema version of the schema.
   ///
   /// This function cannot fail.
@@ -2967,6 +2985,27 @@ class RealmLibrary {
               ffi.Int32)>>('realm_config_set_schema_mode');
   late final _realm_config_set_schema_mode = _realm_config_set_schema_modePtr
       .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
+
+  /// Set schema subset mode
+  ///
+  /// This function cannot fail
+  void realm_config_set_schema_subset_mode(
+    ffi.Pointer<realm_config_t> arg0,
+    int arg1,
+  ) {
+    return _realm_config_set_schema_subset_mode(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_config_set_schema_subset_modePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_config_t>,
+              ffi.Int32)>>('realm_config_set_schema_subset_mode');
+  late final _realm_config_set_schema_subset_mode =
+      _realm_config_set_schema_subset_modePtr
+          .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
 
   /// Set the schema version of the schema.
   ///
@@ -3518,6 +3557,21 @@ class RealmLibrary {
           void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>();
 
+  /// Returns `true` if Realm Core logger was initialized.
+  bool realm_dart_init_core_logger(
+    int level,
+  ) {
+    return _realm_dart_init_core_logger(
+      level,
+    );
+  }
+
+  late final _realm_dart_init_core_loggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>(
+          'realm_dart_init_core_logger');
+  late final _realm_dart_init_core_logger =
+      _realm_dart_init_core_loggerPtr.asFunction<bool Function(int)>();
+
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
   ) {
@@ -3560,6 +3614,24 @@ class RealmLibrary {
           'realm_dart_library_version');
   late final _realm_dart_library_version = _realm_dart_library_versionPtr
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  void realm_dart_log_message_for_testing(
+    int level,
+    ffi.Pointer<ffi.Char> message,
+  ) {
+    return _realm_dart_log_message_for_testing(
+      level,
+      message,
+    );
+  }
+
+  late final _realm_dart_log_message_for_testingPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_dart_log_message_for_testing');
+  late final _realm_dart_log_message_for_testing =
+      _realm_dart_log_message_for_testingPtr
+          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(
     Object handle,
@@ -3606,6 +3678,20 @@ class RealmLibrary {
       _realm_dart_persistent_handle_to_objectPtr
           .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
 
+  void realm_dart_release_logger(
+    int port,
+  ) {
+    return _realm_dart_release_logger(
+      port,
+    );
+  }
+
+  late final _realm_dart_release_loggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
+          'realm_dart_release_logger');
+  late final _realm_dart_release_logger =
+      _realm_dart_release_loggerPtr.asFunction<void Function(int)>();
+
   void realm_dart_scheduler_invoke(
     int isolateId,
     ffi.Pointer<ffi.Void> userData,
@@ -3622,6 +3708,22 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>)>>('realm_dart_scheduler_invoke');
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
+
+  void realm_dart_set_log_level(
+    int level,
+    int port,
+  ) {
+    return _realm_dart_set_log_level(
+      level,
+      port,
+    );
+  }
+
+  late final _realm_dart_set_log_levelPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32, Dart_Port)>>(
+          'realm_dart_set_log_level');
+  late final _realm_dart_set_log_level =
+      _realm_dart_set_log_levelPtr.asFunction<void Function(int, int)>();
 
   bool realm_dart_sync_after_reset_handler_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -7684,6 +7786,25 @@ class RealmLibrary {
           ffi.Pointer<realm_object_t> Function(
               ffi.Pointer<realm_results_t>, int)>();
 
+  /// Set the boolean passed as argument to true or false whether the realm_results passed is valid or not
+  /// @return true/false if no exception has occured.
+  bool realm_results_is_valid(
+    ffi.Pointer<realm_results_t> arg0,
+    ffi.Pointer<ffi.Bool> arg1,
+  ) {
+    return _realm_results_is_valid(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_results_is_validPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Bool>)>>('realm_results_is_valid');
+  late final _realm_results_is_valid = _realm_results_is_validPtr.asFunction<
+      bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Bool>)>();
+
   /// Create a new results object by limiting the number of items
   ///
   /// @param max_count Specifies the number of elements the new result can have at most
@@ -8403,6 +8524,43 @@ class RealmLibrary {
   late final _realm_set_is_valid = _realm_set_is_validPtr
       .asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
 
+  /// Install the default logger
+  void realm_set_log_callback(
+    realm_log_func_t arg0,
+    int arg1,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_set_log_callback(
+      arg0,
+      arg1,
+      userdata,
+      userdata_free,
+    );
+  }
+
+  late final _realm_set_log_callbackPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(realm_log_func_t, ffi.Int32, ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>>('realm_set_log_callback');
+  late final _realm_set_log_callback = _realm_set_log_callbackPtr.asFunction<
+      void Function(realm_log_func_t, int, ffi.Pointer<ffi.Void>,
+          realm_free_userdata_func_t)>();
+
+  void realm_set_log_level(
+    int arg0,
+  ) {
+    return _realm_set_log_level(
+      arg0,
+    );
+  }
+
+  late final _realm_set_log_levelPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
+          'realm_set_log_level');
+  late final _realm_set_log_level =
+      _realm_set_log_levelPtr.asFunction<void Function(int)>();
+
   /// In a set of objects, delete all objects in the set and clear the set. In a
   /// set of values, clear the set.
   ///
@@ -8699,54 +8857,6 @@ class RealmLibrary {
       'realm_sync_client_config_set_fast_reconnect_limit');
   late final _realm_sync_client_config_set_fast_reconnect_limit =
       _realm_sync_client_config_set_fast_reconnect_limitPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
-
-  void realm_sync_client_config_set_log_callback(
-    ffi.Pointer<realm_sync_client_config_t> arg0,
-    realm_log_func_t arg1,
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-  ) {
-    return _realm_sync_client_config_set_log_callback(
-      arg0,
-      arg1,
-      userdata,
-      userdata_free,
-    );
-  }
-
-  late final _realm_sync_client_config_set_log_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_sync_client_config_t>,
-                  realm_log_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>>(
-      'realm_sync_client_config_set_log_callback');
-  late final _realm_sync_client_config_set_log_callback =
-      _realm_sync_client_config_set_log_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_sync_client_config_t>,
-              realm_log_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
-
-  void realm_sync_client_config_set_log_level(
-    ffi.Pointer<realm_sync_client_config_t> arg0,
-    int arg1,
-  ) {
-    return _realm_sync_client_config_set_log_level(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_sync_client_config_set_log_levelPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Int32)>>('realm_sync_client_config_set_log_level');
-  late final _realm_sync_client_config_set_log_level =
-      _realm_sync_client_config_set_log_levelPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
   void realm_sync_client_config_set_metadata_encryption_key(
@@ -10812,6 +10922,9 @@ class _SymbolAddresses {
           ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
       _library._realm_dart_http_request_callbackPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>
+      get realm_dart_init_core_logger =>
+          _library._realm_dart_init_core_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
@@ -10822,6 +10935,11 @@ class _SymbolAddresses {
           _library._realm_dart_invoke_unlock_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
+      get realm_dart_log_message_for_testing =>
+          _library._realm_dart_log_message_for_testingPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
       get realm_dart_object_to_persistent_handle =>
           _library._realm_dart_object_to_persistent_handlePtr;
@@ -10831,11 +10949,15 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_persistent_handle_to_object =>
           _library._realm_dart_persistent_handle_to_objectPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
+      get realm_dart_release_logger => _library._realm_dart_release_loggerPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32, Dart_Port)>>
+      get realm_dart_set_log_level => _library._realm_dart_set_log_levelPtr;
   ffi.Pointer<
       ffi.NativeFunction<
           ffi.Bool Function(
@@ -11683,6 +11805,13 @@ abstract class realm_schema_mode {
   static const int RLM_SCHEMA_MODE_MANUAL = 7;
 }
 
+abstract class realm_schema_subset_mode {
+  static const int RLM_SCHEMA_SUBSET_MODE_STRICT = 0;
+  static const int RLM_SCHEMA_SUBSET_MODE_ALL_CLASSES = 1;
+  static const int RLM_SCHEMA_SUBSET_MODE_ALL_PROPERTIES = 2;
+  static const int RLM_SCHEMA_SUBSET_MODE_COMPLETE = 3;
+}
+
 typedef realm_schema_t = realm_schema;
 
 abstract class realm_schema_validation_mode {
@@ -11806,6 +11935,8 @@ abstract class realm_sync_error_action {
   static const int RLM_SYNC_ERROR_ACTION_DELETE_REALM = 5;
   static const int RLM_SYNC_ERROR_ACTION_CLIENT_RESET = 6;
   static const int RLM_SYNC_ERROR_ACTION_CLIENT_RESET_NO_RECOVERY = 7;
+  static const int RLM_SYNC_ERROR_ACTION_MIGRATE_TO_FLX = 8;
+  static const int RLM_SYNC_ERROR_ACTION_REVERT_TO_PBS = 9;
 }
 
 /// Possible error categories realm_sync_error_code_t can fall in.

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Copyright 2022 Realm Inc.
+// Copyright 2023 Realm Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,24 +16,22 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef REALM_DART_LOGGER_H
+#define REALM_DART_LOGGER_H
 
-#include "realm_dart.h"
-#include <realm/object-store/c_api/types.hpp>
-#include <realm/util/functional.hpp>
+#include <realm.h>
+#include <dart_api_dl.h>
 
-struct realm_dart_userdata_async {
-    realm_dart_userdata_async(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler)
-    : handle(Dart_NewPersistentHandle_DL(handle))
-    , dart_callback(callback)
-    , scheduler(*scheduler)
-    { }
 
-    ~realm_dart_userdata_async() {
-        Dart_DeletePersistentHandle_DL(handle);
-    }
+RLM_API void realm_dart_release_logger(Dart_Port port);
 
-    Dart_PersistentHandle handle;
-    void* dart_callback;
-    std::shared_ptr<realm::util::Scheduler> scheduler;
-};
+/**
+ * Returns `true` if Realm Core logger was initialized.
+ */
+RLM_API bool realm_dart_init_core_logger(realm_log_level_e level);
+
+RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port);
+
+RLM_API void  realm_dart_log_message_for_testing(realm_log_level_e level, const char* message);
+
+#endif // REALM_DART_LOGGER_H

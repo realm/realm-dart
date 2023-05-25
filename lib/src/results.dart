@@ -137,6 +137,10 @@ class RealmResultsChanges<T extends Object?> extends RealmCollectionChanges {
   final RealmResults<T> results;
 
   RealmResultsChanges._(super.handle, this.results);
+
+  @override
+  @Deprecated("`isCleared` is deprecated. Use `isEmpty` of the results collection instead.")
+  bool get isCleared => results.isEmpty;
 }
 
 /// @nodoc
