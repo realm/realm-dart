@@ -16,15 +16,14 @@
     * Moderate (~25%) improvement when querying for an exact match on a Boolean property that has an index.
     * Small (~5%) improvement when querying for a case insensitive match on a Mixed property that does not have an index.
 
-* Enable multiple processes to operate on an encrypted Realm simultaneously. ([#1845](https://github.com/realm/realm-core/issues/1845))
+* Enable multiple processes to operate on an encrypted Realm simultaneously. (Core upgrade)
 
-* Improve performance of equality queries on a non-indexed mixed property by about 30%. ([#6506](https://github.com/realm/realm-core/issues/6506))
+* Improve performance of equality queries on a non-indexed mixed property by about 30%. (Core upgrade)
 
-* Improve performance of rolling back write transactions after making changes. If no KVO observers are used this is now constant time rather than taking time proportional to the number of changes to be rolled back. Rollbacks with KVO observers are 10-20% faster. ([PR #6513](https://github.com/realm/realm-core/pull/6513))
+* Improve performance of rolling back write transactions after making changes. If no KVO observers are used this is now constant time rather than taking time proportional to the number of changes to be rolled back. Rollbacks with KVO observers are 10-20% faster. (Core upgrade)
+* New notifiers can now be registered in write transactions until changes have actually been made in the write transaction. This makes it so that new notifications can be registered inside change notifications triggered by beginning a write transaction (unless a previous callback performed writes). (Core upgrade)
 
-* New notifiers can now be registered in write transactions until changes have actually been made in the write transaction. This makes it so that new notifications can be registered inside change notifications triggered by beginning a write transaction (unless a previous callback performed writes). (PR [#6560](https://github.com/realm/realm-core/pull/6560))
-
-* Very slightly improve performance of runtime thread checking on the main thread on Apple platforms. ([PR #6606](https://github.com/realm/realm-core/pull/6606))
+* Very slightly improve performance of runtime thread checking on the main thread on Apple platforms. (Core upgrade)
 
 ### Fixed
 * Fixed a bug that may have resulted in arrays being in different orders on different devices (Core upgrade).
@@ -33,24 +32,24 @@
 * Adding an index to a Mixed property on a non-empty table would crash with an assertion (Core upgrade).
 * `SyncSession.pause()` could hold a reference to the database open after shutting down the sync session, preventing users from being able to delete the realm (Core upgrade).
 
-* Fix a stack overflow crash when using the query parser with long chains of AND/OR conditions. ([#6428](https://github.com/realm/realm-core/pull/6428), since v11.7.0)
-* `SyncManager::immediately_run_file_actions()` no longer ignores the result of trying to remove a realm. This could have resulted in a client reset action being reported as successful when it actually failed on windows if the `Realm` was still open ([#6050](https://github.com/realm/realm-core/issues/6050)).
-* Fix a data race. If one thread committed a write transaction which increased the number of live versions above the previous highest seen during the current session at the same time as another thread began a read, the reading thread could read from a no-longer-valid memory mapping ([PR #6411](https://github.com/realm/realm-core/pull/6411), since v13.0.0).
+* Fix a stack overflow crash when using the query parser with long chains of AND/OR conditions. (Core upgrade)
+* `SyncManager::immediately_run_file_actions()` no longer ignores the result of trying to remove a realm. This could have resulted in a client reset action being reported as successful when it actually failed on windows if the `Realm` was still open (Core upgrade).
+* Fix a data race. If one thread committed a write transaction which increased the number of live versions above the previous highest seen during the current session at the same time as another thread began a read, the reading thread could read from a no-longer-valid memory mapping (Core upgrade).
 
-* Fixed a crash or exception when doing a fulltext search for multiple keywords when the intersection of results is not equal. ([#6465](https://github.com/realm/realm-core/issues/6465) since v13.2.0).
+* Fixed a crash or exception when doing a fulltext search for multiple keywords when the intersection of results is not equal. (Core upgrade).
 
-* Don't report non ssl related errors during ssl handshake as fatal in default socket provider. ([#6434](https://github.com/realm/realm-core/issues/6434), since v13.3.0)
+* Don't report non ssl related errors during ssl handshake as fatal in default socket provider. (Core upgrade)
 
-* Performing a query like "{1, 2, 3, ...} IN list" where the array is longer than 8 and all elements are smaller than some values in list, the program would crash ([#1183](https://github.com/realm/realm-kotlin/issues/1183), v12.5.0)
-* Performing a large number of queries without ever performing a write resulted in steadily increasing memory usage, some of which was never fully freed due to an unbounded cache ([Swift #7978](https://github.com/realm/realm-swift/issues/7978), since v12.0.0)
+* Performing a query like "{1, 2, 3, ...} IN list" where the array is longer than 8 and all elements are smaller than some values in list, the program would crash (Core upgrade)
+* Performing a large number of queries without ever performing a write resulted in steadily increasing memory usage, some of which was never fully freed due to an unbounded cache (Core upgrade)
 
-* Exclusion of words in a full text search does not work ([#6512](https://github.com/realm/realm-core/issues/6512), since v13.0.0 );
+* Exclusion of words in a full text search does not work (Core upgrade)
 
-* Fixed a fatal error (reported to the sync error handler) during client reset (or automatic PBS to FLX migration) if the reset has been triggered during an async open and the schema being applied has added new classes. ([#6601](https://github.com/realm/realm-core/issues/6601), since automatic client resets were introduced in v11.5.0)
-* Full text search would sometimes find words where the word only matches the beginning of the search token ([#6591](https://github.com/realm/realm-core/issues/6591), since v13.0.0)
+* Fixed a fatal error (reported to the sync error handler) during client reset (or automatic PBS to FLX migration) if the reset has been triggered during an async open and the schema being applied has added new classes. (Core upgrade), since automatic client resets were introduced in v11.5.0)
+* Full text search would sometimes find words where the word only matches the beginning of the search token (Core upgrade)
 
-* We could crash when removing backlinks in cases where forward links did not have a corresponding backlink due to corruption. We now silently ignore this inconsistency in release builds, allowing the app to continue. ([#6585](https://github.com/realm/realm-core/issues/6585), v6.0.0)
-* If you freeze a Results based on a collection of objects, the result would be invalid if you delete the collection ([#6635](https://github.com/realm/realm-core/issues/6635))
+* We could crash when removing backlinks in cases where forward links did not have a corresponding backlink due to corruption. We now silently ignore this inconsistency in release builds, allowing the app to continue. (Core upgrade)
+* If you freeze a Results based on a collection of objects, the result would be invalid if you delete the collection (Core upgrade)
 
 ### Compatibility
 * Fileformat: Generates files with format v23. Reads and automatically upgrade from fileformat v5.
