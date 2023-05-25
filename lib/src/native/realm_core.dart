@@ -1702,10 +1702,6 @@ class _RealmCore {
     });
   }
 
-  void setLogLevel(int logLevel) {
-    _realmLib.realm_set_log_level(logLevel);
-  }
-
   SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
