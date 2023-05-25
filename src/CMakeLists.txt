@@ -9,6 +9,7 @@ add_subdirectory(dart-dl)
 
 set(SOURCES
     realm_dart.cpp
+    realm_dart_logger.cpp
     realm_dart_decimal128.cpp
     realm_dart_scheduler.cpp
     realm_dart_sync.cpp
@@ -18,6 +19,7 @@ set(SOURCES
 set(HEADERS
     realm_dart.h
     realm_dart.hpp
+    realm_dart_logger.h
     realm_dart_scheduler.h
     realm_dart_scheduler.h
     realm_dart_sync.h

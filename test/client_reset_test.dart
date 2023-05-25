@@ -607,8 +607,5 @@ Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async
 }
 
 Future<void> waitFutureWithTimeout(Future<void> future, {String? timeoutError, int seconds = 300}) async {
-  return Future.any<void>([
-    future,
-    Future<void>.delayed(Duration(seconds: seconds)).whenComplete(() => throw Exception(timeoutError ?? "Timeout waiting a future to complete.")),
-  ]);
+  return future.timeout(Duration(seconds: seconds), onTimeout: () => throw Exception(timeoutError ?? "Timeout waiting a future to complete."));
 }
