@@ -55,7 +55,7 @@ RLM_API void realm_dart_initializeDartApiDL(void* data) {
 
 class WeakHandle {
 public:
-    WeakHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
+    WeakHandle(Dart_Handle handle): m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
     }
 
     Dart_Handle value() {
@@ -132,19 +132,19 @@ RLM_API const char* realm_dart_library_version() { return "1.0.3"; }
 // }
 
 void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
-  realm_release(realmPtr);
+    realm_release(realmPtr);
 }
 
 RLM_API void* realm_attach_finalizer(Dart_Handle handle, void* realmPtr, int size) {
-  return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
+    return Dart_NewFinalizableHandle_DL(handle, realmPtr, size, handle_finalizer);
 }
 
-RLM_API void realm_dettach_finalizer(void* finalizableHandle, Dart_Handle handle) {
-  Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
-  return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
+RLM_API void realm_detach_finalizer(void* finalizableHandle, Dart_Handle handle) {
+    Dart_FinalizableHandle finalHandle = reinterpret_cast<Dart_FinalizableHandle>(finalizableHandle);
+    return Dart_DeleteFinalizableHandle_DL(finalHandle, handle);
 }
 
-RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable){
+RLM_API void realm_set_auto_refresh(realm_t* realm, bool enable) {
     (*realm)->set_auto_refresh(enable);
 }
 

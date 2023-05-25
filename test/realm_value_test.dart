@@ -58,6 +58,7 @@ Future<void> main([List<String>? args]) async {
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
+      Decimal128.fromDouble(128.128),
     ];
 
     for (final x in values) {
@@ -118,6 +119,9 @@ Future<void> main([List<String>? args]) async {
           case Uuid:
             expect(value, isA<Uuid>());
             break;
+          case Decimal128:
+            expect(value, isA<Decimal128>());
+            break;
           default:
             fail('${something.oneAny} not handled correctly in switch');
         }
@@ -145,6 +149,8 @@ Future<void> main([List<String>? args]) async {
           expect(type, Uuid);
         } else if (value is ObjectId) {
           expect(type, ObjectId);
+        } else if (value is Decimal128) {
+          expect(type, Decimal128);
         } else if (value is AnythingGoes) {
           expect(type, AnythingGoes);
         } else if (value is Stuff) {
@@ -157,7 +163,7 @@ Future<void> main([List<String>? args]) async {
 
     test('Unknown schema for RealmValue.value after bad migration', () {
       {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], path: 'unknown_embedded', schemaVersion: 0);
+        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], schemaVersion: 0);
         Realm.deleteRealm(config.path);
         final realm = Realm(config);
 
@@ -172,7 +178,6 @@ Future<void> main([List<String>? args]) async {
       // From here on Stuff is unknown
       final config = Configuration.local(
         [AnythingGoes.schema],
-        path: 'unknown_embedded',
         schemaVersion: 1,
         migrationCallback: (migration, oldSchemaVersion) {
           // forget to handle RealmValue pointing to Stuff
@@ -201,6 +206,7 @@ Future<void> main([List<String>? args]) async {
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
+      Decimal128.fromInt(128),
     ];
 
     final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);

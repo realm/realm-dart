@@ -121,6 +121,7 @@ export 'session.dart'
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
+export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -487,19 +488,25 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  /// The logger to use for logging.
-  /// The default logger is [RealmLogger] and the default log level is [RealmLogLevel.info].
-  /// To manage the log level at runtime use `Realm.logger.level` setter.
-  /// To change the default logger set this member to a new instance of [RealmLogger]
-  /// and specify the `level` and/or the `onRecord` function.
-  /// Setting an instance of [Logger] is also supported.
+  static Logger _logger = realmCore.defaultRealmLogger;
+
+  /// The logger to use for Realm logging in this `Isolate`
+  /// The default log level is [RealmLogLevel.info].
   static Logger get logger {
     return _logger;
   }
 
   static set logger(Logger value) {
-    _logger = (value is RealmLogger) ? value : RealmLogger._(value);
-    realmCore.setLogLevel(_logger.level.toInt());
+    if (_logger == value) {
+      return;
+    }
+
+    _logger.clearListeners();
+    realmCore.realmLoggerLevelChangedSubscipiton.cancel();
+    _logger = value;
+    realmCore.loggerSetLogLevel(_logger.level, scheduler.nativePort);
+    realmCore.realmLoggerLevelChangedSubscipiton =
+        _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
   }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
@@ -756,6 +763,10 @@ extension RealmInternal on Realm {
     if (value is RealmValue) {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
+  }
+
+  static void logMessageForTesting(Level logLevel, String message) {
+    realmCore.logMessageForTesting(logLevel, message);
   }
 }
 

@@ -448,7 +448,7 @@ Future<void> main([List<String>? args]) async {
       final config = Configuration.local([AllTypes.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0));
+        return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
       });
 
       final json = obj.toJson();
@@ -490,7 +490,7 @@ Future<void> main([List<String>? args]) async {
     expect(date.isUtc, isFalse);
 
     final obj = realm.write(() {
-      return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0));
+      return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
     });
 
     final json = obj.toJson();
@@ -507,8 +507,8 @@ Future<void> main([List<String>? args]) async {
     final date = DateTime.now();
 
     realm.write(() {
-      realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0));
-      realm.add(AllTypes('cde', false, DateTime.now().add(Duration(seconds: 1)), 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+      realm.add(AllTypes('cde', false, DateTime.now().add(Duration(seconds: 1)), 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
     });
 
     var results = realm.all<AllTypes>().query('dateProp = \$0', [date]);
@@ -525,9 +525,9 @@ Future<void> main([List<String>? args]) async {
     final date3 = date1.subtract(Duration(microseconds: 1));
 
     realm.write(() {
-      realm.add(AllTypes('1', false, date1, 0, ObjectId(), Uuid.v4(), 0));
-      realm.add(AllTypes('2', false, date2, 0, ObjectId(), Uuid.v4(), 0));
-      realm.add(AllTypes('3', false, date3, 0, ObjectId(), Uuid.v4(), 0));
+      realm.add(AllTypes('1', false, date1, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+      realm.add(AllTypes('2', false, date2, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+      realm.add(AllTypes('3', false, date3, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
     });
 
     final lessThan1 = realm.all<AllTypes>().query('dateProp < \$0', [date1]);
@@ -552,7 +552,7 @@ Future<void> main([List<String>? args]) async {
     var uuid = Uuid.v4();
 
     final object = realm.write(() {
-      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4));
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten));
     });
 
     expect(object.stringProp, 'cde');
@@ -562,6 +562,7 @@ Future<void> main([List<String>? args]) async {
     expect(object.objectIdProp, objectId);
     expect(object.uuidProp, uuid);
     expect(object.intProp, 4);
+    expect(object.decimalProp, Decimal128.ten);
 
     date = DateTime.now().add(Duration(days: 1)).toUtc();
     objectId = ObjectId();
@@ -574,6 +575,7 @@ Future<void> main([List<String>? args]) async {
       object.objectIdProp = objectId;
       object.uuidProp = uuid;
       object.intProp = 5;
+      object.decimalProp = Decimal128.one;
     });
 
     expect(object.stringProp, 'abc');
@@ -583,6 +585,7 @@ Future<void> main([List<String>? args]) async {
     expect(object.objectIdProp, objectId);
     expect(object.uuidProp, uuid);
     expect(object.intProp, 5);
+    expect(object.decimalProp, Decimal128.one);
   });
 
   test('RealmObject.freeze when typed returns typed frozen object', () {

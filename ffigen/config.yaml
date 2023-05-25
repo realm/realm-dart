@@ -6,11 +6,15 @@ headers:
   entry-points:
     - 'realm.h'
     - 'realm_dart.h'
+    - 'realm_dart_logger.h'
+    - 'realm_dart_decimal128.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_sync.h'
-  include-directives: #generate only for these headers
+  include-directives: # generate only for these headers
     - 'realm.h'
     - 'realm_dart.h'
+    - 'realm_dart_logger.h'
+    - 'realm_dart_decimal128.h'
     - 'realm_dart_scheduler.h'
     - 'realm_dart_sync.h'
 compiler-opts:
@@ -21,8 +25,8 @@ compiler-opts:
 sort: true
 functions:
   exclude:
-    - '_.*' #exclude all starting with _
-    - 'Dart_.*' #exlude all starting with Dart_
+    - '_.*' # exclude all starting with _
+    - 'Dart_.*' # exclude all starting with Dart_
   symbol-address:
     include:
       - 'realm_dart_.*'
@@ -30,11 +34,11 @@ functions:
 structs:
   exclude:
     - '_.*'
-    - 'Dart_.*' #exlude all starting with Dart_
+    - 'Dart_.*' # exclude all starting with Dart_
 globals:
   exclude:
     - '_.*'
-    - 'RLM_.*' #exlude RLM_ globals constants since they are not exported from binary
+    - 'RLM_.*' # exclude RLM_ globals constants since they are not exported from binary
 unions:
   exclude:
     - '_.*'

@@ -39,7 +39,11 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
   }
 
   /// Returns the element of type `T` at the specified [index].
-  T operator [](int index) {
+  T operator [](int index) => elementAt(index);
+
+  /// Returns the element of type `T` at the specified [index].
+  @override
+  T elementAt(int index) {
     if (this is RealmResults<RealmObjectBase>) {
       final handle = realmCore.resultsGetObjectAt(this, index);
       final accessor = RealmCoreAccessor(metadata, realm.isInMigration);
@@ -133,6 +137,10 @@ class RealmResultsChanges<T extends Object?> extends RealmCollectionChanges {
   final RealmResults<T> results;
 
   RealmResultsChanges._(super.handle, this.results);
+
+  @override
+  @Deprecated("`isCleared` is deprecated. Use `isEmpty` of the results collection instead.")
+  bool get isCleared => results.isEmpty;
 }
 
 /// @nodoc

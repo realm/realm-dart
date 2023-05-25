@@ -68,7 +68,7 @@ Future<void> main([List<String>? args]) async {
     final oid = ObjectId();
     final uuid = Uuid.v4();
     realm.write(() {
-      realm.add(ObjectWithEmbedded('abc', singleObject: AllTypesEmbedded('str', true, now, 1.23, oid, uuid, 99)));
+      realm.add(ObjectWithEmbedded('abc', singleObject: AllTypesEmbedded('str', true, now, 1.23, oid, uuid, 99, Decimal128.ten)));
     });
 
     final obj = realm.all<ObjectWithEmbedded>().single;
@@ -81,6 +81,7 @@ Future<void> main([List<String>? args]) async {
     expect(json, contains('"objectIdProp":"$oid"'));
     expect(json, contains('"uuidProp":"$uuid"'));
     expect(json, contains('"intProp":99'));
+    expect(json, contains('"decimalProp":"10"')); // note the quotes!
 
     expect(json, contains('"nullableStringProp":null'));
     expect(json, contains('"nullableBoolProp":null'));
@@ -89,6 +90,7 @@ Future<void> main([List<String>? args]) async {
     expect(json, contains('"nullableObjectIdProp":null'));
     expect(json, contains('"nullableUuidProp":null'));
     expect(json, contains('"nullableIntProp":null'));
+    expect(json, contains('"nullableDecimalProp":null'));
   });
 
   test('Embedded object get/set properties', () {
