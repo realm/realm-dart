@@ -221,7 +221,7 @@ jobs:
         draft: false
 
     - name: 'Post to #realm-releases'
-      uses: realm/ci-actions/release-to-slack@043cc5a8446748b823957c6ea4d08e6e495ea996
+      uses: realm/ci-actions/release-to-slack@338bf3e7575015a28faec8b67614385d122aece7
       continue-on-error: true
       with:
         changelog: release/ExtractedChangelog.md
