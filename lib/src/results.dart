@@ -38,6 +38,9 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
     setRealm(realm);
   }
 
+  /// Gets a value indicating whether this collection is still valid to use.
+  bool get isValid => realmCore.resultsIsValid(this);
+
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) => elementAt(index);
 
