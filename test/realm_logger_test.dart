@@ -135,17 +135,18 @@ Future<void> main([List<String>? args]) async {
         throw RealmError("Default logger should not log messages if custom logger is set");
       });
 
-      Realm.logger = Logger.detached("custom logger");
+      Realm.logger = Logger.detached("custom logger")..level = RealmLogLevel.detail;
+
       Realm.logger.onRecord.listen((event) {
         completer.complete(LoggedMessage(event.level, event.message));
       });
 
-      RealmInternal.logMessageForTesting(RealmLogLevel.info, "123");
+      RealmInternal.logMessageForTesting(RealmLogLevel.detail, "123");
 
       return await completer.future;
     });
 
-    expect(actual, LoggedMessage(RealmLogLevel.info, "123"));
+    expect(actual, LoggedMessage(RealmLogLevel.detail, "123"));
   });
 
   test('Realm.logger supports logging from multiple isolates', () async {
