@@ -130,7 +130,6 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
-  static Logger _logger = RealmLogger();
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -797,6 +796,61 @@ abstract class NotificationsController implements Finalizable {
   }
 }
 
+/// Specifies the criticality level above which messages will be logged
+/// by the default sync client logger.
+///
+/// {@category Realm}
+class RealmLogLevel {
+  /// Log everything. This will seriously harm the performance of the
+  /// sync client and should never be used in production scenarios.
+  ///
+  /// Same as [Level.ALL]
+  static const all = Level.ALL;
+
+  /// A version of [debug] that allows for very high volume output.
+  /// This may seriously affect the performance of the sync client.
+  ///
+  /// Same as [Level.FINEST]
+  static const trace = Level('TRACE', 300);
+
+  /// Reveal information that can aid debugging, no longer paying
+  /// attention to efficiency.
+  ///
+  /// Same as [Level.FINER]
+  static const debug = Level('DEBUG', 400);
+
+  /// Same as [info], but prioritize completeness over minimalism.
+  ///
+  /// Same as [Level.FINE];
+  static const detail = Level('DETAIL', 500);
+
+  /// Log operational sync client messages, but in a minimalist fashion to
+  /// avoid general overhead from logging and to keep volume down.
+  ///
+  /// Same as [Level.INFO];
+  static const info = Level.INFO;
+
+  /// Log errors and warnings.
+  ///
+  /// Same as [Level.WARNING];
+  static const warn = Level.WARNING;
+
+  /// Log errors only.
+  ///
+  /// Same as [Level.SEVERE];
+  static const error = Level('ERROR', 1000);
+
+  /// Log only fatal errors.
+  ///
+  /// Same as [Level.SHOUT];
+  static const fatal = Level('FATAL', 1200);
+
+  /// Turn off logging.
+  ///
+  /// Same as [Level.OFF];
+  static const off = Level.OFF;
+}
+
 /// @nodoc
 class RealmMetadata {
   final _typeMap = <Type, RealmObjectMetadata>{};
@@ -903,154 +957,3 @@ class MigrationRealm extends DynamicRealm {
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
-
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-///
-/// {@category Realm}
-class RealmLogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  ///
-  /// Same as [Level.ALL]
-  static const all = Level.ALL;
-
-  /// A version of [debug] that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  ///
-  /// Same as [Level.FINEST]
-  static const trace = Level('TRACE', 300);
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  ///
-  /// Same as [Level.FINER]
-  static const debug = Level('DEBUG', 400);
-
-  /// Same as [info], but prioritize completeness over minimalism.
-  ///
-  /// Same as [Level.FINE];
-  static const detail = Level('DETAIL', 500);
-
-  /// Log operational sync client messages, but in a minimalist fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  ///
-  /// Same as [Level.INFO];
-  static const info = Level.INFO;
-
-  /// Log errors and warnings.
-  ///
-  /// Same as [Level.WARNING];
-  static const warn = Level.WARNING;
-
-  /// Log errors only.
-  ///
-  /// Same as [Level.SEVERE];
-  static const error = Level('ERROR', 1000);
-
-  /// Log only fatal errors.
-  ///
-  /// Same as [Level.SHOUT];
-  static const fatal = Level('FATAL', 1200);
-
-  /// Turn off logging.
-  ///
-  /// Same as [Level.OFF];
-  static const off = Level.OFF;
-}
-
-/// Represents a logger that manages the realm log level at runtime.
-///
-/// {@category Realm}
-class RealmLogger implements Logger {
-  final Logger _logger;
-
-  /// Creates an instance of [RealmLogger].
-  RealmLogger({Level level = RealmLogLevel.info, void Function(LogRecord)? onRecord})
-      : _logger = Logger.detached('Realm')
-          ..level = level
-          ..onRecord.listen(onRecord ?? (event) => print('${event.time.toIso8601String()}: $event'));
-
-  RealmLogger._(this._logger);
-
-  @override
-  Level get level {
-    return _logger.level;
-  }
-
-  @override
-  set level(Level? value) {
-    _logger.level = value;
-    realmCore.setLogLevel((value ?? Level.OFF).toInt());
-  }
-
-  @override
-  Map<String, Logger> get children => _logger.children;
-
-  @override
-  void clearListeners() {
-    _logger.clearListeners();
-  }
-
-  @override
-  void config(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.config(message, error, stackTrace);
-  }
-
-  @override
-  void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.fine(message, error, stackTrace);
-  }
-
-  @override
-  void finer(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.finer(message, error, stackTrace);
-  }
-
-  @override
-  void finest(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.finest(message, error, stackTrace);
-  }
-
-  @override
-  String get fullName => _logger.fullName;
-
-  @override
-  void info(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.info(message, error, stackTrace);
-  }
-
-  @override
-  bool isLoggable(Level value) {
-    return _logger.isLoggable(value);
-  }
-
-  @override
-  void log(Level logLevel, Object? message, [Object? error, StackTrace? stackTrace, Zone? zone]) {
-    _logger.log(logLevel, message, error, stackTrace, zone);
-  }
-
-  @override
-  String get name => _logger.name;
-
-  @override
-  Stream<LogRecord> get onRecord => _logger.onRecord;
-
-  @override
-  Logger? get parent => _logger.parent;
-
-  @override
-  void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.severe(message, error, stackTrace);
-  }
-
-  @override
-  void shout(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.shout(message, error, stackTrace);
-  }
-
-  @override
-  void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
-    _logger.warning(message, error, stackTrace);
-  }
-}
