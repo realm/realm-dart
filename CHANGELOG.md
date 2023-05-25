@@ -16,11 +16,13 @@
     * Small (~5%) improvement when querying for a case insensitive match on a Mixed property that does not have an index.
 
 ### Fixed
+
 * Fixed a bug that may have resulted in arrays being in different orders on different devices (Core upgrade).
 * Fixed a crash when querying a mixed property with a string operator (contains/like/beginswith/endswith) or with case insensitivity (Core upgrade).
 * Querying for equality of a string on an indexed mixed property was returning case insensitive matches. For example querying for `myIndexedMixed == "Foo"` would incorrectly match on values of "foo" or "FOO" etc (Core upgrade).
 * Adding an index to a Mixed property on a non-empty table would crash with an assertion (Core upgrade).
 * `SyncSession.pause()` could hold a reference to the database open after shutting down the sync session, preventing users from being able to delete the realm (Core upgrade).
+* Fixed `RealmResultsChanges.isCleared` which was never set. It now returns `true` if the results collection is empty in the notification callback. This field is also marked as `deprecated` and will be removed in future. Use `RealmResultsChanges.results.isEmpty` instead.([#1265](https://github.com/realm/realm-dart/pull/1265)). ([#1278](https://github.com/realm/realm-dart/issues/1278)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
