@@ -670,8 +670,8 @@ jobs:
 
   slack-on-fail:
     needs:
-      - delete-dart-cluster
-      - delete-flutter-cluster
+      - cleanup-dart-matrix
+      - cleanup-flutter-matrix
     runs-on: ubuntu-latest
     steps:
        - name: Slack on fail
