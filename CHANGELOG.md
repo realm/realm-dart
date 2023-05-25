@@ -1,7 +1,6 @@
 ## vNext (TBD)
 
 ### Enhancements
-
 * Add `RealmResults.isValid` ([#1231](https://github.com/realm/realm-dart/pull/1231)).
 * Support `Decimal128` datatype ([#1192](https://github.com/realm/realm-dart/pull/1192)).
 * Realm logging is extended to support logging of all Realm storage level messages. (Core upgrade).

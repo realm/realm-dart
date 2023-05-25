@@ -803,7 +803,6 @@ abstract class NotificationsController implements Finalizable {
 class RealmLogLevel {
   /// Log everything. This will seriously harm the performance of the
   /// sync client and should never be used in production scenarios.
-  ///
   /// Same as [Level.ALL]
   static const all = Level.ALL;
 
