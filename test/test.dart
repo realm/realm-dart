@@ -124,6 +124,7 @@ class _AllTypes {
   late ObjectId objectIdProp;
   late Uuid uuidProp;
   late int intProp;
+  late Decimal128 decimalProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -132,6 +133,7 @@ class _AllTypes {
   late ObjectId? nullableObjectIdProp;
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
+  late Decimal128? nullableDecimalProp;
 }
 
 @RealmModel()
@@ -152,6 +154,7 @@ class _AllCollections {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+  late List<Decimal128> decimals;
 
   late List<String?> nullableStrings;
   late List<bool?> nullableBools;
@@ -160,6 +163,7 @@ class _AllCollections {
   late List<ObjectId?> nullableObjectIds;
   late List<Uuid?> nullableUuids;
   late List<int?> nullableInts;
+  late List<Decimal128?> nullableDecimals;
 }
 
 @RealmModel()
@@ -177,6 +181,7 @@ class _NullableTypes {
   late ObjectId? objectIdProp;
   late Uuid? uuidProp;
   late int? intProp;
+  late Decimal128? decimalProp;
 }
 
 @RealmModel()
@@ -240,6 +245,7 @@ class _AllTypesEmbedded {
   late ObjectId objectIdProp;
   late Uuid uuidProp;
   late int intProp;
+  late Decimal128 decimalProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -248,6 +254,7 @@ class _AllTypesEmbedded {
   late ObjectId? nullableObjectIdProp;
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
+  late Decimal128? nullableDecimalProp;
 
   late List<String> strings;
   late List<bool> bools;
@@ -256,6 +263,7 @@ class _AllTypesEmbedded {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+  late List<Decimal128> decimals;
 }
 
 @RealmModel()
@@ -298,6 +306,12 @@ class _RecursiveEmbedded2 {
 @RealmModel(ObjectType.embeddedObject)
 class _RecursiveEmbedded3 {
   late String value;
+}
+
+@RealmModel()
+class _ObjectWithDecimal {
+  late Decimal128 decimal;
+  Decimal128? nullableDecimal;
 }
 
 String? testName;

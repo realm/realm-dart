@@ -482,7 +482,8 @@ class AllTypes extends _AllTypes
     double doubleProp,
     ObjectId objectIdProp,
     Uuid uuidProp,
-    int intProp, {
+    int intProp,
+    Decimal128 decimalProp, {
     String? nullableStringProp,
     bool? nullableBoolProp,
     DateTime? nullableDateProp,
@@ -490,6 +491,7 @@ class AllTypes extends _AllTypes
     ObjectId? nullableObjectIdProp,
     Uuid? nullableUuidProp,
     int? nullableIntProp,
+    Decimal128? nullableDecimalProp,
   }) {
     RealmObjectBase.set(this, 'stringProp', stringProp);
     RealmObjectBase.set(this, 'boolProp', boolProp);
@@ -498,6 +500,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'objectIdProp', objectIdProp);
     RealmObjectBase.set(this, 'uuidProp', uuidProp);
     RealmObjectBase.set(this, 'intProp', intProp);
+    RealmObjectBase.set(this, 'decimalProp', decimalProp);
     RealmObjectBase.set(this, 'nullableStringProp', nullableStringProp);
     RealmObjectBase.set(this, 'nullableBoolProp', nullableBoolProp);
     RealmObjectBase.set(this, 'nullableDateProp', nullableDateProp);
@@ -505,6 +508,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'nullableObjectIdProp', nullableObjectIdProp);
     RealmObjectBase.set(this, 'nullableUuidProp', nullableUuidProp);
     RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
+    RealmObjectBase.set(this, 'nullableDecimalProp', nullableDecimalProp);
   }
 
   AllTypes._();
@@ -550,6 +554,13 @@ class AllTypes extends _AllTypes
   int get intProp => RealmObjectBase.get<int>(this, 'intProp') as int;
   @override
   set intProp(int value) => RealmObjectBase.set(this, 'intProp', value);
+
+  @override
+  Decimal128 get decimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128;
+  @override
+  set decimalProp(Decimal128 value) =>
+      RealmObjectBase.set(this, 'decimalProp', value);
 
   @override
   String? get nullableStringProp =>
@@ -601,6 +612,14 @@ class AllTypes extends _AllTypes
       RealmObjectBase.set(this, 'nullableIntProp', value);
 
   @override
+  Decimal128? get nullableDecimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimalProp')
+          as Decimal128?;
+  @override
+  set nullableDecimalProp(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimalProp', value);
+
+  @override
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObjectBase.getChanges<AllTypes>(this);
 
@@ -619,6 +638,7 @@ class AllTypes extends _AllTypes
       SchemaProperty('objectIdProp', RealmPropertyType.objectid),
       SchemaProperty('uuidProp', RealmPropertyType.uuid),
       SchemaProperty('intProp', RealmPropertyType.int),
+      SchemaProperty('decimalProp', RealmPropertyType.decimal128),
       SchemaProperty('nullableStringProp', RealmPropertyType.string,
           optional: true),
       SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
@@ -632,6 +652,8 @@ class AllTypes extends _AllTypes
       SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
           optional: true),
       SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
+      SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128,
+          optional: true),
     ]);
   }
 }
@@ -702,6 +724,7 @@ class AllCollections extends _AllCollections
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
     Iterable<int> ints = const [],
+    Iterable<Decimal128> decimals = const [],
     Iterable<String?> nullableStrings = const [],
     Iterable<bool?> nullableBools = const [],
     Iterable<DateTime?> nullableDates = const [],
@@ -709,6 +732,7 @@ class AllCollections extends _AllCollections
     Iterable<ObjectId?> nullableObjectIds = const [],
     Iterable<Uuid?> nullableUuids = const [],
     Iterable<int?> nullableInts = const [],
+    Iterable<Decimal128?> nullableDecimals = const [],
   }) {
     RealmObjectBase.set<RealmList<String>>(
         this, 'strings', RealmList<String>(strings));
@@ -721,6 +745,8 @@ class AllCollections extends _AllCollections
         this, 'objectIds', RealmList<ObjectId>(objectIds));
     RealmObjectBase.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
     RealmObjectBase.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
+    RealmObjectBase.set<RealmList<Decimal128>>(
+        this, 'decimals', RealmList<Decimal128>(decimals));
     RealmObjectBase.set<RealmList<String?>>(
         this, 'nullableStrings', RealmList<String?>(nullableStrings));
     RealmObjectBase.set<RealmList<bool?>>(
@@ -735,6 +761,8 @@ class AllCollections extends _AllCollections
         this, 'nullableUuids', RealmList<Uuid?>(nullableUuids));
     RealmObjectBase.set<RealmList<int?>>(
         this, 'nullableInts', RealmList<int?>(nullableInts));
+    RealmObjectBase.set<RealmList<Decimal128?>>(
+        this, 'nullableDecimals', RealmList<Decimal128?>(nullableDecimals));
   }
 
   AllCollections._();
@@ -786,6 +814,14 @@ class AllCollections extends _AllCollections
       RealmObjectBase.get<int>(this, 'ints') as RealmList<int>;
   @override
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Decimal128> get decimals =>
+      RealmObjectBase.get<Decimal128>(this, 'decimals')
+          as RealmList<Decimal128>;
+  @override
+  set decimals(covariant RealmList<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   RealmList<String?> get nullableStrings =>
@@ -841,6 +877,14 @@ class AllCollections extends _AllCollections
       throw RealmUnsupportedSetError();
 
   @override
+  RealmList<Decimal128?> get nullableDecimals =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimals')
+          as RealmList<Decimal128?>;
+  @override
+  set nullableDecimals(covariant RealmList<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<AllCollections>> get changes =>
       RealmObjectBase.getChanges<AllCollections>(this);
 
@@ -867,6 +911,8 @@ class AllCollections extends _AllCollections
           collectionType: RealmCollectionType.list),
       SchemaProperty('ints', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
+      SchemaProperty('decimals', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.list),
       SchemaProperty('nullableStrings', RealmPropertyType.string,
           optional: true, collectionType: RealmCollectionType.list),
       SchemaProperty('nullableBools', RealmPropertyType.bool,
@@ -880,6 +926,8 @@ class AllCollections extends _AllCollections
       SchemaProperty('nullableUuids', RealmPropertyType.uuid,
           optional: true, collectionType: RealmCollectionType.list),
       SchemaProperty('nullableInts', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDecimals', RealmPropertyType.decimal128,
           optional: true, collectionType: RealmCollectionType.list),
     ]);
   }
@@ -897,6 +945,7 @@ class NullableTypes extends _NullableTypes
     ObjectId? objectIdProp,
     Uuid? uuidProp,
     int? intProp,
+    Decimal128? decimalProp,
   }) {
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'differentiator', differentiator);
@@ -907,6 +956,7 @@ class NullableTypes extends _NullableTypes
     RealmObjectBase.set(this, 'objectIdProp', objectIdProp);
     RealmObjectBase.set(this, 'uuidProp', uuidProp);
     RealmObjectBase.set(this, 'intProp', intProp);
+    RealmObjectBase.set(this, 'decimalProp', decimalProp);
   }
 
   NullableTypes._();
@@ -966,6 +1016,13 @@ class NullableTypes extends _NullableTypes
   set intProp(int? value) => RealmObjectBase.set(this, 'intProp', value);
 
   @override
+  Decimal128? get decimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128?;
+  @override
+  set decimalProp(Decimal128? value) =>
+      RealmObjectBase.set(this, 'decimalProp', value);
+
+  @override
   Stream<RealmObjectChanges<NullableTypes>> get changes =>
       RealmObjectBase.getChanges<NullableTypes>(this);
 
@@ -989,6 +1046,8 @@ class NullableTypes extends _NullableTypes
           optional: true),
       SchemaProperty('uuidProp', RealmPropertyType.uuid, optional: true),
       SchemaProperty('intProp', RealmPropertyType.int, optional: true),
+      SchemaProperty('decimalProp', RealmPropertyType.decimal128,
+          optional: true),
     ]);
   }
 }
@@ -1338,7 +1397,8 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     double doubleProp,
     ObjectId objectIdProp,
     Uuid uuidProp,
-    int intProp, {
+    int intProp,
+    Decimal128 decimalProp, {
     String? nullableStringProp,
     bool? nullableBoolProp,
     DateTime? nullableDateProp,
@@ -1346,6 +1406,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     ObjectId? nullableObjectIdProp,
     Uuid? nullableUuidProp,
     int? nullableIntProp,
+    Decimal128? nullableDecimalProp,
     Iterable<String> strings = const [],
     Iterable<bool> bools = const [],
     Iterable<DateTime> dates = const [],
@@ -1353,6 +1414,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     Iterable<ObjectId> objectIds = const [],
     Iterable<Uuid> uuids = const [],
     Iterable<int> ints = const [],
+    Iterable<Decimal128> decimals = const [],
   }) {
     RealmObjectBase.set(this, 'stringProp', stringProp);
     RealmObjectBase.set(this, 'boolProp', boolProp);
@@ -1361,6 +1423,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     RealmObjectBase.set(this, 'objectIdProp', objectIdProp);
     RealmObjectBase.set(this, 'uuidProp', uuidProp);
     RealmObjectBase.set(this, 'intProp', intProp);
+    RealmObjectBase.set(this, 'decimalProp', decimalProp);
     RealmObjectBase.set(this, 'nullableStringProp', nullableStringProp);
     RealmObjectBase.set(this, 'nullableBoolProp', nullableBoolProp);
     RealmObjectBase.set(this, 'nullableDateProp', nullableDateProp);
@@ -1368,6 +1431,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
     RealmObjectBase.set(this, 'nullableObjectIdProp', nullableObjectIdProp);
     RealmObjectBase.set(this, 'nullableUuidProp', nullableUuidProp);
     RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
+    RealmObjectBase.set(this, 'nullableDecimalProp', nullableDecimalProp);
     RealmObjectBase.set<RealmList<String>>(
         this, 'strings', RealmList<String>(strings));
     RealmObjectBase.set<RealmList<bool>>(this, 'bools', RealmList<bool>(bools));
@@ -1379,6 +1443,8 @@ class AllTypesEmbedded extends _AllTypesEmbedded
         this, 'objectIds', RealmList<ObjectId>(objectIds));
     RealmObjectBase.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
     RealmObjectBase.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
+    RealmObjectBase.set<RealmList<Decimal128>>(
+        this, 'decimals', RealmList<Decimal128>(decimals));
   }
 
   AllTypesEmbedded._();
@@ -1424,6 +1490,13 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   int get intProp => RealmObjectBase.get<int>(this, 'intProp') as int;
   @override
   set intProp(int value) => RealmObjectBase.set(this, 'intProp', value);
+
+  @override
+  Decimal128 get decimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128;
+  @override
+  set decimalProp(Decimal128 value) =>
+      RealmObjectBase.set(this, 'decimalProp', value);
 
   @override
   String? get nullableStringProp =>
@@ -1475,6 +1548,14 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       RealmObjectBase.set(this, 'nullableIntProp', value);
 
   @override
+  Decimal128? get nullableDecimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimalProp')
+          as Decimal128?;
+  @override
+  set nullableDecimalProp(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimalProp', value);
+
+  @override
   RealmList<String> get strings =>
       RealmObjectBase.get<String>(this, 'strings') as RealmList<String>;
   @override
@@ -1523,6 +1604,14 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
   @override
+  RealmList<Decimal128> get decimals =>
+      RealmObjectBase.get<Decimal128>(this, 'decimals')
+          as RealmList<Decimal128>;
+  @override
+  set decimals(covariant RealmList<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<AllTypesEmbedded>> get changes =>
       RealmObjectBase.getChanges<AllTypesEmbedded>(this);
 
@@ -1543,6 +1632,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       SchemaProperty('objectIdProp', RealmPropertyType.objectid),
       SchemaProperty('uuidProp', RealmPropertyType.uuid),
       SchemaProperty('intProp', RealmPropertyType.int),
+      SchemaProperty('decimalProp', RealmPropertyType.decimal128),
       SchemaProperty('nullableStringProp', RealmPropertyType.string,
           optional: true),
       SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
@@ -1556,6 +1646,8 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
           optional: true),
       SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
+      SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128,
+          optional: true),
       SchemaProperty('strings', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
       SchemaProperty('bools', RealmPropertyType.bool,
@@ -1569,6 +1661,8 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       SchemaProperty('uuids', RealmPropertyType.uuid,
           collectionType: RealmCollectionType.list),
       SchemaProperty('ints', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('decimals', RealmPropertyType.decimal128,
           collectionType: RealmCollectionType.list),
     ]);
   }
@@ -1845,6 +1939,52 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
     return const SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded3, 'RecursiveEmbedded3', [
       SchemaProperty('value', RealmPropertyType.string),
+    ]);
+  }
+}
+
+class ObjectWithDecimal extends _ObjectWithDecimal
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ObjectWithDecimal(
+    Decimal128 decimal, {
+    Decimal128? nullableDecimal,
+  }) {
+    RealmObjectBase.set(this, 'decimal', decimal);
+    RealmObjectBase.set(this, 'nullableDecimal', nullableDecimal);
+  }
+
+  ObjectWithDecimal._();
+
+  @override
+  Decimal128 get decimal =>
+      RealmObjectBase.get<Decimal128>(this, 'decimal') as Decimal128;
+  @override
+  set decimal(Decimal128 value) => RealmObjectBase.set(this, 'decimal', value);
+
+  @override
+  Decimal128? get nullableDecimal =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimal') as Decimal128?;
+  @override
+  set nullableDecimal(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimal', value);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithDecimal>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithDecimal>(this);
+
+  @override
+  ObjectWithDecimal freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithDecimal>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(ObjectWithDecimal._);
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
+      SchemaProperty('decimal', RealmPropertyType.decimal128),
+      SchemaProperty('nullableDecimal', RealmPropertyType.decimal128,
+          optional: true),
     ]);
   }
 }
