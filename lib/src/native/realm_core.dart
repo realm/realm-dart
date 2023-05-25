@@ -619,10 +619,6 @@ class _RealmCore {
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
     final schedulerPtr = _realmLib.realm_dart_create_scheduler(isolateId, sendPort);
-    final logCallback = Pointer.fromFunction<Void Function(Handle, Int32, Pointer<Int8>)>(_logCallback);
-    final logCallbackUserdata = _realmLib.realm_dart_userdata_async_new(noopUserdata, logCallback.cast(), schedulerPtr);
-    _realmLib.realm_set_log_callback(_realmLib.addresses.realm_dart_sync_client_log_callback, Realm.logger.level.toInt(), logCallbackUserdata.cast(),
-        _realmLib.addresses.realm_dart_userdata_async_free);
     return SchedulerHandle._(schedulerPtr);
   }
 
