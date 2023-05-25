@@ -65,7 +65,7 @@ jobs:
       - dart-tests-linux-ubuntu-20
 
     steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@043cc5a8446748b823957c6ea4d08e6e495ea996
+      - uses: realm/ci-actions/mdb-realm/cleanup@338bf3e7575015a28faec8b67614385d122aece7
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -88,7 +88,7 @@ jobs:
       - flutter-ios
       - flutter-android
     steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@043cc5a8446748b823957c6ea4d08e6e495ea996
+      - uses: realm/ci-actions/mdb-realm/cleanup@338bf3e7575015a28faec8b67614385d122aece7
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -464,7 +464,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
+        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
@@ -537,7 +537,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@043cc5a8446748b823957c6ea4d08e6e495ea996
+        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}
