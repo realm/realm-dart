@@ -591,7 +591,7 @@ enum SyncResolveErrorCode {
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
 enum SyncWebSocketErrorCode {
-  
+
   /// Web socket resolution failed
   websocketResolveFailed(4400),
 

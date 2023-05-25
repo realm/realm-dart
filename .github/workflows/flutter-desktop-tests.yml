@@ -67,9 +67,6 @@ jobs:
         with:
           channel: 'stable'
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
-          # Delete flutter-version argument after Flutter tests CI on MacOS are fixed.
-          #Issue :https://github.com/flutter/flutter/issues/118469
-          flutter-version: ${{ inputs.os == 'macos' && '3.3.10' || ''}}
 
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop
@@ -80,7 +77,7 @@ jobs:
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@96023a542b1a3aa5083ebb3ef9f57a02fd697bb8
+        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
         with:
           realmUrl: ${{ env.BAAS_URL }}
           atlasUrl: ${{ secrets.ATLAS_QA_URL }}

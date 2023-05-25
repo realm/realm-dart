@@ -41,6 +41,8 @@ class _Bar {
 
   late RealmValue any;
   late List<RealmValue> manyAny;
+
+  late Decimal128 decimal;
 }
 
 @RealmModel()

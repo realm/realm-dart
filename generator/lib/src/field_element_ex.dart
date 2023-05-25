@@ -92,7 +92,7 @@ extension FieldElementEx on FieldElement {
       final backlink = backlinkInfo;
 
       // Check for as-of-yet unsupported type
-      if (type.isDartCoreMap || type.isExactly<Decimal128>()) {
+      if (type.isDartCoreMap) {
         throw RealmInvalidGenerationSourceError(
           'Field type not supported yet',
           element: this,
