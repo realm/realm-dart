@@ -299,6 +299,7 @@ class BaasClient {
             "field_name": "company"
           }''');
       }
+
       if (confirmationType == null) {
         await enableProvider(app, 'custom-function', config: '''{
             "authFunctionName": "authFunc",
@@ -361,7 +362,7 @@ class BaasClient {
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
-        rules: '''{        
+        rules: '''{
         "roles": [
           {
             "name": "all",

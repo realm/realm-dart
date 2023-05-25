@@ -717,4 +717,28 @@ Future<void> main([List<String>? args]) async {
     expect(realm.query<ObjectWithDecimal>(r'decimal > $0', [small]).map((e) => e.decimal), [big]);
     expect(realm.query<ObjectWithDecimal>(r'decimal >= $0', [small]).map((e) => e.decimal), [small, big]);
   });
+
+  test('Query parser works with long query string with OR/AND', () async {
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    List<String> list = [];
+    for (var i = 0; i <= 1500; i++) {
+      list.add("_id == oid(${ObjectId()})");
+    }
+    final ids = list.join(" OR ");
+    final result = realm.query<Product>(ids);
+    expect(result.length, 0);
+  });
+
+  test('Query parser works with IN clause and large set of items ', () async {
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    List<String> list = [];
+    for (var i = 0; i < 1500; i++) {
+      list.add("oid(${ObjectId()})");
+    }
+    final ids = "_id IN {${list.join(",")}}";
+    final items = realm.query<Product>(ids);
+    expect(items.length, 0);
+  });
 }
