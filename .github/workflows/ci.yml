@@ -480,7 +480,7 @@ jobs:
 
       - name: Slack on fail
         id: send-slack-message
-        if: cancelled() || failure()
+        if: failure()
         uses: act10ns/slack@v2
         with:
             webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
@@ -570,7 +570,7 @@ jobs:
       
       - name: Slack on fail
         id: send-slack-message
-        if: cancelled() || failure()
+        if: failure()
         uses: act10ns/slack@v2
         with:
             webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
@@ -671,7 +671,7 @@ jobs:
 
       - name: Slack on fail
         id: send-slack-message
-        if: cancelled() || failure()
+        if: failure()
         uses: act10ns/slack@v2
         with:
             webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
