@@ -3011,14 +3011,6 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  static int length1(Pointer<Uint8> codeUnits) {
-    var length = 0;
-    while (codeUnits[length] != 0) {
-      length++;
-    }
-    return length;
-  }
-
   SyncError toSyncError(Configuration config) {
     final message = error_code.message.cast<Utf8>().toRealmDartString()!;
     final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString()!;
@@ -3026,33 +3018,47 @@ extension on realm_sync_error {
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
     if (is_client_reset_requested || error_code.value == SyncClientErrorCode.autoClientResetFailure.code) {
-      Map<String, String> userInfoMap = {};
-      final userInfoMapPtr = user_info_map.cast<realm_sync_error_user_info>();
-      for (int i = 0; i < user_info_length; ++i) {
-        final userInfoItem = userInfoMapPtr[i];
-        final key = userInfoItem.key.cast<Utf8>().toDartString();
-        final value = userInfoItem.value.cast<Utf8>().toDartString();
-        userInfoMap.addEntries([MapEntry(key, value)]);
-      }
+      final userInfoMap = user_info_map.toDartCollection(user_info_length);
       return ClientResetError(message, detailedMessage, config, userInfoMap);
     }
     if (category == SyncErrorCategory.session) {
       final sessionErrorCode = SyncSessionErrorCode.fromInt(error_code.value);
       if (sessionErrorCode == SyncSessionErrorCode.compensatingWrite) {
-        List<CompensatingWriteInfo> compensatingWrites = [];
-
-        final compensatingWritesPtr = compensating_writes.cast<realm_sync_error_compensating_write_info>();
-        for (int i = 0; i < compensating_writes_length; ++i) {
-          final compensatingWrite = compensatingWritesPtr[i];
-          final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
-          final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
-          final primary_key = compensatingWrite.primary_key.toDartValueByRef(null);
-          compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
-        }
+        final compensatingWrites = compensating_writes.toDartCollection(compensating_writes_length);
         return CompensatingWriteError(message, detailedMessage, compensatingWrites);
       }
     }
     return SyncError.create(message, detailedMessage, category, error_code.value, isFatal: is_fatal);
+  }
+}
+
+extension on Pointer<realm_sync_error_user_info_t> {
+  Map<String, String> toDartCollection(int length) {
+    Map<String, String> userInfoMap = {};
+    final userInfoMapPtr = cast<realm_sync_error_user_info>();
+    for (int i = 0; i < length; ++i) {
+      final userInfoItem = userInfoMapPtr[i];
+      final key = userInfoItem.key.cast<Utf8>().toDartString();
+      final value = userInfoItem.value.cast<Utf8>().toDartString();
+      userInfoMap.addEntries([MapEntry(key, value)]);
+    }
+    return userInfoMap;
+  }
+}
+
+extension on Pointer<realm_sync_error_compensating_write_info_t> {
+  List<CompensatingWriteInfo> toDartCollection(int length) {
+    List<CompensatingWriteInfo> compensatingWrites = [];
+
+    final compensatingWritesPtr = cast<realm_sync_error_compensating_write_info>();
+    for (int i = 0; i < length; ++i) {
+      final compensatingWrite = compensatingWritesPtr[i];
+      final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
+      final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
+      final primary_key = compensatingWrite.primary_key.toDartValueByRef(null);
+      compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
+    }
+    return compensatingWrites;
   }
 }
 

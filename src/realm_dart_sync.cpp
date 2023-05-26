@@ -87,9 +87,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     buf.c_original_file_path_key = error.c_original_file_path_key;
     buf.c_recovery_file_path_key = error.c_recovery_file_path_key;
     buf.is_fatal = error.is_fatal;
-    buf.is_unrecognized_by_client = error.is_unrecognized_by_client;
     buf.is_client_reset_requested = error.is_client_reset_requested;
-    buf.server_requests_action = error.server_requests_action;
     buf.user_info_values.reserve(error.user_info_length);
     buf.user_info.reserve(error.user_info_length);
     buf.compensating_writes_values.reserve(error.compensating_writes_length);
@@ -122,9 +120,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         error.c_original_file_path_key = buf.c_original_file_path_key;
         error.c_recovery_file_path_key = buf.c_recovery_file_path_key;
         error.is_fatal = buf.is_fatal;
-        error.is_unrecognized_by_client = buf.is_unrecognized_by_client;
         error.is_client_reset_requested = buf.is_client_reset_requested;
-        error.server_requests_action = buf.server_requests_action;
         error.user_info_map = buf.user_info.data();
         error.compensating_writes = buf.compensating_writes.data();
         (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);

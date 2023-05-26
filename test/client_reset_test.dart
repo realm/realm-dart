@@ -530,15 +530,16 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
     await waitFutureWithTimeout(resetCompleter.future, timeoutError: "ManualRecoveryHandler is not reported.");
+    expect(error, isNotNull);
     expect(error, isA<ClientResetError>());
-    final clientResetError = error?.as<ClientResetError>();
-    expect(clientResetError?.category, SyncErrorCategory.client);
-    expect(clientResetError?.code, SyncClientErrorCode.autoClientResetFailure);
-    expect(clientResetError?.isFatal, isTrue);
-    expect(clientResetError?.message, isNotEmpty);
-    expect(clientResetError?.detailedMessage, isNotEmpty);
-    expect(clientResetError?.message == clientResetError?.detailedMessage, isFalse);
-    expect(clientResetError?.backupFilePath, isNotEmpty);
+    final clientResetError = error!.as<ClientResetError>();
+    expect(clientResetError.category, SyncErrorCategory.client);
+    expect(clientResetError.code, SyncClientErrorCode.autoClientResetFailure);
+    expect(clientResetError.isFatal, isTrue);
+    expect(clientResetError.message, isNotEmpty);
+    expect(clientResetError.detailedMessage, isNotEmpty);
+    expect(clientResetError.message == clientResetError.detailedMessage, isFalse);
+    expect(clientResetError.backupFilePath, isNotEmpty);
   });
 }
 
