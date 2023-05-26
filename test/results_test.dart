@@ -663,6 +663,39 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
+  test('RealmResults.isValid', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final alice = Person('Alice');
+    final bob = Person('Bob');
+    final carol = Person('Carol');
+    final dan = Person('Dan');
+
+    final team = realm.write(() {
+      return realm.add(Team('Class of 92', players: [alice, bob, carol, dan]));
+    });
+
+    final players = team.players;
+    final playersAsResults = team.players.asResults();
+
+    expect(players.isValid, isTrue);
+    expect(playersAsResults.isValid, isTrue);
+    expect(playersAsResults, [alice, bob, carol, dan]);
+
+    realm.write(() => realm.delete(team));
+
+    expect(team.isValid, isFalse); // dead object
+    expect(players.isValid, isFalse); // parent is dead
+    expect(() => players.isEmpty, throwsException); // illegal to access properties on dead object
+    expect(playersAsResults.isValid, isTrue); // Results are still valid..
+    expect(playersAsResults, isEmpty); // .. but obviously empty
+    expect(() => playersAsResults.freeze(), returnsNormally);
+    final frozeResults = playersAsResults.freeze();
+    expect(frozeResults.isFrozen, isTrue);
+    expect(frozeResults, isEmpty);
+  });
+
   test('query by condition on decimal128', () {
     final config = Configuration.local([ObjectWithDecimal.schema]);
     final realm = getRealm(config);
@@ -683,5 +716,29 @@ Future<void> main([List<String>? args]) async {
     expect(realm.query<ObjectWithDecimal>(r'decimal > $0', [big]), isEmpty);
     expect(realm.query<ObjectWithDecimal>(r'decimal > $0', [small]).map((e) => e.decimal), [big]);
     expect(realm.query<ObjectWithDecimal>(r'decimal >= $0', [small]).map((e) => e.decimal), [small, big]);
+  });
+
+  test('Query parser works with long query string with OR/AND', () async {
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    List<String> list = [];
+    for (var i = 0; i <= 1500; i++) {
+      list.add("_id == oid(${ObjectId()})");
+    }
+    final ids = list.join(" OR ");
+    final result = realm.query<Product>(ids);
+    expect(result.length, 0);
+  });
+
+  test('Query parser works with IN clause and large set of items ', () async {
+    final config = Configuration.local([Product.schema]);
+    final realm = getRealm(config);
+    List<String> list = [];
+    for (var i = 0; i < 1500; i++) {
+      list.add("oid(${ObjectId()})");
+    }
+    final ids = "_id IN {${list.join(",")}}";
+    final items = realm.query<Product>(ids);
+    expect(items.length, 0);
   });
 }
