@@ -536,6 +536,8 @@ Future<void> main([List<String>? args]) async {
     expect(clientResetError?.code, SyncClientErrorCode.autoClientResetFailure);
     expect(clientResetError?.isFatal, isTrue);
     expect(clientResetError?.message, isNotEmpty);
+    expect(clientResetError?.detailedMessage, isNotEmpty);
+    expect(clientResetError?.message == clientResetError?.detailedMessage, isFalse);
     expect(clientResetError?.backupFilePath, isNotEmpty);
   });
 }

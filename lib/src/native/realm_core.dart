@@ -3021,6 +3021,7 @@ extension on realm_sync_error {
 
   SyncError toSyncError(Configuration config) {
     final message = error_code.message.cast<Utf8>().toRealmDartString()!;
+    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
@@ -3033,7 +3034,7 @@ extension on realm_sync_error {
         final value = userInfoItem.value.cast<Utf8>().toDartString();
         userInfoMap.addEntries([MapEntry(key, value)]);
       }
-      return ClientResetError(message, config, userInfoMap);
+      return ClientResetError(message, detailedMessage, config, userInfoMap);
     }
     if (category == SyncErrorCategory.session) {
       final sessionErrorCode = SyncSessionErrorCode.fromInt(error_code.value);
@@ -3048,17 +3049,17 @@ extension on realm_sync_error {
           final primary_key = compensatingWrite.primary_key.toDartValueByRef(null);
           compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
         }
-        return CompensatingWriteError(message, compensatingWrites);
+        return CompensatingWriteError(message, detailedMessage, compensatingWrites);
       }
     }
-    return SyncError.create(message, category, error_code.value, isFatal: is_fatal);
+    return SyncError.create(message, detailedMessage, category, error_code.value, isFatal: is_fatal);
   }
 }
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
+    return SyncError.create(message, "", SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }
 

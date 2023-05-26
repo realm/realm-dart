@@ -615,7 +615,12 @@ class ClientResetError extends SyncError {
 
   final Map<String, String>? _userInfo;
 
-  ClientResetError(String message, [this._config, this._userInfo]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+  ClientResetError(
+    String message,
+    String detailedMessage, [
+    this._config,
+    this._userInfo,
+  ]) : super(message, detailedMessage, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
 
   @override
   String toString() {
@@ -646,23 +651,27 @@ class SyncError extends RealmError {
   /// The category of the sync error
   final SyncErrorCategory category;
 
-  SyncError(String message, this.category, this.codeValue) : super(message);
+  /// Detailed error message.
+  /// In case of server error, it contains the link to the server log.
+  final String detailedMessage;
+
+  SyncError(String message, this.detailedMessage, this.category, this.codeValue) : super(message);
 
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
-  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
+  static SyncError create(String message, String detailedMessage, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncClientError(message, detailedMessage, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.connection:
-        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncConnectionError(message, detailedMessage, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
-        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncSessionError(message, detailedMessage, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.webSocket:
-        return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code));
+        return SyncWebSocketError(message, detailedMessage, category, SyncWebSocketErrorCode.fromInt(code));
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
-        return GeneralSyncError(message, category, code);
+        return GeneralSyncError(message, detailedMessage, category, code);
     }
   }
 
@@ -686,10 +695,11 @@ class SyncClientError extends SyncError {
 
   SyncClientError(
     String message,
+    String detailedMessage,
     SyncErrorCategory category,
     SyncClientErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.code);
+  }) : super(message, detailedMessage, category, errorCode.code);
 
   @override
   String toString() {
@@ -708,10 +718,11 @@ class SyncConnectionError extends SyncError {
 
   SyncConnectionError(
     String message,
+    String detailedMessage,
     SyncErrorCategory category,
     SyncConnectionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.code);
+  }) : super(message, detailedMessage, category, errorCode.code);
 
   @override
   String toString() {
@@ -730,10 +741,11 @@ class SyncSessionError extends SyncError {
 
   SyncSessionError(
     String message,
+    String detailedMessage,
     SyncErrorCategory category,
     SyncSessionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.code);
+  }) : super(message, detailedMessage, category, errorCode.code);
 
   @override
   String toString() {
@@ -750,7 +762,12 @@ class SyncResolveError extends SyncError {
   /// The numeric value indicating the type of the network resolution sync error.
   SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
 
-  SyncResolveError(String message, SyncErrorCategory category, SyncResolveErrorCode errorCode) : super(message, category, errorCode.index);
+  SyncResolveError(
+    String message,
+    String detailedMessage,
+    SyncErrorCategory category,
+    SyncResolveErrorCode errorCode,
+  ) : super(message, detailedMessage, category, errorCode.index);
 
   @override
   String toString() {
@@ -763,7 +780,12 @@ class SyncWebSocketError extends SyncError {
   /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
 
-  SyncWebSocketError(String message, SyncErrorCategory category, SyncWebSocketErrorCode errorCode) : super(message, category, errorCode.code);
+  SyncWebSocketError(
+    String message,
+    String detailedMessage,
+    SyncErrorCategory category,
+    SyncWebSocketErrorCode errorCode,
+  ) : super(message, detailedMessage, category, errorCode.code);
 
   @override
   String toString() {
@@ -776,7 +798,12 @@ class GeneralSyncError extends SyncError {
   /// The numeric value indicating the type of the general sync error.
   int get code => codeValue;
 
-  GeneralSyncError(String message, SyncErrorCategory category, int code) : super(message, category, code);
+  GeneralSyncError(
+    String message,
+    String detailedMessage,
+    SyncErrorCategory category,
+    int code,
+  ) : super(message, detailedMessage, category, code);
 
   @override
   String toString() {
@@ -829,7 +856,11 @@ class CompensatingWriteError extends SyncError {
   /// The list of the compensating writes performed by the server.
   late final List<CompensatingWriteInfo> compensatingWrites;
 
-  CompensatingWriteError(String message, this.compensatingWrites) : super(message, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code);
+  CompensatingWriteError(
+    String message,
+    String detailedMessage,
+    this.compensatingWrites,
+  ) : super(message, detailedMessage, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code);
 
   @override
   String toString() {
