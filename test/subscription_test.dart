@@ -584,11 +584,13 @@ Future<void> main([List<String>? args]) async {
     final sessionError = compensatingWriteError.as<CompensatingWriteError>();
     expect(sessionError.category, SyncErrorCategory.session);
     expect(sessionError.code, SyncSessionErrorCode.compensatingWrite);
+    expect(sessionError.message, isNotEmpty);
     final writeReason = sessionError.compensatingWrites.first;
     expect(writeReason, isNotNull);
     expect(writeReason.objectType, "Product");
     expect(writeReason.reason, 'write to "$productId" in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
     expect(writeReason.primaryKey.value, productId);
-    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'), isTrue);
+    expect(sessionError.message!.startsWith('Client attempted a write that is disallowed by permissions, or modifies an object outside the current query'),
+        isTrue);
   });
 }

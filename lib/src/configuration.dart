@@ -608,10 +608,10 @@ class ClientResetError extends SyncError {
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  String get originalFilePath => _userInfo?[_originalFilePathKey] ?? "";
+  String get _originalFilePath => _userInfo?["ORIGINAL_FILE_PATH"] ?? "";
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
-  String get backupFilePath => _userInfo?[_backupFilePathKey] ?? "";
+  String get backupFilePath => _userInfo?["RECOVERY_FILE_PATH"] ?? "";
 
   final Map<String, String>? _userInfo;
 
@@ -629,7 +629,7 @@ class ClientResetError extends SyncError {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
-    if (originalFilePath != _config?.path) {
+    if (_originalFilePath != _config?.path) {
       throw RealmException("The current configuration does not match the original realm file path.");
     }
     final flexibleConfig = _config as FlexibleSyncConfiguration;
@@ -640,9 +640,6 @@ class ClientResetError extends SyncError {
 /// Thrown when an error occurs during synchronization
 /// {@category Sync}
 class SyncError extends RealmError {
-  final _originalFilePathKey = "ORIGINAL_FILE_PATH";
-  final _backupFilePathKey = "RECOVERY_FILE_PATH";
-
   /// The numeric code value indicating the type of the sync error.
   final int codeValue;
 
@@ -659,7 +656,7 @@ class SyncError extends RealmError {
         if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
           return ClientResetError(message);
         }
-        return SyncClientError(message, category, errorCode, isFatal: isFatal);
+        return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.connection:
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:

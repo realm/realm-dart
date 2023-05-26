@@ -3020,17 +3020,17 @@ extension on realm_sync_error {
   }
 
   SyncError toSyncError(Configuration config) {
-    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final message = error_code.message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
-    if (is_client_reset_requested) {
+    if (is_client_reset_requested || error_code.value == SyncClientErrorCode.autoClientResetFailure.code) {
       Map<String, String> userInfoMap = {};
-      final ui = user_info_map.cast<realm_sync_error_user_info>();
+      final userInfoMapPtr = user_info_map.cast<realm_sync_error_user_info>();
       for (int i = 0; i < user_info_length; ++i) {
-        final uiEntry = ui[i];
-        final key = uiEntry.key.cast<Utf8>().toDartString();
-        final value = uiEntry.value.cast<Utf8>().toDartString();
+        final userInfoItem = userInfoMapPtr[i];
+        final key = userInfoItem.key.cast<Utf8>().toDartString();
+        final value = userInfoItem.value.cast<Utf8>().toDartString();
         userInfoMap.addEntries([MapEntry(key, value)]);
       }
       return ClientResetError(message, config, userInfoMap);
@@ -3040,12 +3040,12 @@ extension on realm_sync_error {
       if (sessionErrorCode == SyncSessionErrorCode.compensatingWrite) {
         List<CompensatingWriteInfo> compensatingWrites = [];
 
-        final cw = compensating_writes.cast<realm_sync_error_compensating_write_info>();
+        final compensatingWritesPtr = compensating_writes.cast<realm_sync_error_compensating_write_info>();
         for (int i = 0; i < compensating_writes_length; ++i) {
-          final cwi = cw[i];
-          final object_name = cwi.object_name.cast<Utf8>().toDartString();
-          final reason = cwi.reason.cast<Utf8>().toDartString();
-          final primary_key = cwi.primary_key.toDartValueByRef(null);
+          final compensatingWrite = compensatingWritesPtr[i];
+          final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
+          final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
+          final primary_key = compensatingWrite.primary_key.toDartValueByRef(null);
           compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
         }
         return CompensatingWriteError(message, compensatingWrites);
