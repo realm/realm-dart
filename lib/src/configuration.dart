@@ -815,6 +815,11 @@ class CompensatingWriteInfo {
 
   /// The primary key of the object which was affected by the compensating write.
   final RealmValue primaryKey;
+
+  @override
+  String toString() {
+    return "CompensatingWriteInfo: objectType: $objectType\n reason: $reason\n primaryKey: $primaryKey\n";
+  }
 }
 
 /// An error type that describes a compensating write error,
@@ -828,10 +833,10 @@ class CompensatingWriteError extends SyncError {
   /// The list of the compensating writes performed by the server.
   late final List<CompensatingWriteInfo> compensatingWrites;
 
-  CompensatingWriteError(String message, this.compensatingWrites) : super(message, SyncErrorCategory.client, SyncSessionErrorCode.compensatingWrite.code);
+  CompensatingWriteError(String message, this.compensatingWrites) : super(message, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code);
 
   @override
   String toString() {
-    return "CompensatingWriteError message: $message category: $category code: $code";
+    return "CompensatingWriteError message: $message category: $category code: $code\n $compensatingWrites";
   }
 }
