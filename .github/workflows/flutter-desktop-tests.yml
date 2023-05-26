@@ -89,3 +89,13 @@ jobs:
       - name: Run tests
         run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"
         working-directory: ./flutter/realm_flutter/tests
+
+      - name: Slack on fail
+        id: send-slack-message
+        if: cancelled() || failure()
+        uses: act10ns/slack@v2
+        with:
+           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+           status: ${{ job.status }}
+           steps: ${{ toJson(steps) }}
+           channel: '#realm-github-dart'
