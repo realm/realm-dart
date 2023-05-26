@@ -677,10 +677,13 @@ jobs:
       - name: Slack on fail
         id: send-slack-message
         if: always()
-        uses: ravsamhq/notify-slack-action@v1
+        uses: ravsamhq/notify-slack-action@v2
         with:
           status: ${{ job.status }}
-          notify_when: 'failure,cancelled,warnings,skipped'
+          #notify_when: 'failure,cancelled,warnings,skipped'
+          notification_title: "{workflow} has {status_message}"
+          message_format: "{workflow}* {status_message} in <{repo_url}|{repo}>"
+          footer: "Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>"    
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DART_WEBHOOK }}
       #  - name: Slack on fail
