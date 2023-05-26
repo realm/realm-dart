@@ -680,18 +680,8 @@ jobs:
         uses: ravsamhq/notify-slack-action@v2
         with:
           status: ${{ job.status }}
-          #notify_when: 'failure,cancelled,warnings,skipped'
           notification_title: "{workflow} has {status_message}"
           message_format: "{workflow}* {status_message} in <{repo_url}|{repo}>"
           footer: "Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>"    
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DART_WEBHOOK }}
-      #  - name: Slack on fail
-      #    id: send-slack-message
-      #    if: always()
-      #    uses: act10ns/slack@v2.0.0
-      #    with:
-      #         webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
-      #         status: ${{ job.status }}
-      #         channel: '#realm-github-dart'
-      #         message: CI actions failed on main branch https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}
