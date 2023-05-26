@@ -106,12 +106,3 @@ jobs:
       - name: Output Coveralls response
         if: inputs.os == 'linux'
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
-
-      - name: Slack on fail
-        id: send-slack-message
-        if: failure()
-        uses: act10ns/slack@v2
-        with:
-           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
-           status: ${{ job.status }}
-           channel: '#realm-github-dart'

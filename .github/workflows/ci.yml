@@ -478,16 +478,6 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
 
-      - name: Slack on fail
-        id: send-slack-message
-        if: failure()
-        uses: act10ns/slack@v2
-        with:
-            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
-            status: ${{ job.status }}
-            channel: '#realm-github-dart'
-
-
   flutter-android:
     runs-on: macos-latest
     name: Android Flutter Tests
@@ -567,15 +557,6 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
           working-directory: ./flutter/realm_flutter/tests
-      
-      - name: Slack on fail
-        id: send-slack-message
-        if: failure()
-        uses: act10ns/slack@v2
-        with:
-            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
-            status: ${{ job.status }}
-            channel: '#realm-github-dart'
 
 # Generator jobs
 
@@ -669,15 +650,6 @@ jobs:
         if: matrix.os == 'ubuntu'
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
 
-      - name: Slack on fail
-        id: send-slack-message
-        if: failure()
-        uses: act10ns/slack@v2
-        with:
-            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
-            status: ${{ job.status }}
-            channel: '#realm-github-dart'
-
   coverage-finished:
     needs:
       - generator
@@ -694,3 +666,19 @@ jobs:
 
       - name: Output Coveralls response
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
+
+  slack-on-fail:
+    needs:
+      - delete-dart-cluster
+      - delete-flutter-cluster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack on fail
+        id: send-slack-message
+        if: always() && ( ${{ needs.delete-dart-cluster.result }} != 'success' || ${{ needs.delete-flutter-cluster.result }} != 'success') 
+        uses: act10ns/slack@v2
+        with:
+            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+            status: 'failure'
+            channel: '#realm-github-dart'
+            message: 'Realm Dart CI faled: https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}'
