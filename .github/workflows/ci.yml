@@ -478,6 +478,15 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
 
+      - name: Slack on fail
+        id: send-slack-message
+        if: cancelled() || failure()
+        uses: act10ns/slack@v2
+        with:
+            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+            status: ${{ job.status }}
+            channel: '#realm-github-dart'
+
 
   flutter-android:
     runs-on: macos-latest
@@ -513,7 +522,7 @@ jobs:
 
       # TODO: Move CI run tests on Android Emulator into device farm https://github.com/realm/realm-dart/issues/691
       - name: Setup Android Emulator cache
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3
         id: avd-cache
         with:
           path: |
@@ -558,6 +567,15 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
           working-directory: ./flutter/realm_flutter/tests
+      
+      - name: Slack on fail
+        id: send-slack-message
+        if: cancelled() || failure()
+        uses: act10ns/slack@v2
+        with:
+            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+            status: ${{ job.status }}
+            channel: '#realm-github-dart'
 
 # Generator jobs
 
@@ -650,6 +668,15 @@ jobs:
       - name: Output Coveralls response
         if: matrix.os == 'ubuntu'
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
+
+      - name: Slack on fail
+        id: send-slack-message
+        if: cancelled() || failure()
+        uses: act10ns/slack@v2
+        with:
+            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+            status: ${{ job.status }}
+            channel: '#realm-github-dart'
 
   coverage-finished:
     needs:

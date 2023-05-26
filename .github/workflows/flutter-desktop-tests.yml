@@ -97,5 +97,4 @@ jobs:
         with:
            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
            status: ${{ job.status }}
-           steps: ${{ toJson(steps) }}
            channel: '#realm-github-dart'

@@ -63,3 +63,12 @@ jobs:
           name: librealm-${{ matrix.build }}
           path: binary/${{ inputs.binary }}/**
           retention-days: 1
+
+      - name: Slack on fail
+        id: send-slack-message
+        if: cancelled() || failure()
+        uses: act10ns/slack@v2
+        with:
+            webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+            status: ${{ job.status }}
+            channel: '#realm-github-dart'
