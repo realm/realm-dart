@@ -608,7 +608,14 @@ class ClientResetError extends SyncError {
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  ClientResetError(String message, [this._config]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+  String get _originalFilePath => _userInfo?[_originalFilePathKey] ?? "";
+
+  /// The path where the backup copy of the realm will be placed once the client reset process is complete.
+  String get backupFilePath => _userInfo?[_backupFilePathKey] ?? "";
+
+  final Map<String, String>? _userInfo;
+
+  ClientResetError(String message, [this._config, this._userInfo]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
 
   @override
   String toString() {
@@ -630,6 +637,9 @@ class ClientResetError extends SyncError {
 /// Thrown when an error occurs during synchronization
 /// {@category Sync}
 class SyncError extends RealmError {
+  final _originalFilePathKey = "ORIGINAL_FILE_PATH";
+  final _backupFilePathKey = "RECOVERY_FILE_PATH";
+
   /// The numeric code value indicating the type of the sync error.
   final int codeValue;
 
@@ -791,4 +801,37 @@ enum GeneralSyncErrorCode {
 
   final int code;
   const GeneralSyncErrorCode(this.code);
+}
+
+/// A class containing the details for a compensating write performed by the server.
+class CompensatingWriteInfo {
+  CompensatingWriteInfo(this.objectType, this.reason, this.primaryKey);
+
+  /// The type of the object which was affected by the compensating write.
+  final String objectType;
+
+  /// The reason for the server to perform a compensating write.
+  final String reason;
+
+  /// The primary key of the object which was affected by the compensating write.
+  final RealmValue primaryKey;
+}
+
+/// An error type that describes a compensating write error,
+/// which indicates that one more object changes have been reverted
+/// by the server.
+/// {@category Sync}
+class CompensatingWriteError extends SyncError {
+  /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
+  SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
+
+  /// The list of the compensating writes performed by the server.
+  late final List<CompensatingWriteInfo> compensatingWrites;
+
+  CompensatingWriteError(String message, this.compensatingWrites) : super(message, SyncErrorCategory.client, SyncSessionErrorCode.compensatingWrite.code);
+
+  @override
+  String toString() {
+    return "CompensatingWriteError message: $message category: $category code: $code";
+  }
 }
