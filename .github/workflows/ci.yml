@@ -680,7 +680,7 @@ jobs:
         uses: ravsamhq/notify-slack-action@v1
         with:
           status: ${{ job.status }}
-          notify_when: 'failure'
+          notify_when: 'failure,cancelled,warnings,skipped'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DART_WEBHOOK }}
       #  - name: Slack on fail
