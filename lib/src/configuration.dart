@@ -608,7 +608,7 @@ class ClientResetError extends SyncError {
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  String get _originalFilePath => _userInfo?[_originalFilePathKey] ?? "";
+  String get originalFilePath => _userInfo?[_originalFilePathKey] ?? "";
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
   String get backupFilePath => _userInfo?[_backupFilePathKey] ?? "";
@@ -628,6 +628,9 @@ class ClientResetError extends SyncError {
   bool resetRealm() {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
+    }
+    if (originalFilePath != _config?.path) {
+      throw RealmException("The current configuration does not match the original realm file path.");
     }
     final flexibleConfig = _config as FlexibleSyncConfiguration;
     return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);

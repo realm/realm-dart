@@ -509,6 +509,35 @@ Future<void> main([List<String>? args]) async {
     _checkProducts(realmA, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
     _checkProducts(realmB, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
   });
+
+  baasTest('ClientResetError details are received', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    final resetCompleter = Completer<void>();
+    SyncError? error;
+    final config = Configuration.flexibleSync(
+      user,
+      [Task.schema, Schedule.schema],
+      clientResetHandler: ManualRecoveryHandler((syncError) {
+        error = syncError;
+        resetCompleter.complete();
+      }),
+    );
+
+    final realm = await getRealmAsync(config);
+    await realm.syncSession.waitForUpload();
+
+    await triggerClientReset(realm);
+    await waitFutureWithTimeout(resetCompleter.future, timeoutError: "ManualRecoveryHandler is not reported.");
+    expect(error, isA<ClientResetError>());
+    final clientResetError = error?.as<ClientResetError>();
+    expect(clientResetError?.category, SyncErrorCategory.client);
+    expect(clientResetError?.code, SyncClientErrorCode.autoClientResetFailure);
+    expect(clientResetError?.isFatal, isTrue);
+    expect(clientResetError?.backupFilePath, isNotEmpty);
+    expect(clientResetError?.originalFilePath, isNotEmpty);
+  });
 }
 
 Future<Realm> _syncRealmForUser<T extends RealmObject>(FlexibleSyncConfiguration config, [List<T>? items]) async {
