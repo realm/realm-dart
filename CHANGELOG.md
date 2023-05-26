@@ -2,6 +2,7 @@
 
 ### Enhancements
 
+* Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process is complete.
 * Added `CompensatingWriteError` that contains detailed information about the writes that have been reverted by the server due to permissions or subscription view restrictions. It will be received on `syncErrorHandle` callbak, which is set to `Configuration.flexibleSync` similarly to other session errors. ([#1291](https://github.com/realm/realm-dart/pull/1291))
 
 * Add `RealmResults.isValid` ([#1231](https://github.com/realm/realm-dart/pull/1231)).

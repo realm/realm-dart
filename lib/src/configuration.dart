@@ -652,10 +652,6 @@ class SyncError extends RealmError {
   static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
-        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
-          return ClientResetError(message);
-        }
         return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.connection:
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
