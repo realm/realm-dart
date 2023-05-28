@@ -1,12 +1,25 @@
 name: ejson
-description: An EJson serialization library for Dart.
+description: >-
+  EJSON serialization.
+
+  BSON is a binary format used to store JSON-like documents efficiently. 
+  EJSON extends JSON defining how all BSON types should be represented in JSON.
+
+topics:
+  - ejson
+  - bson
+  - json
+  - build-runner
+  - codegen
+
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/realm/realm-dart
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ^3.0.1
 
-# Add regular dependencies here.
 dependencies:
   analyzer: ^5.2.0
   build: ^2.3.1
