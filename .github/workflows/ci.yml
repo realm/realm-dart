@@ -677,7 +677,7 @@ jobs:
       - uses: technote-space/workflow-conclusion-action@v3
 
       - uses: act10ns/slack@v2
-        if: ${{ github.head_ref && (env.WORKFLOW_CONCLUSION == 'failure')}} 
+        if: ${{ env.WORKFLOW_CONCLUSION == 'FAILURE'}} 
         # Statuses: neutral, success, skipped, cancelled, timed_out, action_required, failure
         with:
           status: ${{ env.WORKFLOW_CONCLUSION }} 
