@@ -161,9 +161,7 @@ class BaasClient {
 
   Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
     final existingApp = existingApps[appName];
-    if (existingApp != null) {
-      print('Found existing app ${existingApp.clientAppId}');
-    } else {
+    if (existingApp == null) {
       existingApps[appName] = await _createApp(appName, appSuffix, confirmationType: confirmationType);
     }
   }
@@ -301,6 +299,7 @@ class BaasClient {
             "field_name": "company"
           }''');
       }
+
       if (confirmationType == null) {
         await enableProvider(app, 'custom-function', config: '''{
             "authFunctionName": "authFunc",
@@ -363,7 +362,7 @@ class BaasClient {
           "queryable_fields_names": ["differentiator", "stringQueryField", "boolQueryField", "intQueryField"]
         }
       }''',
-        rules: '''{        
+        rules: '''{
         "roles": [
           {
             "name": "all",
@@ -586,8 +585,12 @@ class BaasClient {
     final mongoServiceId = service['_id'] as String;
     final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];
+    final dynamic clusterName = configDocs['clusterName'];
     flexibleSync["is_recovery_mode_disabled"] = !enable;
-    String data = jsonEncode(<String, dynamic>{'clusterName': configDocs['clusterName'], 'flexible_sync': flexibleSync});
+    String data = jsonEncode(<String, dynamic>{
+      if (clusterName != null) 'clusterName': clusterName,
+      'flexible_sync': flexibleSync,
+    });
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
   }
 }

@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-import 'dart:ffi';
+
 import 'dart:typed_data';
 
 import 'package:analyzer/dart/element/nullability_suffix.dart';
@@ -29,6 +29,7 @@ import 'type_checkers.dart';
 
 extension DartTypeEx on DartType {
   bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
+  bool isA<T>() => TypeChecker.fromRuntime(T).isAssignableFromType(this);
 
   bool get isRealmValue => const TypeChecker.fromRuntime(RealmValue).isAssignableFromType(this);
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
@@ -112,7 +113,7 @@ extension DartTypeEx on DartType {
     if (isRealmValue) return RealmPropertyType.mixed;
     if (isExactly<DateTime>()) return RealmPropertyType.timestamp;
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
-    if (isExactly<Decimal128>()) return RealmPropertyType.decimal128;
+    if (isA<Decimal128>()) return RealmPropertyType.decimal128;
     if (isRealmModel) return RealmPropertyType.object;
     if (isDartCoreIterable) return RealmPropertyType.linkingObjects;
     if (isExactly<ObjectId>()) return RealmPropertyType.objectid;

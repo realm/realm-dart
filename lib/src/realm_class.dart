@@ -121,6 +121,7 @@ export 'session.dart'
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
+export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -486,10 +487,26 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  /// The logger to use for logging
-  static Logger logger = Logger.detached('Realm')
-    ..level = RealmLogLevel.info
-    ..onRecord.listen((event) => print(event));
+  static Logger _logger = realmCore.defaultRealmLogger;
+
+  /// The logger to use for Realm logging in this `Isolate`
+  /// The default log level is [RealmLogLevel.info].
+  static Logger get logger {
+    return _logger;
+  }
+
+  static set logger(Logger value) {
+    if (_logger == value) {
+      return;
+    }
+
+    _logger.clearListeners();
+    realmCore.realmLoggerLevelChangedSubscipiton.cancel();
+    _logger = value;
+    realmCore.loggerSetLogLevel(_logger.level, scheduler.nativePort);
+    realmCore.realmLoggerLevelChangedSubscipiton =
+        _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
+  }
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
@@ -745,6 +762,10 @@ extension RealmInternal on Realm {
     if (value is RealmValue) {
       addUnmanagedRealmObjectFromValue(value.value, update);
     }
+  }
+
+  static void logMessageForTesting(Level logLevel, String message) {
+    realmCore.logMessageForTesting(logLevel, message);
   }
 }
 

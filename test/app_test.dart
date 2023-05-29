@@ -18,8 +18,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:logging/logging.dart';
 import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 
@@ -184,39 +182,6 @@ Future<void> main([List<String>? args]) async {
     expect(app.users, [user1, user]);
   });
 
-  baasTest('Realm.logger', (configuration) async {
-    final oldLogger = Realm.logger;
-    try {
-      Realm.logger = Logger.detached(generateRandomString(10))..level = RealmLogLevel.all;
-      configuration = AppConfiguration(
-        configuration.appId,
-        baseFilePath: configuration.baseFilePath,
-        baseUrl: configuration.baseUrl,
-      );
-
-      await testLogger(
-        configuration,
-        Realm.logger,
-        maxExpectedCounts: {
-          // No problems expected!
-          RealmLogLevel.fatal: 0,
-          RealmLogLevel.error: 0,
-          RealmLogLevel.warn: 0,
-        },
-        minExpectedCounts: {
-          // these are set low (roughly half of what was seen when test was created),
-          // so that changes to core are less likely to break the test
-          RealmLogLevel.trace: 10,
-          RealmLogLevel.debug: 20,
-          RealmLogLevel.detail: 2,
-          RealmLogLevel.info: 1,
-        },
-      );
-    } finally {
-      Realm.logger = oldLogger; // re-instate previous
-    }
-  });
-
   baasTest('App delete user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
@@ -333,45 +298,6 @@ Future<void> main([List<String>? args]) async {
       throws<RealmException>("Switch user failed. Error code: 4101 . Message: User is no longer valid or is logged out"),
     );
   });
-}
-
-Future<void> testLogger(
-  AppConfiguration configuration,
-  Logger logger, {
-  Map<Level, int> minExpectedCounts = const {},
-  Map<Level, int> maxExpectedCounts = const {},
-}) async {
-  // To see the trace, add this:
-  /*
-  logger.onRecord.listen((event) {
-    print('${event.sequenceNumber} ${event.level} ${event.message}');
-  });
-  */
-
-  // Setup
-  clearCachedApps();
-  final app = App(configuration);
-  final realm = await getIntegrationRealm(app: app);
-
-  // Prepare to capture trace
-  final messages = <Level, List<String>>{};
-  logger.onRecord.listen((r) {
-    if (messages[r.level] == null) {
-      messages[r.level] = [];
-    }
-
-    messages[r.level]!.add(r.message);
-  });
-
-  // Trigger trace
-  await realm.syncSession.waitForDownload();
-
-  // Check count of various levels
-  for (final e in messages.entries) {
-    expect(e.value.length, lessThanOrEqualTo(maxExpectedCounts[e.key] ?? maxInt), reason: 'Unexpected number of ${e.key} messages:\n  ${e.value.join("\n  ")}');
-    expect(e.value.length, greaterThanOrEqualTo(minExpectedCounts[e.key] ?? minInt),
-        reason: 'Unexpected number of ${e.key} messages:\n  ${e.value.join("\n  ")}');
-  }
 }
 
 extension PersonJ on Person {

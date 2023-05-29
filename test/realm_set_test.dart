@@ -679,4 +679,24 @@ Future<void> main([List<String>? args]) async {
 
     expect(testSets.objectsSet.asResults(), cars);
   });
+
+  test('RealmSet.asResults().isCleared notifications', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    final carsResult = testSets.objectsSet.asResults();
+    expectLater(
+        carsResult.changes,
+        emitsInOrder(<Matcher>[
+          isA<RealmResultsChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
+          isA<RealmResultsChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
+        ]));
+    realm.write(() => testSets.objectsSet.clear());
+  });
 }

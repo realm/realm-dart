@@ -3,6 +3,10 @@ name: Shared Apps
 on:
   workflow_call:
     inputs:
+      env:
+        description: Dart or Flutter.
+        required: true
+        type: string
       cluster:
         description: Cluster name to deploy the apps.
         required: true
@@ -23,7 +27,7 @@ env:
 jobs:
   shared-apps:
     runs-on: ubuntu-latest
-    name: ${{ inputs.cleanup && 'Delete' || 'Create'}} Shared Apps
+    name: ${{ inputs.cleanup && 'Delete' || 'Create'}} ${{ inputs.env }} Shared Apps
     timeout-minutes: 45
     env:
       BAAS_CLUSTER: ${{ inputs.cluster }}

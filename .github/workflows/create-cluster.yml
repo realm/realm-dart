@@ -1,0 +1,49 @@
+name: Create cluster
+
+on:
+  workflow_call:
+    inputs:
+      prefix:
+        description: Cluster name prefix.
+        required: true
+        type: string
+    outputs:
+      clusterName:
+        description: "The name of created Cluster"
+        value: ${{ jobs.deploy-cluster.outputs.clusterName }}
+
+env:
+  BAAS_URL: ${{ secrets.REALM_QA_URL }}
+  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
+  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
+  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
+  REALM_CI: true
+
+jobs:
+  deploy-cluster:
+    runs-on: ubuntu-latest
+    name: Deploy ${{ inputs.prefix == 'd' && 'Dart' || 'Flutter' }} Cluster
+    timeout-minutes: 15
+    outputs:
+      clusterName: ${{ steps.cluster-name.outputs.clusterName }}
+    steps:
+      - name: Get cluster suffix
+        id: cluster-name
+        # Use 'github.ref_name' for generating cluster name.
+        # 'github.ref_name' is the SHORT ref name of the branch or tag that triggered the workflow run.
+        # 'github.ref_name' looks like '1234/merge'. We remove '/merge' and get only the number.
+        # In order to have unique cluster name per run we add a random number to the number extracted from 'ref_name'.
+        # Maximum 8 symbols could be taken for the name of the cluster, becasuse of the lenght limitation for cluster names.
+        run: |
+          triggerName=${{ inputs.prefix }}${{ github.ref_name}}
+          cluster=${triggerName/'/merge'/''}
+          echo "clusterName=$(cut -c 1-8 <<< ${cluster}$RANDOM)" >> $GITHUB_OUTPUT
+
+      - uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
+        with:
+          realmUrl: ${{ env.BAAS_URL }}
+          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+          projectId: ${{ env.BAAS_PROJECT_ID }}
+          apiKey: ${{ env.BAAS_API_KEY }}
+          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+          clusterName: ${{ steps.cluster-name.outputs.clusterName }}

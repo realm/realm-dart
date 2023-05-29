@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
@@ -123,6 +124,7 @@ class _AllTypes {
   late ObjectId objectIdProp;
   late Uuid uuidProp;
   late int intProp;
+  late Decimal128 decimalProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -131,6 +133,7 @@ class _AllTypes {
   late ObjectId? nullableObjectIdProp;
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
+  late Decimal128? nullableDecimalProp;
 }
 
 @RealmModel()
@@ -151,6 +154,7 @@ class _AllCollections {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+  late List<Decimal128> decimals;
 
   late List<String?> nullableStrings;
   late List<bool?> nullableBools;
@@ -159,6 +163,7 @@ class _AllCollections {
   late List<ObjectId?> nullableObjectIds;
   late List<Uuid?> nullableUuids;
   late List<int?> nullableInts;
+  late List<Decimal128?> nullableDecimals;
 }
 
 @RealmModel()
@@ -176,6 +181,7 @@ class _NullableTypes {
   late ObjectId? objectIdProp;
   late Uuid? uuidProp;
   late int? intProp;
+  late Decimal128? decimalProp;
 }
 
 @RealmModel()
@@ -239,6 +245,7 @@ class _AllTypesEmbedded {
   late ObjectId objectIdProp;
   late Uuid uuidProp;
   late int intProp;
+  late Decimal128 decimalProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -247,6 +254,7 @@ class _AllTypesEmbedded {
   late ObjectId? nullableObjectIdProp;
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
+  late Decimal128? nullableDecimalProp;
 
   late List<String> strings;
   late List<bool> bools;
@@ -255,6 +263,7 @@ class _AllTypesEmbedded {
   late List<ObjectId> objectIds;
   late List<Uuid> uuids;
   late List<int> ints;
+  late List<Decimal128> decimals;
 }
 
 @RealmModel()
@@ -297,6 +306,12 @@ class _RecursiveEmbedded2 {
 @RealmModel(ObjectType.embeddedObject)
 class _RecursiveEmbedded3 {
   late String value;
+}
+
+@RealmModel()
+class _ObjectWithDecimal {
+  late Decimal128 decimal;
+  Decimal128? nullableDecimal;
 }
 
 String? testName;
@@ -370,6 +385,12 @@ Future<void> setupTests(List<String>? args) async {
 
 
   setUp(() {
+    Realm.logger = Logger.detached('test run')
+      ..level = Level.ALL
+      ..onRecord.listen((record) {
+        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
+      });
+
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;
 
@@ -391,6 +412,7 @@ Future<void> setupTests(List<String>? args) async {
     });
   });
 
+  // Enable this to print platform info, including current PID
   await _printPlatformInfo();
 }
 
@@ -491,7 +513,7 @@ Future<void> tryDeleteRealm(String path) async {
 
       return;
     } catch (e) {
-      print('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
+      Realm.logger.info('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
   }
