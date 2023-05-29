@@ -685,6 +685,13 @@ jobs:
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
           channel: '#realm-github-dart'
           config: .github/config/slack.yml
-          #message: 'Realm Dart CI ${{ env.WORKFLOW_CONCLUSION }}: <https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}| Triggered by: ${{ github.event.head_commit.message }} >'
-
+          message: |
+            *<https://github.com/realm/realm-dart/actions/runs/{{ github.run_id }}|_{{workflow}}_ job _{{jobName}}_ triggered by _{{eventName}}_ is _{{jobStatus}}_>* for <{{refUrl}}|`{{ref}}`>
+            {{#if description}}<{{diffUrl}}|`{{diffRef}}`> - {{description}}{{/if}}
+            {{#if payload.commits}}
+            *Commits*
+            {{#each payload.commits}}
+            <{{this.url}}|`{{truncate this.id 8}}`> - {{this.message}}
+            {{/each}}
+            {{/if}}
        
