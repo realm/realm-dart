@@ -1,12 +1,12 @@
 username: Realm Dart-CI
-icon_url: https://avatars.githubusercontent.com/u/7575099?s=200&v=4
+#icon_url: https://avatars.githubusercontent.com/u/7575099?s=200&v=4
 
 pretext: Triggered via {{eventName}} by {{actor}} {{or action "action"}} {{ref}} `{{diffRef}}`
 title: GitHub Actions
 title_link: https://support.github.com
 
 text: |
-  *<{{workflowRunUrl}}|Workflow _{{workflow}}_ job _{{jobName}}_ triggered by _{{eventName}}_ is _{{jobStatus}}_>* for <{{refUrl}}|`{{ref}}`>
+  *<https://github.com/realm/realm-dart/actions/runs/{{ github.run_id }}|_{{workflow}}_ job _{{jobName}}_ triggered by _{{eventName}}_ is _{{jobStatus}}_>* for <{{refUrl}}|`{{ref}}`>
   {{#if description}}<{{diffUrl}}|`{{diffRef}}`> - {{description}}{{/if}}
   {{#if payload.commits}}
   *Commits*

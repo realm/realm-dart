@@ -681,11 +681,10 @@ jobs:
       - uses: act10ns/slack@v2
         if: ${{ env.WORKFLOW_CONCLUSION }} == 'failure'
         with:
-          # status: ${{ env.WORKFLOW_CONCLUSION }} # neutral, success, skipped, cancelled, timed_out, action_required, failure
-          status: failure
+          status: ${{ env.WORKFLOW_CONCLUSION }} # neutral, success, skipped, cancelled, timed_out, action_required, failure
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
           channel: '#realm-github-dart'
-          config: ./.github/slack.yml
+          config: .github/config/slack.yml
           #message: 'Realm Dart CI ${{ env.WORKFLOW_CONCLUSION }}: <https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}| Triggered by: ${{ github.event.head_commit.message }} >'
 
        
