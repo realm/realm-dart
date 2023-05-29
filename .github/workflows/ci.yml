@@ -685,7 +685,7 @@ jobs:
           status: failure
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
           channel: '#realm-github-dart'
-          config: .github/workflows/slack.yml
+          config: .github/slack.yml
           #message: 'Realm Dart CI ${{ env.WORKFLOW_CONCLUSION }}: <https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}| Triggered by: ${{ github.event.head_commit.message }} >'
 
        
