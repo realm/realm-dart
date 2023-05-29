@@ -94,6 +94,9 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
     final controller = ResultsNotificationsController<T>(this);
     return controller.createStream();
   }
+
+  /// Creates an empty unmanaged RealmResults
+  factory RealmResults() => UnmanagedRealmResults();
 }
 
 // The query operations on results only work for results of objects (core restriction),
@@ -203,4 +206,35 @@ class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
 
     return true;
   }
+}
+
+class UnmanagedRealmResults<T extends Object?> extends collection.IterableBase<T> with RealmEntity implements RealmResults<T> {
+  UnmanagedRealmResults() : super();
+
+  @override
+  RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged results don't have metadata associated with them.");
+
+  @override
+  bool get isValid => true;
+
+  @override
+  T operator [](int index) => throw RealmStateError("Requested index on empty Results");
+
+  @override
+  RealmResultsHandle get _handle => throw RealmStateError("Unmanaged results don't have handles");
+
+  @override
+  bool get _supportsSnapshot => false;
+
+  @override
+  Stream<RealmResultsChanges<T>> get changes => throw RealmStateError("Unmanaged results don't support changes");
+
+  @override
+  RealmResults<T> freeze() => throw RealmStateError("Unmanaged results can't be frozen");
+
+  @override
+  Iterator<T> get iterator => _RealmResultsIterator(this);
+
+  @override
+  int get length => 0;
 }

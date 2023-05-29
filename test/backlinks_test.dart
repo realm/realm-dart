@@ -54,6 +54,12 @@ Future<void> main([List<String>? args]) async {
     expect(target.oneToMany, isEmpty);
   });
 
+  test('Backlinks unmanaged is empty', () {
+    final target = Target();
+    expect(target.oneToMany, isEmpty);
+    expect(target.manyToMany, isEmpty);
+  });
+
   test('Backlinks 1-1(ish)', () {
     final config = Configuration.local([Target.schema, Source.schema]);
     final realm = getRealm(config);
