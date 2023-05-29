@@ -686,12 +686,7 @@ jobs:
           channel: '#realm-github-dart'
           config: .github/config/slack.yml
           message: |
-            *<https://github.com/realm/realm-dart/actions/runs/{{ github.run_id }}|_{{workflow}}_ job _{{jobName}}_ triggered by _{{eventName}}_ is _{{jobStatus}}_>* for <{{refUrl}}|`{{ref}}`>
-            {{#if description}}<{{diffUrl}}|`{{diffRef}}`> - {{description}}{{/if}}
-            {{#if payload.commits}}
-            *Commits*
-            {{#each payload.commits}}
-            <{{this.url}}|`{{truncate this.id 8}}`> - {{this.message}}
-            {{/each}}
-            {{/if}}
+            *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
+            <{{refUrl}}|`{{ref}}` - {{description}}>
+            {{#if description}}<{{diffUrl}}|branch: `{{diffRef}}`>{{/if}}
        
