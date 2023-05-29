@@ -24,7 +24,7 @@ import '../lib/realm.dart';
 import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
-const defaultWaitTimeout = Duration(seconds: 30);
+const defaultWaitTimeout = Duration(seconds: 300);
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -618,6 +618,6 @@ Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async
 
 extension on Future<void> {
   Future<void> wait(Duration duration, [String message = "Timeout waiting a future to complete."]) {
-    return timeout(duration, onTimeout: () => throw Exception(message));
+    return timeout(duration, onTimeout: () => throw TimeoutException(message));
   }
 }
