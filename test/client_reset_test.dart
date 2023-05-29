@@ -217,8 +217,8 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await onBeforeCompleter.future.wait(defaultWaitTimeout, "onBeforeReset is not reported.");
-      await onAfterCompleter.future.wait(defaultWaitTimeout, "onAfterReset is not reported.");
+      await onBeforeCompleter.future.timeout(defaultWaitTimeout, onTimeout: () => throw TimeoutException("onBeforeReset is not reported"));
+      await onAfterCompleter.future.timeout(defaultWaitTimeout, onTimeout: () => throw TimeoutException("onAfterReset is not reported."));
     });
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
