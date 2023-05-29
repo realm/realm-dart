@@ -673,15 +673,14 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-        # run this action to get the workflow conclusion
-        # You can get the conclusion via env (env.WORKFLOW_CONCLUSION)
+        # Run this action to set env.WORKFLOW_CONCLUSION
       - uses: technote-space/workflow-conclusion-action@v3
 
-        # run other action with the workflow conclusion
       - uses: act10ns/slack@v2
         if: ${{ github.head_ref }} == '' && ${{ env.WORKFLOW_CONCLUSION }} == 'failure'
+        # Statuses: neutral, success, skipped, cancelled, timed_out, action_required, failure
         with:
-          status: ${{ env.WORKFLOW_CONCLUSION }} # neutral, success, skipped, cancelled, timed_out, action_required, failure
+          status: ${{ env.WORKFLOW_CONCLUSION }} 
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
           channel: '#realm-github-dart'
           message: |
