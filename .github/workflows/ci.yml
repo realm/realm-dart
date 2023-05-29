@@ -679,7 +679,7 @@ jobs:
 
         # run other action with the workflow conclusion
       - uses: act10ns/slack@v2
-        if: ${{ env.WORKFLOW_CONCLUSION }} == 'failure'
+        if: ${{ github.head_ref }} == '' && ${{ env.WORKFLOW_CONCLUSION }} == 'failure'
         with:
           status: ${{ env.WORKFLOW_CONCLUSION }} # neutral, success, skipped, cancelled, timed_out, action_required, failure
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
