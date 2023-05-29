@@ -377,12 +377,7 @@ Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
   
-  await (_baasSetupResult ??= setupBaas());
-  
-  // setUpAll(() async {
-    
-  // });
-
+  setUpAll(() async => await (_baasSetupResult ??= setupBaas()));
 
   setUp(() {
     Realm.logger = Logger.detached('test run')

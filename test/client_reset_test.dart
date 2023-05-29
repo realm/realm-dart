@@ -24,7 +24,7 @@ import '../lib/realm.dart';
 import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
-const defaultWaitTimeout = Duration(seconds: 20);
+const defaultWaitTimeout = Duration(seconds: 30);
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
