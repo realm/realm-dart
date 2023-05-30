@@ -772,8 +772,7 @@ Future<void> disableAutoRecoveryForApp([String? appName]) async {
 
 Future<void> enableAutoRecoveryForAllApps() async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
-  final requests = _appsWithDisabledAutoRecovery.map((appName) => client.setAutomaticRecoveryEnabled(appName, true));
-  await Future.wait(requests);
+  _appsWithDisabledAutoRecovery.map((appName) async => await client.setAutomaticRecoveryEnabled(appName, true));
   _appsWithDisabledAutoRecovery.clear();
 }
 
