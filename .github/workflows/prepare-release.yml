@@ -51,7 +51,7 @@ jobs:
 
       - name: Make sure we updated libraryVersion in realm_core.dart
         run: |
-          if [ '${{ steps.update-libraryVersion.modifiedFiles }}' != '1' ]; then
+          if [ '${{ steps.update-libraryVersion.outputs.modifiedFiles }}' != '1' ]; then
             echo 'Expected exactly one modified file, got ${{ steps.update-libraryVersion.outputs.modifiedFiles }}'
             exit 1
           fi
@@ -66,7 +66,7 @@ jobs:
 
       - name: Make sure we updated realm_dart_library_version in realm_dart.cpp
         run: |
-          if [ '${{ steps.update-realm_dart_library_version.modifiedFiles }}' != '1' ]; then
+          if [ '${{ steps.update-realm_dart_library_version.outputs.modifiedFiles }}' != '1' ]; then
             echo 'Expected exactly one modified file, got ${{ steps.update-realm_dart_library_version.outputs.modifiedFiles }}'
             exit 1
           fi
@@ -90,7 +90,7 @@ jobs:
 
       - name: Make sure we updated realmCoreVersion in metrics
         run: |
-          if [ '${{ steps.update-realmCoreVersion.modifiedFiles }}' != '1' ]; then
+          if [ '${{ steps.update-realmCoreVersion.outputs.modifiedFiles }}' != '1' ]; then
             echo 'Expected exactly one modified file, got ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }}'
             exit 1
           fi
