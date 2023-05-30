@@ -1,4 +1,4 @@
-Realm only supports the @PrimaryKey() annotation on fields of type
+Realm only supports the @PrimaryKey annotation on fields of type
 int, String, DateTime, ObjectId, Uuid
 as well as their nullable versions
 
@@ -12,5 +12,5 @@ in: asset:pkg/test/error_test_data/bool_not_allowed_as_primary_key.dart:9:8
 9 │   late bool bad;
   │        ^^^^ bool is not a valid type here
   ╵
-Change the type of 'bad', or remove the @PrimaryKey() annotation
+Change the type of 'bad' or remove the @PrimaryKey annotation
 

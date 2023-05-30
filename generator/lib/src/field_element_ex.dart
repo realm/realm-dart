@@ -163,16 +163,16 @@ extension FieldElementEx on FieldElement {
           throw RealmInvalidGenerationSourceError("Don't use RealmIndexType.none for @Indexed annotations",
               element: this,
               primarySpan: typeSpan(file),
-              primaryLabel: "@Indexed(RealmIndexType.none) is not valid annotation here",
-              todo: "Remove the @Indexed annotation or change the index type to a value other than none");
+              primaryLabel: '@Indexed(RealmIndexType.none) is not valid annotation here',
+              todo: 'Remove the @Indexed annotation or change the index type to a value other than none');
         }
 
         if (indexType == RealmIndexType.fullText && type.realmType != RealmPropertyType.string) {
-          throw RealmInvalidGenerationSourceError("Can't add full-text index on a non-string property",
+          throw RealmInvalidGenerationSourceError('Cannot add full-text index on a non-string property',
               element: this,
               primarySpan: typeSpan(file),
-              primaryLabel: "@Indexed(RealmIndexType.fullText) is not valid for $modelTypeName",
-              todo: "Change the index type to general or change the property type to string");
+              primaryLabel: 'Cannot use RealmIndexType.fullText for property of type $modelTypeName',
+              todo: 'Change the index type to general or change the property type to string');
         }
 
         if (type.realmType?.mapping.indexable != true) {
@@ -185,7 +185,7 @@ extension FieldElementEx on FieldElement {
             'Realm only supports the @Indexed annotation on fields of type\n${listOfValidTypes.join(', ')}\nas well as their nullable versions',
             element: this,
             primarySpan: typeSpan(file),
-            primaryLabel: "$modelTypeName is not a valid type here",
+            primaryLabel: '$modelTypeName is not a valid type here',
             todo: "Change the type of '$displayName' or remove the @Indexed annotation",
           );
         }

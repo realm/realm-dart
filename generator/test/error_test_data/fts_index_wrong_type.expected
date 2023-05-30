@@ -1,4 +1,4 @@
-Can't add full-text index on a non-string property
+Cannot add full-text index on a non-string property
 
 in: asset:pkg/test/error_test_data/fts_index_wrong_type.dart:6:8
   ╷
@@ -7,7 +7,7 @@ in: asset:pkg/test/error_test_data/fts_index_wrong_type.dart:6:8
   │       ━━━━ in realm model for 'Foo'
 5 │   @Indexed(RealmIndexType.fullText)
 6 │   late bool boolValue;
-  │        ^^^^ @Indexed(RealmIndexType.fullText) is not valid for bool
+  │        ^^^^ Cannot use RealmIndexType.fullText for property of type bool
   ╵
 Change the index type to general or change the property type to string
 
