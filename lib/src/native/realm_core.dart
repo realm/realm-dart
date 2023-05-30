@@ -3033,7 +3033,7 @@ extension on realm_sync_error {
 }
 
 extension on Pointer<realm_sync_error_user_info_t> {
-  Map<String, String> toDartCollection(int length) {
+  Map<String, String> toMap(int length) {
     Map<String, String> userInfoMap = {};
     final userInfoMapPtr = cast<realm_sync_error_user_info>();
     for (int i = 0; i < length; ++i) {
