@@ -665,8 +665,8 @@ jobs:
       - name: Output Coveralls response
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
 
-  slack:
-    name: Slack
+  slack-on-failure:
+    name: Slack on failure in main
     needs: 
       - cleanup-dart-matrix
       - cleanup-flutter-matrix
