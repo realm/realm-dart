@@ -337,7 +337,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
-final _appsWithDisabledAutoRecovery = <String>[];
+// final _appsWithDisabledAutoRecovery = <String>[];
 
 enum AppNames {
   flexible,
@@ -763,17 +763,20 @@ Future<void> _printPlatformInfo() async {
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
 }
 
-Future<void> disableAutoRecoveryForApp([String? appName]) async {
+Future<void> disableAutoRecoveryForApp(AppNames appName) async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
-  appName ??= BaasClient.defaultAppName;
-  await client.setAutomaticRecoveryEnabled(appName, false);
-  _appsWithDisabledAutoRecovery.add(appName);
+  final baasAppName = baasApps[appName]!.name;
+  // appName ??= BaasClient.defaultAppName;
+  await client.setAutomaticRecoveryEnabled(baasAppName, false);
+  // _appsWithDisabledAutoRecovery.add(baasAppName);
 }
 
-Future<void> enableAutoRecoveryForAllApps() async {
+Future<void> enableAutoRecoveryforApp(AppNames appName) async {
   final client = _baasClient ?? (throw StateError("No BAAS client"));
-  _appsWithDisabledAutoRecovery.map((appName) async => await client.setAutomaticRecoveryEnabled(appName, true));
-  _appsWithDisabledAutoRecovery.clear();
+  final baasAppName = baasApps[appName]!.name;
+  await client.setAutomaticRecoveryEnabled(baasAppName, true);
+  // _appsWithDisabledAutoRecovery.map((appName) async => await client.setAutomaticRecoveryEnabled(appName, true));
+  // _appsWithDisabledAutoRecovery.clear();
 }
 
 extension StreamEx<T> on Stream<Stream<T>> {

@@ -222,7 +222,9 @@ Future<void> main([List<String>? args]) async {
     });
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
-      baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', (appConfig) async {
+      final baasAppName = AppNames.flexible;
+      final shouldDisableAutoRecoveryForApp = clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler;
+      baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', appName: baasAppName, (appConfig) async {
         try {
           final app = App(appConfig);
           final user = await getIntegrationUser(app);
@@ -266,8 +268,8 @@ Future<void> main([List<String>? args]) async {
           });
 
           await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
-          if (clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler) {
-            await disableAutoRecoveryForApp();
+          if (shouldDisableAutoRecoveryForApp) {
+            await disableAutoRecoveryForApp(baasAppName);
           }
           await triggerClientReset(realm, restartSession: false);
           realm.syncSession.resume();
@@ -282,7 +284,9 @@ Future<void> main([List<String>? args]) async {
           await subscription.cancel();
           expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
         } finally {
-          enableAutoRecoveryForAllApps();
+          if (shouldDisableAutoRecoveryForApp) {
+            await enableAutoRecoveryforApp(baasAppName);
+          }
         }
       });
     }
@@ -333,8 +337,10 @@ Future<void> main([List<String>? args]) async {
     });
   }
 
-  baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
-    try {
+  {
+    final baasAppName = AppNames.flexible;
+    baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', appName: baasAppName,
+        (appConfig) async {
       final app = App(appConfig);
       final user = await getIntegrationUser(app);
 
@@ -359,18 +365,20 @@ Future<void> main([List<String>? args]) async {
       final realm = await getRealmAsync(config);
       await realm.syncSession.waitForUpload();
 
-      await disableAutoRecoveryForApp();
-      await triggerClientReset(realm);
+      await disableAutoRecoveryForApp(baasAppName);
+      try {
+        await triggerClientReset(realm);
 
-      await onBeforeCompleter.future.wait(defaultWaitTimeout, "onBeforeReset is not reported.");
-      await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterRecovery nor onAfterDiscard is reported.");
+        await onBeforeCompleter.future.wait(defaultWaitTimeout, "onBeforeReset is not reported.");
+        await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterRecovery nor onAfterDiscard is reported.");
 
-      expect(recovery, isFalse);
-      expect(discard, isTrue);
-    } finally {
-      enableAutoRecoveryForAllApps();
-    }
-  });
+        expect(recovery, isFalse);
+        expect(discard, isTrue);
+      } finally {
+        await enableAutoRecoveryforApp(baasAppName);
+      }
+    });
+  }
 
   baasTest('onAfterReset is reported after async onBeforeReset completes', (appConfig) async {
     final app = App(appConfig);
