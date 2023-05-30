@@ -192,8 +192,7 @@ jobs:
         dart pub publish --directory common --force
         dart pub publish --directory generator --force
         dart pub publish --directory realm_dart --force
-        #Passing `release/realm` directory as target because of a how the `flutter pub publish` command handles the --directory argument
-        flutter pub publish --directory release/realm --force
+        dart pub publish --directory realm --force
       working-directory: release
 
     - name: Find Release PR
