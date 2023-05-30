@@ -2907,12 +2907,22 @@ extension on Pointer<realm_value_t> {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
-    return ref.toDartValueByRef(realm);
+    switch (ref.type) {
+      case realm_value_type.RLM_TYPE_LINK:
+        final objectKey = ref.values.link.target;
+        final classKey = ref.values.link.target_table;
+        if (realm.metadata.getByClassKeyIfExists(classKey) == null) {
+          return null;
+        } // temprorary workaround to avoid crash on assertion
+        return realmCore._getObject(realm, classKey, objectKey);
+      default:
+        return ref.toDartValue();
+    }
   }
 }
 
 extension on realm_value_t {
-  Object? toDartValueByRef(Realm? realm) {
+  Object? toDartValue() {
     switch (type) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
@@ -2927,13 +2937,7 @@ extension on realm_value_t {
       case realm_value_type.RLM_TYPE_DOUBLE:
         return values.dnum;
       case realm_value_type.RLM_TYPE_LINK:
-        if (realm == null) {
-          return null;
-        }
-        final objectKey = values.link.target;
-        final classKey = values.link.target_table;
-        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
-        return realmCore._getObject(realm, classKey, objectKey);
+        throw RealmError("realm_value_type $type can be converted with `toDartValue` extension of `Pointer<realm_value_t>` and requires a realm instance");
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_TIMESTAMP:
@@ -3055,7 +3059,7 @@ extension on Pointer<realm_sync_error_compensating_write_info_t> {
       final compensatingWrite = compensatingWritesPtr[i];
       final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
       final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
-      final primary_key = compensatingWrite.primary_key.toDartValueByRef(null);
+      final primary_key = compensatingWrite.primary_key.toDartValue();
       compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
     }
     return compensatingWrites;

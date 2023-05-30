@@ -636,7 +636,7 @@ class ClientResetError extends SyncError {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
     if (_originalFilePath != _config?.path) {
-      throw RealmException("The current configuration does not match the original realm file path.");
+      throw RealmError("The current configuration does not match the original realm file path.");
     }
     final flexibleConfig = _config as FlexibleSyncConfiguration;
     return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
