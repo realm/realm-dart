@@ -35,7 +35,11 @@ class SchemaProperty {
   final bool primaryKey;
 
   /// `true` if the property is indexed
-  final bool indexed;
+  @Deprecated("Use indexType instead")
+  bool get indexed => indexType == RealmIndexType.general;
+
+  /// Returns the index type for this property
+  final RealmIndexType indexType;
 
   /// The `Realm` type of the property
   final RealmPropertyType propertyType;
@@ -58,7 +62,7 @@ class SchemaProperty {
     this.optional = false,
     String? mapTo,
     this.primaryKey = false,
-    this.indexed = false,
+    this.indexType = RealmIndexType.none,
     this.linkTarget,
     this.linkOriginProperty,
     this.collectionType = RealmCollectionType.none,

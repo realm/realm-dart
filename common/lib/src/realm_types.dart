@@ -24,16 +24,17 @@ Type _typeOf<T>() => T;
 
 /// @nodoc
 class Mapping<T> {
-  const Mapping({this.indexable = false});
+  const Mapping({this.indexable = false, this.canBePrimaryKey = false});
 
   final bool indexable;
+  final bool canBePrimaryKey;
 
   // Types
   Type get type => T;
   Type get nullableType => _typeOf<T?>();
 }
 
-const _intMapping = Mapping<int>(indexable: true);
+const _intMapping = Mapping<int>(indexable: true, canBePrimaryKey: true);
 const _boolMapping = Mapping<bool>(indexable: true);
 
 /// All supported `Realm` property types.
@@ -41,7 +42,7 @@ const _boolMapping = Mapping<bool>(indexable: true);
 enum RealmPropertyType {
   int(_intMapping),
   bool(_boolMapping),
-  string(Mapping<String>(indexable: true)),
+  string(Mapping<String>(indexable: true, canBePrimaryKey: true)),
   _3, // ignore: unused_field, constant_identifier_names
   binary,
   _5, // ignore: unused_field, constant_identifier_names
@@ -54,13 +55,41 @@ enum RealmPropertyType {
   object,
   _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
-  objectid(Mapping<ObjectId>(indexable: true)),
+  objectid(Mapping<ObjectId>(indexable: true, canBePrimaryKey: true)),
   _16, // ignore: unused_field, constant_identifier_names
-  uuid(Mapping<Uuid>(indexable: true));
+  uuid(Mapping<Uuid>(indexable: true, canBePrimaryKey: true));
 
   const RealmPropertyType([this.mapping = const Mapping<Never>()]);
 
   final Mapping<dynamic> mapping;
+}
+
+/// Describes the indexing mode for properties annotated with the @Indexed annotation.
+enum RealmIndexType {
+  /// Indicates that the property is not indexed
+  none,
+
+  /// Describes a regular index with no special capabilities. This type of index is
+  /// suitable for equality searches as well as comparison operations for numeric values.
+  general,
+
+  /// Describes a Full-Text index on a string property.
+  ///
+  /// The full-text index currently support this set of features:
+  /// * Only token or word search, e.g. `query("bio TEXT \$0", "computer dancing")`
+  ///   will find all objects that contains the words `computer` and `dancing` in their `bio` property
+  /// * Tokens are diacritics- and case-insensitive, e.g. `query("bio TEXT \$0", "cafe dancing")`
+  ///   and `query("bio TEXT \$0", "café DANCING")` will return the same set of matches.
+  /// * Ignoring results with certain tokens is done using `-`, e.g. `query("bio TEXT \$0", "computer -dancing")`
+  ///   will find all objects that contain `computer` but not `dancing`.
+  /// * Tokens only consist of alphanumerical characters from ASCII and the Latin-1 supplement. All other characters
+  ///   are considered whitespace. In particular words using `-` like `full-text` are split into two tokens.
+  ///
+  /// Note the following constraints before using full-text search:
+  /// * Token prefix or suffix search like `query("bio TEXT \$0", "comp* *cing")` is not supported.
+  /// * Only ASCII and Latin-1 alphanumerical chars are included in the index (most western languages).
+  /// * Only boolean match is supported, i.e. "found" or "not found". It is not possible to sort results by "relevance".
+  fullText
 }
 
 /// All supported `Realm` collection types.

@@ -72,12 +72,18 @@ class WithIndexes extends _WithIndexes
     RealmObjectBase.registerFactory(WithIndexes._);
     return const SchemaObject(
         ObjectType.realmObject, WithIndexes, 'WithIndexes', [
-      SchemaProperty('anInt', RealmPropertyType.int, indexed: true),
-      SchemaProperty('aBool', RealmPropertyType.bool, indexed: true),
-      SchemaProperty('string', RealmPropertyType.string, indexed: true),
-      SchemaProperty('timestamp', RealmPropertyType.timestamp, indexed: true),
-      SchemaProperty('objectId', RealmPropertyType.objectid, indexed: true),
-      SchemaProperty('uuid', RealmPropertyType.uuid, indexed: true),
+      SchemaProperty('anInt', RealmPropertyType.int,
+          indexType: RealmIndexType.general),
+      SchemaProperty('aBool', RealmPropertyType.bool,
+          indexType: RealmIndexType.general),
+      SchemaProperty('string', RealmPropertyType.string,
+          indexType: RealmIndexType.general),
+      SchemaProperty('timestamp', RealmPropertyType.timestamp,
+          indexType: RealmIndexType.general),
+      SchemaProperty('objectId', RealmPropertyType.objectid,
+          indexType: RealmIndexType.general),
+      SchemaProperty('uuid', RealmPropertyType.uuid,
+          indexType: RealmIndexType.general),
     ]);
   }
 }
@@ -153,6 +159,60 @@ class NoIndexes extends _NoIndexes
       SchemaProperty('timestamp', RealmPropertyType.timestamp),
       SchemaProperty('objectId', RealmPropertyType.objectid),
       SchemaProperty('uuid', RealmPropertyType.uuid),
+    ]);
+  }
+}
+
+class ObjectWithFTSIndex extends _ObjectWithFTSIndex
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ObjectWithFTSIndex(
+    String title,
+    String summary, {
+    String? nullableSummary,
+  }) {
+    RealmObjectBase.set(this, 'title', title);
+    RealmObjectBase.set(this, 'summary', summary);
+    RealmObjectBase.set(this, 'nullableSummary', nullableSummary);
+  }
+
+  ObjectWithFTSIndex._();
+
+  @override
+  String get title => RealmObjectBase.get<String>(this, 'title') as String;
+  @override
+  set title(String value) => RealmObjectBase.set(this, 'title', value);
+
+  @override
+  String get summary => RealmObjectBase.get<String>(this, 'summary') as String;
+  @override
+  set summary(String value) => RealmObjectBase.set(this, 'summary', value);
+
+  @override
+  String? get nullableSummary =>
+      RealmObjectBase.get<String>(this, 'nullableSummary') as String?;
+  @override
+  set nullableSummary(String? value) =>
+      RealmObjectBase.set(this, 'nullableSummary', value);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithFTSIndex>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithFTSIndex>(this);
+
+  @override
+  ObjectWithFTSIndex freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithFTSIndex>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
+      SchemaProperty('title', RealmPropertyType.string),
+      SchemaProperty('summary', RealmPropertyType.string,
+          indexType: RealmIndexType.fullText),
+      SchemaProperty('nullableSummary', RealmPropertyType.string,
+          optional: true, indexType: RealmIndexType.fullText),
     ]);
   }
 }

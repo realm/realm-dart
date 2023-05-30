@@ -48,6 +48,7 @@ export 'package:realm_common/realm_common.dart'
         RealmClosedError,
         RealmCollectionType,
         RealmError,
+        RealmIndexType,
         RealmModel,
         RealmPropertyType,
         RealmStateError,

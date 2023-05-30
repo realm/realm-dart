@@ -97,7 +97,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),
-      SchemaProperty('indexedString', RealmPropertyType.string, indexed: true),
+      SchemaProperty('indexedString', RealmPropertyType.string, indexType: RealmIndexType.general),
     ]);
   }
 }

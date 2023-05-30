@@ -30,4 +30,14 @@ class _Indexable {
   DateTime? aNullableDateTime;
   @Indexed()
   late RealmValue aRealmValue;
+
+  // This is the same as @Indexed
+  @Indexed(RealmIndexType.general)
+  late String generalStringIndex;
+
+  @Indexed(RealmIndexType.fullText)
+  late String ftsStringValue;
+
+  @Indexed(RealmIndexType.fullText)
+  late String? nullableFtsStringValue;
 }
