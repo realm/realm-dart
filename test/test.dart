@@ -337,7 +337,6 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
-// final _appsWithDisabledAutoRecovery = <String>[];
 
 enum AppNames {
   flexible,
@@ -491,13 +490,13 @@ dynamic freezeDynamic(dynamic object) {
   return frozen;
 }
 
+final dummy = File("");
 Future<void> tryDeleteRealm(String path) async {
   //Skip on CI to speed it up. We are creating the realms in $TEMP anyways.
   if (Platform.environment.containsKey("REALM_CI")) {
     return;
   }
 
-  final dummy = File("");
   const duration = Duration(milliseconds: 100);
   for (var i = 0; i < 5; i++) {
     try {
