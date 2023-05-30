@@ -608,7 +608,7 @@ class ClientResetError extends SyncError {
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  /// The path to the original realm file.
+  // The path to the original realm file.
   String? get _originalFilePath => _userInfo?["ORIGINAL_FILE_PATH"];
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.

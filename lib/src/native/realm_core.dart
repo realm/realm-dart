@@ -2951,7 +2951,8 @@ extension on realm_value_t {
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(values.object_id.bytes.toList(ObjectId.byteLength));
       case realm_value_type.RLM_TYPE_UUID:
-        return Uuid.fromBytes(values.uuid.bytes.toList(16).buffer);
+        final listInt = values.uuid.bytes.toList(16);
+        return Uuid.fromBytes(Uint8List.fromList(listInt).buffer);
       default:
         throw RealmException("realm_value_type $type not supported");
     }
@@ -2959,12 +2960,12 @@ extension on realm_value_t {
 }
 
 extension on Array<Uint8> {
-  Uint8List toList(int count) {
-    List<int> result = List.filled(count, this[0]);
+  List<int> toList(int count) {
+    List<int> result = [];
     for (var i = 1; i < count; i++) {
-      result[i] = this[i];
+      result.add(this[i]);
     }
-    return Uint8List.fromList(result);
+    return result;
   }
 }
 
