@@ -2949,7 +2949,7 @@ extension on realm_value_t {
         decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        return ObjectId.fromBytes(values.object_id.bytes.toList(ObjectId.byteLength));
+        return ObjectId.fromBytes(values.object_id.bytes.toList(12));
       case realm_value_type.RLM_TYPE_UUID:
         final listInt = values.uuid.bytes.toList(16);
         return Uuid.fromBytes(Uint8List.fromList(listInt).buffer);
