@@ -117,8 +117,8 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         //we moved buf so we need to update the error pointers here.
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
-        error.c_original_file_path_key = buf.c_original_file_path_key;
-        error.c_recovery_file_path_key = buf.c_recovery_file_path_key;
+        error.c_original_file_path_key = buf.original_file_path_key.c_str();
+        error.c_recovery_file_path_key = buf.recovery_file_path_key.c_str();
         error.is_fatal = buf.is_fatal;
         error.is_client_reset_requested = buf.is_client_reset_requested;
         error.user_info_map = buf.user_info.data();
