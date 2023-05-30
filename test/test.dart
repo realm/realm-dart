@@ -381,7 +381,7 @@ Future<void> setupTests(List<String>? args) async {
 
   setUp(() {
     Realm.logger = Logger.detached('test run')
-      ..level = Level.ALL
+      ..level = Level.INFO
       ..onRecord.listen((record) {
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
