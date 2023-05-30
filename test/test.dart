@@ -560,7 +560,7 @@ extension on Map<String, String?> {
   }
 }
 
-BaasClient? _baasClient;
+BaasClient? baasClient;
 Future<Object>? _baasSetupResult;
 
 Future<Object> setupBaas() async {
@@ -588,7 +588,7 @@ Future<Object> setupBaas() async {
 
     final apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
-    _baasClient = client;
+    baasClient = client;
     await Future<void>.delayed(Duration(seconds: 10));
     return true;
   } catch (error) {
@@ -667,7 +667,7 @@ Future<User> getAnonymousUser(App app) {
 
 Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
   final baasApp = baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  final client = baasClient ?? (throw StateError("No BAAS client"));
   return await client.createApiKey(baasApp, name, enabled);
 }
 
@@ -761,22 +761,6 @@ Future<void> _printPlatformInfo() async {
   }
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
-}
-
-Future<void> disableAutoRecoveryForApp(AppNames appName) async {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
-  final baasAppName = baasApps[appName]!.name;
-  // appName ??= BaasClient.defaultAppName;
-  await client.setAutomaticRecoveryEnabled(baasAppName, false);
-  // _appsWithDisabledAutoRecovery.add(baasAppName);
-}
-
-Future<void> enableAutoRecoveryforApp(AppNames appName) async {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
-  final baasAppName = baasApps[appName]!.name;
-  await client.setAutomaticRecoveryEnabled(baasAppName, true);
-  // _appsWithDisabledAutoRecovery.map((appName) async => await client.setAutomaticRecoveryEnabled(appName, true));
-  // _appsWithDisabledAutoRecovery.clear();
 }
 
 extension StreamEx<T> on Stream<Stream<T>> {

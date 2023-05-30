@@ -629,3 +629,19 @@ extension on Future<void> {
     return timeout(duration, onTimeout: () => throw TimeoutException(message));
   }
 }
+
+Future<void> disableAutoRecoveryForApp(AppNames appName) async {
+  final client = baasClient ?? (throw StateError("No BAAS client"));
+  final baasAppName = baasApps[appName.name]!.name;
+  // appName ??= BaasClient.defaultAppName;
+  await client.setAutomaticRecoveryEnabled(baasAppName, false);
+  // _appsWithDisabledAutoRecovery.add(baasAppName);
+}
+
+Future<void> enableAutoRecoveryforApp(AppNames appName) async {
+  final client = baasClient ?? (throw StateError("No BAAS client"));
+  final baasAppName = baasApps[appName.name]!.name;
+  await client.setAutomaticRecoveryEnabled(baasAppName, true);
+  // _appsWithDisabledAutoRecovery.map((appName) async => await client.setAutomaticRecoveryEnabled(appName, true));
+  // _appsWithDisabledAutoRecovery.clear();
+}
