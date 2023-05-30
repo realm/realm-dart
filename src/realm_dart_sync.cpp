@@ -70,8 +70,8 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     struct error_copy {
         std::string message;
         std::string detailed_message;
-        const char* c_original_file_path_key;
-        const char* c_recovery_file_path_key;
+        std::string original_file_path_key;
+        std::string recovery_file_path_key;
         bool is_fatal;
         bool is_unrecognized_by_client;
         bool is_client_reset_requested;
@@ -84,8 +84,8 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
 
     buf.message = error.error_code.message;
     buf.detailed_message = error.detailed_message;
-    buf.c_original_file_path_key = error.c_original_file_path_key;
-    buf.c_recovery_file_path_key = error.c_recovery_file_path_key;
+    buf.original_file_path_key = error.c_original_file_path_key;
+    buf.recovery_file_path_key = error.c_recovery_file_path_key;
     buf.is_fatal = error.is_fatal;
     buf.is_client_reset_requested = error.is_client_reset_requested;
     buf.user_info_values.reserve(error.user_info_length);
