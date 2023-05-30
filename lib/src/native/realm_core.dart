@@ -65,7 +65,8 @@ final _realmLib = () {
 }();
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '0.0.1';
+const libraryVersion = '1.1.0';
+
 _RealmCore realmCore = _RealmCore();
 
 // All access to Realm Core functionality goes through this class
