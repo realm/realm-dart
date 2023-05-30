@@ -2945,9 +2945,9 @@ extension on realm_value_t {
         decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        return ObjectId.fromBytes(values.object_id.bytes.toIntList(ObjectId.byteLength));
+        return ObjectId.fromBytes(values.object_id.bytes.toList(ObjectId.byteLength));
       case realm_value_type.RLM_TYPE_UUID:
-        return Uuid.fromBytes(values.uuid.bytes.toIntList(16).buffer);
+        return Uuid.fromBytes(values.uuid.bytes.toList(16).buffer);
       default:
         throw RealmException("realm_value_type $type not supported");
     }
@@ -2955,7 +2955,7 @@ extension on realm_value_t {
 }
 
 extension on Array<Uint8> {
-  Uint8List toIntList(int count) {
+  Uint8List toList(int count) {
     List<int> result = List.filled(count, this[0]);
     for (var i = 1; i < count; i++) {
       result[i] = this[i];
@@ -3013,7 +3013,7 @@ extension on Pointer<Utf8> {
 extension on realm_sync_error {
   SyncError toSyncError(Configuration config) {
     final message = error_code.message.cast<Utf8>().toRealmDartString()!;
-    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString()!;
+    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
@@ -3028,7 +3028,7 @@ extension on realm_sync_error {
         return CompensatingWriteError(message, detailedMessage, compensatingWrites);
       }
     }
-    return SyncError.create(message, detailedMessage, category, error_code.value, isFatal: is_fatal);
+    return SyncError.create(message, category, error_code.value, detailedMessage: detailedMessage, isFatal: is_fatal);
   }
 }
 
@@ -3040,7 +3040,7 @@ extension on Pointer<realm_sync_error_user_info_t> {
       final userInfoItem = userInfoMapPtr[i];
       final key = userInfoItem.key.cast<Utf8>().toDartString();
       final value = userInfoItem.value.cast<Utf8>().toDartString();
-      userInfoMap.addEntries([MapEntry(key, value)]);
+      userInfoMap[key] = value;
     }
     return userInfoMap;
   }
@@ -3065,7 +3065,7 @@ extension on Pointer<realm_sync_error_compensating_write_info_t> {
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    return SyncError.create(message, "", SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
+    return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
   }
 }
 

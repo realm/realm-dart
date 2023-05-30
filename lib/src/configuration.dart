@@ -609,16 +609,16 @@ class ClientResetError extends SyncError {
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
   /// The path to the original realm file.
-  String get _originalFilePath => _userInfo?["ORIGINAL_FILE_PATH"] ?? "";
+  String? get _originalFilePath => _userInfo?["ORIGINAL_FILE_PATH"];
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
-  String get backupFilePath => _userInfo?["RECOVERY_FILE_PATH"] ?? "";
+  String? get backupFilePath => _userInfo?["RECOVERY_FILE_PATH"];
 
   final Map<String, String>? _userInfo;
 
   ClientResetError(
     String message,
-    String detailedMessage, [
+    String? detailedMessage, [
     this._config,
     this._userInfo,
   ]) : super(message, detailedMessage, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
@@ -654,25 +654,25 @@ class SyncError extends RealmError {
 
   /// Detailed error message.
   /// In case of server error, it contains the link to the server log.
-  final String detailedMessage;
+  final String? detailedMessage;
 
   SyncError(String message, this.detailedMessage, this.category, this.codeValue) : super(message);
 
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
-  static SyncError create(String message, String detailedMessage, SyncErrorCategory category, int code, {bool isFatal = false}) {
+  static SyncError create(String message, SyncErrorCategory category, int code, {String? detailedMessage, bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        return SyncClientError(message, detailedMessage, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
       case SyncErrorCategory.connection:
-        return SyncConnectionError(message, detailedMessage, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
       case SyncErrorCategory.session:
-        return SyncSessionError(message, detailedMessage, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
       case SyncErrorCategory.webSocket:
-        return SyncWebSocketError(message, detailedMessage, category, SyncWebSocketErrorCode.fromInt(code));
+        return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code), detailedMessage: detailedMessage);
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
-        return GeneralSyncError(message, detailedMessage, category, code);
+        return GeneralSyncError(message, category, code, detailedMessage: detailedMessage);
     }
   }
 
@@ -696,9 +696,9 @@ class SyncClientError extends SyncError {
 
   SyncClientError(
     String message,
-    String detailedMessage,
     SyncErrorCategory category,
     SyncClientErrorCode errorCode, {
+    String? detailedMessage,
     this.isFatal = false,
   }) : super(message, detailedMessage, category, errorCode.code);
 
@@ -719,9 +719,9 @@ class SyncConnectionError extends SyncError {
 
   SyncConnectionError(
     String message,
-    String detailedMessage,
     SyncErrorCategory category,
     SyncConnectionErrorCode errorCode, {
+    String? detailedMessage,
     this.isFatal = false,
   }) : super(message, detailedMessage, category, errorCode.code);
 
@@ -742,9 +742,9 @@ class SyncSessionError extends SyncError {
 
   SyncSessionError(
     String message,
-    String detailedMessage,
     SyncErrorCategory category,
     SyncSessionErrorCode errorCode, {
+    String? detailedMessage,
     this.isFatal = false,
   }) : super(message, detailedMessage, category, errorCode.code);
 
@@ -783,10 +783,10 @@ class SyncWebSocketError extends SyncError {
 
   SyncWebSocketError(
     String message,
-    String detailedMessage,
     SyncErrorCategory category,
-    SyncWebSocketErrorCode errorCode,
-  ) : super(message, detailedMessage, category, errorCode.code);
+    SyncWebSocketErrorCode errorCode, {
+    String? detailedMessage,
+  }) : super(message, detailedMessage, category, errorCode.code);
 
   @override
   String toString() {
@@ -801,10 +801,10 @@ class GeneralSyncError extends SyncError {
 
   GeneralSyncError(
     String message,
-    String detailedMessage,
     SyncErrorCategory category,
-    int code,
-  ) : super(message, detailedMessage, category, code);
+    int code, {
+    String? detailedMessage,
+  }) : super(message, detailedMessage, category, code);
 
   @override
   String toString() {
@@ -829,7 +829,7 @@ enum GeneralSyncErrorCode {
 
 /// A class containing the details for a compensating write performed by the server.
 class CompensatingWriteInfo {
-  CompensatingWriteInfo(this.objectType, this.reason, this.primaryKey);
+  const CompensatingWriteInfo(this.objectType, this.reason, this.primaryKey);
 
   /// The type of the object which was affected by the compensating write.
   final String objectType;
@@ -859,7 +859,7 @@ class CompensatingWriteError extends SyncError {
 
   CompensatingWriteError(
     String message,
-    String detailedMessage,
+    String? detailedMessage,
     this.compensatingWrites,
   ) : super(message, detailedMessage, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code);
 
