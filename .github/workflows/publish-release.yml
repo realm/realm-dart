@@ -39,7 +39,7 @@ jobs:
       uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
       with:
         workflow: ci.yml
-        commit: ${{ github.sha }}
+        commit: 1065c1b0ee7c30e57d0cfbd7ae26f1ea7a3fad65
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
@@ -154,7 +154,7 @@ jobs:
         rm -rf common generator realm_dart realm ExtractedChangelog.md
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
-        aws s3 sync --acl public-read . "s3://$s3_folder"
+        #aws s3 sync --acl public-read . "s3://$s3_folder"
         echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
       working-directory: release
 
@@ -189,11 +189,11 @@ jobs:
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
 
-        dart pub publish --directory common --force
-        dart pub publish --directory generator --force
-        dart pub publish --directory realm_dart --force
+        #dart pub publish --directory common --force
+        #dart pub publish --directory generator --force
+        #dart pub publish --directory realm_dart --force
         #Passing `release/realm` directory as target because of a how the `flutter pub publish` command handles the --directory argument
-        flutter pub publish --directory release/realm --force
+        dart pub publish --directory realm --force
       working-directory: release
 
     - name: Find Release PR
