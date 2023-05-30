@@ -3018,7 +3018,7 @@ extension on realm_sync_error {
 
     //client reset can be requested with is_client_reset_requested disregarding the error_code.value
     if (is_client_reset_requested || error_code.value == SyncClientErrorCode.autoClientResetFailure.code) {
-      final userInfoMap = user_info_map.toDartCollection(user_info_length);
+      final userInfoMap = user_info_map.toMap(user_info_length);
       return ClientResetError(message, detailedMessage, config, userInfoMap);
     }
     if (category == SyncErrorCategory.session) {
