@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.1.0 (2023-05-30)
 
 ### Enhancements
 * Add `RealmResults.isValid` ([#1231](https://github.com/realm/realm-dart/pull/1231)).
