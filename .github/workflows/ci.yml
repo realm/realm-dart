@@ -551,6 +551,7 @@ jobs:
           cores: 4
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
+          emulator-boot-timeout: 1200
           script: echo "Generated Emulator snapshot for caching."
 
       # This will be a no-op under normal circumstances since the cluster would have been deployed
