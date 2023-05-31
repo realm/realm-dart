@@ -494,7 +494,10 @@ jobs:
           channel: 'stable'
 
       - name: Delete generated files in realm_dart
-        run: find . -name "*.realm.dart" -delete
+        run: |
+          find . -name "*.g.dart" -delete
+          find . -name "*.realm.dart" -delete
+
         working-directory: packages/realm_dart
 
       - name: Run generator in realm_dart
