@@ -576,8 +576,8 @@ jobs:
           cores: 4
           cmake: 3.10.2.4988404
           script: 
-            flutter build apk --debug --target=test_driver/app.dart &&
-            flutter install --debug --use-application-binary=build/app/outputs/apk/debug/app-debug.apk && 
+            flutter build apk --debug --target=test_driver/app.dart && \
+            flutter install --debug --use-application-binary=build/app/outputs/apk/debug/app-debug.apk && \
             flutter drive --target=test_driver/app.dart --dart-define=testName="" --debug
           working-directory: ./flutter/realm_flutter/tests
 
