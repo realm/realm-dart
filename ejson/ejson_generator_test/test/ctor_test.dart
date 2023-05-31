@@ -41,7 +41,7 @@ class Named {
 class RequiredNamedParameters {
   final String s;
   @ejson
-  RequiredNamedParameters({required this.s});
+  const RequiredNamedParameters({required this.s});
 }
 
 class OptionalNamedParameters {
@@ -62,51 +62,73 @@ class PrivateMembers {
   int get id => _id; // must match constructor parameter name
 
   @ejson
-  PrivateMembers(int id) : _id = id; // instead of @MapTo
+  const PrivateMembers(int id) : _id = id; // instead of @MapTo
+}
+
+class Person {
+  final String name;
+  final DateTime birthDate;
+  Duration get age => DateTime.now().difference(birthDate);
+
+  final int? cprNumber;
+  final double income;
+  final Person? spouse;
+
+  final children = <Person>[];
+
+  @ejson // annotate constructor to generate decoder and encoder
+  Person(this.name, this.birthDate, this.income, {this.spouse, this.cprNumber});
+}
+
+void _testCase<T>(T value, EJsonValue expected) {
+  test('encode $T to $expected', () {
+    expect(toEJson(value), expected);
+  });
+
+  test('decode $expected to $T', () {
+    expect(() => fromEJson<T>(expected), returnsNormally);
+  });
+
+  test('roundtrip $expected as $T', () {
+    expect(toEJson(fromEJson<T>(expected)), expected);
+  });
+
+  test('roundtrip $expected of type $T as dynamic', () {
+    // no <T> here, so dynamic
+    expect(toEJson(fromEJson(expected)), expected);
+  });
 }
 
 void main() {
-  customEncoders.addAll(const {
-    Empty: encodeEmpty,
-    Simple: encodeSimple,
-    Named: encodeNamed,
-    RequiredNamedParameters: encodeRequiredNamedParameters,
-    OptionalNamedParameters: encodeOptionalNamedParameters,
-    OptionalParameters: encodeOptionalParameters,
-    PrivateMembers: encodePrivateMembers,
-  });
+  group('ctors', () {
+    register(encodeEmpty, decodeEmpty);
+    register(encodeSimple, decodeSimple);
+    register(encodeNamed, decodeNamed);
+    register(encodeRequiredNamedParameters, decodeRequiredNamedParameters);
+    register(encodeOptionalNamedParameters, decodeOptionalNamedParameters);
+    register(encodeOptionalParameters, decodeOptionalParameters);
+    register(encodePrivateMembers, decodePrivateMembers);
+    register(encodePerson, decodePerson);
 
-  customDecoders.addAll(const {
-    Empty: decodeEmpty,
-    Simple: decodeSimple,
-    Named: decodeNamed,
-    RequiredNamedParameters: decodeRequiredNamedParameters,
-    OptionalNamedParameters: decodeOptionalNamedParameters,
-    OptionalParameters: decodeOptionalParameters,
-    PrivateMembers: decodePrivateMembers,
-  });
-
-  test('@ejson encode', () {
-    expect(Empty().toEJson(), {});
-    expect(Simple(42).toEJson(), {
+    _testCase(const Empty(), {});
+    _testCase(const Simple(42), {
       'i': {'\$numberLong': 42}
     });
-    expect(Named.nameIt('foobar').toEJson(), {'s': 'foobar'});
-    expect(RequiredNamedParameters(s: 'foobar').toEJson(), {'s': 'foobar'});
-    expect(OptionalNamedParameters().toEJson(), {'s': 'rabbit'});
-    expect(OptionalParameters().toEJson(), {'s': 'racoon'});
-    expect(PrivateMembers(42).toEJson(), {
+    _testCase(Named.nameIt('foobar'), {'s': 'foobar'});
+    _testCase(const RequiredNamedParameters(s: 'foobar'), {'s': 'foobar'});
+    _testCase(OptionalNamedParameters(), {'s': 'rabbit'});
+    _testCase(OptionalParameters(), {'s': 'racoon'});
+    _testCase(const PrivateMembers(42), {
       'id': {'\$numberLong': 42}
     });
-  });
-
-  test('@ejson decode', () {
-    expect(fromEJson<Empty>({}), const Empty());
-    expect(
-      fromEJson<Simple>({
-        'i': {'\$numberLong': 42}
-      }),
-      Simple(42),
-    );
+    _testCase(Person('Eva', DateTime(1973), 90000.0), {
+      'name': 'Eva',
+      'birthDate': {
+        '\$date': {'\$numberLong': 94690800000}
+      },
+      'income': {'\$numberDouble': 90000.0},
+      'spouse': null,
+      'cprNumber': null,
+    });
   });
 }

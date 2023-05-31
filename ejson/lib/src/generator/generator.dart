@@ -44,13 +44,13 @@ class EJsonGenerator extends Generator {
       return '''
         EJsonValue encode$className($className value) {
           return {
-            ${ctor.parameters.map((p) => "'${p.name}': value.${p.name}.toEJson()").join('\n')}
+            ${ctor.parameters.map((p) => "'${p.name}': value.${p.name}.toEJson()").join(',\n')}
           };
         }
 
         $className decode$className(EJsonValue ejson) {
           return switch (ejson) {
-            ${decodePattern(ctor.parameters)} => $className${ctor.name.isEmpty ? '' : '.${ctor.name}'}(
+              ${decodePattern(ctor.parameters)} => $className${ctor.name.isEmpty ? '' : '.${ctor.name}'}(
               ${ctor.parameters.map((p) => "${p.isNamed ? '${p.name} : ' : ''}${p.name}.to<${p.type}>()").join(',\n')}
             ),
             _ => raiseInvalidEJson(ejson),
@@ -70,7 +70,7 @@ String decodePattern(Iterable<ParameterElement> parameters) {
   if (parameters.isEmpty) {
     return 'Map m when m.isEmpty';
   }
-  return parameters
-      .map((p) => "{'${p.name}': EJsonValue ${p.name}}")
-      .join(',\n');
+  return '''{
+    ${parameters.map((p) => "'${p.name}': EJsonValue ${p.name}").join(',\n')} 
+  }''';
 }
