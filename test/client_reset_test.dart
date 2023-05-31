@@ -228,20 +228,20 @@ Future<void> main([List<String>? args]) async {
         try {
           final app = App(appConfig);
           final user = await getIntegrationUser(app);
-          int onBeforeResetOccured = 0;
-          int onAfterDiscardOccured = 0;
-          int onAfterRecoveryOccured = 0;
+          int onBeforeResetOccurred = 0;
+          int onAfterDiscardOccurred = 0;
+          int onAfterRecoveryOccurred = 0;
           final onAfterCompleter = Completer<void>();
 
           final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
               clientResetHandler: Creator.create(
                 clientResetHandlerType,
-                onBeforeReset: (beforeResetRealm) => onBeforeResetOccured++,
+                onBeforeReset: (beforeResetRealm) => onBeforeResetOccurred++,
                 onAfterRecovery: (beforeResetRealm, afterResetRealm) {
-                  onAfterRecoveryOccured++;
+                  onAfterRecoveryOccurred++;
                 },
                 onAfterDiscard: (beforeResetRealm, afterResetRealm) {
-                  onAfterDiscardOccured++;
+                  onAfterDiscardOccurred++;
                   onAfterCompleter.complete();
                 },
                 onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
@@ -277,9 +277,9 @@ Future<void> main([List<String>? args]) async {
 
           await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
 
-          expect(onBeforeResetOccured, 1);
-          expect(onAfterDiscardOccured, 1);
-          expect(onAfterRecoveryOccured, 0);
+          expect(onBeforeResetOccurred, 1);
+          expect(onAfterDiscardOccurred, 1);
+          expect(onAfterRecoveryOccurred, 0);
 
           await subscription.cancel();
           expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
@@ -383,8 +383,8 @@ Future<void> main([List<String>? args]) async {
   baasTest('onAfterReset is reported after async onBeforeReset completes', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
-    int onBeforeResetOccured = 0;
-    int onAfterResetOccured = 0;
+    int onBeforeResetOccurred = 0;
+    int onAfterResetOccurred = 0;
     final onAfterCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
@@ -393,13 +393,13 @@ Future<void> main([List<String>? args]) async {
       clientResetHandler: DiscardUnsyncedChangesHandler(
         onBeforeReset: (beforeResetRealm) async {
           await Future<void>.delayed(Duration(seconds: 1));
-          onBeforeResetOccured++;
+          onBeforeResetOccurred++;
         },
         onAfterReset: (beforeResetRealm, afterResetRealm) {
-          if (onBeforeResetOccured == 0) {
+          if (onBeforeResetOccurred == 0) {
             onAfterCompleter.completeError(Exception("BeforeResetCallback is still not completed"));
           }
-          onAfterResetOccured++;
+          onAfterResetOccurred++;
           onAfterCompleter.complete();
         },
       ),
@@ -411,16 +411,16 @@ Future<void> main([List<String>? args]) async {
 
     await onAfterCompleter.future.wait(defaultWaitTimeout, "onAfterReset is not reported.");
 
-    expect(onAfterResetOccured, 1);
-    expect(onBeforeResetOccured, 1);
+    expect(onAfterResetOccurred, 1);
+    expect(onBeforeResetOccurred, 1);
   });
 
   baasTest('onManualResetFallback is reported after async onAfterReset throws', (appConfig) async {
     final app = App(appConfig);
     final user = await getIntegrationUser(app);
-    int onBeforeResetOccured = 0;
-    int onAfterResetOccured = 0;
-    int manualResetFallbacKOccured = 0;
+    int onBeforeResetOccurred = 0;
+    int onAfterResetOccurred = 0;
+    int manualResetFallbacKOccurred = 0;
     final manualResetFallbacKCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
@@ -428,16 +428,16 @@ Future<void> main([List<String>? args]) async {
       [Task.schema, Schedule.schema],
       clientResetHandler: DiscardUnsyncedChangesHandler(
         onBeforeReset: (beforeResetRealm) {
-          onBeforeResetOccured++;
+          onBeforeResetOccurred++;
         },
         onAfterReset: (beforeResetRealm, afterResetRealm) async {
           await Future<void>.delayed(Duration(seconds: 1));
-          onAfterResetOccured++;
+          onAfterResetOccurred++;
           throw Exception("Cause onManualResetFallback");
         },
         onManualResetFallback: (clientResetError) {
-          manualResetFallbacKOccured++;
-          if (onAfterResetOccured == 0) {
+          manualResetFallbacKOccurred++;
+          if (onAfterResetOccurred == 0) {
             manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
           }
           manualResetFallbacKCompleter.complete();
@@ -451,9 +451,9 @@ Future<void> main([List<String>? args]) async {
 
     await manualResetFallbacKCompleter.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
 
-    expect(manualResetFallbacKOccured, 1);
-    expect(onAfterResetOccured, 1);
-    expect(onBeforeResetOccured, 1);
+    expect(manualResetFallbacKOccurred, 1);
+    expect(onAfterResetOccurred, 1);
+    expect(onBeforeResetOccurred, 1);
   });
 
   // 1. userA adds [task0, task1, task2] and syncs it, then disconnects

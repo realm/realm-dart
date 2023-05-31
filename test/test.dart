@@ -542,17 +542,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
 
 extension on Map<String, String?> {
   void addArgument(ArgResults parsedResult, String argName) {
-    late String? value;
-    if (parsedResult.wasParsed(argName)) {
-      if (parsedResult[argName] != null && parsedResult[argName] != "null") {
-        value = parsedResult[argName]!.toString();
-      } else {
-        value = null;
-      }
-    } else {
-      value = Platform.environment[argName];
-    }
-
+    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
     if (value != null && value.isNotEmpty) {
       this[argName] = value;
     }
