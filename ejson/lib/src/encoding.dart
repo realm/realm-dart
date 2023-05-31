@@ -3,7 +3,7 @@ import 'package:type_plus/type_plus.dart';
 import 'types.dart';
 
 // No custom encoders, if registerSerializableTypes not called
-var customEncoders = const <Type, Function>{};
+var customEncoders = <Type, Function>{};
 
 var relaxed = false;
 
