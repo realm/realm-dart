@@ -41,14 +41,14 @@ class OptionalParameters {
 class PrivateMembers {
   final int _id;
 
-  int get id => _id;
+  int get id => _id; // must match constructor parameter name
 
   @ejson
-  PrivateMembers(int id) : _id = id;
+  PrivateMembers(int id) : _id = id; // instead of @MapTo
 }
 
 void main() {
-  customEncoders.addAll({
+  customEncoders.addAll(const {
     Empty: encodeEmpty,
     Simple: encodeSimple,
     Named: encodeNamed,
@@ -58,7 +58,7 @@ void main() {
     PrivateMembers: encodePrivateMembers,
   });
 
-  customDecoders.addAll({
+  customDecoders.addAll(const {
     Empty: decodeEmpty,
     Simple: decodeSimple,
     Named: decodeNamed,
@@ -80,5 +80,15 @@ void main() {
     expect(PrivateMembers(42).toEJson(), {
       'id': {'\$numberLong': 42}
     });
+  });
+
+  test('@ejson decode', () {
+    expect(fromEJson<Empty>({}), const Empty());
+    expect(
+      fromEJson<Simple>({
+        'i': {'\$numberLong': 42}
+      }),
+      Simple(42),
+    );
   });
 }
