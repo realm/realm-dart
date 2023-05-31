@@ -44,6 +44,9 @@ jobs:
           sdk: stable
           architecture: 'x64'
 
+      - name: Disable Flutter and Dart Analytics
+        run: dart --disable-analytics
+
       - name: Install dependencies
         run: dart pub get
 

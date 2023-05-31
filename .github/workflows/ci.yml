@@ -174,6 +174,9 @@ jobs:
         with:
           sdk: stable
 
+      - name: Disable Flutter and Dart Analytics
+        run: dart --disable-analytics
+
       - name: Cleanup Dart apps
         run: |
           dart run realm_dart delete-apps \
@@ -226,6 +229,9 @@ jobs:
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
+
+      - name: Disable Flutter and Dart Analytics
+        run: dart --disable-analytics
 
       - name: Cleanup Flutter apps
         run: |
@@ -451,8 +457,14 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Disable Flutter and Dart Analytics
+        run: |
+          flutter config --no-analytics
+          dart --disable-analytics
+
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
 
       - name: Launch Simulator
         uses: futureware-tech/simulator-action@v2
@@ -508,6 +520,11 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Disable Flutter and Dart Analytics
+        run: |
+          flutter config --no-analytics
+          dart --disable-analytics
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -519,13 +536,13 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-29-speed
+          key: avd-33
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 33
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
@@ -553,12 +570,15 @@ jobs:
           force-avd-creation: false
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          api-level: 29
+          api-level: 33
           ndk: 21.0.6113669
           arch: x86_64
           cores: 4
           cmake: 3.10.2.4988404
-          script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+          script: 
+            flutter build apk --debug --target=test_driver/app.dart &&
+            flutter install --debug --use-application-binary=build/app/outputs/apk/debug/app-debug.apk && 
+            flutter drive --target=test_driver/app.dart --dart-define=testName="" --debug
           working-directory: ./flutter/realm_flutter/tests
 
 # Generator jobs
@@ -582,6 +602,11 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      - name: Disable Flutter and Dart Analytics
+        run: |
+          flutter config --no-analytics
+          dart --disable-analytics
 
       - name: Delete generated files
         run: find . -name "*.g.dart" -not -path "./generator/*" -delete

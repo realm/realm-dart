@@ -35,6 +35,11 @@ jobs:
       with:
         channel: 'stable'
 
+    - name: Disable Flutter and Dart Analytics
+      run: |
+        flutter config --no-analytics
+        dart --disable-analytics
+
     - name: Download all artifacts
       uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
       with:
@@ -183,6 +188,11 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
+
+    - name: Disable Flutter and Dart Analytics
+      run: |
+        flutter config --no-analytics
+        dart --disable-analytics
 
     - name: Publish packages to pub.dev
       run: |

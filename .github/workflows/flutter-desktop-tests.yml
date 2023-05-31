@@ -68,6 +68,11 @@ jobs:
           channel: 'stable'
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
+      - name: Disable Flutter and Dart Analytics
+        run: |
+          flutter config --no-analytics
+          dart --disable-analytics
+
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop
 
