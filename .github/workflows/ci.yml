@@ -569,14 +569,16 @@ jobs:
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          force-avd-creation: false
-          disable-animations: true
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           api-level: 33
-          ndk: 21.0.6113669
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
           arch: x86_64
           cores: 4
+          ndk: 21.0.6113669
           cmake: 3.10.2.4988404
+          emulator-boot-timeout: 1200
           script: 
             flutter build apk --debug --target=test_driver/app.dart && \
             flutter install --debug --use-application-binary=build/app/outputs/apk/debug/app-debug.apk && \
