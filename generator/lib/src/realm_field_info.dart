@@ -84,7 +84,7 @@ class RealmFieldInfo {
       final backlinkGetter = "RealmObjectBase.get<$getTypeName>(this, '$realmName')";
       yield "$mappedTypeName get $name => ($backlinkGetter as $mappedTypeName?)?? $mappedTypeName();";
     } else {
-      yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;";
+      yield "$mappedTypeName get $name => $backlinkGetter as $mappedTypeName;";
     }
     bool generateSetter = !isFinal && !isRealmCollection && !isRealmBacklink;
     if (generateSetter) {
