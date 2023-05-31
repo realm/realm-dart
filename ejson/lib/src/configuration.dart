@@ -16,8 +16,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-export 'src/annotations.dart';
-export 'src/configuration.dart';
-export 'src/decoding.dart';
-export 'src/encoding.dart';
-export 'src/types.dart';
+import 'package:type_plus/type_plus.dart';
+
+import 'decoding.dart';
+import 'encoding.dart';
+import 'types.dart';
+
+void register<T>(EJsonEncoder<T> encoder, EJsonDecoder<T> decoder) {
+  TypePlus.add<T>();
+  customEncoders[T] = encoder;
+  customDecoders[T] = decoder;
+}

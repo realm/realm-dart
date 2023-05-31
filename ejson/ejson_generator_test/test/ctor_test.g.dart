@@ -119,3 +119,33 @@ extension PrivateMembersEJsonEncoderExtension on PrivateMembers {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => encodePrivateMembers(this);
 }
+
+EJsonValue encodePerson(Person value) {
+  return {
+    'name': value.name.toEJson(),
+    'birthDate': value.birthDate.toEJson(),
+    'income': value.income.toEJson(),
+    'spouse': value.spouse.toEJson(),
+    'cprNumber': value.cprNumber.toEJson()
+  };
+}
+
+Person decodePerson(EJsonValue ejson) {
+  return switch (ejson) {
+    {
+      'name': EJsonValue name,
+      'birthDate': EJsonValue birthDate,
+      'income': EJsonValue income,
+      'spouse': EJsonValue spouse,
+      'cprNumber': EJsonValue cprNumber
+    } =>
+      Person(name.to<String>(), birthDate.to<DateTime>(), income.to<double>(),
+          spouse: spouse.to<Person?>(), cprNumber: cprNumber.to<int?>()),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+extension PersonEJsonEncoderExtension on Person {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => encodePerson(this);
+}

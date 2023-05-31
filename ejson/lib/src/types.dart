@@ -56,3 +56,6 @@ final class Undefined<T> extends UndefinedOr<T> {
 }
 
 const undefined = Undefined();
+
+typedef EJsonDecoder<T> = T Function(EJsonValue ejson);
+typedef EJsonEncoder<T> = EJsonValue Function(T object);
