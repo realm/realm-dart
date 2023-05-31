@@ -528,7 +528,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # TODO: Move CI run tests on Android Emulator into device farm https://github.com/realm/realm-dart/issues/691
       - name: Setup Android Emulator cache
         uses: actions/cache@v3.0.4
         id: avd-cache
@@ -536,13 +535,13 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-21
+          key: avd-30
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 21
+          api-level: 30
           target: google_apis
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
@@ -569,7 +568,7 @@ jobs:
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 21
+          api-level: 30
           target: google_apis
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
