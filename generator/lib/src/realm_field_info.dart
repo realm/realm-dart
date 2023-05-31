@@ -80,11 +80,11 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     final getTypeName = type.isRealmCollection ? basicMappedTypeName : basicNonNullableMappedTypeName;
     yield '@override';
+    final getter = "RealmObjectBase.get<$getTypeName>(this, '$realmName')";
     if (isRealmBacklink) {
-      final backlinkGetter = "RealmObjectBase.get<$getTypeName>(this, '$realmName')";
-      yield "$mappedTypeName get $name => ($backlinkGetter as $mappedTypeName?)?? $mappedTypeName();";
+      yield "$mappedTypeName get $name => ($getter as $mappedTypeName?)?? $mappedTypeName();";
     } else {
-      yield "$mappedTypeName get $name => $backlinkGetter as $mappedTypeName;";
+      yield "$mappedTypeName get $name => $getter as $mappedTypeName;";
     }
     bool generateSetter = !isFinal && !isRealmCollection && !isRealmBacklink;
     if (generateSetter) {
