@@ -20,7 +20,6 @@ class EJsonGenerator extends Generator {
       ),
     );
     return ctors.map((ctor) {
-      final cls = ctor.enclosingElement;
       final className = ctor.enclosingElement.name;
 
       log.info('Generating EJson for $className');
