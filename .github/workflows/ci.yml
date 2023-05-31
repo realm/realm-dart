@@ -519,7 +519,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-29
+          key: avd-29-speed
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
@@ -555,7 +555,8 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           api-level: 29
           ndk: 21.0.6113669
-          arch: x86
+          arch: x86_64
+          cores: 4
           cmake: 3.10.2.4988404
           script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
           working-directory: ./flutter/realm_flutter/tests
