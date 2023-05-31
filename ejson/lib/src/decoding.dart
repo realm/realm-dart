@@ -22,7 +22,7 @@ const commonDecoders = {
   UndefinedOr: _decodeUndefinedOr,
 };
 
-var customDecoders = const <Type, Function>{};
+var customDecoders = <Type, Function>{};
 
 // if registerSerializableTypes not called
 final decoders = () {
