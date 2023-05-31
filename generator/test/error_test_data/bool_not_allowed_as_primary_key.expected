@@ -1,5 +1,5 @@
 Realm only supports the @PrimaryKey annotation on fields of type
-int, String, DateTime, ObjectId, Uuid
+int, String, ObjectId, Uuid
 as well as their nullable versions
 
 in: asset:pkg/test/error_test_data/bool_not_allowed_as_primary_key.dart:9:8
