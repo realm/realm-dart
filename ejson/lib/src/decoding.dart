@@ -178,10 +178,12 @@ num _decodeNum(EJsonValue ejson) {
   };
 }
 
-String _decodeString(EJsonValue ejson) => switch (ejson) {
-      String s => s,
-      _ => raiseInvalidEJson(ejson),
-    };
+String _decodeString(EJsonValue ejson) {
+  return switch (ejson) {
+    String s => s,
+    _ => raiseInvalidEJson(ejson),
+  };
+}
 
 Symbol _decodeSymbol(EJsonValue ejson) {
   return switch (ejson) {
