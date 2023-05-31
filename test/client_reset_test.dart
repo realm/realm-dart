@@ -304,16 +304,16 @@ Future<void> main([List<String>? args]) async {
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onBeforeReset: (beforeResetRealm) {
-              _checkPproducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
             },
             onAfterRecovery: (beforeResetRealm, afterResetRealm) {
-              _checkPproducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
-              _checkPproducts(afterResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkProducts(afterResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
               onAfterCompleter.complete();
             },
             onAfterDiscard: (beforeResetRealm, afterResetRealm) {
-              _checkPproducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
-              _checkPproducts(afterResetRealm, comparer, expectedList: [syncedProduct], notExpectedList: [maybeProduct]);
+              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkProducts(afterResetRealm, comparer, expectedList: [syncedProduct], notExpectedList: [maybeProduct]);
               onAfterCompleter.complete();
             },
             onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
@@ -420,8 +420,8 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     int onBeforeResetOccurred = 0;
     int onAfterResetOccurred = 0;
-    int manualResetFallbacKOccurred = 0;
-    final manualResetFallbacKCompleter = Completer<void>();
+    int manualResetFallbackOccurred = 0;
+    final manualResetFallbackCompleter = Completer<void>();
 
     final config = Configuration.flexibleSync(
       user,
@@ -436,11 +436,11 @@ Future<void> main([List<String>? args]) async {
           throw Exception("Cause onManualResetFallback");
         },
         onManualResetFallback: (clientResetError) {
-          manualResetFallbacKOccurred++;
+          manualResetFallbackOccurred++;
           if (onAfterResetOccurred == 0) {
-            manualResetFallbacKCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
+            manualResetFallbackCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
           }
-          manualResetFallbacKCompleter.complete();
+          manualResetFallbackCompleter.complete();
         },
       ),
     );
@@ -449,9 +449,9 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await manualResetFallbacKCompleter.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
+    await manualResetFallbackCompleter.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
 
-    expect(manualResetFallbacKOccurred, 1);
+    expect(manualResetFallbackOccurred, 1);
     expect(onAfterResetOccurred, 1);
     expect(onBeforeResetOccurred, 1);
   });
@@ -480,8 +480,8 @@ Future<void> main([List<String>? args]) async {
     final configA = Configuration.flexibleSync(userA, [Task.schema], clientResetHandler: RecoverUnsyncedChangesHandler(
       onAfterReset: (beforeResetRealm, afterResetRealm) {
         try {
-          _checkPproducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id, task3Id]);
-          _checkPproducts(afterResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id]);
+          _checkProducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id, task3Id]);
+          _checkProducts(afterResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id]);
           afterRecoverCompleterA.complete();
         } catch (e) {
           afterRecoverCompleterA.completeError(e);
@@ -492,8 +492,8 @@ Future<void> main([List<String>? args]) async {
     final configB = Configuration.flexibleSync(userB, [Schedule.schema, Task.schema], clientResetHandler: RecoverUnsyncedChangesHandler(
       onAfterReset: (beforeResetRealm, afterResetRealm) {
         try {
-          _checkPproducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id, task2Id, task3Id]);
-          _checkPproducts(afterResetRealm, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
+          _checkProducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id, task2Id, task3Id]);
+          _checkProducts(afterResetRealm, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
           afterRecoverCompleterB.complete();
         } catch (e) {
           afterRecoverCompleterB.completeError(e);
@@ -501,8 +501,8 @@ Future<void> main([List<String>? args]) async {
       },
     ));
 
-    final realmA = await _syncReamlForUser<Task>(configA, [Task(task0Id), Task(task1Id), Task(task2Id)]);
-    final realmB = await _syncReamlForUser<Task>(configB);
+    final realmA = await _syncRealmForUser<Task>(configA, [Task(task0Id), Task(task1Id), Task(task2Id)]);
+    final realmB = await _syncRealmForUser<Task>(configB);
 
     realmA.syncSession.pause();
     realmB.syncSession.pause();
@@ -524,12 +524,12 @@ Future<void> main([List<String>? args]) async {
 
     await realmA.syncSession.waitForDownload();
 
-    _checkPproducts(realmA, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
-    _checkPproducts(realmB, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
+    _checkProducts(realmA, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
+    _checkProducts(realmB, comparer, expectedList: [task0Id, task1Id, task3Id], notExpectedList: [task2Id]);
   });
 }
 
-Future<Realm> _syncReamlForUser<T extends RealmObject>(FlexibleSyncConfiguration config, [List<T>? items]) async {
+Future<Realm> _syncRealmForUser<T extends RealmObject>(FlexibleSyncConfiguration config, [List<T>? items]) async {
   final realm = getRealm(config);
   realm.subscriptions.update((mutableSubscriptions) {
     mutableSubscriptions.add<T>(realm.all<T>());
@@ -545,9 +545,9 @@ Future<Realm> _syncReamlForUser<T extends RealmObject>(FlexibleSyncConfiguration
   return realm;
 }
 
-void _checkPproducts<T extends RealmObject, O extends Object?>(Realm realmToSearch, bool Function(T, O) truePredicate,
+void _checkProducts<T extends RealmObject, O extends Object?>(Realm realm, bool Function(T, O) truePredicate,
     {required List<O> expectedList, List<O>? notExpectedList}) {
-  final all = realmToSearch.all<T>();
+  final all = realm.all<T>();
   for (var expected in expectedList) {
     if (!all.any((p) => truePredicate(p, expected))) {
       throw Exception("Expected realm object does not exist");
