@@ -285,7 +285,7 @@ Future<void> main([List<String>? args]) async {
           expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
         } finally {
           if (shouldDisableAutoRecoveryForApp) {
-            await enableAutoRecoveryforApp(baasAppName);
+            await enableAutoRecoveryForApp(baasAppName);
           }
         }
       });
@@ -375,7 +375,7 @@ Future<void> main([List<String>? args]) async {
         expect(recovery, isFalse);
         expect(discard, isTrue);
       } finally {
-        await enableAutoRecoveryforApp(baasAppName);
+        await enableAutoRecoveryForApp(baasAppName);
       }
     });
   }
