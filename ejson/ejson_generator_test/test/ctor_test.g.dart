@@ -39,12 +39,12 @@ extension SimpleEJsonEncoderExtension on Simple {
 }
 
 EJsonValue encodeNamed(Named value) {
-  return {'s': value.s.toEJson()};
+  return {'namedCtor': value.namedCtor.toEJson()};
 }
 
 Named decodeNamed(EJsonValue ejson) {
   return switch (ejson) {
-    {'s': EJsonValue s} => Named.nameIt(s.to<String>()),
+    {'namedCtor': EJsonValue namedCtor} => Named.nameIt(namedCtor.to<String>()),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -55,12 +55,13 @@ extension NamedEJsonEncoderExtension on Named {
 }
 
 EJsonValue encodeRequiredNamedParameters(RequiredNamedParameters value) {
-  return {'s': value.s.toEJson()};
+  return {'requiredNamed': value.requiredNamed.toEJson()};
 }
 
 RequiredNamedParameters decodeRequiredNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'s': EJsonValue s} => RequiredNamedParameters(s: s.to<String>()),
+    {'requiredNamed': EJsonValue requiredNamed} =>
+      RequiredNamedParameters(requiredNamed: requiredNamed.to<String>()),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -72,12 +73,13 @@ extension RequiredNamedParametersEJsonEncoderExtension
 }
 
 EJsonValue encodeOptionalNamedParameters(OptionalNamedParameters value) {
-  return {'s': value.s.toEJson()};
+  return {'optionalNamed': value.optionalNamed.toEJson()};
 }
 
 OptionalNamedParameters decodeOptionalNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'s': EJsonValue s} => OptionalNamedParameters(s: s.to<String>()),
+    {'optionalNamed': EJsonValue optionalNamed} =>
+      OptionalNamedParameters(optionalNamed: optionalNamed.to<String>()),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -89,12 +91,13 @@ extension OptionalNamedParametersEJsonEncoderExtension
 }
 
 EJsonValue encodeOptionalParameters(OptionalParameters value) {
-  return {'s': value.s.toEJson()};
+  return {'optional': value.optional.toEJson()};
 }
 
 OptionalParameters decodeOptionalParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'s': EJsonValue s} => OptionalParameters(s.to<String>()),
+    {'optional': EJsonValue optional} =>
+      OptionalParameters(optional.to<String>()),
     _ => raiseInvalidEJson(ejson),
   };
 }
