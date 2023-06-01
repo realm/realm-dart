@@ -73,6 +73,7 @@ void main() {
         final completer = Completer<LoggedMessage>();
 
         Realm.logger.level = level;
+        await Future<void>.delayed(const Duration(milliseconds: 10));
         Realm.logger.onRecord.listen((event) {
           completer.complete(LoggedMessage(event.level, event.message));
         });

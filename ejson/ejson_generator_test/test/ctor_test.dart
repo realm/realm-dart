@@ -33,27 +33,27 @@ class Simple {
 }
 
 class Named {
-  String s;
+  String namedCtor;
   @ejson
-  Named.nameIt(this.s);
+  Named.nameIt(this.namedCtor);
 }
 
 class RequiredNamedParameters {
-  final String s;
+  final String requiredNamed;
   @ejson
-  const RequiredNamedParameters({required this.s});
+  const RequiredNamedParameters({required this.requiredNamed});
 }
 
 class OptionalNamedParameters {
-  String s;
+  String optionalNamed;
   @ejson
-  OptionalNamedParameters({this.s = 'rabbit'});
+  OptionalNamedParameters({this.optionalNamed = 'rabbit'});
 }
 
 class OptionalParameters {
-  String s;
+  String optional;
   @ejson
-  OptionalParameters([this.s = 'racoon']);
+  OptionalParameters([this.optional = 'racoon']);
 }
 
 class PrivateMembers {
@@ -89,13 +89,21 @@ void _testCase<T>(T value, EJsonValue expected) {
     expect(() => fromEJson<T>(expected), returnsNormally);
   });
 
+  EJsonValue badInput = {'bad': 'input'};
+  badInput = value is Map ? [badInput] : badInput; // wrap in list for maps
+  test('decode $badInput to $T fails', () {
+    expect(() => fromEJson<T>(badInput), throwsA(isA<InvalidEJson<T>>()));
+  });
+
   test('roundtrip $expected as $T', () {
     expect(toEJson(fromEJson<T>(expected)), expected);
   });
 
   test('roundtrip $expected of type $T as dynamic', () {
     // no <T> here, so dynamic
-    expect(toEJson(fromEJson(expected)), expected);
+    final decoded = fromEJson(expected);
+    expect(decoded, isA<T>());
+    expect(toEJson(decoded), expected);
   });
 }
 
@@ -114,10 +122,11 @@ void main() {
     _testCase(const Simple(42), {
       'i': {'\$numberLong': 42}
     });
-    _testCase(Named.nameIt('foobar'), {'s': 'foobar'});
-    _testCase(const RequiredNamedParameters(s: 'foobar'), {'s': 'foobar'});
-    _testCase(OptionalNamedParameters(), {'s': 'rabbit'});
-    _testCase(OptionalParameters(), {'s': 'racoon'});
+    _testCase(Named.nameIt('foobar'), {'namedCtor': 'foobar'});
+    _testCase(const RequiredNamedParameters(requiredNamed: 'foobar'),
+        {'requiredNamed': 'foobar'});
+    _testCase(OptionalNamedParameters(), {'optionalNamed': 'rabbit'});
+    _testCase(OptionalParameters(), {'optional': 'racoon'});
     _testCase(const PrivateMembers(42), {
       'id': {'\$numberLong': 42}
     });

@@ -114,7 +114,7 @@ class _RealmCore {
     // This disables creation of a second _RealmCore instance effectivelly making `realmCore` global variable readonly
     _instance = this;
 
-    // This prevents reentrancy if `realmCore` global variable is accessed during _RealmCore construction
+    // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
     defaultRealmLogger = _initDefaultLogger(scheduler);
   }
