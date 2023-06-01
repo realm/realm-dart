@@ -2903,26 +2903,16 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
 }
 
 extension on Pointer<realm_value_t> {
-  Object? toDartValue(Realm realm) {
+  Object? toDartValue([Realm? realm]) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
-    switch (ref.type) {
-      case realm_value_type.RLM_TYPE_LINK:
-        final objectKey = ref.values.link.target;
-        final classKey = ref.values.link.target_table;
-        if (realm.metadata.getByClassKeyIfExists(classKey) == null) {
-          return null;
-        } // temprorary workaround to avoid crash on assertion
-        return realmCore._getObject(realm, classKey, objectKey);
-      default:
-        return ref.toDartValue();
-    }
+    return ref.toDartValue(realm);
   }
 }
 
 extension on realm_value_t {
-  Object? toDartValue() {
+  Object? toDartValue([Realm? realm]) {
     switch (type) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
@@ -2937,7 +2927,13 @@ extension on realm_value_t {
       case realm_value_type.RLM_TYPE_DOUBLE:
         return values.dnum;
       case realm_value_type.RLM_TYPE_LINK:
-        throw RealmError("realm_value_type $type can be converted with `toDartValue` extension of `Pointer<realm_value_t>` and requires a realm instance");
+        if (realm == null) {
+          throw RealmError("A realm instance is required to resolve Backlinks");
+        }
+        final objectKey = values.link.target;
+        final classKey = values.link.target_table;
+        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
+        return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         throw Exception("Not implemented");
       case realm_value_type.RLM_TYPE_TIMESTAMP:
@@ -2949,10 +2945,9 @@ extension on realm_value_t {
         decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        return ObjectId.fromBytes(values.object_id.bytes.toList(12));
+        return ObjectId.fromBytes(values.object_id.bytes.toList(ObjectId.byteLength));
       case realm_value_type.RLM_TYPE_UUID:
-        final listInt = values.uuid.bytes.toList(16);
-        return Uuid.fromBytes(Uint8List.fromList(listInt).buffer);
+        return Uuid.fromBytes(values.uuid.bytes.toList(16).buffer);
       default:
         throw RealmException("realm_value_type $type not supported");
     }
