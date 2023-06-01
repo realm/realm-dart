@@ -636,7 +636,7 @@ Future<void> disableAutoRecoveryForApp(AppNames appName) async {
   await client.setAutomaticRecoveryEnabled(baasAppName, false);
 }
 
-Future<void> enableAutoRecoveryforApp(AppNames appName) async {
+Future<void> enableAutoRecoveryForApp(AppNames appName) async {
   final client = baasClient ?? (throw StateError("No BAAS client"));
   final baasAppName = baasApps[appName.name]!.name;
   await client.setAutomaticRecoveryEnabled(baasAppName, true);
