@@ -15,8 +15,6 @@ topics:
 version: 0.1.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson
 
-publish_to: none # Remove this line if you wish to publish to pub.dev
-
 environment:
   sdk: ^3.0.1
 
