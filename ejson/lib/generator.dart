@@ -20,6 +20,29 @@ import 'package:build/build.dart';
 import 'package:ejson/src/generator/generator.dart';
 import 'package:source_gen/source_gen.dart';
 
-Builder getEJsonGenerator(BuilderOptions options) {
+enum EJsonError {
+  tooManyAnnotatedConstructors,
+  missingGetter,
+  mismatchedGetterType,
+}
+
+extension on EJsonError {
+  String get message => switch (this) {
+        EJsonError.tooManyAnnotatedConstructors => 'Too many annotated constructors',
+        EJsonError.missingGetter => 'Missing getter',
+        EJsonError.mismatchedGetterType => 'Mismatched getter type',
+      };
+
+  Never raise() {
+    throw EJsonSourceError(this);
+  }
+}
+
+class EJsonSourceError extends InvalidGenerationSourceError {
+  final EJsonError error;
+  EJsonSourceError(this.error) : super(error.message);
+}
+
+Builder getEJsonGenerator([BuilderOptions? options]) {
   return SharedPartBuilder([EJsonGenerator()], 'ejson');
 }
