@@ -33,10 +33,10 @@ class EJsonGenerator extends Generator {
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
     final ctors = library.classes.map(
       (c) => c.constructors.singleWhere(
-        (c) =>
-            typeChecker.firstAnnotationOf(c, throwOnUnresolved: false) != null,
+        (c) => typeChecker.firstAnnotationOf(c, throwOnUnresolved: false) != null,
       ),
     );
+
     return ctors.map((ctor) {
       final className = ctor.enclosingElement.name;
 
