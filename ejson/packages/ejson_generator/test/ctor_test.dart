@@ -133,10 +133,12 @@ void main() {
     _testCase(const PrivateMembers(42), {
       'id': {'\$numberLong': 42}
     });
-    _testCase(Person('Eva', DateTime(1973), 90000.0), {
+
+    final birthDate = DateTime.utc(1973);
+    _testCase(Person('Eva', DateTime.utc(1973), 90000.0), {
       'name': 'Eva',
       'birthDate': {
-        '\$date': {'\$numberLong': 94690800000}
+        '\$date': {'\$numberLong': birthDate.millisecondsSinceEpoch}
       },
       'income': {'\$numberDouble': 90000.0},
       'spouse': null,
