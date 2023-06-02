@@ -13,7 +13,7 @@ topics:
   - codegen
 
 version: 0.1.0
-repository: https://github.com/realm/realm-dart/ejson
+repository: https://github.com/realm/realm-dart/ejson/packages/ejson_generator
 
 environment:
   sdk: ^3.0.1

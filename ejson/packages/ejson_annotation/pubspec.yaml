@@ -1,14 +1,15 @@
 name: ejson_annotation
-description: A starting point for Dart libraries or applications.
-version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+description: >-
+  Annotation for EJSON serialization.
+
+  BSON is a binary format used to store JSON-like documents efficiently. 
+  EJSON extends JSON defining how all BSON types should be represented in JSON.
+
+version: 0.1.0
+repository: https://github.com/realm/realm-dart/ejson/packages/ejson_annotation
 
 environment:
   sdk: ^3.0.2
-
-# Add regular dependencies here.
-dependencies:
-  # path: ^1.8.0
 
 dev_dependencies:
   lints: ^2.0.0
