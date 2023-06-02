@@ -6,13 +6,36 @@ packages:
 ide:
   intellij: false
 
+command:
+  bootstrap:
+    hooks:
+      post: melos run setup
+
 scripts:
+  setup:
+    run: |
+      dart pub global activate pana &&
+      dart pub global activate coverage
+
   qa:
-    description: Run all QA scripts.
+    description: Run QA scripts.
+    run: |
+      melos run qa:static &&
+      melos run test
+
+  qa:full:
+    description: Run all QA scripts
+    run: |
+      melos run qa:static &&
+      melos run coverage &&
+      melos run pana &&
+      melos publish --dry-run
+
+  qa:static:
+    description: Run static analysis.
     run: |
       melos run format:check &&
-      melos analyze &&
-      melos test
+      melos run analyze
 
   format:
     description: Format Dart code.
@@ -27,16 +50,25 @@ scripts:
     run: dart analyze . --fatal-infos
 
   test:
-    description: Run tests in a specific package.
+    description: Run tests.
     run: dart test -j1 --chain-stack-traces
     exec:
       concurrency: 1
     packageFilters:
       dirExists:
         - test
+
+  coverage:
+    description: Run tests with coverage.
+    run: dart test --coverage=coverage -j1 --chain-stack-traces
+    exec:
+      concurrency: 1
+    packageFilters:
+      dirExists:
+        - test      
   
   pana:
     description: Run pana on all packages.
-    run: |
-      dart pub global activate pana &&
-      dart pub global run pana --no-warning --exit-code-threshold 40 --source path .
+    run: dart pub global run pana --no-warning --exit-code-threshold 40 --source path .
+    exec:
+      concurrency: 1
