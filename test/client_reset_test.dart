@@ -547,7 +547,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
 
     await triggerClientReset(realm);
-    await waitFutureWithTimeout(resetCompleter.future, timeoutError: "ManualRecoveryHandler is not reported.");
+    await resetCompleter.future.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
     expect(error, isNotNull);
     expect(error, isA<ClientResetError>());
     final clientResetError = error!.as<ClientResetError>();
