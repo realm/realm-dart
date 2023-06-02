@@ -21,7 +21,26 @@ import 'dart:async';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:ejson_generator/ejson_generator.dart';
 import 'package:source_gen/source_gen.dart';
+
+extension on EJsonError {
+  String get message => switch (this) {
+        EJsonError.tooManyAnnotatedConstructors =>
+          'Too many annotated constructors',
+        EJsonError.missingGetter => 'Missing getter',
+        EJsonError.mismatchedGetterType => 'Mismatched getter type',
+      };
+
+  Never raise() {
+    throw EJsonSourceError(this);
+  }
+}
+
+class EJsonSourceError extends InvalidGenerationSourceError {
+  final EJsonError error;
+  EJsonSourceError(this.error) : super(error.message);
+}
 
 /// @nodoc
 class EJsonGenerator extends Generator {
@@ -29,17 +48,45 @@ class EJsonGenerator extends Generator {
 
   TypeChecker get typeChecker => TypeChecker.fromRuntime(EJson);
 
+  bool _isAnnotated(Element element) =>
+      typeChecker.hasAnnotationOfExact(element);
+
   @override
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
-    final ctors = library.classes.expand(
-      (c) => c.constructors.where(
-        (c) =>
-            typeChecker.firstAnnotationOf(c, throwOnUnresolved: false) != null,
-      ),
-    );
+    // find all classes with annotated constructors or classes directly annotated
+    final annotated = library.classes
+        .map((cls) =>
+            (cls, cls.constructors.where((ctor) => _isAnnotated(ctor))))
+        .where((element) {
+      final (cls, ctors) = element;
+      return ctors.isNotEmpty || _isAnnotated(cls);
+    });
 
-    return ctors.map((ctor) {
-      final className = ctor.enclosingElement.name;
+    //buildStep.
+
+    return annotated.map((x) {
+      final (cls, ctors) = x;
+      final className = cls.name;
+
+      if (ctors.length > 1) {
+        EJsonError.tooManyAnnotatedConstructors.raise();
+      }
+
+      if (ctors.isEmpty) {
+        // TODO!
+      }
+
+      final ctor = ctors.single;
+
+      for (final p in ctor.parameters) {
+        final getter = cls.getGetter(p.name);
+        if (getter == null) {
+          EJsonError.missingGetter.raise();
+        }
+        if (getter.returnType != p.type) {
+          EJsonError.mismatchedGetterType.raise();
+        }
+      }
 
       log.info('Generating EJson for $className');
       return '''
