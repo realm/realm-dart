@@ -81,7 +81,7 @@ jobs:
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
-        if: inputs.os == 'linux'
+        if: inputs.runner == 'ubuntu-latest'
         run: |
           sudo apt-get install -y lcov
           dart run coverage:format_coverage \
@@ -94,9 +94,9 @@ jobs:
           lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
 
       - name: Publish realm_dart coverage
-        if: inputs.os == 'linux'
+        if: inputs.runner == 'ubuntu-latest'
         id: publish-coverage
-        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
+        uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
@@ -104,5 +104,5 @@ jobs:
           parallel: true
 
       - name: Output Coveralls response
-        if: inputs.os == 'linux'
+        if: inputs.runner == 'ubuntu-latest'
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}

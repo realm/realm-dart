@@ -24,6 +24,8 @@ import '../lib/realm.dart';
 import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
+const defaultWaitTimeout = Duration(seconds: 300);
+
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
@@ -80,7 +82,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
 
     await triggerClientReset(realm);
-    final clientResetFuture = waitFutureWithTimeout(resetCompleter.future, timeoutError: "ManualRecoveryHandler is not reported.");
+    final clientResetFuture = resetCompleter.future.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
     await expectLater(clientResetFuture, throws<ClientResetError>('Bad client file identifier'));
   });
 
@@ -108,7 +110,7 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(resetRealmFuture, timeoutError: "ManualRecoveryHandler is not reported.");
+    await resetRealmFuture.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
 
     expect(File(config.path).existsSync(), isFalse);
   });
@@ -136,7 +138,7 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
 
-    expect(await resetRealmFuture.timeout(const Duration(seconds: 300)), !Platform.isWindows);
+    expect(await resetRealmFuture.timeout(defaultWaitTimeout), !Platform.isWindows);
     expect(File(config.path).existsSync(), Platform.isWindows); // posix and windows semantics are different
   });
 
@@ -162,7 +164,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      final clientResetFuture = waitFutureWithTimeout(onManualResetFallback.future, timeoutError: "onManualResetFallback is not reported.");
+      final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
       await expectLater(clientResetFuture, throws<ClientResetError>());
     });
 
@@ -188,7 +190,7 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      final clientResetFuture = waitFutureWithTimeout(onManualResetFallback.future, timeoutError: "onManualResetFallback is not reported.");
+      final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
       await expectLater(clientResetFuture, throws<ClientResetError>());
     });
 
@@ -215,69 +217,77 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm);
 
-      await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported.");
-      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "onAfterReset is not reported.");
+      await onBeforeCompleter.future.timeout(defaultWaitTimeout, onTimeout: () => throw TimeoutException("onBeforeReset is not reported"));
+      await onAfterCompleter.future.timeout(defaultWaitTimeout, onTimeout: () => throw TimeoutException("onAfterReset is not reported."));
     });
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
-      baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', (appConfig) async {
-        final app = App(appConfig);
-        final user = await getIntegrationUser(app);
-        int onBeforeResetOccurred = 0;
-        int onAfterDiscardOccurred = 0;
-        int onAfterRecoveryOccurred = 0;
-        final onAfterCompleter = Completer<void>();
+      final baasAppName = AppNames.flexible;
+      final shouldDisableAutoRecoveryForApp = clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler;
+      baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', appName: baasAppName, (appConfig) async {
+        try {
+          final app = App(appConfig);
+          final user = await getIntegrationUser(app);
+          int onBeforeResetOccurred = 0;
+          int onAfterDiscardOccurred = 0;
+          int onAfterRecoveryOccurred = 0;
+          final onAfterCompleter = Completer<void>();
 
-        final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
-            clientResetHandler: Creator.create(
-              clientResetHandlerType,
-              onBeforeReset: (beforeResetRealm) => onBeforeResetOccurred++,
-              onAfterRecovery: (beforeResetRealm, afterResetRealm) {
-                onAfterRecoveryOccurred++;
-              },
-              onAfterDiscard: (beforeResetRealm, afterResetRealm) {
-                onAfterDiscardOccurred++;
-                onAfterCompleter.complete();
-              },
-              onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
-            ));
+          final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+              clientResetHandler: Creator.create(
+                clientResetHandlerType,
+                onBeforeReset: (beforeResetRealm) => onBeforeResetOccurred++,
+                onAfterRecovery: (beforeResetRealm, afterResetRealm) {
+                  onAfterRecoveryOccurred++;
+                },
+                onAfterDiscard: (beforeResetRealm, afterResetRealm) {
+                  onAfterDiscardOccurred++;
+                  onAfterCompleter.complete();
+                },
+                onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
+              ));
 
-        final realm = await getRealmAsync(config);
-        await realm.syncSession.waitForUpload();
+          final realm = await getRealmAsync(config);
+          await realm.syncSession.waitForUpload();
 
-        realm.subscriptions.update((mutableSubscriptions) {
-          mutableSubscriptions.add(realm.all<Task>());
-        });
-        await realm.subscriptions.waitForSynchronization();
-        await realm.syncSession.waitForDownload();
-        final tasksCount = realm.all<Task>().length;
+          realm.subscriptions.update((mutableSubscriptions) {
+            mutableSubscriptions.add(realm.all<Task>());
+          });
+          await realm.subscriptions.waitForSynchronization();
+          await realm.syncSession.waitForDownload();
+          final tasksCount = realm.all<Task>().length;
 
-        realm.syncSession.pause();
+          realm.syncSession.pause();
 
-        realm.write(() => realm.add(Task(ObjectId())));
-        expect(tasksCount, lessThan(realm.all<Task>().length));
+          realm.write(() => realm.add(Task(ObjectId())));
+          expect(tasksCount, lessThan(realm.all<Task>().length));
 
-        final notifications = <RealmResultsChanges>[];
-        final subscription = realm.all<Task>().changes.listen((event) {
-          notifications.add(event);
-        });
+          final notifications = <RealmResultsChanges>[];
+          final subscription = realm.all<Task>().changes.listen((event) {
+            notifications.add(event);
+          });
 
-        await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
-        if (clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler) {
-          await disableAutomaticRecovery();
+          await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
+          if (shouldDisableAutoRecoveryForApp) {
+            await disableAutoRecoveryForApp(baasAppName);
+          }
+          await triggerClientReset(realm, restartSession: false);
+          realm.syncSession.resume();
+          await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterDiscard nor onManualResetFallback is reported.");
+
+          await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
+
+          expect(onBeforeResetOccurred, 1);
+          expect(onAfterDiscardOccurred, 1);
+          expect(onAfterRecoveryOccurred, 0);
+
+          await subscription.cancel();
+          expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
+        } finally {
+          if (shouldDisableAutoRecoveryForApp) {
+            await enableAutoRecoveryForApp(baasAppName);
+          }
         }
-        await triggerClientReset(realm, restartSession: false);
-        realm.syncSession.resume();
-        await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard nor onManualResetFallback is reported.");
-
-        await waitForCondition(() => notifications.length == 2, timeout: Duration(seconds: 3));
-
-        expect(onBeforeResetOccurred, 1);
-        expect(onAfterDiscardOccurred, 1);
-        expect(onAfterRecoveryOccurred, 0);
-
-        await subscription.cancel();
-        expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
       });
     }
 
@@ -323,44 +333,52 @@ Future<void> main([List<String>? args]) async {
 
       await triggerClientReset(realm, restartSession: false);
       realm.syncSession.resume();
-      await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterDiscard, onAfterDiscard nor onManualResetFallback is reported.");
+      await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterDiscard, onAfterDiscard nor onManualResetFallback is reported.");
     });
   }
 
-  baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+  {
+    final baasAppName = AppNames.flexible;
+    baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', appName: baasAppName,
+        (appConfig) async {
+      final app = App(appConfig);
+      final user = await getIntegrationUser(app);
 
-    final onBeforeCompleter = Completer<void>();
-    final onAfterCompleter = Completer<void>();
-    bool recovery = false;
-    bool discard = false;
+      final onBeforeCompleter = Completer<void>();
+      final onAfterCompleter = Completer<void>();
+      bool recovery = false;
+      bool discard = false;
 
-    final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
-        clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
-          onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
-          onAfterRecovery: (Realm beforeResetRealm, Realm afterResetRealm) {
-            onAfterCompleter.complete();
-            recovery = true;
-          },
-          onAfterDiscard: (Realm beforeResetRealm, Realm afterResetRealm) {
-            onAfterCompleter.complete();
-            discard = true;
-          },
-        ));
+      final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema],
+          clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
+            onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
+            onAfterRecovery: (Realm beforeResetRealm, Realm afterResetRealm) {
+              onAfterCompleter.complete();
+              recovery = true;
+            },
+            onAfterDiscard: (Realm beforeResetRealm, Realm afterResetRealm) {
+              onAfterCompleter.complete();
+              discard = true;
+            },
+          ));
 
-    final realm = await getRealmAsync(config);
-    await realm.syncSession.waitForUpload();
+      final realm = await getRealmAsync(config);
+      await realm.syncSession.waitForUpload();
 
-    await disableAutomaticRecovery();
-    await triggerClientReset(realm);
+      await disableAutoRecoveryForApp(baasAppName);
+      try {
+        await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(onBeforeCompleter.future, timeoutError: "onBeforeReset is not reported.");
-    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "Neither onAfterRecovery nor onAfterDiscard is reported.");
+        await onBeforeCompleter.future.wait(defaultWaitTimeout, "onBeforeReset is not reported.");
+        await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterRecovery nor onAfterDiscard is reported.");
 
-    expect(recovery, isFalse);
-    expect(discard, isTrue);
-  });
+        expect(recovery, isFalse);
+        expect(discard, isTrue);
+      } finally {
+        await enableAutoRecoveryForApp(baasAppName);
+      }
+    });
+  }
 
   baasTest('onAfterReset is reported after async onBeforeReset completes', (appConfig) async {
     final app = App(appConfig);
@@ -391,7 +409,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(onAfterCompleter.future, timeoutError: "onAfterReset is not reported.");
+    await onAfterCompleter.future.wait(defaultWaitTimeout, "onAfterReset is not reported.");
 
     expect(onAfterResetOccurred, 1);
     expect(onBeforeResetOccurred, 1);
@@ -431,7 +449,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
     await triggerClientReset(realm);
 
-    await waitFutureWithTimeout(manualResetFallbackCompleter.future, timeoutError: "onManualResetFallback is not reported.");
+    await manualResetFallbackCompleter.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
 
     expect(manualResetFallbackOccurred, 1);
     expect(onAfterResetOccurred, 1);
@@ -497,12 +515,12 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realmA);
     await realmA.syncSession.waitForUpload();
-    await waitFutureWithTimeout(afterRecoverCompleterA.future, timeoutError: "onAfterReset for realmA is not reported.");
+    await afterRecoverCompleterA.future.wait(defaultWaitTimeout, "onAfterReset for realmA is not reported.");
 
     await triggerClientReset(realmB, restartSession: false);
     realmB.syncSession.resume();
     await realmB.syncSession.waitForUpload();
-    await waitFutureWithTimeout(afterRecoverCompleterB.future, timeoutError: "onAfterReset for realmB is not reported.");
+    await afterRecoverCompleterB.future.wait(defaultWaitTimeout, "onAfterReset for realmB is not reported.");
 
     await realmA.syncSession.waitForDownload();
 
@@ -559,9 +577,9 @@ Future<Realm> _syncRealmForUser<T extends RealmObject>(FlexibleSyncConfiguration
   return realm;
 }
 
-void _checkProducts<T extends RealmObject, O extends Object?>(Realm realmToSearch, bool Function(T, O) truePredicate,
+void _checkProducts<T extends RealmObject, O extends Object?>(Realm realm, bool Function(T, O) truePredicate,
     {required List<O> expectedList, List<O>? notExpectedList}) {
-  final all = realmToSearch.all<T>();
+  final all = realm.all<T>();
   for (var expected in expectedList) {
     if (!all.any((p) => truePredicate(p, expected))) {
       throw Exception("Expected realm object does not exist");
@@ -638,6 +656,20 @@ Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async
   }
 }
 
-Future<void> waitFutureWithTimeout(Future<void> future, {String? timeoutError, int seconds = 300}) async {
-  return future.timeout(Duration(seconds: seconds), onTimeout: () => throw Exception(timeoutError ?? "Timeout waiting a future to complete."));
+extension on Future<void> {
+  Future<void> wait(Duration duration, [String message = "Timeout waiting a future to complete."]) {
+    return timeout(duration, onTimeout: () => throw TimeoutException(message));
+  }
+}
+
+Future<void> disableAutoRecoveryForApp(AppNames appName) async {
+  final client = baasClient ?? (throw StateError("No BAAS client"));
+  final baasAppName = baasApps[appName.name]!.name;
+  await client.setAutomaticRecoveryEnabled(baasAppName, false);
+}
+
+Future<void> enableAutoRecoveryForApp(AppNames appName) async {
+  final client = baasClient ?? (throw StateError("No BAAS client"));
+  final baasAppName = baasApps[appName.name]!.name;
+  await client.setAutomaticRecoveryEnabled(baasAppName, true);
 }
