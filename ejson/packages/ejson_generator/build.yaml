@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      ejson_generator:
+        enabled: true
+        generate_for:
+          include:
+            - test/**
+
+builders:
+  ejson_generator:
+    import: "package:ejson_generator/ejson_generator.dart"
+    builder_factories: ["getEJsonGenerator"]
+    build_extensions: { ".dart": ["ejson.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
