@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:build_test/build_test.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:ejson_generator/ejson_generator.dart';
+import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 import 'package:meta/meta.dart';
 
@@ -18,10 +19,9 @@ void testCompile(String description, dynamic source, [dynamic matcher]) {
   matcher = matcher is String
       ? completion(
           equals(
+            // strip out any thing before the tag
             matcher.substring(
-              _tag
-                  .firstMatch(_formatter.format(matcher))!
-                  .start, // strip out any thing before the tag
+              _tag.firstMatch(_formatter.format(matcher))?.start ?? 0,
             ),
           ),
         )
@@ -69,21 +69,12 @@ class TwoAnnotatedCtors {
   TwoAnnotatedCtors.named(this.i);
 }
 ''',
-      throwsA(isA<EJsonSourceError>()
-          .having((e) => e.message, 'message', 'Too many elements')),
+      throwsA(isA<InvalidGenerationSourceError>().having(
+        (e) => e.message,
+        'message',
+        'Too many annotated constructors',
+      )),
     );
-
-    testCompile(
-      'private field',
-      r'''
-class PrivateField {
-  final int _i; // private field okay, generating a part
-  @ejson
-  PrivateField(this._i);
-}
-''',
-    );
-
     testCompile(
       'missing getter',
       r'''
@@ -93,7 +84,7 @@ class MissingGetter {
   MissingGetter(int i) : _i = i;
 }
 ''',
-      throwsA(isA<EJsonSourceError>().having((e) => e.message, 'message', '')),
+      throwsA(isA<InvalidGenerationSourceError>()),
     );
 
     testCompile(
@@ -106,7 +97,20 @@ class MismatchingGetter {
   MismatchingGetter(int i) : _i = i;
 }
 ''',
-      throwsA(isA<StateError>()),
+      throwsA(isA<InvalidGenerationSourceError>()),
+    );
+  });
+
+  group('good', () {
+    testCompile(
+      'private field',
+      r'''
+class PrivateFieldIsOkay {
+  final int _i; // private fields are okay
+  @ejson
+  PrivateFieldIsOkay(this._i);
+}
+''',
     );
 
     testCompile(
@@ -122,9 +126,7 @@ class MismatchingGetterButCustomEncoder {
 }
 ''',
     );
-  });
 
-  group('good', () {
     testCompile(
       'empty class',
       r'''

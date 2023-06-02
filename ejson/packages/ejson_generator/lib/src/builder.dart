@@ -27,24 +27,6 @@ enum EJsonError {
   mismatchedGetterType,
 }
 
-extension on EJsonError {
-  String get message => switch (this) {
-        EJsonError.tooManyAnnotatedConstructors =>
-          'Too many annotated constructors',
-        EJsonError.missingGetter => 'Missing getter',
-        EJsonError.mismatchedGetterType => 'Mismatched getter type',
-      };
-
-  Never raise() {
-    throw EJsonSourceError(this);
-  }
-}
-
-class EJsonSourceError extends InvalidGenerationSourceError {
-  final EJsonError error;
-  EJsonSourceError(this.error) : super(error.message);
-}
-
 Builder getEJsonGenerator([BuilderOptions? options]) {
   return SharedPartBuilder([EJsonGenerator()], 'ejson');
 }
