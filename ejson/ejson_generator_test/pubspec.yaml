@@ -1,19 +1,20 @@
 name: ejson_generator_test
-description: A sample command-line application.
+description: A separate package for testing the ejson_generator package.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+
+publish_to: none
 
 environment:
   sdk: ^3.0.2
 
-# Add regular dependencies here.
 dependencies:
   ejson:
     path: ..
-  # path: ^1.8.0
 
 dev_dependencies:
   build_runner: ^2.4.4
   build_test: ^2.1.7
+  dart_style: ^2.3.1
   lints: ^2.0.0
+  meta: ^1.9.1
   test: ^1.21.0
