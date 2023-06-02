@@ -34,3 +34,9 @@ scripts:
     packageFilters:
       dirExists:
         - test
+  
+  pana:
+    description: Run pana on all packages.
+    run: |
+      dart pub global activate pana &&
+      dart pub global run pana --no-warning --exit-code-threshold 40 --source path .
