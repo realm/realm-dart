@@ -75,6 +75,13 @@ jobs:
           only-summary: true
           working-directory: packages/realm_dart
 
+      - name: Run ejson QA
+        run: |
+          dart pub global activate melos
+          melos bootstrap
+          melos qa
+        working-directory: ejson
+
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
         if: inputs.runner == 'ubuntu-latest'
