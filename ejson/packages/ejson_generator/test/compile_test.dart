@@ -7,7 +7,7 @@ import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 import 'package:meta/meta.dart';
 
-final _formatter = DartFormatter();
+final _formatter = DartFormatter(lineEnding: '\n');
 final _tag = RegExp(r'// \*.*\n// EJsonGenerator\n// \*.*');
 
 @isTest
