@@ -14,21 +14,21 @@ command:
 scripts:
   setup:
     run: >-
-      dart pub global activate pana &&
-      dart pub global activate coverage
+      dart pub global activate coverage &&
+      dart pub global activate coverde &&
+      dart pub global activate pana
 
   qa:
     description: Run QA scripts.
     run: >-
       melos run format:check &&
       melos run analyze &&
-      melos run test
+      melos run coverage
 
   qa:full:
     description: Run all QA scripts
     run: >-
       melos run qa &&
-      melos run coverage &&
       melos run pana &&
       melos publish --dry-run
 
@@ -54,13 +54,34 @@ scripts:
         - test
 
   coverage:
-    description: Run tests with coverage.
-    run: dart test --coverage=coverage -j1 --chain-stack-traces
+    description: Generate, format, and check coverage.
+    run: >-
+      melos run coverage:generate &&
+      melos run coverage:format &&
+      melos run coverage:check
+
+  coverage:generate:
+    description: Generate coverage.
+    run: dart test -j1 --chain-stack-traces --coverage=coverage
+    # The following command is not working with coverage:format
+    # run: dart pub global run coverage:test_with_coverage --branch-coverage
     exec:
       concurrency: 1
     packageFilters:
       dirExists:
-        - test      
+        - test
+
+  coverage:format:
+    description: Format coverage.
+    run: >-
+      dart pub global run coverage:format_coverage
+      --in=.
+      --report-on=$MELOS_ROOT_PATH
+      --lcov --out=lcov.info
+
+  coverage:check:
+    description: Check coverage.
+    run: dart pub global run coverde check 90 --input=lcov.info
   
   pana:
     description: Run pana on all packages.
