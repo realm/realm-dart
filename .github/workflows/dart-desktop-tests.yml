@@ -94,7 +94,8 @@ jobs:
             --lcov \
             --packages .dart_tool/package_config.json \
             --report-on lib,common
-          lcov --remove ./coverage/lcov.info '*.realm.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
+          lcov --remove ./coverage/lcov.info '*.g.dart' '*.realm.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
+          lcov --add-tracefile ejson/lcov.info --add-tracefile coverage/pruned-lcov.info -o coverage/merged-lcov.info
 
       - name: Publish realm_dart coverage
         if: inputs.runner == 'ubuntu-latest'
@@ -103,7 +104,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: packages/realm_dart/coverage/pruned-lcov.info
+          path-to-lcov: ./coverage/merged-lcov.info
           parallel: true
 
       - name: Output Coveralls response
