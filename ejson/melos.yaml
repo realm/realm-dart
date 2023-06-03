@@ -13,19 +13,19 @@ command:
 
 scripts:
   setup:
-    run: |
+    run: >-
       dart pub global activate pana &&
       dart pub global activate coverage
 
   qa:
     description: Run QA scripts.
-    run: |
+    run: >-
       melos run qa:static &&
       melos run test
 
   qa:full:
     description: Run all QA scripts
-    run: |
+    run: >-
       melos run qa:static &&
       melos run coverage &&
       melos run pana &&
@@ -33,7 +33,7 @@ scripts:
 
   qa:static:
     description: Run static analysis.
-    run: |
+    run: >-
       melos run format:check &&
       melos run analyze
 
