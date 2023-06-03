@@ -20,22 +20,17 @@ scripts:
   qa:
     description: Run QA scripts.
     run: >-
-      melos run qa:static &&
+      melos run format:check &&
+      melos run analyze &&
       melos run test
 
   qa:full:
     description: Run all QA scripts
     run: >-
-      melos run qa:static &&
+      melos run qa &&
       melos run coverage &&
       melos run pana &&
       melos publish --dry-run
-
-  qa:static:
-    description: Run static analysis.
-    run: >-
-      melos run format:check &&
-      melos run analyze
 
   format:
     description: Format Dart code.
