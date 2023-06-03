@@ -17,16 +17,11 @@ void testCompile(String description, dynamic source, dynamic matcher,
   if (source is! String) throw ArgumentError.value(source, 'source');
 
   matcher = matcher is File ? matcher.readAsStringSync() : matcher;
-  matcher = matcher is String
-      ? completion(
-          equals(
-            // strip out any thing before the tag
-            matcher.substring(
-              _tag.firstMatch(_formatter.format(matcher))?.start ?? 0,
-            ),
-          ),
-        )
-      : matcher;
+  if (matcher is String) {
+    final source = _formatter.format(matcher);
+    matcher = completion(
+        equals(source.substring(_tag.firstMatch(source)?.start ?? 0)));
+  }
   matcher ??= completes; // fallback
 
   if (matcher is! Matcher) throw ArgumentError.value(matcher, 'matcher');
