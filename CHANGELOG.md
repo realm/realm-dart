@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* Fixed `Backlink` properties' getters for unmanaged realm objects to return empty `RealmResults` ([#1293](https://github.com/realm/realm-dart/pull/1293)).
+* Fixed `Backlink` properties' getters for not persisted realm objects to throw the correct exception ([#1293](https://github.com/realm/realm-dart/pull/1293)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
