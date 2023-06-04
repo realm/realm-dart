@@ -313,7 +313,10 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   };
 
   /// @nodoc
-  static Object? get<T extends Object?>(RealmObjectBase object, String name) {
+  static Object? get<T extends Object?>(RealmObjectBase object, String name, {bool validateBacklink = false}) {
+    if (validateBacklink && object._accessor is RealmValuesAccessor) {
+      throw RealmException("Using backlinks is only possible for managed(persisted) objects.");
+    }
     return object._accessor.get<T>(object, name);
   }
 

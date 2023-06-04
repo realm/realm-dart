@@ -90,18 +90,16 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
 
   @override
   RealmResults<Source> get oneToMany =>
-      (RealmObjectBase.get<Source>(this, 'oneToMany')
-          as RealmResults<Source>?) ??
-      RealmResults<Source>();
+      RealmObjectBase.get<Source>(this, 'oneToMany', validateBacklink: true)
+          as RealmResults<Source>;
   @override
   set oneToMany(covariant RealmResults<Source> value) =>
       throw RealmUnsupportedSetError();
 
   @override
   RealmResults<Source> get manyToMany =>
-      (RealmObjectBase.get<Source>(this, 'manyToMany')
-          as RealmResults<Source>?) ??
-      RealmResults<Source>();
+      RealmObjectBase.get<Source>(this, 'manyToMany', validateBacklink: true)
+          as RealmResults<Source>;
   @override
   set manyToMany(covariant RealmResults<Source> value) =>
       throw RealmUnsupportedSetError();
