@@ -88,6 +88,7 @@ Future<void> main([List<String>? args]) async {
   final uuid = Uuid.v4();
 
   AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987, Decimal128.fromDouble(42),
+      realmValueProp: RealmValue.int(1),
       nullableStringProp: 'def',
       nullableBoolProp: true,
       nullableDateProp: date,
@@ -99,14 +100,27 @@ Future<void> main([List<String>? args]) async {
 
   AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero);
 
-  AllCollections _getPopulatedAllCollections() => AllCollections(
+  AllLists _getPopulatedAllLists() => AllLists(
       strings: ['abc', 'def'],
       bools: [true, false],
       dates: [date, DateTime(0).toUtc()],
       doubles: [-123.456, 555.666],
+      decimals: [Decimal128.fromDouble(-344.44), Decimal128.fromDouble(344.44)],
       objectIds: [objectId, objectId],
       uuids: [uuid, uuid],
-      ints: [-987, 123]);
+      ints: [-987, 123],
+      realmValues: [RealmValue.decimal128(Decimal128.fromDouble(344.44))]);
+
+  AllSets _getPopulatedAllSets() => AllSets(
+      strings: const {'abc', 'def'},
+      bools: const {true, false},
+      dates: {date, DateTime(0).toUtc()},
+      doubles: {-123.456, 555.666},
+      decimals: {Decimal128.fromDouble(-344.44), Decimal128.fromDouble(344.44)},
+      objectIds: {objectId, objectId},
+      uuids: {uuid, uuid},
+      ints: {-987, 123},
+      realmValues: {RealmValue.decimal128(Decimal128.fromDouble(344.44))});
 
   void _validateDynamic(RealmObject actual, AllTypes expected) {
     expect(actual.dynamic.get<String>('stringProp'), expected.stringProp);
@@ -149,6 +163,9 @@ Future<void> main([List<String>? args]) async {
     expect(actual.dynamic.get<Decimal128?>('nullableDecimalProp'), expected.nullableDecimalProp);
     expect(actual.dynamic.get('nullableDecimalProp'), expected.nullableDecimalProp);
 
+    expect(actual.dynamic.get<RealmValue>('realmValueProp'), expected.realmValueProp);
+    expect(actual.dynamic.get('realmValueProp'), expected.realmValueProp.value);
+
     dynamic actualDynamic = actual;
     expect(actualDynamic.stringProp, expected.stringProp);
     expect(actualDynamic.nullableStringProp, expected.nullableStringProp);
@@ -166,9 +183,10 @@ Future<void> main([List<String>? args]) async {
     expect(actualDynamic.nullableIntProp, expected.nullableIntProp);
     expect(actualDynamic.decimalProp, expected.decimalProp);
     expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
+    expect(actualDynamic.realmValueProp, expected.realmValueProp.value);
   }
 
-  void _validateDynamicLists(RealmObject actual, AllCollections expected) {
+  void _validateDynamicLists(RealmObject actual, AllLists expected) {
     expect(actual.dynamic.getList<String>('strings'), expected.strings);
     expect(actual.dynamic.getList('strings'), expected.strings);
 
@@ -193,6 +211,9 @@ Future<void> main([List<String>? args]) async {
     expect(actual.dynamic.getList<Decimal128>('decimals'), expected.decimals);
     expect(actual.dynamic.getList('decimals'), expected.decimals);
 
+    expect(actual.dynamic.getList<RealmValue>('realmValues'), expected.realmValues);
+    expect(actual.dynamic.getList('realmValues'), expected.realmValues);
+
     dynamic actualDynamic = actual;
     expect(actualDynamic.strings, expected.strings);
     expect(actualDynamic.bools, expected.bools);
@@ -202,6 +223,47 @@ Future<void> main([List<String>? args]) async {
     expect(actualDynamic.uuids, expected.uuids);
     expect(actualDynamic.ints, expected.ints);
     expect(actualDynamic.decimals, expected.decimals);
+    expect(actualDynamic.realmValues, expected.realmValues);
+  }
+
+  void _validateDynamicSets(RealmObject actual, AllSets expected) {
+    expect(actual.dynamic.getSet<String>('strings'), expected.strings);
+    expect(actual.dynamic.getSet('strings'), expected.strings);
+
+    expect(actual.dynamic.getSet<bool>('bools'), expected.bools);
+    expect(actual.dynamic.getSet('bools'), expected.bools);
+
+    expect(actual.dynamic.getSet<DateTime>('dates'), expected.dates);
+    expect(actual.dynamic.getSet('dates'), expected.dates);
+
+    expect(actual.dynamic.getSet<double>('doubles'), expected.doubles);
+    expect(actual.dynamic.getSet('doubles'), expected.doubles);
+
+    expect(actual.dynamic.getSet<ObjectId>('objectIds'), expected.objectIds);
+    expect(actual.dynamic.getSet('objectIds'), expected.objectIds);
+
+    expect(actual.dynamic.getSet<Uuid>('uuids'), expected.uuids);
+    expect(actual.dynamic.getSet('uuids'), expected.uuids);
+
+    expect(actual.dynamic.getSet<int>('ints'), expected.ints);
+    expect(actual.dynamic.getSet('ints'), expected.ints);
+
+    expect(actual.dynamic.getSet<Decimal128>('decimals'), expected.decimals);
+    expect(actual.dynamic.getSet('decimals'), expected.decimals);
+
+    expect(actual.dynamic.getSet<RealmValue>('realmValues'), expected.realmValues);
+    expect(actual.dynamic.getSet('realmValues'), expected.realmValues);
+
+    dynamic actualDynamic = actual;
+    expect(actualDynamic.strings, expected.strings);
+    expect(actualDynamic.bools, expected.bools);
+    expect(actualDynamic.dates, expected.dates);
+    expect(actualDynamic.doubles, expected.doubles);
+    expect(actualDynamic.objectIds, expected.objectIds);
+    expect(actualDynamic.uuids, expected.uuids);
+    expect(actualDynamic.ints, expected.ints);
+    expect(actualDynamic.decimals, expected.decimals);
+    expect(actualDynamic.realmValues, expected.realmValues);
   }
 
   for (var isDynamic in [true, false]) {
@@ -428,51 +490,76 @@ Future<void> main([List<String>? args]) async {
             throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the generic argument passed to get<T> is int?."));
       });
 
-      test('fails on collection properties', () {
-        final config = Configuration.local([AllCollections.schema]);
+      test('fails on list properties', () {
+        final config = Configuration.local([AllLists.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
-          staticRealm.add(AllCollections());
+          staticRealm.add(AllLists());
         });
         final dynamicRealm = _getDynamicRealm(staticRealm);
 
-        final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
+        final obj = dynamicRealm.dynamic.all(AllLists.schema.name).single;
         expect(
             () => obj.dynamic.get<String>('strings'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'strings' on class 'AllLists' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
 
         expect(
             () => obj.dynamic.get('strings'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'strings' on class 'AllLists' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
 
         expect(
             () => obj.dynamic.get<String?>('strings'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'strings' on class 'AllLists' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+      });
+
+      test('fails on set properties', () {
+        final config = Configuration.local([AllSets.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(AllSets());
+        });
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj = dynamicRealm.dynamic.all(AllSets.schema.name).single;
+        expect(
+            () => obj.dynamic.get<String>('strings'),
+            throws<RealmException>(
+                "Property 'strings' on class 'AllSets' is 'RealmCollectionType.set' but the method used to access it expected 'RealmCollectionType.none'."));
+
+        expect(
+            () => obj.dynamic.get('strings'),
+            throws<RealmException>(
+                "Property 'strings' on class 'AllSets' is 'RealmCollectionType.set' but the method used to access it expected 'RealmCollectionType.none'."));
+
+        expect(
+            () => obj.dynamic.get<String?>('strings'),
+            throws<RealmException>(
+                "Property 'strings' on class 'AllSets' is 'RealmCollectionType.set' but the method used to access it expected 'RealmCollectionType.none'."));
       });
     });
 
     group('RealmObject.dynamic.getList', () {
       test('gets all list types', () {
-        final config = Configuration.local([AllCollections.schema]);
+        final config = Configuration.local([AllLists.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
-          staticRealm.add(_getPopulatedAllCollections());
-          staticRealm.add(AllCollections());
+          staticRealm.add(_getPopulatedAllLists());
+          staticRealm.add(AllLists());
         });
 
         final dynamicRealm = _getDynamicRealm(staticRealm);
-        final objects = dynamicRealm.dynamic.all(AllCollections.schema.name);
+        final objects = dynamicRealm.dynamic.all(AllLists.schema.name);
         final obj1 = objects.singleWhere((element) => element.dynamic.getList('strings').isNotEmpty);
         final obj2 = objects.singleWhere((element) => element.dynamic.getList('strings').isEmpty);
 
-        _validateDynamicLists(obj1, _getPopulatedAllCollections());
-        _validateDynamicLists(obj2, AllCollections());
+        _validateDynamicLists(obj1, _getPopulatedAllLists());
+        _validateDynamicLists(obj2, AllLists());
       });
 
-      test('gets collections of objects', () {
+      test('gets list of objects', () {
         final config = Configuration.local([LinksClass.schema]);
         final staticRealm = getRealm(config);
 
@@ -506,31 +593,126 @@ Future<void> main([List<String>? args]) async {
       });
 
       test('fails with non-existent property', () {
-        final config = Configuration.local([AllCollections.schema]);
+        final config = Configuration.local([AllLists.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
-          staticRealm.add(AllCollections());
+          staticRealm.add(AllLists());
         });
         final dynamicRealm = _getDynamicRealm(staticRealm);
 
-        final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
-        expect(() => obj.dynamic.getList('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllCollections'"));
+        final obj = dynamicRealm.dynamic.all(AllLists.schema.name).single;
+        expect(() => obj.dynamic.getList('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllLists'"));
       });
 
       test('fails with wrong type', () {
-        final config = Configuration.local([AllCollections.schema]);
+        final config = Configuration.local([AllLists.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
-          staticRealm.add(AllCollections());
+          staticRealm.add(AllLists());
         });
         final dynamicRealm = _getDynamicRealm(staticRealm);
 
-        final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
+        final obj = dynamicRealm.dynamic.all(AllLists.schema.name).single;
 
         expect(
             () => obj.dynamic.getList<int>('strings'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
+                "Property 'strings' on class 'AllLists' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
+      });
+
+      test('fails on non-collection properties', () {
+        final config = Configuration.local([AllTypes.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(_getEmptyAllTypes());
+        });
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
+        expect(
+            () => obj.dynamic.getList('intProp'),
+            throws<RealmException>(
+                "Property 'intProp' on class 'AllTypes' is 'RealmCollectionType.none' but the method used to access it expected 'RealmCollectionType.list'."));
+      });
+    });
+
+    group('RealmObject.dynamic.getSet', () {
+      test('gets all sets types', () {
+        final config = Configuration.local([AllSets.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(_getPopulatedAllSets());
+          staticRealm.add(AllSets());
+        });
+
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+        final objects = dynamicRealm.dynamic.all(AllSets.schema.name);
+        final obj1 = objects.singleWhere((element) => element.dynamic.getSet('strings').isNotEmpty);
+        final obj2 = objects.singleWhere((element) => element.dynamic.getSet('strings').isEmpty);
+
+        _validateDynamicSets(obj1, _getPopulatedAllSets());
+        _validateDynamicSets(obj2, AllSets());
+      });
+
+      test('gets sets of objects', () {
+        final config = Configuration.local([LinksClass.schema]);
+        final staticRealm = getRealm(config);
+
+        final uuid1 = Uuid.v4();
+        final uuid2 = Uuid.v4();
+
+        staticRealm.write(() {
+          final obj1 = staticRealm.add(LinksClass(uuid1));
+          staticRealm.add(LinksClass(uuid2, set: {obj1, obj1}));
+        });
+
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj1 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid1)!;
+        final obj2 = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid2)!;
+
+        expect(obj1.dynamic.getSet<RealmObject>('set'), isEmpty);
+        expect(obj1.dynamic.getSet('set'), isEmpty);
+
+        expect(obj2.dynamic.getSet<RealmObject>('set'), {obj1, obj1});
+        expect(obj2.dynamic.getSet('set'), {obj1, obj1});
+        expect(obj2.dynamic.getSet<RealmObject>('set').first.dynamic.get<Uuid>('id'), uuid1);
+
+        dynamic dynamicObj1 = obj1;
+        dynamic dynamicObj2 = obj2;
+
+        expect(dynamicObj1.set, isEmpty);
+
+        expect(dynamicObj2.set, [obj1, obj1]);
+        expect(dynamicObj2.set.first.id, uuid1);
+      });
+
+      test('fails with non-existent property', () {
+        final config = Configuration.local([AllSets.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(AllSets());
+        });
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj = dynamicRealm.dynamic.all(AllSets.schema.name).single;
+        expect(() => obj.dynamic.getSet('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllSets'"));
+      });
+
+      test('fails with wrong type', () {
+        final config = Configuration.local([AllSets.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(AllSets());
+        });
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj = dynamicRealm.dynamic.all(AllSets.schema.name).single;
+
+        expect(
+            () => obj.dynamic.getSet<int>('strings'),
+            throws<RealmException>(
+                "Property 'strings' on class 'AllSets' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
       });
 
       test('fails on non-collection properties', () {
@@ -565,17 +747,32 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('RealmObject.dynamic.getList when static can get all list types', () {
-    final config = Configuration.local([AllCollections.schema]);
+    final config = Configuration.local([AllLists.schema]);
     final realm = getRealm(config);
 
     realm.write(() {
-      realm.add(_getPopulatedAllCollections());
+      realm.add(_getPopulatedAllLists());
 
-      realm.add(AllCollections());
+      realm.add(AllLists());
     });
 
-    for (final obj in realm.all<AllCollections>()) {
+    for (final obj in realm.all<AllLists>()) {
       _validateDynamicLists(obj, obj);
+    }
+  });
+
+  test('RealmObject.dynamic.getSet when static can get all set types', () {
+    final config = Configuration.local([AllSets.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(_getPopulatedAllSets());
+
+      realm.add(AllSets());
+    });
+
+    for (final obj in realm.all<AllSets>()) {
+      _validateDynamicSets(obj, obj);
     }
   });
 

@@ -125,6 +125,7 @@ class _AllTypes {
   late Uuid uuidProp;
   late int intProp;
   late Decimal128 decimalProp;
+  late RealmValue realmValueProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -143,10 +144,11 @@ class _LinksClass {
 
   late _LinksClass? link;
   late List<_LinksClass> list;
+  late Set<_LinksClass> set;
 }
 
 @RealmModel()
-class _AllCollections {
+class _AllLists {
   late List<String> strings;
   late List<bool> bools;
   late List<DateTime> dates;
@@ -155,6 +157,7 @@ class _AllCollections {
   late List<Uuid> uuids;
   late List<int> ints;
   late List<Decimal128> decimals;
+  late List<RealmValue> realmValues;
 
   late List<String?> nullableStrings;
   late List<bool?> nullableBools;
@@ -164,6 +167,29 @@ class _AllCollections {
   late List<Uuid?> nullableUuids;
   late List<int?> nullableInts;
   late List<Decimal128?> nullableDecimals;
+  late List<RealmValue?> nullableRealmValues;
+}
+
+@RealmModel()
+class _AllSets {
+  late Set<String> strings;
+  late Set<bool> bools;
+  late Set<DateTime> dates;
+  late Set<double> doubles;
+  late Set<ObjectId> objectIds;
+  late Set<Uuid> uuids;
+  late Set<int> ints;
+  late Set<Decimal128> decimals;
+  late Set<RealmValue> realmValues;
+
+  late Set<String?> nullableStrings;
+  late Set<bool?> nullableBools;
+  late Set<DateTime?> nullableDates;
+  late Set<double?> nullableDoubles;
+  late Set<ObjectId?> nullableObjectIds;
+  late Set<Uuid?> nullableUuids;
+  late Set<int?> nullableInts;
+  late Set<Decimal128?> nullableDecimals;
 }
 
 @RealmModel()

@@ -464,10 +464,10 @@ Future<void> main([List<String>? args]) async {
     [DateTime(0)]
   ]) {
     test('List of ${list.length} dates roundtrips correctly', () {
-      final config = Configuration.local([AllCollections.schema]);
+      final config = Configuration.local([AllLists.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllCollections(dates: list));
+        return realm.add(AllLists(dates: list));
       });
 
       final json = obj.toJson();

@@ -315,6 +315,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   /// @nodoc
   static Object? get<T extends Object?>(RealmObjectBase object, String name) {
     return object._accessor.get<T>(object, name);
+    ;
   }
 
   /// @nodoc
@@ -633,6 +634,11 @@ class DynamicRealmObject {
     return RealmObjectBase.get<T>(_obj, name) as RealmList<T>;
   }
 
+  RealmSet<T> getSet<T extends Object?>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.set);
+    return RealmObjectBase.get<T>(_obj, name) as RealmSet<T>;
+  }
+
   RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
@@ -648,7 +654,7 @@ class DynamicRealmObject {
 
       // If the user passed in a type argument, we should validate its nullability; if they invoked
       // the method without a type arg, we don't
-      if (T != _typeOf<Object?>() && prop.isNullable != null is T) {
+      if (T != _typeOf<RealmValue>() && T != _typeOf<Object?>() && prop.isNullable != null is T) {
         throw RealmException(
             "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
       }

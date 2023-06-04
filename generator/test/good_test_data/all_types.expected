@@ -177,8 +177,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
 
   @override
   RealmResults<Foo> get foos =>
-      (RealmObjectBase.get<Foo>(this, 'foos') as RealmResults<Foo>?) ??
-      RealmResults<Foo>();
+      RealmObjectBase.get<Foo>(this, 'foos') as RealmResults<Foo>;
   @override
   set foos(covariant RealmResults<Foo> value) =>
       throw RealmUnsupportedSetError();

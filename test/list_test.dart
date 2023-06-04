@@ -316,19 +316,19 @@ Future<void> main([List<String>? args]) async {
 
   void testListNotificationsHelper<T>(
     String opName,
-    RealmList<T> Function(AllCollections c) getList,
+    RealmList<T> Function(AllLists c) getList,
     List<int> Function(RealmListChanges<T> ch) getIndexes,
     void Function(RealmList<T> list, int index) op,
     List<List<int>> listOfIndexes, {
     Iterable<T> Function()? factory,
   }) {
     test('RealmList<$T>.$opName notifications', () {
-      final config = Configuration.local([AllCollections.schema]);
+      final config = Configuration.local([AllLists.schema]);
       final realm = getRealm(config);
 
-      final allCollections = realm.write(() => realm.add(AllCollections()));
+      final allLists = realm.write(() => realm.add(AllLists()));
 
-      final list = getList(allCollections);
+      final list = getList(allLists);
       if (factory != null) {
         realm.write(() => list.addAll(factory()));
       }
@@ -368,7 +368,7 @@ Future<void> main([List<String>? args]) async {
 
   @isTest
   void testListInsertNotifications<T>(
-    RealmList<T> Function(AllCollections c) getList,
+    RealmList<T> Function(AllLists c) getList,
     void Function(RealmList<T> list, int index) op,
   ) {
     testListNotificationsHelper<T>('insert', getList, (ch) => ch.inserted, op, inserts);
@@ -403,7 +403,7 @@ Future<void> main([List<String>? args]) async {
 
   @isTest
   void testListDeleteNotifications<T>(
-    RealmList<T> Function(AllCollections c) getList,
+    RealmList<T> Function(AllLists c) getList,
     T Function(int i) indexToValue,
   ) {
     testListNotificationsHelper<T>('deleted', getList, (ch) => ch.deleted, (c, i) => c.removeAt(i), deletes,
@@ -442,7 +442,7 @@ Future<void> main([List<String>? args]) async {
 
   @isTest
   void testListModificationNotifications<T>(
-    RealmList<T> Function(AllCollections c) getList,
+    RealmList<T> Function(AllLists c) getList,
     T Function(int i) indexToValue,
   ) {
     testListNotificationsHelper<T>('modified', getList, (ch) => ch.modified, (c, i) => c[i] = indexToValue(i), modifications,
