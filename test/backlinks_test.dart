@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:test/expect.dart' hide throws;
+import 'package:test/expect.dart';
 
 import '../lib/realm.dart';
 import 'test.dart';
@@ -52,12 +52,6 @@ Future<void> main([List<String>? args]) async {
     final target = realm.write(() => realm.add(Target()));
 
     expect(target.oneToMany, isEmpty);
-  });
-
-  test('Backlink property getter is allowed only for managed objects.', () {
-    final target = Target();
-    expect(() => target.oneToMany, throws<RealmException>("Using backlinks is only possible for managed(persisted) objects."));
-    expect(() => target.manyToMany, throws<RealmException>("Using backlinks is only possible for managed(persisted) objects."));
   });
 
   test('Backlinks 1-1(ish)', () {

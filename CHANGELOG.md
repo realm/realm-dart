@@ -1,10 +1,10 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Support `dynamic.getSet` for `RealmObject`.
 
 ### Fixed
-* Fixed `Backlink` properties' getters for unmanaged realm objects to return empty `RealmResults` ([#1293](https://github.com/realm/realm-dart/pull/1293)).
+* None
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
