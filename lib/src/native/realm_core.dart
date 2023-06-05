@@ -3034,11 +3034,11 @@ extension on realm_sync_error {
   }
 }
 
-extension on Pointer<realm_sync_error_user_info_t> {
+extension on Pointer<realm_sync_error_user_info> {
   Map<String, String> toMap(int length) {
     Map<String, String> userInfoMap = {};
     final userInfoMapPtr = cast<realm_sync_error_user_info>();
-    for (int i = 0; i < length; ++i) {
+    for (int i = 0; i < length; i++) {
       final userInfoItem = userInfoMapPtr[i];
       final key = userInfoItem.key.cast<Utf8>().toDartString();
       final value = userInfoItem.value.cast<Utf8>().toDartString();
@@ -3048,12 +3048,12 @@ extension on Pointer<realm_sync_error_user_info_t> {
   }
 }
 
-extension on Pointer<realm_sync_error_compensating_write_info_t> {
+extension on Pointer<realm_sync_error_compensating_write_info> {
   List<CompensatingWriteInfo> toList(int length) {
     List<CompensatingWriteInfo> compensatingWrites = [];
 
     final compensatingWritesPtr = cast<realm_sync_error_compensating_write_info>();
-    for (int i = 0; i < length; ++i) {
+    for (int i = 0; i < length; i++) {
       final compensatingWrite = compensatingWritesPtr[i];
       final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
       final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
