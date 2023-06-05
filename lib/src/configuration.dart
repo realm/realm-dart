@@ -827,7 +827,7 @@ enum GeneralSyncErrorCode {
   const GeneralSyncErrorCode(this.code);
 }
 
-/// A class containing the details for a compensating write performed by the server.
+/// Contains the details for a compensating write performed by the server.
 class CompensatingWriteInfo {
   const CompensatingWriteInfo(this.objectType, this.reason, this.primaryKey);
 
