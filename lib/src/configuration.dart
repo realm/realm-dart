@@ -618,7 +618,7 @@ class ClientResetError extends SyncError {
     String? detailedMessage, [
     this._config,
     this._userInfo,
-  ]) : super(message, detailedMessage, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code);
+  ]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -651,7 +651,7 @@ class SyncError extends RealmError {
   /// In case of server error, it contains the link to the server log.
   final String? detailedMessage;
 
-  SyncError(String message, this.detailedMessage, this.category, this.codeValue) : super(message);
+  SyncError(String message, this.category, this.codeValue, {this.detailedMessage}) : super(message);
 
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
   static SyncError create(String message, SyncErrorCategory category, int code, {String? detailedMessage, bool isFatal = false}) {
@@ -695,7 +695,7 @@ class SyncClientError extends SyncError {
     SyncClientErrorCode errorCode, {
     String? detailedMessage,
     this.isFatal = false,
-  }) : super(message, detailedMessage, category, errorCode.code);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -718,7 +718,7 @@ class SyncConnectionError extends SyncError {
     SyncConnectionErrorCode errorCode, {
     String? detailedMessage,
     this.isFatal = false,
-  }) : super(message, detailedMessage, category, errorCode.code);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -741,7 +741,7 @@ class SyncSessionError extends SyncError {
     SyncSessionErrorCode errorCode, {
     String? detailedMessage,
     this.isFatal = false,
-  }) : super(message, detailedMessage, category, errorCode.code);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -760,10 +760,9 @@ class SyncResolveError extends SyncError {
 
   SyncResolveError(
     String message,
-    String detailedMessage,
     SyncErrorCategory category,
     SyncResolveErrorCode errorCode,
-  ) : super(message, detailedMessage, category, errorCode.index);
+  ) : super(message, category, errorCode.index);
 
   @override
   String toString() {
@@ -781,7 +780,7 @@ class SyncWebSocketError extends SyncError {
     SyncErrorCategory category,
     SyncWebSocketErrorCode errorCode, {
     String? detailedMessage,
-  }) : super(message, detailedMessage, category, errorCode.code);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -799,7 +798,7 @@ class GeneralSyncError extends SyncError {
     SyncErrorCategory category,
     int code, {
     String? detailedMessage,
-  }) : super(message, detailedMessage, category, code);
+  }) : super(message, category, code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -856,7 +855,7 @@ class CompensatingWriteError extends SyncError {
     String message,
     String? detailedMessage,
     this.compensatingWrites,
-  ) : super(message, detailedMessage, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code);
+  ) : super(message, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
