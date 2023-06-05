@@ -10985,7 +10985,7 @@ class _SymbolAddresses {
 /// A port is used to send or receive inter-isolate messages
 typedef Dart_Port = ffi.Int64;
 
-class UnnamedUnion1 extends ffi.Union {
+final class UnnamedUnion1 extends ffi.Union {
   @ffi.Int64()
   external int integer;
 
@@ -11016,17 +11016,17 @@ class UnnamedUnion1 extends ffi.Union {
   external ffi.Array<ffi.Char> data;
 }
 
-class realm_app extends ffi.Opaque {}
+final class realm_app extends ffi.Opaque {}
 
-class realm_app_config extends ffi.Opaque {}
+final class realm_app_config extends ffi.Opaque {}
 
 typedef realm_app_config_t = realm_app_config;
 
-class realm_app_credentials extends ffi.Opaque {}
+final class realm_app_credentials extends ffi.Opaque {}
 
 typedef realm_app_credentials_t = realm_app_credentials;
 
-class realm_app_error extends ffi.Struct {
+final class realm_app_error extends ffi.Struct {
   @ffi.Int32()
   external int error;
 
@@ -11048,7 +11048,7 @@ class realm_app_error extends ffi.Struct {
 typedef realm_app_error_t = realm_app_error;
 typedef realm_app_t = realm_app;
 
-class realm_app_user_apikey extends ffi.Struct {
+final class realm_app_user_apikey extends ffi.Struct {
   external realm_object_id_t id;
 
   external ffi.Pointer<ffi.Char> key;
@@ -11086,11 +11086,11 @@ typedef realm_async_commit_func_t = ffi.Pointer<
         ffi.Void Function(
             ffi.Pointer<ffi.Void>, ffi.Bool, ffi.Pointer<ffi.Char>)>>;
 
-class realm_async_error extends ffi.Opaque {}
+final class realm_async_error extends ffi.Opaque {}
 
 typedef realm_async_error_t = realm_async_error;
 
-class realm_async_open_task extends ffi.Opaque {}
+final class realm_async_open_task extends ffi.Opaque {}
 
 /// Callback function invoked by the async open task once the realm is open and fully synchronized.
 ///
@@ -11109,7 +11109,7 @@ typedef realm_async_open_task_completion_func_t = ffi.Pointer<
             ffi.Pointer<realm_thread_safe_reference_t>,
             ffi.Pointer<realm_async_error_t>)>>;
 
-class realm_async_open_task_progress_notification_token extends ffi.Opaque {}
+final class realm_async_open_task_progress_notification_token extends ffi.Opaque {}
 
 typedef realm_async_open_task_progress_notification_token_t
     = realm_async_open_task_progress_notification_token;
@@ -11128,7 +11128,7 @@ abstract class realm_auth_provider {
   static const int RLM_AUTH_PROVIDER_SERVER_API_KEY = 9;
 }
 
-class realm_binary extends ffi.Struct {
+final class realm_binary extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> data;
 
   @ffi.Size()
@@ -11137,7 +11137,7 @@ class realm_binary extends ffi.Struct {
 
 typedef realm_binary_t = realm_binary;
 
-class realm_callback_token extends ffi.Opaque {}
+final class realm_callback_token extends ffi.Opaque {}
 
 typedef realm_callback_token_t = realm_callback_token;
 
@@ -11148,7 +11148,7 @@ abstract class realm_class_flags {
   static const int RLM_CLASS_MASK = 3;
 }
 
-class realm_class_info extends ffi.Struct {
+final class realm_class_info extends ffi.Struct {
   external ffi.Pointer<ffi.Char> name;
 
   external ffi.Pointer<ffi.Char> primary_key;
@@ -11169,11 +11169,11 @@ class realm_class_info extends ffi.Struct {
 typedef realm_class_info_t = realm_class_info;
 typedef realm_class_key_t = ffi.Uint32;
 
-class realm_collection_changes extends ffi.Opaque {}
+final class realm_collection_changes extends ffi.Opaque {}
 
 typedef realm_collection_changes_t = realm_collection_changes;
 
-class realm_collection_move extends ffi.Struct {
+final class realm_collection_move extends ffi.Struct {
   @ffi.Size()
   external int from;
 
@@ -11202,27 +11202,27 @@ abstract class realm_column_attr {
   static const int RLM_COLUMN_ATTR_COLLECTION = 96;
 }
 
-class realm_config extends ffi.Opaque {}
+final class realm_config extends ffi.Opaque {}
 
 typedef realm_config_t = realm_config;
 
-class realm_dart_userdata_async extends ffi.Opaque {}
+final class realm_dart_userdata_async extends ffi.Opaque {}
 
 typedef realm_dart_userdata_async_t = ffi.Pointer<realm_dart_userdata_async>;
 typedef realm_data_initialization_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
 
-class realm_decimal128 extends ffi.Struct {
+final class realm_decimal128 extends ffi.Struct {
   @ffi.Array.multi([2])
   external ffi.Array<ffi.Uint64> w;
 }
 
 typedef realm_decimal128_t = realm_decimal128;
 
-class realm_dictionary extends ffi.Opaque {}
+final class realm_dictionary extends ffi.Opaque {}
 
-class realm_dictionary_changes extends ffi.Opaque {}
+final class realm_dictionary_changes extends ffi.Opaque {}
 
 typedef realm_dictionary_changes_t = realm_dictionary_changes;
 typedef realm_dictionary_t = realm_dictionary;
@@ -11378,7 +11378,7 @@ abstract class realm_errno {
   static const int RLM_ERR_UNKNOWN = 2000000;
 }
 
-class realm_error extends ffi.Struct {
+final class realm_error extends ffi.Struct {
   @ffi.Int32()
   external int error;
 
@@ -11395,16 +11395,16 @@ class realm_error extends ffi.Struct {
 typedef realm_error_categories = ffi.UnsignedInt;
 typedef realm_error_t = realm_error;
 
-class realm_flx_sync_mutable_subscription_set extends ffi.Opaque {}
+final class realm_flx_sync_mutable_subscription_set extends ffi.Opaque {}
 
 typedef realm_flx_sync_mutable_subscription_set_t
     = realm_flx_sync_mutable_subscription_set;
 
-class realm_flx_sync_subscription extends ffi.Opaque {}
+final class realm_flx_sync_subscription extends ffi.Opaque {}
 
-class realm_flx_sync_subscription_desc extends ffi.Opaque {}
+final class realm_flx_sync_subscription_desc extends ffi.Opaque {}
 
-class realm_flx_sync_subscription_set extends ffi.Opaque {}
+final class realm_flx_sync_subscription_set extends ffi.Opaque {}
 
 abstract class realm_flx_sync_subscription_set_state {
   static const int RLM_SYNC_SUBSCRIPTION_UNCOMMITTED = 0;
@@ -11421,7 +11421,7 @@ typedef realm_flx_sync_subscription_t = realm_flx_sync_subscription;
 typedef realm_free_userdata_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 
-class realm_http_header extends ffi.Struct {
+final class realm_http_header extends ffi.Struct {
   external ffi.Pointer<ffi.Char> name;
 
   external ffi.Pointer<ffi.Char> value;
@@ -11429,7 +11429,7 @@ class realm_http_header extends ffi.Struct {
 
 typedef realm_http_header_t = realm_http_header;
 
-class realm_http_request extends ffi.Struct {
+final class realm_http_request extends ffi.Struct {
   @ffi.Int32()
   external int method;
 
@@ -11472,7 +11472,7 @@ abstract class realm_http_request_method {
 
 typedef realm_http_request_t = realm_http_request;
 
-class realm_http_response extends ffi.Struct {
+final class realm_http_response extends ffi.Struct {
   @ffi.Int()
   external int status_code;
 
@@ -11492,11 +11492,11 @@ class realm_http_response extends ffi.Struct {
 
 typedef realm_http_response_t = realm_http_response;
 
-class realm_http_transport extends ffi.Opaque {}
+final class realm_http_transport extends ffi.Opaque {}
 
 typedef realm_http_transport_t = realm_http_transport;
 
-class realm_index_range extends ffi.Struct {
+final class realm_index_range extends ffi.Struct {
   @ffi.Size()
   external int from;
 
@@ -11506,14 +11506,14 @@ class realm_index_range extends ffi.Struct {
 
 typedef realm_index_range_t = realm_index_range;
 
-class realm_key_path extends ffi.Struct {
+final class realm_key_path extends ffi.Struct {
   @ffi.Size()
   external int nb_elements;
 
   external ffi.Pointer<realm_key_path_elem_t> path_elements;
 }
 
-class realm_key_path_array extends ffi.Struct {
+final class realm_key_path_array extends ffi.Struct {
   @ffi.Size()
   external int nb_elements;
 
@@ -11522,7 +11522,7 @@ class realm_key_path_array extends ffi.Struct {
 
 typedef realm_key_path_array_t = realm_key_path_array;
 
-class realm_key_path_elem extends ffi.Struct {
+final class realm_key_path_elem extends ffi.Struct {
   @realm_class_key_t()
   external int object;
 
@@ -11533,7 +11533,7 @@ class realm_key_path_elem extends ffi.Struct {
 typedef realm_key_path_elem_t = realm_key_path_elem;
 typedef realm_key_path_t = realm_key_path;
 
-class realm_link extends ffi.Struct {
+final class realm_link extends ffi.Struct {
   @realm_class_key_t()
   external int target_table;
 
@@ -11543,7 +11543,7 @@ class realm_link extends ffi.Struct {
 
 typedef realm_link_t = realm_link;
 
-class realm_list extends ffi.Opaque {}
+final class realm_list extends ffi.Opaque {}
 
 typedef realm_list_t = realm_list;
 typedef realm_log_func_t = ffi.Pointer<
@@ -11572,11 +11572,11 @@ typedef realm_mongodb_callback_t = ffi.Pointer<
         ffi.Void Function(ffi.Pointer<ffi.Void>, realm_string_t,
             ffi.Pointer<realm_app_error_t>)>>;
 
-class realm_mongodb_collection extends ffi.Opaque {}
+final class realm_mongodb_collection extends ffi.Opaque {}
 
 typedef realm_mongodb_collection_t = realm_mongodb_collection;
 
-class realm_mongodb_find_one_and_modify_options extends ffi.Struct {
+final class realm_mongodb_find_one_and_modify_options extends ffi.Struct {
   external realm_string_t projection_bson;
 
   external realm_string_t sort_bson;
@@ -11591,7 +11591,7 @@ class realm_mongodb_find_one_and_modify_options extends ffi.Struct {
 typedef realm_mongodb_find_one_and_modify_options_t
     = realm_mongodb_find_one_and_modify_options;
 
-class realm_mongodb_find_options extends ffi.Struct {
+final class realm_mongodb_find_options extends ffi.Struct {
   external realm_string_t projection_bson;
 
   external realm_string_t sort_bson;
@@ -11602,17 +11602,17 @@ class realm_mongodb_find_options extends ffi.Struct {
 
 typedef realm_mongodb_find_options_t = realm_mongodb_find_options;
 
-class realm_notification_token extends ffi.Opaque {}
+final class realm_notification_token extends ffi.Opaque {}
 
 typedef realm_notification_token_t = realm_notification_token;
 
-class realm_object extends ffi.Opaque {}
+final class realm_object extends ffi.Opaque {}
 
-class realm_object_changes extends ffi.Opaque {}
+final class realm_object_changes extends ffi.Opaque {}
 
 typedef realm_object_changes_t = realm_object_changes;
 
-class realm_object_id extends ffi.Struct {
+final class realm_object_id extends ffi.Struct {
   @ffi.Array.multi([12])
   external ffi.Array<ffi.Uint8> bytes;
 }
@@ -11658,7 +11658,7 @@ abstract class realm_property_flags {
   static const int RLM_PROPERTY_FULLTEXT_INDEXED = 8;
 }
 
-class realm_property_info extends ffi.Struct {
+final class realm_property_info extends ffi.Struct {
   external ffi.Pointer<ffi.Char> name;
 
   external ffi.Pointer<ffi.Char> public_name;
@@ -11699,9 +11699,9 @@ abstract class realm_property_type {
   static const int RLM_PROPERTY_TYPE_UUID = 17;
 }
 
-class realm_query extends ffi.Opaque {}
+final class realm_query extends ffi.Opaque {}
 
-class realm_query_arg extends ffi.Struct {
+final class realm_query_arg extends ffi.Struct {
   @ffi.Size()
   external int nb_args;
 
@@ -11714,11 +11714,11 @@ class realm_query_arg extends ffi.Struct {
 typedef realm_query_arg_t = realm_query_arg;
 typedef realm_query_t = realm_query;
 
-class realm_refresh_callback_token extends ffi.Opaque {}
+final class realm_refresh_callback_token extends ffi.Opaque {}
 
 typedef realm_refresh_callback_token_t = realm_refresh_callback_token;
 
-class realm_results extends ffi.Opaque {}
+final class realm_results extends ffi.Opaque {}
 
 typedef realm_results_t = realm_results;
 typedef realm_return_apikey_func_t = ffi.Pointer<
@@ -11739,7 +11739,7 @@ typedef realm_return_string_func_t = ffi.Pointer<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
             ffi.Pointer<realm_app_error_t>)>>;
 
-class realm_scheduler extends ffi.Opaque {}
+final class realm_scheduler extends ffi.Opaque {}
 
 typedef realm_scheduler_can_deliver_notifications_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>;
@@ -11755,7 +11755,7 @@ typedef realm_scheduler_notify_func_t
     = ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>;
 typedef realm_scheduler_t = realm_scheduler;
 
-class realm_schema extends ffi.Opaque {}
+final class realm_schema extends ffi.Opaque {}
 
 abstract class realm_schema_mode {
   static const int RLM_SCHEMA_MODE_AUTOMATIC = 0;
@@ -11784,7 +11784,7 @@ abstract class realm_schema_validation_mode {
   static const int RLM_SCHEMA_VALIDATION_SYNC_FLX = 4;
 }
 
-class realm_set extends ffi.Opaque {}
+final class realm_set extends ffi.Opaque {}
 
 typedef realm_set_t = realm_set;
 typedef realm_should_compact_on_launch_func_t = ffi.Pointer<
@@ -11801,7 +11801,7 @@ typedef realm_should_compact_on_launch_func_t = ffi.Pointer<
 /// don't matter.
 /// - non-empty
 /// When the data member is non-NULL, and the size member is greater than 0.
-class realm_string extends ffi.Struct {
+final class realm_string extends ffi.Struct {
   external ffi.Pointer<ffi.Char> data;
 
   @ffi.Size()
@@ -11827,7 +11827,7 @@ typedef realm_sync_before_client_reset_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>;
 
-class realm_sync_client_config extends ffi.Opaque {}
+final class realm_sync_client_config extends ffi.Opaque {}
 
 typedef realm_sync_client_config_t = realm_sync_client_config;
 
@@ -11842,7 +11842,7 @@ abstract class realm_sync_client_reconnect_mode {
   static const int RLM_SYNC_CLIENT_RECONNECT_MODE_TESTING = 1;
 }
 
-class realm_sync_config extends ffi.Opaque {}
+final class realm_sync_config extends ffi.Opaque {}
 
 typedef realm_sync_config_t = realm_sync_config;
 
@@ -11856,7 +11856,7 @@ typedef realm_sync_connection_state_changed_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>;
 
-class realm_sync_error extends ffi.Struct {
+final class realm_sync_error extends ffi.Struct {
   external realm_sync_error_code_t error_code;
 
   external ffi.Pointer<ffi.Char> detailed_message;
@@ -11916,7 +11916,7 @@ abstract class realm_sync_error_category {
   static const int RLM_SYNC_ERROR_CATEGORY_UNKNOWN = 5;
 }
 
-class realm_sync_error_code extends ffi.Struct {
+final class realm_sync_error_code extends ffi.Struct {
   @ffi.Int32()
   external int category;
 
@@ -11930,7 +11930,7 @@ class realm_sync_error_code extends ffi.Struct {
 
 typedef realm_sync_error_code_t = realm_sync_error_code;
 
-class realm_sync_error_compensating_write_info extends ffi.Struct {
+final class realm_sync_error_compensating_write_info extends ffi.Struct {
   external ffi.Pointer<ffi.Char> reason;
 
   external ffi.Pointer<ffi.Char> object_name;
@@ -11946,7 +11946,7 @@ typedef realm_sync_error_handler_func_t = ffi.Pointer<
             ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>>;
 typedef realm_sync_error_t = realm_sync_error;
 
-class realm_sync_error_user_info extends ffi.Struct {
+final class realm_sync_error_user_info extends ffi.Struct {
   external ffi.Pointer<ffi.Char> key;
 
   external ffi.Pointer<ffi.Char> value;
@@ -11965,9 +11965,9 @@ typedef realm_sync_progress_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>;
 
-class realm_sync_session extends ffi.Opaque {}
+final class realm_sync_session extends ffi.Opaque {}
 
-class realm_sync_session_connection_state_notification_token
+final class realm_sync_session_connection_state_notification_token
     extends ffi.Opaque {}
 
 typedef realm_sync_session_connection_state_notification_token_t
@@ -11996,9 +11996,9 @@ abstract class realm_sync_session_stop_policy {
 
 typedef realm_sync_session_t = realm_sync_session;
 
-class realm_sync_socket extends ffi.Opaque {}
+final class realm_sync_socket extends ffi.Opaque {}
 
-class realm_sync_socket_callback extends ffi.Opaque {}
+final class realm_sync_socket_callback extends ffi.Opaque {}
 
 typedef realm_sync_socket_callback_t = realm_sync_socket_callback;
 typedef realm_sync_socket_connect_func_t = ffi.Pointer<
@@ -12054,11 +12054,11 @@ typedef realm_sync_wait_for_completion_func_t = ffi.Pointer<
             ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>;
 typedef realm_t = shared_realm;
 
-class realm_thread_safe_reference extends ffi.Opaque {}
+final class realm_thread_safe_reference extends ffi.Opaque {}
 
 typedef realm_thread_safe_reference_t = realm_thread_safe_reference;
 
-class realm_timestamp extends ffi.Struct {
+final class realm_timestamp extends ffi.Struct {
   @ffi.Int64()
   external int seconds;
 
@@ -12068,9 +12068,9 @@ class realm_timestamp extends ffi.Struct {
 
 typedef realm_timestamp_t = realm_timestamp;
 
-class realm_user extends ffi.Opaque {}
+final class realm_user extends ffi.Opaque {}
 
-class realm_user_identity extends ffi.Struct {
+final class realm_user_identity extends ffi.Struct {
   /// Ptr to null terminated string representing user identity (memory has to be freed by SDK)
   external ffi.Pointer<ffi.Char> id;
 
@@ -12089,14 +12089,14 @@ abstract class realm_user_state {
 
 typedef realm_user_t = realm_user;
 
-class realm_uuid extends ffi.Struct {
+final class realm_uuid extends ffi.Struct {
   @ffi.Array.multi([16])
   external ffi.Array<ffi.Uint8> bytes;
 }
 
 typedef realm_uuid_t = realm_uuid;
 
-class realm_value extends ffi.Struct {
+final class realm_value extends ffi.Struct {
   external UnnamedUnion1 values;
 
   @ffi.Int32()
@@ -12120,7 +12120,7 @@ abstract class realm_value_type {
   static const int RLM_TYPE_UUID = 11;
 }
 
-class realm_version_id extends ffi.Struct {
+final class realm_version_id extends ffi.Struct {
   @ffi.Uint64()
   external int version;
 
@@ -12158,7 +12158,7 @@ abstract class realm_web_socket_errno {
   static const int RLM_ERR_WEBSOCKET_FATAL_ERROR = 4405;
 }
 
-class realm_websocket_endpoint extends ffi.Struct {
+final class realm_websocket_endpoint extends ffi.Struct {
   external ffi.Pointer<ffi.Char> address;
 
   @ffi.Uint16()
@@ -12177,8 +12177,8 @@ class realm_websocket_endpoint extends ffi.Struct {
 
 typedef realm_websocket_endpoint_t = realm_websocket_endpoint;
 
-class realm_websocket_observer extends ffi.Opaque {}
+final class realm_websocket_observer extends ffi.Opaque {}
 
 typedef realm_websocket_observer_t = realm_websocket_observer;
 
-class shared_realm extends ffi.Opaque {}
+final class shared_realm extends ffi.Opaque {}
