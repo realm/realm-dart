@@ -10,6 +10,7 @@ part of 'main.dart';
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Car(
     String make, {
     String? model,
@@ -74,6 +75,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Person(
     String name, {
     int age = 1,

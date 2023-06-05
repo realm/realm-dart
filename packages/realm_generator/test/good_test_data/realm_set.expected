@@ -8,6 +8,7 @@ part of 'realm_set.dart';
 
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Car(
     String make,
   ) {
@@ -40,6 +41,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
 class RealmSets extends _RealmSets
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   RealmSets(
     int key, {
     Set<bool> boolSet = const {},

@@ -8,6 +8,7 @@ part of 'realm_set_test.dart';
 
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Car(
     String make, {
     String? color,
@@ -48,6 +49,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
 class TestRealmSets extends _TestRealmSets
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   TestRealmSets(
     int key, {
     Set<bool> boolSet = const {},

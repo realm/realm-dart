@@ -8,6 +8,7 @@ part of 'user_defined_getter.dart';
 
 // ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Person(
     String name,
   ) {
