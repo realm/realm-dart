@@ -608,9 +608,6 @@ class ClientResetError extends SyncError {
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
-  // The path to the original realm file.
-  String? get _originalFilePath => _userInfo?["ORIGINAL_FILE_PATH"];
-
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
   String? get backupFilePath => _userInfo?["RECOVERY_FILE_PATH"];
 
@@ -635,9 +632,7 @@ class ClientResetError extends SyncError {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
-    if (_originalFilePath != _config?.path) {
-      throw RealmError("The current configuration does not match the original realm file path.");
-    }
+
     final flexibleConfig = _config as FlexibleSyncConfiguration;
     return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
@@ -842,7 +837,7 @@ class CompensatingWriteInfo {
 
   @override
   String toString() {
-    return "CompensatingWriteInfo: objectType: $objectType\n reason: $reason\n primaryKey: $primaryKey\n";
+    return "CompensatingWriteInfo: objectType: '$objectType' reason: '$reason' primaryKey: '$primaryKey'";
   }
 }
 
