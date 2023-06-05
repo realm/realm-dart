@@ -83,7 +83,8 @@ class EJsonGenerator extends Generator {
         if (getter == null) {
           EJsonError.missingGetter.raise();
         }
-        if (getter.returnType != p.type) {
+        if (!TypeChecker.fromStatic(p.type)
+            .isAssignableFromType(getter.returnType)) {
           EJsonError.mismatchedGetterType.raise();
         }
       }

@@ -8,6 +8,7 @@ part of 'optional_argument.dart';
 
 // ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Person({
     Person? spouse,
   }) {

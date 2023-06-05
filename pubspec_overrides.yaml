@@ -1,0 +1,9 @@
+dependency_overrides:
+  ejson: 
+    path: ./ejson/packages/ejson
+  ejson_annotation:
+    path: ./ejson/packages/ejson_annotation
+  ejson_generator:
+    path: ./ejson/packages/ejson_generator
+  ejson_analyzer:  
+    path: ./ejson/packages/ejson_analyzer

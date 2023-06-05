@@ -8,6 +8,7 @@ part of 'list_initialization.dart';
 
 // ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Person({
     Iterable<Person> children = const [],
     Iterable<int> initList = const [],

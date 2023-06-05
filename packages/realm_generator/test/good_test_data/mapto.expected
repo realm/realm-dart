@@ -11,6 +11,7 @@ class Original extends $Original
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Original({
     int primitiveProperty = 0,
     Original? objectProperty,

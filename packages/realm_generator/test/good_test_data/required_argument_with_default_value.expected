@@ -10,6 +10,7 @@ part of 'required_argument_with_default_value.dart';
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Person({
     int age = 47,
   }) {

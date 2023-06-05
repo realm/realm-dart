@@ -19,7 +19,7 @@ environment:
   sdk: ^3.0.1
 
 dependencies:
-  collection: ^1.17.2
+  collection: ^1.17.0
   ejson_annotation: ^0.1.0
   type_plus: ^2.0.0
 

@@ -486,7 +486,9 @@ jobs:
 
       - name: Delete generated files
         # exclude generator and ejson folders
-        run: find . \( -name "*.realm.dart" -o -name "*.g.dart" \) -not -path "./generator/*" -not -path "./ejson/*" -delete
+        run: |
+          find . -name "*.g.dart" -not -path "./generator/*" -not -path "./ejson/*" -delete
+          find . -name "*.realm.dart" -not -path "./generator/*" -delete
         shell: bash
 
       - name: Run generator in realm_dart

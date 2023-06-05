@@ -9,6 +9,7 @@ part of 'migration_test.dart';
 // ignore_for_file: type=lint
 class PersonIntName extends _PersonIntName
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   PersonIntName(
     int name,
   ) {
@@ -41,6 +42,7 @@ class PersonIntName extends _PersonIntName
 
 class StudentV1 extends _StudentV1
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   StudentV1(
     String name, {
     int? yearOfBirth,
@@ -82,6 +84,7 @@ class StudentV1 extends _StudentV1
 
 class MyObjectWithTypo extends _MyObjectWithTypo
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   MyObjectWithTypo(
     String nmae,
     int vlaue,
@@ -124,6 +127,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   MyObjectWithoutTypo(
     String name,
     int value,
@@ -166,6 +170,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   MyObjectWithoutValue(
     String name,
   ) {

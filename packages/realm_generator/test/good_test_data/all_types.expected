@@ -10,6 +10,7 @@ part of 'all_types.dart';
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Foo({
     int x = 0,
     Bar? bar,
@@ -57,6 +58,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
 class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Bar(
     String name,
     bool aBool,
@@ -254,6 +256,8 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
 
 class PrimitiveTypes extends _PrimitiveTypes
     with RealmEntity, RealmObjectBase, RealmObject {
+
+  @ejson
   PrimitiveTypes(
     String stringProp,
     bool boolProp,

@@ -11,6 +11,7 @@ class TuckedIn extends _TuckedIn
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
+  @ejson
   TuckedIn({
     int x = 42,
   }) {
@@ -48,6 +49,7 @@ class TuckedIn extends _TuckedIn
 
 class AnythingGoes extends _AnythingGoes
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   AnythingGoes({
     RealmValue oneAny = const RealmValue.nullValue(),
     Iterable<RealmValue> manyAny = const [],
@@ -96,6 +98,7 @@ class AnythingGoes extends _AnythingGoes
 class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Stuff({
     int i = 42,
   }) {
