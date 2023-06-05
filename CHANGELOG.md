@@ -1,8 +1,8 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process is complete ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-* Added `CompensatingWriteError` that contains detailed information about the writes that have been reverted by the server due to permissions or subscription view restrictions. It will be received on `syncErrorHandle` callbak, which is set to `Configuration.flexibleSync`, similarly to other session errors ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs. ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 * Added `SyncError.detailedMessage` that contains error details. In case of a server error, it contains a link to the server logs with more error details. ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Fixed
