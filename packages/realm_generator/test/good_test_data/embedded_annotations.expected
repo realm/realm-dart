@@ -8,6 +8,7 @@ part of 'embedded_annotations.dart';
 
 // ignore_for_file: type=lint
 class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Parent({
     Child1? child,
     Iterable<Child1> children = const [],
@@ -56,6 +57,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
 }
 
 class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
+  @ejson
   Child1(
     String value,
     String indexedString, {

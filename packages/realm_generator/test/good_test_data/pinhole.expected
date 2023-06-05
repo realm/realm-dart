@@ -10,6 +10,7 @@ part of 'pinhole.dart';
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
+  @ejson
   Foo({
     int x = 0,
   }) {

@@ -1,8 +1,12 @@
+import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:ejson/ejson.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'package:realm_dart/realm.dart';
 
 part 'myapp.realm.dart';
+part 'myapp.g.dart';
 
 @RealmModel()
 class _Car {

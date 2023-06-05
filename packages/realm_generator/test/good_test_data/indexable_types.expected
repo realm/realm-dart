@@ -9,6 +9,7 @@ part of 'indexable_types.dart';
 // ignore_for_file: type=lint
 class Indexable extends _Indexable
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Indexable(
     bool aBool,
     int anInt,

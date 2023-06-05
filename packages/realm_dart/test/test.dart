@@ -16,6 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:ejson/ejson.dart';
+
 import 'dart:async';
 import 'dart:collection';
 import 'dart:ffi';
@@ -36,6 +39,7 @@ import 'baas_helper.dart';
 export 'baas_helper.dart' show AppNames;
 
 part 'test.realm.dart';
+part 'test.g.dart';
 
 @RealmModel()
 class _Car {

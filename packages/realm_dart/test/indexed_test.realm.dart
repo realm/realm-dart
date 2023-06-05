@@ -9,6 +9,7 @@ part of 'indexed_test.dart';
 // ignore_for_file: type=lint
 class WithIndexes extends _WithIndexes
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   WithIndexes(
     int anInt,
     bool aBool,
@@ -91,6 +92,7 @@ class WithIndexes extends _WithIndexes
 
 class NoIndexes extends _NoIndexes
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   NoIndexes(
     int anInt,
     bool aBool,
@@ -166,6 +168,7 @@ class NoIndexes extends _NoIndexes
 
 class ObjectWithFTSIndex extends _ObjectWithFTSIndex
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   ObjectWithFTSIndex(
     String title,
     String summary, {

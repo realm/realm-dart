@@ -9,6 +9,7 @@ part of 'another_mapto.dart';
 // ignore_for_file: type=lint
 class MappedToo extends _MappedToo
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],

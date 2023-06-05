@@ -18,6 +18,8 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';

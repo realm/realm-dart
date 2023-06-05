@@ -8,6 +8,7 @@ part of 'binary_type.dart';
 
 // ignore_for_file: type=lint
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Foo(
     Uint8List requiredBinaryProp, {
     Uint8List? defaultValueBinaryProp,
