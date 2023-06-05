@@ -36,7 +36,7 @@ Run these commands to setup the application
 
 * To generate RealmObject classes with realm_dart use this command.
     
-    _*On Dart use `dart run realm` to run `realm` package commands*_
+    _*On Dart use `dart run realm_dart` to run `realm` package commands*_
 
     ```
     dart run realm generate
