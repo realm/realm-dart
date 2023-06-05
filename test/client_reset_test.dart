@@ -533,12 +533,12 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
 
     final resetCompleter = Completer<void>();
-    SyncError? error;
+    late ClientResetError clientResetError;
     final config = Configuration.flexibleSync(
       user,
       [Task.schema, Schedule.schema],
       clientResetHandler: ManualRecoveryHandler((syncError) {
-        error = syncError;
+        clientResetError = syncError;
         resetCompleter.complete();
       }),
     );
@@ -548,9 +548,6 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
     await resetCompleter.future.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
-    expect(error, isNotNull);
-    expect(error, isA<ClientResetError>());
-    final clientResetError = error!.as<ClientResetError>();
     expect(clientResetError.category, SyncErrorCategory.client);
     expect(clientResetError.code, SyncClientErrorCode.autoClientResetFailure);
     expect(clientResetError.isFatal, isTrue);

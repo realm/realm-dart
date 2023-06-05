@@ -379,7 +379,7 @@ Future<void> main([List<String>? args]) async {
           expect(sessionError.category, SyncErrorCategory.webSocket);
           expect(sessionError.code, errorCode);
           expect(sessionError.detailedMessage, "Simulated session error");
-          expect(sessionError.detailedMessage == sessionError.message, isFalse);
+          expect(sessionError.detailedMessage, isNot(sessionError.message));
           expect(syncError.codeValue, errorCode.code);
         },
       );
