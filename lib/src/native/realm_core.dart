@@ -3026,7 +3026,7 @@ extension on realm_sync_error {
     if (category == SyncErrorCategory.session) {
       final sessionErrorCode = SyncSessionErrorCode.fromInt(error_code.value);
       if (sessionErrorCode == SyncSessionErrorCode.compensatingWrite) {
-        final compensatingWrites = compensating_writes.toDartCollection(compensating_writes_length);
+        final compensatingWrites = compensating_writes.toList(compensating_writes_length);
         return CompensatingWriteError(message, detailedMessage, compensatingWrites);
       }
     }
@@ -3049,7 +3049,7 @@ extension on Pointer<realm_sync_error_user_info_t> {
 }
 
 extension on Pointer<realm_sync_error_compensating_write_info_t> {
-  List<CompensatingWriteInfo> toDartCollection(int length) {
+  List<CompensatingWriteInfo> toList(int length) {
     List<CompensatingWriteInfo> compensatingWrites = [];
 
     final compensatingWritesPtr = cast<realm_sync_error_compensating_write_info>();

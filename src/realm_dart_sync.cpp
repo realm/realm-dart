@@ -73,24 +73,21 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         std::string original_file_path_key;
         std::string recovery_file_path_key;
         bool is_fatal;
-        bool is_unrecognized_by_client;
         bool is_client_reset_requested;
-        realm_sync_error_action_e server_requests_action;
         std::vector<std::pair<std::string, std::string>> user_info_values;
         std::vector<realm_sync_error_user_info_t> user_info;
-        std::vector<compensating_write_copy> compensating_writes_values;
+        std::vector<compensating_write_copy> compensating_writes_errors;
         std::vector<realm_sync_error_compensating_write_info_t> compensating_writes;
     } buf;
 
     buf.message = error.error_code.message;
-    buf.detailed_message = error.detailed_message;
-    buf.original_file_path_key = error.c_original_file_path_key;
-    buf.recovery_file_path_key = error.c_recovery_file_path_key;
+    buf.detailed_message = std::string(error.detailed_message);
+    buf.recovery_file_path_key = std::string(error.c_recovery_file_path_key);
     buf.is_fatal = error.is_fatal;
     buf.is_client_reset_requested = error.is_client_reset_requested;
     buf.user_info_values.reserve(error.user_info_length);
     buf.user_info.reserve(error.user_info_length);
-    buf.compensating_writes_values.reserve(error.compensating_writes_length);
+    buf.compensating_writes_errors.reserve(error.compensating_writes_length);
     buf.compensating_writes.reserve(error.compensating_writes_length);
 
     for (size_t i = 0; i < error.user_info_length; i++) {
@@ -100,16 +97,16 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
 
     for (size_t i = 0; i < error.compensating_writes_length; i++) {
         auto cw = error.compensating_writes[i];
-        cw_buf.reason = cw.reason;
+        cw_buf.reason = std::string(cw.reason);
         cw_buf.object_name = cw.object_name;
         cw_buf.primary_key = cw.primary_key;
 
-        auto& cw_new = buf.compensating_writes_values.emplace_back(cw_buf);
-        realm_sync_error_compensating_write_info_t  cw_new_copy;
-        cw_new_copy.reason = cw_new.reason.c_str();
-        cw_new_copy.object_name = cw_new.object_name.c_str();
-        cw_new_copy.primary_key = cw_new.primary_key;
-        buf.compensating_writes.push_back(cw_new_copy);
+        auto& cw_new = buf.compensating_writes_errors.emplace_back(cw_buf);
+        realm_sync_error_compensating_write_info_t cw_copy;
+        cw_copy.reason = cw_new.reason.c_str();
+        cw_copy.object_name = cw_new.object_name.c_str();
+        cw_copy.primary_key = cw_new.primary_key;
+        buf.compensating_writes.push_back(cw_copy);
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
