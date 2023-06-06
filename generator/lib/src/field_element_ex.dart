@@ -155,17 +155,10 @@ extension FieldElementEx on FieldElement {
         }
       }
 
-      final indexType = RealmIndexType.values.elementAt(indexed?.value.getField("indexType")!.getField("index")!.toIntValue() ?? RealmIndexType.none.index);
+      final indexType = indexed == null ? null : RealmIndexType.values.elementAt(indexed.value.getField("indexType")!.getField("index")!.toIntValue()!);
 
       if (indexed != null) {
         final file = span!.file;
-        if (indexType == RealmIndexType.none) {
-          throw RealmInvalidGenerationSourceError("Don't use RealmIndexType.none for @Indexed annotations",
-              element: this,
-              primarySpan: typeSpan(file),
-              primaryLabel: '@Indexed(RealmIndexType.none) is not valid annotation here',
-              todo: 'Remove the @Indexed annotation or change the index type to a value other than none');
-        }
 
         if (indexType == RealmIndexType.fullText && type.realmType != RealmPropertyType.string) {
           throw RealmInvalidGenerationSourceError('Cannot add full-text index on a non-string property',

@@ -66,12 +66,9 @@ enum RealmPropertyType {
 
 /// Describes the indexing mode for properties annotated with the @Indexed annotation.
 enum RealmIndexType {
-  /// Indicates that the property is not indexed
-  none,
-
-  /// Describes a regular index with no special capabilities. This type of index is
+  /// Describes an index with no special capabilities. This type of index is
   /// suitable for equality searches as well as comparison operations for numeric values.
-  general,
+  regular,
 
   /// Describes a Full-Text index on a string property.
   ///

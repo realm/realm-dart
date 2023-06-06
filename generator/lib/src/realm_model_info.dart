@@ -110,7 +110,7 @@ class RealmModelInfo {
               if (f.name != f.realmName) 'mapTo': f.realmName,
               if (f.optional) 'optional': f.optional,
               if (f.isPrimaryKey) 'primaryKey': f.isPrimaryKey,
-              if (f.indexType != RealmIndexType.none) 'indexType': f.indexType,
+              if (f.indexType != null) 'indexType': f.indexType,
               if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
               if (f.realmType == RealmPropertyType.linkingObjects) ...{
                 'linkOriginProperty': f.linkOriginProperty!,

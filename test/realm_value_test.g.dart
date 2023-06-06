@@ -85,7 +85,7 @@ class AnythingGoes extends _AnythingGoes
     return const SchemaObject(
         ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
       SchemaProperty('oneAny', RealmPropertyType.mixed,
-          optional: true, indexType: RealmIndexType.general),
+          optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),
     ]);

@@ -73,17 +73,17 @@ class WithIndexes extends _WithIndexes
     return const SchemaObject(
         ObjectType.realmObject, WithIndexes, 'WithIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int,
-          indexType: RealmIndexType.general),
+          indexType: RealmIndexType.regular),
       SchemaProperty('aBool', RealmPropertyType.bool,
-          indexType: RealmIndexType.general),
+          indexType: RealmIndexType.regular),
       SchemaProperty('string', RealmPropertyType.string,
-          indexType: RealmIndexType.general),
+          indexType: RealmIndexType.regular),
       SchemaProperty('timestamp', RealmPropertyType.timestamp,
-          indexType: RealmIndexType.general),
+          indexType: RealmIndexType.regular),
       SchemaProperty('objectId', RealmPropertyType.objectid,
-          indexType: RealmIndexType.general),
+          indexType: RealmIndexType.regular),
       SchemaProperty('uuid', RealmPropertyType.uuid,
-          indexType: RealmIndexType.general),
+          indexType: RealmIndexType.regular),
     ]);
   }
 }

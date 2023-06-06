@@ -179,7 +179,7 @@ class _RealmCore {
           }
 
           switch (schemaProperty.indexType) {
-            case RealmIndexType.general:
+            case RealmIndexType.regular:
               propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED;
               break;
             case RealmIndexType.fullText:

@@ -27,7 +27,7 @@ class RealmFieldInfo {
   final FieldElement fieldElement;
   final String? mapTo;
   final bool isPrimaryKey;
-  final RealmIndexType indexType;
+  final RealmIndexType? indexType;
   final RealmPropertyType realmType;
   final String? linkOriginProperty;
 
@@ -35,7 +35,7 @@ class RealmFieldInfo {
     required this.fieldElement,
     required this.mapTo,
     required this.isPrimaryKey,
-    required this.indexType,
+    this.indexType,
     required this.realmType,
     required this.linkOriginProperty,
   });

@@ -87,13 +87,13 @@ class PrimaryKey {
 ///
 /// Indexed properties slightly slow down insertions but can greatly speed up queries.
 ///
-/// You can optionally specify the type of the index with [RealmIndexType.general] being the default.
+/// You can optionally specify the type of the index with [RealmIndexType.regular] being the default.
 ///
 /// {@category Annotations}
 class Indexed {
   final RealmIndexType indexType;
 
-  const Indexed([this.indexType = RealmIndexType.general]);
+  const Indexed([this.indexType = RealmIndexType.regular]);
 }
 
 /// Indicates an ignored property.

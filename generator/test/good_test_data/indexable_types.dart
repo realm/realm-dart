@@ -32,7 +32,7 @@ class _Indexable {
   late RealmValue aRealmValue;
 
   // This is the same as @Indexed
-  @Indexed(RealmIndexType.general)
+  @Indexed(RealmIndexType.regular)
   late String generalStringIndex;
 
   @Indexed(RealmIndexType.fullText)
