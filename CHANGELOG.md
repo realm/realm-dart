@@ -4,13 +4,18 @@
 * None
 
 ### Fixed
-* None
+* Fix the query parser, it needs to copy a list of arguments and own the memory. This will prevent errors like getting a different result from a query, if the list is modified after its creation and before the execution of the query itself. In the worst case scenario, if the memory is freed before the query is executed, this could lead to crashes, especially for string and binary data types. (Core upgrade, since core v12.5.0)
+* Fixed a potential crash when opening the realm after failing to download a fresh FLX realm during an automatic client reset (Core upgrade, since core v12.3.0)
+* Access token refresh for websockets was not updating the location metadata (Core upgrade, since core v13.9.3)
+* Fix an out-of-bounds read in sectioned results when sectioned are removed by modifying all objects in that section to no longer appear in that section (Core upgrade, since core v13.12.0)
+* Using both synchronous and asynchronous transactions on the same thread or scheduler could hit the assertion failure "!realm.is_in_transaction()" if one of the callbacks for an asynchronous transaction happened to be scheduled during a synchronous transaction (Core upgrade, since core v11.8.0)
+
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.14.0.
 
 ## 1.1.0 (2023-05-30)
 
