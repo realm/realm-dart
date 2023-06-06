@@ -8,7 +8,7 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Dart >=3.0.2 <4.0.0 (Flutter >=3.10.2)
+* Dart ^3.0.2 and Flutter ^3.10.2
 
 ### Internal
 * Using Core x.y.z.
