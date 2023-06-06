@@ -578,7 +578,6 @@ Future<Object> setupBaas() async {
     final apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
     baasClient = client;
-    await Future<void>.delayed(Duration(seconds: 10));
     return true;
   } catch (error) {
     print(error);
