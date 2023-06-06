@@ -10,7 +10,9 @@ class Indexable extends _Indexable
     String aString,
     ObjectId anObjectId,
     Uuid anUuid,
-    DateTime aDateTime, {
+    DateTime aDateTime,
+    String generalStringIndex,
+    String ftsStringValue, {
     bool? aNullableBool,
     int? aNullableInt,
     String? aNullableString,
@@ -18,6 +20,7 @@ class Indexable extends _Indexable
     Uuid? aNullableUuid,
     DateTime? aNullableDateTime,
     RealmValue aRealmValue = const RealmValue.nullValue(),
+    String? nullableFtsStringValue,
   }) {
     RealmObjectBase.set(this, 'aBool', aBool);
     RealmObjectBase.set(this, 'aNullableBool', aNullableBool);
@@ -32,6 +35,9 @@ class Indexable extends _Indexable
     RealmObjectBase.set(this, 'aDateTime', aDateTime);
     RealmObjectBase.set(this, 'aNullableDateTime', aNullableDateTime);
     RealmObjectBase.set(this, 'aRealmValue', aRealmValue);
+    RealmObjectBase.set(this, 'generalStringIndex', generalStringIndex);
+    RealmObjectBase.set(this, 'ftsStringValue', ftsStringValue);
+    RealmObjectBase.set(this, 'nullableFtsStringValue', nullableFtsStringValue);
   }
 
   Indexable._();
@@ -116,8 +122,29 @@ class Indexable extends _Indexable
   RealmValue get aRealmValue =>
       RealmObjectBase.get<RealmValue>(this, 'aRealmValue') as RealmValue;
   @override
-  set  aRealmValue(RealmValue value) =>
+  set aRealmValue(RealmValue value) =>
       RealmObjectBase.set(this, 'aRealmValue', value);
+
+  @override
+  String get generalStringIndex =>
+      RealmObjectBase.get<String>(this, 'generalStringIndex') as String;
+  @override
+  set generalStringIndex(String value) =>
+      RealmObjectBase.set(this, 'generalStringIndex', value);
+
+  @override
+  String get ftsStringValue =>
+      RealmObjectBase.get<String>(this, 'ftsStringValue') as String;
+  @override
+  set ftsStringValue(String value) =>
+      RealmObjectBase.set(this, 'ftsStringValue', value);
+
+  @override
+  String? get nullableFtsStringValue =>
+      RealmObjectBase.get<String>(this, 'nullableFtsStringValue') as String?;
+  @override
+  set nullableFtsStringValue(String? value) =>
+      RealmObjectBase.set(this, 'nullableFtsStringValue', value);
 
   @override
   Stream<RealmObjectChanges<Indexable>> get changes =>
@@ -131,23 +158,38 @@ class Indexable extends _Indexable
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Indexable._);
     return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
-      SchemaProperty('aBool', RealmPropertyType.bool, indexed: true),
-      SchemaProperty('aNullableBool', RealmPropertyType.bool, optional: true, indexed: true),
-      SchemaProperty('anInt', RealmPropertyType.int, indexed: true),
-      SchemaProperty('aNullableInt', RealmPropertyType.int, optional: true, indexed: true),
-      SchemaProperty('aString', RealmPropertyType.string, indexed: true),
+      SchemaProperty('aBool', RealmPropertyType.bool,
+          indexType: RealmIndexType.regular),
+      SchemaProperty('aNullableBool', RealmPropertyType.bool,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('anInt', RealmPropertyType.int,
+          indexType: RealmIndexType.regular),
+      SchemaProperty('aNullableInt', RealmPropertyType.int,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('aString', RealmPropertyType.string,
+          indexType: RealmIndexType.regular),
       SchemaProperty('aNullableString', RealmPropertyType.string,
-          optional: true, indexed: true),
-      SchemaProperty('anObjectId', RealmPropertyType.objectid, indexed: true),
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('anObjectId', RealmPropertyType.objectid,
+          indexType: RealmIndexType.regular),
       SchemaProperty('aNullableObjectId', RealmPropertyType.objectid,
-          optional: true, indexed: true),
-      SchemaProperty('anUuid', RealmPropertyType.uuid, indexed: true),
-      SchemaProperty('aNullableUuid', RealmPropertyType.uuid, optional: true, indexed: true),
-      SchemaProperty('aDateTime', RealmPropertyType.timestamp, indexed: true),
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('anUuid', RealmPropertyType.uuid,
+          indexType: RealmIndexType.regular),
+      SchemaProperty('aNullableUuid', RealmPropertyType.uuid,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('aDateTime', RealmPropertyType.timestamp,
+          indexType: RealmIndexType.regular),
       SchemaProperty('aNullableDateTime', RealmPropertyType.timestamp,
-          optional: true, indexed: true),
-      SchemaProperty('aRealmValue', RealmPropertyType.mixed, 
-          optional: true, indexed: true),
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('aRealmValue', RealmPropertyType.mixed,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('generalStringIndex', RealmPropertyType.string,
+          indexType: RealmIndexType.regular),
+      SchemaProperty('ftsStringValue', RealmPropertyType.string,
+          indexType: RealmIndexType.fullText),
+      SchemaProperty('nullableFtsStringValue', RealmPropertyType.string,
+          optional: true, indexType: RealmIndexType.fullText),
     ]);
   }
 }
