@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'nullable_list_elements.g.dart';
+//part 'nullable_list_elements.realm.dart';
 
 @RealmModel()
 class _Other {}

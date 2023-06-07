@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-// part 'indexable_types.g.dart';
+// part 'indexable_types.realm.dart';
 
 @RealmModel()
 class _Indexable {

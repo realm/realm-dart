@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'not_a_realm_type.g.dart';
+//part 'not_a_realm_type.realm.dart';
 
 class NonRealm {}
 
