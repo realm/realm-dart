@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
+* Added support for Full-Text search (simple term) queries ([#1300](https://github.com/realm/realm-dart/pull/1300)).
   * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
   * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
 * Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed ([#1291](https://github.com/realm/realm-dart/pull/1291)).
