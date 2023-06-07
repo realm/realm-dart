@@ -4,9 +4,10 @@
 * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
   * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
   * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
-* Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-* Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs. ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-* Added `SyncError.detailedMessage` that contains error details. In case of a server error, it contains a link to the server logs with more error details. ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Added `SyncError.detailedMessage` that contains error details. In case of a server error, it contains a link to the server logs with more error details ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* `SyncError.create` is deprecated and it will be removed. The sync errors will be created only by the internal `realmCore` ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Fixed
 * Fixed an issue where the generator would incorrectly consider a `DateTime` field a valid primary key.
