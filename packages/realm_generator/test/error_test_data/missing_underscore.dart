@@ -9,3 +9,5 @@ class _Bad {
 
 @RealmModel()
 class _Other {}
+
+class Other extends _Other {} // mock class for testing

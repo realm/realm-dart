@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'unsupported_non_realm_type_set.realm.dart';
+part 'unsupported_non_realm_type_set.realm.dart';
 
 @RealmModel()
 class _Bad {

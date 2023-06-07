@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'mapto.realm.dart';
+part 'mapto.realm.dart';
 
 @RealmModel()
 @MapTo('another type')
