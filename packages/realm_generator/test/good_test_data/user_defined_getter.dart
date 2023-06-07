@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'user_defined_getter.realm.dart';
+part 'user_defined_getter.realm.dart';
 
 @RealmModel()
 class _Person {

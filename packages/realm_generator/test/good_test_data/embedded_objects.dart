@@ -1,5 +1,7 @@
 import 'package:realm_common/realm_common.dart';
 
+part 'embedded_objects.realm.dart';
+
 @RealmModel()
 class _Parent {
   late _Child1? child;

@@ -1,5 +1,7 @@
 import 'package:realm_common/realm_common.dart';
 
+part 'embedded_annotations.realm.dart';
+
 @RealmModel()
 class _Parent {
   @MapTo('single child')
