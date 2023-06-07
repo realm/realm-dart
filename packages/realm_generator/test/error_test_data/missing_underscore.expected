@@ -1,15 +1,14 @@
 Not a realm type
 
-in: asset:pkg/test/error_test_data/missing_underscore.dart:8:8
+in: asset:pkg/test/error_test_data/missing_underscore.dart:7:8
     ╷
-4   │ class Other {} // dummy stand-in for the generated class
-    │       ━━━━━ 
-... │
-6   │ @RealmModel()
-7   │ class _Bad {
+5   │ @RealmModel()
+6   │ class _Bad {
     │       ━━━━ in realm model for 'Bad'
-8   │   late Other other;
+7   │   late Other other;
     │        ^^^^^ Other is not a realm model type
+... │
+13  │ class Other extends _Other {} // mock class for testing
+    │       ━━━━━ 
     ╵
 Add a @RealmModel annotation on 'Other', or an @Ignored annotation on 'other'.
-
