@@ -179,8 +179,15 @@ class _RealmCore {
             propInfo.flags |= realm_property_flags.RLM_PROPERTY_NULLABLE;
           }
 
-          if (schemaProperty.indexed) {
-            propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED;
+          switch (schemaProperty.indexType) {
+            case RealmIndexType.regular:
+              propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED;
+              break;
+            case RealmIndexType.fullText:
+              propInfo.flags |= realm_property_flags.RLM_PROPERTY_FULLTEXT_INDEXED;
+              break;
+            default:
+              break;
           }
 
           if (schemaProperty.primaryKey) {

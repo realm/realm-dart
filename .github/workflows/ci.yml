@@ -684,7 +684,7 @@ jobs:
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
           channel: '#realm-github-dart'
           message: |
-            *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
+            *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
             <{{refUrl}}|`{{ref}}` - {{description}}>
             {{#if description}}<{{diffUrl}}|branch: `{{diffRef}}`>{{/if}}
        

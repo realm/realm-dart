@@ -16,6 +16,8 @@
 //
 // //////////////////////////////////////////////////////////////////////////////
 
+import 'realm_types.dart';
+
 /// An enum controlling the base type for a [RealmModel].
 ///
 /// {@category Annotations}
@@ -85,9 +87,13 @@ class PrimaryKey {
 ///
 /// Indexed properties slightly slow down insertions but can greatly speed up queries.
 ///
+/// You can optionally specify the type of the index with [RealmIndexType.regular] being the default.
+///
 /// {@category Annotations}
 class Indexed {
-  const Indexed();
+  final RealmIndexType indexType;
+
+  const Indexed([this.indexType = RealmIndexType.regular]);
 }
 
 /// Indicates an ignored property.

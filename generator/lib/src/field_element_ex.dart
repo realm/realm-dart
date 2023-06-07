@@ -137,27 +137,51 @@ extension FieldElementEx on FieldElement {
           );
         }
         */
+
+        if (type.realmType?.mapping.canBePrimaryKey != true) {
+          final file = span!.file;
+          final listOfValidTypes = RealmPropertyType.values //
+              .map((t) => t.mapping)
+              .where((m) => m.canBePrimaryKey)
+              .map((m) => m.type);
+
+          throw RealmInvalidGenerationSourceError(
+            'Realm only supports the @PrimaryKey annotation on fields of type\n${listOfValidTypes.join(', ')}\nas well as their nullable versions',
+            element: this,
+            primarySpan: typeSpan(file),
+            primaryLabel: "$modelTypeName is not a valid type here",
+            todo: "Change the type of '$displayName' or remove the @PrimaryKey annotation",
+          );
+        }
       }
 
-      // Validate indexes
-      if ((((primaryKey ?? indexed) != null) && !(type.realmType?.mapping.indexable ?? false)) || //
-          (primaryKey != null && (type.isDartCoreBool || type.isExactly<RealmValue>()))) {
-        final file = span!.file;
-        final annotation = (primaryKey ?? indexed)!.annotation;
-        final listOfValidTypes = RealmPropertyType.values //
-            .map((t) => t.mapping)
-            .where((m) => m.indexable && ((m.type != bool && m.type != RealmValue) || primaryKey == null))
-            .map((m) => m.type);
+      final indexType = indexed == null ? null : RealmIndexType.values.elementAt(indexed.value.getField("indexType")!.getField("index")!.toIntValue()!);
 
-        throw RealmInvalidGenerationSourceError(
-          'Realm only supports the $annotation annotation on fields of type\n${listOfValidTypes.join(', ')}\nas well as their nullable versions',
-          element: this,
-          primarySpan: typeSpan(file),
-          primaryLabel: "$modelTypeName is not a valid type here",
-          todo: //
-              "Change the type of '$displayName', "
-              "or remove the $annotation annotation",
-        );
+      if (indexed != null) {
+        final file = span!.file;
+
+        if (indexType == RealmIndexType.fullText && type.realmType != RealmPropertyType.string) {
+          throw RealmInvalidGenerationSourceError('Cannot add full-text index on a non-string property',
+              element: this,
+              primarySpan: typeSpan(file),
+              primaryLabel: 'Cannot use RealmIndexType.fullText for property of type $modelTypeName',
+              todo: 'Change the index type to general or change the property type to string');
+        }
+
+        if (type.realmType?.mapping.indexable != true) {
+          final listOfValidTypes = RealmPropertyType.values //
+              .map((t) => t.mapping)
+              .where((m) => m.indexable)
+              .map((m) => m.type);
+
+          throw RealmInvalidGenerationSourceError(
+            'Realm only supports the @Indexed annotation on fields of type\n${listOfValidTypes.join(', ')}\nas well as their nullable versions',
+            element: this,
+            primarySpan: typeSpan(file),
+            primaryLabel: '$modelTypeName is not a valid type here',
+            todo: "Change the type of '$displayName' or remove the @Indexed annotation",
+          );
+        }
       }
 
       String? linkOriginProperty;
@@ -323,7 +347,7 @@ extension FieldElementEx on FieldElement {
 
       return RealmFieldInfo(
         fieldElement: this,
-        indexed: indexed != null,
+        indexType: indexType,
         isPrimaryKey: primaryKey != null,
         mapTo: remappedRealmName,
         realmType: realmType,
