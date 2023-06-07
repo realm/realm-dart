@@ -14,9 +14,9 @@ void main() async {
       sourceFile,
       throwsA(
         isA<RealmInvalidGenerationSourceError>().having(
-          (e) => e.format().trim(),
+          (e) => e.format().trim().normalizeLineEndings(),
           'format',
-          (await errorFile.readAsString()).trim(),
+          (await errorFile.readAsString()).trim().normalizeLineEndings(),
         ),
       ),
     );
