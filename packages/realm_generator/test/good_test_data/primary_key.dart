@@ -1,5 +1,7 @@
 import 'package:realm_common/realm_common.dart';
 
+part 'primary_key.realm.dart';
+
 @RealmModel()
 class _IntPK {
   @PrimaryKey()

@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'double_primary_key.realm.dart';
+part 'double_primary_key.realm.dart';
 
 @RealmModel()
 class _Bad {

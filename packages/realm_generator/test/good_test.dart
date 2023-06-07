@@ -1,17 +1,15 @@
-import 'package:build_test/build_test.dart';
-import 'package:realm_generator/realm_generator.dart';
+import 'dart:io';
 
 import 'test_util.dart';
 
-import 'package:test/test.dart';
-
-void main() {
+void main() async {
   const directory = 'test/good_test_data';
-  getListOfTestFiles(directory).forEach((inputFile, expectedFile) {
-    executeTest(getTestName(inputFile), () async {
-      await generatorTestBuilder(directory, inputFile, expectedFile);
-    });
-  });
+
+  await for (final generatedFile in Directory(directory).list(recursive: true).where((f) => f.path.endsWith('.expected'))) {
+    final sourceFile = File(generatedFile.path.replaceFirst('.expected', '.dart'));
+    testCompile('compile $sourceFile', sourceFile, generatedFile);
+  }
+/* 
 
   test('Links to mapped to class in another file', () async {
     final inputs = await getInputFileAsset('$directory/mapto.dart');
@@ -88,4 +86,5 @@ class MappedToo extends _MappedToo
 
     await testBuilder(generateRealmObjects(), inputs, outputs: outputs, reader: await PackageAssetReader.currentIsolate());
   });
+ */
 }

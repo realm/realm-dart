@@ -9,3 +9,4 @@ in: asset:pkg/test/error_test_data/backlink_annotation_on_incompatible_field.dar
 6 │   late bool bad;
   │        ^^^^ bool is not an iterable of realm objects
   ╵
+  
