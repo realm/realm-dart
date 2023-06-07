@@ -23,6 +23,8 @@ FLUTTER_PLUGIN_EXPORT void realm_plugin_register_with_registrar(
 
 FLUTTER_PLUGIN_EXPORT const char* realm_dart_get_app_directory();
 
+FLUTTER_PLUGIN_EXPORT const char* realm_dart_get_bundle_id();
+
 G_END_DECLS
 
 #endif  // FLUTTER_PLUGIN_REALM_PLUGIN_H_

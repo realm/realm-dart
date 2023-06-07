@@ -64,6 +64,23 @@ final _realmLib = () {
   return result;
 }();
 
+final _pluginLib = () {
+  if (!isFlutterPlatform) {
+    throw UnsupportedError("Realm plugin library used outside Flutter");
+  }
+
+  String plugin = Platform.isWindows
+      ? 'realm_plugin.dll'
+      : Platform.isMacOS
+          ? 'realm.framework/realm' // use catalyst
+          : Platform.isLinux
+              ? "librealm_plugin.so"
+              : throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
+
+  final pluginLib = DynamicLibrary.open(plugin);
+  return pluginLib;
+}();
+
 // stamped into the library by the build system (see prepare-release.yml)
 const libraryVersion = '1.1.0';
 
@@ -2242,19 +2259,17 @@ class _RealmCore {
     }
   }
 
+  String _getBundleId() {
+    assert(isFlutterPlatform);
+    final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
+    final bundleIdPtr = getBundleIdFunc();
+    return bundleIdPtr.cast<Utf8>().toDartString();
+  }
+
   String _getAppDirectoryFromPlugin() {
     assert(isFlutterPlatform);
 
-    String plugin = Platform.isWindows
-        ? 'realm_plugin.dll'
-        : Platform.isMacOS
-            ? 'realm.framework/realm' // use catalyst
-            : Platform.isLinux
-                ? "librealm_plugin.so"
-                : throw UnsupportedError("Platform ${Platform.operatingSystem} is not supported");
-
-    final pluginLib = DynamicLibrary.open(plugin);
-    final getAppDirFunc = pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
+    final getAppDirFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_app_directory");
     final dirNamePtr = getAppDirFunc();
     final dirName = Platform.isWindows ? dirNamePtr.cast<Utf16>().toDartString() : dirNamePtr.cast<Utf8>().toDartString();
 

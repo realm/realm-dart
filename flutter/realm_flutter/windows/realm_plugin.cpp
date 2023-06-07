@@ -20,6 +20,11 @@
 #define APP_DIR_NAME "realm_app"
 #endif
 
+#ifndef BUNDLE_ID
+#define BUNDLE_ID "realm_bundle_id"
+#endif
+
+
 // #pragma message("APP_DIR_NAME is " _CRT_STRINGIZE(APP_DIR_NAME))
 
 namespace
@@ -77,6 +82,7 @@ void RealmPluginRegisterWithRegistrar(
 }
 
 static std::wstring appDirName;
+static std::string bundleId = BUNDLE_ID;
 
 // Returns the app directory on the current machine or null if getting the default directory fails
 // On Windows this is the C:\Users\username\AppData\Roaming\app_name directory
@@ -99,4 +105,8 @@ const wchar_t* realm_dart_get_app_directory() {
     CoTaskMemFree(ppszPath);
 
     return  appDirName.c_str();
+}
+
+const char* realm_dart_get_bundle_id() {
+    return bundleId.c_str();
 }
