@@ -30,3 +30,14 @@ RLM_API const char* realm_dart_get_app_directory() {
 
     return filesDir.c_str();
 }
+
+std::string app_bundle_id()
+{
+    std::string ret;
+    std::string bundle;
+    @autoreleasepool {
+        NSString *path = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES)[0];
+        ret = path.UTF8String;
+        return ret;
+    }
+}
