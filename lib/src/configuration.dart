@@ -609,15 +609,13 @@ class ClientResetError extends SyncError {
   SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
-  String? get backupFilePath => _userInfo?["RECOVERY_FILE_PATH"];
-
-  final Map<String, String>? _userInfo;
+  final String? backupFilePath;
 
   ClientResetError(
     String message,
     String? detailedMessage, [
     this._config,
-    this._userInfo,
+    this.backupFilePath,
   ]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code, detailedMessage: detailedMessage);
 
   @override
@@ -632,7 +630,6 @@ class ClientResetError extends SyncError {
     if (_config is! FlexibleSyncConfiguration) {
       throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
     }
-
     final flexibleConfig = _config as FlexibleSyncConfiguration;
     return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
@@ -654,6 +651,8 @@ class SyncError extends RealmError {
   SyncError(String message, this.category, this.codeValue, {this.detailedMessage}) : super(message);
 
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
+  /// This method is deprecated and it will be removed.
+  @Deprecated("The sync errors will be created only by the internal `realmCore`")
   static SyncError create(String message, SyncErrorCategory category, int code, {String? detailedMessage, bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:

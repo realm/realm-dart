@@ -70,14 +70,13 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     struct error_copy {
         std::string message;
         std::string detailed_message;
-        std::string original_file_path_key;
         std::string recovery_file_path_key;
         bool is_fatal;
         bool is_client_reset_requested;
         std::vector<std::pair<std::string, std::string>> user_info_values;
         std::vector<realm_sync_error_user_info_t> user_info;
-        std::vector<compensating_write_copy> compensating_writes_errors;
-        std::vector<realm_sync_error_compensating_write_info_t> compensating_writes;
+        std::vector<compensating_write_copy> compensating_writes_errors_info_copy;
+        std::vector<realm_sync_error_compensating_write_info_t> compensating_writes_errors_info;
     } buf;
 
     buf.message = error.error_code.message;
@@ -87,8 +86,8 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     buf.is_client_reset_requested = error.is_client_reset_requested;
     buf.user_info_values.reserve(error.user_info_length);
     buf.user_info.reserve(error.user_info_length);
-    buf.compensating_writes_errors.reserve(error.compensating_writes_length);
-    buf.compensating_writes.reserve(error.compensating_writes_length);
+    buf.compensating_writes_errors_info_copy.reserve(error.compensating_writes_length);
+    buf.compensating_writes_errors_info.reserve(error.compensating_writes_length);
 
     for (size_t i = 0; i < error.user_info_length; i++) {
         auto& [key, value] = buf.user_info_values.emplace_back(error.user_info_map[i].key, error.user_info_map[i].value);
@@ -101,12 +100,12 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         cw_buf.object_name = cw.object_name;
         cw_buf.primary_key = cw.primary_key;
 
-        auto& cw_new = buf.compensating_writes_errors.emplace_back(cw_buf);
+        auto& cw_new = buf.compensating_writes_errors_info_copy.emplace_back(cw_buf);
         realm_sync_error_compensating_write_info_t cw_copy;
         cw_copy.reason = cw_new.reason.c_str();
         cw_copy.object_name = cw_new.object_name.c_str();
         cw_copy.primary_key = cw_new.primary_key;
-        buf.compensating_writes.push_back(cw_copy);
+        buf.compensating_writes_errors_info.push_back(cw_copy);
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -114,12 +113,11 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         //we moved buf so we need to update the error pointers here.
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
-        error.c_original_file_path_key = buf.original_file_path_key.c_str();
         error.c_recovery_file_path_key = buf.recovery_file_path_key.c_str();
         error.is_fatal = buf.is_fatal;
         error.is_client_reset_requested = buf.is_client_reset_requested;
         error.user_info_map = buf.user_info.data();
-        error.compensating_writes = buf.compensating_writes.data();
+        error.compensating_writes = buf.compensating_writes_errors_info.data();
         (reinterpret_cast<realm_sync_error_handler_func_t>(ud->dart_callback))(ud->handle, const_cast<realm_sync_session_t*>(&session), error);
     });
 }
