@@ -2965,9 +2965,9 @@ extension on realm_value_t {
 
 extension on Array<Uint8> {
   List<int> toList(int count) {
-    List<int> result = List.filled(count, this[0]);
-    for (var i = 1; i < count; i++) {
-      result[i] = this[i];
+    final result = <int>[];
+    for (var i = 0; i < count; i++) {
+      result.add(this[i]);
     }
     return result;
   }
