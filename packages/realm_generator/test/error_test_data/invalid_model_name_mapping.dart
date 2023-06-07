@@ -1,5 +1,5 @@
 import 'package:realm_common/realm_common.dart';
-//part 'invalid_model_name_mapping.g.dart';
+//part 'invalid_model_name_mapping.realm.dart';
 
 const one = '1';
 

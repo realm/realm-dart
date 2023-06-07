@@ -26,7 +26,7 @@ import 'test.dart';
 
 import 'package:realm_dart/realm.dart';
 
-part 'indexed_test.g.dart';
+part 'indexed_test.realm.dart';
 
 // Don't import our own test.dart here. It will break AOT compilation.
 // We may use AOT compilation locally to manually run the performance

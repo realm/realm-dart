@@ -23,7 +23,7 @@ import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
-part 'realm_value_test.g.dart';
+part 'realm_value_test.realm.dart';
 
 @RealmModel(ObjectType.embeddedObject)
 class _TuckedIn {
