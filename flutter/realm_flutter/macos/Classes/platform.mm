@@ -4,7 +4,12 @@
 
 #import "realm_plugin.h"
 
+#ifndef BUNDLE_ID
+#define BUNDLE_ID "realm_bundle_id"
+#endif
+
 static std::string filesDir;
+static std::string bundleId = BUNDLE_ID;
 
 std::string default_realm_file_directory()
 {
@@ -31,13 +36,16 @@ RLM_API const char* realm_dart_get_app_directory() {
     return filesDir.c_str();
 }
 
-std::string app_bundle_id()
-{
-    std::string ret;
-    std::string bundle;
-    @autoreleasepool {
-        NSString *path = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES)[0];
-        ret = path.UTF8String;
-        return ret;
-    }
+// std::string get_app_bundle_id()
+// {
+//     std::string ret;
+//     @autoreleasepool {
+//         NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
+//         ret = bundleId.UTF8String;
+//         return ret;
+//     }
+// }
+ 
+RLM_API const char* realm_dart_get_bundle_id() {
+    return bundleId.c_str();
 }

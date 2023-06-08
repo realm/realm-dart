@@ -2259,8 +2259,14 @@ class _RealmCore {
     }
   }
 
-  String _getBundleId() {
+  String getBundleId() {
     assert(isFlutterPlatform);
+    if (Platform.isIOS) {
+      final getBundleIdFunc1 = DynamicLibrary.executable().lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
+      final bundleIdPtr = getBundleIdFunc1();
+      return bundleIdPtr.cast<Utf8>().toDartString();
+    }
+
     final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
     final bundleIdPtr = getBundleIdFunc();
     return bundleIdPtr.cast<Utf8>().toDartString();

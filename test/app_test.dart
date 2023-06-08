@@ -22,6 +22,7 @@ import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 
 import '../lib/realm.dart';
+import '../lib/src/native/realm_core.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -297,6 +298,12 @@ Future<void> main([List<String>? args]) async {
       () => app.switchUser(user1),
       throws<RealmException>("Switch user failed. Error code: 4101 . Message: User is no longer valid or is logged out"),
     );
+  });
+
+  test('bundle', () {
+    if (isFlutterPlatform) {
+      print("The bundle id is '${realmCore.getBundleId()}'");
+    }
   });
 }
 
