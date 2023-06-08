@@ -42,7 +42,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Foo._);
     return const SchemaObject(ObjectType.realmObject, Foo, 'MyFoo', [
-      SchemaProperty('x', RealmPropertyType.int, indexed: true),
+      SchemaProperty('x', RealmPropertyType.int, indexType: RealmIndexType.regular),
       SchemaProperty('bar', RealmPropertyType.object,
           optional: true, linkTarget: 'Bar'),
     ]);
@@ -196,20 +196,20 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Bar._);
     return const SchemaObject(ObjectType.realmObject, Bar, 'Bar', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('aBool', RealmPropertyType.bool, indexed: true),
-      SchemaProperty('another', RealmPropertyType.bool, indexed: true),
+      SchemaProperty('aBool', RealmPropertyType.bool, indexType: RealmIndexType.regular),
+      SchemaProperty('another', RealmPropertyType.bool, indexType: RealmIndexType.regular),
       SchemaProperty('data', RealmPropertyType.binary),
       SchemaProperty('timestamp', RealmPropertyType.timestamp,
-          mapTo: 'tidspunkt', indexed: true),
+          mapTo: 'tidspunkt', indexType: RealmIndexType.regular),
       SchemaProperty('aDouble', RealmPropertyType.double),
       SchemaProperty('foo', RealmPropertyType.object,
           optional: true, linkTarget: 'MyFoo'),
-      SchemaProperty('objectId', RealmPropertyType.objectid, indexed: true),
-      SchemaProperty('uuid', RealmPropertyType.uuid, indexed: true),
+      SchemaProperty('objectId', RealmPropertyType.objectid, indexType: RealmIndexType.regular),
+      SchemaProperty('uuid', RealmPropertyType.uuid, indexType: RealmIndexType.regular),
       SchemaProperty('list', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
       SchemaProperty('anOptionalString', RealmPropertyType.string,
-          optional: true, indexed: true),
+          optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),
