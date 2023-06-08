@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.2.0 (2023-06-08)
 
 ### Enhancements
 * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
