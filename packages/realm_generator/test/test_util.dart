@@ -24,7 +24,7 @@ void testCompile(String description, dynamic source, dynamic matcher, {dynamic s
 
   if (matcher is! Matcher) throw ArgumentError.value(matcher, 'matcher');
 
-  test(description, () {
+  test(description, () async {
     generate() async {
       final writer = InMemoryAssetWriter();
       await testBuilder(
@@ -37,7 +37,7 @@ void testCompile(String description, dynamic source, dynamic matcher, {dynamic s
       return _formatter.format(String.fromCharCodes(writer.assets.entries.single.value));
     }
 
-    expect(generate(), matcher);
+    await expectLater(generate(), matcher);
   }, skip: skip);
 }
 
