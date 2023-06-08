@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.2.0 (2023-06-08)
 
 ### Enhancements
 * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
@@ -14,7 +14,6 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Dart ^3.0.2 and Flutter ^3.10.2
 
 ### Internal
 * Using Core 13.14.0.
