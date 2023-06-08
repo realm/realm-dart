@@ -19,7 +19,7 @@
 part of 'realm_core.dart';
 
 /// A 128-bit decimal floating point number.
-class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {
+class Decimal128 extends Comparable<Decimal128> implements common.Decimal128 {
   /// The value 0.
   static final zero = Decimal128.fromInt(0);
 
