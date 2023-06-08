@@ -11,22 +11,19 @@ void main() async {
   ascii = false; // force unicode glyphs
 
   await for (final infoFile in Directory(directory).list(recursive: true).where((f) => f.path.endsWith('.expected')).cast<File>()) {
-    final log = Completer<String>();
     final sourceFile = File(infoFile.path.replaceFirst('.expected', '.dart'));
-
+    String? firstLog;
     testCompile(
-      'compile $sourceFile',
+      'log from compile $sourceFile',
       sourceFile,
-      completes,
+      completion(predicate((_) {
+        return firstLog?.normalizeLineEndings() == infoFile.readAsStringSync().normalizeLineEndings();
+      })),
       onLog: (record) {
-        if (!log.isCompleted && record.loggerName == 'testBuilder') {
-          log.complete('$record'.normalizeLineEndings());
+        if (firstLog == null && record.loggerName == 'testBuilder') {
+          firstLog = '$record';
         }
       },
     );
-
-    test('log from compile $sourceFile', () {
-      expect(log.future, completion(infoFile.readAsStringSync().normalizeLineEndings()));
-    });
   }
 }
