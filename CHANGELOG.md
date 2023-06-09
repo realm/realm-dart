@@ -1,13 +1,27 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Added support for Full-Text search (simple term) queries ([#1300](https://github.com/realm/realm-dart/pull/1300)).
-  * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
-  * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
 * Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 * Added `SyncError.detailedMessage` that contains error details. In case of a server error, it contains a link to the server logs with more error details ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 * `SyncError.create` is deprecated and it will be removed. The sync errors will be created only by the internal `realmCore` ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+* Dart ^3.0.2 and Flutter ^3.10.2
+
+### Internal
+* Using Core x.y.z.
+
+## 1.2.0 (2023-06-08)
+
+### Enhancements
+* Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
+  * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
+  * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
 
 ### Fixed
 * Fix the query parser, it needs to copy a list of arguments and own the memory. This will prevent errors like getting a different result from a query, if the list is modified after its creation and before the execution of the query itself. In the worst case scenario, if the memory is freed before the query is executed, this could lead to crashes, especially for string and binary data types. (Core upgrade, since core v12.5.0)
@@ -18,7 +32,6 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Dart ^3.0.2 and Flutter ^3.10.2
 
 ### Internal
 * Using Core 13.14.0.
