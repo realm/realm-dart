@@ -1,6 +1,21 @@
 ## vNext (TBD)
 
 ### Enhancements
+* None
+
+### Fixed
+* Fixed `Backlink` properties' getters for not persisted realm objects to throw the correct exception ([#1293](https://github.com/realm/realm-dart/pull/1293)).
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+* Dart ^3.0.2 and Flutter ^3.10.2
+
+### Internal
+* Using Core x.y.z.
+
+## 1.2.0 (2023-06-08)
+
+### Enhancements
 * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
   * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
   * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
@@ -11,11 +26,9 @@
 * Access token refresh for websockets was not updating the location metadata (Core upgrade, since core v13.9.3)
 * Using both synchronous and asynchronous transactions on the same thread or scheduler could hit the assertion failure "!realm.is_in_transaction()" if one of the callbacks for an asynchronous transaction happened to be scheduled during a synchronous transaction (Core upgrade, since core v11.8.0)
 * Fixed an issue where the generator would incorrectly consider a `DateTime` field a valid primary key ([#1300](https://github.com/realm/realm-dart/pull/1300)).
-* Fixed `Backlink` properties' getters for not persisted realm objects to throw the correct exception ([#1293](https://github.com/realm/realm-dart/pull/1293)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Dart ^3.0.2 and Flutter ^3.10.2
 
 ### Internal
 * Using Core 13.14.0.
