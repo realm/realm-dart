@@ -2265,6 +2265,8 @@ class _RealmCore {
       final getBundleIdFunc1 = DynamicLibrary.executable().lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
       final bundleIdPtr = getBundleIdFunc1();
       return bundleIdPtr.cast<Utf8>().toDartString();
+    } else if(Platform.isAndroid) {
+      return _realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
     }
 
     final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");

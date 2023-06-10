@@ -25,8 +25,9 @@
 static std::string mFilesDir;
 static std::string mDeviceName;
 static std::string mDeviceVersion;
+static std::string mBundleId;
 
-extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv *env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion) {
+extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv * env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion, jstring bundleId) {
     const char* strFilesDir = env->GetStringUTFChars(filesDir, NULL);
     mFilesDir = std::string(strFilesDir);
     env->ReleaseStringUTFChars(filesDir, strFilesDir);
@@ -34,10 +35,14 @@ extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv *en
     const char* strDeviceName = env->GetStringUTFChars(deviceName, NULL);
     mDeviceName = std::string(strDeviceName);
     env->ReleaseStringUTFChars(deviceName, strDeviceName);
-   
+
     const char* strDeviceVersion = env->GetStringUTFChars(deviceVersion, NULL);
     mDeviceVersion = std::string(strDeviceVersion);
     env->ReleaseStringUTFChars(deviceVersion, strDeviceVersion);
+
+    const char* strBundleId = env->GetStringUTFChars(bundleId, NULL);
+    mBundleId = std::string(strBundleId);
+    env->ReleaseStringUTFChars(bundleId, strBundleId);
 }
 
 extern "C" JNIEXPORT const char* realm_dart_get_files_path() {
@@ -50,4 +55,8 @@ extern "C" JNIEXPORT const char* realm_dart_get_device_name() {
 
 extern "C" JNIEXPORT const char* realm_dart_get_device_version() {
     return mDeviceVersion.c_str();
+}
+
+extern "C" JNIEXPORT const char* realm_dart_get_bundle_id() {
+    return mBundleId.c_str();
 }

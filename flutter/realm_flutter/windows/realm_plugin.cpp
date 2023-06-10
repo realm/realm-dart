@@ -24,7 +24,6 @@
 #define BUNDLE_ID "realm_bundle_id"
 #endif
 
-
 // #pragma message("APP_DIR_NAME is " _CRT_STRINGIZE(APP_DIR_NAME))
 
 namespace
@@ -45,7 +44,6 @@ private:
         std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 };
 
-// static
 void RealmPlugin::RegisterWithRegistrar(flutter::PluginRegistrarWindows* registrar)
 {
     //TODO: Remove 'channel' variable if not needed https://github.com/realm/realm-dart/issues/694
