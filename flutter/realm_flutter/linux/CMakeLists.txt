@@ -45,6 +45,9 @@ string(REGEX MATCH "name:[ \r\n\t]*([a-z0-9_]*)" _ ${PUBSPEC_CONTENT})
 # message ("Package name is ${CMAKE_MATCH_1}")
 set(BUNDLE_ID ${CMAKE_MATCH_1})
 
+add_definitions(-DAPP_DIR_NAME="${APP_DIR_NAME}")
+add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
+
 
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
