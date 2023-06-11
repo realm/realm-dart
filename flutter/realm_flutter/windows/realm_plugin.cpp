@@ -14,7 +14,6 @@
 
 #include <map>
 #include <memory>
-#include <sstream>
 
 #ifndef APP_DIR_NAME
 #define APP_DIR_NAME "realm_app"

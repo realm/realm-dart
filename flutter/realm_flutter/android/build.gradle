@@ -4,18 +4,18 @@ version '1.0'
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.3.0'
     }
 }
 
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -44,22 +44,12 @@ android {
         disable 'InvalidPackage'
     }
 
-    // externalNativeBuild {
-    //     // cmake {
-    //     //     arguments "COMPILE_DEFINITIONS-DBUNDLE_ID=lubo"
-    //     // }
-
-//    externalNativeBuild {
-//        cmake {
-//            path "src/main/cpp/CMakeLists.txt"
-//        }
-//    }
-	
-	// externalNativeBuild {
-    //     // ndkBuild {
-    //     //     path 'src/main/cpp/Android.mk'
-    //     // }
-    // }
+    //We don't need native build for now. This will enable it.
+    //externalNativeBuild {
+    //    cmake {
+    //        path "src/main/cpp/CMakeLists.txt"
+    //    }
+    //}
 }
 
 def getPaths() {
@@ -85,7 +75,7 @@ def getPaths() {
     return [flutterRoot, flutterExecutablePath]
 }
 
-task runMetrics(type: Exec) {
+tasks.register("runMetrics", Exec) {
     outputs.upToDateWhen { false }
 
     try {
@@ -102,11 +92,11 @@ task runMetrics(type: Exec) {
         commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     catch (e) {
-        println "Error running metrics command $e"
+        logger.error "Error running metrics command $e"
     }
 }
 
-task downloadRealmBinaries(type: Exec) {
+tasks.register("downloadRealmBinaries", Exec) {
     outputs.upToDateWhen { false }
 
     def (flutterRoot, flutterExecutablePath) = getPaths()
@@ -117,26 +107,26 @@ task downloadRealmBinaries(type: Exec) {
 def getBundleId() {
     try {
         def pubSpecFilePath = "${project.rootProject.projectDir}${File.separator}..${File.separator}pubspec.yaml"
-        //println "pubSpecFilePath is ${pubSpecFilePath}"
+        logger.info "pubSpecFilePath is ${pubSpecFilePath}"
         def pubspecFile = new File("${project.rootProject.projectDir}${File.separator}..${File.separator}pubspec.yaml")
         if (pubspecFile.exists()) {
             def contents = pubspecFile.text
-            //println contents
+            logger.info contents
             def matches = contents =~ /name:[ \r\n\t]*([a-z0-9_]*)/
             def bundleId = matches[0][1]
-            //println "bundleId is ${bundleId}"
+            logger.info "bundleId is ${bundleId}"
             return bundleId
         }
     }
     catch (e) {
-        println "Error getting bundle id $e"
+        logger.error "Error getting bundle id $e"
     }
 
     //fallback value
-    return project.rootProject.name;
+    return "realm_bundle_id";
 }
 
-task generateRealmConfig(type: Copy) {
+tasks.register("generateRealmConfig", Copy) {
     outputs.upToDateWhen { false }
     
     def bundleId = getBundleId();
@@ -144,9 +134,5 @@ task generateRealmConfig(type: Copy) {
     into "$buildDir/realm-generated"
     filter { line -> line.replaceAll('realm_bundle_id', "${bundleId}") }
 }
-
-//task printProjectTasks {
-//    project.getAllTasks(false).each { key, value -> value.each { task -> println("task=${task} dependsOn=${task.dependsOn}") } }
-//}
 
 preBuild.dependsOn runMetrics, downloadRealmBinaries, generateRealmConfig

@@ -494,6 +494,12 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
       - name: Fetch artifacts
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
