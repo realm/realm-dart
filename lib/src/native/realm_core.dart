@@ -23,6 +23,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:cancellation_token/cancellation_token.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
@@ -1528,6 +1529,8 @@ class _RealmCore {
 
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
 
+      _realmLib.realm_app_config_set_bundle_id(handle._pointer, getBundleId().toCharPtr(arena));
+
       if (configuration.localAppName != null) {
         _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toCharPtr(arena));
       } else {
@@ -2265,30 +2268,36 @@ class _RealmCore {
   }
 
   String getBundleId() {
-    try {
-      if (!isFlutterPlatform) {
-        var pubspecPath = path.join(path.current, 'pubspec.yaml');
-        var pubspecFile = File(pubspecPath);
+     readBundleId () {
+      try {
+        if (!isFlutterPlatform) {
+          var pubspecPath = path.join(path.current, 'pubspec.yaml');
+          var pubspecFile = File(pubspecPath);
 
-        if (pubspecFile.existsSync()) {
-          final pubspec = Pubspec.parse(pubspecFile.readAsStringSync());
-          return pubspec.name;
+          if (pubspecFile.existsSync()) {
+            final pubspec = Pubspec.parse(pubspecFile.readAsStringSync());
+            return pubspec.name;
+          }
         }
+
+        if (Platform.isAndroid) {
+          return _realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
+        }
+
+        final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
+        final bundleIdPtr = getBundleIdFunc();
+        return bundleIdPtr.cast<Utf8>().toDartString();
+      } on Exception catch (_) {
+        //Never fail on bundleId. Use fallback value.
       }
 
-      if (Platform.isAndroid) {
-        return _realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
-      }
-
-      final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
-      final bundleIdPtr = getBundleIdFunc();
-      return bundleIdPtr.cast<Utf8>().toDartString();
-    } on Exception catch (_) {
-      //Never fail on bundleId. Use fallback value.
-    }
-
-    //Fallback value
-    return "realm_bundle_id";
+      //Fallback value
+      return "realm_bundle_id";
+    };
+    
+    String bundleId = readBundleId();
+    const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
+    return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
   }
 
   String _getAppDirectoryFromPlugin() {
