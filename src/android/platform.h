@@ -18,5 +18,5 @@
 
 #ifndef FFI_GEN
 #include <jni.h>
-extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv *env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion, jstring bundleId);
+extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv* env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion, jstring bundleId);
 #endif

@@ -301,7 +301,7 @@ Future<void> main([List<String>? args]) async {
     );
   });
 
-  test('Test bundleId', () {
+  test('bundleId is salted, hashed and encoded', () {
     final text = isFlutterPlatform ? "realm_tests" : "realm_dart";
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     final expected = base64Encode(sha256.convert([...salt, ...utf8.encode(text)]).bytes);

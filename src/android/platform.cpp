@@ -27,7 +27,7 @@ static std::string mDeviceName;
 static std::string mDeviceVersion;
 static std::string mBundleId;
 
-extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv * env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion, jstring bundleId) {
+extern "C" JNIEXPORT void Java_io_realm_RealmPlugin_native_1initRealm(JNIEnv* env, jobject thiz, jstring filesDir, jstring deviceName, jstring deviceVersion, jstring bundleId) {
     const char* strFilesDir = env->GetStringUTFChars(filesDir, NULL);
     mFilesDir = std::string(strFilesDir);
     env->ReleaseStringUTFChars(filesDir, strFilesDir);
