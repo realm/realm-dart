@@ -1,4 +1,4 @@
-name: realm_dart_example
+name: myapp
 description: A simple command-line application using Realm Dart SDK.
 
 publish_to: none

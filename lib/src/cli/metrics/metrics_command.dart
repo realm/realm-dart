@@ -73,10 +73,7 @@ Future<void> uploadMetrics(Options options) async {
   var skipUpload = (isRealmCI ||
           Platform.environment['CI'] != null ||
           Platform.environment['REALM_DISABLE_ANALYTICS'] != null ||
-          pubspec.name == "realm_tests" ||
-          pubspec.name == "realm_example" ||
-          pubspec.name == "realm_dart_example" ||
-          pubspec.name == "realm_generator") &&
+          Directory.current.absolute.path.contains("realm-dart")) &&
       Platform.environment['REALM_DEBUG_ANALYTICS'] == null;
   if (skipUpload) {
     // skip early and don't do any work

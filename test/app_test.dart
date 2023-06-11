@@ -301,11 +301,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('Test bundleId', () {
-    if (!isFlutterPlatform) {
-      return;
-    }
-
-    expect(realmCore.getBundleId(), "realm_tests");
+    expect(realmCore.getBundleId(), isFlutterPlatform ? "realm_tests" : "realm_dart");
   });
 }
 
