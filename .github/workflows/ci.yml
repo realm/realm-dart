@@ -672,7 +672,7 @@ jobs:
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
 
   slack-on-failure:
-    name: Slack on failure in main
+    name: Report failure in main branch
     needs: 
       - cleanup-dart-matrix
       - cleanup-flutter-matrix
