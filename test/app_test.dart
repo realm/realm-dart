@@ -300,10 +300,12 @@ Future<void> main([List<String>? args]) async {
     );
   });
 
-  test('bundle', () {
-    if (isFlutterPlatform) {
-      print("The bundle id is '${realmCore.getBundleId()}'");
+  test('Test bundleId', () {
+    if (!isFlutterPlatform) {
+      return;
     }
+
+    expect(realmCore.getBundleId(), "realm_tests");
   });
 }
 
