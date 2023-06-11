@@ -35,16 +35,6 @@ RLM_API const char* realm_dart_get_app_directory() {
 
     return filesDir.c_str();
 }
-
-// std::string get_app_bundle_id()
-// {
-//     std::string ret;
-//     @autoreleasepool {
-//         NSString *bundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleName"];
-//         ret = bundleId.UTF8String;
-//         return ret;
-//     }
-// }
  
 RLM_API const char* realm_dart_get_bundle_id() {
     return bundleId.c_str();

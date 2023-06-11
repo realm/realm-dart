@@ -39,12 +39,7 @@ string(REGEX MATCH "name:[ \r\n\t]*([a-z0-9_]*)" _ ${PUBSPEC_CONTENT})
 # message ("Package name is ${CMAKE_MATCH_1}")
 set(APP_DIR_NAME ${CMAKE_MATCH_1})
 set(BUNDLE_ID ${CMAKE_MATCH_1})
-# string(ASCII 114, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116 PREFIX)
-# string(PREPEND BUNDLE_ID ${PREFIX})
-# message ("BUNDLE_ID is ${BUNDLE_ID}")
-# string(SHA256 )
 
-#message ("BINARY_NAME is ${BINARY_NAME}")
 add_definitions(-DAPP_DIR_NAME="${APP_DIR_NAME}")
 add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 

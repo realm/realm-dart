@@ -69,6 +69,10 @@ final _pluginLib = () {
     throw UnsupportedError("Realm plugin library used outside Flutter");
   }
 
+  if (Platform.isIOS) {
+    return DynamicLibrary.executable();
+  }
+
   String plugin = Platform.isWindows
       ? 'realm_plugin.dll'
       : Platform.isMacOS
@@ -2261,11 +2265,8 @@ class _RealmCore {
 
   String getBundleId() {
     assert(isFlutterPlatform);
-    if (Platform.isIOS) {
-      final getBundleIdFunc1 = DynamicLibrary.executable().lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
-      final bundleIdPtr = getBundleIdFunc1();
-      return bundleIdPtr.cast<Utf8>().toDartString();
-    } else if(Platform.isAndroid) {
+    
+    if(Platform.isAndroid) {
       return _realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
     }
 
