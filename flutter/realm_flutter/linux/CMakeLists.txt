@@ -27,8 +27,6 @@ set(realm_bundled_libraries
 # message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 # message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_definitions(-DAPP_DIR_NAME="${APPLICATION_ID}")
-
 # This works cause realm plugin is always accessed through the .plugin_symlinks directory.
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
 include(${EPHEMERAL_DIR}/generated_config.cmake)
@@ -45,7 +43,7 @@ string(REGEX MATCH "name:[ \r\n\t]*([a-z0-9_]*)" _ ${PUBSPEC_CONTENT})
 # message ("Package name is ${CMAKE_MATCH_1}")
 set(BUNDLE_ID ${CMAKE_MATCH_1})
 
-add_definitions(-DAPP_DIR_NAME="${APP_DIR_NAME}")
+add_definitions(-DAPP_DIR_NAME="${APPLICATION_ID}")
 add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 
 
