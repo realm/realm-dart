@@ -18,34 +18,3 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
-
-
-## Setup 
-Run these commands to setup the application
-
-*  Get all dependencies
-    ```
-    flutter pub get
-    ```
-
-* For running Flutter widget and unit tests run the following command to install the required native binaries.
-
-    ```
-    dart run realm install
-    ```
-
-* To generate RealmObject classes with realm_dart use this command.
-    
-    _*On Dart use `dart run realm_dart` to run `realm` package commands*_
-
-    ```
-    dart run realm generate
-    ```
-    A new file `lib/main.g.dart` will be created next to the `lib/main.dart`.
-    
-*  Run the application
-    ```
-    flutter run
-    ```
-
-##### The "Dart" name and logo and the "Flutter" name and logo are trademarks owned by Google. 
