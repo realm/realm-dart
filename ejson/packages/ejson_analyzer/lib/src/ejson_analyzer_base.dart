@@ -1,6 +1,8 @@
-// TODO: Put public facing types in this file.
+import 'package:analyzer/dart/element/element.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:source_gen/source_gen.dart';
 
-/// Checks if you are awesome. Spoiler: you are.
-class Awesome {
-  bool get isAwesome => true;
-}
+TypeChecker get typeChecker => TypeChecker.fromRuntime(EJson);
+
+bool isEJsonAnnotated(Element element) =>
+    typeChecker.hasAnnotationOfExact(element);
