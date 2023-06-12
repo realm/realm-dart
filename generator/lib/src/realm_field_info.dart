@@ -80,8 +80,13 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     final getTypeName = type.isRealmCollection ? basicMappedTypeName : basicNonNullableMappedTypeName;
     yield '@override';
-    final validateBacklink = isRealmBacklink ? ", validateBacklink: true" : "";
-    yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName'$validateBacklink) as $mappedTypeName;";
+    if (isRealmBacklink) {
+      yield "$mappedTypeName get $name {";
+      yield "if(!isManaged){throw RealmException('Using backlinks is only possible for managed(persisted) objects.');}";
+      yield "return RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;}";
+    } else {
+      yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;";
+    }
     bool generateSetter = !isFinal && !isRealmCollection && !isRealmBacklink;
     if (generateSetter) {
       yield '@override';
