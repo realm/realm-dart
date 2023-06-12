@@ -1,5 +1,8 @@
 ## vNext (TBD)
 
+### Breaking changes
+* The generated parts are now named `.realm.dart` instead of `.g.dart`. This is because the builder is now a `PartBuilder`, instead of a `SharedPartBuilder`. This implies that other builders can consume the output.
+
 ### Enhancements
 * None
 
