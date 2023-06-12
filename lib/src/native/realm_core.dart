@@ -3097,6 +3097,10 @@ SyncError _createSyncError(
   List<CompensatingWriteInfo>? compensatingWrites,
 }) {
   _validateParameters(code, compensatingWrites, isClientResetRequested, recoveryFilePath, config);
+  if (isClientResetRequested) {
+    //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode value
+    return ClientResetError(message, detailedMessage, config, recoveryFilePath);
+  }
   switch (category) {
     case SyncErrorCategory.client:
       if (code == SyncClientErrorCode.autoClientResetFailure.code) {
@@ -3115,10 +3119,6 @@ SyncError _createSyncError(
     case SyncErrorCategory.system:
     case SyncErrorCategory.unknown:
     default:
-      if (isClientResetRequested) {
-        //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode value
-        return ClientResetError(message, detailedMessage, config, recoveryFilePath);
-      }
       return GeneralSyncError(message, category, code, detailedMessage: detailedMessage);
   }
 }
