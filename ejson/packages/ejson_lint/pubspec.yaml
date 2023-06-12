@@ -8,6 +8,8 @@ environment:
   sdk: ^3.0.2
 
 dependencies:
+  analyzer: ^5.12.0
+  custom_lint_builder: ^0.4.0
   ejson_analyzer: ^0.1.0
 
 dev_dependencies:

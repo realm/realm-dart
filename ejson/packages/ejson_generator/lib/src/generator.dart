@@ -20,7 +20,7 @@ import 'dart:async';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:ejson_analyzer/ejson_analyzer.dart';
 import 'package:ejson_generator/ejson_generator.dart';
 import 'package:source_gen/source_gen.dart';
 
@@ -46,23 +46,16 @@ class EJsonSourceError extends InvalidGenerationSourceError {
 class EJsonGenerator extends Generator {
   const EJsonGenerator();
 
-  TypeChecker get typeChecker => TypeChecker.fromRuntime(EJson);
-
-  bool _isAnnotated(Element element) =>
-      typeChecker.hasAnnotationOfExact(element);
-
   @override
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
     // find all classes with annotated constructors or classes directly annotated
     final annotated = library.classes
         .map((cls) =>
-            (cls, cls.constructors.where((ctor) => _isAnnotated(ctor))))
+            (cls, cls.constructors.where((ctor) => isEJsonAnnotated(ctor))))
         .where((element) {
       final (cls, ctors) = element;
-      return ctors.isNotEmpty || _isAnnotated(cls);
+      return ctors.isNotEmpty || isEJsonAnnotated(cls);
     });
-
-    //buildStep.
 
     return annotated.map((x) {
       final (cls, ctors) = x;

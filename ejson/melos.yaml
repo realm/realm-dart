@@ -2,6 +2,8 @@ name: ejson
 
 packages:
   - packages/*
+  - packages/*/example
+
 
 ide:
   intellij: false
@@ -16,6 +18,7 @@ scripts:
     run: >-
       dart pub global activate coverage &&
       dart pub global activate coverde &&
+      dart pub global activate dependency_validator &&
       dart pub global activate pana
 
   qa:
@@ -29,6 +32,7 @@ scripts:
     description: Run all QA scripts
     run: >-
       melos run qa &&
+      melos run test:lints &&
       melos run pana &&
       melos publish --dry-run
 
@@ -43,6 +47,10 @@ scripts:
   analyze:
     description: Analyze Dart code.
     run: dart analyze . --fatal-infos
+    
+  analyze:deps:
+    description: Analyze dependencies.
+    exec: dart pub global run dependency_validator
 
   test:
     description: Run tests.
@@ -52,6 +60,10 @@ scripts:
     packageFilters:
       dirExists:
         - test
+
+  test:lints:
+    description: Test that custom lints are working.
+    run: melos exec --depends-on=custom_lint -c1 -- dart run custom_lint
 
   coverage:
     description: Generate, format, and check coverage.
@@ -88,3 +100,5 @@ scripts:
     run: dart pub global run pana --no-warning --exit-code-threshold 40 --source path .
     exec:
       concurrency: 1
+      packageFilters:
+        public: true
