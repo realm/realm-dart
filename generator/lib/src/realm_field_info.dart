@@ -82,7 +82,7 @@ class RealmFieldInfo {
     yield '@override';
     if (isRealmBacklink) {
       yield "$mappedTypeName get $name {";
-      yield "if (!isManaged) { throw RealmException('Using backlinks is only possible for managed(persisted) objects.'); }";
+      yield "if (!isManaged) { throw RealmError('Using backlinks is only possible for managed objects.'); }";
       yield "return RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;}";
     } else {
       yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;";

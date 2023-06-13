@@ -56,8 +56,8 @@ Future<void> main([List<String>? args]) async {
 
   test('Backlink property getter throws for unmanaged objects', () {
     final target = Target();
-    expect(() => target.oneToMany, throws<RealmException>("Using backlinks is only possible for managed(persisted) objects."));
-    expect(() => target.manyToMany, throws<RealmException>("Using backlinks is only possible for managed(persisted) objects."));
+    expect(() => target.oneToMany, throws<RealmError>("Using backlinks is only possible for managed objects."));
+    expect(() => target.manyToMany, throws<RealmError>("Using backlinks is only possible for managed objects."));
   });
 
   test('Backlinks 1-1(ish)', () {

@@ -178,8 +178,8 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   @override
   RealmResults<Foo> get foos {
     if (!isManaged) {
-      throw RealmException(
-          'Using backlinks is only possible for managed(persisted) objects.');
+      throw RealmError(
+          'Using backlinks is only possible for managed objects.');
     }
     return RealmObjectBase.get<Foo>(this, 'foos') as RealmResults<Foo>;
   }

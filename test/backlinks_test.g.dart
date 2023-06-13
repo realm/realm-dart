@@ -91,8 +91,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   @override
   RealmResults<Source> get oneToMany {
     if (!isManaged) {
-      throw RealmException(
-          'Using backlinks is only possible for managed(persisted) objects.');
+      throw RealmError('Using backlinks is only possible for managed objects.');
     }
     return RealmObjectBase.get<Source>(this, 'oneToMany')
         as RealmResults<Source>;
@@ -105,8 +104,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   @override
   RealmResults<Source> get manyToMany {
     if (!isManaged) {
-      throw RealmException(
-          'Using backlinks is only possible for managed(persisted) objects.');
+      throw RealmError('Using backlinks is only possible for managed objects.');
     }
     return RealmObjectBase.get<Source>(this, 'manyToMany')
         as RealmResults<Source>;
