@@ -50,6 +50,7 @@ class TestRealmSets extends _TestRealmSets
     Set<Uuid> uuidSet = const {},
     Set<RealmValue> mixedSet = const {},
     Set<Car> objectsSet = const {},
+    Set<Uint8List> binarySet = const {},
     Set<bool?> nullableBoolSet = const {},
     Set<int?> nullableIntSet = const {},
     Set<String?> nullableStringSet = const {},
@@ -57,6 +58,7 @@ class TestRealmSets extends _TestRealmSets
     Set<DateTime?> nullableDateTimeSet = const {},
     Set<ObjectId?> nullableObjectIdSet = const {},
     Set<Uuid?> nullableUuidSet = const {},
+    Set<Uint8List?> nullableBinarySet = const {},
   }) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmSet<bool>>(
@@ -76,6 +78,8 @@ class TestRealmSets extends _TestRealmSets
         this, 'mixedSet', RealmSet<RealmValue>(mixedSet));
     RealmObjectBase.set<RealmSet<Car>>(
         this, 'objectsSet', RealmSet<Car>(objectsSet));
+    RealmObjectBase.set<RealmSet<Uint8List>>(
+        this, 'binarySet', RealmSet<Uint8List>(binarySet));
     RealmObjectBase.set<RealmSet<bool?>>(
         this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
     RealmObjectBase.set<RealmSet<int?>>(
@@ -90,6 +94,8 @@ class TestRealmSets extends _TestRealmSets
         this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
     RealmObjectBase.set<RealmSet<Uuid?>>(
         this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
+    RealmObjectBase.set<RealmSet<Uint8List?>>(
+        this, 'nullableBinarySet', RealmSet<Uint8List?>(nullableBinarySet));
   }
 
   TestRealmSets._();
@@ -162,6 +168,13 @@ class TestRealmSets extends _TestRealmSets
       throw RealmUnsupportedSetError();
 
   @override
+  RealmSet<Uint8List> get binarySet =>
+      RealmObjectBase.get<Uint8List>(this, 'binarySet') as RealmSet<Uint8List>;
+  @override
+  set binarySet(covariant RealmSet<Uint8List> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   RealmSet<bool?> get nullableBoolSet =>
       RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
   @override
@@ -215,6 +228,14 @@ class TestRealmSets extends _TestRealmSets
       throw RealmUnsupportedSetError();
 
   @override
+  RealmSet<Uint8List?> get nullableBinarySet =>
+      RealmObjectBase.get<Uint8List?>(this, 'nullableBinarySet')
+          as RealmSet<Uint8List?>;
+  @override
+  set nullableBinarySet(covariant RealmSet<Uint8List?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<TestRealmSets>> get changes =>
       RealmObjectBase.getChanges<TestRealmSets>(this);
 
@@ -246,6 +267,8 @@ class TestRealmSets extends _TestRealmSets
           optional: true, collectionType: RealmCollectionType.set),
       SchemaProperty('objectsSet', RealmPropertyType.object,
           linkTarget: 'Car', collectionType: RealmCollectionType.set),
+      SchemaProperty('binarySet', RealmPropertyType.binary,
+          collectionType: RealmCollectionType.set),
       SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
           optional: true, collectionType: RealmCollectionType.set),
       SchemaProperty('nullableIntSet', RealmPropertyType.int,
@@ -259,6 +282,8 @@ class TestRealmSets extends _TestRealmSets
       SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid,
           optional: true, collectionType: RealmCollectionType.set),
       SchemaProperty('nullableUuidSet', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableBinarySet', RealmPropertyType.binary,
           optional: true, collectionType: RealmCollectionType.set),
     ]);
   }

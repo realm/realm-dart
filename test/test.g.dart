@@ -473,6 +473,62 @@ class Schedule extends _Schedule
   }
 }
 
+class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
+  Foo(
+    Uint8List requiredBinaryProp, {
+    Uint8List? defaultValueBinaryProp,
+    Uint8List? nullableBinaryProp,
+  }) {
+    RealmObjectBase.set(this, 'requiredBinaryProp', requiredBinaryProp);
+    RealmObjectBase.set(
+        this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
+    RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
+  }
+
+  Foo._();
+
+  @override
+  Uint8List get requiredBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'requiredBinaryProp') as Uint8List;
+  @override
+  set requiredBinaryProp(Uint8List value) =>
+      RealmObjectBase.set(this, 'requiredBinaryProp', value);
+
+  @override
+  Uint8List get defaultValueBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'defaultValueBinaryProp')
+          as Uint8List;
+  @override
+  set defaultValueBinaryProp(Uint8List value) =>
+      RealmObjectBase.set(this, 'defaultValueBinaryProp', value);
+
+  @override
+  Uint8List? get nullableBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'nullableBinaryProp') as Uint8List?;
+  @override
+  set nullableBinaryProp(Uint8List? value) =>
+      RealmObjectBase.set(this, 'nullableBinaryProp', value);
+
+  @override
+  Stream<RealmObjectChanges<Foo>> get changes =>
+      RealmObjectBase.getChanges<Foo>(this);
+
+  @override
+  Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Foo._);
+    return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
+      SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
+      SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
+      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
+          optional: true),
+    ]);
+  }
+}
+
 class AllTypes extends _AllTypes
     with RealmEntity, RealmObjectBase, RealmObject {
   AllTypes(
@@ -484,6 +540,7 @@ class AllTypes extends _AllTypes
     Uuid uuidProp,
     int intProp,
     Decimal128 decimalProp, {
+    Uint8List? binaryProp,
     String? nullableStringProp,
     bool? nullableBoolProp,
     DateTime? nullableDateProp,
@@ -492,6 +549,7 @@ class AllTypes extends _AllTypes
     Uuid? nullableUuidProp,
     int? nullableIntProp,
     Decimal128? nullableDecimalProp,
+    Uint8List? nullableBinaryProp,
   }) {
     RealmObjectBase.set(this, 'stringProp', stringProp);
     RealmObjectBase.set(this, 'boolProp', boolProp);
@@ -501,6 +559,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'uuidProp', uuidProp);
     RealmObjectBase.set(this, 'intProp', intProp);
     RealmObjectBase.set(this, 'decimalProp', decimalProp);
+    RealmObjectBase.set(this, 'binaryProp', binaryProp ?? Uint8List(16));
     RealmObjectBase.set(this, 'nullableStringProp', nullableStringProp);
     RealmObjectBase.set(this, 'nullableBoolProp', nullableBoolProp);
     RealmObjectBase.set(this, 'nullableDateProp', nullableDateProp);
@@ -509,6 +568,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'nullableUuidProp', nullableUuidProp);
     RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
     RealmObjectBase.set(this, 'nullableDecimalProp', nullableDecimalProp);
+    RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
   }
 
   AllTypes._();
@@ -561,6 +621,13 @@ class AllTypes extends _AllTypes
   @override
   set decimalProp(Decimal128 value) =>
       RealmObjectBase.set(this, 'decimalProp', value);
+
+  @override
+  Uint8List get binaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'binaryProp') as Uint8List;
+  @override
+  set binaryProp(Uint8List value) =>
+      RealmObjectBase.set(this, 'binaryProp', value);
 
   @override
   String? get nullableStringProp =>
@@ -620,6 +687,13 @@ class AllTypes extends _AllTypes
       RealmObjectBase.set(this, 'nullableDecimalProp', value);
 
   @override
+  Uint8List? get nullableBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'nullableBinaryProp') as Uint8List?;
+  @override
+  set nullableBinaryProp(Uint8List? value) =>
+      RealmObjectBase.set(this, 'nullableBinaryProp', value);
+
+  @override
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObjectBase.getChanges<AllTypes>(this);
 
@@ -639,6 +713,7 @@ class AllTypes extends _AllTypes
       SchemaProperty('uuidProp', RealmPropertyType.uuid),
       SchemaProperty('intProp', RealmPropertyType.int),
       SchemaProperty('decimalProp', RealmPropertyType.decimal128),
+      SchemaProperty('binaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableStringProp', RealmPropertyType.string,
           optional: true),
       SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
@@ -653,6 +728,8 @@ class AllTypes extends _AllTypes
           optional: true),
       SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
       SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128,
+          optional: true),
+      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);
   }

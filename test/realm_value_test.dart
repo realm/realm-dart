@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -59,6 +59,7 @@ Future<void> main([List<String>? args]) async {
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
       Decimal128.fromDouble(128.128),
+      Uint8List.fromList([1, 2, 0])
     ];
 
     for (final x in values) {
@@ -68,7 +69,11 @@ Future<void> main([List<String>? args]) async {
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
         expect(something.oneAny.type, x.runtimeType);
         expect(something.oneAny.value, x);
-        expect(something.oneAny, RealmValue.from(x));
+        if (x is Uint8List) {
+          expect(something.oneAny, isNot(RealmValue.from(x)));
+        } else {
+          expect(something.oneAny, RealmValue.from(x));
+        }
       });
     }
 
@@ -88,6 +93,13 @@ Future<void> main([List<String>? args]) async {
       test('Switch $x', () {
         final something = AnythingGoes(oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
+
+        // Uint8List can not be in the switch
+        if (something.oneAny.type == Uint8List(0).runtimeType) {
+          expect(value, isA<Uint8List>());
+          return;
+        }
+
         switch (something.oneAny.type) {
           case Null:
             expect(value, isA<void>());
@@ -151,6 +163,8 @@ Future<void> main([List<String>? args]) async {
           expect(type, ObjectId);
         } else if (value is Decimal128) {
           expect(type, Decimal128);
+        } else if (value is Uint8List) {
+          expect(type, Uint8List(0).runtimeType);
         } else if (value is AnythingGoes) {
           expect(type, AnythingGoes);
         } else if (value is Stuff) {

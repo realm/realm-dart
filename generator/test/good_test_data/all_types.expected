@@ -59,7 +59,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     ObjectId objectId,
     Uuid uuid,
     Decimal128 decimal, {
-    Uint8List data = Uint8List(16),
+    Uint8List? data,
     DateTime timestamp = DateTime.now(),
     double aDouble = 0.0,
     Foo? foo,
@@ -70,7 +70,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Bar>({
-        'data': Uint8List(16),
+        'data': data ?? Uint8List(16),
         'tidspunkt': DateTime.now(),
         'aDouble': 0.0,
       });

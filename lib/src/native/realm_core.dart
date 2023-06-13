@@ -2268,7 +2268,7 @@ class _RealmCore {
   }
 
   String getBundleId() {
-     readBundleId () {
+    readBundleId() {
       try {
         if (!isFlutterPlatform) {
           var pubspecPath = path.join(path.current, 'pubspec.yaml');
@@ -2293,8 +2293,10 @@ class _RealmCore {
 
       //Fallback value
       return "realm_bundle_id";
-    };
-    
+    }
+
+    ;
+
     String bundleId = readBundleId();
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
@@ -2907,55 +2909,59 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
     realm_value.ref.values.link.target = link.targetKey;
     realm_value.ref.values.link.target_table = link.classKey;
     realm_value.ref.type = realm_value_type.RLM_TYPE_LINK;
-  } else {
-    if (value is int) {
-      realm_value.ref.values.integer = value;
-      realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
-    } else if (value is bool) {
-      realm_value.ref.values.boolean = value;
-      realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
-    } else if (value is String) {
-      String string = value;
-      final units = utf8.encode(string);
-      final result = allocator<Uint8>(units.length);
-      final Uint8List nativeString = result.asTypedList(units.length);
-      nativeString.setAll(0, units);
-      realm_value.ref.values.string.data = result.cast();
-      realm_value.ref.values.string.size = units.length;
-      realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
-    } else if (value is double) {
-      realm_value.ref.values.dnum = value;
-      realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
-    } else if (value is ObjectId) {
-      final bytes = value.bytes;
-      for (var i = 0; i < 12; i++) {
-        realm_value.ref.values.object_id.bytes[i] = bytes[i];
-      }
-      realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
-    } else if (value is Uuid) {
-      final bytes = value.bytes.asUint8List();
-      for (var i = 0; i < 16; i++) {
-        realm_value.ref.values.uuid.bytes[i] = bytes[i];
-      }
-      realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
-    } else if (value is DateTime) {
-      final microseconds = value.toUtc().microsecondsSinceEpoch;
-      final seconds = microseconds ~/ _microsecondsPerSecond;
-      int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
-      if (microseconds < 0 && nanoseconds != 0) {
-        nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
-      }
-      realm_value.ref.values.timestamp.seconds = seconds;
-      realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
-      realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
-    } else if (value is RealmValue) {
-      return _intoRealmValue(value.value, realm_value, allocator);
-    } else if (value is Decimal128) {
-      realm_value.ref.values.decimal128 = value.value;
-      realm_value.ref.type = realm_value_type.RLM_TYPE_DECIMAL128;
-    } else {
-      throw RealmException("Property type ${value.runtimeType} not supported");
+  } else if (value is int) {
+    realm_value.ref.values.integer = value;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_INT;
+  } else if (value is bool) {
+    realm_value.ref.values.boolean = value;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_BOOL;
+  } else if (value is String) {
+    String string = value;
+    final units = utf8.encode(string);
+    final result = allocator<Uint8>(units.length);
+    final Uint8List nativeString = result.asTypedList(units.length);
+    nativeString.setAll(0, units);
+    realm_value.ref.values.string.data = result.cast();
+    realm_value.ref.values.string.size = units.length;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_STRING;
+  } else if (value is double) {
+    realm_value.ref.values.dnum = value;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_DOUBLE;
+  } else if (value is ObjectId) {
+    final bytes = value.bytes;
+    for (var i = 0; i < 12; i++) {
+      realm_value.ref.values.object_id.bytes[i] = bytes[i];
     }
+    realm_value.ref.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+  } else if (value is Uuid) {
+    final bytes = value.bytes.asUint8List();
+    for (var i = 0; i < 16; i++) {
+      realm_value.ref.values.uuid.bytes[i] = bytes[i];
+    }
+    realm_value.ref.type = realm_value_type.RLM_TYPE_UUID;
+  } else if (value is DateTime) {
+    final microseconds = value.toUtc().microsecondsSinceEpoch;
+    final seconds = microseconds ~/ _microsecondsPerSecond;
+    int nanoseconds = _nanosecondsPerMicrosecond * (microseconds % _microsecondsPerSecond);
+    if (microseconds < 0 && nanoseconds != 0) {
+      nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
+    }
+    realm_value.ref.values.timestamp.seconds = seconds;
+    realm_value.ref.values.timestamp.nanoseconds = nanoseconds;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+  } else if (value is RealmValue) {
+    return _intoRealmValue(value.value, realm_value, allocator);
+  } else if (value is Decimal128) {
+    realm_value.ref.values.decimal128 = value.value;
+    realm_value.ref.type = realm_value_type.RLM_TYPE_DECIMAL128;
+  }  else if (value is Uint8List) {
+    realm_value.ref.type = realm_value_type.RLM_TYPE_BINARY;
+    realm_value.ref.values.binary.size = value.length;
+    realm_value.ref.values.binary.data = allocator<Uint8>(value.length);
+    realm_value.ref.values.binary.data.asTypedList(value.length).setAll(0, value);
+  }
+  else {
+    throw RealmException("Property type ${value.runtimeType} not supported");
   }
 }
 
@@ -2984,7 +2990,7 @@ extension on Pointer<realm_value_t> {
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
-        throw Exception("Not implemented");
+        return Uint8List.fromList(ref.values.binary.data.asTypedList(ref.values.binary.size));
       case realm_value_type.RLM_TYPE_TIMESTAMP:
         final seconds = ref.values.timestamp.seconds;
         final nanoseconds = ref.values.timestamp.nanoseconds;

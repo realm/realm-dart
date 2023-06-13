@@ -16,6 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:typed_data';
+
+import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -39,6 +42,8 @@ class _NullableUuid {}
 
 class _NullableObjects {}
 
+class _NullableUint8List {}
+
 /// When changing update also `setByType`
 List<Type> supportedTypes = [
   bool,
@@ -50,13 +55,15 @@ List<Type> supportedTypes = [
   Uuid,
   RealmValue,
   RealmObject,
+  Uint8List,
   _NullableBool,
   _NullableInt,
   _NullableString,
   _NullableDouble,
   _NullableDateTime,
   _NullableObjectId,
-  _NullableUuid
+  _NullableUuid,
+  _NullableUint8List
 ];
 
 @RealmModel()
@@ -79,6 +86,7 @@ class _TestRealmSets {
   late Set<Uuid> uuidSet;
   late Set<RealmValue> mixedSet;
   late Set<_Car> objectsSet;
+  late Set<Uint8List> binarySet;
 
   late Set<bool?> nullableBoolSet;
   late Set<int?> nullableIntSet;
@@ -87,6 +95,7 @@ class _TestRealmSets {
   late Set<DateTime?> nullableDateTimeSet;
   late Set<ObjectId?> nullableObjectIdSet;
   late Set<Uuid?> nullableUuidSet;
+  late Set<Uint8List?> nullableBinarySet;
 
   /// When changing update also `supportedTypes`
   Sets setByType(Type type) {
@@ -105,6 +114,11 @@ class _TestRealmSets {
         return Sets(objectIdSet as RealmSet<ObjectId>, [ObjectId.fromTimestamp(DateTime(2023).toUtc()), ObjectId.fromTimestamp(DateTime(1981).toUtc())]);
       case Uuid:
         return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
+      case Uint8List:
+        return Sets(binarySet as RealmSet<Uint8List>, [
+          Uint8List.fromList([1, 2, 3]),
+          Uint8List.fromList([3, 2, 1])
+        ]);
       case RealmValue:
         return Sets(mixedSet as RealmSet<RealmValue>, [RealmValue.nullValue(), RealmValue.int(1), RealmValue.realmObject(Car("Tesla"))],
             (realm, value) => realm.find<Car>((value as Car).make));
@@ -124,6 +138,8 @@ class _TestRealmSets {
         return Sets(nullableObjectIdSet as RealmSet<ObjectId?>, [...setByType(ObjectId).values, null]);
       case _NullableUuid:
         return Sets(nullableUuidSet as RealmSet<Uuid?>, [...setByType(Uuid).values, null]);
+      case _NullableUint8List:
+        return Sets(nullableBinarySet as RealmSet<Uint8List?>, [...setByType(Uint8List).values, null]);
       default:
         throw RealmError("Unsupported type $type");
     }
@@ -464,7 +480,11 @@ Future<void> main([List<String>? args]) async {
       expect(set.length, equals(values.length));
 
       for (var element in set) {
-        expect(values.contains(element), true);
+        if (element is Uint8List) {
+          expect(values.any((e) => (e as Uint8List).equals(element)), true);
+        } else {
+          expect(values.contains(element), true);
+        }
       }
     });
 

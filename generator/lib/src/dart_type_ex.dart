@@ -35,6 +35,7 @@ extension DartTypeEx on DartType {
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
   bool get isRealmSet => realmCollectionType == RealmCollectionType.set;
   bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
+  bool get isUint8List => isExactly<Uint8List>();
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);

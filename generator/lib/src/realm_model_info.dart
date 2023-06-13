@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:typed_data';
+
 import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
@@ -34,25 +36,31 @@ class RealmModelInfo {
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
-      final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
+      final allSettableFields = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
 
-      final hasDefaults = allSettable.where((f) => f.hasDefaultValue).toList();
-      if (hasDefaults.isNotEmpty) {
+      final fieldsWithDefaultValue = allSettableFields.where((f) => f.hasDefaultValue && !f.type.isUint8List).toList();
+      final shouldEmitDefaultsSet = fieldsWithDefaultValue.isNotEmpty;
+      if (shouldEmitDefaultsSet) {
         yield 'static var _defaultsSet = false;';
         yield '';
       }
 
       yield '$name(';
       {
-        final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
+        final required = allSettableFields.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
-        final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
+        final notRequired = allSettableFields.where((f) => !f.isRequired && !f.isPrimaryKey);
         final collections = fields.where((f) => f.isRealmCollection && !f.isDartCoreSet).toList();
         final sets = fields.where((f) => f.isDartCoreSet).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty || sets.isNotEmpty) {
           yield '{';
-          yield* notRequired.map((f) => '${f.mappedTypeName} ${f.name}${f.initializer},');
+          yield* notRequired.map((f) {
+            if (f.type.isUint8List && f.hasDefaultValue) {
+              return '${f.mappedTypeName}? ${f.name},';
+            }
+            return '${f.mappedTypeName} ${f.name}${f.initializer},';
+          });
           yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield* sets.map((c) => 'Set<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield '}';
@@ -60,15 +68,19 @@ class RealmModelInfo {
 
         yield ') {';
 
-        if (hasDefaults.isNotEmpty) {
+        if (shouldEmitDefaultsSet) {
           yield 'if (!_defaultsSet) {';
           yield '  _defaultsSet = RealmObjectBase.setDefaults<$name>({';
-          yield* hasDefaults.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
+          yield* fieldsWithDefaultValue.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
           yield '  });';
           yield '}';
         }
 
-        yield* allSettable.map((f) {
+        yield* allSettableFields.map((f) {
+          if (f.type.isUint8List && f.hasDefaultValue) {
+            return "RealmObjectBase.set(this, '${f.realmName}', ${f.name} ?? ${f.fieldElement.initializerExpression});";
+          }
+
           return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
         });
 
