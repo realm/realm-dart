@@ -33,6 +33,7 @@ scripts:
     run: >-
       melos run qa &&
       melos run test:lints &&
+      melos run analyze:deps &&
       melos run pana &&
       melos publish --dry-run
 
