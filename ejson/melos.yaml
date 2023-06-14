@@ -26,14 +26,14 @@ scripts:
     run: >-
       melos run format:check &&
       melos run analyze &&
+      melos run analyze:deps &&
+      melos run test:lints &&
       melos run coverage
 
   qa:full:
-    description: Run all QA scripts
+    description: Run all QA scripts (including expensive ones).
     run: >-
       melos run qa &&
-      melos run test:lints &&
-      melos run analyze:deps &&
       melos run pana &&
       melos publish --dry-run
 
