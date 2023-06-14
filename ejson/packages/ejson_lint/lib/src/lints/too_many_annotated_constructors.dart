@@ -1,3 +1,4 @@
+import 'package:analyzer/error/error.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 import 'package:ejson_analyzer/ejson_analyzer.dart';
@@ -19,6 +20,7 @@ class TooManyAnnotatedConstructors extends DartLintRule {
             name: 'too_many_annotated_constructors',
             problemMessage:
                 'Only one constructor can be annotated with @EJson()',
+            errorSeverity: ErrorSeverity.ERROR,
           ),
         );
 
