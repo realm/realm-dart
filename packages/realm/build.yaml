@@ -10,6 +10,11 @@ targets:
           include:
             - test/**.dart
             - example/**.dart
+      ejson_generator:
+        generate_for:
+          include:
+            - test/**.dart
+            - example/**.dart
             
 builders:
   realm_generator:
@@ -18,3 +23,14 @@ builders:
     build_extensions: { ".dart": [".realm.dart"] }
     auto_apply: dependents
     build_to: source
+    runs_before: ["ejson_generator|ejson_generator"]
+  ejson_generator:
+    import: "package:ejson_generator/ejson_generator.dart"
+    required_inputs: [".realm.dart"]
+    builder_factories: ["getEJsonGenerator"]
+    build_extensions: { ".dart": ["ejson.g.part"] }
+    auto_apply: dependents
+    build_to: cache
+    applies_builders: ["source_gen|combining_builder"]
+
+

@@ -3,7 +3,11 @@ dependency_overrides:
     path: ./ejson/packages/ejson
   ejson_annotation:
     path: ./ejson/packages/ejson_annotation
+  ejson_core: 
+    path: ./ejson/packages/ejson_core
   ejson_generator:
     path: ./ejson/packages/ejson_generator
+  ejson_lint:
+    path: ./ejson/packages/ejson_lint
   ejson_analyzer:  
     path: ./ejson/packages/ejson_analyzer

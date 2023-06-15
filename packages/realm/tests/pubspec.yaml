@@ -12,6 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  ejson: ^0.1.0
   realm:
     # When depending on this package from a real application you should use:
     #   realm_flutter: ^x.y.z

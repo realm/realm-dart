@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:build_test/build_test.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:ejson_generator/ejson_generator.dart';
+import 'package:meta/meta.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
-import 'package:meta/meta.dart';
 
 final _formatter = DartFormatter(lineEnding: '\n');
 final _tag = RegExp(r'// \*.*\n// EJsonGenerator\n// \*.*');

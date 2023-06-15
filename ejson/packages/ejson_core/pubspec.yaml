@@ -1,4 +1,4 @@
-name: ejson
+name: ejson_core
 description: >-
   EJSON serialization.
 
@@ -16,14 +16,13 @@ version: 0.1.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson
 
 environment:
-  sdk: ^3.0.2
+  sdk: ^3.0.1
 
 dependencies:
+  collection: ^1.17.0
   ejson_annotation: ^0.1.0
-  ejson_core: ^0.1.0
-  ejson_generator: ^0.1.0
-  ejson_lint: ^0.1.0
+  type_plus: ^2.0.0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^2.0.0
   test: ^1.21.0

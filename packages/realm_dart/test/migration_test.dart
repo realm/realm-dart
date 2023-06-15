@@ -16,11 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
-
-import 'package:ejson_annotation/ejson_annotation.dart';
-import 'package:ejson/ejson.dart';
-
 import 'dart:async';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
@@ -29,8 +24,8 @@ import 'package:realm_dart/src/results.dart';
 import 'package:realm_dart/src/realm_object.dart';
 import 'package:realm_dart/src/list.dart';
 
-part 'migration_test.realm.dart';
 part 'migration_test.g.dart';
+part 'migration_test.realm.dart';
 
 @RealmModel()
 @MapTo("Person")
