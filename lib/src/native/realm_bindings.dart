@@ -3440,6 +3440,16 @@ class RealmLibrary {
       _realm_dart_delete_persistent_handlePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
+  ffi.Pointer<ffi.Char> realm_dart_get_bundle_id() {
+    return _realm_dart_get_bundle_id();
+  }
+
+  late final _realm_dart_get_bundle_idPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'realm_dart_get_bundle_id');
+  late final _realm_dart_get_bundle_id = _realm_dart_get_bundle_idPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
   ffi.Pointer<ffi.Char> realm_dart_get_device_name() {
     return _realm_dart_get_device_name();
   }
@@ -10871,6 +10881,8 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
+      get realm_dart_get_bundle_id => _library._realm_dart_get_bundle_idPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_get_device_name => _library._realm_dart_get_device_namePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>

@@ -27,12 +27,25 @@ set(realm_bundled_libraries
 # message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 # message ("CMAKE_CURRENT_SOURCE_DIR is ${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_definitions(-DAPP_DIR_NAME="${APPLICATION_ID}")
-
-
 # This works cause realm plugin is always accessed through the .plugin_symlinks directory.
 set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../ephemeral")
 include(${EPHEMERAL_DIR}/generated_config.cmake)
+
+set(APP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..")
+# message ("APP_DIR is ${APP_DIR}")
+set(APP_PUBSPEC_FILE "${APP_DIR}/pubspec.yaml")
+# message ("APP_PUBSPEC_FILE is ${APP_PUBSPEC_FILE}")
+file(REAL_PATH ${APP_PUBSPEC_FILE} ABSOLUTE_PATH_APP_PUBSPEC_FILE)
+# message ("ABSOLUTE_PATH_APP_PUBSPEC_FILE is ${ABSOLUTE_PATH_APP_PUBSPEC_FILE}")
+file(READ "${ABSOLUTE_PATH_APP_PUBSPEC_FILE}" PUBSPEC_CONTENT)
+string(REGEX MATCH "name:[ \r\n\t]*([a-z0-9_]*)" _ ${PUBSPEC_CONTENT})
+# message ("Pubspec name 0 is ${CMAKE_MATCH_0}")
+# message ("Package name is ${CMAKE_MATCH_1}")
+set(BUNDLE_ID ${CMAKE_MATCH_1})
+
+add_definitions(-DAPP_DIR_NAME="${APPLICATION_ID}")
+add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
+
 
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")

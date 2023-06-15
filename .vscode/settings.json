@@ -146,6 +146,9 @@
     "string_view": "cpp",
     "rope": "cpp",
     "slist": "cpp",
-    "__mutex_base": "cpp"
+    "__mutex_base": "cpp",
+    "coroutine": "cpp",
+    "ranges": "cpp",
+    "span": "cpp"
   }
 }

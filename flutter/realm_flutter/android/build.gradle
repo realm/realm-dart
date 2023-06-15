@@ -4,18 +4,18 @@ version '1.0'
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.3.0'
     }
 }
 
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -27,12 +27,15 @@ android {
     defaultConfig {
         minSdkVersion 16
 		ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_x64'
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
     }
 	
 	sourceSets {
         main {
+            java {
+                srcDirs = ['src/main/java', "$buildDir/realm-generated"]
+            }
             jniLibs.srcDirs += ["src/main/cpp/lib/"]
         }
     }
@@ -40,12 +43,13 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
-	
-	// externalNativeBuild {
-    //     ndkBuild {
-    //         path 'src/main/cpp/Android.mk'
-    //     }
-    // }
+
+    //We don't need native build for now. This will enable it.
+    //externalNativeBuild {
+    //    cmake {
+    //        path "src/main/cpp/CMakeLists.txt"
+    //    }
+    //}
 }
 
 def getPaths() {
@@ -71,12 +75,15 @@ def getPaths() {
     return [flutterRoot, flutterExecutablePath]
 }
 
-task runMetrics(type: Exec) {
+tasks.register("runMetrics", Exec) {
+    outputs.upToDateWhen { false }
+
     try {
         def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
         def (flutterRoot, flutterExecutablePath) = getPaths()
 
         workingDir "${project.rootProject.projectDir}${File.separator}.."
+
         String targetOsVersion
         if (appProject != null) {
             def conf = appProject.android.defaultConfig
@@ -85,17 +92,47 @@ task runMetrics(type: Exec) {
         commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     catch (e) {
-        println "Error running metrics command $e"
+        logger.error "Error running metrics command $e"
     }
 }
 
-task downloadRealmBinaries(type: Exec) {
-    def (flutterRoot, flutterExecutablePath) = getPaths()
+tasks.register("downloadRealmBinaries", Exec) {
+    outputs.upToDateWhen { false }
 
+    def (flutterRoot, flutterExecutablePath) = getPaths()
     workingDir "${project.rootProject.projectDir}${File.separator}.."
     commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--flavor', 'flutter'
 }
 
-preBuild.dependsOn runMetrics, downloadRealmBinaries
+def getBundleId() {
+    try {
+        def pubSpecFilePath = "${project.rootProject.projectDir}${File.separator}..${File.separator}pubspec.yaml"
+        logger.info "pubSpecFilePath is ${pubSpecFilePath}"
+        def pubspecFile = new File("${project.rootProject.projectDir}${File.separator}..${File.separator}pubspec.yaml")
+        if (pubspecFile.exists()) {
+            def contents = pubspecFile.text
+            logger.info contents
+            def matches = contents =~ /name:[ \r\n\t]*([a-z0-9_]*)/
+            def bundleId = matches[0][1]
+            logger.info "bundleId is ${bundleId}"
+            return bundleId
+        }
+    }
+    catch (e) {
+        logger.error "Error getting bundle id $e"
+    }
 
+    //fallback value
+    return "realm_bundle_id";
+}
 
+tasks.register("generateRealmConfig", Copy) {
+    outputs.upToDateWhen { false }
+    
+    def bundleId = getBundleId();
+    from 'src/gen'
+    into "$buildDir/realm-generated"
+    filter { line -> line.replaceAll('realm_bundle_id', "${bundleId}") }
+}
+
+preBuild.dependsOn runMetrics, downloadRealmBinaries, generateRealmConfig

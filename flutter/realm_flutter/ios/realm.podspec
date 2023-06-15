@@ -8,6 +8,14 @@ realmPackageDir = File.expand_path(__dir__)
 # This works cause realm plugin is always accessed through the .symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/ios/.symlinks/plugins/realm/ios
 project_dir = File.expand_path("../../../../", realmPackageDir)
+puts "project dir is #{project_dir}"
+app_dir = File.expand_path("../", project_dir)
+puts "app dir is #{app_dir}"
+contents = IO.read("#{app_dir}/pubspec.yaml")
+match = contents.match("name:[ \r\n\t]*([a-z0-9_]*)")
+bundleId = match[1]
+puts "bundleId is #{bundleId}"
+
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
@@ -20,13 +28,12 @@ Pod::Spec.new do |s|
   s.license                   = { :file => '../LICENSE' }
   s.author                    = { 'Realm' => 'help@realm.io' }
   s.source                    = { :path => '.' }
-  s.source_files              = 'Classes/**/*',
-                                'src/realm_dart.cpp'
-                                'src/realm_dart_scheduler.cpp'
-  s.public_header_files       = 'Classes/**/*.h',
+  s.source_files              = 'Classes/**/*'
+  s.public_header_files       = 'Classes/**/*.h'
   s.vendored_frameworks       = 'realm_dart.xcframework'
   s.dependency                  'Flutter'
   s.platform                  = :ios, '8.0'
+  s.compiler_flags             = "-DBUNDLE_ID='\"#{bundleId}\"'"
   s.library                   = 'c++', 'z', 'compression'
 
   s.swift_version             = '5.0'
