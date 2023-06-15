@@ -65,7 +65,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         std::string reason;
         std::string object_name;
         realm_value_t primary_key;
-    } cw_buf;
+    };
 
     struct error_copy {
         std::string message;
@@ -93,19 +93,18 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         auto& [key, value] = buf.user_info_values.emplace_back(error.user_info_map[i].key, error.user_info_map[i].value);
         buf.user_info.push_back({ key.c_str(), value.c_str() });
     }
-
     for (size_t i = 0; i < error.compensating_writes_length; i++) {
-        auto cw = error.compensating_writes[i];
-        cw_buf.reason = std::string(cw.reason);
-        cw_buf.object_name = cw.object_name;
-        cw_buf.primary_key = cw.primary_key;
-
-        auto& cw_new = buf.compensating_writes_errors_info_copy.emplace_back(cw_buf);
-        realm_sync_error_compensating_write_info_t cw_copy;
-        cw_copy.reason = cw_new.reason.c_str();
-        cw_copy.object_name = cw_new.object_name.c_str();
-        cw_copy.primary_key = cw_new.primary_key;
-        buf.compensating_writes_errors_info.push_back(cw_copy);
+        const auto& cw = error.compensating_writes[i];
+        const auto& cw_buf = buf.compensating_writes_errors_info_copy.emplace_back(compensating_write_copy{
+            std::string(cw.reason),
+            std::string(cw.object_name),
+            cw.primary_key
+        });
+        buf.compensating_writes_errors_info.push_back(realm_sync_error_compensating_write_info_t{
+            cw_buf.reason.c_str(),
+            cw_buf.object_name.c_str(),
+            cw_buf.primary_key
+        });
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
