@@ -612,11 +612,12 @@ class ClientResetError extends SyncError {
   final String? backupFilePath;
 
   ClientResetError(
-    String message,
-    String? detailedMessage, [
-    this._config,
+    String message, {
+    String? detailedMessage,
+    Configuration? config,
     this.backupFilePath,
-  ]) : super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code, detailedMessage: detailedMessage);
+  })  : _config = config,
+        super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -653,20 +654,24 @@ class SyncError extends RealmError {
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
   /// This method is deprecated and it will be removed.
   @Deprecated("This method is deprecated and will be removed in the future`")
-  static SyncError create(String message, SyncErrorCategory category, int code, {String? detailedMessage, bool isFatal = false}) {
+  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
+        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
+        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
+          return ClientResetError(message);
+        }
+        return SyncClientError(message, category, errorCode, isFatal: isFatal);
       case SyncErrorCategory.connection:
-        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
+        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
-        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
+        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.webSocket:
-        return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code), detailedMessage: detailedMessage);
+        return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code));
       case SyncErrorCategory.system:
       case SyncErrorCategory.unknown:
       default:
-        return GeneralSyncError(message, category, code, detailedMessage: detailedMessage);
+        return GeneralSyncError(message, category, code);
     }
   }
 

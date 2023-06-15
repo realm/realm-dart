@@ -3039,7 +3039,7 @@ extension on realm_sync_error {
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
       config: config,
-      recoveryFilePath: recoveryFilePath,
+      backupFilePath: recoveryFilePath,
       compensatingWrites: compensatingWrites,
     );
   }
@@ -3093,15 +3093,15 @@ SyncError _createSyncError(
   bool isFatal = false,
   bool isClientResetRequested = false,
   Configuration? config,
-  String? recoveryFilePath,
+  String? backupFilePath,
   List<CompensatingWriteInfo>? compensatingWrites,
 }) {
   if (code == SyncSessionErrorCode.compensatingWrite.code && compensatingWrites == null) {
     throw RealmError("Parameter 'compensatingWrites' is required for creating CompensatingWriteError");
   }
   if (isClientResetRequested || code == SyncClientErrorCode.autoClientResetFailure.code) {
-    if (recoveryFilePath == null) {
-      throw RealmError("Parameter 'recoveryFilePath' is required for creating ClientResetError");
+    if (backupFilePath == null) {
+      throw RealmError("Parameter 'backupFilePath' is required for creating ClientResetError");
     }
     if (config == null) {
       throw RealmError("Parameter 'config' is required for creating ClientResetError");
@@ -3109,12 +3109,12 @@ SyncError _createSyncError(
   }
   if (isClientResetRequested) {
     //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode value
-    return ClientResetError(message, detailedMessage, config, recoveryFilePath);
+    return ClientResetError(message, detailedMessage: detailedMessage, config: config, backupFilePath: backupFilePath);
   }
   switch (category) {
     case SyncErrorCategory.client:
       if (code == SyncClientErrorCode.autoClientResetFailure.code) {
-        return ClientResetError(message, detailedMessage, config, recoveryFilePath!);
+        return ClientResetError(message, detailedMessage: detailedMessage, config: config, backupFilePath: backupFilePath!);
       }
       return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
     case SyncErrorCategory.connection:
