@@ -88,7 +88,7 @@ final _pluginLib = () {
 }();
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '1.1.0';
+const libraryVersion = '1.2.0';
 
 _RealmCore realmCore = _RealmCore();
 
@@ -2293,10 +2293,8 @@ class _RealmCore {
 
       //Fallback value
       return "realm_bundle_id";
-    }
-
-    ;
-
+    };
+    
     String bundleId = readBundleId();
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
