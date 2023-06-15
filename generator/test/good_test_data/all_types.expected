@@ -70,7 +70,6 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Bar>({
-        'data': data ?? Uint8List(16),
         'tidspunkt': DateTime.now(),
         'aDouble': 0.0,
       });
@@ -78,7 +77,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'aBool', aBool);
     RealmObjectBase.set(this, 'another', another);
-    RealmObjectBase.set(this, 'data', data);
+    RealmObjectBase.set(this, 'data', data ?? Uint8List(16));
     RealmObjectBase.set(this, 'tidspunkt', timestamp);
     RealmObjectBase.set(this, 'aDouble', aDouble);
     RealmObjectBase.set(this, 'foo', foo);
@@ -88,8 +87,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'any', any);
     RealmObjectBase.set(this, 'decimal', decimal);
     RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
-    RealmObjectBase.set<RealmList<RealmValue>>(
-        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmList<RealmValue>>(this, 'manyAny', RealmList<RealmValue>(manyAny));
   }
 
   Bar._();
