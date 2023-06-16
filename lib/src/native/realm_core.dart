@@ -554,8 +554,15 @@ class _RealmCore {
   }
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
+    //TODO: Take the app from the sesison after fixing issue https://github.com/realm/realm-dart/issues/633
     final syncConfig = userdata as FlexibleSyncConfiguration;
-    final syncError = error.toSyncError(syncConfig);
+    final app = syncConfig.user.app;
+
+    final syncError = _createSyncError(
+      error.toSyncErrorDetails(),
+      userInfo: error.toUserInfo(app),
+      compensatingWrites: error.toCompensatingWrites(),
+    );
 
     if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
@@ -3020,27 +3027,37 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SyncError toSyncError(Configuration config) {
+  _UserInfo? toUserInfo(App app) {
+    final userInfoMap = user_info_map.toMap(user_info_length);
+    _UserInfo? userInfo;
+    if (userInfoMap != null && user_info_length > 0) {
+      final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
+      final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
+      final recoveryFilePath = userInfoMap[recoveryFilePathKey];
+      final originalFilePath = userInfoMap[originalFilePathKey];
+      if (originalFilePath == null) {
+        throw RealmError("Missing original file path in syncError");
+      }
+      userInfo = _UserInfo(app, originalFilePath, recoveryFilePath);
+    }
+    return userInfo;
+  }
+
+  List<CompensatingWriteInfo>? toCompensatingWrites() {
+    return compensating_writes.toList(compensating_writes_length);
+  }
+
+  _SyncErrorDetails toSyncErrorDetails() {
     final message = error_code.message.cast<Utf8>().toRealmDartString()!;
     final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
-    final userInfoMap = user_info_map.toMap(user_info_length);
-    String? recoveryFilePath;
-    if (userInfoMap != null && user_info_length > 0) {
-      final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
-      recoveryFilePath = userInfoMap[recoveryFilePathKey];
-    }
-    final compensatingWrites = compensating_writes.toList(compensating_writes_length);
-    return _createSyncError(
+    return _SyncErrorDetails(
       message,
       category,
       error_code.value,
       detailedMessage: detailedMessage,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
-      config: config,
-      backupFilePath: recoveryFilePath,
-      compensatingWrites: compensatingWrites,
     );
   }
 }
@@ -3081,55 +3098,45 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    return _createSyncError(message, SyncErrorCategory.values[ref.category], ref.value);
+    final details = _SyncErrorDetails(message, SyncErrorCategory.values[ref.category], ref.value);
+    return _createSyncError(details);
   }
 }
 
-SyncError _createSyncError(
-  String message,
-  SyncErrorCategory category,
-  int code, {
-  String? detailedMessage,
-  bool isFatal = false,
-  bool isClientResetRequested = false,
-  Configuration? config,
-  String? backupFilePath,
-  List<CompensatingWriteInfo>? compensatingWrites,
-}) {
-  if (code == SyncSessionErrorCode.compensatingWrite.code && compensatingWrites == null) {
-    throw RealmError("Parameter 'compensatingWrites' is required for creating CompensatingWriteError");
-  }
-  if (isClientResetRequested || code == SyncClientErrorCode.autoClientResetFailure.code) {
-    if (backupFilePath == null) {
-      throw RealmError("Parameter 'backupFilePath' is required for creating ClientResetError");
-    }
-    if (config == null) {
-      throw RealmError("Parameter 'config' is required for creating ClientResetError");
-    }
-  }
-  if (isClientResetRequested) {
+SyncError _createSyncError(_SyncErrorDetails error, {_UserInfo? userInfo, List<CompensatingWriteInfo>? compensatingWrites}) {
+  if (error.isClientResetRequested) {
     //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode value
-    return ClientResetError(message, detailedMessage: detailedMessage, config: config, backupFilePath: backupFilePath);
+    if (userInfo == null) {
+      throw RealmError("Parameter 'userInfo' is required for creating ClientResetError");
+    }
+    final errorCode = SyncClientErrorCode.fromInt(error.code);
+    return ClientResetError(error.message, userInfo.app, errorCode, userInfo.originalFilePath,
+        backupFilePath: userInfo.backupFilePath, detailedMessage: error.detailedMessage);
   }
-  switch (category) {
+
+  switch (error.category) {
     case SyncErrorCategory.client:
-      if (code == SyncClientErrorCode.autoClientResetFailure.code) {
-        return ClientResetError(message, detailedMessage: detailedMessage, config: config, backupFilePath: backupFilePath!);
-      }
-      return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
+      final errorCode = SyncClientErrorCode.fromInt(error.code);
+      return SyncClientError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
     case SyncErrorCategory.connection:
-      return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
+      final errorCode = SyncConnectionErrorCode.fromInt(error.code);
+      return SyncConnectionError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
     case SyncErrorCategory.session:
-      if (code == SyncSessionErrorCode.compensatingWrite.code) {
-        return CompensatingWriteError(message, detailedMessage, compensatingWrites!);
+      final errorCode = SyncSessionErrorCode.fromInt(error.code);
+      if (errorCode == SyncSessionErrorCode.compensatingWrite) {
+        if (compensatingWrites == null) {
+          throw RealmError("Parameter 'compensatingWrites' is required for creating CompensatingWriteError");
+        }
+        return CompensatingWriteError(error.message, error.detailedMessage, compensatingWrites);
       }
-      return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), detailedMessage: detailedMessage, isFatal: isFatal);
+      return SyncSessionError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
     case SyncErrorCategory.webSocket:
-      return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code), detailedMessage: detailedMessage);
+      final errorCode = SyncWebSocketErrorCode.fromInt(error.code);
+      return SyncWebSocketError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage);
     case SyncErrorCategory.system:
     case SyncErrorCategory.unknown:
     default:
-      return GeneralSyncError(message, category, code, detailedMessage: detailedMessage);
+      return GeneralSyncError(error.message, error.category, error.code, detailedMessage: error.detailedMessage);
   }
 }
 
@@ -3340,4 +3347,23 @@ extension PlatformEx on Platform {
 
     return result;
   }
+}
+
+class _UserInfo {
+  final App app;
+  final String originalFilePath;
+  final String? backupFilePath;
+
+  const _UserInfo(this.app, this.originalFilePath, this.backupFilePath);
+}
+
+class _SyncErrorDetails {
+  final String message;
+  final String? detailedMessage;
+  final SyncErrorCategory category;
+  final int code;
+  final bool isFatal;
+  final bool isClientResetRequested;
+
+  const _SyncErrorDetails(this.message, this.category, this.code, {this.detailedMessage, this.isFatal = false, this.isClientResetRequested = false});
 }

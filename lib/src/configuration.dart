@@ -600,24 +600,21 @@ enum ClientResyncModeInternal {
 /// An error type that describes a client reset error condition.
 /// {@category Sync}
 class ClientResetError extends SyncError {
+  final App _app;
+  final String _originalFilePath;
+
   /// If true the received error is fatal.
   final bool isFatal = true;
-  // The instance of [Configuration] that [ClientResetError] is thrown for.
-  final Configuration? _config;
 
-  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
-  SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
+  /// The [SyncClientErrorCode] value indicating the type of the sync error.
+  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
   final String? backupFilePath;
 
-  ClientResetError(
-    String message, {
-    String? detailedMessage,
-    Configuration? config,
-    this.backupFilePath,
-  })  : _config = config,
-        super(message, SyncErrorCategory.client, SyncClientErrorCode.autoClientResetFailure.code, detailedMessage: detailedMessage);
+  ClientResetError(String message, this._app, SyncClientErrorCode errorCode, String originalFilePath, {this.backupFilePath, String? detailedMessage})
+      : _originalFilePath = originalFilePath,
+        super(message, SyncErrorCategory.client, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -628,11 +625,7 @@ class ClientResetError extends SyncError {
   ///
   /// Returns `true` if actions were run successfully, `false` otherwise.
   bool resetRealm() {
-    if (_config is! FlexibleSyncConfiguration) {
-      throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
-    }
-    final flexibleConfig = _config as FlexibleSyncConfiguration;
-    return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
+    return realmCore.immediatelyRunFileActions(_app, _originalFilePath);
   }
 }
 
@@ -657,11 +650,7 @@ class SyncError extends RealmError {
   static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
-        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
-        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
-          return ClientResetError(message);
-        }
-        return SyncClientError(message, category, errorCode, isFatal: isFatal);
+        return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.connection:
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
@@ -826,9 +815,9 @@ enum GeneralSyncErrorCode {
 }
 
 /// Contains the details for a compensating write performed by the server.
+/// {@category Sync}
 class CompensatingWriteInfo {
-  const CompensatingWriteInfo(this.objectType, this.reason, this.primaryKey);
-
+  
   /// The type of the object which was affected by the compensating write.
   final String objectType;
 
@@ -837,6 +826,8 @@ class CompensatingWriteInfo {
 
   /// The primary key of the object which was affected by the compensating write.
   final RealmValue primaryKey;
+
+  const CompensatingWriteInfo(this.objectType, this.reason, this.primaryKey);
 
   @override
   String toString() {
