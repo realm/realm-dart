@@ -459,6 +459,23 @@ class RealmLibrary {
       _realm_app_credentials_new_anonymousPtr
           .asFunction<ffi.Pointer<realm_app_credentials_t> Function(bool)>();
 
+  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_api_key(
+    ffi.Pointer<ffi.Char> api_key,
+  ) {
+    return _realm_app_credentials_new_api_key(
+      api_key,
+    );
+  }
+
+  late final _realm_app_credentials_new_api_keyPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_credentials_t> Function(
+              ffi.Pointer<ffi.Char>)>>('realm_app_credentials_new_api_key');
+  late final _realm_app_credentials_new_api_key =
+      _realm_app_credentials_new_api_keyPtr.asFunction<
+          ffi.Pointer<realm_app_credentials_t> Function(
+              ffi.Pointer<ffi.Char>)>();
+
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_apple(
     ffi.Pointer<ffi.Char> id_token,
   ) {
@@ -586,42 +603,6 @@ class RealmLibrary {
               ffi.Pointer<ffi.Char>)>>('realm_app_credentials_new_jwt');
   late final _realm_app_credentials_new_jwt =
       _realm_app_credentials_new_jwtPtr.asFunction<
-          ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_server_api_key(
-    ffi.Pointer<ffi.Char> api_key,
-  ) {
-    return _realm_app_credentials_new_server_api_key(
-      api_key,
-    );
-  }
-
-  late final _realm_app_credentials_new_server_api_keyPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_app_credentials_t> Function(
-                  ffi.Pointer<ffi.Char>)>>(
-      'realm_app_credentials_new_server_api_key');
-  late final _realm_app_credentials_new_server_api_key =
-      _realm_app_credentials_new_server_api_keyPtr.asFunction<
-          ffi.Pointer<realm_app_credentials_t> Function(
-              ffi.Pointer<ffi.Char>)>();
-
-  ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_user_api_key(
-    ffi.Pointer<ffi.Char> api_key,
-  ) {
-    return _realm_app_credentials_new_user_api_key(
-      api_key,
-    );
-  }
-
-  late final _realm_app_credentials_new_user_api_keyPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_app_credentials_t> Function(
-                  ffi.Pointer<ffi.Char>)>>(
-      'realm_app_credentials_new_user_api_key');
-  late final _realm_app_credentials_new_user_api_key =
-      _realm_app_credentials_new_user_api_keyPtr.asFunction<
           ffi.Pointer<realm_app_credentials_t> Function(
               ffi.Pointer<ffi.Char>)>();
 
@@ -11140,8 +11121,7 @@ abstract class realm_auth_provider {
   static const int RLM_AUTH_PROVIDER_CUSTOM = 5;
   static const int RLM_AUTH_PROVIDER_EMAIL_PASSWORD = 6;
   static const int RLM_AUTH_PROVIDER_FUNCTION = 7;
-  static const int RLM_AUTH_PROVIDER_USER_API_KEY = 8;
-  static const int RLM_AUTH_PROVIDER_SERVER_API_KEY = 9;
+  static const int RLM_AUTH_PROVIDER_API_KEY = 8;
 }
 
 final class realm_binary extends ffi.Struct {
