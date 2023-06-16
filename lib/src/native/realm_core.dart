@@ -3029,18 +3029,21 @@ extension on Pointer<Utf8> {
 extension on realm_sync_error {
   _UserInfo? toUserInfo(App app) {
     final userInfoMap = user_info_map.toMap(user_info_length);
-    _UserInfo? userInfo;
-    if (userInfoMap != null && user_info_length > 0) {
-      final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
-      final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
-      final recoveryFilePath = userInfoMap[recoveryFilePathKey];
+    if (userInfoMap == null || user_info_length == 0) {
+      return null;
+    }
+    final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
       final originalFilePath = userInfoMap[originalFilePathKey];
       if (originalFilePath == null) {
         throw RealmError("Missing original file path in syncError");
       }
-      userInfo = _UserInfo(app, originalFilePath, recoveryFilePath);
+      
+    final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
+    final recoveryFilePath = userInfoMap[recoveryFilePathKey];
+    if (recoveryFilePath == null) {
+      throw RealmError("Missing backup file path in syncError");
     }
-    return userInfo;
+    return _UserInfo(app, originalFilePath, recoveryFilePath);
   }
 
   List<CompensatingWriteInfo>? toCompensatingWrites() {
@@ -3049,8 +3052,8 @@ extension on realm_sync_error {
 
   _SyncErrorDetails toSyncErrorDetails() {
     final message = error_code.message.cast<Utf8>().toRealmDartString()!;
-    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
+    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
     return _SyncErrorDetails(
       message,
       category,
@@ -3080,7 +3083,7 @@ extension on Pointer<realm_sync_error_user_info> {
 
 extension on Pointer<realm_sync_error_compensating_write_info> {
   List<CompensatingWriteInfo>? toList(int length) {
-    if (this == nullptr) {
+    if (this == nullptr || length == 0) {
       return null;
     }
     List<CompensatingWriteInfo> compensatingWrites = [];
@@ -3109,8 +3112,8 @@ SyncError _createSyncError(_SyncErrorDetails error, {_UserInfo? userInfo, List<C
     if (userInfo == null) {
       throw RealmError("Parameter 'userInfo' is required for creating ClientResetError");
     }
-    return ClientResetError(error.message, userInfo.app, error.category, error.code, userInfo.originalFilePath,
-        backupFilePath: userInfo.backupFilePath, detailedMessage: error.detailedMessage);
+    return ClientResetError(error.message, userInfo.app, error.category, error.code, userInfo.originalFilePath, userInfo.backupFilePath,
+        detailedMessage: error.detailedMessage);
   }
 
   switch (error.category) {
@@ -3351,7 +3354,7 @@ extension PlatformEx on Platform {
 class _UserInfo {
   final App app;
   final String originalFilePath;
-  final String? backupFilePath;
+  final String backupFilePath;
 
   const _UserInfo(this.app, this.originalFilePath, this.backupFilePath);
 }

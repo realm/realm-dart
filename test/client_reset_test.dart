@@ -458,7 +458,7 @@ Future<void> main([List<String>? args]) async {
     expect(onBeforeResetOccurred, 1);
 
     expect(clientResetErrorOnManualFallback.category, SyncErrorCategory.client);
-    expect(clientResetErrorOnManualFallback.isAutoClientReset, isTrue);
+    expect(clientResetErrorOnManualFallback.isAutomaticClientReset, isTrue);
     print(clientResetErrorOnManualFallback.code);
     expect(clientResetErrorOnManualFallback.code, SyncSessionErrorCode.unknown);
   });
@@ -557,6 +557,7 @@ Future<void> main([List<String>? args]) async {
     await resetCompleter.future.wait(defaultWaitTimeout, "ClientResetError is not reported.");
     expect(clientResetError.category, SyncErrorCategory.session);
     expect(clientResetError.code, SyncSessionErrorCode.badClientFileIdent);
+    expect(clientResetError.isAutomaticClientReset, isFalse);
     expect(clientResetError.isFatal, isTrue);
     expect(clientResetError.message, isNotEmpty);
     expect(clientResetError.detailedMessage, isNotEmpty);

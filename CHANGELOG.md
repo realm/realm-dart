@@ -1,5 +1,8 @@
 ## vNext (TBD)
 
+### Breaking Changes
+* The constructor of `ClientResetError` is changed to require error category and error code arguments and the `Configuration` parameter is now replaced by the `App` parameter. The `code` that was of type `SyncClientErrorCode` is now of type `SyncSessionErrorCode`. In case of fallback on client reset `isAutomaticClientReset` will return true. `SyncClientErrorCode.autoClientResetFailure` is no more returned as a code of `ClientResetError` ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+
 ### Enhancements
 * Added `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
