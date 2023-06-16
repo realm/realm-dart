@@ -3410,9 +3410,9 @@ class _UserInfo {
 
 class _SyncErrorDetails {
   final String message;
-  final String? detailedMessage;
   final SyncErrorCategory category;
   final int code;
+  final String? detailedMessage;
   final bool isFatal;
   final bool isClientResetRequested;
 
