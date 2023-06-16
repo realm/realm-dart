@@ -24,8 +24,15 @@ end
 
 # This works cause realm plugin is always accessed through the .symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/macos/Flutter/ephemeral/.symlinks/plugins/realm/macos
-#project_dir = File.expand_path("../../../../../../", realmPackageDir)
-#puts "project dir is #{project_dir}"
+project_dir = File.expand_path("../../../../../../", realmPackageDir)
+puts "project dir is #{project_dir}"
+app_dir = File.expand_path("../", project_dir)
+puts "app dir is #{app_dir}"
+contents = IO.read("#{app_dir}/pubspec.yaml")
+match = contents.match("name:[ \r\n\t]*([a-z0-9_]*)")
+bundleId = match[1]
+puts "bundleId is #{bundleId}"
+
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
@@ -42,6 +49,7 @@ Pod::Spec.new do |s|
   s.dependency                  'FlutterMacOS'
 
   s.platform                  = :osx, '10.11'
+  s.compiler_flags             = "-DBUNDLE_ID='\"#{bundleId}\"'"
   s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version             = '5.0'
   s.vendored_libraries        = "#{realmLibName}"

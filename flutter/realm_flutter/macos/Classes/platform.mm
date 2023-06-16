@@ -4,7 +4,12 @@
 
 #import "realm_plugin.h"
 
+#ifndef BUNDLE_ID
+#define BUNDLE_ID "realm_bundle_id"
+#endif
+
 static std::string filesDir;
+static std::string bundleId = BUNDLE_ID;
 
 std::string default_realm_file_directory()
 {
@@ -29,4 +34,8 @@ RLM_API const char* realm_dart_get_app_directory() {
     filesDir = ss.str();
 
     return filesDir.c_str();
+}
+ 
+RLM_API const char* realm_dart_get_bundle_id() {
+    return bundleId.c_str();
 }

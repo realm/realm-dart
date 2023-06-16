@@ -494,6 +494,12 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
       - name: Fetch artifacts
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
@@ -666,7 +672,7 @@ jobs:
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
 
   slack-on-failure:
-    name: Slack on failure in main
+    name: Report failure in main branch
     needs: 
       - cleanup-dart-matrix
       - cleanup-flutter-matrix

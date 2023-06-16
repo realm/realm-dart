@@ -16,7 +16,7 @@ This package is part of the official Realm Flutter and Realm Dart SDKs https://g
 
 To generate RealmObjects
 
-* Run `flutter pub run realm generate` for Flutter projects
+* Run `dart run realm generate` for Flutter projects
 
 * Run `dart run realm_dart generate` for Dart projects
 
