@@ -3076,7 +3076,7 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  _UserInfo? toUserInfo(App app) {
+  _SyncErrorUserInfo? toUserInfo(App app) {
     final userInfoMap = user_info_map.toMap(user_info_length);
     if (userInfoMap == null || user_info_length == 0) {
       return null;
@@ -3092,7 +3092,7 @@ extension on realm_sync_error {
     if (recoveryFilePath == null) {
       throw RealmError("Missing backup file path in syncError");
     }
-    return _UserInfo(app, originalFilePath, recoveryFilePath);
+    return _SyncErrorUserInfo(app, originalFilePath, recoveryFilePath);
   }
 
   List<CompensatingWriteInfo>? toCompensatingWrites() {
@@ -3155,7 +3155,7 @@ extension on Pointer<realm_sync_error_code_t> {
   }
 }
 
-SyncError _createSyncError(_SyncErrorDetails error, {_UserInfo? userInfo, List<CompensatingWriteInfo>? compensatingWrites}) {
+SyncError _createSyncError(_SyncErrorDetails error, {_SyncErrorUserInfo? userInfo, List<CompensatingWriteInfo>? compensatingWrites}) {
   if (error.isClientResetRequested) {
     //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode value
     if (userInfo == null) {
@@ -3400,12 +3400,12 @@ extension PlatformEx on Platform {
   }
 }
 
-class _UserInfo {
+class _SyncErrorUserInfo {
   final App app;
   final String originalFilePath;
   final String backupFilePath;
 
-  const _UserInfo(this.app, this.originalFilePath, this.backupFilePath);
+  const _SyncErrorUserInfo(this.app, this.originalFilePath, this.backupFilePath);
 }
 
 class _SyncErrorDetails {
