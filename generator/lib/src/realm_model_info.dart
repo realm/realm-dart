@@ -36,9 +36,9 @@ class RealmModelInfo {
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
-      final allSettableFields = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
+      final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
 
-      final fieldsWithDefaultValue = allSettableFields.where((f) => f.hasDefaultValue && !f.type.isUint8List).toList();
+      final fieldsWithDefaultValue = allSettable.where((f) => f.hasDefaultValue && !f.type.isUint8List).toList();
       final shouldEmitDefaultsSet = fieldsWithDefaultValue.isNotEmpty;
       if (shouldEmitDefaultsSet) {
         yield 'static var _defaultsSet = false;';
@@ -47,10 +47,10 @@ class RealmModelInfo {
 
       yield '$name(';
       {
-        final required = allSettableFields.where((f) => f.isRequired || f.isPrimaryKey);
+        final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
-        final notRequired = allSettableFields.where((f) => !f.isRequired && !f.isPrimaryKey);
+        final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
         final collections = fields.where((f) => f.isRealmCollection && !f.isDartCoreSet).toList();
         final sets = fields.where((f) => f.isDartCoreSet).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty || sets.isNotEmpty) {
@@ -76,7 +76,7 @@ class RealmModelInfo {
           yield '}';
         }
 
-        yield* allSettableFields.map((f) {
+        yield* allSettable.map((f) {
           if (f.type.isUint8List && f.hasDefaultValue) {
             return "RealmObjectBase.set(this, '${f.realmName}', ${f.name} ?? ${f.fieldElement.initializerExpression});";
           }
