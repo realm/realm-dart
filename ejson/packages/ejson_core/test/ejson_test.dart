@@ -18,8 +18,8 @@
 
 import 'dart:convert';
 
-import 'package:ejson_core/ejson_core.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:ejson_core/ejson_core.dart';
 import 'package:test/test.dart';
 
 import 'ejson_serialization_setup.g.dart';

@@ -16,14 +16,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:ejson/ejson.dart';
-
 import 'dart:async';
 import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
+
+import 'package:args/args.dart';
+import 'package:ejson/ejson.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
@@ -37,8 +37,8 @@ import 'baas_helper.dart';
 
 export 'baas_helper.dart' show AppNames;
 
-part 'test.realm.dart';
 part 'test.g.dart';
+part 'test.realm.dart';
 
 @RealmModel()
 class _Car {

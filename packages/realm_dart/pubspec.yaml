@@ -17,7 +17,7 @@ dependencies:
   collection: ^1.16.0
   crypto: ^3.0.0
   ejson_annotation: ^0.1.0
-  ejson: ^0.1.0
+  ejson_core: ^0.1.0
   ffi: ^2.0.1
   json_annotation: ^4.7.0
   logging: ^1.2.0
@@ -36,7 +36,8 @@ dependencies:
   cancellation_token: ^2.0.0
 
 dev_dependencies:
-  build_cli: ^2.2.2
+  build_cli: ^2.2.0
+  ejson: ^0.1.0
   ejson_generator: ^0.1.0
   json_serializable: ^6.3.1
   lints: ^3.0.0

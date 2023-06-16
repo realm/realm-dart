@@ -11,16 +11,29 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-Support for serializing and deserializing Extended JSON ([EJson](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/)) 
+Support for serializing and deserializing Extended JSON ([EJson](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/))
+
+| package          |             |     |
+| ---------------- | ----------- | --- |
+| ejson            | | [![pub package](https://img.shields.io/pub/v/ejson.svg)](https://pub.dartlang.org/packages/ejson) |
+| ejson_annotation | | [![pub package](https://img.shields.io/pub/v/ejson_annotation.svg)](https://pub.dartlang.org/packages/ejson_annotation) |
+| ejson_core       | | [![pub package](https://img.shields.io/pub/v/ejson_core.svg)](https://pub.dartlang.org/packages/ejson_core) |
+| ejson_generator  | | [![pub package](https://img.shields.io/pub/v/ejson_generator.svg)](https://pub.dartlang.org/packages/ejson_generator) |
+| ejson_lint       | | [![pub package](https://img.shields.io/pub/v/ejson_lint.svg)](https://pub.dartlang.org/packages/ejson_lint) |
+| ejson_analyze    | | [![pub package](https://img.shields.io/pub/v/ejson.svg)](https://pub.dartlang.org/packages/ejson) |
+
 
 ## Features
 
-
+* Support EJson de-/serialization of:
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This package require Dart 3.
+
+For an app the simplest way to support EJson is to take a dependency on ejson. This will include all needed packages by transitive closure.
+
+However, all packages will be included as direct dependencies, wheres as
 
 ## Usage
 
@@ -33,6 +46,4 @@ const like = 'sample';
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+You can read more about EJson at https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/

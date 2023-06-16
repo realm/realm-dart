@@ -12,7 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ejson: ^0.1.0
+  ejson_annotation: ^0.1.0
+  ejson_core: ^0.1.0
   realm:
     # When depending on this package from a real application you should use:
     #   realm_flutter: ^x.y.z
@@ -22,10 +23,12 @@ dependencies:
     path: ../
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter  
-  flutter_lints: ^3.0.1
-  test: any
+  flutter_driver:
+    sdk: flutter
+  ejson: ^0.1.0
+  flutter_lints: ^2.0.1
+  build_runner: ^2.1.2
+  test: ^1.20.1
   timezone: ^0.9.0
   integration_test:
     sdk: flutter
