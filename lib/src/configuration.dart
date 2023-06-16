@@ -606,15 +606,19 @@ class ClientResetError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal = true;
 
-  /// The [SyncClientErrorCode] value indicating the type of the sync error.
-  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
+  /// When [isAutoClientReset] is `true` an automatic recovery has been attempted but it failed on client side.
+  bool get isAutoClientReset => category == SyncErrorCategory.client && SyncClientErrorCode.fromInt(codeValue) == SyncClientErrorCode.autoClientResetFailure;
+
+  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
+  SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
   final String? backupFilePath;
 
-  ClientResetError(String message, this._app, SyncClientErrorCode errorCode, String originalFilePath, {this.backupFilePath, String? detailedMessage})
+  ClientResetError(String message, this._app, SyncErrorCategory category, int errorCodeValue, String originalFilePath,
+      {this.backupFilePath, String? detailedMessage})
       : _originalFilePath = originalFilePath,
-        super(message, SyncErrorCategory.client, errorCode.code, detailedMessage: detailedMessage);
+        super(message, category, errorCodeValue, detailedMessage: detailedMessage);
 
   @override
   String toString() {

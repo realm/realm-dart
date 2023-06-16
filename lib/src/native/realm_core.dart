@@ -3109,8 +3109,7 @@ SyncError _createSyncError(_SyncErrorDetails error, {_UserInfo? userInfo, List<C
     if (userInfo == null) {
       throw RealmError("Parameter 'userInfo' is required for creating ClientResetError");
     }
-    final errorCode = SyncClientErrorCode.fromInt(error.code);
-    return ClientResetError(error.message, userInfo.app, errorCode, userInfo.originalFilePath,
+    return ClientResetError(error.message, userInfo.app, error.category, error.code, userInfo.originalFilePath,
         backupFilePath: userInfo.backupFilePath, detailedMessage: error.detailedMessage);
   }
 

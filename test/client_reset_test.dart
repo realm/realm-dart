@@ -423,6 +423,7 @@ Future<void> main([List<String>? args]) async {
     int manualResetFallbackOccurred = 0;
     final manualResetFallbackCompleter = Completer<void>();
 
+    late ClientResetError clientResetErrorOnManualFallback;
     final config = Configuration.flexibleSync(
       user,
       [Task.schema, Schedule.schema],
@@ -437,6 +438,7 @@ Future<void> main([List<String>? args]) async {
         },
         onManualResetFallback: (clientResetError) {
           manualResetFallbackOccurred++;
+          clientResetErrorOnManualFallback = clientResetError;
           if (onAfterResetOccurred == 0) {
             manualResetFallbackCompleter.completeError(Exception("AfterResetCallback is still not completed when onManualResetFallback starts."));
           }
@@ -454,6 +456,11 @@ Future<void> main([List<String>? args]) async {
     expect(manualResetFallbackOccurred, 1);
     expect(onAfterResetOccurred, 1);
     expect(onBeforeResetOccurred, 1);
+
+    expect(clientResetErrorOnManualFallback.category, SyncErrorCategory.client);
+    expect(clientResetErrorOnManualFallback.isAutoClientReset, isTrue);
+    print(clientResetErrorOnManualFallback.code);
+    expect(clientResetErrorOnManualFallback.code, SyncSessionErrorCode.unknown);
   });
 
   // 1. userA adds [task0, task1, task2] and syncs it, then disconnects
@@ -548,8 +555,8 @@ Future<void> main([List<String>? args]) async {
 
     await triggerClientReset(realm);
     await resetCompleter.future.wait(defaultWaitTimeout, "ClientResetError is not reported.");
-    expect(clientResetError.category, SyncErrorCategory.client);
-    expect(clientResetError.code, SyncClientErrorCode.autoClientResetFailure);
+    expect(clientResetError.category, SyncErrorCategory.session);
+    expect(clientResetError.code, SyncSessionErrorCode.badClientFileIdent);
     expect(clientResetError.isFatal, isTrue);
     expect(clientResetError.message, isNotEmpty);
     expect(clientResetError.detailedMessage, isNotEmpty);
