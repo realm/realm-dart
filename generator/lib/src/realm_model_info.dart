@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:typed_data';
-
 import 'package:realm_common/realm_common.dart';
 
 import 'dart_type_ex.dart';
