@@ -579,10 +579,7 @@ class _RealmCore {
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
 
-    final syncError = _createSyncError(
-      error.toSyncErrorDetails(),
-      config: syncConfig,
-    );
+    final syncError = _createSyncError(error.toSyncErrorDetails(), config: syncConfig);
 
     if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
@@ -2299,8 +2296,6 @@ class _RealmCore {
       return "realm_bundle_id";
     }
 
-    ;
-
     String bundleId = readBundleId();
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
@@ -3086,8 +3081,7 @@ extension on realm_sync_error {
         return null;
       }
       final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
-      final recoveryFilePath = userInfoMap[recoveryFilePathKey];
-      return recoveryFilePath;
+      return userInfoMap[recoveryFilePathKey];
     }
 
     return _SyncErrorDetails(
