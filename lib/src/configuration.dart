@@ -614,7 +614,7 @@ class ClientResetError extends SyncError {
   SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
 
   /// The [SyncSessionErrorCode] value indicating the type of the sync error.
-  /// sessionErrorCode is [SyncSessionErrorCode.unknown] `onManualResetFallback` occurs.
+  /// This property will be [SyncSessionErrorCode.unknown] if `onManualResetFallback` occurs on client reset.
   SyncSessionErrorCode get sessionErrorCode => SyncSessionErrorCode.fromInt(codeValue);
 
   ClientResetError(
