@@ -600,32 +600,37 @@ enum ClientResyncModeInternal {
 /// An error type that describes a client reset error condition.
 /// {@category Sync}
 class ClientResetError extends SyncError {
-  final App _app;
-  final String _originalFilePath;
-
   /// If true the received error is fatal.
   final bool isFatal = true;
 
-  /// If [isAutomaticClientReset] is `true` this means that an automatic recovery has been attempted but it failed on client side.
-  bool get isAutomaticClientReset => category == SyncErrorCategory.client && codeValue == SyncClientErrorCode.autoClientResetFailure.code;
-
-  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
-  SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
+  // The instance of [Configuration] that [ClientResetError] is thrown for.
+  final Configuration? _config;
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
-  final String backupFilePath;
+  final String? backupFilePath;
+
+  /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
+  /// when a client reset fails and `onManualResetFallback` occurs. Otherwise, it is [SyncClientErrorCode.unknown]
+  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
+
+  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
+  /// sessionErrorCode is [SyncSessionErrorCode.unknown] `onManualResetFallback` occurs.
+  SyncSessionErrorCode get sessionErrorCode => SyncSessionErrorCode.fromInt(codeValue);
 
   ClientResetError(
-    String message,
-    this._app,
-    SyncErrorCategory category,
-    int errorCodeValue,
-    String originalFilePath,
-    this.backupFilePath, {
+    String message, {
+    Configuration? config,
+    SyncErrorCategory category = SyncErrorCategory.client,
+    int? errorCodeValue,
+    this.backupFilePath,
     String? detailedMessage,
-  })
-      : _originalFilePath = originalFilePath,
-        super(message, category, errorCodeValue, detailedMessage: detailedMessage);
+  })  : _config = config,
+        super(
+          message,
+          category,
+          errorCodeValue ?? SyncClientErrorCode.autoClientResetFailure.code,
+          detailedMessage: detailedMessage,
+        );
 
   @override
   String toString() {
@@ -636,7 +641,11 @@ class ClientResetError extends SyncError {
   ///
   /// Returns `true` if actions were run successfully, `false` otherwise.
   bool resetRealm() {
-    return realmCore.immediatelyRunFileActions(_app, _originalFilePath);
+    if (_config is! FlexibleSyncConfiguration) {
+      throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
+    }
+    final flexibleConfig = _config as FlexibleSyncConfiguration;
+    return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
   }
 }
 
@@ -661,6 +670,10 @@ class SyncError extends RealmError {
   static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
       case SyncErrorCategory.client:
+        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
+        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
+          return ClientResetError(message);
+        }
         return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.connection:
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
@@ -828,7 +841,6 @@ enum GeneralSyncErrorCode {
 /// Contains the details for a compensating write performed by the server.
 /// {@category Sync}
 class CompensatingWriteInfo {
-  
   /// The type of the object which was affected by the compensating write.
   final String objectType;
 
@@ -855,13 +867,13 @@ class CompensatingWriteError extends SyncError {
   SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
 
   /// The list of the compensating writes performed by the server.
-  late final List<CompensatingWriteInfo> compensatingWrites;
+  late final List<CompensatingWriteInfo>? compensatingWrites;
 
   CompensatingWriteError(
-    String message,
+    String message, {
     String? detailedMessage,
     this.compensatingWrites,
-  ) : super(message, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code, detailedMessage: detailedMessage);
+  }) : super(message, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
