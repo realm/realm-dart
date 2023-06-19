@@ -458,9 +458,8 @@ Future<void> main([List<String>? args]) async {
     expect(onBeforeResetOccurred, 1);
 
     expect(clientResetErrorOnManualFallback.category, SyncErrorCategory.client);
-    expect(clientResetErrorOnManualFallback.isAutomaticClientReset, isTrue);
-    print(clientResetErrorOnManualFallback.code);
-    expect(clientResetErrorOnManualFallback.code, SyncSessionErrorCode.unknown);
+    expect(clientResetErrorOnManualFallback.code, SyncClientErrorCode.autoClientResetFailure);
+    expect(clientResetErrorOnManualFallback.sessionErrorCode, SyncSessionErrorCode.unknown);
   });
 
   // 1. userA adds [task0, task1, task2] and syncs it, then disconnects
@@ -556,8 +555,8 @@ Future<void> main([List<String>? args]) async {
     await triggerClientReset(realm);
     await resetCompleter.future.wait(defaultWaitTimeout, "ClientResetError is not reported.");
     expect(clientResetError.category, SyncErrorCategory.session);
-    expect(clientResetError.code, SyncSessionErrorCode.badClientFileIdent);
-    expect(clientResetError.isAutomaticClientReset, isFalse);
+    expect(clientResetError.code, SyncClientErrorCode.unknown);
+    expect(clientResetError.sessionErrorCode, SyncSessionErrorCode.badClientFileIdent);
     expect(clientResetError.isFatal, isTrue);
     expect(clientResetError.message, isNotEmpty);
     expect(clientResetError.detailedMessage, isNotEmpty);
