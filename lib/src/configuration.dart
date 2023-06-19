@@ -877,6 +877,6 @@ class CompensatingWriteError extends SyncError {
 
   @override
   String toString() {
-    return "CompensatingWriteError message: $message category: $category code: $code. $compensatingWrites";
+    return "CompensatingWriteError message: $message category: $category code: $code. ${compensatingWrites ?? ''}";
   }
 }
