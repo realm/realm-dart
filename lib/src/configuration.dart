@@ -674,7 +674,7 @@ class SyncError extends RealmError {
         if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
           return ClientResetError(message);
         }
-        return SyncClientError(message, category, SyncClientErrorCode.fromInt(code), isFatal: isFatal);
+        return SyncClientError(message, category, errorCode, isFatal: isFatal);
       case SyncErrorCategory.connection:
         return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
       case SyncErrorCategory.session:
