@@ -577,9 +577,7 @@ class _RealmCore {
   }
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
-    //TODO: Take the app from the sesison after fixing issue https://github.com/realm/realm-dart/issues/633
     final syncConfig = userdata as FlexibleSyncConfiguration;
-    final app = syncConfig.user.app;
 
     final syncError = _createSyncError(
       error.toSyncErrorDetails(),
@@ -3163,10 +3161,7 @@ SyncError _createSyncError(_SyncErrorDetails error, {Configuration? config}) {
     case SyncErrorCategory.session:
       final errorCode = SyncSessionErrorCode.fromInt(error.code);
       if (errorCode == SyncSessionErrorCode.compensatingWrite) {
-        if (error.compensatingWrites == null) {
-          throw RealmError("Parameter 'compensatingWrites' is required for creating CompensatingWriteError");
-        }
-        return CompensatingWriteError(error.message, error.detailedMessage, error.compensatingWrites!);
+        return CompensatingWriteError(error.message, detailedMessage: error.detailedMessage, compensatingWrites: error.compensatingWrites);
       }
       return SyncSessionError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
     case SyncErrorCategory.webSocket:
