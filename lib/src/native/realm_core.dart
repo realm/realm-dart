@@ -3075,14 +3075,8 @@ extension on realm_sync_error {
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
 
-    String? getBackupFilePath() {
-      final userInfoMap = user_info_map.toMap(user_info_length);
-      if (userInfoMap == null || user_info_length == 0) {
-        return null;
-      }
-      final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
-      return userInfoMap[recoveryFilePathKey];
-    }
+    final userInfoMap = user_info_map.toMap(user_info_length);
+    final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
 
     return _SyncErrorDetails(
       message,
@@ -3091,7 +3085,7 @@ extension on realm_sync_error {
       detailedMessage: detailedMessage,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
-      backupFilePath: getBackupFilePath(),
+      backupFilePath: userInfoMap?[recoveryFilePathKey],
       compensatingWrites: compensating_writes.toList(compensating_writes_length),
     );
   }
