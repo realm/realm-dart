@@ -21,6 +21,7 @@ import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
@@ -116,6 +117,13 @@ class _Schedule {
 }
 
 @RealmModel()
+class _Foo {
+  late Uint8List requiredBinaryProp;
+  var defaultValueBinaryProp = Uint8List(8);
+  late Uint8List? nullableBinaryProp;
+}
+
+@RealmModel()
 class _AllTypes {
   late String stringProp;
   late bool boolProp;
@@ -125,6 +133,7 @@ class _AllTypes {
   late Uuid uuidProp;
   late int intProp;
   late Decimal128 decimalProp;
+  var binaryProp = Uint8List(16);
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -134,6 +143,7 @@ class _AllTypes {
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
   late Decimal128? nullableDecimalProp;
+  late Uint8List? nullableBinaryProp;
 }
 
 @RealmModel()

@@ -36,8 +36,9 @@ class RealmModelInfo {
     {
       final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
 
-      final hasDefaults = allSettable.where((f) => f.hasDefaultValue).toList();
-      if (hasDefaults.isNotEmpty) {
+      final fieldsWithDefaultValue = allSettable.where((f) => f.hasDefaultValue && !f.type.isUint8List).toList();
+      final shouldEmitDefaultsSet = fieldsWithDefaultValue.isNotEmpty;
+      if (shouldEmitDefaultsSet) {
         yield 'static var _defaultsSet = false;';
         yield '';
       }
@@ -52,7 +53,12 @@ class RealmModelInfo {
         final sets = fields.where((f) => f.isDartCoreSet).toList();
         if (notRequired.isNotEmpty || collections.isNotEmpty || sets.isNotEmpty) {
           yield '{';
-          yield* notRequired.map((f) => '${f.mappedTypeName} ${f.name}${f.initializer},');
+          yield* notRequired.map((f) {
+            if (f.type.isUint8List && f.hasDefaultValue) {
+              return '${f.mappedTypeName}? ${f.name},';
+            }
+            return '${f.mappedTypeName} ${f.name}${f.initializer},';
+          });
           yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield* sets.map((c) => 'Set<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield '}';
@@ -60,15 +66,19 @@ class RealmModelInfo {
 
         yield ') {';
 
-        if (hasDefaults.isNotEmpty) {
+        if (shouldEmitDefaultsSet) {
           yield 'if (!_defaultsSet) {';
           yield '  _defaultsSet = RealmObjectBase.setDefaults<$name>({';
-          yield* hasDefaults.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
+          yield* fieldsWithDefaultValue.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
           yield '  });';
           yield '}';
         }
 
         yield* allSettable.map((f) {
+          if (f.type.isUint8List && f.hasDefaultValue) {
+            return "RealmObjectBase.set(this, '${f.realmName}', ${f.name} ?? ${f.fieldElement.initializerExpression});";
+          }
+
           return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
         });
 

@@ -37,7 +37,7 @@ import 'session.dart';
 import 'type_checkers.dart';
 
 extension FieldElementEx on FieldElement {
-  static const realmSetUnsupportedRealmTypes = [RealmPropertyType.binary, RealmPropertyType.linkingObjects];
+  static const realmSetUnsupportedRealmTypes = [RealmPropertyType.linkingObjects];
 
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 

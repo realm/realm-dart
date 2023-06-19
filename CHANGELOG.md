@@ -16,7 +16,8 @@
 ## 1.2.0 (2023-06-08)
 
 ### Enhancements
-* Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
+  * Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
+  * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
   * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
   * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
 
