@@ -579,7 +579,7 @@ class _RealmCore {
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     // TODO: Take the app from the session instead of from syncConfig after fixing issue https://github.com/realm/realm-dart/issues/633
-    final syncError = _createSyncError(error.toSyncErrorDetails(), app: syncConfig.user.app);
+    final syncError = SyncErrorInternal.createSyncError(error.toSyncErrorDetails(), app: syncConfig.user.app);
 
     if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
@@ -2953,13 +2953,12 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
   } else if (value is Decimal128) {
     realm_value.ref.values.decimal128 = value.value;
     realm_value.ref.type = realm_value_type.RLM_TYPE_DECIMAL128;
-  }  else if (value is Uint8List) {
+  } else if (value is Uint8List) {
     realm_value.ref.type = realm_value_type.RLM_TYPE_BINARY;
     realm_value.ref.values.binary.size = value.length;
     realm_value.ref.values.binary.data = allocator<Uint8>(value.length);
     realm_value.ref.values.binary.data.asTypedList(value.length).setAll(0, value);
-  }
-  else {
+  } else {
     throw RealmException("Property type ${value.runtimeType} not supported");
   }
 }
@@ -3074,7 +3073,7 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  _SyncErrorDetails toSyncErrorDetails() {
+  SyncErrorDetails toSyncErrorDetails() {
     final message = error_code.message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
@@ -3083,7 +3082,7 @@ extension on realm_sync_error {
     final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
     final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
 
-    return _SyncErrorDetails(
+    return SyncErrorDetails(
       message,
       category,
       error_code.value,
@@ -3133,43 +3132,8 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = _SyncErrorDetails(message, SyncErrorCategory.values[ref.category], ref.value);
-    return _createSyncError(details);
-  }
-}
-
-SyncError _createSyncError(_SyncErrorDetails error, {App? app}) {
-  if (error.isClientResetRequested) {
-    //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode and SyncSessionErrorCode values
-    return ClientResetError(error.message,
-        app: app,
-        category: error.category,
-        errorCodeValue: error.code,
-        originalFilePath: error.originalFilePath,
-        backupFilePath: error.backupFilePath,
-        detailedMessage: error.detailedMessage);
-  }
-
-  switch (error.category) {
-    case SyncErrorCategory.client:
-      final errorCode = SyncClientErrorCode.fromInt(error.code);
-      return SyncClientError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
-    case SyncErrorCategory.connection:
-      final errorCode = SyncConnectionErrorCode.fromInt(error.code);
-      return SyncConnectionError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
-    case SyncErrorCategory.session:
-      final errorCode = SyncSessionErrorCode.fromInt(error.code);
-      if (errorCode == SyncSessionErrorCode.compensatingWrite) {
-        return CompensatingWriteError(error.message, detailedMessage: error.detailedMessage, compensatingWrites: error.compensatingWrites);
-      }
-      return SyncSessionError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage, isFatal: error.isFatal);
-    case SyncErrorCategory.webSocket:
-      final errorCode = SyncWebSocketErrorCode.fromInt(error.code);
-      return SyncWebSocketError(error.message, error.category, errorCode, detailedMessage: error.detailedMessage);
-    case SyncErrorCategory.system:
-    case SyncErrorCategory.unknown:
-    default:
-      return GeneralSyncError(error.message, error.category, error.code, detailedMessage: error.detailedMessage);
+    final details = SyncErrorDetails(message, SyncErrorCategory.values[ref.category], ref.value);
+    return SyncErrorInternal.createSyncError(details);
   }
 }
 
@@ -3382,7 +3346,8 @@ extension PlatformEx on Platform {
   }
 }
 
-class _SyncErrorDetails {
+/// @nodoc
+class SyncErrorDetails {
   final String message;
   final SyncErrorCategory category;
   final int code;
@@ -3392,7 +3357,7 @@ class _SyncErrorDetails {
   final String? originalFilePath;
   final String? backupFilePath;
   final List<CompensatingWriteInfo>? compensatingWrites;
-  const _SyncErrorDetails(
+  const SyncErrorDetails(
     this.message,
     this.category,
     this.code, {

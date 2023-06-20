@@ -1,19 +1,12 @@
 ## vNext (TBD)
 
-### Breaking Changes
-* The constructor of `ClientResetError` is changed to receive a named parameter of type `App` instead of the positional parameter of type `Configuration`. Instances of `ClientResetError` are created automatically on client reset events ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-
 ### Enhancements
 * Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
-* Added new properties to `ClientResetError` ([#1291](https://github.com/realm/realm-dart/pull/1291)):
-  * `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed;
-  * `ClientResetError.sessionErrorCode`, which return the code of the error occurred during the device sync;
+* Extended `ClientResetError` to return the `backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291))
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-* Added `SyncError.detailedMessage` that contains error details. In case of a server error, it contains a link to the server logs with more error details ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-* `SyncError.create` is deprecated and it will be removed. The sync errors will be created only by internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Fixed
-* None
+* The constructors of `SyncError` and all its extended classes are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
