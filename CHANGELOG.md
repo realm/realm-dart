@@ -6,7 +6,7 @@
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Fixed
-* The constructors of `SyncError` and all its extended classes are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* The constructors of all `SyncError` types are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
