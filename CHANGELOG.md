@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Getting `Backlink` properties of unmanaged Realm objects will throw an error: "Using backlinks is only possible for managed objects" ([#1293](https://github.com/realm/realm-dart/pull/1293)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
@@ -63,7 +63,6 @@
 * Very slightly improve performance of runtime thread checking on the main thread on Apple platforms. (Core upgrade)
 
 ### Fixed
-
 * Fixed a bug that may have resulted in arrays being in different orders on different devices (Core upgrade).
 * Fixed a crash when querying a mixed property with a string operator (contains/like/beginswith/endswith) or with case insensitivity (Core upgrade).
 * Querying for equality of a string on an indexed mixed property was returning case insensitive matches. For example querying for `myIndexedMixed == "Foo"` would incorrectly match on values of "foo" or "FOO" etc (Core upgrade).
