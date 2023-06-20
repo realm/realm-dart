@@ -7,6 +7,7 @@
 
 ### Fixed
 * The constructors of all `SyncError` types are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Getting `Backlink` properties of unmanaged Realm objects will throw an error: "Using backlinks is only possible for managed objects" ([#1293](https://github.com/realm/realm-dart/pull/1293)).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

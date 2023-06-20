@@ -89,15 +89,27 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  RealmResults<Source> get oneToMany =>
-      RealmObjectBase.get<Source>(this, 'oneToMany') as RealmResults<Source>;
+  RealmResults<Source> get oneToMany {
+    if (!isManaged) {
+      throw RealmError('Using backlinks is only possible for managed objects.');
+    }
+    return RealmObjectBase.get<Source>(this, 'oneToMany')
+        as RealmResults<Source>;
+  }
+
   @override
   set oneToMany(covariant RealmResults<Source> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmResults<Source> get manyToMany =>
-      RealmObjectBase.get<Source>(this, 'manyToMany') as RealmResults<Source>;
+  RealmResults<Source> get manyToMany {
+    if (!isManaged) {
+      throw RealmError('Using backlinks is only possible for managed objects.');
+    }
+    return RealmObjectBase.get<Source>(this, 'manyToMany')
+        as RealmResults<Source>;
+  }
+
   @override
   set manyToMany(covariant RealmResults<Source> value) =>
       throw RealmUnsupportedSetError();
