@@ -2997,7 +2997,7 @@ extension on realm_value_t {
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
-        return Uint8List.fromList(ref.values.binary.data.asTypedList(ref.values.binary.size));
+        return Uint8List.fromList(values.binary.data.asTypedList(values.binary.size));
       case realm_value_type.RLM_TYPE_TIMESTAMP:
         final seconds = values.timestamp.seconds;
         final nanoseconds = values.timestamp.nanoseconds;

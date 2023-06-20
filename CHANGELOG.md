@@ -45,7 +45,6 @@
 ## 1.1.0 (2023-05-30)
 
 ### Enhancements
-
 * Add `RealmResults.isValid` ([#1231](https://github.com/realm/realm-dart/pull/1231)).
 * Support `Decimal128` datatype ([#1192](https://github.com/realm/realm-dart/pull/1192)).
 * Realm logging is extended to support logging of all Realm storage level messages. (Core upgrade).
@@ -72,7 +71,6 @@
 * Very slightly improve performance of runtime thread checking on the main thread on Apple platforms. (Core upgrade)
 
 ### Fixed
-
 * Fixed a bug that may have resulted in arrays being in different orders on different devices (Core upgrade).
 * Fixed a crash when querying a mixed property with a string operator (contains/like/beginswith/endswith) or with case insensitivity (Core upgrade).
 * Querying for equality of a string on an indexed mixed property was returning case insensitive matches. For example querying for `myIndexedMixed == "Foo"` would incorrectly match on values of "foo" or "FOO" etc (Core upgrade).
