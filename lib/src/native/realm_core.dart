@@ -578,8 +578,8 @@ class _RealmCore {
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
-
-    final syncError = _createSyncError(error.toSyncErrorDetails(), config: syncConfig);
+    // TODO: Take the app from the session instead of from syncConfig after fixing issue https://github.com/realm/realm-dart/issues/633
+    final syncError = _createSyncError(error.toSyncErrorDetails(), app: syncConfig.user.app);
 
     if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
@@ -3075,14 +3075,9 @@ extension on realm_sync_error {
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
     final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
 
-    String? getBackupFilePath() {
-      final userInfoMap = user_info_map.toMap(user_info_length);
-      if (userInfoMap == null || user_info_length == 0) {
-        return null;
-      }
-      final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
-      return userInfoMap[recoveryFilePathKey];
-    }
+    final userInfoMap = user_info_map.toMap(user_info_length);
+    final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
+    final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
 
     return _SyncErrorDetails(
       message,
@@ -3091,7 +3086,8 @@ extension on realm_sync_error {
       detailedMessage: detailedMessage,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
-      backupFilePath: getBackupFilePath(),
+      originalFilePath: userInfoMap?[originalFilePathKey],
+      backupFilePath: userInfoMap?[recoveryFilePathKey],
       compensatingWrites: compensating_writes.toList(compensating_writes_length),
     );
   }
@@ -3138,11 +3134,16 @@ extension on Pointer<realm_sync_error_code_t> {
   }
 }
 
-SyncError _createSyncError(_SyncErrorDetails error, {Configuration? config}) {
+SyncError _createSyncError(_SyncErrorDetails error, {App? app}) {
   if (error.isClientResetRequested) {
-    //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode value
+    //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode and SyncSessionErrorCode values
     return ClientResetError(error.message,
-        config: config, category: error.category, errorCodeValue: error.code, backupFilePath: error.backupFilePath, detailedMessage: error.detailedMessage);
+        app: app,
+        category: error.category,
+        errorCodeValue: error.code,
+        originalFilePath: error.originalFilePath,
+        backupFilePath: error.backupFilePath,
+        detailedMessage: error.detailedMessage);
   }
 
   switch (error.category) {
@@ -3384,6 +3385,7 @@ class _SyncErrorDetails {
   final String? detailedMessage;
   final bool isFatal;
   final bool isClientResetRequested;
+  final String? originalFilePath;
   final String? backupFilePath;
   final List<CompensatingWriteInfo>? compensatingWrites;
   const _SyncErrorDetails(
@@ -3393,6 +3395,7 @@ class _SyncErrorDetails {
     this.detailedMessage,
     this.isFatal = false,
     this.isClientResetRequested = false,
+    this.originalFilePath,
     this.backupFilePath,
     this.compensatingWrites,
   });

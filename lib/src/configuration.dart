@@ -600,12 +600,14 @@ enum ClientResyncModeInternal {
 /// An error type that describes a client reset error condition.
 /// {@category Sync}
 class ClientResetError extends SyncError {
-  /// If true the received error is fatal.
+  final App? _app;
+/// If true the received error is fatal.
   final bool isFatal = true;
 
-  // The instance of [Configuration] that [ClientResetError] is thrown for.
-  final Configuration? _config;
-
+  /// The path to the original copy of the realm when the client reset was triggered.
+  /// This realm may contain unsynced changes.
+  final String? originalFilePath;
+  
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
   final String? backupFilePath;
 
@@ -619,12 +621,13 @@ class ClientResetError extends SyncError {
 
   ClientResetError(
     String message, {
-    Configuration? config,
+    App? app,
     SyncErrorCategory category = SyncErrorCategory.client,
     int? errorCodeValue,
     this.backupFilePath,
+    this.originalFilePath,
     String? detailedMessage,
-  })  : _config = config,
+  })  : _app = app,
         super(
           message,
           category,
@@ -641,11 +644,13 @@ class ClientResetError extends SyncError {
   ///
   /// Returns `true` if actions were run successfully, `false` otherwise.
   bool resetRealm() {
-    if (_config is! FlexibleSyncConfiguration) {
-      throw RealmException("The current configuration is not FlexibleSyncConfiguration.");
+    if (_app == null) {
+      throw RealmException("This `ClientResetError` does not have an `Application` instance.");
     }
-    final flexibleConfig = _config as FlexibleSyncConfiguration;
-    return realmCore.immediatelyRunFileActions(flexibleConfig.user.app, flexibleConfig.path);
+    if (originalFilePath == null) {
+      throw RealmException("Missing `originalFilePath`");
+    }
+    return realmCore.immediatelyRunFileActions(_app!, originalFilePath!);
   }
 }
 

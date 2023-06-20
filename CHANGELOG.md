@@ -1,7 +1,10 @@
 ## vNext (TBD)
 
+### Breaking Changes
+* The constructor of `ClientResetError` is changed to receive a named parameter of type `App` instead of the positional parameter of type `Configuration`. Instances of `ClientResetError` are created automatically on client reset events ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+
 ### Enhancements
-* Added new properties to `ClientResetError` ([#1291](https://github.com/realm/realm-dart/pull/1291)): 
+* Added new properties to `ClientResetError` ([#1291](https://github.com/realm/realm-dart/pull/1291)):
   * `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed;
   * `ClientResetError.sessionErrorCode`, which return the code of the error occurred during the device sync;
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).

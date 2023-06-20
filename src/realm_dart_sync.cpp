@@ -70,6 +70,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     struct error_copy {
         std::string message;
         std::string detailed_message;
+        std::string original_file_path_key;
         std::string recovery_file_path_key;
         bool is_fatal;
         bool is_client_reset_requested;
@@ -81,6 +82,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
 
     buf.message = error.error_code.message;
     buf.detailed_message = std::string(error.detailed_message);
+    buf.original_file_path_key = std::string(error.c_original_file_path_key);
     buf.recovery_file_path_key = std::string(error.c_recovery_file_path_key);
     buf.is_fatal = error.is_fatal;
     buf.is_client_reset_requested = error.is_client_reset_requested;
@@ -112,6 +114,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         //we moved buf so we need to update the error pointers here.
         error.error_code.message = buf.message.c_str();
         error.detailed_message = buf.detailed_message.c_str();
+        error.c_original_file_path_key = buf.original_file_path_key.c_str();
         error.c_recovery_file_path_key = buf.recovery_file_path_key.c_str();
         error.is_fatal = buf.is_fatal;
         error.is_client_reset_requested = buf.is_client_reset_requested;
