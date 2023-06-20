@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
@@ -186,23 +187,25 @@ class RealmValue {
   const RealmValue.objectId(ObjectId id) : this._(id);
   const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
+  const RealmValue.uint8List(Uint8List binary) : this._(binary);
 
   /// Will throw [ArgumentError]
-  factory RealmValue.from(Object? o) {
-    if (o == null ||
-        o is bool ||
-        o is String ||
-        o is int ||
-        o is Float ||
-        o is double ||
-        o is RealmObjectMarker ||
-        o is DateTime ||
-        o is ObjectId ||
-        o is Decimal128 ||
-        o is Uuid) {
-      return RealmValue._(o);
+  factory RealmValue.from(Object? object) {
+    if (object == null ||
+        object is bool ||
+        object is String ||
+        object is int ||
+        object is Float ||
+        object is double ||
+        object is RealmObjectMarker ||
+        object is DateTime ||
+        object is ObjectId ||
+        object is Decimal128 ||
+        object is Uuid ||
+        object is Uint8List) {
+      return RealmValue._(object);
     } else {
-      throw ArgumentError.value(o, 'o', 'Unsupported type');
+      throw ArgumentError.value(object, 'object', 'Unsupported type');
     }
   }
 
@@ -211,6 +214,7 @@ class RealmValue {
     if (other is RealmValue) {
       return value == other.value;
     }
+
     return value == other;
   }
 

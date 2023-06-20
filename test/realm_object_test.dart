@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -552,7 +553,7 @@ Future<void> main([List<String>? args]) async {
     var uuid = Uuid.v4();
 
     final object = realm.write(() {
-      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten));
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten, binaryProp: Uint8List.fromList([1,2]), nullableBinaryProp: null));
     });
 
     expect(object.stringProp, 'cde');
@@ -563,6 +564,8 @@ Future<void> main([List<String>? args]) async {
     expect(object.uuidProp, uuid);
     expect(object.intProp, 4);
     expect(object.decimalProp, Decimal128.ten);
+    expect(object.binaryProp, Uint8List.fromList([1,2]));
+    expect(object.nullableBinaryProp, null);
 
     date = DateTime.now().add(Duration(days: 1)).toUtc();
     objectId = ObjectId();
@@ -576,6 +579,8 @@ Future<void> main([List<String>? args]) async {
       object.uuidProp = uuid;
       object.intProp = 5;
       object.decimalProp = Decimal128.one;
+      object.binaryProp = Uint8List.fromList([3, 4]);
+      object.nullableBinaryProp = Uint8List.fromList([5, 6]);
     });
 
     expect(object.stringProp, 'abc');
@@ -586,6 +591,8 @@ Future<void> main([List<String>? args]) async {
     expect(object.uuidProp, uuid);
     expect(object.intProp, 5);
     expect(object.decimalProp, Decimal128.one);
+    expect(object.binaryProp, Uint8List.fromList([3, 4]));
+    expect(object.nullableBinaryProp, Uint8List.fromList([5, 6]));
   });
 
   test('RealmObject.freeze when typed returns typed frozen object', () {

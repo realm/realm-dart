@@ -4,6 +4,7 @@
 * The constructor of `ClientResetError` is changed to receive a named parameter of type `App` instead of the positional parameter of type `Configuration`. Instances of `ClientResetError` are created automatically on client reset events ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Enhancements
+* Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
 * Added new properties to `ClientResetError` ([#1291](https://github.com/realm/realm-dart/pull/1291)):
   * `ClientResetError.backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed;
   * `ClientResetError.sessionErrorCode`, which return the code of the error occurred during the device sync;
@@ -24,7 +25,7 @@
 ## 1.2.0 (2023-06-08)
 
 ### Enhancements
-* Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
+  * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
   * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
   * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
 
