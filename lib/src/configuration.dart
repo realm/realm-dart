@@ -673,7 +673,6 @@ class SyncError extends RealmError {
   SyncError(String message, this.category, this.codeValue, {this.detailedMessage}) : super(message);
 
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
-  /// This method is deprecated and it will be removed.
   @Deprecated("This method is deprecated and will be removed in the future")
   static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
     switch (category) {
