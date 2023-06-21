@@ -75,15 +75,29 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   int get length => realmCore.getResultsCount(this);
 
   @override
-  T get first => this[0];
+  T get first {
+    if (length == 0) {
+      throw RealmStateError('No element');
+    }
+    return this[0];
+  }
 
   @override
-  T get last => this[length - 1];
+  T get last {
+    if (length == 0) {
+      throw RealmStateError('No element');
+    }
+    return this[length - 1];
+  }
 
   @override
   T get single {
-    if (length != 1) {
-      throw RealmStateError('Expected exactly one element but was $length');
+    final l = length;
+    if (l > 1) {
+      throw RealmStateError('Too many elements');
+    }
+    if (l == 0) {
+      throw RealmStateError('No element');
     }
     return this[0];
   }

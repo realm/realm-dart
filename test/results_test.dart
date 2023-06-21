@@ -747,8 +747,11 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final empty = Iterable<int>.empty();
-    expect(() => empty.first, throwsA(isA<StateError>()));
-    expect(() => realm.all<Dog>().first, throwsA(isA<RealmException>()));
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.first, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().first, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().first, throws<RealmStateError>('No element'));
   });
 
   test('RealmResults.last throws on empty', () async {
@@ -756,8 +759,11 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final empty = Iterable<int>.empty();
-    expect(() => empty.last, throwsA(isA<StateError>()));
-    expect(() => realm.all<Dog>().last, throwsA(isA<RealmException>()));
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.last, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().last, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().last, throws<RealmStateError>('No element'));
   });
 
   test('RealmResult.single throws on empty', () {
@@ -765,8 +771,11 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final empty = Iterable<int>.empty();
-    expect(() => empty.single, throwsA(isA<StateError>()));
-    expect(() => realm.all<Dog>().single, throwsA(isA<RealmStateError>()));
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.single, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().single, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().single, throws<RealmStateError>('No element'));
   });
 
   test('RealmResult.single throws on two items', () {
@@ -774,9 +783,11 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
 
     final twoItems = [1, 2];
-    expect(() => twoItems.single, throwsA(isA<StateError>()));
+    // To illustrate the behavior of Iterable.single on a regular list
+    expect(() => twoItems.single, throws<StateError>('Too many elements'));
 
     realm.write(() => realm.addAll([Dog('Fido'), Dog('Spot')]));
-    expect(() => realm.all<Dog>().single, throwsA(isA<StateError>()));
+    expect(() => realm.all<Dog>().single, throws<StateError>('Too many elements'));
+    expect(() => realm.all<Dog>().single, throws<RealmStateError>('Too many elements'));
   });
 }
