@@ -578,7 +578,8 @@ class _RealmCore {
 
   static void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
     final syncConfig = userdata as FlexibleSyncConfiguration;
-    final syncError = error.toSyncError(syncConfig);
+    // TODO: Take the app from the session instead of from syncConfig after fixing issue https://github.com/realm/realm-dart/issues/633
+    final syncError = SyncErrorInternal.createSyncError(error.toSyncErrorDetails(), app: syncConfig.user.app);
 
     if (syncError is ClientResetError) {
       syncConfig.clientResetHandler.onManualReset?.call(syncError);
@@ -2294,9 +2295,7 @@ class _RealmCore {
       //Fallback value
       return "realm_bundle_id";
     }
-
-    ;
-
+    
     String bundleId = readBundleId();
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
@@ -2954,58 +2953,76 @@ void _intoRealmValue(Object? value, Pointer<realm_value_t> realm_value, Allocato
   } else if (value is Decimal128) {
     realm_value.ref.values.decimal128 = value.value;
     realm_value.ref.type = realm_value_type.RLM_TYPE_DECIMAL128;
-  }  else if (value is Uint8List) {
+  } else if (value is Uint8List) {
     realm_value.ref.type = realm_value_type.RLM_TYPE_BINARY;
     realm_value.ref.values.binary.size = value.length;
     realm_value.ref.values.binary.data = allocator<Uint8>(value.length);
     realm_value.ref.values.binary.data.asTypedList(value.length).setAll(0, value);
-  }
-  else {
+  } else {
     throw RealmException("Property type ${value.runtimeType} not supported");
   }
 }
 
 extension on Pointer<realm_value_t> {
-  Object? toDartValue(Realm realm) {
+  Object? toDartValue([Realm? realm]) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
+    return ref.toDartValue(realm);
+  }
+}
 
-    switch (ref.type) {
+extension on realm_value_t {
+  Object? toDartValue([Realm? realm]) {
+    switch (type) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
       case realm_value_type.RLM_TYPE_INT:
-        return ref.values.integer;
+        return values.integer;
       case realm_value_type.RLM_TYPE_BOOL:
-        return ref.values.boolean;
+        return values.boolean;
       case realm_value_type.RLM_TYPE_STRING:
-        return ref.values.string.data.cast<Utf8>().toRealmDartString(length: ref.values.string.size)!;
+        return values.string.data.cast<Utf8>().toRealmDartString(length: values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:
-        return ref.values.fnum;
+        return values.fnum;
       case realm_value_type.RLM_TYPE_DOUBLE:
-        return ref.values.dnum;
+        return values.dnum;
       case realm_value_type.RLM_TYPE_LINK:
-        final objectKey = ref.values.link.target;
-        final classKey = ref.values.link.target_table;
+        if (realm == null) {
+          throw RealmError("A realm instance is required to resolve Backlinks");
+        }
+        final objectKey = values.link.target;
+        final classKey = values.link.target_table;
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
         return realmCore._getObject(realm, classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
-        return Uint8List.fromList(ref.values.binary.data.asTypedList(ref.values.binary.size));
+        return Uint8List.fromList(values.binary.data.asTypedList(values.binary.size));
       case realm_value_type.RLM_TYPE_TIMESTAMP:
-        final seconds = ref.values.timestamp.seconds;
-        final nanoseconds = ref.values.timestamp.nanoseconds;
+        final seconds = values.timestamp.seconds;
+        final nanoseconds = values.timestamp.nanoseconds;
         return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
-        var decimal = ref.values.decimal128; // NOTE: Does not copy the struct!
+        var decimal = values.decimal128; // NOTE: Does not copy the struct!
         decimal = _realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
-        return ObjectId.fromBytes(cast<Uint8>().asTypedList(12));
+        return ObjectId.fromBytes(values.object_id.bytes.toList(12));
       case realm_value_type.RLM_TYPE_UUID:
-        return Uuid.fromBytes(cast<Uint8>().asTypedList(16).buffer);
+        final listInt = values.uuid.bytes.toList(16);
+        return Uuid.fromBytes(Uint8List.fromList(listInt).buffer);
       default:
-        throw RealmException("realm_value_type ${ref.type} not supported");
+        throw RealmException("realm_value_type $type not supported");
     }
+  }
+}
+
+extension on Array<Uint8> {
+  List<int> toList(int count) {
+    final result = <int>[];
+    for (var i = 0; i < count; i++) {
+      result.add(this[i]);
+    }
+    return result;
   }
 }
 
@@ -3056,23 +3073,67 @@ extension on Pointer<Utf8> {
 }
 
 extension on realm_sync_error {
-  SyncError toSyncError(Configuration config) {
-    final message = detailed_message.cast<Utf8>().toRealmDartString()!;
+  SyncErrorDetails toSyncErrorDetails() {
+    final message = error_code.message.cast<Utf8>().toRealmDartString()!;
     final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
+    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
 
-    //client reset can be requested with is_client_reset_requested disregarding the error_code.value
-    if (is_client_reset_requested) {
-      return ClientResetError(message, config);
+    final userInfoMap = user_info_map.toMap(user_info_length);
+    final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
+    final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
+
+    return SyncErrorDetails(
+      message,
+      category,
+      error_code.value,
+      detailedMessage: detailedMessage,
+      isFatal: is_fatal,
+      isClientResetRequested: is_client_reset_requested,
+      originalFilePath: userInfoMap?[originalFilePathKey],
+      backupFilePath: userInfoMap?[recoveryFilePathKey],
+      compensatingWrites: compensating_writes.toList(compensating_writes_length),
+    );
+  }
+}
+
+extension on Pointer<realm_sync_error_user_info> {
+  Map<String, String>? toMap(int length) {
+    if (this == nullptr) {
+      return null;
     }
+    Map<String, String> userInfoMap = {};
+    for (int i = 0; i < length; i++) {
+      final userInfoItem = this[i];
+      final key = userInfoItem.key.cast<Utf8>().toDartString();
+      final value = userInfoItem.value.cast<Utf8>().toDartString();
+      userInfoMap[key] = value;
+    }
+    return userInfoMap;
+  }
+}
 
-    return SyncError.create(message, category, error_code.value, isFatal: is_fatal);
+extension on Pointer<realm_sync_error_compensating_write_info> {
+  List<CompensatingWriteInfo>? toList(int length) {
+    if (this == nullptr || length == 0) {
+      return null;
+    }
+    List<CompensatingWriteInfo> compensatingWrites = [];
+    for (int i = 0; i < length; i++) {
+      final compensatingWrite = this[i];
+      final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
+      final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
+      final primary_key = compensatingWrite.primary_key.toDartValue();
+      compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
+    }
+    return compensatingWrites;
   }
 }
 
 extension on Pointer<realm_sync_error_code_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    return SyncError.create(message, SyncErrorCategory.values[ref.category], ref.value, isFatal: false);
+    final details = SyncErrorDetails(message, SyncErrorCategory.values[ref.category], ref.value);
+    return SyncErrorInternal.createSyncError(details);
   }
 }
 
@@ -3283,4 +3344,28 @@ extension PlatformEx on Platform {
 
     return result;
   }
+}
+
+/// @nodoc
+class SyncErrorDetails {
+  final String message;
+  final SyncErrorCategory category;
+  final int code;
+  final String? detailedMessage;
+  final bool isFatal;
+  final bool isClientResetRequested;
+  final String? originalFilePath;
+  final String? backupFilePath;
+  final List<CompensatingWriteInfo>? compensatingWrites;
+  const SyncErrorDetails(
+    this.message,
+    this.category,
+    this.code, {
+    this.detailedMessage,
+    this.isFatal = false,
+    this.isClientResetRequested = false,
+    this.originalFilePath,
+    this.backupFilePath,
+    this.compensatingWrites,
+  });
 }

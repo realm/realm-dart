@@ -573,18 +573,26 @@ Future<void> main([List<String>? args]) async {
     });
     final realm = getRealm(config);
     final query = realm.query<Product>(r'name BEGINSWITH $0', [productNamePrefix]);
-    if (realm.subscriptions.find(query) == null) {
-      realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
-    }
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
     await realm.subscriptions.waitForSynchronization();
-    realm.write(() => realm.add(Product(ObjectId(), "doesn't match subscription")));
+
+    final productId = ObjectId();
+    realm.write(() => realm.add(Product(productId, "doesn't match subscription")));
     await realm.syncSession.waitForUpload();
 
-    expect(compensatingWriteError, isA<SyncSessionError>());
-    final sessionError = compensatingWriteError.as<SyncSessionError>();
+    expect(compensatingWriteError, isA<CompensatingWriteError>());
+    final sessionError = compensatingWriteError.as<CompensatingWriteError>();
     expect(sessionError.category, SyncErrorCategory.session);
-    expect(sessionError.isFatal, false);
     expect(sessionError.code, SyncSessionErrorCode.compensatingWrite);
-    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'), isTrue);
+    expect(sessionError.message!.startsWith('Client attempted a write that is disallowed by permissions, or modifies an object outside the current query'),
+        isTrue);
+    expect(sessionError.detailedMessage, isNotEmpty);
+    expect(sessionError.message == sessionError.detailedMessage, isFalse);
+    expect(sessionError.compensatingWrites, isNotNull);
+    final writeReason = sessionError.compensatingWrites!.first;
+    expect(writeReason, isNotNull);
+    expect(writeReason.objectType, "Product");
+    expect(writeReason.reason, 'write to "$productId" in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
+    expect(writeReason.primaryKey.value, productId);
   });
 }

@@ -65,6 +65,8 @@ export "configuration.dart"
         ClientResetCallback,
         ClientResetError,
         ClientResetHandler,
+        CompensatingWriteError,
+        CompensatingWriteInfo,
         Configuration,
         DiscardUnsyncedChangesHandler,
         DisconnectedSyncConfiguration,
