@@ -50,7 +50,7 @@ add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
 
-execute_process(COMMAND "${FLUTTER_ROOT}/bin/flutter" "pub" "run" "realm" "install" "--target-os-type" "linux" "--flavor" "flutter" #"--debug"
+execute_process(COMMAND "${FLUTTER_ROOT}/bin/dart" "run" "realm" "install" "--target-os-type" "linux" "--flavor" "flutter" #"--debug"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
   # COMMAND_ERROR_IS_FATAL ANY
@@ -60,7 +60,7 @@ message(STATUS "cmd result: ${result}")
 
 # message("CMAKE_HOST_SYSTEM_VERSION ${CMAKE_HOST_SYSTEM_VERSION}")
 execute_process(
-  COMMAND "${FLUTTER_ROOT}/bin/flutter" "pub" "run" "realm" "metrics" "--verbose" "--flutter-root" "${FLUTTER_ROOT}/bin" "--target-os-type" "linux" "--target-os-version" "${CMAKE_HOST_SYSTEM_VERSION}" #"--pause-isolates-on-start" "--enable-vm-service"
+  COMMAND "${FLUTTER_ROOT}/bin/dart" "run" "realm" "metrics" "--verbose" "--flutter-root" "${FLUTTER_ROOT}/bin" "--target-os-type" "linux" "--target-os-version" "${CMAKE_HOST_SYSTEM_VERSION}" #"--pause-isolates-on-start" "--enable-vm-service"
   # COMMAND ${CMAKE_COMMAND} -E true
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result

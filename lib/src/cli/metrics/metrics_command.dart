@@ -227,7 +227,7 @@ Future<Digest> generateBuilderId() async {
       final regex = RegExp(macOSMachineIdRegEx, dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
-      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([[:alnum:]-]+)', dotAll: true);
+      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([A-Za-z0-9-]+)', dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract MachineGuid
     }
   }, message: 'failed to get machine id');

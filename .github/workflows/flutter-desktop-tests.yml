@@ -72,7 +72,7 @@ jobs:
         run: flutter config --enable-${{ inputs.os }}-desktop
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
