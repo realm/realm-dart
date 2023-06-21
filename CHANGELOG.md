@@ -2,8 +2,11 @@
 
 ### Enhancements
 * Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
+* Extended `ClientResetError` to return the `backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291))
+* Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 
 ### Fixed
+* The constructors of all `SyncError` types are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
 * Getting `Backlink` properties of unmanaged Realm objects will throw an error: "Using backlinks is only possible for managed objects" ([#1293](https://github.com/realm/realm-dart/pull/1293)).
 * Properties in the frozen _before_ Realm instance in the client reset callbacks may have had properties reordered which could lead to exceptions if accessed. (Core upgrade, since v13.11.0)
 
