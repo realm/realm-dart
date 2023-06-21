@@ -1606,7 +1606,7 @@ class _RealmCore {
   RealmAppCredentialsHandle createAppCredentialsApiKey(String key) {
     return using((arena) {
       final keyPtr = key.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_user_api_key(keyPtr));
+      return RealmAppCredentialsHandle._(_realmLib.realm_app_credentials_new_api_key(keyPtr));
     });
   }
 
@@ -2295,7 +2295,7 @@ class _RealmCore {
       //Fallback value
       return "realm_bundle_id";
     }
-
+    
     String bundleId = readBundleId();
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
