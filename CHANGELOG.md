@@ -4,7 +4,7 @@
 * Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
 * Extended `ClientResetError` to return the `backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291))
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
-* `http` package version is bumped to ^1.0.0.
+* Bumped `http` package version to ^1.0.0 ([#1329](https://github.com/realm/realm-dart/pull/1329)).
 
 ### Fixed
 * The constructors of all `SyncError` types are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
