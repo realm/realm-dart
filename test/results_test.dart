@@ -741,4 +741,53 @@ Future<void> main([List<String>? args]) async {
     final items = realm.query<Product>(ids);
     expect(items.length, 0);
   });
+
+  test('RealmResults.first throws on empty', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.first, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().first, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().first, throws<RealmStateError>('No element'));
+  });
+
+  test('RealmResults.last throws on empty', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.last, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().last, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().last, throws<RealmStateError>('No element'));
+  });
+
+  test('RealmResult.single throws on empty', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.single, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().single, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().single, throws<RealmStateError>('No element'));
+  });
+
+  test('RealmResult.single throws on two items', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final twoItems = [1, 2];
+    // To illustrate the behavior of Iterable.single on a regular list
+    expect(() => twoItems.single, throws<StateError>('Too many elements'));
+
+    realm.write(() => realm.addAll([Dog('Fido'), Dog('Spot')]));
+    expect(() => realm.all<Dog>().single, throws<StateError>('Too many elements'));
+    expect(() => realm.all<Dog>().single, throws<RealmStateError>('Too many elements'));
+  });
 }
