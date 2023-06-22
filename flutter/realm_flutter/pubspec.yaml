@@ -33,7 +33,7 @@ dependencies:
     path: ../../generator
   tar: ^0.5.4
   build_runner: ^2.1.0
-  http: ^0.13.4
+  http: ^1.0.0
   cancellation_token: ^1.5.0
 
 dev_dependencies:
