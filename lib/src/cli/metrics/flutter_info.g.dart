@@ -19,6 +19,7 @@ FlutterInfo _$FlutterInfoFromJson(Map<String, dynamic> json) => FlutterInfo(
       flutterRoot: json['flutterRoot'] as String?,
     );
 
+// ignore: unused_element
 Map<String, dynamic> _$FlutterInfoToJson(FlutterInfo instance) =>
     <String, dynamic>{
       'frameworkVersion':
