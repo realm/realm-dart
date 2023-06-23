@@ -3294,9 +3294,9 @@ class WriteCompleter with Cancellable implements Completer<void> {
     final ct = _cancellationToken;
     if (ct != null) {
       if (ct.isCancelled) {
-        _internalCompleter.completeError(ct.exception);
+        _internalCompleter.completeError(ct.exception!);
       } else {
-        ct.attach(this);
+        ct.attachCancellable(this);
       }
     }
   }
@@ -3313,23 +3313,24 @@ class WriteCompleter with Cancellable implements Completer<void> {
   @override
   void complete([FutureOr<void>? value]) {
     if (isCancelled) return;
-    _cancellationToken?.detach(this);
+    _cancellationToken?.detachCancellable(this);
     _internalCompleter.complete(value);
   }
 
   @override
   void completeError(Object error, [StackTrace? stackTrace]) {
     if (isCancelled) return;
-    _cancellationToken?.detach(this);
+    _cancellationToken?.detachCancellable(this);
     _internalCompleter.completeError(error, stackTrace);
   }
 
   @override
-  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
+  void onCancel(Exception cancelException) {
+    super.onCancel(cancelException);
     if (_id == null || realmCore._cancelAsync(_realm, _id!)) {
       _internalCompleter.completeError(
         cancelException,
-        stackTrace ?? StackTrace.current,
+        StackTrace.current,
       );
     }
   }
