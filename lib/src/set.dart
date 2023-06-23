@@ -104,12 +104,12 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
   UnmanagedRealmSet([Set<T>? items]) : super(items ?? <T>{});
 
-  // ignore: unused_element
   @override
+  // ignore: unused_element
   RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
-  // ignore: unused_element
   @override
+  // ignore: unused_element
   set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
