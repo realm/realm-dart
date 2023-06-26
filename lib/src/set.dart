@@ -105,10 +105,12 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
   UnmanagedRealmSet([Set<T>? items]) : super(items ?? <T>{});
 
   @override
-  RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged RealmSets don't have metadata associated with them.");
+  // ignore: unused_element
+  RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
-  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged RealmSets don't have metadata associated with them.");
+  // ignore: unused_element
+  set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
   bool get isValid => true;

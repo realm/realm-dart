@@ -171,7 +171,7 @@ class Realm implements Finalizable {
   /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
-      throw cancellationToken.exception;
+      throw cancellationToken.exception!;
     }
     final realm = Realm(config);
     StreamSubscription<SyncProgress>? subscription;
