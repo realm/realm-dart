@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Fixed a double unlock and race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
