@@ -790,10 +790,11 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.all<Dog>().single, throws<StateError>('Too many elements'));
     expect(() => realm.all<Dog>().single, throws<RealmStateError>('Too many elements'));
   });
-  
-  test('Query parser with list in arguments', () async {
+
+  test('Query parser with list in arguments', () {
     final config = Configuration.local([AllTypes.schema]);
-    final realm = getRealm(config);
+    Realm.logger.level = RealmLogLevel.debug;
+    Realm realm = getRealm(config);
     final id_1 = ObjectId();
     final id_2 = ObjectId();
     final id_3 = ObjectId();
@@ -805,8 +806,26 @@ Future<void> main([List<String>? args]) async {
           AllTypes('text2', true, DateTime.now().add(Duration(seconds: 2)), 2, id_2, uid_2, 0, Decimal128.ten),
           AllTypes('text3', true, DateTime.now().add(Duration(seconds: 3)), 3, id_3, uid_3, 0, Decimal128.infinity),
         ]));
+
     final listIds = [id_1, id_2];
     final itemsById = realm.query<AllTypes>(r"objectIdProp IN $0", [listIds]);
+    itemsById.forEach(
+      (element) => print(element.objectIdProp),
+    );
     expect(itemsById.length, 2);
+
+    final listTexts = [r'text2', 'text3'];
+    final itemsByString = realm.query<AllTypes>(r"stringProp IN $0", [listTexts]);
+    itemsByString.forEach(
+      (element) => print(element.stringProp),
+    );
+    expect(listTexts.length, 2);
+
+    List<double> listDouble = [1, 3];
+    final itemsByDouble = realm.query<AllTypes>(r"doubleProp IN $0", [listDouble]);
+    itemsByDouble.forEach(
+      (element) => print(element.doubleProp),
+    );
+    expect(itemsByDouble.length, 2);
   });
 }
