@@ -18,6 +18,8 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:typed_data';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -795,37 +797,60 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([AllTypes.schema]);
     Realm.logger.level = RealmLogLevel.debug;
     Realm realm = getRealm(config);
+
     final id_1 = ObjectId();
     final id_2 = ObjectId();
-    final id_3 = ObjectId();
     final uid_1 = Uuid.v4();
     final uid_2 = Uuid.v4();
-    final uid_3 = Uuid.v4();
+    final date_1 = DateTime.now().add(const Duration(days: 1));
+    final date_2 = DateTime.now().add(const Duration(days: 2));
+    final text_1 = generateRandomUnicodeString();
+
     realm.write(() => realm.addAll([
-          AllTypes('text1', false, DateTime.now().add(Duration(seconds: 1)), 1, id_1, uid_1, 0, Decimal128.one),
-          AllTypes('text2', true, DateTime.now().add(Duration(seconds: 2)), 2, id_2, uid_2, 0, Decimal128.ten),
-          AllTypes('text3', true, DateTime.now().add(Duration(seconds: 3)), 3, id_3, uid_3, 0, Decimal128.infinity),
+          AllTypes(text_1, false, DateTime.now(), 1.1, id_1, uid_1, 1, Decimal128.one, binaryProp: Uint8List.fromList([1, 2])),
+          AllTypes('text2', true, date_1, 2.2, id_2, uid_2, 2, Decimal128.ten),
+          AllTypes('text3', true, date_2, 3.3, ObjectId(), Uuid.v4(), 3, Decimal128.infinity, binaryProp: Uint8List.fromList([3, 4])),
         ]));
 
-    final listIds = [id_1, id_2];
-    final itemsById = realm.query<AllTypes>(r"objectIdProp IN $0", [listIds]);
-    itemsById.forEach(
-      (element) => print(element.objectIdProp),
-    );
-    expect(itemsById.length, 2);
+    void queryWithListArg(String propName, List<Object?> listArgument, {int? expected}) {
+      final results = realm.query<AllTypes>("$propName IN \$0", [listArgument]);
+      expected ??= listArgument.length;
+      expect(results.length, expected);
+    }
 
-    final listTexts = [r'text2', 'text3'];
-    final itemsByString = realm.query<AllTypes>(r"stringProp IN $0", [listTexts]);
-    itemsByString.forEach(
-      (element) => print(element.stringProp),
-    );
-    expect(listTexts.length, 2);
+    queryWithListArg("stringProp", [null, text_1, 'text3'], expected: 2);
+    queryWithListArg("nullableStringProp", [null, 'text2'], expected: 3);
 
-    List<double> listDouble = [1, 3];
-    final itemsByDouble = realm.query<AllTypes>(r"doubleProp IN $0", [listDouble]);
-    itemsByDouble.forEach(
-      (element) => print(element.doubleProp),
-    );
-    expect(itemsByDouble.length, 2);
+    queryWithListArg("boolProp", [false, true, null], expected: 3);
+    queryWithListArg("nullableBoolProp", [null], expected: 3);
+
+    queryWithListArg("dateProp", [date_1, null, date_2], expected: 2);
+    queryWithListArg("nullableDateProp", [null], expected: 3);
+
+    queryWithListArg("doubleProp", [1.1, null, 3.3], expected: 2);
+    queryWithListArg("nullableDoubleProp", [null], expected: 3);
+
+    queryWithListArg("objectIdProp", [id_1, id_2, null], expected: 2);
+    queryWithListArg("nullableObjectIdProp", [null], expected: 3);
+
+    queryWithListArg("uuidProp", [uid_1, uid_2, null], expected: 2);
+    queryWithListArg("nullableUuidProp", [null], expected: 3);
+  
+    queryWithListArg("intProp", [1, 2, null], expected: 2);
+    queryWithListArg("nullableIntProp", [null], expected: 3);
+
+    queryWithListArg("decimalProp", [Decimal128.one, null], expected: 1);
+    queryWithListArg("nullableDecimalProp", [null], expected: 3);
+
+    queryWithListArg(
+        "binaryProp",
+        [
+          Uint8List.fromList([1, 2]),
+          null,
+          Uint8List(16)
+        ],
+        expected: 2);
+
+    queryWithListArg("nullableBinaryProp", [null], expected: 3);
   });
 }
