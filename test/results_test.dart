@@ -793,11 +793,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.all<Dog>().single, throws<RealmStateError>('Too many elements'));
   });
 
-  test('Query parser with list in arguments', () {
-    final config = Configuration.local([AllTypes.schema]);
-    Realm.logger.level = RealmLogLevel.debug;
-    Realm realm = getRealm(config);
-
+  test('Query with list in arguments', () {
     final id_1 = ObjectId();
     final id_2 = ObjectId();
     final uid_1 = Uuid.v4();
@@ -806,6 +802,8 @@ Future<void> main([List<String>? args]) async {
     final date_2 = DateTime.now().add(const Duration(days: 2));
     final text_1 = generateRandomUnicodeString();
 
+    final config = Configuration.local([AllTypes.schema]);
+    Realm realm = getRealm(config);
     realm.write(() => realm.addAll([
           AllTypes(text_1, false, DateTime.now(), 1.1, id_1, uid_1, 1, Decimal128.one, binaryProp: Uint8List.fromList([1, 2])),
           AllTypes('text2', true, date_1, 2.2, id_2, uid_2, 2, Decimal128.ten),
