@@ -719,4 +719,52 @@ Future<void> main([List<String>? args]) async {
         ]));
     realm.write(() => testSets.objectsSet.clear());
   });
+
+  test('Set.freeze freezes the set', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final liveCars = realm.write(() {
+      return realm.add(TestRealmSets(1, objectsSet: {
+        Car('Tesla'),
+      }));
+    }).objectsSet;
+
+    final frozenCars = freezeSet(liveCars);
+
+    expect(frozenCars.length, 1);
+    expect(frozenCars.isFrozen, true);
+    expect(frozenCars.realm.isFrozen, true);
+    expect(frozenCars.first.isFrozen, true);
+
+    realm.write(() {
+      liveCars.add(Car('Audi'));
+    });
+
+    expect(liveCars.length, 2);
+    expect(frozenCars.length, 1);
+    expect(frozenCars.single.make, 'Tesla');
+  });
+
+  test("FrozenSet.changes throws", () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(TestRealmSets(1, objectsSet: {
+        Car("Tesla"),
+        Car("Audi"),
+      }));
+    });
+
+    final frozenBools = freezeSet(realm.all<TestRealmSets>().single.boolSet);
+
+    expect(() => frozenBools.changes, throws<RealmStateError>('Set is frozen and cannot emit changes'));
+  });
+
+  test('UnmanagedSet.freeze throws', () {
+    final set = TestRealmSets(1);
+
+    expect(() => set.boolSet.freeze(), throws<RealmStateError>("Unmanaged sets can't be frozen"));
+  });
 }
