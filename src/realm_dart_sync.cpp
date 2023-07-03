@@ -187,13 +187,12 @@ bool invoke_dart_and_await_result(realm::util::UniqueFunction<void(realm::util::
         std::unique_lock lock(mutex);
         success = result;
         completed = true;
-        lock.unlock();
         condition.notify_one();
     };
-    (*userCallback)(&unlockFunc);
-
+    
     std::unique_lock lock(mutex);
-    condition.wait(lock, [&] { return completed; });
+    (*userCallback)(&unlockFunc);
+    condition.wait(lock, [&] (){ return completed; });
 
     return success;
 }

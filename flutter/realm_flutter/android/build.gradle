@@ -62,17 +62,17 @@ def getPaths() {
     }
 
     def flutterRoot = localProperties.getProperty('flutter.sdk')
-    def flutterExecutablePath = 'flutter'
+    def dartExecutable = 'dart'
     if (flutterRoot != null) {
-        flutterExecutablePath = "${flutterRoot}${File.separator}bin${File.separator}flutter"
+        dartExecutable = "${flutterRoot}${File.separator}bin${File.separator}${dartExecutable}"
     }
 
     //on Windows use flutter.bat instead
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        flutterExecutablePath += '.bat'
+        dartExecutable += '.bat'
     }
 
-    return [flutterRoot, flutterExecutablePath]
+    return [flutterRoot, dartExecutable]
 }
 
 tasks.register("runMetrics", Exec) {
@@ -80,7 +80,7 @@ tasks.register("runMetrics", Exec) {
 
     try {
         def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
-        def (flutterRoot, flutterExecutablePath) = getPaths()
+        def (flutterRoot, dartExecutable) = getPaths()
 
         workingDir "${project.rootProject.projectDir}${File.separator}.."
 
@@ -89,7 +89,7 @@ tasks.register("runMetrics", Exec) {
             def conf = appProject.android.defaultConfig
             targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
         }
-        commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
+        commandLine dartExecutable, 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
     }
     catch (e) {
         logger.error "Error running metrics command $e"
@@ -99,9 +99,9 @@ tasks.register("runMetrics", Exec) {
 tasks.register("downloadRealmBinaries", Exec) {
     outputs.upToDateWhen { false }
 
-    def (flutterRoot, flutterExecutablePath) = getPaths()
+    def (flutterRoot, dartExecutable) = getPaths()
     workingDir "${project.rootProject.projectDir}${File.separator}.."
-    commandLine flutterExecutablePath, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android', '--flavor', 'flutter'
+    commandLine dartExecutable, 'run', 'realm', 'install', '--target-os-type', 'android', '--flavor', 'flutter'
 }
 
 def getBundleId() {

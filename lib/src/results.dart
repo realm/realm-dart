@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 import 'dart:async';
-import 'dart:collection' as collection;
 import 'dart:ffi';
 
 import 'collections.dart';
@@ -28,7 +27,7 @@ import 'realm_object.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends Object?> extends collection.IterableBase<T> with RealmEntity implements Finalizable {
+class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
 
@@ -74,6 +73,34 @@ class RealmResults<T extends Object?> extends collection.IterableBase<T> with Re
   /// The number of values in this `Results` collection.
   @override
   int get length => realmCore.getResultsCount(this);
+
+  @override
+  T get first {
+    if (length == 0) {
+      throw RealmStateError('No element');
+    }
+    return this[0];
+  }
+
+  @override
+  T get last {
+    if (length == 0) {
+      throw RealmStateError('No element');
+    }
+    return this[length - 1];
+  }
+
+  @override
+  T get single {
+    final l = length;
+    if (l > 1) {
+      throw RealmStateError('Too many elements');
+    }
+    if (l == 0) {
+      throw RealmStateError('No element');
+    }
+    return this[0];
+  }
 
   /// Creates a frozen snapshot of this query.
   RealmResults<T> freeze() {

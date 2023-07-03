@@ -88,7 +88,7 @@ final _pluginLib = () {
 }();
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '1.2.0';
+const libraryVersion = '1.3.0';
 
 _RealmCore realmCore = _RealmCore();
 
@@ -776,8 +776,13 @@ class _RealmCore {
   }
 
   Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
-    final completer = WriteCompleter(realm, ct);
-    if (!completer.isCancelled) {
+    int? id;
+    final completer = CancellableCompleter<void>(ct, onCancel: () {
+      if (id != null) {
+        realmCore._cancelAsync(realm, id!);
+      }
+    });
+    if (ct?.isCancelled != true) {
       using((arena) {
         final transaction_id = arena<UnsignedInt>();
         _realmLib.invokeGetBool(() => _realmLib.realm_async_begin_write(
@@ -788,16 +793,20 @@ class _RealmCore {
               true,
               transaction_id,
             ));
-        completer.id = transaction_id.value;
+        id = transaction_id.value;
       });
     }
-
     return completer.future;
   }
 
   Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
-    final completer = WriteCompleter(realm, ct);
-    if (!completer.isCancelled) {
+    int? id;
+    final completer = CancellableCompleter<void>(ct, onCancel: () {
+      if (id != null) {
+        realmCore._cancelAsync(realm, id!);
+      }
+    });
+    if (ct?.isCancelled != true) {
       using((arena) {
         final transaction_id = arena<UnsignedInt>();
         _realmLib.invokeGetBool(() => _realmLib.realm_async_commit(
@@ -808,17 +817,16 @@ class _RealmCore {
               false,
               transaction_id,
             ));
-        completer.id = transaction_id.value;
+        id = transaction_id.value;
       });
     }
-
     return completer.future;
   }
 
-  bool _cancelAsync(Realm realm, int cancelationId) {
+  bool _cancelAsync(Realm realm, int cancellationId) {
     return using((Arena arena) {
       final didCancel = arena<Bool>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_async_cancel(realm.handle._pointer, cancelationId, didCancel));
+      _realmLib.invokeGetBool(() => _realmLib.realm_async_cancel(realm.handle._pointer, cancellationId, didCancel));
       return didCancel.value;
     });
   }
@@ -3301,65 +3309,6 @@ extension LevelExt on Level {
       default:
         // if unknown logging is off
         return RealmLogLevel.off;
-    }
-  }
-}
-
-class WriteCompleter with Cancellable implements Completer<void> {
-  final Completer<void> _internalCompleter;
-  final CancellationToken? _cancellationToken;
-  int? _id;
-  final Realm _realm;
-
-  set id(int value) {
-    if (_id != null) {
-      throw RealmError('id should only be set once');
-    }
-
-    _id = value;
-  }
-
-  WriteCompleter(this._realm, this._cancellationToken) : _internalCompleter = Completer<void>() {
-    final ct = _cancellationToken;
-    if (ct != null) {
-      if (ct.isCancelled) {
-        _internalCompleter.completeError(ct.exception);
-      } else {
-        ct.attach(this);
-      }
-    }
-  }
-
-  /// Whether or not the completer was cancelled.
-  bool get isCancelled => _cancellationToken?.isCancelled ?? false;
-
-  @override
-  bool get isCompleted => _internalCompleter.isCompleted;
-
-  @override
-  Future<void> get future => _internalCompleter.future;
-
-  @override
-  void complete([FutureOr<void>? value]) {
-    if (isCancelled) return;
-    _cancellationToken?.detach(this);
-    _internalCompleter.complete(value);
-  }
-
-  @override
-  void completeError(Object error, [StackTrace? stackTrace]) {
-    if (isCancelled) return;
-    _cancellationToken?.detach(this);
-    _internalCompleter.completeError(error, stackTrace);
-  }
-
-  @override
-  void onCancel(Exception cancelException, [StackTrace? stackTrace]) {
-    if (_id == null || realmCore._cancelAsync(_realm, _id!)) {
-      _internalCompleter.completeError(
-        cancelException,
-        stackTrace ?? StackTrace.current,
-      );
     }
   }
 }

@@ -32,7 +32,7 @@ import 'options.dart';
 import '../common/utils.dart';
 
 // stamped into the library by the build system (see prepare-release.yml)
-const realmCoreVersion = '13.14.0';
+const realmCoreVersion = '13.15.1';
 
 class MetricsCommand extends Command<void> {
   @override
@@ -227,7 +227,7 @@ Future<Digest> generateBuilderId() async {
       final regex = RegExp(macOSMachineIdRegEx, dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
-      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([[:alnum:]-]+)', dotAll: true);
+      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([A-Za-z0-9-]+)', dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract MachineGuid
     }
   }, message: 'failed to get machine id');

@@ -1,9 +1,24 @@
 ## vNext (TBD)
 
 ### Enhancements
+* None
+
+### Fixed
+* Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.16.0.
+
+## 1.3.0 (2023-06-22)
+
+### Enhancements
 * Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
 * Extended `ClientResetError` to return the `backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291))
 * Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Improve performance of elementAt, first, single and last on RealmResults ([#1261](https://github.com/realm/realm-dart/issues/1261), [#1262](https://github.com/realm/realm-dart/pull/1262), [#1267](https://github.com/realm/realm-dart/pull/1267)).
 
 ### Fixed
 * The constructors of all `SyncError` types are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).

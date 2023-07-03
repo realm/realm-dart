@@ -9175,6 +9175,40 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
+  void realm_sync_config_set_initial_subscription_handler(
+    ffi.Pointer<realm_sync_config_t> arg0,
+    realm_async_open_task_init_subscription_func_t arg1,
+    bool rerun_on_open,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_sync_config_set_initial_subscription_handler(
+      arg0,
+      arg1,
+      rerun_on_open,
+      userdata,
+      userdata_free,
+    );
+  }
+
+  late final _realm_sync_config_set_initial_subscription_handlerPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_config_t>,
+                  realm_async_open_task_init_subscription_func_t,
+                  ffi.Bool,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
+      'realm_sync_config_set_initial_subscription_handler');
+  late final _realm_sync_config_set_initial_subscription_handler =
+      _realm_sync_config_set_initial_subscription_handlerPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_sync_config_t>,
+              realm_async_open_task_init_subscription_func_t,
+              bool,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
+
   void realm_sync_config_set_recovery_directory_path(
     ffi.Pointer<realm_sync_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
@@ -11104,6 +11138,10 @@ typedef realm_async_open_task_completion_func_t = ffi.Pointer<
             ffi.Pointer<ffi.Void> userdata,
             ffi.Pointer<realm_thread_safe_reference_t> realm,
             ffi.Pointer<realm_async_error_t> error)>>;
+typedef realm_async_open_task_init_subscription_func_t = ffi.Pointer<
+    ffi.NativeFunction<
+        ffi.Void Function(
+            ffi.Pointer<realm_t> realm, ffi.Pointer<ffi.Void> userdata)>>;
 
 final class realm_async_open_task_progress_notification_token
     extends ffi.Opaque {}
