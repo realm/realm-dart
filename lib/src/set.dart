@@ -347,7 +347,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   }
 
   Stream<RealmSetChanges<T>> createStream() {
-    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onCancel: stop);
     return streamController.stream;
   }
 
