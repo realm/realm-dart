@@ -741,4 +741,23 @@ Future<void> main([List<String>? args]) async {
     final items = realm.query<Product>(ids);
     expect(items.length, 0);
   });
+
+  test('Query parser with list in arguments', () async {
+    final config = Configuration.local([AllTypes.schema]);
+    final realm = getRealm(config);
+    final id_1 = ObjectId();
+    final id_2 = ObjectId();
+    final id_3 = ObjectId();
+    final uid_1 = Uuid.v4();
+    final uid_2 = Uuid.v4();
+    final uid_3 = Uuid.v4();
+    realm.write(() => realm.addAll([
+          AllTypes('text1', false, DateTime.now().add(Duration(seconds: 1)), 1, id_1, uid_1, 0, Decimal128.one),
+          AllTypes('text2', true, DateTime.now().add(Duration(seconds: 2)), 2, id_2, uid_2, 0, Decimal128.ten),
+          AllTypes('text3', true, DateTime.now().add(Duration(seconds: 3)), 3, id_3, uid_3, 0, Decimal128.infinity),
+        ]));
+    final listIds = [id_1, id_2];
+    final itemsById = realm.query<AllTypes>(r"objectIdProp IN $0", [listIds]);
+    expect(itemsById.length, 2);
+  });
 }
