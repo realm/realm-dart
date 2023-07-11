@@ -1,10 +1,17 @@
 ## vNext (TBD)
 
-### Enhancements
-* None
+### 
+* Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+* Added support for query with list argument (`List<Object?>`) for `RealmResults`, `RealmList` and `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+  Example:
+  ```dart
+    final listOfNames = ['Ani', 'Teddy'];
+    final result = realm.query<Person>(r'name IN $0', [listOfNames]);
+  ```
 
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
+
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
