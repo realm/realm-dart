@@ -250,9 +250,12 @@ Future<void> main([List<String>? args]) async {
     final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
     final realm = getRealm(config);
     final realmValues = values.map(RealmValue.from);
-    realm.write(() => realm.add(AnythingGoes(manyAny: realmValues)));
+    realm.write(() => realm.add(AnythingGoes(manyAny: realmValues, oneAny: realmValues.last)));
 
-    final results = realm.query<AnythingGoes>("manyAny IN \$0", [values]);
+    var results = realm.query<AnythingGoes>("manyAny IN \$0", [values]);
     expect(results.first.manyAny, realmValues);
+
+    results = realm.query<AnythingGoes>("oneAny IN \$0", [values]);
+    expect(results.first.oneAny, realmValues.last);
   });
 }
