@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:typed_data';
+
 import 'package:test/test.dart' hide test, throws;
 
 import '../lib/realm.dart';
@@ -849,6 +851,21 @@ Future<void> main([List<String>? args]) async {
     expect(child1.child!.parent, null);
 
     expect(parent.recursiveList[0].parent, null);
+  });
+
+  test('Query embedded objects list with list argument with different type of values', () {
+    final realm = getLocalRealm();
+    final realmObject = realm.write(() {
+      return realm.add(ObjectWithEmbedded('', list: [
+        AllTypesEmbedded('text1', false, DateTime.now(), 1.1, ObjectId(), Uuid.v4(), 1, Decimal128.one, nullableDecimalProp: Decimal128.fromDouble(3.3)),
+        AllTypesEmbedded('text2', true, DateTime.now(), 2.2, ObjectId(), Uuid.v4(), 2, Decimal128.ten),
+        AllTypesEmbedded('text3', true, DateTime.now(), 3.3, ObjectId(), Uuid.v4(), 3, Decimal128.infinity),
+      ]));
+    });
+    final results = realmObject.list.query(r"nullableDecimalProp IN $0 || stringProp IN $0", [
+      ['text1', null, 2.2, 3] // Searching by different type of values and null
+    ]);
+    expect(results.length, 3);
   });
 }
 

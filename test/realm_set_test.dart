@@ -719,4 +719,20 @@ Future<void> main([List<String>? args]) async {
         ]));
     realm.write(() => testSets.objectsSet.clear());
   });
+
+  test('Set query', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    final result = testSets.objectsSet.query(r'make IN $0', [
+      ['Tesla', 'Audi']
+    ]);
+    expect(result.length, 2);
+  });
 }

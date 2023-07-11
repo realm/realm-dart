@@ -480,8 +480,12 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() => realm.add(team));
 
-    final result = team.players.query(r'name BEGINSWITH $0', ['J']);
+    var result = team.players.query(r'name BEGINSWITH $0', ['J']);
     expect(result, [person]);
+    result = team.players.query(r'name IN $0', [
+      ['Pavel', 'Alex']
+    ]);
+    expect(result.length, 2);
   });
 
   test('List.freeze freezes the list', () {
