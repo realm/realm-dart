@@ -32,6 +32,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   final RealmResultsHandle _handle;
 
   final _supportsSnapshot = <T>[] is List<RealmObjectBase?>;
+  late String? _subscriptionName;
 
   RealmResults._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -135,6 +136,57 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
   }
 }
 
+extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
+  /// Add this [query] to the set of active subscriptions.
+  /// The query will be joined via an OR statement with any existing queries for the same type.
+  ///
+  /// If a [name] is given this allows you to later refer to the subscription by name,
+  /// e.g. when calling [MutableSubscriptionSet.removeByName].
+  /// By default, adding a subscription with the same name as an existing one
+  /// but a different query will update the existing subscription with the new query.
+  ///
+  /// If [update] is specified to `true`, then any existing query will be replaced.
+  /// Otherwise a [RealmException] is thrown, in case of duplicates.
+  ///
+  /// [WaitForSyncMode] specifies how to wait or not wait for subscribed objects to be downloaded.
+  /// The [timeout] is the maximum duration to wait for objects to be downloaded.
+  /// If the time exceeds this limit, the [RealmResults] is returned and the download
+  /// continues in the background.
+  ///
+  /// {@category Sync}
+  Future<RealmResults<T>> subscribe(
+      {String? name, WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation, Duration? timeout, bool update = false}) async {
+    _subscriptionName = name;
+    final shouldWait = waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) != null);
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(this, name: name, update: update);
+    });
+
+    if (shouldWait) {
+      if (timeout == null) {
+        await realm.subscriptions.waitForSynchronization();
+      } else {
+        await realm.subscriptions.waitForSynchronization().timeout(timeout);
+      }
+    }
+    return this;
+  }
+
+  /// Unsubscribe from this query result. It returns immediately without waiting
+  /// for synchronization.
+  ///
+  /// If the subscription is unnamed, the subscription matching the query will
+  /// be removed.
+  ///
+  /// {@category Sync}
+  void unsubscribe() {
+    realm.subscriptions.update((mutableSubscriptions) {
+      _subscriptionName != null ? mutableSubscriptions.removeByName(_subscriptionName!) : mutableSubscriptions.removeByQuery(this);
+    });
+    _subscriptionName = null;
+  }
+}
+
 /// @nodoc
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
@@ -230,4 +282,21 @@ class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
 
     return true;
   }
+}
+
+///
+/// Behavior when waiting for subscribed objects to be synchronized/downloaded.
+///
+enum WaitForSyncMode {
+  /// Waits until the objects have been downloaded from the server
+  /// the first time the subscription is created. If the subscription
+  /// already exists, the `Results` is returned immediately.
+  onCreation,
+
+  /// Always waits until the objects have been downloaded from the server.
+  always,
+
+  /// Never waits for the download to complete, but keeps downloading the
+  /// objects in the background.
+  never,
 }

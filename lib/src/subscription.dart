@@ -287,6 +287,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return realmCore.eraseSubscriptionByName(this, name);
   }
 
+  /// Remove the [query] from the set that matches by type, if it exists.
   bool removeByType<T extends RealmObject>() {
     final name = realm.schema.singleWhere((e) => e.type == T).name;
     var result = false;
@@ -294,6 +295,19 @@ class MutableSubscriptionSet extends SubscriptionSet {
       // reverse iteration to avoid index shifting
       final subscription = this[i];
       if (subscription.objectClassName == name) {
+        result |= remove(subscription);
+      }
+    }
+    return result;
+  }
+
+/// Remove the [query] from the set, if it is unnamed.
+  bool removeUnnamed(Subscription subscription) {
+    var result = false;
+    for (var i = length - 1; i >= 0; i--) {
+      // reverse iteration to avoid index shifting
+      final subscription = this[i];
+      if (subscription.name == null) {
         result |= remove(subscription);
       }
     }

@@ -106,7 +106,7 @@ export 'realm_object.dart'
         RealmObjectChanges,
         UserCallbackException;
 export 'realm_property.dart';
-export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults;
+export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
 export 'session.dart'
     show
         ConnectionStateChange,
