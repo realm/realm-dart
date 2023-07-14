@@ -595,4 +595,38 @@ Future<void> main([List<String>? args]) async {
     expect(writeReason.reason, 'write to "$productId" in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
     expect(writeReason.primaryKey.value, productId);
   });
+
+  testSubscriptions('Filter realm data using subscription results API', (realm) async {
+    final name = generateRandomString(4);
+    final query = await realm.query<Event>(r"name BEGINSWITH $0", [name]).subscribe();
+
+    realm.write(() {
+      realm.addAll([
+        Event(ObjectId(), name: "$name NPM Event", isCompleted: true, durationInMinutes: 30),
+        Event(ObjectId(), name: "$name NPM Meeting", isCompleted: false, durationInMinutes: 10),
+        Event(ObjectId(), name: "$name Some other event", isCompleted: true, durationInMinutes: 60),
+      ]);
+    });
+
+    expect(realm.subscriptions.length, 1);
+    expect(query.length, 3);
+
+    query.unsubscribe();
+    expect(realm.subscriptions.length, 0);
+
+    final namedQuery =
+        await realm.query<Event>(r'name BEGINSWITH $0 AND isCompleted == $1 AND durationInMinutes > $2', ["$name NPM", true, 20]).subscribe(name: "filter");
+
+    expect(realm.subscriptions.length, 1);
+    expect(namedQuery.length, 1);
+
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeUnnamed();
+    });
+    expect(realm.subscriptions.length, 1);
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeByName("filter");
+    });
+    expect(realm.subscriptions.length, 0);
+  });
 }
