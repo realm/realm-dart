@@ -793,7 +793,7 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.all<Dog>().single, throws<RealmStateError>('Too many elements'));
   });
 
-  test('Query with list in arguments', () {
+  test('Query with argument lists of different types and null', () {
     final id_1 = ObjectId();
     final id_2 = ObjectId();
     final uid_1 = Uuid.v4();
@@ -868,7 +868,11 @@ Future<void> main([List<String>? args]) async {
     result = realm.query<Person>(r'name IN $0', [setOfNames]);
     expect(result.length, 2);
 
-    result = realm.query<Person>(r'name IN $0', [result.map((e) => e.name)]);
+    final iterableNames = result.map((e) => e.name);
+    result = realm.query<Person>(r'name IN $0', [iterableNames]);
     expect(result.length, 2);
+
+    result = realm.query<Person>(r'name IN $0 || name IN $1 || name IN $2', [listOfNames, setOfNames, iterableNames]);
+    expect(result.length, 3);
   });
 }

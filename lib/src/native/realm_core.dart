@@ -2929,7 +2929,7 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
     int i = 0;
     for (var item in value) {
       _intoRealmValue(item, realm_query_arg.ref.arg[i], allocator);
-      i += 1;
+      i++;
     }
   } else {
     realm_query_arg.ref.arg = allocator<realm_value_t>();
