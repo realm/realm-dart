@@ -32,7 +32,6 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   final RealmResultsHandle _handle;
 
   final _supportsSnapshot = <T>[] is List<RealmObjectBase?>;
-  late String? _subscriptionName;
 
   RealmResults._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -156,17 +155,16 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// {@category Sync}
   Future<RealmResults<T>> subscribe(
       {String? name, WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation, Duration? timeout, bool update = false}) async {
-    _subscriptionName = name;
     final shouldWait = waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) != null);
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(this, name: name, update: update);
     });
-
     if (shouldWait) {
+      Future<void> waitForDownload() => realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForUpload());
       if (timeout == null) {
-        await realm.subscriptions.waitForSynchronization();
+        await waitForDownload();
       } else {
-        await realm.subscriptions.waitForSynchronization().timeout(timeout);
+        await waitForDownload().timeout(timeout);
       }
     }
     return this;
@@ -181,9 +179,8 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// {@category Sync}
   void unsubscribe() {
     realm.subscriptions.update((mutableSubscriptions) {
-      _subscriptionName != null ? mutableSubscriptions.removeByName(_subscriptionName!) : mutableSubscriptions.removeByQuery(this);
+      mutableSubscriptions.removeByQuery(this);
     });
-    _subscriptionName = null;
   }
 }
 

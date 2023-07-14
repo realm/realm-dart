@@ -302,7 +302,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
   }
 
 /// Remove the [query] from the set, if it is unnamed.
-  bool removeUnnamed(Subscription subscription) {
+  bool removeUnnamed() {
     var result = false;
     for (var i = length - 1; i >= 0; i--) {
       // reverse iteration to avoid index shifting
