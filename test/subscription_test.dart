@@ -596,7 +596,7 @@ Future<void> main([List<String>? args]) async {
     expect(writeReason.primaryKey.value, productId);
   });
 
-  testSubscriptions('Filter realm data using subscription results API', (realm) async {
+  testSubscriptions('Flexible sync subscribe/unsubscribe API', (realm) async {
     final name = generateRandomString(4);
     final query = await realm.query<Event>(r"name BEGINSWITH $0", [name]).subscribe();
 
@@ -628,5 +628,12 @@ Future<void> main([List<String>? args]) async {
       mutableSubscriptions.removeByName("filter");
     });
     expect(realm.subscriptions.length, 0);
+  });
+
+  test("Use Flexible sync subscribe API for local realm", () async {
+    final config = Configuration.local([Event.schema]);
+    final realm = getRealm(config);
+    await expectLater(
+        () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
   });
 }
