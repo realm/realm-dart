@@ -2922,12 +2922,14 @@ const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 
 void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
-  if (value is List) {
+  if (value is Iterable) {
     realm_query_arg.ref.nb_args = value.length;
     realm_query_arg.ref.is_list = true;
     realm_query_arg.ref.arg = allocator.call<realm_value>(value.length);
-    for (var i = 0; i < value.length; i++) {
-      _intoRealmValue(value[i], realm_query_arg.ref.arg[i], allocator);
+    int i = 0;
+    for (var item in value) {
+      _intoRealmValue(item, realm_query_arg.ref.arg[i], allocator);
+      i += 1;
     }
   } else {
     realm_query_arg.ref.arg = allocator<realm_value_t>();

@@ -2,11 +2,16 @@
 
 ### 
 * Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
-* Added support for query with list argument (`List<Object?>`) for `RealmResults`, `RealmList` and `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+* Support for passing `List`, `Set` or `Iterable` arguments to queries with `IN`-operators. ([#1346](https://github.com/realm/realm-dart/pull/1346))
   Example:
   ```dart
     final listOfNames = ['Ani', 'Teddy'];
-    final result = realm.query<Person>(r'name IN $0', [listOfNames]);
+    var result = realm.query<Person>(r'name IN $0', [listOfNames]);
+
+    final setOfNames = {'Poly', 'Teddy'};
+    result = realm.query<Person>(r'name IN $0', [setOfNames]);
+
+    result = realm.query<Person>(r'name IN $0', [result.map((e) => e.name)]);
   ```
 
 ### Fixed

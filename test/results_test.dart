@@ -810,9 +810,8 @@ Future<void> main([List<String>? args]) async {
           AllTypes('text3', true, date_2, 3.3, ObjectId(), Uuid.v4(), 3, Decimal128.infinity, binaryProp: Uint8List.fromList([3, 4])),
         ]));
 
-    void queryWithListArg(String propName, List<Object?> listArgument, {int? expected}) {
-      final results = realm.query<AllTypes>("$propName IN \$0", [listArgument]);
-      expected ??= listArgument.length;
+    void queryWithListArg(String propName, Object? argument, {int expected = 0}) {
+      final results = realm.query<AllTypes>("$propName IN \$0", [argument]);
       expect(results.length, expected);
     }
 
@@ -850,5 +849,26 @@ Future<void> main([List<String>? args]) async {
         expected: 2);
 
     queryWithListArg("nullableBinaryProp", [null], expected: 3);
+  });
+
+  test('Query with list, sets and iterable arguments', () {
+    final config = Configuration.local([Person.schema]);
+    Realm realm = getRealm(config);
+    realm.write(() => realm.addAll([
+          Person('Ani'),
+          Person('Teddy'),
+          Person('Poly'),
+        ]));
+
+    final listOfNames = ['Ani', 'Teddy'];
+    var result = realm.query<Person>(r'name IN $0', [listOfNames]);
+    expect(result.length, 2);
+
+    final setOfNames = {'Poly', 'Teddy'};
+    result = realm.query<Person>(r'name IN $0', [setOfNames]);
+    expect(result.length, 2);
+
+    result = realm.query<Person>(r'name IN $0', [result.map((e) => e.name)]);
+    expect(result.length, 2);
   });
 }
