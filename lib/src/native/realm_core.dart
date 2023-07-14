@@ -1101,7 +1101,7 @@ class _RealmCore {
     }
   }
 
-  RealmResultsHandle queryList(RealmList target, String query, List<Object> args) {
+  RealmResultsHandle queryList(RealmList target, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
@@ -1122,7 +1122,7 @@ class _RealmCore {
     });
   }
 
-  RealmResultsHandle querySet(RealmSet target, String query, List<Object> args) {
+  RealmResultsHandle querySet(RealmSet target, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);

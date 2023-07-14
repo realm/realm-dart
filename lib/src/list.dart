@@ -238,7 +238,7 @@ extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
-  RealmResults<T> query(String query, [List<Object> arguments = const []]) {
+  RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = realmCore.queryList(asManaged(), query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
