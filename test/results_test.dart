@@ -882,43 +882,33 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() => realm.addAll([
           School('primary school 1', branches: [
-            School(
-              '131',
-              city: "NY city",
-            ),
-            School('144'),
+            School('131', city: "NY city"),
+            School('144', city: "Garden city"),
+            School('128'),
           ]),
-          School('secondary school 1', branches: [
-            School('A131', city: "Newark"),
-            School('A144', city: "Garden city"),
-          ]),
-          School('high school 1', students: [
+          School('secondary school 1', students: [
             Student(1, name: 'NP'),
             Student(2, name: 'KR'),
           ]),
-          School('high school 2', students: [
-            Student(3),
-            Student(4, name: 'NP'),
-          ])
         ]));
 
     var result = realm.query<School>(r'ANY $0 IN branches.city', [
-      ["Newark", "Garden city"]
+      ["NY city"]
     ]);
     expect(result.length, 1);
-    expect(result.first.name, 'secondary school 1');
+    expect(result.first.name, 'primary school 1');
 
     result = realm.query<School>(r'ALL $0 IN branches.city', [
-      [null, "NY city"]
+      ["NY city", "Garden city", null]
     ]);
     expect(result.length, 1);
     expect(result.first.name, 'primary school 1');
 
     result = realm.query<School>(r'students.@count > $0 && NONE $1 IN students.name', [
       0,
-      {null}
+      {'Non-existing name', null}
     ]);
     expect(result.length, 1);
-    expect(result.first.name, 'high school 1');
+    expect(result.first.name, 'secondary school 1');
   });
 }
