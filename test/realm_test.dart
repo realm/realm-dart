@@ -1978,8 +1978,8 @@ Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCo
   await realm.syncSession.waitForDownload();
 }
 
-Future<void> _addSubscriptions(Realm realm, String searchByPreffix) async {
-  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPreffix]);
+Future<void> _addSubscriptions(Realm realm, String searchByPrefix) async {
+  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPrefix]);
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }

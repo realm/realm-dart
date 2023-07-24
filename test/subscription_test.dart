@@ -619,15 +619,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(realm.subscriptions.length, 1);
     expect(namedQuery.length, 1);
-
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeUnnamed();
-    });
-    expect(realm.subscriptions.length, 1);
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeByName("filter");
-    });
-    expect(realm.subscriptions.length, 0);
   });
 
   test("Use Flexible sync subscribe API for local realm", () async {
@@ -635,5 +626,118 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
     await expectLater(
         () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
+    await expectLater(
+        () => realm.all<Event>().unsubscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
+  });
+
+  testSubscriptions('Flexible sync subscribe API duplicate subscription', (realm) async {
+    final subscriptionName = "sub1";
+    final subscriptionNewName = "sub2";
+    final query1 = realm.all<Event>();
+    final query2 = realm.query<Event>("name = 'some name'");
+
+    await query1.subscribe(name: subscriptionName);
+    expect(realm.subscriptions.length, 1);
+
+    //Subscribe for the same query with the same name using update flag
+    await query1.subscribe(name: subscriptionName, update: true);
+    expect(realm.subscriptions.length, 1);
+
+    //Replace query subscription with the same name using update flag
+    await query2.subscribe(name: subscriptionName, update: true);
+    expect(realm.subscriptions.length, 1);
+
+    //Subscribe for the same query with different name
+    await query2.subscribe(name: subscriptionNewName);
+    expect(realm.subscriptions.length, 2);
+
+    //Add query subscription with the same name throws
+    await expectLater(() => query1.subscribe(name: subscriptionNewName), throws<RealmException>("Duplicate subscription with name: $subscriptionNewName"));
+  });
+
+  testSubscriptions('Flexible sync subscribe API unnamed subscriptions', (realm) async {
+    final query = realm.all<Event>();
+    query.subscribe();
+    expect(realm.subscriptions.length, 1);
+
+    //Subscribe for the same query doesn't add new subscription
+    await realm.all<Event>().subscribe();
+    expect(realm.subscriptions.length, 1);
+
+    //Subscribe for the same query instance doesn't add new subscription
+    query.subscribe();
+    expect(realm.subscriptions.length, 1);
+
+    await realm.query<Event>("name = 'some name'").subscribe();
+    expect(realm.subscriptions.length, 2);
+  });
+
+  testSubscriptions('Flexible sync subscribe/unsubscribe API removeUnnamed', (realm) async {
+    final subscriptionName = "sub1";
+    final query = realm.all<Event>();
+
+    void subscribeTwice() async {
+      //Create named and unnamed subscriptions for the same query
+      await query.subscribe();
+      await query.subscribe(name: subscriptionName);
+      expect(realm.subscriptions.length, 2);
+    }
+
+    subscribeTwice();
+
+    //Remove unnamed subscription
+    query.unsubscribe();
+    expect(realm.subscriptions.length, 1);
+
+    //removeUnnamed does nothing, since only named subscription exists
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeUnnamed();
+    });
+    expect(realm.subscriptions.length, 1);
+
+    //Remove named subscription
+    query.unsubscribe(name: subscriptionName);
+    expect(realm.subscriptions.length, 0);
+
+    subscribeTwice();
+
+    //Remove named subscription
+    query.unsubscribe(name: subscriptionName);
+    expect(realm.subscriptions.length, 1);
+
+    //Remove unnamed subscription
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.removeUnnamed();
+    });
+    expect(realm.subscriptions.length, 0);
+  });
+
+  baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {
+    final productNamePrefix = generateRandomString(10);
+    App app = App(configuration);
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final config = Configuration.flexibleSync(user, [Product.schema]);
+    final realm = getRealm(config);
+    await realm.query<Product>(r'name BEGINSWITH $0', [productNamePrefix]).subscribe();
+    realm.write(() {
+      for (var i = 0; i < 20; i++) {
+        realm.add(Product(ObjectId(), "${productNamePrefix}_${i + 1}"));
+      }
+    });
+    await realm.syncSession.waitForUpload();
+    realm.close();
+
+    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final config1 = Configuration.flexibleSync(user1, [Product.schema]);
+    final realm1 = getRealm(config1);
+    final query = realm1.query<Product>(r'name BEGINSWITH $0', ["${productNamePrefix}_1"]);
+    final results = await query.subscribe(waitForSyncMode: WaitForSyncMode.never);
+    expect(results.length, 0);
+
+    final first = await query.subscribe(waitForSyncMode: WaitForSyncMode.always, timeout: Duration(milliseconds: 1));
+    expect(first.length, 0);
+
+    final second = await query.subscribe(waitForSyncMode: WaitForSyncMode.always);
+    expect(second.length, 10);
   });
 }

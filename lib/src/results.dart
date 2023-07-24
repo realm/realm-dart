@@ -141,13 +141,14 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   ///
   /// If a [name] is given this allows you to later refer to the subscription by name,
   /// e.g. when calling [MutableSubscriptionSet.removeByName].
-  /// By default, adding a subscription with the same name as an existing one
-  /// but a different query will update the existing subscription with the new query.
   ///
-  /// If [update] is specified to `true`, then any existing query will be replaced.
+  /// If [update] is specified to `true`, then any existing query
+  /// with the same name will be replaced.
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
   ///
   /// [WaitForSyncMode] specifies how to wait or not wait for subscribed objects to be downloaded.
+  /// The default value is [WaitForSyncMode.onCreation].
+  ///
   /// The [timeout] is the maximum duration to wait for objects to be downloaded.
   /// If the time exceeds this limit, the [RealmResults] is returned and the download
   /// continues in the background.
@@ -160,11 +161,12 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
       mutableSubscriptions.add(this, name: name, update: update);
     });
     if (shouldWait) {
-      Future<void> waitForDownload() => realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForUpload());
+      Future<void> waitForDownload() async =>
+          await realm.subscriptions.waitForSynchronization().then((value) async => await realm.syncSession.waitForDownload());
       if (timeout == null) {
         await waitForDownload();
       } else {
-        await waitForDownload().timeout(timeout);
+        await waitForDownload().timeout(timeout, onTimeout: () {});
       }
     }
     return this;
@@ -177,9 +179,13 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// be removed.
   ///
   /// {@category Sync}
-  void unsubscribe() {
+  void unsubscribe({String? name}) {
     realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeByQuery(this);
+      if (name == null) {
+        mutableSubscriptions.removeByQuery(this);
+      } else {
+        mutableSubscriptions.removeByName(name);
+      }
     });
   }
 }
