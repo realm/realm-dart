@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Added new Flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added `SubscriptionSet.unsubscribeAll()` for removing all the subscriptions or all unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
+* Added new flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added `SubscriptionSet.unsubscribeAll()` for removing all the subscriptions or all unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
 
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
