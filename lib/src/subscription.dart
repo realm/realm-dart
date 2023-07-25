@@ -208,12 +208,16 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
     }
   }
 
-  bool unsubscribeAll({bool unnamedOnly = false}) {
-    bool unsubscribed = false;
+  /// Removes all subscriptions from the subscription set.
+  /// If [unnamedOnly] is `true`, only unnamed subscriptions are removed.
+  void unsubscribeAll({bool unnamedOnly = false}) {
     update((mutableSubscriptions) {
-      unsubscribed = mutableSubscriptions.removeAll(unnamedOnly: unnamedOnly);
+      if (unnamedOnly) {
+        mutableSubscriptions.removeAllUnnamed();
+      } else {
+        mutableSubscriptions.clear();
+      }
     });
-    return unsubscribed;
   }
 }
 
@@ -309,13 +313,13 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return result;
   }
 
-  /// Remove the [query] from the set, if it is unnamed.
-  bool removeAll({bool unnamedOnly = false}) {
+  /// Removes all unnamed subscriptions from the subscription set.
+  bool removeAllUnnamed() {
     var result = false;
     for (var i = length - 1; i >= 0; i--) {
       // reverse iteration to avoid index shifting
       final subscription = this[i];
-      if (!unnamedOnly || subscription.name == null) {
+      if (subscription.name == null) {
         result |= remove(subscription);
       }
     }

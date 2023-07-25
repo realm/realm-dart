@@ -696,7 +696,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    expect(realm.subscriptions.unsubscribeAll(unnamedOnly: true), isTrue); // -1 unnamed subscription on queryFiltered
+    realm.subscriptions.unsubscribeAll(unnamedOnly: true); // -1 unnamed subscription on queryFiltered
 
     expect(realm.subscriptions.length, 2);
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
@@ -706,11 +706,8 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.length, 1);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    realm.subscriptions.update((mutableSubscriptions) {
-      expect(mutableSubscriptions.removeAll(), isTrue); // -1 named subscription sub2
-    });
-    expect(realm.subscriptions.length, 0);
-    expect(namedResults2.unsubscribe(), isFalse); // -0 named subscription is deleted from removeAll
+    expect(realm.subscriptions.length, 1);
+    expect(namedResults2.unsubscribe(), isTrue); // -1 named subscription
   });
 
   baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {
