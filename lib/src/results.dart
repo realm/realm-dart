@@ -135,6 +135,11 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
   }
 }
 
+class _SubscribedRealmResult<T extends RealmObject> extends RealmResults<T> {
+  final String? name;
+  _SubscribedRealmResult._(RealmResults<RealmObject> results, {this.name}) : super._(results.handle, results.realm, results.metadata);
+}
+
 extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// Add this [query] to the set of active subscriptions.
   /// The query will be joined via an OR statement with any existing queries for the same type.
@@ -156,10 +161,12 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// {@category Sync}
   Future<RealmResults<T>> subscribe(
       {String? name, WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation, Duration? timeout, bool update = false}) async {
-    final shouldWait = waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) != null);
+
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(this, name: name, update: update);
     });
+
+    final shouldWait = waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) != null);
     if (shouldWait) {
       Future<void> waitForDownload() async =>
           await realm.subscriptions.waitForSynchronization().then((value) async => await realm.syncSession.waitForDownload());
@@ -169,7 +176,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
         await waitForDownload().timeout(timeout, onTimeout: () {});
       }
     }
-    return this;
+    return _SubscribedRealmResult._(this, name: name);
   }
 
   /// Unsubscribe from this query result. It returns immediately without waiting
@@ -179,14 +186,19 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// be removed.
   ///
   /// {@category Sync}
-  void unsubscribe({String? name}) {
+  bool unsubscribe() {
+    bool unsubscribed = false;
     realm.subscriptions.update((mutableSubscriptions) {
-      if (name == null) {
-        mutableSubscriptions.removeByQuery(this);
-      } else {
-        mutableSubscriptions.removeByName(name);
+      if (this is _SubscribedRealmResult<T>) {
+        final subscriptionName = (this as _SubscribedRealmResult<T>).name;
+        if (subscriptionName != null) {
+          unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
+        } else {
+          unsubscribed = mutableSubscriptions.removeByQuery(this);
+        }
       }
     });
+    return unsubscribed;
   }
 }
 
