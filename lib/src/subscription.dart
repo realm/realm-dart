@@ -207,6 +207,14 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
         return state;
     }
   }
+
+  bool unsubscribeAll({bool unnamedOnly = false}) {
+    bool unsubscribed = false;
+    update((mutableSubscriptions) {
+      unsubscribed = mutableSubscriptions.removeAll(unnamedOnly: unnamedOnly);
+    });
+    return unsubscribed;
+  }
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
@@ -301,13 +309,13 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return result;
   }
 
-/// Remove the [query] from the set, if it is unnamed.
-  bool removeUnnamed() {
+  /// Remove the [query] from the set, if it is unnamed.
+  bool removeAll({bool unnamedOnly = false}) {
     var result = false;
     for (var i = length - 1; i >= 0; i--) {
       // reverse iteration to avoid index shifting
       final subscription = this[i];
-      if (subscription.name == null) {
+      if (!unnamedOnly || subscription.name == null) {
         result |= remove(subscription);
       }
     }

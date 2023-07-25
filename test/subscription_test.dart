@@ -599,7 +599,8 @@ Future<void> main([List<String>? args]) async {
   testSubscriptions('Flexible sync subscribe/unsubscribe API', (realm) async {
     final prefix = generateRandomString(4);
     final byTestRun = "name BEGINSWITH '$prefix'";
-    final subscribedQuery = await realm.query<Event>(byTestRun).subscribe();
+    final query = realm.query<Event>(byTestRun);
+    await query.subscribe();
 
     // Write new data and upload
     realm.write(() {
@@ -609,13 +610,13 @@ Future<void> main([List<String>? args]) async {
         Event(ObjectId(), name: "$prefix Some other event", isCompleted: true, durationInMinutes: 15),
       ]);
     });
-    expect(subscribedQuery.length, 3);
+    expect(query.length, 3);
     await realm.syncSession.waitForUpload();
 
     // Unsubscribing will remove all the data from realm file after synchronization completes
-    subscribedQuery.unsubscribe();
+    realm.subscriptions.unsubscribeAll();
     await realm.subscriptions.waitForSynchronization();
-    expect(subscribedQuery.length, 0);
+    expect(query.length, 0);
 
     // Subscribing will download only the objects with names containing 'NPM'
     final subscribedByName = await realm.query<Event>('$byTestRun AND name CONTAINS \$0', ["NPM"]).subscribe();
@@ -644,6 +645,8 @@ Future<void> main([List<String>? args]) async {
         () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
     await expectLater(
         () => realm.all<Event>().unsubscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
+    await expectLater(
+        () => realm.subscriptions.unsubscribeAll(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
   });
 
   testSubscriptions('Flexible sync subscribe API duplicate subscription', (realm) async {
@@ -670,7 +673,7 @@ Future<void> main([List<String>? args]) async {
     await expectLater(() => query1.subscribe(name: subscriptionName2), throws<RealmException>("Duplicate subscription with name: $subscriptionName2"));
   });
 
-  testSubscriptions('Flexible sync subscribe/unsubscribe and removeUnnamed', (realm) async {
+  testSubscriptions('Flexible sync subscribe/unsubscribe and unsubscribeAll', (realm) async {
     final subscriptionName1 = "sub1";
     final subscriptionName2 = "sub2";
     final query = realm.all<Event>();
@@ -693,9 +696,8 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.removeUnnamed(); // -1 unnamed subscription on queryFiltered
-    });
+    expect(realm.subscriptions.unsubscribeAll(unnamedOnly: true), isTrue); // -1 unnamed subscription on queryFiltered
+
     expect(realm.subscriptions.length, 2);
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
@@ -704,8 +706,11 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.length, 1);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    expect(namedResults2.unsubscribe(), isTrue); // -1 named subscription sub2
+    realm.subscriptions.update((mutableSubscriptions) {
+      expect(mutableSubscriptions.removeAll(), isTrue); // -1 named subscription sub2
+    });
     expect(realm.subscriptions.length, 0);
+    expect(namedResults2.unsubscribe(), isFalse); // -0 named subscription is deleted from removeAll
   });
 
   baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {
