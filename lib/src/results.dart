@@ -168,8 +168,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
 
     final shouldWait = waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) != null);
     if (shouldWait) {
-      Future<void> waitForDownload() async =>
-          await realm.subscriptions.waitForSynchronization().then((value) async => await realm.syncSession.waitForDownload());
+      Future<void> waitForDownload() => realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForDownload());
       if (timeout == null) {
         await waitForDownload();
       } else {
