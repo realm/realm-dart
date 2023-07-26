@@ -738,5 +738,5 @@ Future<void> main([List<String>? args]) async {
 
     final second = await query.subscribe(waitForSyncMode: WaitForSyncMode.always);
     expect(second.length, 2); // product_1 and product_21
-  }, skip: "Too slow");
+  });
 }
