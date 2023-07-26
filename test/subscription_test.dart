@@ -643,10 +643,8 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(config);
     await expectLater(
         () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
-    expect(
-        () => realm.all<Event>().unsubscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
-    expect(
-        () => realm.subscriptions.unsubscribeAll(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
+    expect(() => realm.all<Event>().unsubscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
+    expect(() => realm.subscriptions.unsubscribeAll(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
   });
 
   testSubscriptions('Flexible sync subscribe API - duplicated subscription', (realm) async {
