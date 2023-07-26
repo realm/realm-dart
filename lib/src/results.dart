@@ -192,16 +192,19 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   ///
   /// If the subscription is unnamed, the subscription matching
   /// the query will be removed.
+  /// Return `false` if the [RealmResults] is not created by [subscribe].
   ///
   /// {@category Sync}
   bool unsubscribe() {
     bool unsubscribed = false;
-    final subscriptionName = (this is _SubscribedRealmResult<T>) ? (this as _SubscribedRealmResult<T>).subscriptionName : null;
     realm.subscriptions.update((mutableSubscriptions) {
-      if (subscriptionName != null) {
-        unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
-      } else {
-        unsubscribed = mutableSubscriptions.removeByQuery(this);
+      if (this is _SubscribedRealmResult<T>) {
+        final subscriptionName = (this as _SubscribedRealmResult<T>).subscriptionName;
+        if (subscriptionName != null) {
+          unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
+        } else {
+          unsubscribed = mutableSubscriptions.removeByQuery(this);
+        }
       }
     });
     return unsubscribed;
