@@ -284,22 +284,22 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
 
-  /// Remove the [subscription] from the set, if it exists.
+  /// Removes the [subscription] from the set, if it exists.
   bool remove(Subscription subscription) {
     return realmCore.eraseSubscriptionById(this, subscription);
   }
 
-  /// Remove the [query] from the set, if it exists.
+  /// Removes the [query] from the set, if it exists.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
     return realmCore.eraseSubscriptionByResults(this, query);
   }
 
-  /// Remove the [query] from the set that matches by [name], if it exists.
+  /// Removes the subscriptions from the set that matches by [name], if it exists.
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
 
-  /// Remove the [query] from the set that matches by type, if it exists.
+  /// Removes the subscriptions from the set that matches by type, if it exists.
   bool removeByType<T extends RealmObject>() {
     final name = realm.schema.singleWhere((e) => e.type == T).name;
     var result = false;

@@ -631,25 +631,25 @@ Future<void> main([List<String>? args]) async {
 
     // Query local realm by duration
     final filteredByDuration = realm.query<Event>("$byTestRun AND durationInMinutes < \$0", [20]);
-    expect(filteredByDuration.length, 1); // duration 10 only, because only one object has name containing 'NPM' and duration < 20
+    expect(filteredByDuration.length, 1); // duration 10 only, because there is subscription by name containing 'NPM' and duration < 20
 
     // Subscribing only by duration will download all objects with duration < 20 independent on the name
     final subscribedByDuration = await filteredByDuration.subscribe();
     expect(subscribedByDuration.length, 2); // duration 10 and 15, because all objects with durations < 20 are downloaded
   });
 
-  test("Use Flexible sync subscribe API for local realm throws", () async {
+  test("Using flexible sync subscribe API for local realm throws", () async {
     final config = Configuration.local([Event.schema]);
     final realm = getRealm(config);
     await expectLater(
         () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
-    await expectLater(
+    expect(
         () => realm.all<Event>().unsubscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
-    await expectLater(
+    expect(
         () => realm.subscriptions.unsubscribeAll(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
   });
 
-  testSubscriptions('Flexible sync subscribe API duplicate subscription', (realm) async {
+  testSubscriptions('Flexible sync subscribe API - duplicated subscription', (realm) async {
     final subscriptionName1 = "sub1";
     final subscriptionName2 = "sub2";
     final query1 = realm.all<Event>();
@@ -658,12 +658,12 @@ Future<void> main([List<String>? args]) async {
     await query1.subscribe(name: subscriptionName1);
     expect(realm.subscriptions.length, 1);
 
-    //Replace query subscription with the same name using update flag
+    //Replace subscription with query2 using the same name and update flag
     await query2.subscribe(name: subscriptionName1, update: true);
     expect(realm.subscriptions.length, 1);
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
 
-    //Subscribe for the same query with different name
+    //Subscribe for the same query2 with different name
     await query2.subscribe(name: subscriptionName2);
     expect(realm.subscriptions.length, 2);
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
@@ -706,8 +706,8 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.length, 1);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    expect(realm.subscriptions.length, 1);
     expect(namedResults2.unsubscribe(), isTrue); // -1 named subscription
+    expect(realm.subscriptions.length, 0);
   });
 
   baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {

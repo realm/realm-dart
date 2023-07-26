@@ -136,8 +136,14 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
 }
 
 class _SubscribedRealmResult<T extends RealmObject> extends RealmResults<T> {
-  final String? name;
-  _SubscribedRealmResult._(RealmResults<RealmObject> results, {this.name}) : super._(results.handle, results.realm, results.metadata);
+  final String? subscriptionName;
+
+  _SubscribedRealmResult._(RealmResults<RealmObject> results, {this.subscriptionName})
+      : super._(
+          results.handle,
+          results.realm,
+          results.metadata,
+        );
 }
 
 extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
@@ -159,15 +165,18 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// continues in the background.
   ///
   /// {@category Sync}
-  Future<RealmResults<T>> subscribe(
-      {String? name, WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation, Duration? timeout, bool update = false}) async {
-
+  Future<RealmResults<T>> subscribe({
+    String? name,
+    WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation,
+    Duration? timeout,
+    bool update = false,
+  }) async {
+    bool subscriptionExists = realm.subscriptions.find(this) != null;
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(this, name: name, update: update);
     });
 
-    final shouldWait = waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) != null);
-    if (shouldWait) {
+    if (waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && !subscriptionExists)) {
       Future<void> waitForDownload() => realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForDownload());
       if (timeout == null) {
         await waitForDownload();
@@ -175,26 +184,24 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
         await waitForDownload().timeout(timeout, onTimeout: () {});
       }
     }
-    return _SubscribedRealmResult._(this, name: name);
+    return _SubscribedRealmResult._(this, subscriptionName: name);
   }
 
-  /// Unsubscribe from this query result. It returns immediately without waiting
-  /// for synchronization.
+  /// Unsubscribe from this query result. It returns immediately
+  /// without waiting for synchronization.
   ///
-  /// If the subscription is unnamed, the subscription matching the query will
-  /// be removed.
+  /// If the subscription is unnamed, the subscription matching
+  /// the query will be removed.
   ///
   /// {@category Sync}
   bool unsubscribe() {
     bool unsubscribed = false;
+    final subscriptionName = (this is _SubscribedRealmResult<T>) ? (this as _SubscribedRealmResult<T>).subscriptionName : null;
     realm.subscriptions.update((mutableSubscriptions) {
-      if (this is _SubscribedRealmResult<T>) {
-        final subscriptionName = (this as _SubscribedRealmResult<T>).name;
-        if (subscriptionName != null) {
-          unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
-        } else {
-          unsubscribed = mutableSubscriptions.removeByQuery(this);
-        }
+      if (subscriptionName != null) {
+        unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
+      } else {
+        unsubscribed = mutableSubscriptions.removeByQuery(this);
       }
     });
     return unsubscribed;
@@ -304,7 +311,7 @@ class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
 enum WaitForSyncMode {
   /// Waits until the objects have been downloaded from the server
   /// the first time the subscription is created. If the subscription
-  /// already exists, the `Results` is returned immediately.
+  /// already exists, the [RealmResults] is returned immediately.
   onCreation,
 
   /// Always waits until the objects have been downloaded from the server.
