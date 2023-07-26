@@ -168,7 +168,7 @@ class Realm implements Finalizable {
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
-  /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
+  /// Using [Realm.open] for opening a local Realm is equivalent to using the constructor of [Realm].
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
       throw cancellationToken.exception!;
@@ -954,7 +954,7 @@ class MigrationRealm extends DynamicRealm {
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered onProgressCallback when calling [open] that receives progress notifications while the download is in progress.
+/// This is the registered onProgressCallback when calling [Realm.open] that receives progress notifications while the download is in progress.
 ///
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
