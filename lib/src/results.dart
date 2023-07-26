@@ -147,7 +147,7 @@ class _SubscribedRealmResult<T extends RealmObject> extends RealmResults<T> {
 }
 
 extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
-  /// Add this [query] to the set of active subscriptions.
+  /// Adds this [RealmResults] query to the set of active subscriptions.
   /// The query will be joined via an OR statement with any existing queries for the same type.
   ///
   /// If a [name] is given this allows you to later refer to the subscription by name,
