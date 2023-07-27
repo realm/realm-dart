@@ -613,8 +613,8 @@ Future<void> main([List<String>? args]) async {
     expect(query.length, 3);
     await realm.syncSession.waitForUpload();
 
-    // Unsubscribing will remove all the data from realm file after synchronization completes
-    realm.subscriptions.unsubscribeAll();
+    // Remove all the data from realm file after synchronization completes
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.clear());
     await realm.subscriptions.waitForSynchronization();
     expect(query.length, 0);
 
@@ -644,7 +644,6 @@ Future<void> main([List<String>? args]) async {
     await expectLater(
         () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
     expect(() => realm.all<Event>().unsubscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
-    expect(() => realm.subscriptions.unsubscribeAll(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
   });
 
   testSubscriptions('Flexible sync subscribe API - duplicated subscription', (realm) async {
@@ -671,7 +670,7 @@ Future<void> main([List<String>? args]) async {
     await expectLater(() => query1.subscribe(name: subscriptionName2), throws<RealmException>("Duplicate subscription with name: $subscriptionName2"));
   });
 
-  testSubscriptions('Flexible sync subscribe/unsubscribe and unsubscribeAll', (realm) async {
+  testSubscriptions('Flexible sync subscribe/unsubscribe and removeAllUnnamed', (realm) async {
     final subscriptionName1 = "sub1";
     final subscriptionName2 = "sub2";
     final query = realm.all<Event>();
@@ -694,7 +693,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    realm.subscriptions.unsubscribeAll(unnamedOnly: true); // -1 unnamed subscription on queryFiltered
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.removeAllUnnamed()); // -1 unnamed subscription on queryFiltered
 
     expect(realm.subscriptions.length, 2);
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);

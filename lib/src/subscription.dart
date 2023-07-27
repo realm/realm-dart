@@ -207,10 +207,6 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
         return state;
     }
   }
-
-  /// Removes all subscriptions from the subscription set.
-  /// If [unnamedOnly] is `true`, only unnamed subscriptions are removed.
-  void unsubscribeAll({bool unnamedOnly = false});
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
@@ -247,13 +243,6 @@ class ImmutableSubscriptionSet extends SubscriptionSet {
       mutableSubscriptions._handle.release();
       oldHandle.release();
     }
-  }
-
-  @override
-  void unsubscribeAll({bool unnamedOnly = false}) {
-    update((mutableSubscriptions) {
-      mutableSubscriptions.unsubscribeAll(unnamedOnly: unnamedOnly);
-    });
   }
 }
 
@@ -328,15 +317,6 @@ class MutableSubscriptionSet extends SubscriptionSet {
   /// Clear the subscription set.
   void clear() {
     realmCore.clearSubscriptionSet(this);
-  }
-
-  @override
-  void unsubscribeAll({bool unnamedOnly = false}) {
-    if (unnamedOnly) {
-      removeAllUnnamed();
-    } else {
-      clear();
-    }
   }
 }
 
