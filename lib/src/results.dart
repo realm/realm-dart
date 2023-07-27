@@ -197,16 +197,19 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// {@category Sync}
   bool unsubscribe() {
     bool unsubscribed = false;
-    realm.subscriptions.update((mutableSubscriptions) {
-      if (this is _SubscribedRealmResult<T>) {
-        final subscriptionName = (this as _SubscribedRealmResult<T>).subscriptionName;
+    if (realm.config is! FlexibleSyncConfiguration) {
+      throw RealmError('unsubscribe is only allowed on Realms opened with a FlexibleSyncConfiguration');
+    }
+    if (this is _SubscribedRealmResult<T>) {
+      final subscriptionName = (this as _SubscribedRealmResult<T>).subscriptionName;
+      realm.subscriptions.update((mutableSubscriptions) {
         if (subscriptionName != null) {
           unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
         } else {
           unsubscribed = mutableSubscriptions.removeByQuery(this);
         }
-      }
-    });
+      });
+    }
     return unsubscribed;
   }
 }
