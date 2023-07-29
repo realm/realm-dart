@@ -3991,7 +3991,7 @@ class RealmLibrary {
   ///
   /// @param key to search in the dictionary
   /// @param found True if the such key exists
-  /// @return True if no exception occured
+  /// @return True if no exception occurred
   bool realm_dictionary_contains_key(
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
@@ -4017,7 +4017,7 @@ class RealmLibrary {
   ///
   /// @param value to search in the dictionary
   /// @param index the index of the value in the dictionry if such value exists
-  /// @return True if no exception occured
+  /// @return True if no exception occurred
   bool realm_dictionary_contains_value(
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t value,
@@ -4204,7 +4204,7 @@ class RealmLibrary {
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<ffi.Size>)>();
 
-  /// Returns the number of changes occured to the dictionary passed as argument
+  /// Returns the number of changes occurred to the dictionary passed as argument
   ///
   /// @param changes valid ptr to the dictionary changes structure
   /// @param out_deletions_size number of deletions
@@ -7394,7 +7394,7 @@ class RealmLibrary {
   /// Find and delete the table passed as parementer for the realm instance passed to this function.
   /// @param table_name for the table the user wants to delete
   /// @param table_deleted in order to indicate if the table was actually deleted from realm
-  /// @return true if no error has occured, false otherwise
+  /// @return true if no error has occurred, false otherwise
   bool realm_remove_table(
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<ffi.Char> table_name,
@@ -7574,7 +7574,7 @@ class RealmLibrary {
   /// @param value the value to find inside the realm results
   /// @param out_index the index where the object has been found, or realm::not_found
   /// @param out_found boolean indicating if the value has been found or not
-  /// @return true if no error occured, false otherwise
+  /// @return true if no error occurred, false otherwise
   bool realm_results_find(
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<realm_value_t> value,
@@ -7604,7 +7604,7 @@ class RealmLibrary {
   /// @param value the value to find inside the realm results
   /// @param out_index the index where the object has been found, or realm::not_found
   /// @param out_found boolean indicating if the value has been found or not
-  /// @return true if no error occured, false otherwise
+  /// @return true if no error occurred, false otherwise
   bool realm_results_find_object(
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<realm_object_t> value,
@@ -7724,7 +7724,7 @@ class RealmLibrary {
   /// Return the query associated to the results passed as argument.
   ///
   /// @param results the ptr to a valid results object.
-  /// @return a valid ptr to realm_query_t if no error has occured
+  /// @return a valid ptr to realm_query_t if no error has occurred
   ffi.Pointer<realm_query_t> realm_results_get_query(
     ffi.Pointer<realm_results_t> results,
   ) {
@@ -7741,7 +7741,7 @@ class RealmLibrary {
       ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>)>();
 
   /// Set the boolean passed as argument to true or false whether the realm_results passed is valid or not
-  /// @return true/false if no exception has occured.
+  /// @return true/false if no exception has occurred.
   bool realm_results_is_valid(
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<ffi.Bool> arg1,
