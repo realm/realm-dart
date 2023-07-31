@@ -5,12 +5,16 @@
 
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
+* Rare corruption of files on streaming format (often following compact, convert or copying to a new file). (Core upgrade, since v12.12.0)
+* Trying to search a full-text indexes created as a result of an additive schema change (i.e. applying the differences between the local schema and a synchronized realm's schema) could have resulted in an IllegalOperation error with the error code `Column has no fulltext index`. (Core upgrade, since v13.2.0).
+* Sync progress for DOWNLOAD messages from server state was updated wrongly. This may have resulted in an extra round-trip to the server. (Core upgrade, since v12.9.0)
+* Sync errors included the error message twice (Core upgrade, since v13.16.0).
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core 13.16.0.
+* Using Core 13.17.1.
 
 ## 1.3.0 (2023-06-22)
 
