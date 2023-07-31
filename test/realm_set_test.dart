@@ -767,4 +767,37 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => set.boolSet.freeze(), throws<RealmStateError>("Unmanaged sets can't be frozen"));
   });
+
+  test('RealmSet.changes - await for with yield ', () async {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = realm.write(() {
+      return realm.add(TestRealmSets(1, objectsSet: {
+        Car('Tesla'),
+      }));
+    }).objectsSet;
+
+    final wait = const Duration(seconds: 1);
+
+    Stream<bool> trueWaitFalse() async* {
+      yield true;
+      await Future<void>.delayed(wait);
+      yield false; // nothing has happened in the meantime
+    }
+
+    // ignore: prefer_function_declarations_over_variables
+    final awaitForWithYield = () async* {
+      await for (final c in cars.changes) {
+        yield c;
+      }
+    };
+
+    int count = 0;
+    await for (final c in awaitForWithYield().map((_) => trueWaitFalse()).switchLatest()) {
+      if (!c) break; // saw false after waiting
+      ++count; // saw true due to new event from changes
+      if (count > 1) fail('Should only receive one event');
+    }
+  });
 }
