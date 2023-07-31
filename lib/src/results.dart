@@ -177,7 +177,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
     });
 
     if (waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && !subscriptionExists)) {
-      Future<void> waitForDownload() => realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForDownload());
+      Future<void> waitForDownload() async => await realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForDownload());
       if (timeout == null) {
         await waitForDownload();
       } else {
