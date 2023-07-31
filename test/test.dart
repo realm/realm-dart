@@ -737,17 +737,13 @@ extension RealmObjectTest on RealmObjectBase {
 }
 
 extension DateTimeTest on DateTime {
-  String toNormalizedDateString() {
+  String toCoreTimestampString() {
     final utc = toUtc();
-    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
-    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
-
-    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
-    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
-    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
+    // core serializes time in a weird way, and Dart doesn't support nanoseconds, hence this abomination
+    final seconds = utc.microsecondsSinceEpoch ~/ 1000000;
+    var nanoseconds = (utc.microsecondsSinceEpoch.remainder(1000000)) * 1000; // remaining microseconds as nanoseconds
+    return 'T$seconds:$nanoseconds';
   }
-
-  static String _format(int value) => value.toString().padLeft(2, '0');
 }
 
 void clearCachedApps() => realmCore.clearCachedApps();
