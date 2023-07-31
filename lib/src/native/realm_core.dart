@@ -2388,11 +2388,7 @@ class _RealmCore {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_object>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_object_resolve_in(object.handle._pointer, frozenRealm.handle._pointer, resultPtr));
-      if (resultPtr != nullptr) {
-        return RealmObjectHandle._(resultPtr.value, frozenRealm.handle);
-      }
-
-      return null;
+      return resultPtr == nullptr ? null : RealmObjectHandle._(resultPtr.value, frozenRealm.handle);
     });
   }
 
@@ -2400,11 +2396,15 @@ class _RealmCore {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_list>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_resolve_in(list.handle._pointer, frozenRealm.handle._pointer, resultPtr));
-      if (resultPtr != nullptr) {
-        return RealmListHandle._(resultPtr.value, frozenRealm.handle);
-      }
+      return resultPtr == nullptr ? null : RealmListHandle._(resultPtr.value, frozenRealm.handle);
+    });
+  }
 
-      return null;
+  RealmSetHandle? resolveSet(ManagedRealmSet set, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_set>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_set_resolve_in(set.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      return resultPtr == nullptr ? null : RealmSetHandle._(resultPtr.value, frozenRealm.handle);
     });
   }
 

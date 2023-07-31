@@ -385,7 +385,7 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  
+
   setUpAll(() async => await (_baasSetupResult ??= setupBaas()));
 
   setUp(() {
@@ -480,6 +480,14 @@ RealmResults<T> freezeResults<T extends RealmObjectBase>(RealmResults<T> results
 /// time the test ends.
 RealmList<T> freezeList<T>(RealmList<T> list) {
   final frozen = list.freeze();
+  _openRealms.add(frozen.realm);
+  return frozen;
+}
+
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
+RealmSet<T> freezeSet<T>(RealmSet<T> set) {
+  final frozen = set.freeze();
   _openRealms.add(frozen.realm);
   return frozen;
 }
