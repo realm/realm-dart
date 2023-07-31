@@ -162,7 +162,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   ///
   /// The [timeout] is the maximum duration to wait for objects to be downloaded.
   /// If the time exceeds this limit, the [RealmResults] is returned and the download
-  /// continues in the background.
+  /// continues in the background. Exceeding timeout will not throw exception.
   ///
   /// {@category Sync}
   Future<RealmResults<T>> subscribe({
