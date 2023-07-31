@@ -282,7 +282,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return realmCore.eraseSubscriptionByResults(this, query);
   }
 
-  /// Removes the subscriptions from the set that matches by [name], if it exists.
+  /// Remove the subscription from the set that matches by [name], if it exists.
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
