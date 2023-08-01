@@ -9,6 +9,7 @@ part of 'asymmetric_object.dart';
 // ignore_for_file: type=lint
 class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Asymmetric(
     ObjectId id, {
     Embedded? father,
@@ -77,6 +78,7 @@ class Asymmetric extends _Asymmetric
 
 class Embedded extends _Embedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
+  @ejson    
   Embedded(
     String name,
     int age,

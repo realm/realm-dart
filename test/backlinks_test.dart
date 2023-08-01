@@ -19,7 +19,7 @@
 import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:ejson/ejson.dart';
 
-import 'package:test/expect.dart';
+import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
 import 'test.dart';
