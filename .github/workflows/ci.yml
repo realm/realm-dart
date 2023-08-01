@@ -369,7 +369,8 @@ jobs:
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
     defaults:
       run:
-        working-directory: packages/realm/tests  
+        shell: bash
+        working-directory: packages/realm/tests
 
     steps:
       - name: Checkout
@@ -469,6 +470,10 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
+    defaults:
+      run:
+        shell: bash
+        working-directory: packages/realm_generator
 
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
@@ -484,9 +489,9 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Delete generated files
-        run: find . -name "*.realm.dart" -not -path "./generator/*" -delete
-        shell: bash
+      - name: Delete generated files in realm_dart
+        run: find . -name "*.realm.dart"
+        working-directory: packages/realm_dart
 
       - name: Run generator in realm_dart
         run: |
@@ -523,13 +528,11 @@ jobs:
             git --no-pager diff -w
             exit 1
           fi
-        shell: bash
 
       - name: Run generator tests
         run: |
           dart pub get
           dart test -r expanded --coverage ./coverage/ --test-randomize-ordering-seed random
-        working-directory: packages/realm_generator
 
       - name: Generate generator coverage report
         if: matrix.os == 'ubuntu'
@@ -541,7 +544,6 @@ jobs:
             --lcov \
             --packages .dart_tool/package_config.json \
             --report-on lib
-        working-directory: packages/realm_generator
 
       - name: Publish Generator Coverage
         if: matrix.os == 'ubuntu'
