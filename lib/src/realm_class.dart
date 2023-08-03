@@ -692,6 +692,10 @@ extension RealmInternal on Realm {
     return RealmListInternal.create<T>(handle, this, metadata);
   }
 
+  RealmSet<T> createSet<T extends Object?>(RealmSetHandle handle, RealmObjectMetadata? metadata) {
+    return RealmSetInternal.create<T>(handle, this, metadata);
+  }
+
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
     final metadata = _metadata.getByType(type);
     final result = <String>[];
@@ -751,6 +755,15 @@ extension RealmInternal on Realm {
   RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
+
+  RealmSet<T>? resolveSet<T extends Object?>(ManagedRealmSet<T> set) {
+    final handle = realmCore.resolveSet(set, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createSet<T>(handle, set.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);

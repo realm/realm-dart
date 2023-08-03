@@ -78,7 +78,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(json, contains('"stringProp":"str"'));
     expect(json, contains('"boolProp":true'));
-    expect(json, contains('"dateProp":"${now.toNormalizedDateString()}"'));
+    expect(json, contains('"dateProp":"${now.toCoreTimestampString()}"'));
     expect(json, contains('"doubleProp":1.23'));
     expect(json, contains('"objectIdProp":"$oid"'));
     expect(json, contains('"uuidProp":"$uuid"'));

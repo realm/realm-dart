@@ -99,6 +99,9 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
 
   /// Converts this [Set] to a [RealmResults].
   RealmResults<T> asResults();
+
+  /// Creates a frozen snapshot of this `RealmSet`.
+  RealmSet<T> freeze();
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
@@ -120,6 +123,9 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");
+
+  @override
+  RealmSet<T> freeze() => throw RealmStateError("Unmanaged sets can't be frozen");
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
@@ -222,6 +228,9 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   Stream<RealmSetChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('Set is frozen and cannot emit changes');
+    }
     final controller = RealmSetNotificationsController<T>(asManaged());
     return controller.createStream();
   }
@@ -263,11 +272,23 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromSet(this), realm, _metadata);
+
+  @override
+  RealmSet<T> freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    final frozenRealm = realm.freeze();
+    return frozenRealm.resolveSet(this)!;
+  }
 }
 
 /// @nodoc
 extension RealmSetInternal<T extends Object?> on RealmSet<T> {
   ManagedRealmSet<T> asManaged() => this is ManagedRealmSet<T> ? this as ManagedRealmSet<T> : throw RealmStateError('$this is not managed');
+
+  RealmObjectMetadata? get metadata => asManaged()._metadata;
 
   RealmSetHandle get handle {
     final result = asManaged()._handle;
@@ -326,7 +347,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   }
 
   Stream<RealmSetChanges<T>> createStream() {
-    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onCancel: stop);
     return streamController.stream;
   }
 
