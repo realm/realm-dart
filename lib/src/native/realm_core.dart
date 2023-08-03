@@ -2279,7 +2279,7 @@ class _RealmCore {
   String getBundleId() {
     readBundleId() {
       try {
-        if (!isFlutterPlatform) {
+        if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
           var pubspecPath = path.join(path.current, 'pubspec.yaml');
           var pubspecFile = File(pubspecPath);
 
