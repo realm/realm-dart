@@ -2,6 +2,9 @@
 
 ### Enhancements
 * Support ReamSet.freeze() ([#1342](https://github.com/realm/realm-dart/pull/1342))
+* Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+* Support for passing `List`, `Set` or `Iterable` arguments to queries with `IN`-operators. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+
 
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))

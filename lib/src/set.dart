@@ -366,3 +366,19 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
     streamController.addError(error);
   }
 }
+
+// The query operations on sets, as well as the ability to subscribe for notifications,
+// only work for sets of objects (core restriction), so we add these as an extension methods
+// to allow the compiler to prevent misuse.
+extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
+  /// Filters the set and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
+  ///
+  /// Only works for sets of [RealmObject]s or [EmbeddedObject]s.
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
+    final handle = realmCore.querySet(asManaged(), query, arguments);
+    return RealmResultsInternal.create<T>(handle, realm, _metadata);
+  }
+}

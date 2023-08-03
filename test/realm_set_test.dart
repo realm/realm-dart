@@ -70,6 +70,7 @@ List<Type> supportedTypes = [
 class _Car {
   @PrimaryKey()
   late String make;
+  late String? color;
 }
 
 @RealmModel()
@@ -799,5 +800,35 @@ Future<void> main([List<String>? args]) async {
       ++count; // saw true due to new event from changes
       if (count > 1) fail('Should only receive one event');
     }
+  });
+  
+  test('Query on RealmSet with IN-operator', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    final result = testSets.objectsSet.query(r'make IN $0', [
+      ['Tesla', 'Audi']
+    ]);
+    expect(result.length, 2);
+  });
+
+  test('Query on RealmSet allows null in arguments', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla", color: "black"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    var result = testSets.objectsSet.query(r'color = $0', [null]);
+    expect(result.length, 2);
   });
 }
