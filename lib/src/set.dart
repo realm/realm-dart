@@ -62,13 +62,13 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   @override
   bool contains(covariant T element); //Note: explicitly overriding contains() to change parameter type
 
-  /// If an object equal to [object] is in the set, return it.
+  /// If an object equal to [element] is in the set, return it.
   ///
-  /// Checks whether [object] is in the set, like [contains], and if so,
+  /// Checks whether [element] is in the set, like [contains], and if so,
   /// returns the object in the set, otherwise returns `null`.
   ///
   /// If the equality relation used by the set is not identity,
-  /// then the returned object may not be *identical* to [object].
+  /// then the returned object may not be *identical* to [element].
   /// Some set implementations may not be able to implement this method.
   /// If the [contains] method is computed,
   /// rather than being based on an actual object instance,
