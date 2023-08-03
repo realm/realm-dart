@@ -106,8 +106,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 ## Environment setup for Realm Flutter
 
 * Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
-
-* Flutter 3.0.3 or newer.
+* Flutter 3.10.2 or newer.
 * For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer.
 * CMake 3.21 or newer.
@@ -287,8 +286,7 @@ Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_d
 ## Environment setup for Realm Dart
 
 * Realm Dart supports the platforms Windows, Mac and Linux.
-
-* Dart SDK 2.17.5 or newer.
+* Dart SDK 3.0.2 or newer.
 
 ## Usage
 
