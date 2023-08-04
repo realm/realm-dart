@@ -187,7 +187,6 @@ class Realm implements Finalizable {
       StreamSubscription<SyncProgress>? progressSubscription;
       if (onProgressCallback != null) {
         final progressController = RealmAsyncOpenProgressNotificationsController._(asyncOpenHandle);
-        realmCore.realmAsyncOpenRegisterAsyncOpenProgressNotifier(asyncOpenHandle, progressController);
         final progressStream = progressController.createStream();
         progressSubscription = progressStream.listen(onProgressCallback);
       }
@@ -197,22 +196,6 @@ class Realm implements Finalizable {
 
       return Realm._(config, realmHandle);
     }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
-
-    // final realm = Realm(config);
-    // StreamSubscription<SyncProgress>? subscription;
-    // try {
-    //   final session = realm.syncSession;
-    //   if (onProgressCallback != null) {
-    //     subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
-    //   }
-    //   await session.waitForDownload(cancellationToken);
-    //   await subscription?.cancel();
-    // } catch (_) {
-    //   await subscription?.cancel();
-    //   realm.close();
-    //   rethrow;
-    // }
-    // return await CancellableFuture.value(realm, cancellationToken);
   }
 
   static RealmHandle _openRealm(Configuration config) {
