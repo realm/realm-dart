@@ -75,7 +75,7 @@ class Credentials implements Finalizable {
   final RealmAppCredentialsHandle _handle;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
-  /// Setting [reuseCredentials] to [false] will create a new anonymous user, upon [App.logIn].
+  /// Setting [reuseCredentials] to `false` will create a new anonymous user, upon [App.logIn].
   /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
   Credentials.anonymous({bool reuseCredentials = true}) : _handle = realmCore.createAppCredentialsAnonymous(reuseCredentials);
 

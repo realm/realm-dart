@@ -92,7 +92,7 @@ export "configuration.dart"
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
-export 'set.dart' show RealmSet, RealmSetChanges;
+export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
@@ -168,7 +168,7 @@ class Realm implements Finalizable {
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
-  /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
+  /// Using [Realm.open] for opening a local Realm is equivalent to using the constructor of [Realm].
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
       throw cancellationToken.exception!;
@@ -702,6 +702,10 @@ extension RealmInternal on Realm {
     return RealmListInternal.create<T>(handle, this, metadata);
   }
 
+  RealmSet<T> createSet<T extends Object?>(RealmSetHandle handle, RealmObjectMetadata? metadata) {
+    return RealmSetInternal.create<T>(handle, this, metadata);
+  }
+
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
     final metadata = _metadata.getByType(type);
     final result = <String>[];
@@ -761,6 +765,15 @@ extension RealmInternal on Realm {
   RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
+
+  RealmSet<T>? resolveSet<T extends Object?>(ManagedRealmSet<T> set) {
+    final handle = realmCore.resolveSet(set, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createSet<T>(handle, set.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
@@ -964,7 +977,7 @@ class MigrationRealm extends DynamicRealm {
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered onProgressCallback when calling [open] that receives progress notifications while the download is in progress.
+/// This is the registered onProgressCallback when calling [Realm.open] that receives progress notifications while the download is in progress.
 ///
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}

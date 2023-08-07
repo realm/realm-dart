@@ -433,7 +433,7 @@ Future<void> main([List<String>? args]) async {
     if (date == null) {
       expect(json, contains('"$propertyName":null'));
     } else if (_canCoreRepresentDateInJson(date)) {
-      expect(json, contains('"$propertyName":"${date.toNormalizedDateString()}"'));
+      expect(json, contains('"$propertyName":"${date.toCoreTimestampString()}"'));
     }
   }
 
@@ -475,7 +475,7 @@ Future<void> main([List<String>? args]) async {
       for (var i = 0; i < list.length; i++) {
         final expectedDate = list.elementAt(i).toUtc();
         if (_canCoreRepresentDateInJson(expectedDate)) {
-          expect(json, contains('"${expectedDate.toNormalizedDateString()}"'));
+          expect(json, contains('"${expectedDate.toCoreTimestampString()}"'));
         }
 
         expect(obj.dates[i], equals(expectedDate));
@@ -553,7 +553,7 @@ Future<void> main([List<String>? args]) async {
     var uuid = Uuid.v4();
 
     final object = realm.write(() {
-      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten, binaryProp: Uint8List.fromList([1,2]), nullableBinaryProp: null));
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten, binaryProp: Uint8List.fromList([1, 2]), nullableBinaryProp: null));
     });
 
     expect(object.stringProp, 'cde');
@@ -564,7 +564,7 @@ Future<void> main([List<String>? args]) async {
     expect(object.uuidProp, uuid);
     expect(object.intProp, 4);
     expect(object.decimalProp, Decimal128.ten);
-    expect(object.binaryProp, Uint8List.fromList([1,2]));
+    expect(object.binaryProp, Uint8List.fromList([1, 2]));
     expect(object.nullableBinaryProp, null);
 
     date = DateTime.now().add(Duration(days: 1)).toUtc();

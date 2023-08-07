@@ -1238,4 +1238,34 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => team.players.clear());
     expect(playersAsResults.length, 0);
   });
+
+  test('Query on RealmList with IN-operator', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = realm.write(() => realm.add(Team('team', players: [
+          Person('Paul'),
+          Person('John'),
+          Person('Alex'),
+        ])));
+
+    final result = team.players.query(r'name IN $0', [
+      ['Paul', 'Alex']
+    ]);
+    expect(result.length, 2);
+  });
+
+  test('Query on RealmList allows null in arguments', () {
+    final config = Configuration.local([School.schema, Student.schema]);
+    final realm = getRealm(config);
+
+    final school = realm.write(() => realm.add(School('primary school 1', branches: [
+          School('131', city: "NY city"),
+          School('144'),
+          School('128'),
+        ])));
+
+    final result = school.branches.query(r'city = $0', [null]);
+    expect(result.length, 2);
+  });
 }

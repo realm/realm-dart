@@ -14,7 +14,7 @@ This repository holds the source code for the Realm SDK for Flutter™ and Dart�
 
 * **Mobile-first:** Realm is the first database built from the ground up to run directly inside phones, tablets, and wearables.
 * **Simple:** Realm’s object-oriented data model is simple to learn, doesn’t need an ORM, and the [API](https://pub.dev/documentation/realm/latest/) lets you write less code to get apps up & running in minutes.
-* **Modern:** Realm supports latest Dart and Flutter versions and is build with sound null-safety.
+* **Modern:** Realm supports latest Dart and Flutter versions and is built with sound null-safety.
 * **Fast:** Realm is faster than even raw SQLite on common operations while maintaining an extremely rich feature set.
 * **[MongoDB Atlas Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. Get started for free with [a template application](https://github.com/mongodb/template-app-dart-flutter-todo) and [create the cloud backend](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github).
 
@@ -106,8 +106,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 ## Environment setup for Realm Flutter
 
 * Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
-
-* Flutter 3.0.3 or newer.
+* Flutter 3.10.2 or newer.
 * For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer.
 * CMake 3.21 or newer.
@@ -237,7 +236,7 @@ class _Item {
 // Create a Configuration object
 var config = Configuration.local([Item.schema]);
 
-// Opean a Realm
+// Open a Realm
 var realm = Realm(config);
 
 var myItem = Item(0, 'Pen', price: 4);
@@ -287,8 +286,7 @@ Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_d
 ## Environment setup for Realm Dart
 
 * Realm Dart supports the platforms Windows, Mac and Linux.
-
-* Dart SDK 2.17.5 or newer.
+* Dart SDK 3.0.2 or newer.
 
 ## Usage
 
