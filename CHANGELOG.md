@@ -14,6 +14,7 @@
 * Sync errors included the error message twice (Core upgrade, since v13.16.0).
 * Fixes infinite-loop like issue with await-for-yield over realm set change streams. ([#1344](https://github.com/realm/realm-dart/issues/1344))
 * Fixed issue with using flexibleSync in flutter test. ([#1366](https://github.com/realm/realm-dart/pull/1366))
+* Fixed a realm generator issue, when used in concert with MobX. ([%1372](https://github.com/realm/realm-dart/pull/1372))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
