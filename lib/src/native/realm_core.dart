@@ -1823,10 +1823,6 @@ class _RealmCore {
     return using((arena) {
       final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
 
-      // TODO: Remove later
-      // Disable multiplexing for now due to: https://github.com/realm/realm-core/issues/6656
-      _realmLib.realm_sync_client_config_set_multiplex_sessions(handle._pointer, false);
-      // <-- end
       _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toCharPtr(arena));
       _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
       _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMilliseconds);
@@ -2892,12 +2888,12 @@ class SubscriptionHandle extends HandleBase<realm_flx_sync_subscription> {
 }
 
 class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
-  RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task_t> pointer) : super(pointer, 16); //TODO: fix size
+  RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task_t> pointer) : super(pointer, 32);
 }
 
 class RealmAsyncOpenTaskProgressNotificationTokenHandle extends HandleBase<realm_async_open_task_progress_notification_token_t> {
   RealmAsyncOpenTaskProgressNotificationTokenHandle._(Pointer<realm_async_open_task_progress_notification_token_t> pointer)
-      : super(pointer, 32); //TODO: fix size
+      : super(pointer, 40);
 }
 
 class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> {
