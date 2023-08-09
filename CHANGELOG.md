@@ -41,6 +41,7 @@
 * Dart ^3.0.2 and Flutter ^3.10.2
 
 ### Internal
+* Synced realms will use async open to prevent overloading the server with schema updates. [#1369](https://github.com/realm/realm-dart/pull/1369))
 * Using Core 13.15.1
 
 ## 1.2.0 (2023-06-08)
