@@ -664,8 +664,8 @@ class _RealmCore {
     return RealmAsyncOpenTaskHandle._(asyncOpenTaskPtr);
   }
 
-  Future<RealmHandle> openRealmAsync(RealmAsyncOpenTaskHandle handle) {
-    final completer = Completer<RealmHandle>();
+  Future<RealmHandle> openRealmAsync(RealmAsyncOpenTaskHandle handle, CancellationToken? cancellationToken) {
+    final completer = CancellableCompleter<RealmHandle>(cancellationToken);
     final callback =
         Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(_openRealmAsyncCallback);
     final userData = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
@@ -675,6 +675,7 @@ class _RealmCore {
       userData.cast(),
       _realmLib.addresses.realm_dart_userdata_async_free,
     );
+
     return completer.future;
   }
 
