@@ -182,7 +182,6 @@ class Realm implements Finalizable {
     _ensureDirectory(config);
 
     final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
-
     return CancellableFuture.from<Realm>(() async {
       if (cancellationToken != null && cancellationToken.isCancelled) {
         throw cancellationToken.exception!;
@@ -203,7 +202,7 @@ class Realm implements Finalizable {
       }
 
       return Realm._(config, realmHandle);
-    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
+    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle)).whenComplete(() => asyncOpenHandle.release());
   }
 
   static RealmHandle _openRealm(Configuration config) {
