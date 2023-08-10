@@ -992,7 +992,7 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
   RealmAsyncOpenProgressNotificationsController._(this._handle);
 
   Stream<SyncProgress> createStream() {
-    _streamController = StreamController<SyncProgress>.broadcast(onListen: _start, onCancel: _stop);
+    _streamController = StreamController<SyncProgress>(onListen: _start, onCancel: _stop);
     return _streamController.stream;
   }
 
