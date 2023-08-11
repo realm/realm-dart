@@ -1227,7 +1227,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isInTransaction, true);
   });
 
-  baasTest('Realm.open (flexibleSync)', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync)', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1237,20 +1237,20 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  test('Realm.open (local)', () async {
+  test('Realm._open (local)', () async {
     final configuration = Configuration.local([Car.schema]);
     final realm = await getRealmAsync(configuration);
     expect(realm.isClosed, false);
   });
 
-  test('Realm.open (local) - cancel before open', () async {
+  test('Realm._open (local) - cancel before open', () async {
     final configuration = Configuration.local([Car.schema]);
     final cancellationToken = CancellationToken();
     cancellationToken.cancel();
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm.open (flexibleSync) - cancel before open', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - cancel before open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1261,7 +1261,7 @@ Future<void> main([List<String>? args]) async {
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm.open (flexibleSync) - cancel right after open', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - cancel right after open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1288,7 +1288,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm2Cancelled, isTrue);
   });
 
-  baasTest('Realm.open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1304,7 +1304,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm2Cancelled, isFalse);
   });
 
-  baasTest('Realm.open (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
@@ -1322,7 +1322,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm1Cancelled, isFalse);
   });
 
-  baasTest('Realm.open (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1338,7 +1338,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.isClosed, false);
   });
 
-  baasTest('Realm.open (flexibleSync) - listen for download progress on an empty realm', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - listen for download progress on an empty realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1357,7 +1357,7 @@ Future<void> main([List<String>? args]) async {
     expect(transferredBytes, greaterThan(-1));
   });
 
-  baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - download a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     const itemsCount = 200;
@@ -1368,7 +1368,7 @@ Future<void> main([List<String>? args]) async {
     expect(data.length, itemsCount);
   });
 
-  baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final config = await _subscribeForAtlasAddedData(app);
 
@@ -1385,7 +1385,7 @@ Future<void> main([List<String>? args]) async {
     expect(transferredBytes, greaterThan(19)); //19 bytes is the empty realm
   });
 
-  baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
     final config = await _subscribeForAtlasAddedData(app);
 
