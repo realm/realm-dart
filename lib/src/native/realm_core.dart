@@ -690,10 +690,11 @@ class _RealmCore {
 
         if (error != nullptr) {
           print("_openRealmAsyncCallback error detected");
-          final err = arena<realm_error_t>();
+          final err = arena<realm_error>();
           print("_openRealmAsyncCallback geting last async error");
           _realmLib.realm_get_async_error(error, err);
-          print("_openRealmAsyncCallback completing with error ${err.ref.toLastError().toString()}");
+          print("_openRealmAsyncCallback completing with error");
+          print("error ${err.ref.toLastError().toString()}");
           completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
         }
 
