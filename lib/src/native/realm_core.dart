@@ -588,7 +588,6 @@ class _RealmCore {
       await callback();
     } catch (error) {
       success = false;
-      print("_guardSynchronousCallback setting user code callback error");
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     } finally {
       _realmLib.realm_dart_invoke_unlock_callback(success, unlockCallbackFunc);
@@ -653,9 +652,7 @@ class _RealmCore {
   }
 
   RealmHandle openRealm(Configuration config) {
-    print("realm_core: openRealm called. Creating config");
     final configHandle = _createConfig(config);
-    print("realm_core: calling realm_open");
     final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(configHandle._pointer), "Error opening realm at path ${config.path}");
     return RealmHandle._(realmPtr);
   }
@@ -672,7 +669,6 @@ class _RealmCore {
     final callback =
         Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(_openRealmAsyncCallback);
     final userData = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
-    print("realm_dart_userdata_async_new userData ptr: ${userData.address.toString()}");
     _realmLib.realm_async_open_task_start(
       handle._pointer,
       _realmLib.addresses.realm_dart_async_open_task_callback,
@@ -684,39 +680,22 @@ class _RealmCore {
   }
 
   static void _openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
-    try {
-      return using((Arena arena) {
-        print("_openRealmAsyncCallback called");
-        final completer = userData as Completer<RealmHandle>;
+    return using((Arena arena) {
+      final completer = userData as Completer<RealmHandle>;
 
-        if (error != nullptr) {
-          print("_openRealmAsyncCallback error detected");
-          final err = arena<realm_error>();
-          print("_openRealmAsyncCallback geting last async error");
-          _realmLib.realm_get_async_error(error, err);
-          print("_openRealmAsyncCallback completing with error");
-          if (err == nullptr) {
-            print("err is nullptr");
-          }
-          print("error ${err.ref.toLastError().toString()}");
-          completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
-          return;
-        }
+      if (error != nullptr) {
+        final err = arena<realm_error>();
+        _realmLib.realm_get_async_error(error, err);
+        completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
+        return;
+      }
 
-        print("_openRealmAsyncCallback calling realm_from_thread_safe_reference");
-        final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle._pointer));
-        print("_openRealmAsyncCallback completing with a realm handle");
-        completer.complete(RealmHandle._(realmPtr));
-      });
-    } on Exception catch (e) {
-      print("Error");
-      print(e);
-      rethrow;
-    }
+      final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle._pointer));
+      completer.complete(RealmHandle._(realmPtr));
+    });
   }
 
   void cancelOpenRealmAsync(RealmAsyncOpenTaskHandle handle) {
-    print("realm_core.cancelOpenRealmAsync asyncOpenHandle ${handle.toString()}");
     _realmLib.realm_async_open_task_cancel(handle._pointer);
   }
 
@@ -3426,18 +3405,13 @@ class SyncErrorDetails {
 
 extension on realm_error {
   LastError toLastError() {
-    print("getting last error message");
     final message = this.message.cast<Utf8>().toRealmDartString();
-    print("getting usercode error");
     Object? userError;
     if (error == realm_errno.RLM_ERR_CALLBACK && usercode_error != nullptr) {
-      print("usercode error to object");
       userError = usercode_error.toObject(isPersistent: true);
-      print("usercode error delete persistent handle");
       _realmLib.realm_dart_delete_persistent_handle(usercode_error);
     }
 
-    print("usercode error creating last error");
     return LastError(error, message, userError);
   }
 }

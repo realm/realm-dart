@@ -153,7 +153,6 @@ class Realm implements Finalizable {
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
-    print("Realm._: calling populateMetadata. Realm handle ${_handle.toString()}");
     _populateMetadata();
   }
 
@@ -182,10 +181,7 @@ class Realm implements Finalizable {
 
     _ensureDirectory(config);
 
-    print("async opening realm at path: ${config.path}");
-
     final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
-    print("asyncOpenHandle ptr: ${asyncOpenHandle.toString()}");
     return await CancellableFuture.from<Realm>(() async {
       if (cancellationToken != null && cancellationToken.isCancelled) {
         throw cancellationToken.exception!;
@@ -193,7 +189,6 @@ class Realm implements Finalizable {
 
       StreamSubscription<SyncProgress>? progressSubscription;
       if (onProgressCallback != null) {
-        print("attaching progress callback");
         final progressController = RealmAsyncOpenProgressNotificationsController._(asyncOpenHandle);
         final progressStream = progressController.createStream();
         progressSubscription = progressStream.listen(onProgressCallback);
@@ -202,21 +197,14 @@ class Realm implements Finalizable {
       late final RealmHandle realmHandle;
       try {
         realmHandle = await realmCore.openRealmAsync(asyncOpenHandle, cancellationToken);
+        return Realm._(config, realmHandle);
       } finally {
-        print("cancelling progress callback");
         await progressSubscription?.cancel();
       }
-
-      print("creating Realm instance with handle ${realmHandle.toString()}");
-      return Realm._(config, realmHandle);
-    }, cancellationToken, onCancel: () { 
-        print("onCancel callback. calling cancelOpenRealmAsync");
-        realmCore.cancelOpenRealmAsync(asyncOpenHandle); 
-      });
+    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
   }
 
   static RealmHandle _openRealm(Configuration config) {
-    print("_openRealm called");
     _ensureDirectory(config);
     return realmCore.openRealm(config);
   }

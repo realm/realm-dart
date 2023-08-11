@@ -401,7 +401,6 @@ Future<void> setupTests(List<String>? args) async {
     Configuration.defaultRealmPath = path;
 
     addTearDown(() async {
-      print("Test teardown called");
       final paths = HashSet<String>();
       paths.add(path);
       
@@ -410,12 +409,10 @@ Future<void> setupTests(List<String>? args) async {
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
         paths.add(realm.config.path);
-        print("closing realm at path ${realm.config.path}");
         realm.close();
       }
 
       for (final path in paths) {
-        print("deleting realm at path $path");
         await tryDeleteRealm(path);
       }
     });
