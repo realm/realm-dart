@@ -186,7 +186,7 @@ class Realm implements Finalizable {
 
     final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
     print("asyncOpenHandle ptr: ${asyncOpenHandle.toString()}");
-    return CancellableFuture.from<Realm>(() async {
+    return await CancellableFuture.from<Realm>(() async {
       if (cancellationToken != null && cancellationToken.isCancelled) {
         throw cancellationToken.exception!;
       }
