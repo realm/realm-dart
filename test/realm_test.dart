@@ -1261,7 +1261,7 @@ Future<void> main([List<String>? args]) async {
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm._open (flexibleSync) - cancel right after open', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - cancel right after open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1304,7 +1304,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealm2Cancelled, isFalse);
   });
 
-  baasTest('Realm.open (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
