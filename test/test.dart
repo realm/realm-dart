@@ -388,8 +388,6 @@ Future<void> setupTests(List<String>? args) async {
 
   setUpAll(() async => await (_baasSetupResult ??= setupBaas()));
 
-  tearDownAll(() async => await Future<void>.delayed(Duration(seconds: 30)));
-
   setUp(() {
     Realm.logger = Logger.detached('test run')
       ..level = Level.INFO
