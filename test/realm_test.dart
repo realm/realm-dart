@@ -1250,7 +1250,7 @@ Future<void> main([List<String>? args]) async {
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
   });
 
-  baasTest('Realm._open (flexibleSync) - cancel before open', (appConfiguration) async {
+  baasTest('Realm.open (flexibleSync) - cancel before open', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
