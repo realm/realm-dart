@@ -182,6 +182,8 @@ class Realm implements Finalizable {
 
     _ensureDirectory(config);
 
+    print("async opening realm at path: ${config.path}");
+
     final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
     print("asyncOpenHandle ptr: ${asyncOpenHandle.toString()}");
     return CancellableFuture.from<Realm>(() async {
