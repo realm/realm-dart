@@ -716,6 +716,7 @@ class _RealmCore {
   }
 
   void cancelOpenRealmAsync(RealmAsyncOpenTaskHandle handle) {
+    print("realm_core.cancelOpenRealmAsync asyncOpenHandle ${handle.toString()}");
     _realmLib.realm_async_open_task_cancel(handle._pointer);
   }
 

@@ -403,7 +403,6 @@ Future<void> setupTests(List<String>? args) async {
       final paths = HashSet<String>();
       paths.add(path);
       
-      print("tearddown: Clearing cached apps");
       realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
@@ -414,6 +413,7 @@ Future<void> setupTests(List<String>? args) async {
       }
 
       for (final path in paths) {
+        print("deleting realm at path $path");
         await tryDeleteRealm(path);
       }
     });
