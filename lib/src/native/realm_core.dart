@@ -588,6 +588,7 @@ class _RealmCore {
       await callback();
     } catch (error) {
       success = false;
+      print("_guardSynchronousCallback setting user code callback error");
       _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
     } finally {
       _realmLib.realm_dart_invoke_unlock_callback(success, unlockCallbackFunc);
