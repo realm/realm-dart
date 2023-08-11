@@ -126,6 +126,7 @@ RLM_API const char* realm_dart_library_version() { return "1.3.0"; }
 // }
 
 void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
+    printf("releasing ptr %p", realmPtr);
     realm_release(realmPtr);
 }
 

@@ -407,6 +407,7 @@ Future<void> setupTests(List<String>? args) async {
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
         paths.add(realm.config.path);
+        print("closing realm at path ${realm.config.path}");
         realm.close();
       }
 
