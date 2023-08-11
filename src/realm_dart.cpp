@@ -104,6 +104,7 @@ RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle ha
 }
 
 RLM_API void realm_dart_userdata_async_free(void* userdata) {
+    printf("realm_dart_userdata_async_free userdata ptr: %p", userdata);
     auto async_userdata = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     async_userdata->scheduler->invoke([async_userdata]() {
         delete async_userdata;

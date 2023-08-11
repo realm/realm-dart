@@ -671,6 +671,7 @@ class _RealmCore {
     final callback =
         Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(_openRealmAsyncCallback);
     final userData = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+    print("realm_dart_userdata_async_new userData ptr: ${userData.address.toString()}");
     _realmLib.realm_async_open_task_start(
       handle._pointer,
       _realmLib.addresses.realm_dart_async_open_task_callback,
@@ -683,6 +684,7 @@ class _RealmCore {
 
   static void _openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
     return using((Arena arena) {
+      print("_openRealmAsyncCallback called");
       final completer = userData as Completer<RealmHandle>;
 
       if (error != nullptr) {
