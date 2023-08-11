@@ -202,7 +202,7 @@ class Realm implements Finalizable {
       }
 
       return Realm._(config, realmHandle);
-    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle)).whenComplete(() => asyncOpenHandle.release());
+    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
   }
 
   static RealmHandle _openRealm(Configuration config) {

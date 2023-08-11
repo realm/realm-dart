@@ -1262,6 +1262,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Realm.open (flexibleSync) - cancel right after open', (appConfiguration) async {
+    print("test 1: started");
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1271,9 +1272,11 @@ Future<void> main([List<String>? args]) async {
     final isRealmCancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
     cancellationToken.cancel();
     expect(await isRealmCancelled, isTrue);
+    print("test 1: finished");
   });
 
   baasTest('Realm.open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
+    print("test 2: started");
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
@@ -1286,6 +1289,7 @@ Future<void> main([List<String>? args]) async {
     final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
     expect(await isRealm1Cancelled, isTrue);
     expect(await isRealm2Cancelled, isTrue);
+    print("test 2: finished");
   });
 
   baasTest('Realm._open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
