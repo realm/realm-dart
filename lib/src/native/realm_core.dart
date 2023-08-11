@@ -3428,7 +3428,7 @@ extension on realm_error {
     final message = this.message.cast<Utf8>().toRealmDartString();
     print("getting usercode error");
     Object? userError;
-    if (usercode_error != nullptr) {
+    if (error == realm_errno.RLM_ERR_CALLBACK && usercode_error != nullptr) {
       print("usercode error to object");
       userError = usercode_error.toObject(isPersistent: true);
       print("usercode error delete persistent handle");
