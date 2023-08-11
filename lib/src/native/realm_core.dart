@@ -700,6 +700,7 @@ class _RealmCore {
           }
           print("error ${err.ref.toLastError().toString()}");
           completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
+          return;
         }
 
         print("_openRealmAsyncCallback calling realm_from_thread_safe_reference");
