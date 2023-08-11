@@ -683,19 +683,30 @@ class _RealmCore {
   }
 
   static void _openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
-    return using((Arena arena) {
-      print("_openRealmAsyncCallback called");
-      final completer = userData as Completer<RealmHandle>;
+    try {
+      return using((Arena arena) {
+        print("_openRealmAsyncCallback called");
+        final completer = userData as Completer<RealmHandle>;
 
-      if (error != nullptr) {
-        final err = arena<realm_error_t>();
-        _realmLib.realm_get_async_error(error, err);
-        completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
-      }
+        if (error != nullptr) {
+          print("_openRealmAsyncCallback error detected");
+          final err = arena<realm_error_t>();
+          print("_openRealmAsyncCallback geting last async error");
+          _realmLib.realm_get_async_error(error, err);
+          print("_openRealmAsyncCallback completing with error");
+          completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
+        }
 
-      final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle._pointer));
-      completer.complete(RealmHandle._(realmPtr));
-    });
+        print("_openRealmAsyncCallback calling realm_from_thread_safe_reference");
+        final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle._pointer));
+        print("_openRealmAsyncCallback completing with a realm handle");
+        completer.complete(RealmHandle._(realmPtr));
+      });
+    } on Exception catch (e) {
+      print("Error");
+      print(e);
+      rethrow;
+    }
   }
 
   void cancelOpenRealmAsync(RealmAsyncOpenTaskHandle handle) {
@@ -2897,8 +2908,7 @@ class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
 }
 
 class RealmAsyncOpenTaskProgressNotificationTokenHandle extends HandleBase<realm_async_open_task_progress_notification_token_t> {
-  RealmAsyncOpenTaskProgressNotificationTokenHandle._(Pointer<realm_async_open_task_progress_notification_token_t> pointer)
-      : super(pointer, 40);
+  RealmAsyncOpenTaskProgressNotificationTokenHandle._(Pointer<realm_async_open_task_progress_notification_token_t> pointer) : super(pointer, 40);
 }
 
 class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> {
