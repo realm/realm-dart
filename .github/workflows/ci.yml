@@ -195,18 +195,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - app: fm
-            description: flutter macos
+          # - app: fm
+          #   description: flutter macos
           - app: fl
             description: flutter linux
           - app: fl2
             description: flutter linux (ubuntu 20)
-          - app: fw
-            description: flutter windows
-          - app: fa
-            description: flutter android
-          - app: fi
-            description: flutter iOS
+          # - app: fw
+          #   description: flutter windows
+          # - app: fa
+          #   description: flutter android
+          # - app: fi
+          #   description: flutter iOS
     runs-on: ubuntu-latest
     name: Cleanup apps for ${{ matrix.description }}
     timeout-minutes: 20
