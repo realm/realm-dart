@@ -399,9 +399,11 @@ Future<void> setupTests(List<String>? args) async {
     Configuration.defaultRealmPath = path;
 
     addTearDown(() async {
+      print("Test teardown called");
       final paths = HashSet<String>();
       paths.add(path);
-
+      
+      print("tearddown: Clearing cached apps");
       realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {

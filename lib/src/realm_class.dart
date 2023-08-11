@@ -153,6 +153,7 @@ class Realm implements Finalizable {
   Realm(Configuration config) : this._(config);
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
+    print("Realm._: calling populateMetadata. Realm handle ${_handle.toString()}");
     _populateMetadata();
   }
 
@@ -204,6 +205,7 @@ class Realm implements Finalizable {
         await progressSubscription?.cancel();
       }
 
+      print("creating Realm instance with handle ${realmHandle.toString()}");
       return Realm._(config, realmHandle);
     }, cancellationToken, onCancel: () { 
         print("onCancel callback. calling cancelOpenRealmAsync");
@@ -212,6 +214,7 @@ class Realm implements Finalizable {
   }
 
   static RealmHandle _openRealm(Configuration config) {
+    print("_openRealm called");
     _ensureDirectory(config);
     return realmCore.openRealm(config);
   }
