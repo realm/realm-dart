@@ -693,7 +693,7 @@ class _RealmCore {
           final err = arena<realm_error_t>();
           print("_openRealmAsyncCallback geting last async error");
           _realmLib.realm_get_async_error(error, err);
-          print("_openRealmAsyncCallback completing with error");
+          print("_openRealmAsyncCallback completing with error ${err.ref.toLastError().toString()}");
           completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
         }
 
