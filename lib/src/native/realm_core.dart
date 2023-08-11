@@ -3423,13 +3423,18 @@ class SyncErrorDetails {
 
 extension on realm_error {
   LastError toLastError() {
+    print("getting last error message");
     final message = this.message.cast<Utf8>().toRealmDartString();
+    print("getting usercode error");
     Object? userError;
     if (usercode_error != nullptr) {
+      print("usercode error to object");
       userError = usercode_error.toObject(isPersistent: true);
+      print("usercode error delete persistent handle");
       _realmLib.realm_dart_delete_persistent_handle(usercode_error);
     }
 
+    print("usercode error creating last error");
     return LastError(error, message, userError);
   }
 }
