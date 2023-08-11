@@ -652,7 +652,9 @@ class _RealmCore {
   }
 
   RealmHandle openRealm(Configuration config) {
+    print("realm_core: openRealm called. Creating config");
     final configHandle = _createConfig(config);
+    print("realm_core: calling realm_open");
     final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_open(configHandle._pointer), "Error opening realm at path ${config.path}");
     return RealmHandle._(realmPtr);
   }
