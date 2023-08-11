@@ -81,12 +81,12 @@ jobs:
     continue-on-error: true
     needs:
       - deploy-flutter-cluster
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
+      # - flutter-desktop-tests-windows
+      # - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
       - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
+      # - flutter-ios
+      # - flutter-android
     steps:
       - uses: realm/ci-actions/mdb-realm/cleanup@338bf3e7575015a28faec8b67614385d122aece7
         with:
@@ -119,12 +119,12 @@ jobs:
     secrets: inherit
     needs:
       - deploy-flutter-cluster
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
+      # - flutter-desktop-tests-windows
+      # - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
       - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
+      # - flutter-ios
+      # - flutter-android
     uses: ./.github/workflows/shared-apps.yml
     if: always()
     with:
@@ -185,12 +185,12 @@ jobs:
   cleanup-flutter-matrix:
     needs:
       - deploy-flutter-cluster
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
+      # - flutter-desktop-tests-windows
+      # - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
       - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
+      # - flutter-ios
+      # - flutter-android
     strategy:
       fail-fast: false
       matrix:
