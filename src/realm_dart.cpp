@@ -104,7 +104,7 @@ RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle ha
 }
 
 RLM_API void realm_dart_userdata_async_free(void* userdata) {
-    printf("realm_dart_userdata_async_free userdata ptr: %p", userdata);
+    printf("realm_dart_userdata_async_free userdata ptr: %p\n", userdata);
     auto async_userdata = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     async_userdata->scheduler->invoke([async_userdata]() {
         delete async_userdata;
@@ -127,7 +127,7 @@ RLM_API const char* realm_dart_library_version() { return "1.3.0"; }
 // }
 
 void handle_finalizer(void* isolate_callback_data, void* realmPtr) {
-    printf("releasing ptr %p", realmPtr);
+    printf("releasing ptr %p\n", realmPtr);
     realm_release(realmPtr);
 }
 
