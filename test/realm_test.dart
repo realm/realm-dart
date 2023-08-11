@@ -1273,7 +1273,7 @@ Future<void> main([List<String>? args]) async {
     expect(await isRealmCancelled, isTrue);
   });
 
-  baasTest('Realm.open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
+  baasTest('Realm._open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
