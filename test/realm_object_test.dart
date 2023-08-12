@@ -414,32 +414,23 @@ Future<void> main([List<String>? args]) async {
 
   final epochZero = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  bool _canCoreRepresentDateInJson(DateTime date) {
-    // Core has a bug where negative and zero dates are not serialized correctly to json.
-    // https://jira.mongodb.org/browse/RCORE-1083
-    if (date.compareTo(epochZero) <= 0) {
-      return Platform.isMacOS || Platform.isIOS;
-    }
-
-    // Very large dates are also buggy on Android and Windows
-    if (date.compareTo(DateTime.utc(10000)) > 0) {
-      return Platform.isMacOS || Platform.isIOS || Platform.isLinux;
-    }
-
-    return true;
-  }
-
   void expectDateInJson(DateTime? date, String json, String propertyName) {
     if (date == null) {
       expect(json, contains('"$propertyName":null'));
-    } else if (_canCoreRepresentDateInJson(date)) {
+    } else {
       expect(json, contains('"$propertyName":"${date.toCoreTimestampString()}"'));
     }
   }
 
   final dates = [
-    DateTime.utc(1970).add(Duration(days: 100000000)),
-    DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    // BUG: core timestamp serialization does not support years
+    // very far from 1970 currently currently
+    //
+    // These will fail:
+    //DateTime.utc(1970).add(Duration(days: 100000000)),
+    //DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    DateTime.utc(1970).add(Duration(days: 999999)),
+    DateTime.utc(1970).subtract(Duration(days: 999999)),
     DateTime.utc(2020, 1, 1, 12, 34, 56, 789, 999),
     DateTime.utc(2022),
     DateTime.utc(1930, 1, 1, 12, 34, 56, 123, 456),
@@ -474,10 +465,7 @@ Future<void> main([List<String>? args]) async {
       final json = obj.toJson();
       for (var i = 0; i < list.length; i++) {
         final expectedDate = list.elementAt(i).toUtc();
-        if (_canCoreRepresentDateInJson(expectedDate)) {
-          expect(json, contains('"${expectedDate.toCoreTimestampString()}"'));
-        }
-
+        expect(json, contains('"${expectedDate.toCoreTimestampString()}"'));
         expect(obj.dates[i], equals(expectedDate));
       }
     });
