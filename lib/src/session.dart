@@ -81,18 +81,16 @@ class Session implements Finalizable {
 }
 
 /// A type containing information about the progress state at a given instant.
-class SyncProgress {
+typedef SyncProgress = ({
   /// The number of bytes that have been transferred since subscribing for progress notifications.
-  final int transferredBytes;
+  int transferredBytes,
 
   /// The total number of bytes that have to be transferred since subscribing for progress notifications.
   /// The difference between that number and [transferredBytes] gives you the number of bytes not yet
   /// transferred. If the difference is 0, then all changes at the instant the callback fires have been
   /// successfully transferred.
-  final int transferableBytes;
-
-  const SyncProgress._(this.transferredBytes, this.transferableBytes);
-}
+  int transferableBytes,
+});
 
 /// A type containing information about the transition of a connection state from one value to another.
 class ConnectionStateChange {
@@ -125,7 +123,8 @@ extension SessionInternal on Session {
     realmCore.raiseError(this, category, errorCode, isFatal);
   }
 
-  static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) => SyncProgress._(transferredBytes, transferableBytes);
+  static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
+      (transferredBytes: transferredBytes, transferableBytes: transferableBytes);
 }
 
 abstract interface class ProgressNotificationsController {
@@ -144,13 +143,13 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   SessionProgressNotificationsController(this._session, this._direction, this._mode);
 
   Stream<SyncProgress> createStream() {
-    _streamController = StreamController<SyncProgress>.broadcast(onListen: _start, onCancel: _stop);
+    _streamController = StreamController<SyncProgress>(onListen: _start, onCancel: _stop);
     return _streamController.stream;
   }
 
   @override
   void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add(SyncProgress._(transferredBytes, transferableBytes));
+    _streamController.add((transferredBytes: transferredBytes, transferableBytes: transferableBytes));
 
     if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
       _streamController.close();
@@ -179,7 +178,7 @@ class SessionConnectionStateController {
   SessionConnectionStateController(this._session);
 
   Stream<ConnectionStateChange> createStream() {
-    _streamController = StreamController<ConnectionStateChange>.broadcast(onListen: _start, onCancel: _stop);
+    _streamController = StreamController<ConnectionStateChange>(onListen: _start, onCancel: _stop);
     return _streamController.stream;
   }
 
