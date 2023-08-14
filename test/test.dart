@@ -401,7 +401,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-
+      
       realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {

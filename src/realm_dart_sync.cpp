@@ -218,3 +218,11 @@ RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userd
     };
     return invoke_dart_and_await_result(&userCallback);
 }
+
+RLM_API void realm_dart_async_open_task_callback(realm_userdata_t userdata, realm_thread_safe_reference_t* realm, const realm_async_error_t* error)
+{
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, realm, error]() {
+        (reinterpret_cast<realm_async_open_task_completion_func_t>(ud->dart_callback))(ud->handle, realm, error);
+    });
+}
