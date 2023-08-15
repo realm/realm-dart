@@ -11,16 +11,17 @@
 * Rare corruption of files on streaming format (often following compact, convert or copying to a new file). (Core upgrade, since v12.12.0)
 * Trying to search a full-text indexes created as a result of an additive schema change (i.e. applying the differences between the local schema and a synchronized realm's schema) could have resulted in an IllegalOperation error with the error code `Column has no fulltext index`. (Core upgrade, since v13.2.0).
 * Sync progress for DOWNLOAD messages from server state was updated wrongly. This may have resulted in an extra round-trip to the server. (Core upgrade, since v12.9.0)
-* Sync errors included the error message twice (Core upgrade, since v13.16.0).
 * Fixes infinite-loop like issue with await-for-yield over realm set change streams. ([#1344](https://github.com/realm/realm-dart/issues/1344))
 * Fixed issue with using flexibleSync in flutter test. ([#1366](https://github.com/realm/realm-dart/pull/1366))
-* Fixed a realm generator issue, when used in concert with MobX. ([%1372](https://github.com/realm/realm-dart/pull/1372))
+* Fixed a realm generator issue, when used in concert with MobX. ([#1372](https://github.com/realm/realm-dart/pull/1372))
+* Fix failed assertion for unknown app server errors (Core upgrade, since v12.9.0).
+* Testing the size of a collection of links against zero would sometimes fail (sometimes = "difficult to explain"). (Core upgrade, since v13.15.1)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core 13.17.1.
+* Using Core 13.17.2.
 
 ## 1.3.0 (2023-06-22)
 

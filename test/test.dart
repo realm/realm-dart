@@ -736,13 +736,26 @@ extension RealmObjectTest on RealmObjectBase {
   String toJson() => realmCore.objectToString(this);
 }
 
+extension on int {
+  String pad(int width) => toString().padLeft(width, '0');
+}
+
 extension DateTimeTest on DateTime {
   String toCoreTimestampString() {
     final utc = toUtc();
-    // core serializes time in a weird way, and Dart doesn't support nanoseconds, hence this abomination
-    final seconds = utc.microsecondsSinceEpoch ~/ 1000000;
-    var nanoseconds = (utc.microsecondsSinceEpoch.remainder(1000000)) * 1000; // remaining microseconds as nanoseconds
-    return 'T$seconds:$nanoseconds';
+    // Dart doesn't support nanoseconds, and core is not fully iso8601 compliant, hence this abomination
+    // final nanoseconds = utc.microsecondsSinceEpoch.remainder(1000000) * 1000; // remaining microseconds as nanoseconds
+    final nanoseconds = utc.microsecondsSinceEpoch % 1000000 * 1000; // remaining microseconds as nanoseconds
+    final iso8601 = utc.toIso8601String();
+
+    // use nanoseconds, and drop iso8601 utc Z at the end
+    return iso8601
+        .replaceFirst('T', ' ') //
+        .replaceRange(
+          iso8601.indexOf('.'),
+          null,
+          nanoseconds != 0 ? '.${nanoseconds.pad(9)}' : '',
+        );
   }
 }
 
