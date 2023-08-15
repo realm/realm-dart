@@ -187,8 +187,8 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
     }
 
     Future<void> waitForDownloadSubscribedResult() async {
-      await realm.subscriptions.waitForSynchronization();
-      await realm.syncSession.waitForDownload();
+      await realm.subscriptions.waitForSynchronization(cancellationWaitingToken);
+      await realm.syncSession.waitForDownload(cancellationWaitingToken);
     }
 
     if (cancellationWaitingToken == null) {

@@ -61,6 +61,14 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.state, SubscriptionSetState.complete);
   });
 
+  testSubscriptions('SubscriptionSet.state/waitForSynchronization canceled', (realm) async {
+    final subscriptions = realm.subscriptions;
+    final cancellationToken = CancellationToken();
+    final waitFuture = subscriptions.waitForSynchronization(cancellationToken);
+    cancellationToken.cancel();
+    expect(() async => await waitFuture, throwsA(isA<CancelledException>()));
+  });
+
   testSubscriptions('SubscriptionSet.version', (realm) async {
     final subscriptions = realm.subscriptions;
     expect(subscriptions.version, 0);

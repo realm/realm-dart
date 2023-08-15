@@ -147,8 +147,8 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
     return result == null ? null : Subscription._(result);
   }
 
-  Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
-    final result = await realmCore.waitForSubscriptionSetStateChange(this, state);
+  Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state, [CancellationToken? cancellationToken]) async {
+    final result = await realmCore.waitForSubscriptionSetStateChange(this, state, cancellationToken);
     realmCore.refreshSubscriptionSet(this);
     return result;
   }
@@ -159,8 +159,9 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   /// the returned [Future] will complete immediately. If the state is
   /// [SubscriptionSetState.error], the returned future will throw an
   /// error.
-  Future<void> waitForSynchronization() async {
-    final result = await _waitForStateChange(SubscriptionSetState.complete);
+  /// An optional [cancellationToken] can be used to cancel the wait operation.
+  Future<void> waitForSynchronization([CancellationToken? cancellationToken]) async {
+    final result = await _waitForStateChange(SubscriptionSetState.complete, cancellationToken);
     if (result == SubscriptionSetState.error) {
       throw error!;
     }

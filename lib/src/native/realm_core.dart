@@ -413,17 +413,22 @@ class _RealmCore {
   }
 
   static void _stateChangeCallback(Object userdata, int state) {
-    final completer = userdata as Completer<SubscriptionSetState>;
-
+    final completer = userdata as CancellableCompleter<SubscriptionSetState>;
+    if (completer.isCompleted || completer.isCancelled) {
+      return;
+    }
     completer.complete(SubscriptionSetState.values[state]);
   }
 
-  Future<SubscriptionSetState> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen) {
-    final completer = Completer<SubscriptionSetState>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(_stateChangeCallback);
-    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
-    _realmLib.realm_sync_on_subscription_set_state_change_async(subscriptions.handle._pointer, notifyWhen.index,
-        _realmLib.addresses.realm_dart_sync_on_subscription_state_changed_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+  Future<SubscriptionSetState> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen,
+      [CancellationToken? cancellationToken]) {
+    final completer = CancellableCompleter<SubscriptionSetState>(cancellationToken);
+    if (!completer.isCancelled) {
+      final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(_stateChangeCallback);
+      final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+      _realmLib.realm_sync_on_subscription_set_state_change_async(subscriptions.handle._pointer, notifyWhen.index,
+          _realmLib.addresses.realm_dart_sync_on_subscription_state_changed_callback, userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+    }
     return completer.future;
   }
 
@@ -666,23 +671,26 @@ class _RealmCore {
 
   Future<RealmHandle> openRealmAsync(RealmAsyncOpenTaskHandle handle, CancellationToken? cancellationToken) {
     final completer = CancellableCompleter<RealmHandle>(cancellationToken);
-    final callback =
-        Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(_openRealmAsyncCallback);
-    final userData = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
-    _realmLib.realm_async_open_task_start(
-      handle._pointer,
-      _realmLib.addresses.realm_dart_async_open_task_callback,
-      userData.cast(),
-      _realmLib.addresses.realm_dart_userdata_async_free,
-    );
-
+    if (!completer.isCancelled) {
+      final callback =
+          Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(_openRealmAsyncCallback);
+      final userData = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+      _realmLib.realm_async_open_task_start(
+        handle._pointer,
+        _realmLib.addresses.realm_dart_async_open_task_callback,
+        userData.cast(),
+        _realmLib.addresses.realm_dart_userdata_async_free,
+      );
+    }
     return completer.future;
   }
 
   static void _openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
     return using((Arena arena) {
-      final completer = userData as Completer<RealmHandle>;
-
+      final completer = userData as CancellableCompleter<RealmHandle>;
+      if (completer.isCompleted || completer.isCancelled) {
+        return;
+      }
       if (error != nullptr) {
         final err = arena<realm_error>();
         _realmLib.realm_get_async_error(error, err);
@@ -2308,12 +2316,14 @@ class _RealmCore {
     controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
   }
 
-  Future<void> sessionWaitForUpload(Session session) {
-    final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
-    final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
-    _realmLib.realm_sync_session_wait_for_upload_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
-        userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+  Future<void> sessionWaitForUpload(Session session, [CancellationToken? cancellationToken]) {
+    final completer = CancellableCompleter<void>(cancellationToken);
+    if (!completer.isCancelled) {
+      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+      final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
+      _realmLib.realm_sync_session_wait_for_upload_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
+          userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
+    }
     return completer.future;
   }
 
@@ -2329,8 +2339,8 @@ class _RealmCore {
   }
 
   static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
-    final completer = userdata as Completer<void>;
-    if (completer.isCompleted) {
+    final completer = userdata as CancellableCompleter<void>;
+    if (completer.isCompleted || completer.isCancelled) {
       return;
     }
     if (errorCode != nullptr) {
