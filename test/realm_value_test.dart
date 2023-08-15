@@ -223,9 +223,6 @@ Future<void> main([List<String>? args]) async {
       Decimal128.fromInt(128),
     ];
 
-    final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
-    final realm = getRealm(config);
-
     test('Roundtrip', () {
       final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
       final realm = getRealm(config);
@@ -233,5 +230,32 @@ Future<void> main([List<String>? args]) async {
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
     });
+  });
+
+  test('Query with list of realm values in arguments', () {
+    final now = DateTime.now().toUtc();
+    final values = <Object?>[
+      null,
+      true,
+      'text',
+      42,
+      3.14,
+      AnythingGoes(),
+      Stuff(),
+      now,
+      ObjectId.fromTimestamp(now),
+      Uuid.v4(),
+      Decimal128.fromInt(128),
+    ];
+    final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
+    final realm = getRealm(config);
+    final realmValues = values.map(RealmValue.from);
+    realm.write(() => realm.add(AnythingGoes(manyAny: realmValues, oneAny: realmValues.last)));
+
+    var results = realm.query<AnythingGoes>("manyAny IN \$0", [values]);
+    expect(results.first.manyAny, realmValues);
+
+    results = realm.query<AnythingGoes>("oneAny IN \$0", [values]);
+    expect(results.first.oneAny, realmValues.last);
   });
 }

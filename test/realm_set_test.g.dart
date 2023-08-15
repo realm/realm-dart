@@ -8,9 +8,11 @@ part of 'realm_set_test.dart';
 
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   Car(
-    String make,
-  ) {
+    String make, {
+    String? color,
+  }) {
     RealmObjectBase.set(this, 'make', make);
+    RealmObjectBase.set(this, 'color', color);
   }
 
   Car._();
@@ -19,6 +21,11 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   String get make => RealmObjectBase.get<String>(this, 'make') as String;
   @override
   set make(String value) => RealmObjectBase.set(this, 'make', value);
+
+  @override
+  String? get color => RealmObjectBase.get<String>(this, 'color') as String?;
+  @override
+  set color(String? value) => RealmObjectBase.set(this, 'color', value);
 
   @override
   Stream<RealmObjectChanges<Car>> get changes =>
@@ -33,6 +40,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Car._);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
+      SchemaProperty('color', RealmPropertyType.string, optional: true),
     ]);
   }
 }

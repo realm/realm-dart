@@ -70,6 +70,7 @@ List<Type> supportedTypes = [
 class _Car {
   @PrimaryKey()
   late String make;
+  late String? color;
 }
 
 @RealmModel()
@@ -718,5 +719,116 @@ Future<void> main([List<String>? args]) async {
           isA<RealmResultsChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
         ]));
     realm.write(() => testSets.objectsSet.clear());
+  });
+
+  test('Set.freeze freezes the set', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final liveCars = realm.write(() {
+      return realm.add(TestRealmSets(1, objectsSet: {
+        Car('Tesla'),
+      }));
+    }).objectsSet;
+
+    final frozenCars = freezeSet(liveCars);
+
+    expect(frozenCars.length, 1);
+    expect(frozenCars.isFrozen, true);
+    expect(frozenCars.realm.isFrozen, true);
+    expect(frozenCars.first.isFrozen, true);
+
+    realm.write(() {
+      liveCars.add(Car('Audi'));
+    });
+
+    expect(liveCars.length, 2);
+    expect(frozenCars.length, 1);
+    expect(frozenCars.single.make, 'Tesla');
+  });
+
+  test("FrozenSet.changes throws", () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(TestRealmSets(1, objectsSet: {
+        Car("Tesla"),
+        Car("Audi"),
+      }));
+    });
+
+    final frozenBools = freezeSet(realm.all<TestRealmSets>().single.boolSet);
+
+    expect(() => frozenBools.changes, throws<RealmStateError>('Set is frozen and cannot emit changes'));
+  });
+
+  test('UnmanagedSet.freeze throws', () {
+    final set = TestRealmSets(1);
+
+    expect(() => set.boolSet.freeze(), throws<RealmStateError>("Unmanaged sets can't be frozen"));
+  });
+
+  test('RealmSet.changes - await for with yield ', () async {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = realm.write(() {
+      return realm.add(TestRealmSets(1, objectsSet: {
+        Car('Tesla'),
+      }));
+    }).objectsSet;
+
+    final wait = const Duration(seconds: 1);
+
+    Stream<bool> trueWaitFalse() async* {
+      yield true;
+      await Future<void>.delayed(wait);
+      yield false; // nothing has happened in the meantime
+    }
+
+    // ignore: prefer_function_declarations_over_variables
+    final awaitForWithYield = () async* {
+      await for (final c in cars.changes) {
+        yield c;
+      }
+    };
+
+    int count = 0;
+    await for (final c in awaitForWithYield().map((_) => trueWaitFalse()).switchLatest()) {
+      if (!c) break; // saw false after waiting
+      ++count; // saw true due to new event from changes
+      if (count > 1) fail('Should only receive one event');
+    }
+  });
+  
+  test('Query on RealmSet with IN-operator', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    final result = testSets.objectsSet.query(r'make IN $0', [
+      ['Tesla', 'Audi']
+    ]);
+    expect(result.length, 2);
+  });
+
+  test('Query on RealmSet allows null in arguments', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla", color: "black"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    var result = testSets.objectsSet.query(r'color = $0', [null]);
+    expect(result.length, 2);
   });
 }

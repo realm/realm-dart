@@ -58,7 +58,7 @@ extension on Iterable<FieldElement> {
 }
 
 extension ClassElementEx on ClassElement {
-  ClassDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node as ClassDeclaration;
+  AnnotatedNode get declarationAstNode => getDeclarationFromElement(this)!.node as AnnotatedNode;
 
   AnnotationValue? get realmModelInfo => annotationInfoOfExact(realmModelChecker);
 

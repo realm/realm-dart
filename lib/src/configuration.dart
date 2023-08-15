@@ -135,7 +135,7 @@ abstract class Configuration implements Finalizable {
 
   /// The path where the `Realm` should be stored.
   ///
-  /// If omitted the [defaultPath] for the platform will be used.
+  /// If omitted the [defaultRealmPath] for the platform will be used.
   late final String path;
 
   /// The key used to encrypt the entire `Realm`.
