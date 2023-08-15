@@ -18,6 +18,8 @@
 import 'dart:async';
 import 'dart:ffi';
 
+import 'package:cancellation_token/cancellation_token.dart';
+
 import 'collections.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
@@ -160,31 +162,50 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// [WaitForSyncMode] specifies how to wait or not wait for subscribed objects to be downloaded.
   /// The default value is [WaitForSyncMode.onCreation].
   ///
-  /// The [timeout] is the maximum duration to wait for objects to be downloaded.
-  /// If the time exceeds this limit, the [RealmResults] is returned and the download
-  /// continues in the background. Exceeding timeout will not throw exception.
+  /// The [cancellationWaitingToken] is optional and can be used to cancel
+  /// the waiting for objects to be downloaded.
+  /// If the operation is cancelled, a [CancelledException] is thrown and the download
+  /// continues in the background.
+  /// In case of using [TimeoutCancellationToken] and the time limit is exceeded,
+  /// a [TimeoutException] is thrown and the download continues in the background.
   ///
   /// {@category Sync}
   Future<RealmResults<T>> subscribe({
     String? name,
     WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation,
-    Duration? timeout,
+    CancellationToken? cancellationWaitingToken,
     bool update = false,
   }) async {
-    bool subscriptionExists = realm.subscriptions.find(this) != null;
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(this, name: name, update: update);
-    });
+    bool shouldWait = waitForSyncMode == WaitForSyncMode.always;
+    shouldWait |= (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) == null);
 
-    if (waitForSyncMode == WaitForSyncMode.always || (waitForSyncMode == WaitForSyncMode.onCreation && !subscriptionExists)) {
-      Future<void> waitForDownload() async => await realm.subscriptions.waitForSynchronization().then((value) => realm.syncSession.waitForDownload());
-      if (timeout == null) {
-        await waitForDownload();
-      } else {
-        await waitForDownload().timeout(timeout, onTimeout: () {});
-      }
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(this, name: name, update: update));
+    RealmResults<T> subscribedRealmResult = _SubscribedRealmResult._(this, subscriptionName: name);
+
+    if (!shouldWait) {
+      return CancellableFuture.value(subscribedRealmResult, cancellationWaitingToken);
     }
-    return _SubscribedRealmResult._(this, subscriptionName: name);
+
+    Future<void> waitForDownloadSubscribedResult() async {
+      await realm.subscriptions.waitForSynchronization();
+      await realm.syncSession.waitForDownload();
+    }
+
+    if (cancellationWaitingToken == null) {
+      await waitForDownloadSubscribedResult();
+    } else {
+      if (cancellationWaitingToken.isCancelled) {
+        throw cancellationWaitingToken.exception!;
+      }
+      final completer = CancellableCompleter<void>(cancellationWaitingToken);
+      waitForDownloadSubscribedResult().whenComplete(() {
+        if (!(completer.isCancelled || completer.isCompleted)) {
+          completer.complete();
+        }
+      });
+      await completer.future;
+    }
+    return CancellableFuture.value(subscribedRealmResult, cancellationWaitingToken);
   }
 
   /// Unsubscribe from this query result. It returns immediately

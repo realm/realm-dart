@@ -708,32 +708,72 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {
-    final prefix = generateRandomString(4);
-    final byTestRun = "name BEGINSWITH '$prefix'";
-    App app = App(configuration);
-    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config = Configuration.flexibleSync(user, [Product.schema]);
-    final realm = getRealm(config);
-    await realm.query<Product>(byTestRun).subscribe();
-    realm.write(() {
-      for (var i = 0; i < 20; i++) {
-        realm.add(Product(ObjectId(), "${prefix}_${i + 1}"));
-      }
-    });
-    await realm.syncSession.waitForUpload();
-    realm.close();
-
-    final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config1 = Configuration.flexibleSync(user1, [Product.schema]);
-    final realm1 = getRealm(config1);
-    final query = realm1.query<Product>('$byTestRun AND name ENDSWITH \$0', ["1"]);
+    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration);
     final results = await query.subscribe(waitForSyncMode: WaitForSyncMode.never);
     expect(results.length, 0); // didn't wait for downloading because of WaitForSyncMode.never
-
-    final first = await query.subscribe(waitForSyncMode: WaitForSyncMode.always, timeout: Duration(milliseconds: 1));
-    expect(first.length, 0); // timeouts before downloading
 
     final second = await query.subscribe(waitForSyncMode: WaitForSyncMode.always);
     expect(second.length, 2); // product_1 and product_21
   });
+
+  baasTest('Flexible sync subscribe/unsubscribe cancellation token', (configuration) async {
+    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration);
+
+    // Wait Always if timeout expired
+    final timeoutCancellationToken = TimeoutCancellationToken(Duration(microseconds: 0));
+    await expectLater(
+      query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationWaitingToken: timeoutCancellationToken),
+      throwsA(isA<TimeoutException>()),
+    );
+
+    // Wait Always but cancel berfore
+    final cancellationToken = CancellationToken();
+    cancellationToken.cancel();
+    await expectLater(
+      query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationWaitingToken: cancellationToken),
+      throwsA(isA<CancelledException>()),
+    );
+
+    // Wait Never but cancel before
+    final cancellationToken1 = CancellationToken();
+    cancellationToken1.cancel();
+    await expectLater(
+      query.subscribe(waitForSyncMode: WaitForSyncMode.never, cancellationWaitingToken: cancellationToken1),
+      throwsA(isA<CancelledException>()),
+    );
+
+    // Wait Always but cancel after
+    final cancellationToken2 = CancellationToken();
+    final subFuture = query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationWaitingToken: cancellationToken2);
+    cancellationToken2.cancel();
+
+    expect(
+      () async => await subFuture,
+      throwsA(isA<CancelledException>()),
+    );
+  });
+}
+
+Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration configuration) async {
+  final prefix = generateRandomString(4);
+  final byTestRun = "name BEGINSWITH '$prefix'";
+  App app = App(configuration);
+  final userA = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+  final configA = Configuration.flexibleSync(userA, [Product.schema]);
+  final realmA = getRealm(configA);
+  await realmA.query<Product>(byTestRun).subscribe();
+  realmA.write(() {
+    for (var i = 0; i < 20; i++) {
+      realmA.add(Product(ObjectId(), "${prefix}_${i + 1}"));
+    }
+  });
+  await realmA.syncSession.waitForUpload();
+  realmA.close();
+
+  final userB = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+  final configB = Configuration.flexibleSync(userB, [Product.schema]);
+  final realmB = getRealm(configB);
+  final query = realmB.query<Product>('$byTestRun AND name ENDSWITH \$0', ["1"]);
+
+  return query;
 }

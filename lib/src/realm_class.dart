@@ -34,7 +34,7 @@ import 'session.dart';
 import 'subscription.dart';
 import 'set.dart';
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, TimeoutCancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
         Backlink,
