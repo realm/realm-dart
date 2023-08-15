@@ -423,12 +423,15 @@ Future<void> main([List<String>? args]) async {
   }
 
   final dates = [
-    // BUG: core timestamp serialization does not support years
-    // very far from 1970 currently currently
+    // BUG: Realm represent timestamps as 64 bit seconds offset from epoch (1970)
+    // and a 32 bit nano-seconds component. Hence realm can represent offsets from
+    // epoch up to (1 << 63)s / 86400s/day = 9223372036854689408 days, yet realm-core
+    // cannot serialize:
     //
-    // These will fail:
     //DateTime.utc(1970).add(Duration(days: 100000000)),
     //DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    //
+    // See https://github.com/realm/realm-core/issues/6892
     DateTime.utc(1970).add(Duration(days: 999999)),
     DateTime.utc(1970).subtract(Duration(days: 999999)),
     DateTime.utc(2020, 1, 1, 12, 34, 56, 789, 999),
