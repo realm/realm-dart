@@ -658,7 +658,7 @@ Future<void> main([List<String>? args]) async {
     final subscriptionName1 = "sub1";
     final subscriptionName2 = "sub2";
     final query1 = realm.all<Event>();
-    final query2 = realm.query<Event>("name = 'some name'");
+    final query2 = realm.query<Event>("name = \$0", ["some name"]);
 
     await query1.subscribe(name: subscriptionName1);
     expect(realm.subscriptions.length, 1);
@@ -716,16 +716,17 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {
-    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration);
+    int count = 2;
+    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration, count);
     final results = await query.subscribe(waitForSyncMode: WaitForSyncMode.never);
     expect(results.length, 0); // didn't wait for downloading because of WaitForSyncMode.never
 
     final second = await query.subscribe(waitForSyncMode: WaitForSyncMode.always);
-    expect(second.length, 2); // product_1 and product_21
+    expect(second.length, count); // product_1 and product_21
   });
 
   baasTest('Flexible sync subscribe/unsubscribe cancellation token', (configuration) async {
-    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration);
+    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration, 3);
 
     // Wait Always if timeout expired
     final timeoutCancellationToken = TimeoutCancellationToken(Duration(microseconds: 0));
@@ -762,7 +763,7 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
-Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration configuration) async {
+Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration configuration, int takeCount) async {
   final prefix = generateRandomString(4);
   final byTestRun = "name BEGINSWITH '$prefix'";
   App app = App(configuration);
@@ -770,9 +771,12 @@ Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration c
   final configA = Configuration.flexibleSync(userA, [Product.schema]);
   final realmA = getRealm(configA);
   await realmA.query<Product>(byTestRun).subscribe();
+  List<String> names = [];
   realmA.write(() {
     for (var i = 0; i < 20; i++) {
-      realmA.add(Product(ObjectId(), "${prefix}_${i + 1}"));
+      final name = "${prefix}_${i + 1}";
+      names.add(name);
+      realmA.add(Product(ObjectId(), name));
     }
   });
   await realmA.syncSession.waitForUpload();
@@ -781,7 +785,7 @@ Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration c
   final userB = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final configB = Configuration.flexibleSync(userB, [Product.schema]);
   final realmB = getRealm(configB);
-  final query = realmB.query<Product>('$byTestRun AND name ENDSWITH \$0', ["1"]);
+  final query = realmB.query<Product>('$byTestRun AND name IN \$0', [names.take(takeCount)]);
 
   return query;
 }

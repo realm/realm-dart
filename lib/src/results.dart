@@ -160,7 +160,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
   ///
   /// [WaitForSyncMode] specifies how to wait or not wait for subscribed objects to be downloaded.
-  /// The default value is [WaitForSyncMode.onCreation].
+  /// The default value is [WaitForSyncMode.firstTime].
   ///
   /// The [cancellationToken] is optional and can be used to cancel
   /// the waiting for objects to be downloaded.
