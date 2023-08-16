@@ -16,7 +16,7 @@
 * Fixed a realm generator issue, when used in concert with MobX. ([#1372](https://github.com/realm/realm-dart/pull/1372))
 * Fix failed assertion for unknown app server errors (Core upgrade, since v12.9.0).
 * Testing the size of a collection of links against zero would sometimes fail (sometimes = "difficult to explain"). (Core upgrade, since v13.15.1)
-* getProgressStream no longer returns a broadcast stream. ([#1375](https://github.com/realm/realm-dart/pull/1375))
+* `Session.getProgressStream` now returns a regular stream, instead of a broadcast stream. ([#1375](https://github.com/realm/realm-dart/pull/1375))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
