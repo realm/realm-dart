@@ -414,10 +414,9 @@ class _RealmCore {
 
   static void _stateChangeCallback(Object userdata, int state) {
     final completer = userdata as CancellableCompleter<SubscriptionSetState>;
-    if (completer.isCompleted || completer.isCancelled) {
-      return;
+    if (!completer.isCancelled) {
+      completer.complete(SubscriptionSetState.values[state]);
     }
-    completer.complete(SubscriptionSetState.values[state]);
   }
 
   Future<SubscriptionSetState> waitForSubscriptionSetStateChange(SubscriptionSet subscriptions, SubscriptionSetState notifyWhen,
@@ -688,7 +687,7 @@ class _RealmCore {
   static void _openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
     return using((Arena arena) {
       final completer = userData as CancellableCompleter<RealmHandle>;
-      if (completer.isCompleted || completer.isCancelled) {
+      if (completer.isCancelled) {
         return;
       }
       if (error != nullptr) {
@@ -2340,7 +2339,7 @@ class _RealmCore {
 
   static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
     final completer = userdata as CancellableCompleter<void>;
-    if (completer.isCompleted || completer.isCancelled) {
+    if (completer.isCancelled) {
       return;
     }
     if (errorCode != nullptr) {

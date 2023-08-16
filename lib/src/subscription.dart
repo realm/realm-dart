@@ -185,7 +185,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   @override
   Iterator<Subscription> get iterator => _SubscriptionIterator._(this);
 
-  /// Update the subscription set and send the request to the server in the background.
+  /// Updates the subscription set and send the request to the server in the background.
   ///
   /// Calling [update] is a prerequisite for mutating the subscription set,
   /// using a [MutableSubscriptionSet] passed to the [action].
@@ -283,7 +283,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return realmCore.eraseSubscriptionByResults(this, query);
   }
 
-  /// Remove the subscription from the set that matches by [name], if it exists.
+  /// Removes the subscription from the set that matches by [name], if it exists.
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
@@ -302,7 +302,8 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return result;
   }
 
-  /// Clear the subscription set.
+  /// Clears the subscription set.
+  /// If [unnamedOnly] is `true`, then only unnamed subscriptions will be removed.
   void clear({bool unnamedOnly = false}) {
     if (unnamedOnly) {
       for (var i = length - 1; i >= 0; i--) {
