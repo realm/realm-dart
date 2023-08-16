@@ -26,7 +26,6 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:path/path.dart' as p;
-import 'package:cancellation_token/cancellation_token.dart';
 import '../lib/realm.dart';
 import 'test.dart';
 import '../lib/src/native/realm_core.dart';
@@ -1017,7 +1016,7 @@ Future<void> main([List<String>? args]) async {
     Future<void>.delayed(Duration(milliseconds: 10), () => transaction.commit());
 
     final transaction1 = await realm.beginWriteAsync();
-    
+
     await transaction1.commitAsync();
 
     expect(transaction.isOpen, false);
