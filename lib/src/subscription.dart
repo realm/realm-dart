@@ -302,22 +302,18 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return result;
   }
 
-  /// Removes all unnamed subscriptions from the subscription set.
-  bool removeAllUnnamed() {
-    var result = false;
-    for (var i = length - 1; i >= 0; i--) {
-      // reverse iteration to avoid index shifting
-      final subscription = this[i];
-      if (subscription.name == null) {
-        result |= remove(subscription);
-      }
-    }
-    return result;
-  }
-
   /// Clear the subscription set.
-  void clear() {
-    realmCore.clearSubscriptionSet(this);
+  void clear({bool unnamedOnly = false}) {
+    if (unnamedOnly) {
+      for (var i = length - 1; i >= 0; i--) {
+        final subscription = this[i];
+        if (subscription.name == null) {
+          remove(subscription);
+        }
+      }
+    } else {
+      realmCore.clearSubscriptionSet(this);
+    }
   }
 }
 

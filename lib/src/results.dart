@@ -162,7 +162,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// [WaitForSyncMode] specifies how to wait or not wait for subscribed objects to be downloaded.
   /// The default value is [WaitForSyncMode.onCreation].
   ///
-  /// The [cancellationWaitingToken] is optional and can be used to cancel
+  /// The [cancellationToken] is optional and can be used to cancel
   /// the waiting for objects to be downloaded.
   /// If the operation is cancelled, a [CancelledException] is thrown and the download
   /// continues in the background.
@@ -172,13 +172,17 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   /// {@category Sync}
   Future<RealmResults<T>> subscribe({
     String? name,
-    WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation,
+    WaitForSyncMode waitForSyncMode = WaitForSyncMode.firstTime,
     CancellationToken? cancellationToken,
     bool update = false,
   }) async {
-    bool shouldWait = waitForSyncMode == WaitForSyncMode.always;
-    shouldWait |= (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) == null);
-    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(this, name: name, update: update));
+    Subscription? existingSubscription = name == null ? realm.subscriptions.find(this) : realm.subscriptions.findByName(name);
+    late Subscription updatedSubscription;
+    realm.subscriptions.update((mutableSubscriptions) {
+      updatedSubscription = mutableSubscriptions.add(this, name: name, update: update);
+    });
+    bool shouldWait = waitForSyncMode == WaitForSyncMode.always ||
+        (waitForSyncMode == WaitForSyncMode.firstTime && subscriptionIsChanged(existingSubscription, updatedSubscription));
 
     return await CancellableFuture.from<RealmResults<T>>(() async {
       if (cancellationToken != null && cancellationToken.isCancelled) {
@@ -192,7 +196,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
     }, cancellationToken);
   }
 
-  ///cancellationToken Unsubscribe from this query result. It returns immediately
+  /// Unsubscribe from this query result. It returns immediately
   /// without waiting for synchronization.
   ///
   /// If the subscription is unnamed, the subscription matching
@@ -216,6 +220,13 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
       });
     }
     return unsubscribed;
+  }
+
+  bool subscriptionIsChanged(Subscription? existingSubscription, Subscription updatedSubscription) {
+    bool changed = existingSubscription == null ||
+        existingSubscription.objectClassName != updatedSubscription.objectClassName ||
+        existingSubscription.queryString != updatedSubscription.queryString;
+    return changed;
   }
 }
 
@@ -323,7 +334,7 @@ enum WaitForSyncMode {
   /// Waits until the objects have been downloaded from the server
   /// the first time the subscription is created. If the subscription
   /// already exists, the [RealmResults] is returned immediately.
-  onCreation,
+  firstTime,
 
   /// Always waits until the objects have been downloaded from the server.
   always,

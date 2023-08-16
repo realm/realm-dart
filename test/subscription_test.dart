@@ -701,7 +701,7 @@ Future<void> main([List<String>? args]) async {
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
     expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
 
-    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.removeAllUnnamed()); // -1 unnamed subscription on queryFiltered
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.clear(unnamedOnly: true)); // -1 unnamed subscription on queryFiltered
 
     expect(realm.subscriptions.length, 2);
     expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
