@@ -81,16 +81,18 @@ class Session implements Finalizable {
 }
 
 /// A type containing information about the progress state at a given instant.
-typedef SyncProgress = ({
+class SyncProgress {
   /// The number of bytes that have been transferred since subscribing for progress notifications.
-  int transferredBytes,
+  final int transferredBytes;
 
   /// The total number of bytes that have to be transferred since subscribing for progress notifications.
   /// The difference between that number and [transferredBytes] gives you the number of bytes not yet
   /// transferred. If the difference is 0, then all changes at the instant the callback fires have been
   /// successfully transferred.
-  int transferableBytes,
-});
+  final int transferableBytes;
+
+  const SyncProgress({required this.transferredBytes, required this.transferableBytes});
+}
 
 /// A type containing information about the transition of a connection state from one value to another.
 class ConnectionStateChange {
@@ -124,7 +126,7 @@ extension SessionInternal on Session {
   }
 
   static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
-      (transferredBytes: transferredBytes, transferableBytes: transferableBytes);
+      SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes);
 }
 
 abstract interface class ProgressNotificationsController {
@@ -149,7 +151,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
 
   @override
   void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add((transferredBytes: transferredBytes, transferableBytes: transferableBytes));
+    _streamController.add(SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes));
 
     if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
       _streamController.close();
