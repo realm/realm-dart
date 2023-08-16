@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.4.0 (2023-08-16)
 
 ### Enhancements
 * Support ReamSet.freeze() ([#1342](https://github.com/realm/realm-dart/pull/1342))
