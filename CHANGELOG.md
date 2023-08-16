@@ -4,7 +4,7 @@
 * Support ReamSet.freeze() ([#1342](https://github.com/realm/realm-dart/pull/1342))
 * Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
 * Support for passing `List`, `Set` or `Iterable` arguments to queries with `IN`-operators. ([#1346](https://github.com/realm/realm-dart/pull/1346))
-* Added new flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added `MutableSubscriptionSet.removeAllUnnamed()` for removing all the unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
+* Added new flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added named parameter to `MutableSubscriptionSet.clear({bool unnamedOnly = false})` for removing all the unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
 
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
