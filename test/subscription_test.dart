@@ -730,7 +730,7 @@ Future<void> main([List<String>? args]) async {
     // Wait Always if timeout expired
     final timeoutCancellationToken = TimeoutCancellationToken(Duration(microseconds: 0));
     await expectLater(
-      query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationWaitingToken: timeoutCancellationToken),
+      () async => await query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationToken: timeoutCancellationToken),
       throwsA(isA<TimeoutException>()),
     );
 
@@ -738,7 +738,7 @@ Future<void> main([List<String>? args]) async {
     final cancellationToken = CancellationToken();
     cancellationToken.cancel();
     await expectLater(
-      query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationWaitingToken: cancellationToken),
+      query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationToken: cancellationToken),
       throwsA(isA<CancelledException>()),
     );
 
@@ -746,13 +746,13 @@ Future<void> main([List<String>? args]) async {
     final cancellationToken1 = CancellationToken();
     cancellationToken1.cancel();
     await expectLater(
-      query.subscribe(waitForSyncMode: WaitForSyncMode.never, cancellationWaitingToken: cancellationToken1),
+      query.subscribe(waitForSyncMode: WaitForSyncMode.never, cancellationToken: cancellationToken1),
       throwsA(isA<CancelledException>()),
     );
 
     // Wait Always but cancel after
     final cancellationToken2 = CancellationToken();
-    final subFuture = query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationWaitingToken: cancellationToken2);
+    final subFuture = query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationToken: cancellationToken2);
     cancellationToken2.cancel();
 
     expect(

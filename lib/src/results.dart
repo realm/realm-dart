@@ -173,42 +173,26 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   Future<RealmResults<T>> subscribe({
     String? name,
     WaitForSyncMode waitForSyncMode = WaitForSyncMode.onCreation,
-    CancellationToken? cancellationWaitingToken,
+    CancellationToken? cancellationToken,
     bool update = false,
   }) async {
     bool shouldWait = waitForSyncMode == WaitForSyncMode.always;
     shouldWait |= (waitForSyncMode == WaitForSyncMode.onCreation && realm.subscriptions.find(this) == null);
-
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(this, name: name, update: update));
-    RealmResults<T> subscribedRealmResult = _SubscribedRealmResult._(this, subscriptionName: name);
 
-    if (!shouldWait) {
-      return CancellableFuture.value(subscribedRealmResult, cancellationWaitingToken);
-    }
-
-    Future<void> waitForDownloadSubscribedResult() async {
-      await realm.subscriptions.waitForSynchronization(cancellationWaitingToken);
-      await realm.syncSession.waitForDownload(cancellationWaitingToken);
-    }
-
-    if (cancellationWaitingToken == null) {
-      await waitForDownloadSubscribedResult();
-    } else {
-      if (cancellationWaitingToken.isCancelled) {
-        throw cancellationWaitingToken.exception!;
+    return await CancellableFuture.from<RealmResults<T>>(() async {
+      if (cancellationToken != null && cancellationToken.isCancelled) {
+        throw cancellationToken.exception!;
       }
-      final completer = CancellableCompleter<void>(cancellationWaitingToken);
-      waitForDownloadSubscribedResult().whenComplete(() {
-        if (!(completer.isCancelled || completer.isCompleted)) {
-          completer.complete();
-        }
-      });
-      await completer.future;
-    }
-    return CancellableFuture.value(subscribedRealmResult, cancellationWaitingToken);
+      if (shouldWait) {
+        await realm.subscriptions.waitForSynchronization(cancellationToken);
+        await realm.syncSession.waitForDownload(cancellationToken);
+      }
+      return _SubscribedRealmResult._(this, subscriptionName: name);
+    }, cancellationToken);
   }
 
-  /// Unsubscribe from this query result. It returns immediately
+  ///cancellationToken Unsubscribe from this query result. It returns immediately
   /// without waiting for synchronization.
   ///
   /// If the subscription is unnamed, the subscription matching
