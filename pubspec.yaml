@@ -28,7 +28,7 @@ dependencies:
     path: ./common
   realm_generator:
     path: ./generator
-  tar: ^0.5.4
+  tar: ^1.0.1
   build_runner: ^2.1.0
   http: ^1.0.0
   cancellation_token: ^2.0.0
