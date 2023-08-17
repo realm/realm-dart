@@ -104,8 +104,6 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - confirm user token expired', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = generateRandomEmail();
-    await authProvider.registerUser(username, strongPassword);
     await expectLater(
         () => authProvider.confirmUser(
             "0e6340a446e68fe02a1af1b53c34d5f630b601ebf807d73d10a7fed5c2e996d87d04a683030377ac6058824d8555b24c1417de79019b40f1299aada7ef37fddc",
@@ -116,8 +114,6 @@ Future<void> main([List<String>? args]) async {
   baasTest('Email/Password - confirm user token invalid', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = generateRandomEmail();
-    await authProvider.registerUser(username, strongPassword);
     await expectLater(() => authProvider.confirmUser("abc", "123"), throws<AppException>("invalid token data"));
   }, appName: AppNames.emailConfirm);
 
