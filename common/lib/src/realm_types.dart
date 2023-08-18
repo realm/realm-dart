@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
@@ -172,9 +171,19 @@ abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 /// }
 /// ```
 class RealmValue {
+  static const true_ = RealmValue.bool(true);
+  static const false_ = RealmValue.bool(false);
+  static const null_ = RealmValue.nullValue();
+
   final Object? value;
   Type get type => value.runtimeType;
   T as<T>() => value as T; // better for code completion
+
+  List<RealmValue> get asList => as<List<RealmValue>>();
+  Map<String, RealmValue> get asDictionary => as<Map<String, RealmValue>>();
+  Set<RealmValue> get asSet => as<Set<RealmValue>>();
+
+  T call<T>() => as<T>(); // is this useful?
 
   // This is private, so user cannot accidentally construct an invalid instance
   const RealmValue._(this.value);
@@ -191,34 +200,90 @@ class RealmValue {
   const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
   const RealmValue.uint8List(Uint8List binary) : this._(binary);
+  const RealmValue.dictionary(Map<String, RealmValue> dictionary) : this._(dictionary);
+  const RealmValue.list(Iterable<RealmValue> list) : this._(list);
+  const RealmValue.set(Set<RealmValue> set) : this._(set);
 
-  /// Will throw [ArgumentError]
+  static bool _isCollection(Object? value) => value is List<RealmValue> || value is Set<RealmValue> || value is Map<String, RealmValue>;
+
+  /// Will throw [ArgumentError] if the type is not supported
   factory RealmValue.from(Object? object) {
-    if (object == null ||
-        object is bool ||
-        object is String ||
-        object is int ||
-        object is Float ||
-        object is double ||
-        object is RealmObjectMarker ||
-        object is DateTime ||
-        object is ObjectId ||
-        object is Decimal128 ||
-        object is Uuid ||
-        object is Uint8List) {
-      return RealmValue._(object);
-    } else {
-      throw ArgumentError.value(object, 'object', 'Unsupported type');
+    return switch (object) {
+      Object? o
+          when o == null ||
+              o is bool ||
+              o is String ||
+              o is int ||
+              o is double ||
+              o is RealmObjectMarker ||
+              o is DateTime ||
+              o is ObjectId ||
+              o is Decimal128 ||
+              o is Uuid ||
+              o is Uint8List =>
+        RealmValue._(o),
+      Map<String, RealmValue> d => RealmValue.dictionary(d),
+      Map<String, dynamic> d => RealmValue.dictionary(Map.fromEntries(d.entries.map((e) => MapEntry(e.key, RealmValue.from(e.value))))),
+      List<RealmValue> l => RealmValue.list(l),
+      List<dynamic> l => RealmValue.list(l.map((o) => RealmValue.from(o)).toList()),
+      Set<RealmValue> s => RealmValue.set(s),
+      Set<dynamic> s => RealmValue.set(s.map((o) => RealmValue.from(o)).toSet()),
+      _ => throw ArgumentError.value(object.runtimeType, 'object', 'Unsupported type'),
+    };
+  }
+
+  RealmValue operator [](Object? index) {
+    final v = value;
+    return switch (index) {
+          int i when v is List<RealmValue> => v[i], // throws on range error
+          String s when v is Map<String, RealmValue> => v[s],
+          Iterable<Object?> l when _isCollection(v) => this[l.first][l.skip(1)],
+          _ => throw ArgumentError.value(index, 'index', 'Unsupported type'),
+        } ??
+        const RealmValue.nullValue();
+  }
+
+  void operator []=(Object? index, RealmValue value) {
+    final v = this.value;
+    switch (index) {
+      case int i when v is List<RealmValue>:
+        v[i] = value;
+        break;
+      case String s when v is Map<String, RealmValue>:
+        v[s] = value;
+        break;
+      case Iterable<Object?> l when _isCollection(v):
+        this[l.first][l.skip(1)] = value;
+        break;
+      default:
+        throw ArgumentError.value(index, 'index', 'Unsupported type');
     }
+  }
+
+  RealmValue lookup<T>(T item) {
+    final v = value as Set<RealmValue>?;
+    if (v == null) throw ArgumentError.value(item, 'item', 'Unsupported type'); // TODO: Wrong exception
+    return v.lookup(item) ?? const RealmValue.nullValue();
+  }
+
+  bool add<T>(T item) {
+    if (_isCollection(item)) throw ArgumentError.value(item, 'item', 'Unsupported type'); // TODO: Wrong exception
+    final v = value as Set<RealmValue>?;
+    if (v == null) throw ArgumentError.value(item, 'item', 'Unsupported type'); // TODO: Wrong exception
+    return v.add(RealmValue.from(item));
+  }
+
+  bool remove<T>(T item) {
+    final v = value as Set<RealmValue>?;
+    if (v == null) throw ArgumentError.value(item, 'item', 'Unsupported type'); // TODO: Wrong exception
+    return v.remove(item);
   }
 
   @override
   operator ==(Object? other) {
-    if (other is RealmValue) {
-      return value == other.value;
-    }
-
-    return value == other;
+    if (identical(this, other)) return true;
+    if (other is! RealmValue) return false;
+    return value == other.value;
   }
 
   @override
@@ -226,4 +291,48 @@ class RealmValue {
 
   @override
   String toString() => 'RealmValue($value)';
+}
+
+void demo() {
+  final any = RealmValue.from([
+    1,
+    2,
+    {
+      'x': {1, 2}
+    },
+  ]);
+
+  if (any[2]['x'].lookup(1) != const RealmValue.nullValue()) {}
+
+  // access list element at index 2,
+  // then map element with key 'x',
+  // then set element 1, if it exists
+  // assuming an int, or null if not found
+  final x = any[2]['x'].lookup(1).as<int?>();
+  assert(x == 1);
+
+  // or, a bit shorter
+  final y = any[2]['x'].lookup(1)<int?>();
+  assert(y == 1);
+
+  // or, if you are sure
+  int z = any[2]['x'].lookup(1)(); // <-- shortest
+  assert(z == 1);
+
+  // or, using a list of indexes
+  final u = any[[2, 'x']]();
+  assert(u == RealmValue.from({1, 2}));
+
+  // which allows for a different layout
+  int v = any[[
+    2,
+    'x',
+  ]]
+      .lookup(1)();
+  assert(v == 1);
+
+  any[1] = RealmValue.from({'z': 'foo'}); // replace int with a map
+  any[2]['x'].add(3); // add an element to the set
+  any[2]['x'] = RealmValue.from(1); // replace set with an int
+  any[2]['y'] = RealmValue.from(true); // add a new key to the map
 }

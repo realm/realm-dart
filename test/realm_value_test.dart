@@ -59,7 +59,10 @@ Future<void> main([List<String>? args]) async {
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
       Decimal128.fromDouble(128.128),
-      Uint8List.fromList([1, 2, 0])
+      Uint8List.fromList([1, 2, 0]),
+      [1, 2, 3],
+      {1, 2, 3},
+      {'a': 1, 'b': 2},
     ];
 
     for (final x in values) {
@@ -80,7 +83,7 @@ Future<void> main([List<String>? args]) async {
     test('Illegal value', () {
       final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
       final realm = getRealm(config);
-      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from((1, 2))))), throwsArgumentError); // records not supported
     });
 
     test('Embedded object not allowed in RealmValue', () {
