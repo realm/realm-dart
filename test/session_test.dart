@@ -288,7 +288,6 @@ Future<void> main([List<String>? args]) async {
       expect(sessionError.category, SyncErrorCategory.session);
       expect(sessionError.isFatal, false);
       expect(sessionError.code, SyncSessionErrorCode.badAuthentication);
-      expect(sessionError.detailedMessage, "Simulated session error");
       expect(sessionError.message, "Bad user authentication (BIND)");
     });
 
@@ -306,7 +305,6 @@ Future<void> main([List<String>? args]) async {
       expect(syncClientError.category, SyncErrorCategory.client);
       expect(syncClientError.isFatal, true);
       expect(syncClientError.code, SyncClientErrorCode.badChangeset);
-      expect(syncClientError.detailedMessage, "Simulated session error");
       expect(syncClientError.message, "Bad changeset (DOWNLOAD)");
     });
     final realm = getRealm(config);
@@ -378,8 +376,7 @@ Future<void> main([List<String>? args]) async {
           final sessionError = syncError.as<SyncWebSocketError>();
           expect(sessionError.category, SyncErrorCategory.webSocket);
           expect(sessionError.code, errorCode);
-          expect(sessionError.detailedMessage, "Simulated session error");
-          expect(sessionError.detailedMessage, isNot(sessionError.message));
+          expect(sessionError.message, "Simulated session error");
           expect(syncError.codeValue, errorCode.code);
         },
       );

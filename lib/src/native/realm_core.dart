@@ -3371,7 +3371,6 @@ class SyncErrorDetails {
   final String message;
   final SyncErrorCategory category;
   final int code;
-  String? detailedMessage;
   final bool isFatal;
   final bool isClientResetRequested;
   final String? originalFilePath;
