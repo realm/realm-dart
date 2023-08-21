@@ -634,7 +634,7 @@ class _RealmCore {
   void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
     using((arena) {
       final message = "Simulated session error".toCharPtr(arena);
-      _realmLib.realm_sync_session_handle_error_for_testing(session.handle._pointer, errorCode, category.index, message, isFatal);
+      _realmLib.realm_sync_session_handle_error_for_testing(session.handle._pointer, errorCode, message, isFatal);
     });
   }
 
@@ -685,8 +685,9 @@ class _RealmCore {
 
       if (error != nullptr) {
         final err = arena<realm_error>();
-        _realmLib.realm_get_async_error(error, err);
-        completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
+        bool availableError = _realmLib.realm_get_async_error(error, err);
+
+        completer.completeError(RealmException("Failed to open realm ${availableError ? err.ref.toLastError().toString() : ''}"));
         return;
       }
 
@@ -1609,18 +1610,6 @@ class _RealmCore {
 
       _realmLib.realm_app_config_set_bundle_id(handle._pointer, getBundleId().toCharPtr(arena));
 
-      if (configuration.localAppName != null) {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toCharPtr(arena));
-      } else {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
-      }
-
-      if (configuration.localAppVersion != null) {
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toCharPtr(arena));
-      } else {
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
-      }
-
       return handle;
     });
   }
@@ -2310,7 +2299,7 @@ class _RealmCore {
 
   Future<void> sessionWaitForUpload(Session session) {
     final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_sessionWaitCompletionCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
     _realmLib.realm_sync_session_wait_for_upload_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
         userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
@@ -2320,7 +2309,7 @@ class _RealmCore {
   Future<void> sessionWaitForDownload(Session session, [CancellationToken? cancellationToken]) {
     final completer = CancellableCompleter<void>(cancellationToken);
     if (!completer.isCancelled) {
-      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_sessionWaitCompletionCallback);
       final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
       _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
           userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
@@ -2328,7 +2317,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
+  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_error_t> errorCode) {
     final completer = userdata as Completer<void>;
     if (completer.isCompleted) {
       return;
@@ -3166,9 +3155,8 @@ extension on Pointer<Utf8> {
 
 extension on realm_sync_error {
   SyncErrorDetails toSyncErrorDetails() {
-    final message = error_code.message.cast<Utf8>().toRealmDartString()!;
-    final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
-    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
+    final message = status.message.cast<Utf8>().toRealmDartString()!;
+    final SyncErrorCategory category = SyncErrorCategory.values[status.categories];
 
     final userInfoMap = user_info_map.toMap(user_info_length);
     final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
@@ -3177,8 +3165,7 @@ extension on realm_sync_error {
     return SyncErrorDetails(
       message,
       category,
-      error_code.value,
-      detailedMessage: detailedMessage,
+      status.error,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
       originalFilePath: userInfoMap?[originalFilePathKey],
@@ -3221,10 +3208,10 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
   }
 }
 
-extension on Pointer<realm_sync_error_code_t> {
+extension on Pointer<realm_error_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, SyncErrorCategory.values[ref.category], ref.value);
+    final details = SyncErrorDetails(message, SyncErrorCategory.values[ref.categories], ref.error);
     return SyncErrorInternal.createSyncError(details);
   }
 }
@@ -3384,17 +3371,16 @@ class SyncErrorDetails {
   final String message;
   final SyncErrorCategory category;
   final int code;
-  final String? detailedMessage;
+  String? detailedMessage;
   final bool isFatal;
   final bool isClientResetRequested;
   final String? originalFilePath;
   final String? backupFilePath;
   final List<CompensatingWriteInfo>? compensatingWrites;
-  const SyncErrorDetails(
+  SyncErrorDetails(
     this.message,
     this.category,
     this.code, {
-    this.detailedMessage,
     this.isFatal = false,
     this.isClientResetRequested = false,
     this.originalFilePath,

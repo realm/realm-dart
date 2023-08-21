@@ -29,7 +29,7 @@ RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, real
 
 RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, realm_sync_session_t* session, realm_sync_error_t error);
 
-RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_sync_error_code_t* error);
+RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_error_t* error);
 
 RLM_API void realm_dart_sync_progress_callback(realm_userdata_t userdata, uint64_t transferred_bytes, uint64_t total_bytes);
 

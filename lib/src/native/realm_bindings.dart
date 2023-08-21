@@ -326,45 +326,6 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
-  void realm_app_config_set_local_app_name(
-    ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-  ) {
-    return _realm_app_config_set_local_app_name(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_app_config_set_local_app_namePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_local_app_name');
-  late final _realm_app_config_set_local_app_name =
-      _realm_app_config_set_local_app_namePtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
-
-  void realm_app_config_set_local_app_version(
-    ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-  ) {
-    return _realm_app_config_set_local_app_version(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_app_config_set_local_app_versionPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>>(
-      'realm_app_config_set_local_app_version');
-  late final _realm_app_config_set_local_app_version =
-      _realm_app_config_set_local_app_versionPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
-
   void realm_app_config_set_platform_version(
     ffi.Pointer<realm_app_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
@@ -3834,7 +3795,7 @@ class RealmLibrary {
 
   void realm_dart_sync_wait_for_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_sync_error_code_t> error,
+    ffi.Pointer<realm_error_t> error,
   ) {
     return _realm_dart_sync_wait_for_completion_callback(
       userdata,
@@ -3844,13 +3805,12 @@ class RealmLibrary {
 
   late final _realm_dart_sync_wait_for_completion_callbackPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_sync_error_code_t>)>>(
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>(
       'realm_dart_sync_wait_for_completion_callback');
   late final _realm_dart_sync_wait_for_completion_callback =
       _realm_dart_sync_wait_for_completion_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>();
+          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>();
 
   void realm_dart_userdata_async_free(
     ffi.Pointer<ffi.Void> userdata,
@@ -4768,8 +4728,9 @@ class RealmLibrary {
   ///
   /// @param err A pointer to a `realm_error_t` struct that will be populated with
   /// information about the error. May not be NULL.
+  /// @return A bool indicating whether or not an error is available to be returned
   /// @see realm_get_last_error()
-  void realm_get_async_error(
+  bool realm_get_async_error(
     ffi.Pointer<realm_async_error_t> err,
     ffi.Pointer<realm_error_t> out_err,
   ) {
@@ -4781,10 +4742,10 @@ class RealmLibrary {
 
   late final _realm_get_async_errorPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_async_error_t>,
+          ffi.Bool Function(ffi.Pointer<realm_async_error_t>,
               ffi.Pointer<realm_error_t>)>>('realm_get_async_error');
   late final _realm_get_async_error = _realm_get_async_errorPtr.asFunction<
-      void Function(
+      bool Function(
           ffi.Pointer<realm_async_error_t>, ffi.Pointer<realm_error_t>)>();
 
   /// Fetch the backlinks for the object passed as argument.
@@ -9687,22 +9648,19 @@ class RealmLibrary {
 
   /// Wrapper for SyncSession::OnlyForTesting::handle_error. This routine should be used only for testing.
   /// @param session ptr to a valid sync session
-  /// @param error_code error code to simulate
-  /// @param category category of the error to simulate
-  /// @param error_message string representing the error
+  /// @param error_code realm_errno_e representing the error to simulate
+  /// @param error_str error message to be included with Status
   /// @param is_fatal boolean to signal if the error is fatal or not
   void realm_sync_session_handle_error_for_testing(
     ffi.Pointer<realm_sync_session_t> session,
     int error_code,
-    int category,
-    ffi.Pointer<ffi.Char> error_message,
+    ffi.Pointer<ffi.Char> error_str,
     bool is_fatal,
   ) {
     return _realm_sync_session_handle_error_for_testing(
       session,
       error_code,
-      category,
-      error_message,
+      error_str,
       is_fatal,
     );
   }
@@ -9711,13 +9669,12 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Void Function(
               ffi.Pointer<realm_sync_session_t>,
-              ffi.Int,
-              ffi.Int,
+              ffi.Int32,
               ffi.Pointer<ffi.Char>,
               ffi.Bool)>>('realm_sync_session_handle_error_for_testing');
   late final _realm_sync_session_handle_error_for_testing =
       _realm_sync_session_handle_error_for_testingPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_session_t>, int, int,
+          void Function(ffi.Pointer<realm_sync_session_t>, int,
               ffi.Pointer<ffi.Char>, bool)>();
 
   /// Ask the session to pause synchronization.
@@ -11028,7 +10985,7 @@ class _SymbolAddresses {
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_sync_error_code_t>)>>
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>
       get realm_dart_sync_wait_for_completion_callback =>
           _library._realm_dart_sync_wait_for_completion_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
@@ -11329,6 +11286,22 @@ abstract class realm_errno {
   static const int RLM_ERR_SCHEMA_VERSION_MISMATCH = 1025;
   static const int RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE = 1026;
   static const int RLM_ERR_OPERATION_ABORTED = 1027;
+  static const int RLM_ERR_AUTO_CLIENT_RESET_FAILED = 1028;
+  static const int RLM_ERR_BAD_SYNC_PARTITION_VALUE = 1029;
+  static const int RLM_ERR_CONNECTION_CLOSED = 1030;
+  static const int RLM_ERR_INVALID_SUBSCRIPTION_QUERY = 1031;
+  static const int RLM_ERR_SYNC_CLIENT_RESET_REQUIRED = 1032;
+  static const int RLM_ERR_SYNC_COMPENSATING_WRITE = 1033;
+  static const int RLM_ERR_SYNC_CONNECT_FAILED = 1034;
+  static const int RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE = 1035;
+  static const int RLM_ERR_SYNC_PERMISSION_DENIED = 1036;
+  static const int RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED = 1037;
+  static const int RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED = 1038;
+  static const int RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED = 1039;
+  static const int RLM_ERR_SYNC_USER_MISMATCH = 1040;
+  static const int RLM_ERR_TLS_HANDSHAKE_FAILED = 1041;
+  static const int RLM_ERR_WRONG_SYNC_TYPE = 1042;
+  static const int RLM_ERR_SYNC_WRITE_NOT_ALLOWED = 1043;
   static const int RLM_ERR_SYSTEM_ERROR = 1999;
   static const int RLM_ERR_LOGIC = 2000;
   static const int RLM_ERR_NOT_SUPPORTED = 2001;
@@ -11400,7 +11373,7 @@ abstract class realm_errno {
   static const int RLM_ERR_MONGODB_ERROR = 4311;
   static const int RLM_ERR_ARGUMENTS_NOT_ALLOWED = 4312;
   static const int RLM_ERR_FUNCTION_EXECUTION_ERROR = 4313;
-  static const int RLM_ERR_NO_MATCHING_RULE = 4314;
+  static const int RLM_ERR_NO_MATCHING_RULE_FOUND = 4314;
   static const int RLM_ERR_INTERNAL_SERVER_ERROR = 4315;
   static const int RLM_ERR_AUTH_PROVIDER_NOT_FOUND = 4316;
   static const int RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS = 4317;
@@ -11442,9 +11415,6 @@ abstract class realm_errno {
   static const int RLM_ERR_USERPASS_TOKEN_INVALID = 4353;
   static const int RLM_ERR_INVALID_SERVER_RESPONSE = 4354;
   static const int RLM_ERR_APP_SERVER_ERROR = 4355;
-  static const int RLM_ERR_WEBSOCKET_RESOLVE_FAILED_ERROR = 4400;
-  static const int RLM_ERR_WEBSOCKET_CONNECTION_CLOSED_CLIENT_ERROR = 4401;
-  static const int RLM_ERR_WEBSOCKET_CONNECTION_CLOSED_SERVER_ERROR = 4402;
 
   /// < A user-provided callback failed.
   static const int RLM_ERR_CALLBACK = 1000000;
@@ -11944,9 +11914,7 @@ typedef realm_sync_connection_state_changed_func_t = ffi.Pointer<
             ffi.Int32 new_state)>>;
 
 final class realm_sync_error extends ffi.Struct {
-  external realm_sync_error_code_t error_code;
-
-  external ffi.Pointer<ffi.Char> detailed_message;
+  external realm_error_t status;
 
   external ffi.Pointer<ffi.Char> c_original_file_path_key;
 
@@ -11988,34 +11956,6 @@ abstract class realm_sync_error_action {
   static const int RLM_SYNC_ERROR_ACTION_MIGRATE_TO_FLX = 8;
   static const int RLM_SYNC_ERROR_ACTION_REVERT_TO_PBS = 9;
 }
-
-/// Possible error categories realm_sync_error_code_t can fall in.
-abstract class realm_sync_error_category {
-  static const int RLM_SYNC_ERROR_CATEGORY_CLIENT = 0;
-  static const int RLM_SYNC_ERROR_CATEGORY_CONNECTION = 1;
-  static const int RLM_SYNC_ERROR_CATEGORY_SESSION = 2;
-  static const int RLM_SYNC_ERROR_CATEGORY_WEBSOCKET = 3;
-
-  /// System error - POSIX errno, Win32 HRESULT, etc.
-  static const int RLM_SYNC_ERROR_CATEGORY_SYSTEM = 4;
-
-  /// Unknown source of error.
-  static const int RLM_SYNC_ERROR_CATEGORY_UNKNOWN = 5;
-}
-
-final class realm_sync_error_code extends ffi.Struct {
-  @ffi.Int32()
-  external int category;
-
-  @ffi.Int()
-  external int value;
-
-  external ffi.Pointer<ffi.Char> message;
-
-  external ffi.Pointer<ffi.Char> category_name;
-}
-
-typedef realm_sync_error_code_t = realm_sync_error_code;
 
 final class realm_sync_error_compensating_write_info extends ffi.Struct {
   external ffi.Pointer<ffi.Char> reason;
@@ -12149,8 +12089,8 @@ typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
 /// @param error Null, if the operation completed successfully.
 typedef realm_sync_wait_for_completion_func_t = ffi.Pointer<
     ffi.NativeFunction<
-        ffi.Void Function(ffi.Pointer<ffi.Void> userdata,
-            ffi.Pointer<realm_sync_error_code_t> error)>>;
+        ffi.Void Function(
+            ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_error_t> error)>>;
 typedef realm_t = shared_realm;
 
 final class realm_thread_safe_reference extends ffi.Opaque {}
