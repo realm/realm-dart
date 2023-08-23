@@ -227,3 +227,58 @@ class RealmValue {
   @override
   String toString() => 'RealmValue($value)';
 }
+
+interface class GeoShape {}
+
+class GeoPoint implements GeoShape {
+  final double lat;
+  final double lng;
+
+  const GeoPoint(this.lat, this.lng);
+}
+
+class GeoBox implements GeoShape {
+  final GeoPoint southWest;
+  final GeoPoint northEast;
+
+  const GeoBox(this.southWest, this.northEast);
+}
+
+class GeoPolygon implements GeoShape {
+  final List<GeoPoint> outerRing;
+  final List<List<GeoPoint>> holes;
+
+  const GeoPolygon(this.outerRing, [this.holes = const []]);
+}
+
+const _metersPerMile = 1609.344;
+const _radiansPerMeterOnEarthSphere = 1.567850289112e-7; // at equator
+
+class GeoDistance implements Comparable<GeoDistance> {
+  final double radians;
+
+  const GeoDistance(this.radians);
+  GeoDistance.fromMeters(double meters) : radians = meters * _radiansPerMeterOnEarthSphere;
+
+  double get meters => radians / _radiansPerMeterOnEarthSphere;
+  double get kilometers => meters / 1000;
+  double get miles => meters / _metersPerMile;
+
+  GeoDistance operator *(double factor) => GeoDistance(radians * factor);
+
+  @override
+  int compareTo(GeoDistance other) => radians.compareTo(other.radians);
+}
+
+extension DoubleToGeoDistance on double {
+  GeoDistance get meters => GeoDistance.fromMeters(this);
+  GeoDistance get kilometers => meters * 1000;
+  GeoDistance get miles => meters * _metersPerMile;
+}
+
+class GeoCircle implements GeoShape {
+  final GeoPoint center;
+  final GeoDistance radius;
+
+  const GeoCircle(this.center, this.radius);
+}
