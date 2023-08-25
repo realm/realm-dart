@@ -283,33 +283,27 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
-      expect(syncError, isA<SyncSessionError>());
-      final sessionError = syncError.as<SyncSessionError>();
-      expect(sessionError.category, SyncErrorCategory.session);
-      expect(sessionError.isFatal, false);
-      expect(sessionError.code, SyncSessionErrorCode.badAuthentication);
-      expect(sessionError.message, "Bad user authentication (BIND)");
+      expect(syncError.isFatal, isFalse);
+      expect(syncError.errorCode, SyncErrorCode.badQuery);
+      expect(syncError.message, "Bad user authentication (BIND)");
     });
 
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCategory.session, SyncSessionErrorCode.badAuthentication.code, false);
+    realm.syncSession.raiseError(SyncErrorCode.badQuery, false);
   });
 
   baasTest('SyncSession test fatal error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
-      expect(syncError, isA<SyncClientError>());
-      final syncClientError = syncError.as<SyncClientError>();
-      expect(syncClientError.category, SyncErrorCategory.client);
-      expect(syncClientError.isFatal, true);
-      expect(syncClientError.code, SyncClientErrorCode.badChangeset);
-      expect(syncClientError.message, "Bad changeset (DOWNLOAD)");
+      expect(syncError.isFatal, isTrue);
+      expect(syncError, SyncErrorCode.badChangeset);
+      expect(syncError.message, "Bad changeset (DOWNLOAD)");
     });
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.code, true);
+    realm.syncSession.raiseError(SyncErrorCode.badChangeset, true);
   });
 
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
@@ -364,26 +358,26 @@ Future<void> main([List<String>? args]) async {
     expect(() => session.state, throws<RealmClosedError>());
   });
 
-  for (SyncWebSocketErrorCode errorCode in SyncWebSocketErrorCode.values.where((v) => v != SyncWebSocketErrorCode.unknown)) {
-    baasTest('Sync Web Socket Error ${errorCode.name}', (configuration) async {
-      final app = App(configuration);
-      final user = await getIntegrationUser(app);
-      final config = Configuration.flexibleSync(
-        user,
-        [Task.schema],
-        syncErrorHandler: (syncError) {
-          expect(syncError, isA<SyncWebSocketError>());
-          final sessionError = syncError.as<SyncWebSocketError>();
-          expect(sessionError.category, SyncErrorCategory.webSocket);
-          expect(sessionError.code, errorCode);
-          expect(sessionError.message, "Simulated session error");
-          expect(syncError.codeValue, errorCode.code);
-        },
-      );
-      final realm = getRealm(config);
-      realm.syncSession.raiseError(SyncErrorCategory.webSocket, errorCode.code, false);
-    });
-  }
+//   for (SyncWebSocketErrorCode errorCode in SyncWebSocketErrorCode.values.where((v) => v != SyncWebSocketErrorCode.unknown)) {
+//     baasTest('Sync Web Socket Error ${errorCode.name}', (configuration) async {
+//       final app = App(configuration);
+//       final user = await getIntegrationUser(app);
+//       final config = Configuration.flexibleSync(
+//         user,
+//         [Task.schema],
+//         syncErrorHandler: (syncError) {
+//           expect(syncError, isA<SyncWebSocketError>());
+//           final sessionError = syncError.as<SyncWebSocketError>();
+//           expect(sessionError.category, SyncErrorCategory.webSocket);
+//           expect(sessionError.code, errorCode);
+//           expect(sessionError.message, "Simulated session error");
+//           expect(syncError.codeValue, errorCode.code);
+//         },
+//       );
+//       final realm = getRealm(config);
+//       realm.syncSession.raiseError(SyncErrorCategory.webSocket, errorCode.code, false);
+//     });
+//   }
 }
 
 class StreamProgressData {

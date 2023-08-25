@@ -631,7 +631,7 @@ class _RealmCore {
     }, unlockCallbackFunc);
   }
 
-  void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
+  void raiseError(Session session, int errorCode, bool isFatal) {
     using((arena) {
       final message = "Simulated session error".toCharPtr(arena);
       _realmLib.realm_sync_session_handle_error_for_testing(session.handle._pointer, errorCode, message, isFatal);

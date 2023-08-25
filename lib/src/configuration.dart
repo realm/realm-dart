@@ -657,6 +657,8 @@ class SyncError extends RealmError {
   @Deprecated("Use property code")
   final int codeValue;
 
+  /// If true the received error is fatal.
+  final bool isFatal = false;
   /// Type of the sync error.
   final SyncErrorCode errorCode;
 
@@ -824,8 +826,8 @@ class CompensatingWriteInfo {
 /// by the server.
 /// {@category Sync}
 class CompensatingWriteError extends SyncError {
-  /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
 
+  /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
   @Deprecated("Use errorCode property instead")
   SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
 
@@ -839,7 +841,7 @@ class CompensatingWriteError extends SyncError {
 
   @override
   String toString() {
-    return "CompensatingWriteError message: $message category: $category code: $code. ${compensatingWrites ?? ''}";
+    return "CompensatingWriteError message: $message code: $errorCode. ${compensatingWrites ?? ''}";
   }
 }
 

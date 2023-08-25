@@ -75,8 +75,8 @@ class Session implements Finalizable {
     return controller.createStream();
   }
 
-  void _raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
-    realmCore.raiseError(this, category, errorCode, isFatal);
+  void _raiseSessionError(SyncErrorCode errorCode, bool isFatal) {
+    realmCore.raiseError(this, errorCode.code, isFatal);
   }
 }
 
@@ -121,8 +121,8 @@ extension SessionInternal on Session {
     return _handle;
   }
 
-  void raiseError(SyncErrorCategory category, int errorCode, bool isFatal) {
-    realmCore.raiseError(this, category, errorCode, isFatal);
+  void raiseError(SyncErrorCode errorCode, bool isFatal) {
+    realmCore.raiseError(this, errorCode.code, isFatal);
   }
 
   static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
