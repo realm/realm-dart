@@ -3244,9 +3244,9 @@ class RealmLibrary {
   }
 
   late final _realm_dart_decimal128_from_stringPtr = _lookup<
-      ffi.NativeFunction<
-          realm_decimal128_t Function(
-              ffi.Pointer<ffi.Char>)>>('realm_dart_decimal128_from_string');
+          ffi
+          .NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>(
+      'realm_dart_decimal128_from_string');
   late final _realm_dart_decimal128_from_string =
       _realm_dart_decimal128_from_stringPtr
           .asFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>();
@@ -3520,9 +3520,9 @@ class RealmLibrary {
   }
 
   late final _realm_dart_invoke_unlock_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Bool,
-              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_unlock_callback');
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>(
+      'realm_dart_invoke_unlock_callback');
   late final _realm_dart_invoke_unlock_callback =
       _realm_dart_invoke_unlock_callbackPtr
           .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
@@ -3548,9 +3548,9 @@ class RealmLibrary {
   }
 
   late final _realm_dart_log_message_for_testingPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int32,
-              ffi.Pointer<ffi.Char>)>>('realm_dart_log_message_for_testing');
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>(
+      'realm_dart_log_message_for_testing');
   late final _realm_dart_log_message_for_testing =
       _realm_dart_log_message_for_testingPtr
           .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
@@ -3967,9 +3967,9 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_clearPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_clear');
+          ffi
+          .NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>>(
+      'realm_dictionary_clear');
   late final _realm_dictionary_clear = _realm_dictionary_clearPtr
       .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
 
@@ -4372,9 +4372,9 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_is_validPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_is_valid');
+          ffi
+          .NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>>(
+      'realm_dictionary_is_valid');
   late final _realm_dictionary_is_valid = _realm_dictionary_is_validPtr
       .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
 
@@ -4686,8 +4686,9 @@ class RealmLibrary {
   }
 
   late final _realm_freezePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>('realm_freeze');
+          ffi
+          .NativeFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>(
+      'realm_freeze');
   late final _realm_freeze = _realm_freezePtr
       .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>();
 
@@ -6595,9 +6596,9 @@ class RealmLibrary {
   }
 
   late final _realm_object_as_linkPtr = _lookup<
-      ffi.NativeFunction<
-          realm_link_t Function(
-              ffi.Pointer<realm_object_t>)>>('realm_object_as_link');
+          ffi
+          .NativeFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>>(
+      'realm_object_as_link');
   late final _realm_object_as_link = _realm_object_as_linkPtr
       .asFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>();
 
@@ -8051,9 +8052,9 @@ class RealmLibrary {
   }
 
   late final _realm_scheduler_perform_workPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_scheduler_t>)>>('realm_scheduler_perform_work');
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_scheduler_t>)>>(
+      'realm_scheduler_perform_work');
   late final _realm_scheduler_perform_work = _realm_scheduler_perform_workPtr
       .asFunction<void Function(ffi.Pointer<realm_scheduler_t>)>();
 
@@ -8236,9 +8237,9 @@ class RealmLibrary {
   }
 
   late final _realm_set_auto_refreshPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_t>, ffi.Bool)>>('realm_set_auto_refresh');
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_t>, ffi.Bool)>>(
+      'realm_set_auto_refresh');
   late final _realm_set_auto_refresh = _realm_set_auto_refreshPtr
       .asFunction<void Function(ffi.Pointer<realm_t>, bool)>();
 
@@ -8678,9 +8679,9 @@ class RealmLibrary {
   }
 
   late final _realm_sync_client_config_newPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_sync_client_config_t>
-              Function()>>('realm_sync_client_config_new');
+          ffi
+          .NativeFunction<ffi.Pointer<realm_sync_client_config_t> Function()>>(
+      'realm_sync_client_config_new');
   late final _realm_sync_client_config_new = _realm_sync_client_config_newPtr
       .asFunction<ffi.Pointer<realm_sync_client_config_t> Function()>();
 
@@ -8944,7 +8945,8 @@ class RealmLibrary {
 
   late final _realm_sync_client_config_set_user_agent_application_infoPtr =
       _lookup<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
                       ffi.Pointer<ffi.Char>)>>(
           'realm_sync_client_config_set_user_agent_application_info');
@@ -9713,7 +9715,8 @@ class RealmLibrary {
 
   late final _realm_sync_session_register_connection_state_change_callbackPtr =
       _lookup<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                       ffi.Pointer<realm_sync_session_t>,
                       realm_sync_connection_state_changed_func_t,
@@ -10843,8 +10846,8 @@ class _SymbolAddresses {
       get realm_dart_decimal128_from_int64 =>
           _library._realm_dart_decimal128_from_int64Ptr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>
+          ffi
+          .NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>
       get realm_dart_decimal128_from_string =>
           _library._realm_dart_decimal128_from_stringPtr;
   ffi.Pointer<
@@ -10910,15 +10913,15 @@ class _SymbolAddresses {
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
       get realm_dart_invoke_unlock_callback =>
           _library._realm_dart_invoke_unlock_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
       get realm_dart_log_message_for_testing =>
           _library._realm_dart_log_message_for_testingPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
@@ -10933,8 +10936,8 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
       get realm_dart_release_logger => _library._realm_dart_release_loggerPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32, Dart_Port)>>
@@ -10970,8 +10973,8 @@ class _SymbolAddresses {
       get realm_dart_sync_error_handler_callback =>
           _library._realm_dart_sync_error_handler_callbackPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
       get realm_dart_sync_on_subscription_state_changed_callback =>
           _library._realm_dart_sync_on_subscription_state_changed_callbackPtr;
   ffi.Pointer<

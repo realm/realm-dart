@@ -590,57 +590,57 @@ enum SyncWebSocketErrorCode {
 
 enum SyncErrorCode {
   /// Connection closed by the server
-  connectionClosed(ErrorCodesConstants.connectionClosed),
+  connectionClosed(SyncErrorCodesConstants.connectionClosed),
 
-  invariantFailed(ErrorCodesConstants.syncProtocolInvariantFailed),
-  negotiationFailed(ErrorCodesConstants.syncProtocolNegotiationFailed),
+  invariantFailed(SyncErrorCodesConstants.syncProtocolInvariantFailed),
+  negotiationFailed(SyncErrorCodesConstants.syncProtocolNegotiationFailed),
 
   /// Bad changeset (UPLOAD)
-  badChangeset(ErrorCodesConstants.badChangeset),
+  badChangeset(SyncErrorCodesConstants.badChangeset),
 
   /// SSL server certificate rejected
-  sslServerCertRejected(ErrorCodesConstants.tlsHandshakeFailed),
+  sslServerCertRejected(SyncErrorCodesConstants.tlsHandshakeFailed),
 
   /// Sync connection was not fully established in time
-  connectTimeout(ErrorCodesConstants.syncConnectFailed),
+  connectTimeout(SyncErrorCodesConstants.syncConnectFailed),
 
   /// A fatal error was encountered which prevents completion of a client reset
-  autoClientResetFailure(ErrorCodesConstants.autoClientResetFailed),
+  autoClientResetFailure(SyncErrorCodesConstants.autoClientResetFailed),
 
   /// Connected with wrong wire protocol - should switch to FLX sync
-  switchToFlxSync(ErrorCodesConstants.wrongSyncType),
+  switchToFlxSync(SyncErrorCodesConstants.wrongSyncType),
 
-  runtimeError(ErrorCodesConstants.runtimeError),
-
-  /// Illegal Realm path (BIND)
-  illegalRealmPath(ErrorCodesConstants.badSyncPartitionValue),
+  runtimeError(SyncErrorCodesConstants.runtimeError),
 
   /// Illegal Realm path (BIND)
-  permissionDenied(ErrorCodesConstants.syncPermissionDenied),
-  syncClientResetRequired(ErrorCodesConstants.syncClientResetRequired),
+  illegalRealmPath(SyncErrorCodesConstants.badSyncPartitionValue),
+
+  /// Illegal Realm path (BIND)
+  permissionDenied(SyncErrorCodesConstants.syncPermissionDenied),
+  syncClientResetRequired(SyncErrorCodesConstants.syncClientResetRequired),
 
   /// User mismatch for client file identifier (IDENT)
-  userMismatch(ErrorCodesConstants.syncUserMismatch),
+  userMismatch(SyncErrorCodesConstants.syncUserMismatch),
 
   /// Invalid schema change (UPLOAD)
-  invalidSchemaChange(ErrorCodesConstants.syncInvalidSchemaChange),
+  invalidSchemaChange(SyncErrorCodesConstants.syncInvalidSchemaChange),
 
   /// Client query is invalid/malformed (IDENT, QUERY)
-  badQuery(ErrorCodesConstants.invalidSubscriptionQuery),
+  badQuery(SyncErrorCodesConstants.invalidSubscriptionQuery),
 
   /// Client tried to create an object that already exists outside their (()UPLOAD)
-  objectAlreadyExists(ErrorCodesConstants.objectAlreadyExists),
+  objectAlreadyExists(SyncErrorCodesConstants.objectAlreadyExists),
 
   /// Server permissions for this file ident have changed since the last time it (used) (IDENT)
-  serverPermissionsChanged(ErrorCodesConstants.syncServerPermissionsChanged),
+  serverPermissionsChanged(SyncErrorCodesConstants.syncServerPermissionsChanged),
 
   /// Client attempted a write that is disallowed by permissions, or modifies an object
   /// outside the current query - requires client reset (UPLOAD)
-  writeNotAllowed(ErrorCodesConstants.syncWriteNotAllowed),
+  writeNotAllowed(SyncErrorCodesConstants.syncWriteNotAllowed),
 
   /// Client attempted a write that is disallowed by permissions, or modifies an object
   /// outside the current query, and the server undid the modification (UPLOAD)
-  compensatingWrite(ErrorCodesConstants.syncCompensatingWrite),
+  compensatingWrite(SyncErrorCodesConstants.syncCompensatingWrite),
 
   /// Unknown Sync client error code
   unknown(9999);
