@@ -614,30 +614,26 @@ class ClientResetError extends SyncError {
 
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   /// when a client reset fails and `onManualResetFallback` occurs. Otherwise, it is [SyncClientErrorCode.unknown]
+  @Deprecated("Use errorCode property")
   SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
 
   /// The [SyncSessionErrorCode] value indicating the type of the sync error.
   /// This property will be [SyncSessionErrorCode.unknown] if `onManualResetFallback` occurs on client reset.
+  @Deprecated("Use errorCode property")
   SyncSessionErrorCode get sessionErrorCode => SyncSessionErrorCode.fromInt(codeValue);
 
-  @Deprecated("ClientResetError constructor is deprecated and will be removed in the future")
-  ClientResetError(
+  ClientResetError._(
     String message, {
     App? app,
-    SyncErrorCategory category = SyncErrorCategory.client,
     int? errorCodeValue,
     this.backupFilePath,
     this.originalFilePath,
   })  : _app = app,
-        super(
-          message,
-          category,
-          errorCodeValue ?? SyncClientErrorCode.autoClientResetFailure.code,
-        );
+        super._(message, SyncErrorCode.autoClientResetFailure);
 
   @override
   String toString() {
-    return "ClientResetError message: $message category: $category code: $code isFatal: $isFatal";
+    return "ClientResetError message: $message code: $errorCode isFatal: $isFatal";
   }
 
   /// Initiates the client reset process.
@@ -658,48 +654,32 @@ class ClientResetError extends SyncError {
 /// {@category Sync}
 class SyncError extends RealmError {
   /// The numeric code value indicating the type of the sync error.
+  @Deprecated("Use property code")
   final int codeValue;
 
+  /// Type of the sync error.
+  final SyncErrorCode errorCode;
+
   /// The category of the sync error
-  final SyncErrorCategory category;
+  @Deprecated("No sync error categories")
+  final SyncErrorCategory category = SyncErrorCategory.system;
 
-  @Deprecated("SyncError constructor is deprecated and will be removed in the future")
-  SyncError(String message, this.category, this.codeValue) : super(message);
-
-  /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
-  @Deprecated("This method is deprecated and will be removed in the future")
-  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
-    switch (category) {
-      case SyncErrorCategory.client:
-        final SyncClientErrorCode errorCode = SyncClientErrorCode.fromInt(code);
-        if (errorCode == SyncClientErrorCode.autoClientResetFailure) {
-          return ClientResetError(message);
-        }
-        return SyncClientError(message, category, errorCode, isFatal: isFatal);
-      case SyncErrorCategory.connection:
-        return SyncConnectionError(message, category, SyncConnectionErrorCode.fromInt(code), isFatal: isFatal);
-      case SyncErrorCategory.session:
-        return SyncSessionError(message, category, SyncSessionErrorCode.fromInt(code), isFatal: isFatal);
-      case SyncErrorCategory.webSocket:
-        return SyncWebSocketError(message, category, SyncWebSocketErrorCode.fromInt(code));
-      case SyncErrorCategory.system:
-      case SyncErrorCategory.unknown:
-      default:
-        return GeneralSyncError(message, category, code);
-    }
-  }
+  SyncError._(String message, this.errorCode)
+      : codeValue = errorCode.code,
+        super(message);
 
   /// As a specific [SyncError] type.
   T as<T extends SyncError>() => this as T;
 
   @override
   String toString() {
-    return "SyncError message: $message category: $category code: $codeValue";
+    return "SyncError message: $message code: $errorCode";
   }
 }
 
 /// An error type that describes a session-level error condition.
 /// {@category Sync}
+@Deprecated("Use SyncError")
 class SyncClientError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -713,7 +693,7 @@ class SyncClientError extends SyncError {
     SyncErrorCategory category,
     SyncClientErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.code);
+  }) : super._(message, SyncErrorCode.unknown);
 
   @override
   String toString() {
@@ -723,6 +703,7 @@ class SyncClientError extends SyncError {
 
 /// An error type that describes a connection-level error condition.
 /// {@category Sync}
+@Deprecated("Use SyncError")
 class SyncConnectionError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -736,7 +717,7 @@ class SyncConnectionError extends SyncError {
     SyncErrorCategory category,
     SyncConnectionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.code);
+  }) : super._(message, SyncErrorCode.unknown);
 
   @override
   String toString() {
@@ -746,6 +727,7 @@ class SyncConnectionError extends SyncError {
 
 /// An error type that describes a session-level error condition.
 /// {@category Sync}
+@Deprecated("Use SyncError")
 class SyncSessionError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -759,7 +741,7 @@ class SyncSessionError extends SyncError {
     SyncErrorCategory category,
     SyncSessionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super(message, category, errorCode.code);
+  }) : super._(message, SyncErrorCode.unknown);
 
   @override
   String toString() {
@@ -767,38 +749,16 @@ class SyncSessionError extends SyncError {
   }
 }
 
-/// Network resolution error
-///
-/// This class is deprecated and it will be removed. The sync errors caused by network resolution problems
-/// will be received as [SyncWebSocketError].
-@Deprecated("Use SyncWebSocketError instead")
-class SyncResolveError extends SyncError {
-  /// The numeric value indicating the type of the network resolution sync error.
-  SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
-
-  SyncResolveError(
-    String message,
-    SyncErrorCategory category,
-    SyncResolveErrorCode errorCode,
-  ) : super(message, category, errorCode.index);
-
-  @override
-  String toString() {
-    return "SyncResolveError message: $message category: $category code: $code";
-  }
-}
-
 /// Web socket error
+@Deprecated("Use WebSocketError")
 class SyncWebSocketError extends SyncError {
   /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
 
-  @Deprecated("SyncWebSocketError constructor is deprecated and will be removed in the future")
-  SyncWebSocketError(
+  SyncWebSocketError._(
     String message,
-    SyncErrorCategory category,
     SyncWebSocketErrorCode errorCode,
-  ) : super(message, category, errorCode.code);
+  ) : super._(message, SyncErrorCode.unknown);
 
   @override
   String toString() {
@@ -807,16 +767,15 @@ class SyncWebSocketError extends SyncError {
 }
 
 /// A general or unknown sync error
+@Deprecated("Use SyncError")
 class GeneralSyncError extends SyncError {
   /// The numeric value indicating the type of the general sync error.
   int get code => codeValue;
 
-  @Deprecated("GeneralSyncError constructor is deprecated and will be removed in the future")
-  GeneralSyncError(
+  GeneralSyncError._(
     String message,
-    SyncErrorCategory category,
     int code,
-  ) : super(message, category, code);
+  ) : super._(message, SyncErrorCode.unknown);
 
   @override
   String toString() {
@@ -825,6 +784,7 @@ class GeneralSyncError extends SyncError {
 }
 
 /// General sync error codes
+@Deprecated("Use SyncErrorCode")
 enum GeneralSyncErrorCode {
   /// Unknown Sync error code
   unknown(9999);
@@ -865,6 +825,8 @@ class CompensatingWriteInfo {
 /// {@category Sync}
 class CompensatingWriteError extends SyncError {
   /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
+
+  @Deprecated("Use errorCode property instead")
   SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
 
   /// The list of the compensating writes performed by the server.
@@ -873,7 +835,7 @@ class CompensatingWriteError extends SyncError {
   CompensatingWriteError._(
     String message, {
     this.compensatingWrites,
-  }) : super(message, SyncErrorCategory.session, SyncSessionErrorCode.compensatingWrite.code);
+  }) : super._(message, SyncErrorCode.compensatingWrite);
 
   @override
   String toString() {
@@ -884,32 +846,14 @@ class CompensatingWriteError extends SyncError {
 /// @nodoc
 extension SyncErrorInternal on SyncError {
   static SyncError createSyncError(SyncErrorDetails error, {App? app}) {
+    final errorCode = SyncErrorCode.fromInt(error.code);
     if (error.isClientResetRequested) {
       //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode and SyncSessionErrorCode values
-      return ClientResetError(error.message,
-          app: app, category: error.category, errorCodeValue: error.code, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath);
+      return ClientResetError._(error.message,
+          app: app, errorCodeValue: error.code, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath);
+    } else if (errorCode == SyncErrorCode.compensatingWrite) {
+      return CompensatingWriteError._(error.message, compensatingWrites: error.compensatingWrites);
     }
-
-    switch (error.category) {
-      case SyncErrorCategory.client:
-        final errorCode = SyncClientErrorCode.fromInt(error.code);
-        return SyncClientError(error.message, error.category, errorCode, isFatal: error.isFatal);
-      case SyncErrorCategory.connection:
-        final errorCode = SyncConnectionErrorCode.fromInt(error.code);
-        return SyncConnectionError(error.message, error.category, errorCode, isFatal: error.isFatal);
-      case SyncErrorCategory.session:
-        final errorCode = SyncSessionErrorCode.fromInt(error.code);
-        if (errorCode == SyncSessionErrorCode.compensatingWrite) {
-          return CompensatingWriteError._(error.message, compensatingWrites: error.compensatingWrites);
-        }
-        return SyncSessionError(error.message, error.category, errorCode, isFatal: error.isFatal);
-      case SyncErrorCategory.webSocket:
-        final errorCode = SyncWebSocketErrorCode.fromInt(error.code);
-        return SyncWebSocketError(error.message, error.category, errorCode);
-      case SyncErrorCategory.system:
-      case SyncErrorCategory.unknown:
-      default:
-        return GeneralSyncError(error.message, error.category, error.code);
-    }
+    return SyncError._(error.message, errorCode);
   }
 }

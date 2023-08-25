@@ -246,6 +246,7 @@ enum ProgressMode {
 }
 
 /// The category of a [SyncError].
+@Deprecated("There are no more error categories for sync errors")
 enum SyncErrorCategory {
   /// The error originated from the client
   client,
@@ -271,6 +272,7 @@ enum SyncErrorCategory {
 /// These errors will terminate the network connection
 /// (disconnect all sessions  associated with the affected connection),
 /// and the error will be reported via the connection state change listeners of the affected sessions.
+@Deprecated("Use SyncErrorCode enum instead")
 enum SyncClientErrorCode {
   /// Connection closed (no error)
   connectionClosed(100),
@@ -382,6 +384,7 @@ enum SyncClientErrorCode {
 /// Protocol connection errors discovered by the server, and reported to the client
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+@Deprecated("Use SyncErrorCode enum instead")
 enum SyncConnectionErrorCode {
   // Connection level and protocol errors
   /// Connection closed (no error)
@@ -445,6 +448,7 @@ enum SyncConnectionErrorCode {
 /// Protocol session errors discovered by the server, and reported to the client
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+@Deprecated("Use SyncErrorCode enum instead")
 enum SyncSessionErrorCode {
   /// Session closed (no error)
   sessionClosed(200),
@@ -557,47 +561,10 @@ enum SyncSessionErrorCode {
   const SyncSessionErrorCode(this.code);
 }
 
-/// Protocol network resolution errors.
-///
-/// These errors will be reported via the error handlers of the affected sessions.
-/// This enum is deprecated and it will be removed.
-/// Use [SyncWebSocketErrorCode] instead.
-@Deprecated("Use SyncWebSocketErrorCode instead")
-enum SyncResolveErrorCode {
-  /// Host not found (authoritative).
-  hostNotFound(1),
-
-  /// Host not found (non-authoritative).
-  hostNotFoundTryAgain(2),
-
-  /// The query is valid but does not have associated address data.
-  noData(3),
-
-  /// A non-recoverable error occurred.
-  noRecovery(4),
-
-  /// The service is not supported for the given socket type.
-  serviceNotFound(5),
-
-  /// The socket type is not supported.
-  socketTypeNotSupported(6),
-
-  /// Unknown resolve errors
-  unknown(1000);
-
-  static final Map<int, SyncResolveErrorCode> _valuesMap = {for (var value in SyncResolveErrorCode.values) value.code: value};
-
-  static SyncResolveErrorCode fromInt(int code) {
-    return SyncResolveErrorCode._valuesMap[code] ?? SyncResolveErrorCode.unknown;
-  }
-
-  final int code;
-  const SyncResolveErrorCode(this.code);
-}
-
 /// Web socket errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+@Deprecated("Use SyncErrorCode instead")
 enum SyncWebSocketErrorCode {
   /// Web socket resolution failed
   websocketResolveFailed(4400),
@@ -619,4 +586,72 @@ enum SyncWebSocketErrorCode {
 
   final int code;
   const SyncWebSocketErrorCode(this.code);
+}
+
+enum SyncErrorCode {
+  /// Connection closed by the server
+  connectionClosed(ErrorCodesConstants.connectionClosed),
+
+  invariantFailed(ErrorCodesConstants.syncProtocolInvariantFailed),
+  negotiationFailed(ErrorCodesConstants.syncProtocolNegotiationFailed),
+
+  /// Bad changeset (UPLOAD)
+  badChangeset(ErrorCodesConstants.badChangeset),
+
+  /// SSL server certificate rejected
+  sslServerCertRejected(ErrorCodesConstants.tlsHandshakeFailed),
+
+  /// Sync connection was not fully established in time
+  connectTimeout(ErrorCodesConstants.syncConnectFailed),
+
+  /// A fatal error was encountered which prevents completion of a client reset
+  autoClientResetFailure(ErrorCodesConstants.autoClientResetFailed),
+
+  /// Connected with wrong wire protocol - should switch to FLX sync
+  switchToFlxSync(ErrorCodesConstants.wrongSyncType),
+
+  runtimeError(ErrorCodesConstants.runtimeError),
+
+  /// Illegal Realm path (BIND)
+  illegalRealmPath(ErrorCodesConstants.badSyncPartitionValue),
+
+  /// Illegal Realm path (BIND)
+  permissionDenied(ErrorCodesConstants.syncPermissionDenied),
+  syncClientResetRequired(ErrorCodesConstants.syncClientResetRequired),
+
+  /// User mismatch for client file identifier (IDENT)
+  userMismatch(ErrorCodesConstants.syncUserMismatch),
+
+  /// Invalid schema change (UPLOAD)
+  invalidSchemaChange(ErrorCodesConstants.syncInvalidSchemaChange),
+
+  /// Client query is invalid/malformed (IDENT, QUERY)
+  badQuery(ErrorCodesConstants.invalidSubscriptionQuery),
+
+  /// Client tried to create an object that already exists outside their (()UPLOAD)
+  objectAlreadyExists(ErrorCodesConstants.objectAlreadyExists),
+
+  /// Server permissions for this file ident have changed since the last time it (used) (IDENT)
+  serverPermissionsChanged(ErrorCodesConstants.syncServerPermissionsChanged),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query - requires client reset (UPLOAD)
+  writeNotAllowed(ErrorCodesConstants.syncWriteNotAllowed),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query, and the server undid the modification (UPLOAD)
+  compensatingWrite(ErrorCodesConstants.syncCompensatingWrite),
+
+  /// Unknown Sync client error code
+  unknown(9999);
+
+  static final Map<int, SyncErrorCode> _valuesMap = {for (var value in SyncErrorCode.values) value.code: value};
+
+  static SyncErrorCode fromInt(int code) {
+    return SyncErrorCode._valuesMap[code] ?? SyncErrorCode.unknown;
+  }
+
+  final int code;
+
+  const SyncErrorCode(this.code);
 }

@@ -3156,15 +3156,13 @@ extension on Pointer<Utf8> {
 extension on realm_sync_error {
   SyncErrorDetails toSyncErrorDetails() {
     final message = status.message.cast<Utf8>().toRealmDartString()!;
-    final SyncErrorCategory category = SyncErrorCategory.values[status.categories];
-
     final userInfoMap = user_info_map.toMap(user_info_length);
     final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
     final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
 
     return SyncErrorDetails(
       message,
-      category,
+      status.categories,
       status.error,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
@@ -3211,7 +3209,7 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
 extension on Pointer<realm_error_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, SyncErrorCategory.values[ref.categories], ref.error);
+    final details = SyncErrorDetails(message, ref.categories, ref.error);
     return SyncErrorInternal.createSyncError(details);
   }
 }
@@ -3369,8 +3367,9 @@ extension PlatformEx on Platform {
 /// @nodoc
 class SyncErrorDetails {
   final String message;
-  final SyncErrorCategory category;
+  final int _categoryFlag;
   final int code;
+  final String? path;
   final bool isFatal;
   final bool isClientResetRequested;
   final String? originalFilePath;
@@ -3378,14 +3377,19 @@ class SyncErrorDetails {
   final List<CompensatingWriteInfo>? compensatingWrites;
   SyncErrorDetails(
     this.message,
-    this.category,
+    this._categoryFlag,
     this.code, {
+    this.path,
     this.isFatal = false,
     this.isClientResetRequested = false,
     this.originalFilePath,
     this.backupFilePath,
     this.compensatingWrites,
   });
+
+  bool isFromCategory(int categoryConstant) {
+    return (_categoryFlag & categoryConstant) == categoryConstant;
+  }
 }
 
 extension on realm_error {
@@ -3399,4 +3403,211 @@ extension on realm_error {
 
     return LastError(error, message, userError);
   }
+}
+
+class ErrorCodesConstants {
+  static const ok = realm_errno.RLM_ERR_NONE;
+  static const runtimeError = realm_errno.RLM_ERR_RUNTIME; //Sync
+  static const rangeError = realm_errno.RLM_ERR_RANGE_ERROR;
+  static const brokenInvariant = realm_errno.RLM_ERR_BROKEN_INVARIANT;
+  static const outOfMemory = realm_errno.RLM_ERR_OUT_OF_MEMORY;
+  static const outOfDiskSpace = realm_errno.RLM_ERR_OUT_OF_DISK_SPACE;
+  static const addressSpaceExhausted = realm_errno.RLM_ERR_ADDRESS_SPACE_EXHAUSTED;
+  static const maximumFileSizeExceeded = realm_errno.RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED;
+  static const incompatibleSession = realm_errno.RLM_ERR_INCOMPATIBLE_SESSION;
+  static const incompatibleLockFile = realm_errno.RLM_ERR_INCOMPATIBLE_LOCK_FILE;
+  static const invalidQuery = realm_errno.RLM_ERR_INVALID_QUERY;
+  static const badVersion = realm_errno.RLM_ERR_BAD_VERSION;
+  static const unsupportedFileFormatVersion = realm_errno.RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION;
+  static const multipleSyncAgents = realm_errno.RLM_ERR_MULTIPLE_SYNC_AGENTS;
+  static const objectAlreadyExists = realm_errno.RLM_ERR_OBJECT_ALREADY_EXISTS; //Sync
+  static const notPossibleToClone = realm_errno.RLM_ERR_NOT_CLONABLE;
+  static const badChangeset = realm_errno.RLM_ERR_BAD_CHANGESET; //Sync
+  static const subscriptionFailed = realm_errno.RLM_ERR_SUBSCRIPTION_FAILED;
+  static const fileOperationFailed = realm_errno.RLM_ERR_FILE_OPERATION_FAILED;
+  static const filePermissionDenied = realm_errno.RLM_ERR_FILE_PERMISSION_DENIED;
+  static const fileNotFound = realm_errno.RLM_ERR_FILE_NOT_FOUND;
+  static const fileAlreadyExists = realm_errno.RLM_ERR_FILE_ALREADY_EXISTS;
+  static const invalidDatabase = realm_errno.RLM_ERR_INVALID_DATABASE;
+  static const decryptionFailed = realm_errno.RLM_ERR_DECRYPTION_FAILED;
+  static const incompatibleHistories = realm_errno.RLM_ERR_INCOMPATIBLE_HISTORIES;
+  static const fileFormatUpgradeRequired = realm_errno.RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED;
+  static const schemaVersionMismatch = realm_errno.RLM_ERR_SCHEMA_VERSION_MISMATCH;
+  static const noSubscriptionForWrite = realm_errno.RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE;
+  static const operationAborted = realm_errno.RLM_ERR_OPERATION_ABORTED;
+  static const autoClientResetFailed = realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED; //Sync
+  static const badSyncPartitionValue = realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE; //Sync
+  static const connectionClosed = realm_errno.RLM_ERR_CONNECTION_CLOSED; //Sync
+  static const invalidSubscriptionQuery = realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY; //Sync
+  static const syncClientResetRequired = realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED; //Sync
+  static const syncCompensatingWrite = realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE; //Sync
+  static const syncConnectFailed = realm_errno.RLM_ERR_SYNC_CONNECT_FAILED; //Sync
+  static const syncInvalidSchemaChange = realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE; //Sync
+  static const syncPermissionDenied = realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED; //Sync
+  static const syncProtocolInvariantFailed = realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED; //Sync
+  static const syncProtocolNegotiationFailed = realm_errno.RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED; //Sync
+  static const syncServerPermissionsChanged = realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED; //Sync
+  static const syncUserMismatch = realm_errno.RLM_ERR_SYNC_USER_MISMATCH; //Sync
+  static const tlsHandshakeFailed = realm_errno.RLM_ERR_TLS_HANDSHAKE_FAILED; //Sync
+  static const wrongSyncType = realm_errno.RLM_ERR_WRONG_SYNC_TYPE; //Sync
+  static const syncWriteNotAllowed = realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED; //Sync
+  static const systemError = realm_errno.RLM_ERR_SYSTEM_ERROR;
+  static const logic = realm_errno.RLM_ERR_LOGIC;
+  static const notSupported = realm_errno.RLM_ERR_NOT_SUPPORTED;
+  static const brokenPromise = realm_errno.RLM_ERR_BROKEN_PROMISE;
+  static const crossTableLinkTarget = realm_errno.RLM_ERR_CROSS_TABLE_LINK_TARGET;
+  static const keyAlreadyUsed = realm_errno.RLM_ERR_KEY_ALREADY_USED;
+  static const wrongTransactionState = realm_errno.RLM_ERR_WRONG_TRANSACTION_STATE;
+  static const wrongThread = realm_errno.RLM_ERR_WRONG_THREAD;
+  static const illegalOperation = realm_errno.RLM_ERR_ILLEGAL_OPERATION;
+  static const serializationError = realm_errno.RLM_ERR_SERIALIZATION_ERROR;
+  static const staleAccessor = realm_errno.RLM_ERR_STALE_ACCESSOR;
+  static const invalidatedObject = realm_errno.RLM_ERR_INVALIDATED_OBJECT;
+  static const readOnlyDb = realm_errno.RLM_ERR_READ_ONLY_DB;
+  static const deleteOpenedRealm = realm_errno.RLM_ERR_DELETE_OPENED_REALM;
+  static const mismatchedConfig = realm_errno.RLM_ERR_MISMATCHED_CONFIG;
+  static const closedRealm = realm_errno.RLM_ERR_CLOSED_REALM;
+  static const invalidTableRef = realm_errno.RLM_ERR_INVALID_TABLE_REF;
+  static const schemaValidationFailed = realm_errno.RLM_ERR_SCHEMA_VALIDATION_FAILED;
+  static const schemaMismatch = realm_errno.RLM_ERR_SCHEMA_MISMATCH;
+  static const invalidSchemaVersion = realm_errno.RLM_ERR_INVALID_SCHEMA_VERSION;
+  static const invalidSchemaChange = realm_errno.RLM_ERR_INVALID_SCHEMA_CHANGE;
+  static const migrationFailed = realm_errno.RLM_ERR_MIGRATION_FAILED;
+  static const topLevelObject = realm_errno.RLM_ERR_TOP_LEVEL_OBJECT;
+  static const invalidArgument = realm_errno.RLM_ERR_INVALID_ARGUMENT;
+  static const propertyTypeMismatch = realm_errno.RLM_ERR_PROPERTY_TYPE_MISMATCH;
+  static const propertyNotNullable = realm_errno.RLM_ERR_PROPERTY_NOT_NULLABLE;
+  static const readOnlyProperty = realm_errno.RLM_ERR_READ_ONLY_PROPERTY;
+  static const missingPropertyValue = realm_errno.RLM_ERR_MISSING_PROPERTY_VALUE;
+  static const missingPrimaryKey = realm_errno.RLM_ERR_MISSING_PRIMARY_KEY;
+  static const unexpectedPrimaryKey = realm_errno.RLM_ERR_UNEXPECTED_PRIMARY_KEY;
+  static const modifyPrimaryKey = realm_errno.RLM_ERR_MODIFY_PRIMARY_KEY;
+  static const invalidQueryString = realm_errno.RLM_ERR_INVALID_QUERY_STRING;
+  static const invalidProperty = realm_errno.RLM_ERR_INVALID_PROPERTY;
+  static const invalidName = realm_errno.RLM_ERR_INVALID_NAME;
+  static const invalidDictionaryKey = realm_errno.RLM_ERR_INVALID_DICTIONARY_KEY;
+  static const invalidDictionaryValue = realm_errno.RLM_ERR_INVALID_DICTIONARY_VALUE;
+  static const invalidSortDescriptor = realm_errno.RLM_ERR_INVALID_SORT_DESCRIPTOR;
+  static const invalidEncryptionKey = realm_errno.RLM_ERR_INVALID_ENCRYPTION_KEY;
+  static const invalidQueryArg = realm_errno.RLM_ERR_INVALID_QUERY_ARG;
+  static const noSuchObject = realm_errno.RLM_ERR_NO_SUCH_OBJECT;
+  static const indexOutOfBounds = realm_errno.RLM_ERR_INDEX_OUT_OF_BOUNDS;
+  static const limitExceeded = realm_errno.RLM_ERR_LIMIT_EXCEEDED; //Sync
+  static const objectTypeMismatch = realm_errno.RLM_ERR_OBJECT_TYPE_MISMATCH;
+  static const noSuchTable = realm_errno.RLM_ERR_NO_SUCH_TABLE;
+  static const tableNameInUse = realm_errno.RLM_ERR_TABLE_NAME_IN_USE;
+  static const illegalCombination = realm_errno.RLM_ERR_ILLEGAL_COMBINATION;
+  static const badServerUrl = realm_errno.RLM_ERR_BAD_SERVER_URL;
+  static const customError = realm_errno.RLM_ERR_CUSTOM_ERROR;
+  static const clientUserNotFound = realm_errno.RLM_ERR_CLIENT_USER_NOT_FOUND;
+  static const clientUserNotLoggedIn = realm_errno.RLM_ERR_CLIENT_USER_NOT_LOGGED_IN;
+  static const clientAppDeallocated = realm_errno.RLM_ERR_CLIENT_APP_DEALLOCATED;
+  static const clientRedirectError = realm_errno.RLM_ERR_CLIENT_REDIRECT_ERROR;
+  static const clientTooManyRedirects = realm_errno.RLM_ERR_CLIENT_TOO_MANY_REDIRECTS;
+  static const badToken = realm_errno.RLM_ERR_BAD_TOKEN;
+  static const malformedJson = realm_errno.RLM_ERR_MALFORMED_JSON;
+  static const missingJsonKey = realm_errno.RLM_ERR_MISSING_JSON_KEY;
+  static const badBsonParse = realm_errno.RLM_ERR_BAD_BSON_PARSE;
+  static const missingAuthReq = realm_errno.RLM_ERR_MISSING_AUTH_REQ;
+  static const invalidSession = realm_errno.RLM_ERR_INVALID_SESSION;
+  static const userAppDomainMismatch = realm_errno.RLM_ERR_USER_APP_DOMAIN_MISMATCH;
+  static const domainNotAllowed = realm_errno.RLM_ERR_DOMAIN_NOT_ALLOWED;
+  static const readSizeLimitExceeded = realm_errno.RLM_ERR_READ_SIZE_LIMIT_EXCEEDED;
+  static const invalidParameter = realm_errno.RLM_ERR_INVALID_PARAMETER;
+  static const missingParameter = realm_errno.RLM_ERR_MISSING_PARAMETER;
+  static const twilioError = realm_errno.RLM_ERR_TWILIO_ERROR;
+  static const gcmError = realm_errno.RLM_ERR_GCM_ERROR;
+  static const httpError = realm_errno.RLM_ERR_HTTP_ERROR;
+  static const awsError = realm_errno.RLM_ERR_AWS_ERROR;
+  static const mongodbError = realm_errno.RLM_ERR_MONGODB_ERROR;
+  static const argumentsNotAllowed = realm_errno.RLM_ERR_ARGUMENTS_NOT_ALLOWED;
+  static const functionExecutionError = realm_errno.RLM_ERR_FUNCTION_EXECUTION_ERROR;
+  static const noMatchingRuleFound = realm_errno.RLM_ERR_NO_MATCHING_RULE_FOUND;
+  static const internalServerError = realm_errno.RLM_ERR_INTERNAL_SERVER_ERROR;
+  static const authProviderNotFound = realm_errno.RLM_ERR_AUTH_PROVIDER_NOT_FOUND;
+  static const authProviderAlreadyExists = realm_errno.RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS;
+  static const serviceNotFound = realm_errno.RLM_ERR_SERVICE_NOT_FOUND;
+  static const serviceTypeNotFound = realm_errno.RLM_ERR_SERVICE_TYPE_NOT_FOUND;
+  static const serviceAlreadyExists = realm_errno.RLM_ERR_SERVICE_ALREADY_EXISTS;
+  static const serviceCommandNotFound = realm_errno.RLM_ERR_SERVICE_COMMAND_NOT_FOUND;
+  static const valueNotFound = realm_errno.RLM_ERR_VALUE_NOT_FOUND;
+  static const valueAlreadyExists = realm_errno.RLM_ERR_VALUE_ALREADY_EXISTS;
+  static const valueDuplicateName = realm_errno.RLM_ERR_VALUE_DUPLICATE_NAME;
+  static const functionNotFound = realm_errno.RLM_ERR_FUNCTION_NOT_FOUND;
+  static const functionAlreadyExists = realm_errno.RLM_ERR_FUNCTION_ALREADY_EXISTS;
+  static const functionDuplicateName = realm_errno.RLM_ERR_FUNCTION_DUPLICATE_NAME;
+  static const functionSyntaxError = realm_errno.RLM_ERR_FUNCTION_SYNTAX_ERROR;
+  static const functionInvalid = realm_errno.RLM_ERR_FUNCTION_INVALID;
+  static const incomingWebhookNotFound = realm_errno.RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND;
+  static const incomingWebhookAlreadyExists = realm_errno.RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS;
+  static const incomingWebhookDuplicateName = realm_errno.RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME;
+  static const ruleNotFound = realm_errno.RLM_ERR_RULE_NOT_FOUND;
+  static const apiKeyNotFound = realm_errno.RLM_ERR_API_KEY_NOT_FOUND;
+  static const ruleAlreadyExists = realm_errno.RLM_ERR_RULE_ALREADY_EXISTS;
+  static const ruleDuplicateName = realm_errno.RLM_ERR_RULE_DUPLICATE_NAME;
+  static const authProviderDuplicateName = realm_errno.RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME;
+  static const restrictedHost = realm_errno.RLM_ERR_RESTRICTED_HOST;
+  static const apiKeyAlreadyExists = realm_errno.RLM_ERR_API_KEY_ALREADY_EXISTS;
+  static const incomingWebhookAuthFailed = realm_errno.RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED;
+  static const executionTimeLimitExceeded = realm_errno.RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED;
+  static const notCallable = realm_errno.RLM_ERR_NOT_CALLABLE;
+  static const userAlreadyConfirmed = realm_errno.RLM_ERR_USER_ALREADY_CONFIRMED;
+  static const userNotFound = realm_errno.RLM_ERR_USER_NOT_FOUND;
+  static const userDisabled = realm_errno.RLM_ERR_USER_DISABLED;
+  static const authError = realm_errno.RLM_ERR_AUTH_ERROR; //Sync
+  static const badRequest = realm_errno.RLM_ERR_BAD_REQUEST;
+  static const accountNameInUse = realm_errno.RLM_ERR_ACCOUNT_NAME_IN_USE;
+  static const invalidPassword = realm_errno.RLM_ERR_INVALID_PASSWORD;
+  static const schemaValidationFailedWrite = realm_errno.RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE;
+  static const appUnknown = realm_errno.RLM_ERR_APP_UNKNOWN;
+  static const maintenanceInProgress = realm_errno.RLM_ERR_MAINTENANCE_IN_PROGRESS;
+  static const userPassTokenInvalid = realm_errno.RLM_ERR_USERPASS_TOKEN_INVALID;
+  static const invalidServerResponse = realm_errno.RLM_ERR_INVALID_SERVER_RESPONSE;
+  static const appServerError = realm_errno.RLM_ERR_APP_SERVER_ERROR;
+  static const callback = realm_errno.RLM_ERR_CALLBACK;
+  static const unknownError = realm_errno.RLM_ERR_UNKNOWN; //Sync
+}
+
+class WebSocketErrorConstants {
+  static const ok = realm_web_socket_errno.RLM_ERR_WEBSOCKET_OK;
+  static const goingAway = realm_web_socket_errno.RLM_ERR_WEBSOCKET_GOINGAWAY;
+  static const protocolError = realm_web_socket_errno.RLM_ERR_WEBSOCKET_PROTOCOLERROR;
+  static const unsupportedData = realm_web_socket_errno.RLM_ERR_WEBSOCKET_UNSUPPORTEDDATA;
+  static const reserved = realm_web_socket_errno.RLM_ERR_WEBSOCKET_RESERVED;
+  static const noStatusReceived = realm_web_socket_errno.RLM_ERR_WEBSOCKET_NOSTATUSRECEIVED;
+  static const abnormalClosure = realm_web_socket_errno.RLM_ERR_WEBSOCKET_ABNORMALCLOSURE;
+  static const invalidPayloadData = realm_web_socket_errno.RLM_ERR_WEBSOCKET_INVALIDPAYLOADDATA;
+  static const policyViolation = realm_web_socket_errno.RLM_ERR_WEBSOCKET_POLICYVIOLATION;
+  static const messageTooBig = realm_web_socket_errno.RLM_ERR_WEBSOCKET_MESSAGETOOBIG;
+  static const invalidExtension = realm_web_socket_errno.RLM_ERR_WEBSOCKET_INAVALIDEXTENSION;
+  static const internalServerError = realm_web_socket_errno.RLM_ERR_WEBSOCKET_INTERNALSERVERERROR;
+  static const tlsHandshakeFailed = realm_web_socket_errno.RLM_ERR_WEBSOCKET_TLSHANDSHAKEFAILED;
+  static const unauthorized = realm_web_socket_errno.RLM_ERR_WEBSOCKET_UNAUTHORIZED;
+  static const forbidden = realm_web_socket_errno.RLM_ERR_WEBSOCKET_FORBIDDEN;
+  static const movedPermanently = realm_web_socket_errno.RLM_ERR_WEBSOCKET_MOVEDPERMANENTLY;
+  static const clientTooOld = realm_web_socket_errno.RLM_ERR_WEBSOCKET_CLIENT_TOO_OLD;
+  static const clientTooNew = realm_web_socket_errno.RLM_ERR_WEBSOCKET_CLIENT_TOO_NEW;
+  static const protocolMismatch = realm_web_socket_errno.RLM_ERR_WEBSOCKET_PROTOCOL_MISMATCH;
+  static const resolveFailed = realm_web_socket_errno.RLM_ERR_WEBSOCKET_RESOLVE_FAILED;
+  static const connectionFailed = realm_web_socket_errno.RLM_ERR_WEBSOCKET_CONNECTION_FAILED;
+  static const readError = realm_web_socket_errno.RLM_ERR_WEBSOCKET_READ_ERROR;
+  static const writeError = realm_web_socket_errno.RLM_ERR_WEBSOCKET_WRITE_ERROR;
+  static const retryError = realm_web_socket_errno.RLM_ERR_WEBSOCKET_RETRY_ERROR;
+  static const fatalError = realm_web_socket_errno.RLM_ERR_WEBSOCKET_FATAL_ERROR;
+}
+
+class ErrorCategoryConstants {
+  static const logic = realm_error_category.RLM_ERR_CAT_LOGIC;
+  static const runtime = realm_error_category.RLM_ERR_CAT_RUNTIME;
+  static const invalidArgument = realm_error_category.RLM_ERR_CAT_INVALID_ARG;
+  static const fileAccess = realm_error_category.RLM_ERR_CAT_FILE_ACCESS;
+  static const system = realm_error_category.RLM_ERR_CAT_SYSTEM_ERROR;
+  static const app = realm_error_category.RLM_ERR_CAT_APP_ERROR;
+  static const client = realm_error_category.RLM_ERR_CAT_CLIENT_ERROR;
+  static const json = realm_error_category.RLM_ERR_CAT_JSON_ERROR;
+  static const service = realm_error_category.RLM_ERR_CAT_SERVICE_ERROR;
+  static const http = realm_error_category.RLM_ERR_CAT_HTTP_ERROR;
+  static const custom = realm_error_category.RLM_ERR_CAT_CUSTOM_ERROR;
+  static const websocket = realm_error_category.RLM_ERR_CAT_WEBSOCKET_ERROR;
+  static const sync = realm_error_category.RLM_ERR_CAT_SYNC_ERROR;
 }

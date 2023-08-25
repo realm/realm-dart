@@ -582,9 +582,8 @@ Future<void> main([List<String>? args]) async {
 
     expect(compensatingWriteError, isA<CompensatingWriteError>());
     final sessionError = compensatingWriteError.as<CompensatingWriteError>();
-    expect(sessionError.category, SyncErrorCategory.session);
-    expect(sessionError.code, SyncSessionErrorCode.compensatingWrite);
-    expect(sessionError.message!.startsWith('Client attempted a write that is disallowed by permissions, or modifies an object outside the current query'),
+    expect(sessionError.errorCode, SyncErrorCode.compensatingWrite);
+    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'),
         isTrue);
     expect(sessionError.compensatingWrites, isNotNull);
     final writeReason = sessionError.compensatingWrites!.first;
