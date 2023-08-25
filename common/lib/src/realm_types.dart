@@ -234,7 +234,23 @@ class GeoPoint implements GeoShape {
   final double lat;
   final double lng;
 
-  const GeoPoint(this.lat, this.lng);
+  GeoPoint(this.lat, this.lng) {
+    if (lat < -90 || lat > 90) throw ArgumentError.value(lat, 'lat', 'must be between -90 and 90');
+    if (lng < -180 || lng > 180) throw ArgumentError.value(lng, 'lng', 'must be between -180 and 180');
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoPoint) return false;
+    return lat == other.lat && lng == other.lng;
+  }
+
+  @override
+  int get hashCode => Object.hash(lat, lng);
+
+  @override
+  String toString() => '[$lng, $lat]';
 }
 
 class GeoBox implements GeoShape {
@@ -242,13 +258,51 @@ class GeoBox implements GeoShape {
   final GeoPoint northEast;
 
   const GeoBox(this.southWest, this.northEast);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoBox) return false;
+    return southWest == other.southWest && northEast == other.northEast;
+  }
+
+  @override
+  int get hashCode => Object.hash(southWest, northEast);
+
+  @override
+  String toString() => 'geoBox($southWest, $northEast)';
+}
+
+typedef GeoRing = List<GeoPoint>;
+
+extension on GeoRing {
+  void validate() {
+    if (first != last) throw ArgumentError('Vertices must for a ring (first != last)');
+    if (length < 4) throw ArgumentError('Ring must have at least 3 different vertices');
+  }
 }
 
 class GeoPolygon implements GeoShape {
-  final List<GeoPoint> outerRing;
-  final List<List<GeoPoint>> holes;
+  final GeoRing outerRing;
+  final List<GeoRing> holes;
 
-  const GeoPolygon(this.outerRing, [this.holes = const []]);
+  GeoPolygon(this.outerRing, [this.holes = const []]) {
+    outerRing.validate();
+    for (final hole in holes) {
+      hole.validate();
+    }
+  }
+
+  @override
+  String toString() {
+    ringToString(GeoRing ring) => '{${ring.join(', ')}}';
+
+    final outerRingString = ringToString(outerRing);
+    if (holes.isEmpty) return 'geoPolygon($outerRingString)';
+
+    final holesString = holes.map(ringToString).join(', ');
+    return 'geoPolygon($outerRingString, $holesString)';
+  }
 }
 
 const _metersPerMile = 1609.344;
@@ -268,6 +322,9 @@ class GeoDistance implements Comparable<GeoDistance> {
 
   @override
   int compareTo(GeoDistance other) => radians.compareTo(other.radians);
+
+  @override
+  String toString() => '$radians';
 }
 
 extension DoubleToGeoDistance on double {
@@ -281,4 +338,17 @@ class GeoCircle implements GeoShape {
   final GeoDistance radius;
 
   const GeoCircle(this.center, this.radius);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoCircle) return false;
+    return center == other.center && radius == other.radius;
+  }
+
+  @override
+  int get hashCode => Object.hash(center, radius);
+
+  @override
+  String toString() => 'geoCircle($center, $radius)';
 }
