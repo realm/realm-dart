@@ -588,6 +588,9 @@ enum SyncWebSocketErrorCode {
   const SyncWebSocketErrorCode(this.code);
 }
 
+/// Sync errors caused by the client, server or the connection.
+///
+/// These errors will be reported via the error handlers of the affected sessions.
 enum SyncErrorCode {
   /// Connection closed by the server
   connectionClosed(SyncErrorCodesConstants.connectionClosed),

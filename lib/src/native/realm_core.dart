@@ -3406,6 +3406,7 @@ extension on realm_error {
   }
 }
 
+/// @nodoc
 class SyncErrorCodesConstants {
   static const runtimeError = realm_errno.RLM_ERR_RUNTIME; //Sync
   static const objectAlreadyExists = realm_errno.RLM_ERR_OBJECT_ALREADY_EXISTS; //Sync

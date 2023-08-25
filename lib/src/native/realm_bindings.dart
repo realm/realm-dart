@@ -11436,23 +11436,6 @@ final class realm_error extends ffi.Struct {
 }
 
 typedef realm_error_categories = ffi.UnsignedInt;
-
-abstract class realm_error_category {
-  static const int RLM_ERR_CAT_LOGIC = 2;
-  static const int RLM_ERR_CAT_RUNTIME = 4;
-  static const int RLM_ERR_CAT_INVALID_ARG = 8;
-  static const int RLM_ERR_CAT_FILE_ACCESS = 16;
-  static const int RLM_ERR_CAT_SYSTEM_ERROR = 32;
-  static const int RLM_ERR_CAT_APP_ERROR = 64;
-  static const int RLM_ERR_CAT_CLIENT_ERROR = 128;
-  static const int RLM_ERR_CAT_JSON_ERROR = 256;
-  static const int RLM_ERR_CAT_SERVICE_ERROR = 512;
-  static const int RLM_ERR_CAT_HTTP_ERROR = 1024;
-  static const int RLM_ERR_CAT_CUSTOM_ERROR = 2048;
-  static const int RLM_ERR_CAT_WEBSOCKET_ERROR = 4096;
-  static const int RLM_ERR_CAT_SYNC_ERROR = 8192;
-}
-
 typedef realm_error_t = realm_error;
 
 final class realm_flx_sync_mutable_subscription_set extends ffi.Opaque {}
@@ -11929,61 +11912,6 @@ typedef realm_sync_connection_state_changed_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void> userdata, ffi.Int32 old_state,
             ffi.Int32 new_state)>>;
-
-abstract class realm_sync_errno_connection {
-  static const int RLM_SYNC_ERR_CONNECTION_CONNECTION_CLOSED = 100;
-  static const int RLM_SYNC_ERR_CONNECTION_OTHER_ERROR = 101;
-  static const int RLM_SYNC_ERR_CONNECTION_UNKNOWN_MESSAGE = 102;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_SYNTAX = 103;
-  static const int RLM_SYNC_ERR_CONNECTION_LIMITS_EXCEEDED = 104;
-  static const int RLM_SYNC_ERR_CONNECTION_WRONG_PROTOCOL_VERSION = 105;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_SESSION_IDENT = 106;
-  static const int RLM_SYNC_ERR_CONNECTION_REUSE_OF_SESSION_IDENT = 107;
-  static const int RLM_SYNC_ERR_CONNECTION_BOUND_IN_OTHER_SESSION = 108;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_MESSAGE_ORDER = 109;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_DECOMPRESSION = 110;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_CHANGESET_HEADER_SYNTAX = 111;
-  static const int RLM_SYNC_ERR_CONNECTION_BAD_CHANGESET_SIZE = 112;
-  static const int RLM_SYNC_ERR_CONNECTION_SWITCH_TO_FLX_SYNC = 113;
-  static const int RLM_SYNC_ERR_CONNECTION_SWITCH_TO_PBS = 114;
-}
-
-abstract class realm_sync_errno_session {
-  static const int RLM_SYNC_ERR_SESSION_SESSION_CLOSED = 200;
-  static const int RLM_SYNC_ERR_SESSION_OTHER_SESSION_ERROR = 201;
-  static const int RLM_SYNC_ERR_SESSION_TOKEN_EXPIRED = 202;
-  static const int RLM_SYNC_ERR_SESSION_BAD_AUTHENTICATION = 203;
-  static const int RLM_SYNC_ERR_SESSION_ILLEGAL_REALM_PATH = 204;
-  static const int RLM_SYNC_ERR_SESSION_NO_SUCH_REALM = 205;
-  static const int RLM_SYNC_ERR_SESSION_PERMISSION_DENIED = 206;
-  static const int RLM_SYNC_ERR_SESSION_BAD_SERVER_FILE_IDENT = 207;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_FILE_IDENT = 208;
-  static const int RLM_SYNC_ERR_SESSION_BAD_SERVER_VERSION = 209;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_VERSION = 210;
-  static const int RLM_SYNC_ERR_SESSION_DIVERGING_HISTORIES = 211;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CHANGESET = 212;
-  static const int RLM_SYNC_ERR_SESSION_PARTIAL_SYNC_DISABLED = 214;
-  static const int RLM_SYNC_ERR_SESSION_UNSUPPORTED_SESSION_FEATURE = 215;
-  static const int RLM_SYNC_ERR_SESSION_BAD_ORIGIN_FILE_IDENT = 216;
-  static const int RLM_SYNC_ERR_SESSION_BAD_CLIENT_FILE = 217;
-  static const int RLM_SYNC_ERR_SESSION_SERVER_FILE_DELETED = 218;
-  static const int RLM_SYNC_ERR_SESSION_CLIENT_FILE_BLACKLISTED = 219;
-  static const int RLM_SYNC_ERR_SESSION_USER_BLACKLISTED = 220;
-  static const int RLM_SYNC_ERR_SESSION_TRANSACT_BEFORE_UPLOAD = 221;
-  static const int RLM_SYNC_ERR_SESSION_CLIENT_FILE_EXPIRED = 222;
-  static const int RLM_SYNC_ERR_SESSION_USER_MISMATCH = 223;
-  static const int RLM_SYNC_ERR_SESSION_TOO_MANY_SESSIONS = 224;
-  static const int RLM_SYNC_ERR_SESSION_INVALID_SCHEMA_CHANGE = 225;
-  static const int RLM_SYNC_ERR_SESSION_BAD_QUERY = 226;
-  static const int RLM_SYNC_ERR_SESSION_OBJECT_ALREADY_EXISTS = 227;
-  static const int RLM_SYNC_ERR_SESSION_SERVER_PERMISSIONS_CHANGED = 228;
-  static const int RLM_SYNC_ERR_SESSION_INITIAL_SYNC_NOT_COMPLETED = 229;
-  static const int RLM_SYNC_ERR_SESSION_WRITE_NOT_ALLOWED = 230;
-  static const int RLM_SYNC_ERR_SESSION_COMPENSATING_WRITE = 231;
-  static const int RLM_SYNC_ERR_SESSION_MIGRATE_TO_FLX = 232;
-  static const int RLM_SYNC_ERR_SESSION_BAD_PROGRESS = 233;
-  static const int RLM_SYNC_ERR_SESSION_REVERT_TO_PBS = 234;
-}
 
 final class realm_sync_error extends ffi.Struct {
   external realm_error_t status;

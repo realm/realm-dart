@@ -5,7 +5,6 @@ description: "Binding for the realm-core C API"
 headers:
   entry-points:
     - 'realm.h'
-    - 'realm/error_codes.h'
     - 'realm_dart.h'
     - 'realm_dart_logger.h'
     - 'realm_dart_decimal128.h'
@@ -13,7 +12,6 @@ headers:
     - 'realm_dart_sync.h'
   include-directives: # generate only for these headers
     - 'realm.h'
-    - 'realm/error_codes.h'
     - 'realm_dart.h'
     - 'realm_dart_logger.h'
     - 'realm_dart_decimal128.h'
