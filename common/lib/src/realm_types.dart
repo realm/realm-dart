@@ -294,6 +294,16 @@ class GeoPolygon implements GeoShape {
   }
 
   @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoPolygon) return false;
+    return outerRing == other.outerRing && holes == other.holes;
+  }
+
+  @override
+  int get hashCode => Object.hash(outerRing, holes);
+
+  @override
   String toString() {
     ringToString(GeoRing ring) => '{${ring.join(', ')}}';
 
@@ -322,6 +332,16 @@ class GeoDistance implements Comparable<GeoDistance> {
 
   @override
   int compareTo(GeoDistance other) => radians.compareTo(other.radians);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoDistance) return false;
+    return compareTo(other) == 0;
+  }
+
+  @override
+  int get hashCode => radians.hashCode;
 
   @override
   String toString() => '$radians';

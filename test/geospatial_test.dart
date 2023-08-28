@@ -224,4 +224,94 @@ Future<void> main([List<String>? args]) async {
     expect(() => GeoPolygon(ring([(1, 1), (2, 2), (3, 3)], close: false)), throws<ArgumentError>('first != last'));
     expect(() => GeoPolygon(ring([(1, 1), (2, 2), (3, 3), (4, 4)], close: false)), throws<ArgumentError>('first != last'));
   });
+
+  test('GeoPoint.operator==', () {
+    final p = GeoPoint(1, 1);
+    expect(p, equals(p));
+    expect(p, equals((p as Object))); // ignore: unnecessary_cast
+    expect(p, equals(GeoPoint(1, 1)));
+    expect(p, isNot(equals(GeoPoint(1, 2))));
+    expect(p, isNot(equals(Object())));
+  });
+
+  test('GeoPoint.hashCode', () {
+    final p = GeoPoint(1, 1);
+    expect(p.hashCode, p.hashCode); // stable
+    expect(p.hashCode, equals(GeoPoint(1, 1).hashCode));
+    expect(p.hashCode, isNot(equals(GeoPoint(1, 2).hashCode)));
+  });
+
+  test('GeoPoint.toString', () {
+    final p = GeoPoint(1, 1);
+    expect(p.toString(), '[1.0, 1.0]'); // we don't use WKT for some reason
+  });
+
+  test('GeoBox.operator==', () {
+    final b = GeoBox(GeoPoint(1, 1), GeoPoint(2, 2));
+    expect(b, equals(b));
+    expect(b, equals((b as Object))); // ignore: unnecessary_cast
+    expect(b, equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 2))));
+    expect(b, isNot(equals(GeoBox(GeoPoint(1, 2), GeoPoint(2, 2)))));
+    expect(b, isNot(equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 3)))));
+    expect(b, isNot(equals(Object())));
+  });
+
+  test('GeoBox.hashCode', () {
+    final b = GeoBox(GeoPoint(1, 1), GeoPoint(2, 2));
+    expect(b.hashCode, b.hashCode); // stable
+    expect(b.hashCode, equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 2)).hashCode));
+    expect(b.hashCode, isNot(equals(GeoBox(GeoPoint(1, 2), GeoPoint(2, 2))).hashCode));
+    expect(b.hashCode, isNot(equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 3))).hashCode));
+  });
+
+  test('GeoBox.toString', () {
+    final b = GeoBox(GeoPoint(1, 1), GeoPoint(2, 2));
+    expect(b.toString(), 'geoBox([1.0, 1.0], [2.0, 2.0])'); // we don't use WKT for some reason
+  });
+
+  test('GeoCircle.operator==', () {
+    final c = GeoCircle(GeoPoint(1, 1), 1.m);
+    expect(c, equals(c));
+    expect(c, equals((c as Object))); // ignore: unnecessary_cast
+    expect(c, equals(GeoCircle(GeoPoint(1, 1), 1.m)));
+    expect(c, isNot(equals(GeoCircle(GeoPoint(1, 2), 1.m))));
+    expect(c, isNot(equals(GeoCircle(GeoPoint(1, 1), 2.m))));
+    expect(c, isNot(equals(Object())));
+  });
+
+  test('GeoCircle.hashCode', () {
+    final c = GeoCircle(GeoPoint(1, 1), 1.m);
+    expect(c.hashCode, c.hashCode); // stable
+    expect(c.hashCode, equals(GeoCircle(GeoPoint(1, 1), 1.m).hashCode));
+    expect(c.hashCode, isNot(equals(GeoCircle(GeoPoint(1, 2), 1.m).hashCode)));
+    expect(c.hashCode, isNot(equals(GeoCircle(GeoPoint(1, 1), 2.m).hashCode)));
+  });
+
+  test('GeoCircle.toString', () {
+    final c = GeoCircle(GeoPoint(1, 1), 1.m);
+    expect(c.toString(), 'geoCircle([1.0, 1.0], ${1.m.radians})'); // we don't use WKT for some reason
+  });
+
+  test('GeoPolygon.operator==', () {
+    final p = GeoPolygon(ring([(1, 1), (2, 2), (3, 3)]));
+    expect(p, equals(p));
+    expect(p, equals((p as Object))); // ignore: unnecessary_cast
+    // for efficiency we don't check the ring
+    expect(p, isNot(equals(GeoPolygon(ring([(1, 1), (2, 2), (3, 3)])))));
+    expect(p, isNot(equals(GeoPolygon(ring([(1, 1), (2, 2), (3, 4)])))));
+    expect(p, isNot(equals(Object())));
+  });
+
+  test('GeoPolygon.hashCode', () {
+    final p = GeoPolygon(ring([(1, 1), (2, 2), (3, 3)]));
+    expect(p.hashCode, p.hashCode); // stable
+    // for efficiency we don't check the ring
+    expect(p.hashCode, isNot(equals(GeoPolygon(ring([(1, 1), (2, 2), (3, 3)])).hashCode)));
+    expect(p.hashCode, isNot(equals(GeoPolygon(ring([(1, 1), (2, 2), (3, 4)])).hashCode)));
+  });
+
+  test('GeoPolygon.toString', () {
+    final p = GeoPolygon(ring([(1, 1), (2, 2), (3, 3)]));
+    expect(p.toString(), 'geoPolygon({[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [1.0, 1.0]})'); // we don't use WKT for some reason
+  });
 }
