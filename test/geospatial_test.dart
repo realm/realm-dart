@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
@@ -67,8 +68,8 @@ extension on Location {
 }
 
 extension on num {
-  GeoDistance get m => GeoDistance.fromMeters(toDouble());
-  GeoDistance get km => (this * 1000).m;
+  GeoDistance get m => meters;
+  GeoDistance get km => kilometers;
 }
 
 extension on (num, num) {
@@ -118,11 +119,11 @@ Future<void> main([List<String>? args]) async {
   ]);
 
   for (final (shape, restaurants) in [
-    (GeoCircle(noma.location!.toGeoPoint(), 0.m), [noma]),
-    (GeoCircle(theFatDuck.location!.toGeoPoint(), 10.m), [theFatDuck]),
-    (GeoCircle(mugaritz.location!.toGeoPoint(), 10.m), [mugaritz]),
-    (GeoCircle(noma.location!.toGeoPoint(), 1000.km), [noma, theFatDuck]),
-    (GeoCircle(noma.location!.toGeoPoint(), 5000.km), [noma, theFatDuck, mugaritz]),
+    (GeoCircle(noma.location!.toGeoPoint(), 0.meters), [noma]),
+    (GeoCircle(theFatDuck.location!.toGeoPoint(), 10.meters), [theFatDuck]),
+    (GeoCircle(mugaritz.location!.toGeoPoint(), 10.meters), [mugaritz]),
+    (GeoCircle(noma.location!.toGeoPoint(), 1000.kilometers), [noma, theFatDuck]),
+    (GeoCircle(noma.location!.toGeoPoint(), 3000.miles), [noma, theFatDuck, mugaritz]),
     (GeoBox((55.6, 12.6).toGeoPoint(), (55.7, 12.7).toGeoPoint()), [noma]),
     (GeoBox((51.5, -0.8).toGeoPoint(), (51.6, -0.7).toGeoPoint()), [theFatDuck]),
     (GeoBox((43.2, -2.0).toGeoPoint(), (43.3, -1.9).toGeoPoint()), [mugaritz]),
@@ -313,5 +314,14 @@ Future<void> main([List<String>? args]) async {
   test('GeoPolygon.toString', () {
     final p = GeoPolygon(ring([(1, 1), (2, 2), (3, 3)]));
     expect(p.toString(), 'geoPolygon({[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [1.0, 1.0]})'); // we don't use WKT for some reason
+  });
+
+  test('GeoDistance', () {
+    final d = GeoDistance(1);
+    expect(d.radians, 1);
+    expect(d.meters, 1 / 1.567850289112e-7);
+    expect(d.kilometers, 1 / 1.567850289112e-7 / 1000);
+    expect(d.miles, d.meters / 1609.344);
+    expect(d.toString(), '1.0');
   });
 }

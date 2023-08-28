@@ -347,8 +347,8 @@ class GeoDistance implements Comparable<GeoDistance> {
   String toString() => '$radians';
 }
 
-extension DoubleToGeoDistance on double {
-  GeoDistance get meters => GeoDistance.fromMeters(this);
+extension DoubleToGeoDistance on num {
+  GeoDistance get meters => GeoDistance.fromMeters(toDouble());
   GeoDistance get kilometers => meters * 1000;
   GeoDistance get miles => meters * _metersPerMile;
 }
