@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
@@ -317,6 +318,7 @@ class GeoPolygon implements GeoShape {
 
 const _metersPerMile = 1609.344;
 const _radiansPerMeterOnEarthSphere = 1.5678502891116e-7; // at equator
+const _radiansPerDegree = pi / 180;
 
 class GeoDistance implements Comparable<GeoDistance> {
   final double radians;
@@ -324,6 +326,9 @@ class GeoDistance implements Comparable<GeoDistance> {
   const GeoDistance(this.radians);
   GeoDistance.fromMeters(double meters) : radians = meters * _radiansPerMeterOnEarthSphere;
 
+  GeoDistance.fromDegrees(double degrees) : radians = degrees * _radiansPerDegree;
+
+  double get degrees => radians / _radiansPerDegree;
   double get meters => radians / _radiansPerMeterOnEarthSphere;
   double get kilometers => meters / 1000;
   double get miles => meters / _metersPerMile;
@@ -348,6 +353,7 @@ class GeoDistance implements Comparable<GeoDistance> {
 }
 
 extension DoubleToGeoDistance on num {
+  GeoDistance get degrees => GeoDistance.fromDegrees(toDouble());
   GeoDistance get meters => GeoDistance.fromMeters(toDouble());
   GeoDistance get kilometers => meters * 1000;
   GeoDistance get miles => meters * _metersPerMile;
