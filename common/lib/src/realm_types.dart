@@ -316,7 +316,7 @@ class GeoPolygon implements GeoShape {
 }
 
 const _metersPerMile = 1609.344;
-const _radiansPerMeterOnEarthSphere = 1.567850289112e-7; // at equator
+const _radiansPerMeterOnEarthSphere = 1.5678502891116e-7; // at equator
 
 class GeoDistance implements Comparable<GeoDistance> {
   final double radians;

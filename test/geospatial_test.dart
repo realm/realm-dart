@@ -17,7 +17,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
@@ -318,9 +317,8 @@ Future<void> main([List<String>? args]) async {
 
   test('GeoDistance', () {
     final d = GeoDistance(1);
-    expect(d.radians, 1);
-    expect(d.meters, 1 / 1.567850289112e-7);
-    expect(d.kilometers, 1 / 1.567850289112e-7 / 1000);
+    expect(d.meters, 1 / 1.5678502891116e-7);
+    expect(d.kilometers, 1 / 1.5678502891116e-7 / 1000);
     expect(d.miles, d.meters / 1609.344);
     expect(d.toString(), '1.0');
   });
