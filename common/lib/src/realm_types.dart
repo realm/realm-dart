@@ -228,7 +228,7 @@ class RealmValue {
   String toString() => 'RealmValue($value)';
 }
 
-interface class GeoShape {}
+sealed class GeoShape {}
 
 class GeoPoint implements GeoShape {
   final double lat;
