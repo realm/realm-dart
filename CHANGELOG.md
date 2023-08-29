@@ -6,6 +6,9 @@
 ### Fixed
 * None
 
+### Breaking Changes
+* Simplified sync errors. All the sync error codes `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode` and `GeneralSyncErrorCode` are moved to a new enum `SyncErrorCode`. The errors `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError` and  `GeneralSyncError` are deprecated. Only an instance of `SyncError` could be returned. ([#1387](https://github.com/realm/realm-dart/pull/1387))
+
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 

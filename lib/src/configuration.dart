@@ -652,13 +652,14 @@ class ClientResetError extends SyncError {
 
 /// Thrown when an error occurs during synchronization
 /// {@category Sync}
-class SyncError extends RealmError {
+final class SyncError extends RealmError {
   /// The numeric code value indicating the type of the sync error.
   @Deprecated("Use property code")
   final int codeValue;
 
   /// If true the received error is fatal.
   final bool isFatal = false;
+
   /// Type of the sync error.
   final SyncErrorCode errorCode;
 
@@ -826,7 +827,6 @@ class CompensatingWriteInfo {
 /// by the server.
 /// {@category Sync}
 class CompensatingWriteError extends SyncError {
-
   /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
   @Deprecated("Use errorCode property instead")
   SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
