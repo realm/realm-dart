@@ -685,9 +685,8 @@ class _RealmCore {
 
       if (error != nullptr) {
         final err = arena<realm_error>();
-        bool availableError = _realmLib.realm_get_async_error(error, err);
-
-        completer.completeError(RealmException("Failed to open realm ${availableError ? err.ref.toLastError().toString() : ''}"));
+        bool asyncErrorAvailable = _realmLib.realm_get_async_error(error, err);
+        completer.completeError(RealmException("Failed to open realm ${asyncErrorAvailable ? err.ref.toLastError().toString() : ''}"));
         return;
       }
 

@@ -357,27 +357,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => session.state, throws<RealmClosedError>());
   });
-
-//   for (SyncWebSocketErrorCode errorCode in SyncWebSocketErrorCode.values.where((v) => v != SyncWebSocketErrorCode.unknown)) {
-//     baasTest('Sync Web Socket Error ${errorCode.name}', (configuration) async {
-//       final app = App(configuration);
-//       final user = await getIntegrationUser(app);
-//       final config = Configuration.flexibleSync(
-//         user,
-//         [Task.schema],
-//         syncErrorHandler: (syncError) {
-//           expect(syncError, isA<SyncWebSocketError>());
-//           final sessionError = syncError.as<SyncWebSocketError>();
-//           expect(sessionError.category, SyncErrorCategory.webSocket);
-//           expect(sessionError.code, errorCode);
-//           expect(sessionError.message, "Simulated session error");
-//           expect(syncError.codeValue, errorCode.code);
-//         },
-//       );
-//       final realm = getRealm(config);
-//       realm.syncSession.raiseError(SyncErrorCategory.webSocket, errorCode.code, false);
-//     });
-//   }
 }
 
 class StreamProgressData {

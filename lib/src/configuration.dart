@@ -652,7 +652,7 @@ class ClientResetError extends SyncError {
 
 /// Thrown when an error occurs during synchronization
 /// {@category Sync}
-final class SyncError extends RealmError {
+class SyncError extends RealmError {
   /// The numeric code value indicating the type of the sync error.
   @Deprecated("Use property code")
   final int codeValue;
