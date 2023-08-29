@@ -57,7 +57,7 @@ void createRestaurants(Realm realm) {
 
 extension on GeoPoint {
   Location toLocation() {
-    return Location(coordinates: [lng, lat]);
+    return Location(coordinates: [lon, lat]);
   }
 }
 
@@ -180,8 +180,8 @@ Future<void> main([List<String>? args]) async {
     final l = p.toLocation();
 
     expect(p.lat, l.latitude);
-    expect(p.lng, l.longitude);
-    expect(l.coordinates, [p.lng, p.lat]);
+    expect(p.lon, l.longitude);
+    expect(l.coordinates, [p.lon, p.lat]);
   });
 
   test('GeoPoint', () {
@@ -192,7 +192,7 @@ Future<void> main([List<String>? args]) async {
     for (final (lat, lng) in validPoints) {
       final p = GeoPoint(lat, lng);
       expect(p.lat, lat);
-      expect(p.lng, lng);
+      expect(p.lon, lng);
     }
   });
 
@@ -323,5 +323,11 @@ Future<void> main([List<String>? args]) async {
     expect(d.kilometers, 1 / 1.5678502891116e-7 / 1000);
     expect(d.miles, d.meters / 1609.344);
     expect(d.toString(), '1.0');
+
+    expect(1.radians, const GeoDistance(1));
+    expect(1.degrees, GeoDistance.fromDegrees(1));
+    expect(1.meters, GeoDistance.fromMeters(1));
+    expect(1.kilometers, GeoDistance.fromKilometers(1));
+    expect(1.miles, GeoDistance.fromMiles(1));
   });
 }
