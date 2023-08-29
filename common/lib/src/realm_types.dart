@@ -389,8 +389,6 @@ class GeoDistance implements Comparable<GeoDistance> {
   /// The distance in miles
   double get miles => meters / _metersPerMile;
 
-  GeoDistance operator *(double factor) => GeoDistance(radians * factor);
-
   @override
   int compareTo(GeoDistance other) => radians.compareTo(other.radians);
 
