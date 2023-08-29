@@ -1,10 +1,13 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
+* Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. Unknown error actions will be treated as an ApplicationBug error action and will cause sync to fail with an error via the sync error handler. (Core upgrade)
+* Added support for server log messages that are enabled by sync protocol version 10. AppServices request id will be provided in a server log message in a future server release. (Core upgrade)
 
 ### Fixed
-* None
+* Crash when querying the size of a Object property through a link chain (Core upgrade, since v13.17.2)
+* Deprecated `App.localAppName` and `App.localAppVersion`. They were not used by the server and were not needed to set them. ([#1387](https://github.com/realm/realm-dart/pull/1387))
 
 ### Breaking Changes
 * Simplified sync errors. All the sync error codes `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode` and `GeneralSyncErrorCode` are moved to a new enum `SyncErrorCode`. The errors `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError` and  `GeneralSyncError` are deprecated. Only an instance of `SyncError` could be returned. ([#1387](https://github.com/realm/realm-dart/pull/1387))
@@ -13,7 +16,12 @@
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Made binding a `sync::Session` exception safe so if a `MultipleSyncAgents` exception is thrown you can safely tear down the sync client. (Core upgrade, since 13.4.1)
+* Add information about the reason a synchronization session is used for to flexible sync client BIND message. (Core upgrade)
+* Sync protocol version bumped to 10. (Core upgrade)
+* Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
+
+* Using Core 13.19.0.
 
 ## 1.4.0 (2023-08-16)
 
