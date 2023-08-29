@@ -1,6 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
+* Support for performing geo spatial queries using the new classes: `GeoPoint`, `GeoCircle`, `GeoBox` and `GeoPolygon`. See `GeoPoint` documentation on how to persist locations ([#1389](https://github.com/realm/realm-dart/pull/1389))
 * Suppressing rules for a  *.g.dart files ([#1413](https://github.com/realm/realm-dart/pull/1413))
 * Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
 * Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. (Core upgrade)
