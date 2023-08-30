@@ -48,6 +48,7 @@ export 'package:realm_common/realm_common.dart'
         RealmClosedError,
         RealmCollectionType,
         RealmError,
+        RealmIndexType,
         RealmModel,
         RealmPropertyType,
         RealmStateError,
@@ -64,6 +65,8 @@ export "configuration.dart"
         ClientResetCallback,
         ClientResetError,
         ClientResetHandler,
+        CompensatingWriteError,
+        CompensatingWriteInfo,
         Configuration,
         DiscardUnsyncedChangesHandler,
         DisconnectedSyncConfiguration,
@@ -89,7 +92,7 @@ export "configuration.dart"
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
-export 'set.dart' show RealmSet, RealmSetChanges;
+export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
@@ -166,36 +169,52 @@ class Realm implements Finalizable {
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
-  /// Using [open] for opening a local Realm is equivalent to using the constructor of [Realm].
+  /// Using [Realm.open] for opening a local Realm is equivalent to using the constructor of [Realm].
   static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
-      throw cancellationToken.exception;
+      throw cancellationToken.exception!;
     }
-    final realm = Realm(config);
-    StreamSubscription<SyncProgress>? subscription;
-    try {
-      if (config is FlexibleSyncConfiguration) {
-        final session = realm.syncSession;
-        if (onProgressCallback != null) {
-          subscription = session.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen(onProgressCallback);
-        }
-        await session.waitForDownload(cancellationToken);
-        await subscription?.cancel();
+
+    if (config is! FlexibleSyncConfiguration) {
+      final realm = Realm(config);
+      return await CancellableFuture.value(realm, cancellationToken);
+    }
+
+    _ensureDirectory(config);
+
+    final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
+    return await CancellableFuture.from<Realm>(() async {
+      if (cancellationToken != null && cancellationToken.isCancelled) {
+        throw cancellationToken.exception!;
       }
-    } catch (_) {
-      await subscription?.cancel();
-      realm.close();
-      rethrow;
-    }
-    return await CancellableFuture.value(realm, cancellationToken);
+
+      StreamSubscription<SyncProgress>? progressSubscription;
+      if (onProgressCallback != null) {
+        final progressController = RealmAsyncOpenProgressNotificationsController._(asyncOpenHandle);
+        final progressStream = progressController.createStream();
+        progressSubscription = progressStream.listen(onProgressCallback);
+      }
+
+      late final RealmHandle realmHandle;
+      try {
+        realmHandle = await realmCore.openRealmAsync(asyncOpenHandle, cancellationToken);
+        return Realm._(config, realmHandle);
+      } finally {
+        await progressSubscription?.cancel();
+      }
+    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
   }
 
   static RealmHandle _openRealm(Configuration config) {
+    _ensureDirectory(config);
+    return realmCore.openRealm(config);
+  }
+
+  static void _ensureDirectory(Configuration config) {
     var dir = File(config.path).parent;
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
-    return realmCore.openRealm(config);
   }
 
   void _populateMetadata() {
@@ -690,6 +709,10 @@ extension RealmInternal on Realm {
     return RealmListInternal.create<T>(handle, this, metadata);
   }
 
+  RealmSet<T> createSet<T extends Object?>(RealmSetHandle handle, RealmObjectMetadata? metadata) {
+    return RealmSetInternal.create<T>(handle, this, metadata);
+  }
+
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
     final metadata = _metadata.getByType(type);
     final result = <String>[];
@@ -749,6 +772,15 @@ extension RealmInternal on Realm {
   RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
     final handle = realmCore.resolveResults(results, this);
     return RealmResultsInternal.create<T>(handle, this, results.metadata);
+  }
+
+  RealmSet<T>? resolveSet<T extends Object?>(ManagedRealmSet<T> set) {
+    final handle = realmCore.resolveSet(set, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createSet<T>(handle, set.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
@@ -952,8 +984,40 @@ class MigrationRealm extends DynamicRealm {
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered onProgressCallback when calling [open] that receives progress notifications while the download is in progress.
+/// This is the registered onProgressCallback when calling [Realm.open] that receives progress notifications while the download is in progress.
 ///
 /// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
 /// {@category Realm}
 typedef ProgressCallback = void Function(SyncProgress syncProgress);
+
+/// @nodoc
+class RealmAsyncOpenProgressNotificationsController implements ProgressNotificationsController {
+  final RealmAsyncOpenTaskHandle _handle;
+  RealmAsyncOpenTaskProgressNotificationTokenHandle? _tokenHandle;
+  late final StreamController<SyncProgress> _streamController;
+
+  RealmAsyncOpenProgressNotificationsController._(this._handle);
+
+  Stream<SyncProgress> createStream() {
+    _streamController = StreamController<SyncProgress>(onListen: _start, onCancel: _stop);
+    return _streamController.stream;
+  }
+
+  @override
+  void onProgress(int transferredBytes, int transferableBytes) {
+    _streamController.add(SessionInternal.createSyncProgress(transferredBytes, transferableBytes));
+  }
+
+  void _start() {
+    if (_tokenHandle != null) {
+      throw RealmStateError("Progress subscription already started.");
+    }
+
+    _tokenHandle = realmCore.realmAsyncOpenRegisterAsyncOpenProgressNotifier(_handle, this);
+  }
+
+  void _stop() {
+    _tokenHandle?.release();
+    _tokenHandle = null;
+  }
+}

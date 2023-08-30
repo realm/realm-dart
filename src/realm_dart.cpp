@@ -55,7 +55,7 @@ RLM_API void realm_dart_initializeDartApiDL(void* data) {
 
 class WeakHandle {
 public:
-    WeakHandle(Dart_Handle handle): m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
+    WeakHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
     }
 
     Dart_Handle value() {
@@ -99,21 +99,18 @@ RLM_API void realm_dart_delete_persistent_handle(void* handle) {
     Dart_DeletePersistentHandle_DL(persistentHandle);
 }
 
-RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler)
-{
+RLM_API realm_dart_userdata_async_t realm_dart_userdata_async_new(Dart_Handle handle, void* callback, realm_scheduler_t* scheduler) {
     return new realm_dart_userdata_async(handle, callback, scheduler);
 }
 
-RLM_API void realm_dart_userdata_async_free(void* userdata)
-{
+RLM_API void realm_dart_userdata_async_free(void* userdata) {
     auto async_userdata = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     async_userdata->scheduler->invoke([async_userdata]() {
         delete async_userdata;
     });
 }
 
-RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc)
-{
+RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc) {
     auto castFunc = (reinterpret_cast<realm::util::UniqueFunction<void(bool)>*>(unlockFunc));
     (*castFunc)(success);
 }
@@ -121,7 +118,7 @@ RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc)
 // Stamped into the library by the build system (see prepare-release.yml)
 // Keep this method as it is written and do not format it. 
 // We have a github workflow that looks for and replaces this string as it is written here.
-RLM_API const char* realm_dart_library_version() { return "1.0.3"; }
+RLM_API const char* realm_dart_library_version() { return "1.4.0"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() { 

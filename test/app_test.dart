@@ -20,8 +20,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
+import 'package:crypto/crypto.dart';
 
 import '../lib/realm.dart';
+import '../lib/src/native/realm_core.dart';
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -201,7 +203,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('Call Atlas function that does not exist', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    await expectLater(user.functions.call('noFunc'), throws<AppException>("function not found: 'noFunc'"));
+    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found: 'notExisitingFunction'"));
   });
 
   baasTest('Call Atlas function with no arguments', (configuration) async {
@@ -252,8 +254,8 @@ Future<void> main([List<String>? args]) async {
     final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1.toJson(), arg2.toJson()]);
     expect(response, isNotNull);
     final map = response as Map<String, dynamic>;
-    final receivedPerson1 = PersonJ.fromJson(map['arg1'] as Map<String, dynamic>);
-    final receivedPerson2 = PersonJ.fromJson(map['arg2'] as Map<String, dynamic>);
+    final receivedPerson1 = PersonExt.fromJson(map['arg1'] as Map<String, dynamic>);
+    final receivedPerson2 = PersonExt.fromJson(map['arg2'] as Map<String, dynamic>);
     expect(receivedPerson1.name, arg1.name);
     expect(receivedPerson2.name, arg2.name);
   });
@@ -298,9 +300,16 @@ Future<void> main([List<String>? args]) async {
       throws<RealmException>("Switch user failed. Error code: 4101 . Message: User is no longer valid or is logged out"),
     );
   });
+
+  test('bundleId is salted, hashed and encoded', () {
+    final text = isFlutterPlatform ? "realm_tests" : "realm_dart";
+    const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
+    final expected = base64Encode(sha256.convert([...salt, ...utf8.encode(text)]).bytes);
+    expect(realmCore.getBundleId(), expected);
+  });
 }
 
-extension PersonJ on Person {
+extension PersonExt on Person {
   static Person fromJson(Map<String, dynamic> json) => Person(json['name'] as String);
   Map<String, dynamic> toJson() => <String, dynamic>{'name': name};
 }

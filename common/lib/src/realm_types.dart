@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 
@@ -24,16 +25,17 @@ Type _typeOf<T>() => T;
 
 /// @nodoc
 class Mapping<T> {
-  const Mapping({this.indexable = false});
+  const Mapping({this.indexable = false, this.canBePrimaryKey = false});
 
   final bool indexable;
+  final bool canBePrimaryKey;
 
   // Types
   Type get type => T;
   Type get nullableType => _typeOf<T?>();
 }
 
-const _intMapping = Mapping<int>(indexable: true);
+const _intMapping = Mapping<int>(indexable: true, canBePrimaryKey: true);
 const _boolMapping = Mapping<bool>(indexable: true);
 
 /// All supported `Realm` property types.
@@ -41,7 +43,7 @@ const _boolMapping = Mapping<bool>(indexable: true);
 enum RealmPropertyType {
   int(_intMapping),
   bool(_boolMapping),
-  string(Mapping<String>(indexable: true)),
+  string(Mapping<String>(indexable: true, canBePrimaryKey: true)),
   _3, // ignore: unused_field, constant_identifier_names
   binary,
   _5, // ignore: unused_field, constant_identifier_names
@@ -54,13 +56,38 @@ enum RealmPropertyType {
   object,
   _13, // ignore: unused_field, constant_identifier_names
   linkingObjects,
-  objectid(Mapping<ObjectId>(indexable: true)),
+  objectid(Mapping<ObjectId>(indexable: true, canBePrimaryKey: true)),
   _16, // ignore: unused_field, constant_identifier_names
-  uuid(Mapping<Uuid>(indexable: true));
+  uuid(Mapping<Uuid>(indexable: true, canBePrimaryKey: true));
 
   const RealmPropertyType([this.mapping = const Mapping<Never>()]);
 
   final Mapping<dynamic> mapping;
+}
+
+/// Describes the indexing mode for properties annotated with the @Indexed annotation.
+enum RealmIndexType {
+  /// Describes an index with no special capabilities. This type of index is
+  /// suitable for equality searches as well as comparison operations for numeric values.
+  regular,
+
+  /// Describes a Full-Text index on a string property.
+  ///
+  /// The full-text index currently support this set of features:
+  /// * Only token or word search, e.g. `query("bio TEXT \$0", "computer dancing")`
+  ///   will find all objects that contains the words `computer` and `dancing` in their `bio` property
+  /// * Tokens are diacritics- and case-insensitive, e.g. `query("bio TEXT \$0", "cafe dancing")`
+  ///   and `query("bio TEXT \$0", "café DANCING")` will return the same set of matches.
+  /// * Ignoring results with certain tokens is done using `-`, e.g. `query("bio TEXT \$0", "computer -dancing")`
+  ///   will find all objects that contain `computer` but not `dancing`.
+  /// * Tokens only consist of alphanumerical characters from ASCII and the Latin-1 supplement. All other characters
+  ///   are considered whitespace. In particular words using `-` like `full-text` are split into two tokens.
+  ///
+  /// Note the following constraints before using full-text search:
+  /// * Token prefix or suffix search like `query("bio TEXT \$0", "comp* *cing")` is not supported.
+  /// * Only ASCII and Latin-1 alphanumerical chars are included in the index (most western languages).
+  /// * Only boolean match is supported, i.e. "found" or "not found". It is not possible to sort results by "relevance".
+  fullText
 }
 
 /// All supported `Realm` collection types.
@@ -160,23 +187,25 @@ class RealmValue {
   const RealmValue.objectId(ObjectId id) : this._(id);
   const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
+  const RealmValue.uint8List(Uint8List binary) : this._(binary);
 
   /// Will throw [ArgumentError]
-  factory RealmValue.from(Object? o) {
-    if (o == null ||
-        o is bool ||
-        o is String ||
-        o is int ||
-        o is Float ||
-        o is double ||
-        o is RealmObjectMarker ||
-        o is DateTime ||
-        o is ObjectId ||
-        o is Decimal128 ||
-        o is Uuid) {
-      return RealmValue._(o);
+  factory RealmValue.from(Object? object) {
+    if (object == null ||
+        object is bool ||
+        object is String ||
+        object is int ||
+        object is Float ||
+        object is double ||
+        object is RealmObjectMarker ||
+        object is DateTime ||
+        object is ObjectId ||
+        object is Decimal128 ||
+        object is Uuid ||
+        object is Uint8List) {
+      return RealmValue._(object);
     } else {
-      throw ArgumentError.value(o, 'o', 'Unsupported type');
+      throw ArgumentError.value(object, 'object', 'Unsupported type');
     }
   }
 
@@ -185,6 +214,7 @@ class RealmValue {
     if (other is RealmValue) {
       return value == other.value;
     }
+
     return value == other;
   }
 

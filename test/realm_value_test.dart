@@ -16,7 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -59,6 +59,7 @@ Future<void> main([List<String>? args]) async {
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
       Decimal128.fromDouble(128.128),
+      Uint8List.fromList([1, 2, 0])
     ];
 
     for (final x in values) {
@@ -68,7 +69,11 @@ Future<void> main([List<String>? args]) async {
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
         expect(something.oneAny.type, x.runtimeType);
         expect(something.oneAny.value, x);
-        expect(something.oneAny, RealmValue.from(x));
+        if (x is Uint8List) {
+          expect(something.oneAny, isNot(RealmValue.from(x)));
+        } else {
+          expect(something.oneAny, RealmValue.from(x));
+        }
       });
     }
 
@@ -88,6 +93,13 @@ Future<void> main([List<String>? args]) async {
       test('Switch $x', () {
         final something = AnythingGoes(oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
+
+        // Uint8List can not be in the switch
+        if (something.oneAny.type == Uint8List(0).runtimeType) {
+          expect(value, isA<Uint8List>());
+          return;
+        }
+
         switch (something.oneAny.type) {
           case Null:
             expect(value, isA<void>());
@@ -151,6 +163,8 @@ Future<void> main([List<String>? args]) async {
           expect(type, ObjectId);
         } else if (value is Decimal128) {
           expect(type, Decimal128);
+        } else if (value is Uint8List) {
+          expect(type, Uint8List(0).runtimeType);
         } else if (value is AnythingGoes) {
           expect(type, AnythingGoes);
         } else if (value is Stuff) {
@@ -209,9 +223,6 @@ Future<void> main([List<String>? args]) async {
       Decimal128.fromInt(128),
     ];
 
-    final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
-    final realm = getRealm(config);
-
     test('Roundtrip', () {
       final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
       final realm = getRealm(config);
@@ -219,5 +230,32 @@ Future<void> main([List<String>? args]) async {
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
     });
+  });
+
+  test('Query with list of realm values in arguments', () {
+    final now = DateTime.now().toUtc();
+    final values = <Object?>[
+      null,
+      true,
+      'text',
+      42,
+      3.14,
+      AnythingGoes(),
+      Stuff(),
+      now,
+      ObjectId.fromTimestamp(now),
+      Uuid.v4(),
+      Decimal128.fromInt(128),
+    ];
+    final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
+    final realm = getRealm(config);
+    final realmValues = values.map(RealmValue.from);
+    realm.write(() => realm.add(AnythingGoes(manyAny: realmValues, oneAny: realmValues.last)));
+
+    var results = realm.query<AnythingGoes>("manyAny IN \$0", [values]);
+    expect(results.first.manyAny, realmValues);
+
+    results = realm.query<AnythingGoes>("oneAny IN \$0", [values]);
+    expect(results.first.oneAny, realmValues.last);
   });
 }

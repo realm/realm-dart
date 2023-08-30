@@ -91,7 +91,7 @@ class SyncProgress {
   /// successfully transferred.
   final int transferableBytes;
 
-  SyncProgress._(this.transferredBytes, this.transferableBytes);
+  const SyncProgress({required this.transferredBytes, required this.transferableBytes});
 }
 
 /// A type containing information about the transition of a connection state from one value to another.
@@ -124,26 +124,34 @@ extension SessionInternal on Session {
   void raiseError(SyncErrorCategory category, int errorCode, bool isFatal) {
     realmCore.raiseError(this, category, errorCode, isFatal);
   }
+
+  static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
+      SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes);
+}
+
+abstract interface class ProgressNotificationsController {
+  void onProgress(int transferredBytes, int transferableBytes);
 }
 
 /// @nodoc
-class SessionProgressNotificationsController {
+class SessionProgressNotificationsController implements ProgressNotificationsController {
   final Session _session;
   final ProgressDirection _direction;
   final ProgressMode _mode;
 
-  RealmSyncSessionConnectionStateNotificationTokenHandle? _token;
+  RealmSyncSessionConnectionStateNotificationTokenHandle? _tokenHandle;
   late final StreamController<SyncProgress> _streamController;
 
   SessionProgressNotificationsController(this._session, this._direction, this._mode);
 
   Stream<SyncProgress> createStream() {
-    _streamController = StreamController<SyncProgress>.broadcast(onListen: _start, onCancel: _stop);
+    _streamController = StreamController<SyncProgress>(onListen: _start, onCancel: _stop);
     return _streamController.stream;
   }
 
+  @override
   void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add(SyncProgress._(transferredBytes, transferableBytes));
+    _streamController.add(SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes));
 
     if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
       _streamController.close();
@@ -151,15 +159,15 @@ class SessionProgressNotificationsController {
   }
 
   void _start() {
-    if (_token != null) {
-      throw RealmStateError("Session progress subscription already started");
+    if (_tokenHandle != null) {
+      throw RealmStateError("Session progress subscription already started.");
     }
-    _token = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this);
+    _tokenHandle = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this);
   }
 
   void _stop() {
-    _token?.release();
-    _token = null;
+    _tokenHandle?.release();
+    _tokenHandle = null;
   }
 }
 
@@ -172,7 +180,7 @@ class SessionConnectionStateController {
   SessionConnectionStateController(this._session);
 
   Stream<ConnectionStateChange> createStream() {
-    _streamController = StreamController<ConnectionStateChange>.broadcast(onListen: _start, onCancel: _stop);
+    _streamController = StreamController<ConnectionStateChange>(onListen: _start, onCancel: _stop);
     return _streamController.stream;
   }
 
@@ -591,7 +599,6 @@ enum SyncResolveErrorCode {
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
 enum SyncWebSocketErrorCode {
-
   /// Web socket resolution failed
   websocketResolveFailed(4400),
 

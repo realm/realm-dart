@@ -641,6 +641,7 @@ class BaasApp {
   Object? error;
 
   BaasApp(this.appId, this.clientAppId, this.name, this.uniqueName);
+  
   BaasApp._empty(this.name)
       : appId = "",
         clientAppId = "",

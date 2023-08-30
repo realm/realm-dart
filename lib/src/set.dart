@@ -62,13 +62,13 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
   @override
   bool contains(covariant T element); //Note: explicitly overriding contains() to change parameter type
 
-  /// If an object equal to [object] is in the set, return it.
+  /// If an object equal to [element] is in the set, return it.
   ///
-  /// Checks whether [object] is in the set, like [contains], and if so,
+  /// Checks whether [element] is in the set, like [contains], and if so,
   /// returns the object in the set, otherwise returns `null`.
   ///
   /// If the equality relation used by the set is not identity,
-  /// then the returned object may not be *identical* to [object].
+  /// then the returned object may not be *identical* to [element].
   /// Some set implementations may not be able to implement this method.
   /// If the [contains] method is computed,
   /// rather than being based on an actual object instance,
@@ -99,16 +99,21 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity i
 
   /// Converts this [Set] to a [RealmResults].
   RealmResults<T> asResults();
+
+  /// Creates a frozen snapshot of this `RealmSet`.
+  RealmSet<T> freeze();
 }
 
 class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> with RealmEntity implements RealmSet<T> {
   UnmanagedRealmSet([Set<T>? items]) : super(items ?? <T>{});
 
   @override
-  RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged RealmSets don't have metadata associated with them.");
+  // ignore: unused_element
+  RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
-  set _metadata(RealmObjectMetadata? _) => throw RealmException("Unmanaged RealmSets don't have metadata associated with them.");
+  // ignore: unused_element
+  set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
   @override
   bool get isValid => true;
@@ -118,6 +123,9 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");
+
+  @override
+  RealmSet<T> freeze() => throw RealmStateError("Unmanaged sets can't be frozen");
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
@@ -220,6 +228,9 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   Stream<RealmSetChanges<T>> get changes {
+    if (isFrozen) {
+      throw RealmStateError('Set is frozen and cannot emit changes');
+    }
     final controller = RealmSetNotificationsController<T>(asManaged());
     return controller.createStream();
   }
@@ -261,11 +272,23 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromSet(this), realm, _metadata);
+
+  @override
+  RealmSet<T> freeze() {
+    if (isFrozen) {
+      return this;
+    }
+
+    final frozenRealm = realm.freeze();
+    return frozenRealm.resolveSet(this)!;
+  }
 }
 
 /// @nodoc
 extension RealmSetInternal<T extends Object?> on RealmSet<T> {
   ManagedRealmSet<T> asManaged() => this is ManagedRealmSet<T> ? this as ManagedRealmSet<T> : throw RealmStateError('$this is not managed');
+
+  RealmObjectMetadata? get metadata => asManaged()._metadata;
 
   RealmSetHandle get handle {
     final result = asManaged()._handle;
@@ -324,7 +347,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   }
 
   Stream<RealmSetChanges<T>> createStream() {
-    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onPause: stop, onResume: start, onCancel: stop);
+    streamController = StreamController<RealmSetChanges<T>>(onListen: start, onCancel: stop);
     return streamController.stream;
   }
 
@@ -341,5 +364,21 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   @override
   void onError(RealmError error) {
     streamController.addError(error);
+  }
+}
+
+// The query operations on sets, as well as the ability to subscribe for notifications,
+// only work for sets of objects (core restriction), so we add these as an extension methods
+// to allow the compiler to prevent misuse.
+extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
+  /// Filters the set and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
+  ///
+  /// Only works for sets of [RealmObject]s or [EmbeddedObject]s.
+  ///
+  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
+  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
+    final handle = realmCore.querySet(asManaged(), query, arguments);
+    return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 }

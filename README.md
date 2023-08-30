@@ -1,4 +1,7 @@
-![Realm](https://github.com/realm/realm-dart/raw/main/logo.png)
+<picture>
+    <source srcset="./media/logo-dark.svg" media="(prefers-color-scheme: dark)" alt="realm by MongoDB">
+    <img src="./media/logo.svg" alt="realm by MongoDB">
+</picture>
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
 [![Realm Dart CI](https://github.com/realm/realm-dart/actions/workflows/ci.yml/badge.svg)](https://github.com/realm/realm-dart/actions/workflows/ci.yml)
@@ -11,9 +14,9 @@ This repository holds the source code for the Realm SDK for Flutter™ and Dart�
 
 * **Mobile-first:** Realm is the first database built from the ground up to run directly inside phones, tablets, and wearables.
 * **Simple:** Realm’s object-oriented data model is simple to learn, doesn’t need an ORM, and the [API](https://pub.dev/documentation/realm/latest/) lets you write less code to get apps up & running in minutes.
-* **Modern:** Realm supports latest Dart and Flutter versions and is build with sound null-safety.
+* **Modern:** Realm supports latest Dart and Flutter versions and is built with sound null-safety.
 * **Fast:** Realm is faster than even raw SQLite on common operations while maintaining an extremely rich feature set.
-* **[Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. Get started for free with [a template application](https://github.com/mongodb/template-app-dart-flutter-todo) and [create the cloud backend](http://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github).
+* **[MongoDB Atlas Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. Get started for free with [a template application](https://github.com/mongodb/template-app-dart-flutter-todo) and [create the cloud backend](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github).
 
 ## Getting Started
 
@@ -37,7 +40,7 @@ This repository holds the source code for the Realm SDK for Flutter™ and Dart�
 * Generate RealmObject class `Car` from data model class `_Car`.
 
     ```
-    flutter pub run realm generate
+    dart run realm generate
     ```
 
 * Open a Realm and add some objects.
@@ -103,8 +106,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 ## Environment setup for Realm Flutter
 
 * Realm Flutter supports the platforms iOS, Android, Windows, MacOS and Linux.
-
-* Flutter 3.0.3 or newer.
+* Flutter 3.10.2 or newer.
 * For Flutter Desktop environment setup, see [Desktop support for Flutter](https://docs.flutter.dev/desktop).
 * Cocoapods v1.11 or newer.
 * CMake 3.21 or newer.
@@ -121,7 +123,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 * For running Flutter widget and unit tests run the following command to install the required native binaries.
 
     ```
-    flutter pub run realm install
+    dart run realm install
     ```
 
 * Import Realm in a dart file (ex. `catalog.dart`).
@@ -156,10 +158,10 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 
 * Generate RealmObject class `Item` from data model class `_Item`.
 
-    _*On Flutter use `flutter pub run realm` to run `realm` package commands*_
+    _*On Flutter use `dart run realm` to run `realm` package commands*_
 
     ```
-    flutter pub run realm generate
+    dart run realm generate
     ```
     A new file `catalog.g.dart` will be created next to the `catalog.dart`.
 
@@ -234,7 +236,7 @@ class _Item {
 // Create a Configuration object
 var config = Configuration.local([Item.schema]);
 
-// Opean a Realm
+// Open a Realm
 var realm = Realm(config);
 
 var myItem = Item(0, 'Pen', price: 4);
@@ -284,8 +286,7 @@ Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_d
 ## Environment setup for Realm Dart
 
 * Realm Dart supports the platforms Windows, Mac and Linux.
-
-* Dart SDK 2.17.5 or newer.
+* Dart SDK 3.0.2 or newer.
 
 ## Usage
 

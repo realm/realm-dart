@@ -1,8 +1,88 @@
 ## vNext (TBD)
 
 ### Enhancements
-
 * Added `User.getMongoDBbClient` exposing an API for CRUD operations on a Remote Atlas App Service.([#1162](https://github.com/realm/realm-dart/issues/1162))
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
+## 1.4.0 (2023-08-16)
+
+### Enhancements
+* Support ReamSet.freeze() ([#1342](https://github.com/realm/realm-dart/pull/1342))
+* Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+* Support for passing `List`, `Set` or `Iterable` arguments to queries with `IN`-operators. ([#1346](https://github.com/realm/realm-dart/pull/1346))
+
+
+### Fixed
+* Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
+* Rare corruption of files on streaming format (often following compact, convert or copying to a new file). (Core upgrade, since v12.12.0)
+* Trying to search a full-text indexes created as a result of an additive schema change (i.e. applying the differences between the local schema and a synchronized realm's schema) could have resulted in an IllegalOperation error with the error code `Column has no fulltext index`. (Core upgrade, since v13.2.0).
+* Sync progress for DOWNLOAD messages from server state was updated wrongly. This may have resulted in an extra round-trip to the server. (Core upgrade, since v12.9.0)
+* Fixes infinite-loop like issue with await-for-yield over realm set change streams. ([#1344](https://github.com/realm/realm-dart/issues/1344))
+* Fixed issue with using flexibleSync in flutter test. ([#1366](https://github.com/realm/realm-dart/pull/1366))
+* Fixed a realm generator issue, when used in concert with MobX. ([#1372](https://github.com/realm/realm-dart/pull/1372))
+* Fix failed assertion for unknown app server errors (Core upgrade, since v12.9.0).
+* Testing the size of a collection of links against zero would sometimes fail (sometimes = "difficult to explain"). (Core upgrade, since v13.15.1)
+* `Session.getProgressStream` now returns a regular stream, instead of a broadcast stream. ([#1375](https://github.com/realm/realm-dart/pull/1375))
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.17.2.
+
+## 1.3.0 (2023-06-22)
+
+### Enhancements
+* Added support binary data type. ([#1320](https://github.com/realm/realm-dart/pull/1320))
+* Extended `ClientResetError` to return the `backupFilePath` where the backup copy of the realm will be placed once the client reset process has completed. ([#1291](https://github.com/realm/realm-dart/pull/1291))
+* Added `CompensatingWriteError` containing detailed error information about the writes that have been reverted by the server due to permissions or subscription view restrictions. The `Configuration.flexibleSync.syncErrorHandler` will be invoked with this error type when this error occurs ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Improve performance of elementAt, first, single and last on RealmResults ([#1261](https://github.com/realm/realm-dart/issues/1261), [#1262](https://github.com/realm/realm-dart/pull/1262), [#1267](https://github.com/realm/realm-dart/pull/1267)).
+
+### Fixed
+* The constructors of all `SyncError` types are deprecated. The sync errors will be created only internally ([#1291](https://github.com/realm/realm-dart/pull/1291)).
+* Getting `Backlink` properties of unmanaged Realm objects will throw an error: "Using backlinks is only possible for managed objects" ([#1293](https://github.com/realm/realm-dart/pull/1293)).
+* Properties in the frozen _before_ Realm instance in the client reset callbacks may have had properties reordered which could lead to exceptions if accessed. (Core upgrade, since v13.11.0)
+
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+* Dart ^3.0.2 and Flutter ^3.10.2
+
+### Internal
+* Synced realms will use async open to prevent overloading the server with schema updates. [#1369](https://github.com/realm/realm-dart/pull/1369))
+* Using Core 13.15.1
+
+## 1.2.0 (2023-06-08)
+
+### Enhancements
+  * Added support for Full-Text search (simple term) queries. ([#1300](https://github.com/realm/realm-dart/pull/1300))
+  * To enable FTS queries on string properties, add the `@Indexed(RealmIndexType.fullText)` annotation.
+  * To run queries, use the `TEXT` operator: `realm.all<Book>().query("description TEXT \$0", "fantasy novel")`.
+
+### Fixed
+* Fix the query parser, it needs to copy a list of arguments and own the memory. This will prevent errors like getting a different result from a query, if the list is modified after its creation and before the execution of the query itself. In the worst case scenario, if the memory is freed before the query is executed, this could lead to crashes, especially for string and binary data types. (Core upgrade, since core v12.5.0)
+* Fixed a potential crash when opening the realm after failing to download a fresh FLX realm during an automatic client reset (Core upgrade, since core v12.3.0)
+* Access token refresh for websockets was not updating the location metadata (Core upgrade, since core v13.9.3)
+* Using both synchronous and asynchronous transactions on the same thread or scheduler could hit the assertion failure "!realm.is_in_transaction()" if one of the callbacks for an asynchronous transaction happened to be scheduled during a synchronous transaction (Core upgrade, since core v11.8.0)
+* Fixed an issue where the generator would incorrectly consider a `DateTime` field a valid primary key ([#1300](https://github.com/realm/realm-dart/pull/1300)).
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.14.0.
+
+## 1.1.0 (2023-05-30)
+
+### Enhancements
 * Add `RealmResults.isValid` ([#1231](https://github.com/realm/realm-dart/pull/1231)).
 * Support `Decimal128` datatype ([#1192](https://github.com/realm/realm-dart/pull/1192)).
 * Realm logging is extended to support logging of all Realm storage level messages. (Core upgrade).
@@ -29,7 +109,6 @@
 * Very slightly improve performance of runtime thread checking on the main thread on Apple platforms. (Core upgrade)
 
 ### Fixed
-
 * Fixed a bug that may have resulted in arrays being in different orders on different devices (Core upgrade).
 * Fixed a crash when querying a mixed property with a string operator (contains/like/beginswith/endswith) or with case insensitivity (Core upgrade).
 * Querying for equality of a string on an indexed mixed property was returning case insensitive matches. For example querying for `myIndexedMixed == "Foo"` would incorrectly match on values of "foo" or "FOO" etc (Core upgrade).

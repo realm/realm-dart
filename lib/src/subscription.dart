@@ -265,7 +265,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
   /// If a [name] is given, then this will be used to match with any existing query,
   /// otherwise the [query] itself is used for matching.
   ///
-  /// If [update] is specified to [true], then any existing query will be replaced.
+  /// If [update] is specified to `true`, then any existing query will be replaced.
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
   /// {@category Sync}
   Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) {

@@ -12,6 +12,10 @@
 #define APP_DIR_NAME "realm_app"
 #endif
 
+#ifndef BUNDLE_ID
+#define BUNDLE_ID "realm_bundle_id"
+#endif
+
 #define REALM_PLUGIN(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), realm_plugin_get_type(), \
                               RealmPlugin))
@@ -66,7 +70,12 @@ void realm_plugin_register_with_registrar(FlPluginRegistrar* registrar) {
 }
 
 static std::string appDirName = APP_DIR_NAME;
+static std::string bundleId = BUNDLE_ID;
 
 const char* realm_dart_get_app_directory() {
     return appDirName.c_str();
+}
+
+const char* realm_dart_get_bundle_id() {
+    return bundleId.c_str();
 }

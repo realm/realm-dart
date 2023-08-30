@@ -24,6 +24,7 @@ import android.content.Context;
 import java.io.IOException;
 import android.util.Log;
 
+import io.flutter.BuildConfig;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -31,7 +32,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 public class RealmPlugin implements FlutterPlugin, MethodCallHandler {
-  private static native void native_initRealm(String filesDir, String deviceName, String deviceVersion);
+  private static native void native_initRealm(String filesDir, String deviceName, String deviceVersion, String bundleId);
     
   public static void initRealm(Context context) {
       String filesDir;
@@ -41,7 +42,8 @@ public class RealmPlugin implements FlutterPlugin, MethodCallHandler {
           throw new IllegalStateException(e);
       }
 
-      native_initRealm(filesDir, android.os.Build.MANUFACTURER, android.os.Build.MODEL);
+      // RealmConfig is generated on build and located at {appDir}/build/realm-generated/RealmConfig.java
+      native_initRealm(filesDir, android.os.Build.MANUFACTURER, android.os.Build.MODEL, RealmConfig.bundleId);
   }
 
  /// The MethodChannel that will the communication between Flutter and native Android

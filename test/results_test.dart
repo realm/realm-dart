@@ -18,6 +18,8 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:typed_data';
+
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -740,5 +742,173 @@ Future<void> main([List<String>? args]) async {
     final ids = "_id IN {${list.join(",")}}";
     final items = realm.query<Product>(ids);
     expect(items.length, 0);
+  });
+
+  test('RealmResults.first throws on empty', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.first, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().first, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().first, throws<RealmStateError>('No element'));
+  });
+
+  test('RealmResults.last throws on empty', () async {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.last, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().last, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().last, throws<RealmStateError>('No element'));
+  });
+
+  test('RealmResult.single throws on empty', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final empty = Iterable<int>.empty();
+    // To illustrate the behavior of Iterable.single on a regular iterable
+    expect(() => empty.single, throws<StateError>('No element'));
+
+    expect(() => realm.all<Dog>().single, throws<StateError>('No element'));
+    expect(() => realm.all<Dog>().single, throws<RealmStateError>('No element'));
+  });
+
+  test('RealmResult.single throws on two items', () {
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final twoItems = [1, 2];
+    // To illustrate the behavior of Iterable.single on a regular list
+    expect(() => twoItems.single, throws<StateError>('Too many elements'));
+
+    realm.write(() => realm.addAll([Dog('Fido'), Dog('Spot')]));
+    expect(() => realm.all<Dog>().single, throws<StateError>('Too many elements'));
+    expect(() => realm.all<Dog>().single, throws<RealmStateError>('Too many elements'));
+  });
+
+  test('Query with argument lists of different types and null', () {
+    final id_1 = ObjectId();
+    final id_2 = ObjectId();
+    final uid_1 = Uuid.v4();
+    final uid_2 = Uuid.v4();
+    final date_1 = DateTime.now().add(const Duration(days: 1));
+    final date_2 = DateTime.now().add(const Duration(days: 2));
+    final text_1 = generateRandomUnicodeString();
+
+    final config = Configuration.local([AllTypes.schema]);
+    Realm realm = getRealm(config);
+    realm.write(() => realm.addAll([
+          AllTypes(text_1, false, DateTime.now(), 1.1, id_1, uid_1, 1, Decimal128.one, binaryProp: Uint8List.fromList([1, 2])),
+          AllTypes('text2', true, date_1, 2.2, id_2, uid_2, 2, Decimal128.ten),
+          AllTypes('text3', true, date_2, 3.3, ObjectId(), Uuid.v4(), 3, Decimal128.infinity, binaryProp: Uint8List.fromList([3, 4])),
+        ]));
+
+    void queryWithListArg(String propName, Object? argument, {int expected = 0}) {
+      final results = realm.query<AllTypes>("$propName IN \$0", [argument]);
+      expect(results.length, expected);
+    }
+
+    queryWithListArg("stringProp", [null, text_1, 'text3'], expected: 2);
+    queryWithListArg("nullableStringProp", [null, 'text2'], expected: 3);
+
+    queryWithListArg("boolProp", [false, true, null], expected: 3);
+    queryWithListArg("nullableBoolProp", [null], expected: 3);
+
+    queryWithListArg("dateProp", [date_1, null, date_2], expected: 2);
+    queryWithListArg("nullableDateProp", [null], expected: 3);
+
+    queryWithListArg("doubleProp", [1.1, null, 3.3], expected: 2);
+    queryWithListArg("nullableDoubleProp", [null], expected: 3);
+
+    queryWithListArg("objectIdProp", [id_1, id_2, null], expected: 2);
+    queryWithListArg("nullableObjectIdProp", [null], expected: 3);
+
+    queryWithListArg("uuidProp", [uid_1, uid_2, null], expected: 2);
+    queryWithListArg("nullableUuidProp", [null], expected: 3);
+  
+    queryWithListArg("intProp", [1, 2, null], expected: 2);
+    queryWithListArg("nullableIntProp", [null], expected: 3);
+
+    queryWithListArg("decimalProp", [Decimal128.one, null], expected: 1);
+    queryWithListArg("nullableDecimalProp", [null], expected: 3);
+
+    queryWithListArg(
+        "binaryProp",
+        [
+          Uint8List.fromList([1, 2]),
+          null,
+          Uint8List(16)
+        ],
+        expected: 2);
+
+    queryWithListArg("nullableBinaryProp", [null], expected: 3);
+  });
+
+  test('Query with list, sets and iterable arguments', () {
+    final config = Configuration.local([Person.schema]);
+    Realm realm = getRealm(config);
+    realm.write(() => realm.addAll([
+          Person('Ani'),
+          Person('Teddy'),
+          Person('Poly'),
+        ]));
+
+    final listOfNames = ['Ani', 'Teddy'];
+    var result = realm.query<Person>(r'name IN $0', [listOfNames]);
+    expect(result.length, 2);
+
+    final setOfNames = {'Poly', 'Teddy'};
+    result = realm.query<Person>(r'name IN $0', [setOfNames]);
+    expect(result.length, 2);
+
+    final iterableNames = result.map((e) => e.name);
+    result = realm.query<Person>(r'name IN $0', [iterableNames]);
+    expect(result.length, 2);
+
+    result = realm.query<Person>(r'name IN $0 || name IN $1 || name IN $2', [listOfNames, setOfNames, iterableNames]);
+    expect(result.length, 3);
+  });
+
+  test('Query with ANY, ALL and NONE operators with iterable arguments', () {
+    final config = Configuration.local([School.schema, Student.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() => realm.addAll([
+          School('primary school 1', branches: [
+            School('131', city: "NY city"),
+            School('144', city: "Garden city"),
+            School('128'),
+          ]),
+          School('secondary school 1', students: [
+            Student(1, name: 'NP'),
+            Student(2, name: 'KR'),
+          ]),
+        ]));
+
+    var result = realm.query<School>(r'ANY $0 IN branches.city', [
+      ["NY city"]
+    ]);
+    expect(result.length, 1);
+    expect(result.first.name, 'primary school 1');
+
+    result = realm.query<School>(r'ALL $0 IN branches.city', [
+      ["NY city", "Garden city", null]
+    ]);
+    expect(result.length, 1);
+    expect(result.first.name, 'primary school 1');
+
+    result = realm.query<School>(r'students.@count > $0 && NONE $1 IN students.name', [
+      0,
+      {'Non-existing name', null}
+    ]);
+    expect(result.length, 1);
+    expect(result.first.name, 'secondary school 1');
   });
 }

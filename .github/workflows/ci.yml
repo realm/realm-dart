@@ -102,7 +102,6 @@ jobs:
     secrets: inherit
     needs:
       - deploy-dart-cluster
-      - create-dart-shared-apps
       - dart-tests-windows
       - dart-tests-macos
       - dart-tests-macos-arm
@@ -120,7 +119,6 @@ jobs:
     secrets: inherit
     needs:
       - deploy-flutter-cluster
-      - create-flutter-shared-apps
       - flutter-desktop-tests-windows
       - flutter-desktop-tests-macos
       - flutter-desktop-tests-linux
@@ -452,7 +450,7 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       - name: Launch Simulator
         uses: futureware-tech/simulator-action@v2
@@ -478,7 +476,6 @@ jobs:
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
 
-
   flutter-android:
     runs-on: macos-latest
     name: Android Flutter Tests
@@ -497,6 +494,12 @@ jobs:
         with:
           submodules: 'recursive'
 
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11
+
       - name: Fetch artifacts
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
@@ -509,11 +512,11 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       # TODO: Move CI run tests on Android Emulator into device farm https://github.com/realm/realm-dart/issues/691
       - name: Setup Android Emulator cache
-        uses: actions/cache@v3.0.4
+        uses: actions/cache@v3
         id: avd-cache
         with:
           path: |
@@ -640,7 +643,7 @@ jobs:
       - name: Publish Generator Coverage
         if: matrix.os == 'ubuntu'
         id: publish-coverage
-        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
+        uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: generator
@@ -660,10 +663,34 @@ jobs:
 
       - name: Coveralls Finished
         id: publish-coverage
-        uses: coverallsapp/github-action@a1a1a8a300a7e89df3630639df8fb23de5cc6368
+        uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
 
       - name: Output Coveralls response
         run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
+
+  slack-on-failure:
+    name: Report failure in main branch
+    needs: 
+      - cleanup-dart-matrix
+      - cleanup-flutter-matrix
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+        # Run this action to set env.WORKFLOW_CONCLUSION
+      - uses: technote-space/workflow-conclusion-action@45ce8e0eb155657ab8ccf346ade734257fd196a5
+
+      - uses: act10ns/slack@ed1309ab9862e57e9e583e51c7889486b9a00b0f
+        if: ${{ github.ref == 'refs/heads/main' && env.WORKFLOW_CONCLUSION == 'FAILURE' }} 
+        # Statuses: neutral, success, skipped, cancelled, timed_out, action_required, failure
+        with:
+          status: ${{ env.WORKFLOW_CONCLUSION }} 
+          webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
+          channel: '#realm-github-dart'
+          message: |
+            *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
+            <{{refUrl}}|`{{ref}}` - {{description}}>
+            {{#if description}}<{{diffUrl}}|branch: `{{diffRef}}`>{{/if}}
+       

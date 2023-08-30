@@ -16,6 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:typed_data';
+
+import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -39,6 +42,8 @@ class _NullableUuid {}
 
 class _NullableObjects {}
 
+class _NullableUint8List {}
+
 /// When changing update also `setByType`
 List<Type> supportedTypes = [
   bool,
@@ -50,19 +55,22 @@ List<Type> supportedTypes = [
   Uuid,
   RealmValue,
   RealmObject,
+  Uint8List,
   _NullableBool,
   _NullableInt,
   _NullableString,
   _NullableDouble,
   _NullableDateTime,
   _NullableObjectId,
-  _NullableUuid
+  _NullableUuid,
+  _NullableUint8List
 ];
 
 @RealmModel()
 class _Car {
   @PrimaryKey()
   late String make;
+  late String? color;
 }
 
 @RealmModel()
@@ -79,6 +87,7 @@ class _TestRealmSets {
   late Set<Uuid> uuidSet;
   late Set<RealmValue> mixedSet;
   late Set<_Car> objectsSet;
+  late Set<Uint8List> binarySet;
 
   late Set<bool?> nullableBoolSet;
   late Set<int?> nullableIntSet;
@@ -87,6 +96,7 @@ class _TestRealmSets {
   late Set<DateTime?> nullableDateTimeSet;
   late Set<ObjectId?> nullableObjectIdSet;
   late Set<Uuid?> nullableUuidSet;
+  late Set<Uint8List?> nullableBinarySet;
 
   /// When changing update also `supportedTypes`
   Sets setByType(Type type) {
@@ -105,6 +115,11 @@ class _TestRealmSets {
         return Sets(objectIdSet as RealmSet<ObjectId>, [ObjectId.fromTimestamp(DateTime(2023).toUtc()), ObjectId.fromTimestamp(DateTime(1981).toUtc())]);
       case Uuid:
         return Sets(uuidSet as RealmSet<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
+      case Uint8List:
+        return Sets(binarySet as RealmSet<Uint8List>, [
+          Uint8List.fromList([1, 2, 3]),
+          Uint8List.fromList([3, 2, 1])
+        ]);
       case RealmValue:
         return Sets(mixedSet as RealmSet<RealmValue>, [RealmValue.nullValue(), RealmValue.int(1), RealmValue.realmObject(Car("Tesla"))],
             (realm, value) => realm.find<Car>((value as Car).make));
@@ -124,6 +139,8 @@ class _TestRealmSets {
         return Sets(nullableObjectIdSet as RealmSet<ObjectId?>, [...setByType(ObjectId).values, null]);
       case _NullableUuid:
         return Sets(nullableUuidSet as RealmSet<Uuid?>, [...setByType(Uuid).values, null]);
+      case _NullableUint8List:
+        return Sets(nullableBinarySet as RealmSet<Uint8List?>, [...setByType(Uint8List).values, null]);
       default:
         throw RealmError("Unsupported type $type");
     }
@@ -464,7 +481,11 @@ Future<void> main([List<String>? args]) async {
       expect(set.length, equals(values.length));
 
       for (var element in set) {
-        expect(values.contains(element), true);
+        if (element is Uint8List) {
+          expect(values.any((e) => (e as Uint8List).equals(element)), true);
+        } else {
+          expect(values.contains(element), true);
+        }
       }
     });
 
@@ -698,5 +719,116 @@ Future<void> main([List<String>? args]) async {
           isA<RealmResultsChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
         ]));
     realm.write(() => testSets.objectsSet.clear());
+  });
+
+  test('Set.freeze freezes the set', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final liveCars = realm.write(() {
+      return realm.add(TestRealmSets(1, objectsSet: {
+        Car('Tesla'),
+      }));
+    }).objectsSet;
+
+    final frozenCars = freezeSet(liveCars);
+
+    expect(frozenCars.length, 1);
+    expect(frozenCars.isFrozen, true);
+    expect(frozenCars.realm.isFrozen, true);
+    expect(frozenCars.first.isFrozen, true);
+
+    realm.write(() {
+      liveCars.add(Car('Audi'));
+    });
+
+    expect(liveCars.length, 2);
+    expect(frozenCars.length, 1);
+    expect(frozenCars.single.make, 'Tesla');
+  });
+
+  test("FrozenSet.changes throws", () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(TestRealmSets(1, objectsSet: {
+        Car("Tesla"),
+        Car("Audi"),
+      }));
+    });
+
+    final frozenBools = freezeSet(realm.all<TestRealmSets>().single.boolSet);
+
+    expect(() => frozenBools.changes, throws<RealmStateError>('Set is frozen and cannot emit changes'));
+  });
+
+  test('UnmanagedSet.freeze throws', () {
+    final set = TestRealmSets(1);
+
+    expect(() => set.boolSet.freeze(), throws<RealmStateError>("Unmanaged sets can't be frozen"));
+  });
+
+  test('RealmSet.changes - await for with yield ', () async {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = realm.write(() {
+      return realm.add(TestRealmSets(1, objectsSet: {
+        Car('Tesla'),
+      }));
+    }).objectsSet;
+
+    final wait = const Duration(seconds: 1);
+
+    Stream<bool> trueWaitFalse() async* {
+      yield true;
+      await Future<void>.delayed(wait);
+      yield false; // nothing has happened in the meantime
+    }
+
+    // ignore: prefer_function_declarations_over_variables
+    final awaitForWithYield = () async* {
+      await for (final c in cars.changes) {
+        yield c;
+      }
+    };
+
+    int count = 0;
+    await for (final c in awaitForWithYield().map((_) => trueWaitFalse()).switchLatest()) {
+      if (!c) break; // saw false after waiting
+      ++count; // saw true due to new event from changes
+      if (count > 1) fail('Should only receive one event');
+    }
+  });
+  
+  test('Query on RealmSet with IN-operator', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    final result = testSets.objectsSet.query(r'make IN $0', [
+      ['Tesla', 'Audi']
+    ]);
+    expect(result.length, 2);
+  });
+
+  test('Query on RealmSet allows null in arguments', () {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = [Car("Tesla", color: "black"), Car("Ford"), Car("Audi")];
+    final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
+
+    realm.write(() {
+      realm.add(testSets);
+    });
+    var result = testSets.objectsSet.query(r'color = $0', [null]);
+    expect(result.length, 2);
   });
 }

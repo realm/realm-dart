@@ -1011,6 +1011,19 @@ Future<void> main([List<String>? args]) async {
     expect(transaction.isOpen, true);
   });
 
+  test('Realm.beginWriteAsync from inside an existing write transaction', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final transaction = await realm.beginWriteAsync();
+    Future<void>.delayed(Duration(milliseconds: 10), () => transaction.commit());
+
+    final transaction1 = await realm.beginWriteAsync();
+    
+    await transaction1.commitAsync();
+
+    expect(transaction.isOpen, false);
+    expect(transaction1.isOpen, false);
+  });
+
   test('Realm.beginWriteAsync with sync commit persists changes', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final transaction = await realm.beginWriteAsync();
@@ -1332,11 +1345,14 @@ Future<void> main([List<String>? args]) async {
     final configuration = Configuration.flexibleSync(user, [Task.schema]);
 
     int transferredBytes = -1;
-
+    final completer = Completer<void>();
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
       transferredBytes = syncProgress.transferredBytes;
+      if (syncProgress.transferredBytes == syncProgress.transferableBytes) {
+        completer.complete();
+      }
     });
-
+    completer.future.timeout(Duration(milliseconds: 300), onTimeout: () => throw Exception("onProgressCallback did not happen."));
     expect(syncedRealm.isClosed, false);
     expect(transferredBytes, greaterThan(-1));
   });

@@ -19,6 +19,7 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -413,32 +414,26 @@ Future<void> main([List<String>? args]) async {
 
   final epochZero = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 
-  bool _canCoreRepresentDateInJson(DateTime date) {
-    // Core has a bug where negative and zero dates are not serialized correctly to json.
-    // https://jira.mongodb.org/browse/RCORE-1083
-    if (date.compareTo(epochZero) <= 0) {
-      return Platform.isMacOS || Platform.isIOS;
-    }
-
-    // Very large dates are also buggy on Android and Windows
-    if (date.compareTo(DateTime.utc(10000)) > 0) {
-      return Platform.isMacOS || Platform.isIOS || Platform.isLinux;
-    }
-
-    return true;
-  }
-
   void expectDateInJson(DateTime? date, String json, String propertyName) {
     if (date == null) {
       expect(json, contains('"$propertyName":null'));
-    } else if (_canCoreRepresentDateInJson(date)) {
-      expect(json, contains('"$propertyName":"${date.toNormalizedDateString()}"'));
+    } else {
+      expect(json, contains('"$propertyName":"${date.toCoreTimestampString()}"'));
     }
   }
 
   final dates = [
-    DateTime.utc(1970).add(Duration(days: 100000000)),
-    DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    // BUG: Realm represent timestamps as 64 bit seconds offset from epoch (1970)
+    // and a 32 bit nano-seconds component. Hence realm can represent offsets from
+    // epoch up to (1 << 63)s / 86400s/day = 9223372036854689408 days, yet realm-core
+    // cannot serialize:
+    //
+    //DateTime.utc(1970).add(Duration(days: 100000000)),
+    //DateTime.utc(1970).subtract(Duration(days: 99999999)),
+    //
+    // See https://github.com/realm/realm-core/issues/6892
+    DateTime.utc(1970).add(Duration(days: 999999)),
+    DateTime.utc(1970).subtract(Duration(days: 999999)),
     DateTime.utc(2020, 1, 1, 12, 34, 56, 789, 999),
     DateTime.utc(2022),
     DateTime.utc(1930, 1, 1, 12, 34, 56, 123, 456),
@@ -473,10 +468,7 @@ Future<void> main([List<String>? args]) async {
       final json = obj.toJson();
       for (var i = 0; i < list.length; i++) {
         final expectedDate = list.elementAt(i).toUtc();
-        if (_canCoreRepresentDateInJson(expectedDate)) {
-          expect(json, contains('"${expectedDate.toNormalizedDateString()}"'));
-        }
-
+        expect(json, contains('"${expectedDate.toCoreTimestampString()}"'));
         expect(obj.dates[i], equals(expectedDate));
       }
     });
@@ -552,7 +544,7 @@ Future<void> main([List<String>? args]) async {
     var uuid = Uuid.v4();
 
     final object = realm.write(() {
-      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten));
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten, binaryProp: Uint8List.fromList([1, 2]), nullableBinaryProp: null));
     });
 
     expect(object.stringProp, 'cde');
@@ -563,6 +555,8 @@ Future<void> main([List<String>? args]) async {
     expect(object.uuidProp, uuid);
     expect(object.intProp, 4);
     expect(object.decimalProp, Decimal128.ten);
+    expect(object.binaryProp, Uint8List.fromList([1, 2]));
+    expect(object.nullableBinaryProp, null);
 
     date = DateTime.now().add(Duration(days: 1)).toUtc();
     objectId = ObjectId();
@@ -576,6 +570,8 @@ Future<void> main([List<String>? args]) async {
       object.uuidProp = uuid;
       object.intProp = 5;
       object.decimalProp = Decimal128.one;
+      object.binaryProp = Uint8List.fromList([3, 4]);
+      object.nullableBinaryProp = Uint8List.fromList([5, 6]);
     });
 
     expect(object.stringProp, 'abc');
@@ -586,6 +582,8 @@ Future<void> main([List<String>? args]) async {
     expect(object.uuidProp, uuid);
     expect(object.intProp, 5);
     expect(object.decimalProp, Decimal128.one);
+    expect(object.binaryProp, Uint8List.fromList([3, 4]));
+    expect(object.nullableBinaryProp, Uint8List.fromList([5, 6]));
   });
 
   test('RealmObject.freeze when typed returns typed frozen object', () {

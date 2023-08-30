@@ -24,12 +24,19 @@ end
 
 # This works cause realm plugin is always accessed through the .symlinks directory.
 # For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/macos/Flutter/ephemeral/.symlinks/plugins/realm/macos
-#project_dir = File.expand_path("../../../../../../", realmPackageDir)
-#puts "project dir is #{project_dir}"
+project_dir = File.expand_path("../../../../../../", realmPackageDir)
+puts "project dir is #{project_dir}"
+app_dir = File.expand_path("../", project_dir)
+puts "app dir is #{app_dir}"
+contents = IO.read("#{app_dir}/pubspec.yaml")
+match = contents.match("name:[ \r\n\t]*([a-z0-9_]*)")
+bundleId = match[1]
+puts "bundleId is #{bundleId}"
+
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '1.0.3'
+  s.version                   = '1.4.0'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
@@ -42,18 +49,19 @@ Pod::Spec.new do |s|
   s.dependency                  'FlutterMacOS'
 
   s.platform                  = :osx, '10.11'
+  s.compiler_flags             = "-DBUNDLE_ID='\"#{bundleId}\"'"
   s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version             = '5.0'
   s.vendored_libraries        = "#{realmLibName}"
   s.prepare_command           = "touch #{realmPackageDir}/librealm_dart.dylib" #librealm_dart.dylib is needed before the build is started
   s.script_phases             = [
-                                  { :name => 'Download Realm Flutter iOS Binaries',
+                                  { :name => 'Download Realm Flutter macOS Binaries',
                                     #Use --debug to debug the install command
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type macos --flavor flutter',
+                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type macos --flavor flutter',
                                     :execution_position => :before_headers
                                   },
                                   { :name => 'Report Metrics',
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"',
+                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"',
                                     :execution_position => :before_compile
                                   }
                                 ]

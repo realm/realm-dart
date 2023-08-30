@@ -18,10 +18,10 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
@@ -117,6 +117,13 @@ class _Schedule {
 }
 
 @RealmModel()
+class _Foo {
+  late Uint8List requiredBinaryProp;
+  var defaultValueBinaryProp = Uint8List(8);
+  late Uint8List? nullableBinaryProp;
+}
+
+@RealmModel()
 class _AllTypes {
   late String stringProp;
   late bool boolProp;
@@ -126,6 +133,7 @@ class _AllTypes {
   late Uuid uuidProp;
   late int intProp;
   late Decimal128 decimalProp;
+  var binaryProp = Uint8List(16);
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;
@@ -135,6 +143,7 @@ class _AllTypes {
   late Uuid? nullableUuidProp;
   late int? nullableIntProp;
   late Decimal128? nullableDecimalProp;
+  late Uint8List? nullableBinaryProp;
 }
 
 @RealmModel()
@@ -338,7 +347,6 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
-final _appsToRestoreRecovery = Queue<String>();
 
 enum AppNames {
   flexible,
@@ -374,16 +382,15 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-Future<void>? baasSetup;
-
 Future<void> setupTests(List<String>? args) async {
   arguments = parseTestArguments(args);
   testName = arguments["name"];
-  setUpAll(() async => await (baasSetup ??= setupBaas()));
+
+  setUpAll(() async => await (_baasSetupResult ??= setupBaas()));
 
   setUp(() {
     Realm.logger = Logger.detached('test run')
-      ..level = Level.ALL
+      ..level = Level.INFO
       ..onRecord.listen((record) {
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
@@ -394,8 +401,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-      await enableAllAutomaticRecovery();
-
+      
       realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
@@ -480,6 +486,14 @@ RealmList<T> freezeList<T>(RealmList<T> list) {
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
+RealmSet<T> freezeSet<T>(RealmSet<T> set) {
+  final frozen = set.freeze();
+  _openRealms.add(frozen.realm);
+  return frozen;
+}
+
+/// This is needed to make sure the frozen Realm gets forcefully closed by the
+/// time the test ends.
 T freezeObject<T extends RealmObjectBase>(T object) {
   final frozen = object.freeze();
   _openRealms.add(frozen.realm);
@@ -494,13 +508,13 @@ dynamic freezeDynamic(dynamic object) {
   return frozen;
 }
 
+final dummy = File("");
 Future<void> tryDeleteRealm(String path) async {
   //Skip on CI to speed it up. We are creating the realms in $TEMP anyways.
   if (Platform.environment.containsKey("REALM_CI")) {
     return;
   }
 
-  final dummy = File("");
   const duration = Duration(milliseconds: 100);
   for (var i = 0; i < 5; i++) {
     try {
@@ -553,16 +567,20 @@ extension on Map<String, String?> {
   }
 }
 
-BaasClient? _baasClient;
-Object? _initializationError;
+BaasClient? baasClient;
+Future<Object>? _baasSetupResult;
 
-Future<void> setupBaas() async {
-  if (_initializationError != null) return;
+Future<Object> setupBaas() async {
+  if (_baasSetupResult != null) {
+    return _baasSetupResult!;
+  }
+
   try {
     final baasUrl = arguments[argBaasUrl];
     if (baasUrl == null) {
-      return;
+      return true;
     }
+
     final cluster = arguments[argBaasCluster];
     final apiKey = arguments[argBaasApiKey];
     final privateApiKey = arguments[argBaasPrivateApiKey];
@@ -574,12 +592,14 @@ Future<void> setupBaas() async {
         : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
 
     client.publicRSAKey = publicRSAKeyForJWTValidation;
+
     final apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
-    _baasClient = client;
+    baasClient = client;
+    return true;
   } catch (error) {
     print(error);
-    _initializationError = error;
+    return error;
   }
 }
 
@@ -590,11 +610,26 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  if (_initializationError != null) {
-    throw _initializationError!;
+  if (_baasSetupResult is Error) {
+    throw _baasSetupResult!;
   }
-  final uriVariable = arguments[argBaasUrl];
-  final url = uriVariable != null ? Uri.tryParse(uriVariable) : null;
+
+  final baasUri = arguments[argBaasUrl];
+  skip = shouldSkip(baasUri, skip);
+
+  test(name, () async {
+    try {
+      final config = await getAppConfig(appName: appName);
+      await testFunction(config);
+    } catch (error) {
+      printSplunkLogLink(appName, baasUri);
+      rethrow;
+    }
+  }, skip: skip);
+}
+
+dynamic shouldSkip(String? baasUri, dynamic skip) {
+  final url = baasUri != null ? Uri.tryParse(baasUri) : null;
 
   if (skip == null) {
     skip = url == null ? "BAAS URL not present" : false;
@@ -602,15 +637,7 @@ Future<void> baasTest(
     if (url == null) skip = "BAAS URL not present";
   }
 
-  test(name, () async {
-    try {
-      final config = await getAppConfig(appName: appName);
-      await testFunction(config);
-    } catch (error) {
-      printSplunkLogLink(appName, uriVariable);
-      rethrow;
-    }
-  }, skip: skip);
+  return skip;
 }
 
 Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
@@ -646,7 +673,7 @@ Future<User> getAnonymousUser(App app) {
 
 Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
   final baasApp = baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  final client = baasClient ?? (throw StateError("No BAAS client"));
   return await client.createApiKey(baasApp, name, enabled);
 }
 
@@ -709,18 +736,27 @@ extension RealmObjectTest on RealmObjectBase {
   String toJson() => realmCore.objectToString(this);
 }
 
+extension on int {
+  String pad(int width) => toString().padLeft(width, '0');
+}
+
 extension DateTimeTest on DateTime {
-  String toNormalizedDateString() {
+  String toCoreTimestampString() {
     final utc = toUtc();
-    // This is kind of silly, but Core serializes negative dates as -003-01-01 12:34:56
-    final utcYear = utc.year < 0 ? '-${utc.year.abs().toString().padLeft(3, '0')}' : utc.year.toString().padLeft(4, '0');
+    // Dart doesn't support nanoseconds, and core is not fully iso8601 compliant, hence this abomination
+    // final nanoseconds = utc.microsecondsSinceEpoch.remainder(1000000) * 1000; // remaining microseconds as nanoseconds
+    final nanoseconds = utc.microsecondsSinceEpoch % 1000000 * 1000; // remaining microseconds as nanoseconds
+    final iso8601 = utc.toIso8601String();
 
-    // For some reason Core always rounds up to the next second for negative dates, so we need to do the same
-    final seconds = utc.microsecondsSinceEpoch < 0 && utc.microsecondsSinceEpoch % 1000000 != 0 ? utc.second + 1 : utc.second;
-    return '$utcYear-${_format(utc.month)}-${_format(utc.day)} ${_format(utc.hour)}:${_format(utc.minute)}:${_format(seconds)}';
+    // use nanoseconds, and drop iso8601 utc Z at the end
+    return iso8601
+        .replaceFirst('T', ' ') //
+        .replaceRange(
+          iso8601.indexOf('.'),
+          null,
+          nanoseconds != 0 ? '.${nanoseconds.pad(9)}' : '',
+        );
   }
-
-  static String _format(int value) => value.toString().padLeft(2, '0');
 }
 
 void clearCachedApps() => realmCore.clearCachedApps();
@@ -740,28 +776,6 @@ Future<void> _printPlatformInfo() async {
   }
 
   print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
-}
-
-Future<void> disableAutomaticRecovery([String? appName]) async {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
-  appName ??= BaasClient.defaultAppName;
-  await client.setAutomaticRecoveryEnabled(appName, false);
-  _appsToRestoreRecovery.add(appName);
-}
-
-Future<void> enableAllAutomaticRecovery() async {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
-  while (_appsToRestoreRecovery.isNotEmpty) {
-    final appName = _appsToRestoreRecovery.removeFirst();
-    await client.setAutomaticRecoveryEnabled(appName, true);
-  }
-}
-
-String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
-  final app = baasApps[appName.name] ??
-      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-  return "db_${app.uniqueName}";
 }
 
 extension StreamEx<T> on Stream<Stream<T>> {
@@ -791,4 +805,12 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
   final splunk = Uri.encodeFull(
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
   print("Splunk logs: $splunk");
+}
+
+
+String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
+  final client = _baasClient ?? (throw StateError("No BAAS client"));
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  return "db_${app.uniqueName}";
 }

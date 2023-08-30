@@ -62,6 +62,8 @@ void main(List<String> arguments) async {
   await Future<void>.delayed(Duration(milliseconds: 1));
 
   realm.close();
-
+  
+  //This is only needed in Dart apps as a workaround for https://github.com/dart-lang/sdk/issues/49083
+  Realm.shutdown();
   print("Done");
 }

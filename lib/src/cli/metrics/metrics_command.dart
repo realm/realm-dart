@@ -32,10 +32,9 @@ import 'options.dart';
 import '../common/utils.dart';
 
 // stamped into the library by the build system (see prepare-release.yml)
-const realmCoreVersion = '0.0.0';
+const realmCoreVersion = '13.17.2';
 
 class MetricsCommand extends Command<void> {
-  
   @override
   final String description = 'Report anonymized builder metrics to Realm';
 
@@ -57,12 +56,24 @@ class MetricsCommand extends Command<void> {
 
 Future<void> uploadMetrics(Options options) async {
   final pubspecPath = options.pubspecPath;
-  final pubspec = Pubspec.parse(await File(pubspecPath).readAsString());
+  final pubspecFile = File(pubspecPath);
+
+  if (!pubspecFile.existsSync()) {
+    // Curently the pubspec file is a hard requirement for metrics to work. Skip metrics run if the file does not exists at the expected location.
+    // TODO: remove the pubspec file hard requirement and allow metrics to run with the neededdata gathered by other means.
+    // https://jira.mongodb.org/browse/RDART-815
+    return;
+  }
+
+  final pubspec = Pubspec.parse(await pubspecFile.readAsString());
 
   hierarchicalLoggingEnabled = true;
   log.level = options.verbose ? Level.INFO : Level.WARNING;
 
-  var skipUpload = (isRealmCI || Platform.environment['CI'] != null || Platform.environment['REALM_DISABLE_ANALYTICS'] != null) &&
+  var skipUpload = (isRealmCI ||
+          Platform.environment['CI'] != null ||
+          Platform.environment['REALM_DISABLE_ANALYTICS'] != null ||
+          Directory.current.absolute.path.contains("realm-dart")) &&
       Platform.environment['REALM_DEBUG_ANALYTICS'] == null;
   if (skipUpload) {
     // skip early and don't do any work
@@ -95,23 +106,22 @@ Future<void> uploadMetrics(Options options) async {
   final realmVersion = realmDep is HostedDependency ? '${realmDep.version}' : '?';
 
   final metrics = await generateMetrics(
-    distinctId: distinctId,
-    builderId: builderId,
-    targetOsType: options.targetOsType,
-    targetOsVersion: options.targetOsVersion,
-    anonymizedMacAddress: distinctId,
-    anonymizedBundleId: pubspec.name.strongHash(),
-    framework: frameworkName ?? "Unknown",
-    frameworkVersion: flutterInfo != null
-        ? [
-            '${flutterInfo.frameworkVersion}',
-            if (flutterInfo.channel != null) '(${flutterInfo.channel})', // to mimic Platform.version
-            if (flutterInfo.frameworkCommitDate != null) '(${flutterInfo.frameworkCommitDate})', // -"-
-          ].join(' ')
-        : Platform.version,
-    realmVersion: realmVersion,
-    realmCoreVersion: realmCoreVersion
-  );
+      distinctId: distinctId,
+      builderId: builderId,
+      targetOsType: options.targetOsType,
+      targetOsVersion: options.targetOsVersion,
+      anonymizedMacAddress: distinctId,
+      anonymizedBundleId: pubspec.name.strongHash(),
+      framework: frameworkName ?? "Unknown",
+      frameworkVersion: flutterInfo != null
+          ? [
+              '${flutterInfo.frameworkVersion}',
+              if (flutterInfo.channel != null) '(${flutterInfo.channel})', // to mimic Platform.version
+              if (flutterInfo.frameworkCommitDate != null) '(${flutterInfo.frameworkCommitDate})', // -"-
+            ].join(' ')
+          : Platform.version,
+      realmVersion: realmVersion,
+      realmCoreVersion: realmCoreVersion);
 
   const encoder = JsonEncoder.withIndent('  ');
   final payload = encoder.convert(metrics.toJson());
@@ -217,7 +227,7 @@ Future<Digest> generateBuilderId() async {
       final regex = RegExp(macOSMachineIdRegEx, dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract IOPlatformUUID
     } else if (Platform.isWindows) {
-      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([[:alnum:]-]+)', dotAll: true);
+      final regex = RegExp(r'\s*MachineGuid\s*\w*\s*([A-Za-z0-9-]+)', dotAll: true);
       return regex.firstMatch(machineId)?.group(1); // extract MachineGuid
     }
   }, message: 'failed to get machine id');

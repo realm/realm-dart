@@ -27,7 +27,7 @@ class RealmFieldInfo {
   final FieldElement fieldElement;
   final String? mapTo;
   final bool isPrimaryKey;
-  final bool indexed;
+  final RealmIndexType? indexType;
   final RealmPropertyType realmType;
   final String? linkOriginProperty;
 
@@ -35,7 +35,7 @@ class RealmFieldInfo {
     required this.fieldElement,
     required this.mapTo,
     required this.isPrimaryKey,
-    required this.indexed,
+    this.indexType,
     required this.realmType,
     required this.linkOriginProperty,
   });
@@ -80,7 +80,13 @@ class RealmFieldInfo {
   Iterable<String> toCode() sync* {
     final getTypeName = type.isRealmCollection ? basicMappedTypeName : basicNonNullableMappedTypeName;
     yield '@override';
-    yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;";
+    if (isRealmBacklink) {
+      yield "$mappedTypeName get $name {";
+      yield "if (!isManaged) { throw RealmError('Using backlinks is only possible for managed objects.'); }";
+      yield "return RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;}";
+    } else {
+      yield "$mappedTypeName get $name => RealmObjectBase.get<$getTypeName>(this, '$realmName') as $mappedTypeName;";
+    }
     bool generateSetter = !isFinal && !isRealmCollection && !isRealmBacklink;
     if (generateSetter) {
       yield '@override';
