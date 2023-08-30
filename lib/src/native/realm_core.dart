@@ -2999,7 +2999,15 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
     realm_query_arg.ref.arg = allocator<realm_value_t>();
     realm_query_arg.ref.nb_args = 1;
     realm_query_arg.ref.is_list = false;
-    _intoRealmValue(value, realm_query_arg.ref.arg.ref, allocator);
+    _intoRealmValueHack(value, realm_query_arg.ref.arg.ref, allocator);
+  }
+}
+
+void _intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
+  if (value is GeoShape) {
+    _intoRealmValue(value.toString(), realm_value, allocator);
+  } else {
+    _intoRealmValue(value, realm_value, allocator);
   }
 }
 

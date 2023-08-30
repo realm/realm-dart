@@ -170,8 +170,7 @@ Future<void> main([List<String>? args]) async {
     test('geo within $shape', () {
       final results = realm.query<Restaurant>('location geoWithin $shape');
       expect(results, unorderedEquals(restaurants));
-      // TODO: This is temporary until C-API support GeoShapes
-      expect(() => realm.query<Restaurant>('location geoWithin \$0', [shape]), throws<RealmException>('Property type'));
+      expect(results, realm.query<Restaurant>('location geoWithin \$0', [shape]));
     });
   }
 
@@ -329,5 +328,8 @@ Future<void> main([List<String>? args]) async {
     expect(1.meters, GeoDistance.fromMeters(1));
     expect(1.kilometers, GeoDistance.fromKilometers(1));
     expect(1.miles, GeoDistance.fromMiles(1));
+
+    expect(1000.meters, 1.kilometers);
+    expect(1609.344.meters, 1.miles);
   });
 }
