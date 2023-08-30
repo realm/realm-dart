@@ -809,7 +809,6 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
 
 
 String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
-  final client = _baasClient ?? (throw StateError("No BAAS client"));
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
   return "db_${app.uniqueName}";
