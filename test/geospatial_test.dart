@@ -212,8 +212,8 @@ Future<void> main([List<String>? args]) async {
   test('GeoPolygon invalid args throws', () {
     expect(() => GeoPolygon(ring([(1, 1)])), throws<ArgumentError>('Ring must have at least 3 different'));
     expect(() => GeoPolygon(ring([(1, 1), (2, 2)])), throws<ArgumentError>('Ring must have at least 3 different'));
-    expect(() => GeoPolygon(ring([(1, 1), (2, 2), (3, 3)], close: false)), throws<ArgumentError>('first != last'));
-    expect(() => GeoPolygon(ring([(1, 1), (2, 2), (3, 3), (4, 4)], close: false)), throws<ArgumentError>('first != last'));
+    expect(() => GeoPolygon(ring([(1, 1), (2, 2), (3, 3)], close: false)), throws<ArgumentError>('Vertices must form a ring (first != last)'));
+    expect(() => GeoPolygon(ring([(1, 1), (2, 2), (3, 3), (4, 4)], close: false)), throws<ArgumentError>('Vertices must form a ring (first != last)'));
   });
 
   test('GeoPoint.operator==', () {

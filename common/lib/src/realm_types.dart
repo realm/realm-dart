@@ -333,7 +333,7 @@ typedef GeoRing = List<GeoPoint>;
 
 extension on GeoRing {
   void validate() {
-    if (first != last) throw ArgumentError('Vertices must for a ring (first != last)');
+    if (first != last) throw ArgumentError('Vertices must form a ring (first != last)');
     if (length < 4) throw ArgumentError('Ring must have at least 3 different vertices');
   }
 }
