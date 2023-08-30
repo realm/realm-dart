@@ -241,11 +241,20 @@ sealed class GeoShape {}
 /// @RealmModel(ObjectType.embeddedObject)
 /// class _Location {
 ///   final String type = 'Point';
-///   List<double> coordinates = const [0, 0];
+///   final List<double> coordinates = const [0, 0];
+///
+///   // The rest of the class is just convenience methods
+///   double get lon => coordinates[0];
+///   set lon(double value) => coordinates[0] = value;
+///
+///   double get lat => coordinates[1];
+///   set lat(double value) => coordinates[1] = value;
+///
+///   GeoPoint toGeoPoint() => GeoPoint(lon: lon, lat: lat);
 /// }
-///
+/// ```
 /// You can then use it as a property on a realm object:
-///
+/// ```dart
 /// @RealmModel()
 /// class _Restaurant {
 ///   @PrimaryKey()
@@ -253,16 +262,32 @@ sealed class GeoShape {}
 ///   _Location? location;
 /// }
 /// ```
-
+/// For convenience add an extension method on [GeoPoint]:
+/// ```dart
+/// extension on GeoPoint {
+///   Location toLocation() {
+///     return Location(coordinates: [lon, lat]);
+///   }
+/// }
+/// ```
+/// to easily convert between [GeoPoint]s and `Location`s.
+///
+/// The following may also be useful:
+/// ```dart
+/// extension on (num, num) {
+///   GeoPoint toGeoPoint() => GeoPoint(lon: $1.toDouble(), lat: $2.toDouble());
+///   Location toLocation() => toGeoPoint().toLocation();
+/// }
+/// ```
 class GeoPoint implements GeoShape {
-  final double lat;
   final double lon;
+  final double lat;
 
-  /// Create a point from a [lat]itude and a [lon]gitude.
-  /// [lat] must be between -90 and 90, and [lon] must be between -180 and 180.
-  GeoPoint(this.lat, this.lon) {
+  /// Create a point from a [lon]gitude and [lat]gitude.
+  /// [lon] must be between -180 and 180, and [lat] must be between -90 and 90.
+  GeoPoint({required this.lon, required this.lat}) {
+    if (lon < -180 || lon > 180) throw ArgumentError.value(lon, 'lon', 'must be between -180 and 180');
     if (lat < -90 || lat > 90) throw ArgumentError.value(lat, 'lat', 'must be between -90 and 90');
-    if (lon < -180 || lon > 180) throw ArgumentError.value(lon, 'lng', 'must be between -180 and 180');
   }
 
   @override
@@ -273,7 +298,7 @@ class GeoPoint implements GeoShape {
   }
 
   @override
-  int get hashCode => Object.hash(lat, lon);
+  int get hashCode => Object.hash(lon, lat);
 
   @override
   String toString() => '[$lon, $lat]';

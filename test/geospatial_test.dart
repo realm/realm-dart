@@ -30,13 +30,15 @@ part 'geospatial_test.g.dart';
 @RealmModel(ObjectType.embeddedObject)
 class _Location {
   final String type = 'Point';
-  List<double> coordinates = const [0, 0];
+  final List<double> coordinates = const [0, 0];
 
-  double get longitude => coordinates[0];
-  set longitude(double value) => coordinates[0] = value;
+  double get lon => coordinates[0];
+  set lon(double value) => coordinates[0] = value;
 
-  double get latitude => coordinates[1];
-  set latitude(double value) => coordinates[1] = value;
+  double get lat => coordinates[1];
+  set lat(double value) => coordinates[1] = value;
+
+  GeoPoint toGeoPoint() => GeoPoint(lon: lon, lat: lat);
 }
 
 @RealmModel()
@@ -61,61 +63,50 @@ extension on GeoPoint {
   }
 }
 
-extension on Location {
-  GeoPoint toGeoPoint() {
-    return GeoPoint(coordinates[1], coordinates[0]);
-  }
-}
-
-extension on num {
-  GeoDistance get m => meters;
-  GeoDistance get km => kilometers;
-}
-
 extension on (num, num) {
-  GeoPoint toGeoPoint({bool reverse = false}) => reverse ? GeoPoint($2.toDouble(), $1.toDouble()) : GeoPoint($1.toDouble(), $2.toDouble());
+  (num, num) get r => ($2, $1);
+  GeoPoint toGeoPoint() => GeoPoint(lon: $1.toDouble(), lat: $2.toDouble());
   Location toLocation() => toGeoPoint().toLocation();
 }
 
-GeoRing ring(Iterable<(num, num)> coords, {bool close = true, bool reverse = false}) =>
-    GeoRing.from(coords.followedBy(close ? [coords.first] : []).map((c) => c.toGeoPoint(reverse: reverse)));
+GeoRing ring(Iterable<(num, num)> coords, {bool close = true}) => GeoRing.from(coords.followedBy(close ? [coords.first] : []).map((c) => c.toGeoPoint()));
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  final noma = Restaurant('Noma', location: (55.682837071136916, 12.610534422524335).toLocation());
-  final theFatDuck = Restaurant('The Fat Duck', location: (51.508054146883474, -0.7017480029998424).toLocation());
-  final mugaritz = Restaurant('Mugaritz', location: (43.27291163851115, -1.9169972753911122).toLocation());
+  final noma = Restaurant('Noma', location: (12.610534422524335, 55.682837071136916).toLocation());
+  final theFatDuck = Restaurant('The Fat Duck', location: (-0.7017480029998424, 51.508054146883474).toLocation());
+  final mugaritz = Restaurant('Mugaritz', location: (-1.9169972753911122, 43.27291163851115).toLocation());
 
   final realm = Realm(Configuration.inMemory([Location.schema, Restaurant.schema]));
   realm.write(() => realm.addAll([noma, theFatDuck, mugaritz]));
 
   final ringAroundNoma = ring([
-    (55.7, 12.7),
-    (55.7, 12.6),
-    (55.6, 12.6),
+    (12.7, 55.7),
+    (12.6, 55.7),
+    (12.6, 55.6),
   ]);
   final ringAroundTheFatDuck = ring([
-    (51.6, -0.7),
-    (51.5, -0.7),
-    (51.5, -0.8),
+    (-0.7, 51.6),
+    (-0.7, 51.5),
+    (-0.8, 51.5),
   ]);
   final ringAroundMugaritz = ring([
-    (43.3, -2.0),
-    (43.3, -1.9),
-    (43.2, -1.9),
+    (-2.0, 43.3),
+    (-1.9, 43.3),
+    (-1.9, 43.2),
   ]);
   // https://earth.google.com/earth/d/1yxJunwmJ8bOHVveoJZ_ProcCVO_VqYaz?usp=sharing
   final ringAroundAll = ring([
-    (56.65398894416146, 14.28516468673617),
-    (56.27411809280813, 6.939337946654436),
-    (52.42582816187998, -1.988816029211967),
-    (49.09018453730319, -6.148020252081531),
-    (42.92138665921894, -6.397402529198644),
-    (41.49883413234565, -1.91041351386849),
-    (48.58429125105875, 1.196195056765141),
-    (52.7379048959241, 7.132994722232744),
-    (54.51275033599874, 11.0454979022267),
+    (14.28516468673617, 56.65398894416146),
+    (6.939337946654436, 56.27411809280813),
+    (-1.988816029211967, 52.42582816187998),
+    (-6.148020252081531, 49.09018453730319),
+    (-6.397402529198644, 42.92138665921894),
+    (-1.91041351386849, 41.49883413234565),
+    (1.196195056765141, 48.58429125105875),
+    (7.132994722232744, 52.7379048959241),
+    (11.0454979022267, 54.51275033599874),
   ]);
 
   for (final (shape, restaurants) in [
@@ -124,11 +115,11 @@ Future<void> main([List<String>? args]) async {
     (GeoCircle(mugaritz.location!.toGeoPoint(), 10.meters), [mugaritz]),
     (GeoCircle(noma.location!.toGeoPoint(), 1000.kilometers), [noma, theFatDuck]),
     (GeoCircle(noma.location!.toGeoPoint(), 3000.miles), [noma, theFatDuck, mugaritz]),
-    (GeoBox((55.6, 12.6).toGeoPoint(), (55.7, 12.7).toGeoPoint()), [noma]),
-    (GeoBox((51.5, -0.8).toGeoPoint(), (51.6, -0.7).toGeoPoint()), [theFatDuck]),
-    (GeoBox((43.2, -2.0).toGeoPoint(), (43.3, -1.9).toGeoPoint()), [mugaritz]),
-    (GeoBox((51.5, -0.8).toGeoPoint(), (55.7, 12.7).toGeoPoint()), [noma, theFatDuck]),
-    (GeoBox((43.2, -2.0).toGeoPoint(), (55.7, 12.7).toGeoPoint()), [noma, theFatDuck, mugaritz]),
+    (GeoBox((12.6, 55.6).toGeoPoint(), (12.7, 55.7).toGeoPoint()), [noma]),
+    (GeoBox((-0.8, 51.5).toGeoPoint(), (-0.7, 51.6).toGeoPoint()), [theFatDuck]),
+    (GeoBox((-2.0, 43.2).toGeoPoint(), (-1.9, 43.3).toGeoPoint()), [mugaritz]),
+    (GeoBox((-0.8, 51.5).toGeoPoint(), (12.7, 55.7).toGeoPoint()), [noma, theFatDuck]),
+    (GeoBox((-2.0, 43.2).toGeoPoint(), (12.7, 55.7).toGeoPoint()), [noma, theFatDuck, mugaritz]),
     (GeoPolygon(ringAroundNoma), [noma]),
     (GeoPolygon(ringAroundTheFatDuck), [theFatDuck]),
     (GeoPolygon(ringAroundMugaritz), [mugaritz]),
@@ -175,11 +166,11 @@ Future<void> main([List<String>? args]) async {
   }
 
   test('GeoPoint', () {
-    final p = GeoPoint(42, 12);
+    final p = (12, 42).toGeoPoint();
     final l = p.toLocation();
 
-    expect(p.lat, l.latitude);
-    expect(p.lon, l.longitude);
+    expect(p.lat, l.lat);
+    expect(p.lon, l.lon);
     expect(l.coordinates, [p.lon, p.lat]);
   });
 
@@ -188,29 +179,29 @@ Future<void> main([List<String>? args]) async {
       (0.0, 0.0),
       (double.minPositive, 0),
     ];
-    for (final (lat, lng) in validPoints) {
-      final p = GeoPoint(lat, lng);
+    for (final (lat, lon) in validPoints) {
+      final p = (lon, lat).toGeoPoint();
       expect(p.lat, lat);
-      expect(p.lon, lng);
+      expect(p.lon, lon);
     }
   });
 
   test('GeoPoint invalid args throws', () {
     const latError = 'lat';
-    const lngError = 'lng';
+    const lonError = 'lon';
     final validPoints = <(double, double, String)>[
       (-90.1, 0, latError),
       (double.negativeInfinity, 0, latError),
       (90.1, 0, latError),
       (double.infinity, 0, latError),
       // lng violations
-      (0, -180.1, lngError),
-      (0, double.negativeInfinity, lngError),
-      (0, 180.1, lngError),
-      (0, double.infinity, lngError),
+      (0, -180.1, lonError),
+      (0, double.negativeInfinity, lonError),
+      (0, 180.1, lonError),
+      (0, double.infinity, lonError),
     ];
-    for (final (lat, lng, error) in validPoints) {
-      expect(() => GeoPoint(lat, lng), throwsA(isA<ArgumentError>().having((e) => e.name, 'name', contains(error))));
+    for (final (lat, lon, error) in validPoints) {
+      expect(() => GeoPoint(lat: lat, lon: lon), throwsA(isA<ArgumentError>().having((e) => e.name, 'name', contains(error))));
     }
   });
 
@@ -226,70 +217,70 @@ Future<void> main([List<String>? args]) async {
   });
 
   test('GeoPoint.operator==', () {
-    final p = GeoPoint(1, 1);
+    final p = GeoPoint(lon: 1, lat: 1);
     expect(p, equals(p));
     expect(p, equals((p as Object))); // ignore: unnecessary_cast
-    expect(p, equals(GeoPoint(1, 1)));
-    expect(p, isNot(equals(GeoPoint(1, 2))));
+    expect(p, equals(GeoPoint(lon: 1, lat: 1)));
+    expect(p, isNot(equals(GeoPoint(lon: 1, lat: 2))));
     expect(p, isNot(equals(Object())));
   });
 
   test('GeoPoint.hashCode', () {
-    final p = GeoPoint(1, 1);
+    final p = GeoPoint(lon: 1, lat: 1);
     expect(p.hashCode, p.hashCode); // stable
-    expect(p.hashCode, equals(GeoPoint(1, 1).hashCode));
-    expect(p.hashCode, isNot(equals(GeoPoint(1, 2).hashCode)));
+    expect(p.hashCode, equals(GeoPoint(lon: 1, lat: 1).hashCode));
+    expect(p.hashCode, isNot(equals(GeoPoint(lon: 1, lat: 2).hashCode)));
   });
 
   test('GeoPoint.toString', () {
-    final p = GeoPoint(1, 1);
+    final p = GeoPoint(lon: 1, lat: 1);
     expect(p.toString(), '[1.0, 1.0]'); // we don't use WKT for some reason
   });
 
   test('GeoBox.operator==', () {
-    final b = GeoBox(GeoPoint(1, 1), GeoPoint(2, 2));
+    final b = GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 2));
     expect(b, equals(b));
     expect(b, equals((b as Object))); // ignore: unnecessary_cast
-    expect(b, equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 2))));
-    expect(b, isNot(equals(GeoBox(GeoPoint(1, 2), GeoPoint(2, 2)))));
-    expect(b, isNot(equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 3)))));
+    expect(b, equals(GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 2))));
+    expect(b, isNot(equals(GeoBox(GeoPoint(lon: 1, lat: 2), GeoPoint(lon: 2, lat: 2)))));
+    expect(b, isNot(equals(GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 3)))));
     expect(b, isNot(equals(Object())));
   });
 
   test('GeoBox.hashCode', () {
-    final b = GeoBox(GeoPoint(1, 1), GeoPoint(2, 2));
+    final b = GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 2));
     expect(b.hashCode, b.hashCode); // stable
-    expect(b.hashCode, equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 2)).hashCode));
-    expect(b.hashCode, isNot(equals(GeoBox(GeoPoint(1, 2), GeoPoint(2, 2))).hashCode));
-    expect(b.hashCode, isNot(equals(GeoBox(GeoPoint(1, 1), GeoPoint(2, 3))).hashCode));
+    expect(b.hashCode, equals(GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 2)).hashCode));
+    expect(b.hashCode, isNot(equals(GeoBox(GeoPoint(lon: 1, lat: 2), GeoPoint(lon: 2, lat: 2))).hashCode));
+    expect(b.hashCode, isNot(equals(GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 3))).hashCode));
   });
 
   test('GeoBox.toString', () {
-    final b = GeoBox(GeoPoint(1, 1), GeoPoint(2, 2));
+    final b = GeoBox(GeoPoint(lon: 1, lat: 1), GeoPoint(lon: 2, lat: 2));
     expect(b.toString(), 'geoBox([1.0, 1.0], [2.0, 2.0])'); // we don't use WKT for some reason
   });
 
   test('GeoCircle.operator==', () {
-    final c = GeoCircle(GeoPoint(1, 1), 1.m);
+    final c = GeoCircle(GeoPoint(lon: 1, lat: 1), 1.meters);
     expect(c, equals(c));
     expect(c, equals((c as Object))); // ignore: unnecessary_cast
-    expect(c, equals(GeoCircle(GeoPoint(1, 1), 1.m)));
-    expect(c, isNot(equals(GeoCircle(GeoPoint(1, 2), 1.m))));
-    expect(c, isNot(equals(GeoCircle(GeoPoint(1, 1), 2.m))));
+    expect(c, equals(GeoCircle(GeoPoint(lon: 1, lat: 1), 1.meters)));
+    expect(c, isNot(equals(GeoCircle(GeoPoint(lon: 1, lat: 2), 1.meters))));
+    expect(c, isNot(equals(GeoCircle(GeoPoint(lon: 1, lat: 1), 2.meters))));
     expect(c, isNot(equals(Object())));
   });
 
   test('GeoCircle.hashCode', () {
-    final c = GeoCircle(GeoPoint(1, 1), 1.m);
+    final c = GeoCircle(GeoPoint(lon: 1, lat: 1), 1.meters);
     expect(c.hashCode, c.hashCode); // stable
-    expect(c.hashCode, equals(GeoCircle(GeoPoint(1, 1), 1.m).hashCode));
-    expect(c.hashCode, isNot(equals(GeoCircle(GeoPoint(1, 2), 1.m).hashCode)));
-    expect(c.hashCode, isNot(equals(GeoCircle(GeoPoint(1, 1), 2.m).hashCode)));
+    expect(c.hashCode, equals(GeoCircle(GeoPoint(lon: 1, lat: 1), 1.meters).hashCode));
+    expect(c.hashCode, isNot(equals(GeoCircle(GeoPoint(lon: 1, lat: 2), 1.meters).hashCode)));
+    expect(c.hashCode, isNot(equals(GeoCircle(GeoPoint(lon: 1, lat: 1), 2.meters).hashCode)));
   });
 
   test('GeoCircle.toString', () {
-    final c = GeoCircle(GeoPoint(1, 1), 1.m);
-    expect(c.toString(), 'geoCircle([1.0, 1.0], ${1.m.radians})'); // we don't use WKT for some reason
+    final c = GeoCircle(GeoPoint(lon: 1, lat: 1), 1.meters);
+    expect(c.toString(), 'geoCircle([1.0, 1.0], ${1.meters.radians})'); // we don't use WKT for some reason
   });
 
   test('GeoPolygon.operator==', () {
