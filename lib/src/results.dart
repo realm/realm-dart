@@ -216,18 +216,16 @@ class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
         _index = -1;
 
   @override
-  T get current => _current as T;
+  T get current => _current ??= _results[_index];
 
   @override
   bool moveNext() {
     int length = _results.length;
+    _current = null;
     _index++;
     if (_index >= length) {
-      _current = null;
       return false;
     }
-    _current = _results[_index];
-
     return true;
   }
 }
