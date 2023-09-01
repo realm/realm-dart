@@ -939,4 +939,33 @@ Future<void> main([List<String>? args]) async {
       );
     }
   });
+
+  test('_RealmResultsIterator', () {
+    // behavior of normal iterator
+    final list = [1];
+    final it = list.iterator;
+    // you are not supposed to call current before first moveNext
+    expect(() => it.current, throwsA(isA<TypeError>()));
+    expect(it.moveNext(), isTrue);
+    expect(it.moveNext(), isFalse);
+    // you are not supposed to call current, if moveNext return false
+    expect(() => it.current, throwsA(isA<TypeError>()));
+
+    // behavior of _RealmResultsIterator
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    realm.write(() {
+      realm.add(Task(ObjectId()));
+    });
+    final results = realm.all<Task>();
+    expect(results.length, 1);
+    final rit = results.iterator;
+
+    // you are not supposed to call current before first moveNext
+    expect(() => rit.current, throwsA(isA<RealmException>()));
+    expect(rit.moveNext(), isTrue);
+    expect(rit.moveNext(), isFalse);
+    // you are not supposed to call current, if moveNext return false
+    expect(() => rit.current, throwsA(isA<RealmException>()));
+  });
 }
