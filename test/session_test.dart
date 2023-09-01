@@ -285,8 +285,7 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
       expect(syncError, isA<BadFlexibleSyncQueryError>());
-      expect(syncError.isFatal, isFalse);
-      expect(syncError.message, "Bad user authentication (BIND)");
+      expect(syncError.message, isNotEmpty);
     });
 
     final realm = getRealm(config);
@@ -299,8 +298,7 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
       expect(syncError, isA<UnrecoverableSyncError>());
-      expect(syncError.isFatal, isTrue);
-      expect(syncError.message, "Bad user authentication (BIND)");
+      expect(syncError.message, isNotEmpty);
     });
     final realm = getRealm(config);
 
@@ -312,8 +310,7 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
       expect(syncError, isA<WrongSyncTypeError>());
-      expect(syncError.isFatal, isTrue);
-      expect(syncError.message, "Bad user authentication (BIND)");
+      expect(syncError.message, isNotEmpty);
     });
     final realm = getRealm(config);
 

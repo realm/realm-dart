@@ -458,7 +458,7 @@ Future<void> main([List<String>? args]) async {
     expect(onBeforeResetOccurred, 1);
 
     expect(clientResetErrorOnManualFallback.message, isNotEmpty);
-);
+  });
 
   // 1. userA adds [task0, task1, task2] and syncs it, then disconnects
   // 2. userB starts and downloads the same tasks, then disconnects
@@ -553,7 +553,6 @@ Future<void> main([List<String>? args]) async {
     await triggerClientReset(realm);
     await resetCompleter.future.wait(defaultWaitTimeout, "ClientResetError is not reported.");
 
-    expect(clientResetError.isFatal, isTrue);
     expect(clientResetError.message, isNotEmpty);
     expect(clientResetError.backupFilePath, isNotEmpty);
   });

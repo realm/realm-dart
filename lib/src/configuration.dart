@@ -634,7 +634,7 @@ class ClientResetError extends SyncError {
 
   @override
   String toString() {
-    return "ClientResetError message: $message isFatal: $isFatal";
+    return "ClientResetError message: $message";
   }
 
   /// Initiates the client reset process.
