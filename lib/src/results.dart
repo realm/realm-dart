@@ -59,6 +59,25 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
     }
   }
 
+  @pragma('vm:prefer-inline')
+  int _indexOf(T element, int start, String methodName) {
+    if (element is RealmObjectBase && !element.isManaged) {
+      throw RealmStateError('Cannot call $methodName on a results with an element that is an unmanaged object');
+    }
+    if (start < 0) start = 0;
+    start += _skipOffset;
+    final index = realmCore.resultsFind(this, element);
+    return index < start ? -1 : index; // to align with dart list semantics
+  }
+
+  /// Returns the `index` of the first occurrence of the specified [element] in this collection,
+  /// or `-1` if the collection does not contain the element.
+  int indexOf(covariant T element, [int start = 0]) => _indexOf(element, start, 'indexOf');
+
+  /// `true` if the `Results` collection contains the specified [element].
+  @override
+  bool contains(covariant T element) => _indexOf(element, 0, 'contains') >= 0;
+
   /// `true` if the `Results` collection is empty.
   @override
   bool get isEmpty => length == 0;

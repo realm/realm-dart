@@ -2,6 +2,7 @@
 
 ### Enhancements
 * Support efficient `skip` on `RealmResults` ([#1391](https://github.com/realm/realm-dart/pull/1391))
+* Support efficient `indexOf` and `contains` on `RealmResults` ([#1394](https://github.com/realm/realm-dart/pull/1394))
 * Added new flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added named parameter to `MutableSubscriptionSet.clear({bool unnamedOnly = false})` for removing all the unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
 * Added `cancellationToken` parameter to `Session.waitForDownload()`, `Session.waitForUpload()` and `SubscriptionSet.waitForSynchronization()`. ([#1354](https://github.com/realm/realm-dart/pull/1354))
 
