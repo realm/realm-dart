@@ -602,6 +602,10 @@ enum ClientResyncModeInternal {
 class ClientResetError extends SyncError {
   final App? _app;
 
+  /// If true the received error is fatal.
+  @Deprecated("ClientResetError is always fatal")
+  final bool isFatal = true;
+
   /// The path to the original copy of the realm when the client reset was triggered.
   /// This realm may contain unsynced changes.
   final String? originalFilePath;
@@ -656,9 +660,6 @@ class SyncError extends RealmError {
   @Deprecated("Errors of SyncError subclasses will be created base on the error code. Error codes won't be returned anymore.")
   final int codeValue = 9999;
 
-  /// If true the received error is fatal.
-  final bool isFatal = false;
-
   /// Detailed error message.
   /// In case of server error, it contains the link to the server log.
   @Deprecated("Detailed message is empty. Use `message` property.")
@@ -668,7 +669,7 @@ class SyncError extends RealmError {
   @Deprecated("Sync error categories won't be returned anymore.")
   final SyncErrorCategory category = SyncErrorCategory.system;
 
-  SyncError._(String message, {bool isFatal = false}) : super(message);
+  SyncError._(String message) : super(message);
 
   /// As a specific [SyncError] type.
   T as<T extends SyncError>() => this as T;
@@ -849,7 +850,7 @@ final class CompensatingWriteError extends SyncError {
 ///
 /// {@category Sync}
 final class BadFlexibleSyncQueryError extends SyncError {
-  BadFlexibleSyncQueryError._(String message, {bool isFatal = false}) : super._(message, isFatal: isFatal);
+  BadFlexibleSyncQueryError._(String message) : super._(message);
 }
 
 /// Represents an error returned as an argument of [FlexibleSyncConfiguration.syncErrorHandler]
@@ -857,7 +858,7 @@ final class BadFlexibleSyncQueryError extends SyncError {
 ///
 /// {@category Sync}
 final class WrongSyncTypeError extends SyncError {
-  WrongSyncTypeError._(String message) : super._(message, isFatal: true);
+  WrongSyncTypeError._(String message) : super._(message);
 }
 
 /// Represents an error returned as an argument of [FlexibleSyncConfiguration.syncErrorHandler]
@@ -874,7 +875,7 @@ final class WrongSyncTypeError extends SyncError {
 ///
 /// {@category Sync}
 final class UnrecoverableSyncError extends SyncError {
-  UnrecoverableSyncError._(String message, {bool isFatal = false}) : super._(message, isFatal: isFatal);
+  UnrecoverableSyncError._(String message) : super._(message);
 }
 
 /// @nodoc
@@ -891,14 +892,17 @@ extension SyncErrorInternal on SyncError {
           originalFilePath: error.originalFilePath,
           backupFilePath: error.backupFilePath,
         ),
-      SyncErrorCodesConstants.syncCompensatingWrite => CompensatingWriteError._(error.message, compensatingWrites: error.compensatingWrites),
+      SyncErrorCodesConstants.syncCompensatingWrite => CompensatingWriteError._(
+          error.message,
+          compensatingWrites: error.compensatingWrites,
+        ),
       SyncErrorCodesConstants.wrongSyncType => WrongSyncTypeError._(error.message),
-      SyncErrorCodesConstants.invalidSubscriptionQuery => BadFlexibleSyncQueryError._(error.message, isFatal: error.isFatal),
+      SyncErrorCodesConstants.invalidSubscriptionQuery => BadFlexibleSyncQueryError._(error.message),
       SyncErrorCodesConstants.syncProtocolInvariantFailed ||
       SyncErrorCodesConstants.syncPermissionDenied ||
       SyncErrorCodesConstants.syncProtocolNegotiationFailed =>
-        UnrecoverableSyncError._(error.message, isFatal: error.isFatal),
-      _ => SyncError._(error.message, isFatal: error.isFatal), //Default value
+        UnrecoverableSyncError._(error.message),
+      _ => SyncError._(error.message),
     };
     return syncError;
   }
