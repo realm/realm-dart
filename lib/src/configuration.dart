@@ -602,9 +602,6 @@ enum ClientResyncModeInternal {
 class ClientResetError extends SyncError {
   final App? _app;
 
-  /// If true the received error is fatal.
-  final bool isFatal = true;
-
   /// The path to the original copy of the realm when the client reset was triggered.
   /// This realm may contain unsynced changes.
   final String? originalFilePath;
@@ -614,13 +611,13 @@ class ClientResetError extends SyncError {
 
   /// The [ClientResetError] has error code of [SyncClientErrorCode.autoClientResetFailure]
   /// when a client reset fails and `onManualResetFallback` occurs. Otherwise, it is [SyncClientErrorCode.unknown]
-  @Deprecated("Use errorCode property")
-  SyncClientErrorCode get code => SyncClientErrorCode.fromInt(codeValue);
+  @Deprecated("Code property value is always `autoClientResetFailure`. It will be deleted.")
+  SyncClientErrorCode get code => SyncClientErrorCode.autoClientResetFailure;
 
   /// The [SyncSessionErrorCode] value indicating the type of the sync error.
   /// This property will be [SyncSessionErrorCode.unknown] if `onManualResetFallback` occurs on client reset.
-  @Deprecated("Use errorCode property")
-  SyncSessionErrorCode get sessionErrorCode => SyncSessionErrorCode.fromInt(codeValue);
+  @Deprecated("SessionErrorCode property value is always `unknown`. It will be deleted.")
+  SyncSessionErrorCode get sessionErrorCode => SyncSessionErrorCode.unknown;
 
   ClientResetError._(
     String message, {
@@ -629,11 +626,11 @@ class ClientResetError extends SyncError {
     this.backupFilePath,
     this.originalFilePath,
   })  : _app = app,
-        super._(message, SyncErrorCode.autoClientResetFailure);
+        super._(message, isFatal: true);
 
   @override
   String toString() {
-    return "ClientResetError message: $message code: $errorCode isFatal: $isFatal";
+    return "ClientResetError message: $message isFatal: $isFatal";
   }
 
   /// Initiates the client reset process.
@@ -651,38 +648,40 @@ class ClientResetError extends SyncError {
 }
 
 /// Thrown when an error occurs during synchronization
+/// This error or its subclasses will be returned to users through [FlexibleSyncConfiguration.syncErrorHandler]
+/// and the exact reason must be found in the `message`.
 /// {@category Sync}
 class SyncError extends RealmError {
   /// The numeric code value indicating the type of the sync error.
-  @Deprecated("Use property code")
-  final int codeValue;
+  @Deprecated("Errors of SyncError subclasses will be created base on the error code. Error codes won't be returned anymore.")
+  final int codeValue = 9999;
 
   /// If true the received error is fatal.
   final bool isFatal = false;
 
-  /// Type of the sync error.
-  final SyncErrorCode errorCode;
+  /// Detailed error message.
+  /// In case of server error, it contains the link to the server log.
+  @Deprecated("Detailed message is empty. Use `message` property.")
+  final String? detailedMessage = null;
 
   /// The category of the sync error
-  @Deprecated("No sync error categories")
+  @Deprecated("Sync error categories won't be returned anymore.")
   final SyncErrorCategory category = SyncErrorCategory.system;
 
-  SyncError._(String message, this.errorCode)
-      : codeValue = errorCode.code,
-        super(message);
+  SyncError._(String message, {bool isFatal = false}) : super(message);
 
   /// As a specific [SyncError] type.
   T as<T extends SyncError>() => this as T;
 
   @override
   String toString() {
-    return "SyncError message: $message code: $errorCode";
+    return "SyncError message: $message";
   }
 }
 
 /// An error type that describes a session-level error condition.
 /// {@category Sync}
-@Deprecated("Use SyncError")
+@Deprecated("Use SyncError or its subclasses.")
 class SyncClientError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -696,7 +695,7 @@ class SyncClientError extends SyncError {
     SyncErrorCategory category,
     SyncClientErrorCode errorCode, {
     this.isFatal = false,
-  }) : super._(message, SyncErrorCode.unknown);
+  }) : super._(message);
 
   @override
   String toString() {
@@ -706,7 +705,7 @@ class SyncClientError extends SyncError {
 
 /// An error type that describes a connection-level error condition.
 /// {@category Sync}
-@Deprecated("Use SyncError")
+@Deprecated("Use SyncError or its subclasses.")
 class SyncConnectionError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -720,7 +719,7 @@ class SyncConnectionError extends SyncError {
     SyncErrorCategory category,
     SyncConnectionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super._(message, SyncErrorCode.unknown);
+  }) : super._(message);
 
   @override
   String toString() {
@@ -730,7 +729,7 @@ class SyncConnectionError extends SyncError {
 
 /// An error type that describes a session-level error condition.
 /// {@category Sync}
-@Deprecated("Use SyncError")
+@Deprecated("Use SyncError or its subclasses.")
 class SyncSessionError extends SyncError {
   /// If true the received error is fatal.
   final bool isFatal;
@@ -744,7 +743,7 @@ class SyncSessionError extends SyncError {
     SyncErrorCategory category,
     SyncSessionErrorCode errorCode, {
     this.isFatal = false,
-  }) : super._(message, SyncErrorCode.unknown);
+  }) : super._(message);
 
   @override
   String toString() {
@@ -753,7 +752,7 @@ class SyncSessionError extends SyncError {
 }
 
 /// Web socket error
-@Deprecated("Use WebSocketError")
+@Deprecated("Use SyncError or its subclasses.")
 class SyncWebSocketError extends SyncError {
   /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
@@ -761,7 +760,7 @@ class SyncWebSocketError extends SyncError {
   SyncWebSocketError._(
     String message,
     SyncWebSocketErrorCode errorCode,
-  ) : super._(message, SyncErrorCode.unknown);
+  ) : super._(message);
 
   @override
   String toString() {
@@ -770,7 +769,7 @@ class SyncWebSocketError extends SyncError {
 }
 
 /// A general or unknown sync error
-@Deprecated("Use SyncError")
+@Deprecated("Use SyncError or its subclasses.")
 class GeneralSyncError extends SyncError {
   /// The numeric value indicating the type of the general sync error.
   int get code => codeValue;
@@ -778,7 +777,7 @@ class GeneralSyncError extends SyncError {
   GeneralSyncError._(
     String message,
     int code,
-  ) : super._(message, SyncErrorCode.unknown);
+  ) : super._(message);
 
   @override
   String toString() {
@@ -787,7 +786,7 @@ class GeneralSyncError extends SyncError {
 }
 
 /// General sync error codes
-@Deprecated("Use SyncErrorCode")
+@Deprecated("Handle SyncError or its subclasses instead of checking the error codes.")
 enum GeneralSyncErrorCode {
   /// Unknown Sync error code
   unknown(9999);
@@ -826,9 +825,9 @@ class CompensatingWriteInfo {
 /// which indicates that one more object changes have been reverted
 /// by the server.
 /// {@category Sync}
-class CompensatingWriteError extends SyncError {
+final class CompensatingWriteError extends SyncError {
   /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
-  @Deprecated("Use errorCode property instead")
+  @Deprecated("Code property value is always `compensatingWrite`. It will be deleted.")
   SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
 
   /// The list of the compensating writes performed by the server.
@@ -837,25 +836,70 @@ class CompensatingWriteError extends SyncError {
   CompensatingWriteError._(
     String message, {
     this.compensatingWrites,
-  }) : super._(message, SyncErrorCode.compensatingWrite);
+  }) : super._(message);
 
   @override
   String toString() {
-    return "CompensatingWriteError message: $message code: $errorCode. ${compensatingWrites ?? ''}";
+    return "CompensatingWriteError message: $message. ${compensatingWrites ?? ''}";
   }
+}
+
+/// Represents an error returned as an argument of [FlexibleSyncConfiguration.syncErrorHandler]
+/// when the server does not support one or more of the queries defined in the [SubscriptionSet].
+///
+/// {@category Sync}
+final class BadFlexibleSyncQueryError extends SyncError {
+  BadFlexibleSyncQueryError._(String message, {bool isFatal = false}) : super._(message, isFatal: isFatal);
+}
+
+/// Represents an error returned as an argument of [FlexibleSyncConfiguration.syncErrorHandler]
+/// when the server is configured to use Partition-based Sync instead of Flexible Sync.
+///
+/// {@category Sync}
+final class WrongSyncTypeError extends SyncError {
+  WrongSyncTypeError._(String message) : super._(message, isFatal: true);
+}
+
+/// Represents an error returned as an argument of [FlexibleSyncConfiguration.syncErrorHandler]
+/// when something has gone wrong with Device Sync in a way that is not recoverable.
+///
+/// Generally, errors of this kind are due to incompatible versions of Realm and Atlas App Services
+/// being used or bugs in the library or on the server, and the only fix would be installing a new
+/// version of the app with a new version of Realm.
+///
+/// It is still possible to use the Realm locally after this error occurs. However, this must be
+/// done with caution as data written to the realm after this point risk getting lost as
+/// many errors of this category will result in a Client Reset once the client
+/// re-connects to the server.
+///
+/// {@category Sync}
+final class UnrecoverableSyncError extends SyncError {
+  UnrecoverableSyncError._(String message, {bool isFatal = false}) : super._(message, isFatal: isFatal);
 }
 
 /// @nodoc
 extension SyncErrorInternal on SyncError {
   static SyncError createSyncError(SyncErrorDetails error, {App? app}) {
-    final errorCode = SyncErrorCode.fromInt(error.code);
-    if (error.isClientResetRequested) {
-      //Client reset can be requested with isClientResetRequested disregarding the SyncClientErrorCode and SyncSessionErrorCode values
-      return ClientResetError._(error.message,
-          app: app, errorCodeValue: error.code, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath);
-    } else if (errorCode == SyncErrorCode.compensatingWrite) {
-      return CompensatingWriteError._(error.message, compensatingWrites: error.compensatingWrites);
-    }
-    return SyncError._(error.message, errorCode);
+    //Client reset can be requested with isClientResetRequested disregarding the ErrorCode
+    int errorCode = error.isClientResetRequested ? SyncErrorCodesConstants.autoClientResetFailed : error.code;
+
+    SyncError syncError = switch (errorCode) {
+      SyncErrorCodesConstants.autoClientResetFailed => ClientResetError._(
+          error.message,
+          app: app,
+          errorCodeValue: error.code,
+          originalFilePath: error.originalFilePath,
+          backupFilePath: error.backupFilePath,
+        ),
+      SyncErrorCodesConstants.syncCompensatingWrite => CompensatingWriteError._(error.message, compensatingWrites: error.compensatingWrites),
+      SyncErrorCodesConstants.wrongSyncType => WrongSyncTypeError._(error.message),
+      SyncErrorCodesConstants.invalidSubscriptionQuery => BadFlexibleSyncQueryError._(error.message, isFatal: error.isFatal),
+      SyncErrorCodesConstants.syncProtocolInvariantFailed ||
+      SyncErrorCodesConstants.syncPermissionDenied ||
+      SyncErrorCodesConstants.syncProtocolNegotiationFailed =>
+        UnrecoverableSyncError._(error.message, isFatal: error.isFatal),
+      _ => SyncError._(error.message, isFatal: error.isFatal), //Default value
+    };
+    return syncError;
   }
 }

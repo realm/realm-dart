@@ -18,6 +18,7 @@
 
 import 'dart:async';
 
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import '../lib/src/session.dart' show SessionInternal;
@@ -279,31 +280,44 @@ Future<void> main([List<String>? args]) async {
     await downloadData.subscription.cancel();
   });
 
-  baasTest('SyncSession test error handler', (configuration) async {
+  baasTest('BadFlexibleSyncQueryError test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
+      expect(syncError, isA<BadFlexibleSyncQueryError>());
       expect(syncError.isFatal, isFalse);
-      expect(syncError.errorCode, SyncErrorCode.badQuery);
       expect(syncError.message, "Bad user authentication (BIND)");
     });
 
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCode.badQuery, false);
+    realm.syncSession.raiseError(SyncErrorCodesConstants.invalidSubscriptionQuery, false);
   });
 
-  baasTest('SyncSession test fatal error handler', (configuration) async {
+  baasTest('UnrecoverableSyncError test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
     final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
+      expect(syncError, isA<UnrecoverableSyncError>());
       expect(syncError.isFatal, isTrue);
-      expect(syncError, SyncErrorCode.badChangeset);
-      expect(syncError.message, "Bad changeset (DOWNLOAD)");
+      expect(syncError.message, "Bad user authentication (BIND)");
     });
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCode.badChangeset, true);
+    realm.syncSession.raiseError(SyncErrorCodesConstants.syncProtocolInvariantFailed, true);
+  });
+
+  baasTest('WrongSyncTypeError test error handler', (configuration) async {
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
+      expect(syncError, isA<WrongSyncTypeError>());
+      expect(syncError.isFatal, isTrue);
+      expect(syncError.message, "Bad user authentication (BIND)");
+    });
+    final realm = getRealm(config);
+
+    realm.syncSession.raiseError(SyncErrorCodesConstants.wrongSyncType, true);
   });
 
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
@@ -357,6 +371,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => session.state, throws<RealmClosedError>());
   });
+  
 }
 
 class StreamProgressData {
