@@ -603,7 +603,7 @@ class ClientResetError extends SyncError {
   final App? _app;
 
   /// If true the received error is fatal.
-  @Deprecated("ClientResetError is always fatal")
+  @Deprecated("ClientResetError is always a fatal error.")
   final bool isFatal = true;
 
   /// The path to the original copy of the realm when the client reset was triggered.
@@ -630,7 +630,7 @@ class ClientResetError extends SyncError {
     this.backupFilePath,
     this.originalFilePath,
   })  : _app = app,
-        super._(message, isFatal: true);
+        super._(message);
 
   @override
   String toString() {
