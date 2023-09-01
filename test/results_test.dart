@@ -967,4 +967,50 @@ Future<void> main([List<String>? args]) async {
     // you are not supposed to call current, if moveNext return false
     expect(() => rit.current, throwsA(isA<RealmException>()));
   });
+
+  test('RealmResults.indexOf', () {
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    const max = 10;
+    realm.write(() {
+      realm.addAll(List.generate(max, (_) => Task(ObjectId())));
+    });
+
+    final results = realm.all<Task>();
+    expect(() => results.indexOf(Task(ObjectId())), throws<RealmStateError>());
+    int i = 0;
+    for (final t in results) {
+      expect(results.indexOf(t), i++);
+    }
+  });
+
+  test('RealmResults.contains', () {
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    const max = 10;
+    final tasks = List.generate(max, (_) => Task(ObjectId()));
+    realm.write(() {
+      realm.addAll(tasks);
+    });
+
+    final all = realm.all<Task>();
+    final none = realm.query<Task>('FALSEPREDICATE');
+
+    expect(() => all.contains(Task(ObjectId())), throws<RealmStateError>());
+    // ignore: unnecessary_cast, iterable_contains_unrelated_type
+    expect(() => (all as Iterable<Task>).contains(1), throwsA(isA<TypeError>()));
+
+    int i = 0;
+    for (final t in all) {
+      expect(all.contains(t), isTrue);
+      expect(none.contains(t), isFalse);
+    }
+
+    for (int i = 0; i < max; i++) {
+      for (var j = 0; j < max - i; j++) {
+        expect(all.skip(i + j).contains(tasks[i + j]), true);
+        expect(all.skip(i + j + 1).contains(tasks[i + j]), false);
+      }
+    }
+  });
 }
