@@ -137,8 +137,6 @@ RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userd
         {
           error = error_input.error;
           categories = error_input.categories;
-          usercode_error = error_input.usercode_error;
-          path = error_input.path;
           message = message_buffer.c_str();
         }
 
