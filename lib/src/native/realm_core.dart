@@ -3407,25 +3407,25 @@ extension on realm_error {
 
 /// @nodoc
 class SyncErrorCodesConstants {
-  static const runtimeError = realm_errno.RLM_ERR_RUNTIME; //Sync
-  static const objectAlreadyExists = realm_errno.RLM_ERR_OBJECT_ALREADY_EXISTS; //Sync
-  static const badChangeset = realm_errno.RLM_ERR_BAD_CHANGESET; //Sync
-  static const autoClientResetFailed = realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED; //Sync
-  static const badSyncPartitionValue = realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE; //Sync
-  static const connectionClosed = realm_errno.RLM_ERR_CONNECTION_CLOSED; //Sync
-  static const invalidSubscriptionQuery = realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY; //Sync
-  static const syncClientResetRequired = realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED; //Sync
-  static const syncCompensatingWrite = realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE; //Sync
-  static const syncConnectFailed = realm_errno.RLM_ERR_SYNC_CONNECT_FAILED; //Sync
-  static const syncInvalidSchemaChange = realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE; //Sync
-  static const syncPermissionDenied = realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED; //Sync
-  static const syncProtocolInvariantFailed = realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED; //Sync
-  static const syncProtocolNegotiationFailed = realm_errno.RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED; //Sync
-  static const syncServerPermissionsChanged = realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED; //Sync
-  static const syncUserMismatch = realm_errno.RLM_ERR_SYNC_USER_MISMATCH; //Sync
-  static const tlsHandshakeFailed = realm_errno.RLM_ERR_TLS_HANDSHAKE_FAILED; //Sync
-  static const wrongSyncType = realm_errno.RLM_ERR_WRONG_SYNC_TYPE; //Sync
-  static const syncWriteNotAllowed = realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED; //Sync
-  static const authError = realm_errno.RLM_ERR_AUTH_ERROR; //Sync
-  static const unknownError = realm_errno.RLM_ERR_UNKNOWN; //Sync
+  static const runtimeError = realm_errno.RLM_ERR_RUNTIME;
+  static const objectAlreadyExists = realm_errno.RLM_ERR_OBJECT_ALREADY_EXISTS;
+  static const badChangeset = realm_errno.RLM_ERR_BAD_CHANGESET;
+  static const autoClientResetFailed = realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED;
+  static const badSyncPartitionValue = realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE;
+  static const connectionClosed = realm_errno.RLM_ERR_CONNECTION_CLOSED;
+  static const invalidSubscriptionQuery = realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY;
+  static const syncClientResetRequired = realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED;
+  static const syncCompensatingWrite = realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE;
+  static const syncConnectFailed = realm_errno.RLM_ERR_SYNC_CONNECT_FAILED;
+  static const syncInvalidSchemaChange = realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE;
+  static const syncPermissionDenied = realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED;
+  static const syncProtocolInvariantFailed = realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED;
+  static const syncProtocolNegotiationFailed = realm_errno.RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED;
+  static const syncServerPermissionsChanged = realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED;
+  static const syncUserMismatch = realm_errno.RLM_ERR_SYNC_USER_MISMATCH;
+  static const tlsHandshakeFailed = realm_errno.RLM_ERR_TLS_HANDSHAKE_FAILED;
+  static const wrongSyncType = realm_errno.RLM_ERR_WRONG_SYNC_TYPE;
+  static const syncWriteNotAllowed = realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED;
+  static const authError = realm_errno.RLM_ERR_AUTH_ERROR;
+  static const unknownError = realm_errno.RLM_ERR_UNKNOWN;
 }
