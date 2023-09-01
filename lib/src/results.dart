@@ -30,11 +30,13 @@ import 'realm_object.dart';
 class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity implements Finalizable {
   final RealmObjectMetadata? _metadata;
   final RealmResultsHandle _handle;
+  final int _skipOffset; // to support skip efficiently
 
   final _supportsSnapshot = <T>[] is List<RealmObjectBase?>;
 
-  RealmResults._(this._handle, Realm realm, this._metadata) {
+  RealmResults._(this._handle, Realm realm, this._metadata, [this._skipOffset = 0]) {
     setRealm(realm);
+    assert(length >= 0);
   }
 
   /// Gets a value indicating whether this collection is still valid to use.
@@ -47,11 +49,11 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   @override
   T elementAt(int index) {
     if (this is RealmResults<RealmObjectBase>) {
-      final handle = realmCore.resultsGetObjectAt(this, index);
+      final handle = realmCore.resultsGetObjectAt(this, _skipOffset + index);
       final accessor = RealmCoreAccessor(metadata, realm.isInMigration);
       return RealmObjectInternal.create(T, realm, handle, accessor) as T;
     } else {
-      return realmCore.resultsGetElementAt(this, index) as T;
+      return realmCore.resultsGetElementAt(this, _skipOffset + index) as T;
     }
   }
 
@@ -72,7 +74,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
 
   /// The number of values in this `Results` collection.
   @override
-  int get length => realmCore.getResultsCount(this);
+  int get length => realmCore.getResultsCount(this) - _skipOffset;
 
   @override
   T get first {
@@ -100,6 +102,12 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
       throw RealmStateError('No element');
     }
     return this[0];
+  }
+
+  @override
+  RealmResults<T> skip(int count) {
+    RangeError.checkValueInInterval(count, 0, length, "count");
+    return RealmResults<T>._(_handle, realm, _metadata, _skipOffset + count);
   }
 
   /// Creates a frozen snapshot of this query.
@@ -216,18 +224,16 @@ class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
         _index = -1;
 
   @override
-  T get current => _current as T;
+  T get current => _current ??= _results[_index];
 
   @override
   bool moveNext() {
     int length = _results.length;
+    _current = null;
     _index++;
     if (_index >= length) {
-      _current = null;
       return false;
     }
-    _current = _results[_index];
-
     return true;
   }
 }

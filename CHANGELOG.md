@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Support efficient `skip` on `RealmResults` ([#1391](https://github.com/realm/realm-dart/pull/1391))
 
 ### Fixed
 * None
