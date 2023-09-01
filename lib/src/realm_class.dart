@@ -88,6 +88,7 @@ export "configuration.dart"
         SyncConnectionError,
         SyncError,
         SyncErrorHandler,
+        SyncResolveError,
         SyncWebSocketError,
         SyncSessionError,
         UnrecoverableSyncError,
@@ -121,6 +122,7 @@ export 'session.dart'
         SyncClientErrorCode,
         SyncConnectionErrorCode,
         SyncErrorCategory,
+        SyncResolveErrorCode,
         SyncWebSocketErrorCode,
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;

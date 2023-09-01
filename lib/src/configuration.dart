@@ -22,7 +22,6 @@ import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
-
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
@@ -660,14 +659,14 @@ class SyncError extends RealmError {
   @Deprecated("Errors of SyncError subclasses will be created base on the error code. Error codes won't be returned anymore.")
   final int codeValue = 9999;
 
+  /// The category of the sync error
+  @Deprecated("SyncErrorCategory enum is deprecated.")
+  final SyncErrorCategory category = SyncErrorCategory.system;
+
   /// Detailed error message.
   /// In case of server error, it contains the link to the server log.
   @Deprecated("Detailed message is empty. Use `message` property.")
   final String? detailedMessage = null;
-
-  /// The category of the sync error
-  @Deprecated("Sync error categories won't be returned anymore.")
-  final SyncErrorCategory category = SyncErrorCategory.system;
 
   SyncError._(String message) : super(message);
 
@@ -695,6 +694,7 @@ class SyncClientError extends SyncError {
     String message,
     SyncErrorCategory category,
     SyncClientErrorCode errorCode, {
+    String? detailedMessage,
     this.isFatal = false,
   }) : super._(message);
 
@@ -719,8 +719,10 @@ class SyncConnectionError extends SyncError {
     String message,
     SyncErrorCategory category,
     SyncConnectionErrorCode errorCode, {
+    String? detailedMessage,
     this.isFatal = false,
   }) : super._(message);
+
 
   @override
   String toString() {
@@ -739,16 +741,39 @@ class SyncSessionError extends SyncError {
   SyncSessionErrorCode get code => SyncSessionErrorCode.fromInt(codeValue);
 
   @Deprecated("SyncSessionError constructor is deprecated and will be removed in the future")
-  SyncSessionError(
+SyncSessionError(
     String message,
     SyncErrorCategory category,
     SyncSessionErrorCode errorCode, {
+    String? detailedMessage,
     this.isFatal = false,
   }) : super._(message);
+
 
   @override
   String toString() {
     return "SyncSessionError message: $message category: $category code: $code isFatal: $isFatal";
+  }
+}
+
+/// Network resolution error
+///
+/// This class is deprecated and it will be removed. The sync errors caused by network resolution problems
+/// will be received as [SyncWebSocketError].
+@Deprecated("Use SyncWebSocketError instead")
+class SyncResolveError extends SyncError {
+  /// The numeric value indicating the type of the network resolution sync error.
+  SyncResolveErrorCode get code => SyncResolveErrorCode.fromInt(codeValue);
+
+  SyncResolveError(
+    String message,
+    SyncErrorCategory category,
+    SyncResolveErrorCode errorCode,
+  ) : super._(message);
+
+  @override
+  String toString() {
+    return "SyncResolveError message: $message category: $category code: $code";
   }
 }
 
@@ -758,10 +783,13 @@ class SyncWebSocketError extends SyncError {
   /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
 
-  SyncWebSocketError._(
+  SyncWebSocketError(
     String message,
-    SyncWebSocketErrorCode errorCode,
-  ) : super._(message);
+    SyncErrorCategory category,
+    SyncWebSocketErrorCode errorCode, {
+    String? detailedMessage,
+  }) : super._(message);
+
 
   @override
   String toString() {
@@ -775,10 +803,13 @@ class GeneralSyncError extends SyncError {
   /// The numeric value indicating the type of the general sync error.
   int get code => codeValue;
 
-  GeneralSyncError._(
+  @Deprecated("GeneralSyncError constructor is deprecated and will be removed in the future")
+  GeneralSyncError(
     String message,
-    int code,
-  ) : super._(message);
+    SyncErrorCategory category,
+    int code, {
+    String? detailedMessage,
+  }) : super._(message);
 
   @override
   String toString() {
