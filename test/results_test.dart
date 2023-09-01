@@ -18,11 +18,10 @@
 
 // ignore_for_file: unused_local_variable
 
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:ffi/ffi.dart';
 import 'package:test/test.dart' hide test, throws;
+
 import '../lib/realm.dart';
 import 'test.dart';
 

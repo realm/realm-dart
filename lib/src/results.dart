@@ -219,9 +219,9 @@ class _RealmResultsIterator<T extends Object?> implements Iterator<T> {
   int _index;
   T? _current;
 
-  _RealmResultsIterator(RealmResults<T> results, {int index = 0})
+  _RealmResultsIterator(RealmResults<T> results)
       : _results = results,
-        _index = index - 1;
+        _index = -1;
 
   @override
   T get current => _current ??= _results[_index];
