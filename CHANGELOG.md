@@ -1,6 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
+* Support efficient `skip` on `RealmResults` ([#1391](https://github.com/realm/realm-dart/pull/1391))
 * Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
 * Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. Unknown error actions will be treated as an ApplicationBug error action and will cause sync to fail with an error via the sync error handler. (Core upgrade)
 * Added support for server log messages that are enabled by sync protocol version 10. AppServices request id will be provided in a server log message in a future server release. (Core upgrade)
