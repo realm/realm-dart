@@ -21,6 +21,7 @@
 import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
+
 import '../lib/realm.dart';
 import 'test.dart';
 
@@ -832,7 +833,7 @@ Future<void> main([List<String>? args]) async {
 
     queryWithListArg("uuidProp", [uid_1, uid_2, null], expected: 2);
     queryWithListArg("nullableUuidProp", [null], expected: 3);
-  
+
     queryWithListArg("intProp", [1, 2, null], expected: 2);
     queryWithListArg("nullableIntProp", [null], expected: 3);
 
@@ -910,5 +911,60 @@ Future<void> main([List<String>? args]) async {
     ]);
     expect(result.length, 1);
     expect(result.first.name, 'secondary school 1');
+  });
+
+  test('RealmResults.skip', () {
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    const max = 10;
+    realm.write(() {
+      realm.addAll(List.generate(max, (_) => Task(ObjectId())));
+    });
+
+    final results = realm.all<Task>();
+    for (var i = 0; i < max; i++) {
+      expect(results.skip(i).length, max - i);
+      for (var j = 0; j < max - i; j++) {
+        expect(results.skip(i)[j], results[i + j]);
+        expect(results.skip(i).skip(j)[0], results[i + j]); // chained skip
+      }
+      expect(
+        () => results.skip(max + i + 1),
+        throwsA(isA<RangeError>().having((e) => e.invalidValue, 'count', max + i + 1)),
+      );
+      expect(
+        () => results.skip(-i - 1),
+        throwsA(isA<RangeError>().having((e) => e.invalidValue, 'count', -i - 1)),
+      );
+    }
+  });
+
+  test('_RealmResultsIterator', () {
+    // behavior of normal iterator
+    final list = [1];
+    final it = list.iterator;
+    // you are not supposed to call current before first moveNext
+    expect(() => it.current, throwsA(isA<TypeError>()));
+    expect(it.moveNext(), isTrue);
+    expect(it.moveNext(), isFalse);
+    // you are not supposed to call current, if moveNext return false
+    expect(() => it.current, throwsA(isA<TypeError>()));
+
+    // behavior of _RealmResultsIterator
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    realm.write(() {
+      realm.add(Task(ObjectId()));
+    });
+    final results = realm.all<Task>();
+    expect(results.length, 1);
+    final rit = results.iterator;
+
+    // you are not supposed to call current before first moveNext
+    expect(() => rit.current, throwsA(isA<RealmException>()));
+    expect(rit.moveNext(), isTrue);
+    expect(rit.moveNext(), isFalse);
+    // you are not supposed to call current, if moveNext return false
+    expect(() => rit.current, throwsA(isA<RealmException>()));
   });
 }
