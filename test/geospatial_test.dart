@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 
@@ -39,6 +40,9 @@ class _Location {
   set lat(double value) => coordinates[1] = value;
 
   GeoPoint toGeoPoint() => GeoPoint(lon: lon, lat: lat);
+
+  @override
+  toString() => '($lon, $lat)';
 }
 
 @RealmModel()
@@ -55,6 +59,14 @@ void createRestaurants(Realm realm) {
   realm.write(() {
     realm.add(Restaurant('Burger King', location: (0.0, 0.0).toLocation()));
   });
+}
+
+@RealmModel()
+class _LocationList {
+  final locations = <_Location>[];
+
+  @override
+  String toString() => '[${locations.join(', ')}]';
 }
 
 extension on GeoPoint {
@@ -322,5 +334,34 @@ Future<void> main([List<String>? args]) async {
 
     expect(1000.meters, 1.kilometers);
     expect(1609.344.meters, 1.miles);
+  });
+
+  test('LocationList', () {
+    final config = Configuration.local([Location.schema, LocationList.schema]);
+    final realm = getRealm(config);
+    const max = 3;
+    final random = Random(42);
+    final geoPoints = List.generate(max, (index) => GeoPoint(lon: random.nextDouble(), lat: random.nextDouble()));
+    final sublists = List.generate(max, (index) {
+      final start = random.nextInt(max);
+      final end = random.nextInt(max - start) + start;
+      return geoPoints.sublist(start, end).map((p) => p.toLocation()).toList();
+    });
+    realm.write(() {
+      realm.addAll(sublists.map((l) => LocationList(locations: l)));
+    });
+
+    for (final p in geoPoints) {
+      final results = realm.query<LocationList>('ANY locations geoWithin \$0', [GeoCircle(p, 0.radians)]);
+      for (final list in results) {
+        expect(list.locations.map((l) => l.toGeoPoint()), contains(p));
+      }
+    }
+    final nonEmpty = realm.query<LocationList>('locations.@size > 0');
+    final bigCircle = realm.query<LocationList>('ALL locations geoWithin \$0', [GeoCircle(GeoPoint(lon: 0, lat: 0), sqrt(2).radians)]);
+    expect(bigCircle, unorderedEquals(nonEmpty));
+
+    final box = GeoBox(GeoPoint(lon: 0, lat: 0), GeoPoint(lon: 1, lat: 1));
+    expect(realm.query<LocationList>('ALL locations geoWithin \$0', [box]), unorderedEquals(nonEmpty));
   });
 }

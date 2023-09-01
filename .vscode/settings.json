@@ -30,6 +30,8 @@
     "nodoc",
     "nullptr",
     "posix",
+    "sublist",
+    "sublists",
     "TRUEPREDICATE",
     "unmanaged",
     "upsert",

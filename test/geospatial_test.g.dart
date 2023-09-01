@@ -98,3 +98,40 @@ class Restaurant extends _Restaurant
     ]);
   }
 }
+
+class LocationList extends _LocationList
+    with RealmEntity, RealmObjectBase, RealmObject {
+  LocationList({
+    Iterable<Location> locations = const [],
+  }) {
+    RealmObjectBase.set<RealmList<Location>>(
+        this, 'locations', RealmList<Location>(locations));
+  }
+
+  LocationList._();
+
+  @override
+  RealmList<Location> get locations =>
+      RealmObjectBase.get<Location>(this, 'locations') as RealmList<Location>;
+  @override
+  set locations(covariant RealmList<Location> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<LocationList>> get changes =>
+      RealmObjectBase.getChanges<LocationList>(this);
+
+  @override
+  LocationList freeze() => RealmObjectBase.freezeObject<LocationList>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(LocationList._);
+    return const SchemaObject(
+        ObjectType.realmObject, LocationList, 'LocationList', [
+      SchemaProperty('locations', RealmPropertyType.object,
+          linkTarget: 'Location', collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
