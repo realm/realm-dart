@@ -17,12 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-
-import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import '../lib/src/session.dart' show SessionInternal;
 import 'test.dart';
+import '../lib/src/native/realm_core.dart' show SyncErrorCodesConstants;
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -368,7 +367,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => session.state, throws<RealmClosedError>());
   });
-  
 }
 
 class StreamProgressData {
