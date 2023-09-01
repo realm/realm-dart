@@ -1,6 +1,8 @@
 ## vNext (TBD)
 
 ### Enhancements
+* Support efficient `skip` on `RealmResults` ([#1391](https://github.com/realm/realm-dart/pull/1391))
+* Support efficient `indexOf` and `contains` on `RealmResults` ([#1394](https://github.com/realm/realm-dart/pull/1394))
 * Added `User.getMongoDBbClient` exposing an API for CRUD operations on a Remote Atlas App Service.([#1162](https://github.com/realm/realm-dart/issues/1162))
 
 ### Fixed
