@@ -18,8 +18,10 @@
 
 // ignore_for_file: unused_local_variable
 
+import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:ffi/ffi.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
@@ -832,7 +834,7 @@ Future<void> main([List<String>? args]) async {
 
     queryWithListArg("uuidProp", [uid_1, uid_2, null], expected: 2);
     queryWithListArg("nullableUuidProp", [null], expected: 3);
-  
+
     queryWithListArg("intProp", [1, 2, null], expected: 2);
     queryWithListArg("nullableIntProp", [null], expected: 3);
 
@@ -910,5 +912,31 @@ Future<void> main([List<String>? args]) async {
     ]);
     expect(result.length, 1);
     expect(result.first.name, 'secondary school 1');
+  });
+
+  test('RealmResults.skip', () {
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    const max = 10;
+    realm.write(() {
+      realm.addAll(List.generate(max, (_) => Task(ObjectId())));
+    });
+
+    final results = realm.all<Task>();
+    for (var i = 0; i < max; i++) {
+      expect(results.skip(i).length, max - i);
+      for (var j = 0; j < max - i; j++) {
+        expect(results.skip(i)[j], results[i + j]);
+        expect(results.skip(i).skip(j)[0], results[i + j]); // chained skip
+      }
+      expect(
+        () => results.skip(max + i + 1),
+        throwsA(isA<RangeError>().having((e) => e.invalidValue, 'count', max + i + 1)),
+      );
+      expect(
+        () => results.skip(-i - 1),
+        throwsA(isA<RangeError>().having((e) => e.invalidValue, 'count', -i - 1)),
+      );
+    }
   });
 }
