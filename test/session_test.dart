@@ -21,7 +21,7 @@ import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import '../lib/src/session.dart' show SessionInternal;
 import 'test.dart';
-import '../lib/src/native/realm_core.dart' show SyncErrorCodesConstants;
+import '../lib/src/native/realm_core.dart' show SyncErrorCodes;
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -289,7 +289,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCodesConstants.invalidSubscriptionQuery, false);
+    realm.syncSession.raiseError(SyncErrorCodes.invalidSubscriptionQuery.code, false);
   });
 
   baasTest('UnrecoverableSyncError test error handler', (configuration) async {
@@ -301,7 +301,7 @@ Future<void> main([List<String>? args]) async {
     });
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCodesConstants.syncProtocolInvariantFailed, true);
+    realm.syncSession.raiseError(SyncErrorCodes.syncProtocolInvariantFailed.code, true);
   });
 
   baasTest('WrongSyncTypeError test error handler', (configuration) async {
@@ -313,7 +313,7 @@ Future<void> main([List<String>? args]) async {
     });
     final realm = getRealm(config);
 
-    realm.syncSession.raiseError(SyncErrorCodesConstants.wrongSyncType, true);
+    realm.syncSession.raiseError(SyncErrorCodes.wrongSyncType.code, true);
   });
 
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {

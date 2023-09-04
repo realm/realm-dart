@@ -913,25 +913,25 @@ final class UnrecoverableSyncError extends SyncError {
 extension SyncErrorInternal on SyncError {
   static SyncError createSyncError(SyncErrorDetails error, {App? app}) {
     //Client reset can be requested with isClientResetRequested disregarding the ErrorCode
-    int errorCode = error.isClientResetRequested ? SyncErrorCodesConstants.autoClientResetFailed : error.code;
+    SyncErrorCodes errorCode = error.isClientResetRequested ? SyncErrorCodes.autoClientResetFailed : SyncErrorCodes.fromInt(error.code);
 
     SyncError syncError = switch (errorCode) {
-      SyncErrorCodesConstants.autoClientResetFailed => ClientResetError._(
+      SyncErrorCodes.autoClientResetFailed => ClientResetError._(
           error.message,
           app: app,
           errorCodeValue: error.code,
           originalFilePath: error.originalFilePath,
           backupFilePath: error.backupFilePath,
         ),
-      SyncErrorCodesConstants.syncCompensatingWrite => CompensatingWriteError._(
+      SyncErrorCodes.syncCompensatingWrite => CompensatingWriteError._(
           error.message,
           compensatingWrites: error.compensatingWrites,
         ),
-      SyncErrorCodesConstants.wrongSyncType => WrongSyncTypeError._(error.message),
-      SyncErrorCodesConstants.invalidSubscriptionQuery => BadFlexibleSyncQueryError._(error.message),
-      SyncErrorCodesConstants.syncProtocolInvariantFailed ||
-      SyncErrorCodesConstants.syncPermissionDenied ||
-      SyncErrorCodesConstants.syncProtocolNegotiationFailed =>
+      SyncErrorCodes.wrongSyncType => WrongSyncTypeError._(error.message),
+      SyncErrorCodes.invalidSubscriptionQuery => BadFlexibleSyncQueryError._(error.message),
+      SyncErrorCodes.syncProtocolInvariantFailed ||
+      SyncErrorCodes.syncPermissionDenied ||
+      SyncErrorCodes.syncProtocolNegotiationFailed =>
         UnrecoverableSyncError._(error.message),
       _ => SyncError._(error.message),
     };
