@@ -21,6 +21,8 @@ environment:
 dependencies:
   collection: ^1.17.0
   ejson_annotation: ^0.1.0
+  objectid: ^3.0.0
+  sane_uuid: ^1.0.0-alpha.5
   type_plus: ^2.0.0
 
 dev_dependencies:
