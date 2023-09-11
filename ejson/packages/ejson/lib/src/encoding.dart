@@ -16,7 +16,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:objectid/objectid.dart';
+import 'package:sane_uuid/uuid.dart';
 import 'package:type_plus/type_plus.dart';
 
 import 'types.dart';
@@ -42,9 +47,11 @@ EJsonValue _encodeAny(Object? value) {
     Key k => _encodeKey(k),
     List l => _encodeArray(l),
     Map m => _encodeDocument(m),
+    ObjectId o => _encodeObjectId(o),
     String s => _encodeString(s),
     Symbol s => _encodeSymbol(s),
     Undefined u => _encodeUndefined(u),
+    Uuid u => _encodeUuid(u),
     _ => _encodeCustom(value),
   };
 }
@@ -106,6 +113,17 @@ EJsonValue _encodeSymbol(Symbol value) => {'\$symbol': value.name};
 
 EJsonValue _encodeUndefined(Undefined undefined) => {'\$undefined': 1};
 
+EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes, "04");
+
+EJsonValue _encodeBinary(ByteBuffer buffer, String subtype) => {
+      '\$binary': {
+        'base64': base64.encode(buffer.asUint8List()),
+        'subType': subtype
+      },
+    };
+
+EJsonValue _encodeObjectId(ObjectId objectId) => {'\$oid': objectId.hexString};
+
 class MissingEncoder implements Exception {
   final Object value;
 
@@ -160,6 +178,11 @@ extension NullableObjectEJsonEncoderExtension on Object? {
   EJsonValue toEJson() => _encodeAny(this);
 }
 
+extension ObjectIdEJsonEncoderExtension on ObjectId {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => _encodeObjectId(this);
+}
+
 extension StringEJsonEncoderExtension on String {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeString(this);
@@ -178,4 +201,9 @@ extension SymbolEJsonEncoderExtension on Symbol {
 extension UndefinedEJsonEncoderExtension on Undefined {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeUndefined(this);
+}
+
+extension UuidEJsonEncoderExtension on Uuid {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => _encodeUuid(this);
 }

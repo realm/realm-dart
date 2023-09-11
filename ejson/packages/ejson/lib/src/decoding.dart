@@ -16,8 +16,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:typed_data';
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:objectid/objectid.dart';
+import 'package:sane_uuid/uuid.dart';
 import 'package:type_plus/type_plus.dart';
 
 import 'types.dart';
@@ -35,8 +40,10 @@ const commonDecoders = {
   double: _decodeDouble,
   num: _decodeNum,
   int: _decodeInt,
+  ObjectId: _decodeObjectId,
   String: _decodeString,
   Symbol: _decodeSymbol,
+  Uuid: _decodeUuid,
   Undefined: _decodeUndefined,
   UndefinedOr: _decodeUndefinedOr,
 };
@@ -51,6 +58,8 @@ final decoders = () {
   TypePlus.addFactory(<T>(f) => f<Defined<T>>(), superTypes: [undefinedOr]);
   TypePlus.addFactory(<T>(f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
   TypePlus.add<Key>();
+  TypePlus.add<ObjectId>();
+  TypePlus.add<Uuid>();
 
   return CombinedMapView([customDecoders, commonDecoders]);
 }();
@@ -88,6 +97,8 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$regex': _} => _decodeString(ejson),
     {'\$symbol': _} => _decodeSymbol(ejson),
     {'\$undefined': _} => _decodeUndefined(ejson),
+    {'\$oid': _} => _decodeObjectId(ejson),
+    {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
     List _ => _decodeArray(ejson),
     Map _ => _tryDecodeCustom(ejson) ??
         _decodeDocument(ejson), // other maps goes last!!
@@ -197,6 +208,13 @@ num _decodeNum(EJsonValue ejson) {
   };
 }
 
+ObjectId _decodeObjectId(EJsonValue ejson) {
+  return switch (ejson) {
+    {'\$oid': String s} => ObjectId.fromHexString(s),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
 String _decodeString(EJsonValue ejson) {
   return switch (ejson) {
     String s => s,
@@ -222,6 +240,17 @@ UndefinedOr<T> _decodeUndefinedOr<T>(EJsonValue ejson) {
   return switch (ejson) {
     {'\$undefined': 1} => Undefined<T>(),
     _ => _decodeDefined(ejson),
+  };
+}
+
+Uuid _decodeUuid(EJsonValue ejson) =>
+    Uuid.fromBytes(_decodeBinary(ejson, "04"));
+
+ByteBuffer _decodeBinary(EJsonValue ejson, String subType) {
+  return switch (ejson) {
+    {'\$binary': {'base64': String s, 'subType': String t}} when t == subType =>
+      base64.decode(s).buffer,
+    _ => raiseInvalidEJson(ejson),
   };
 }
 
