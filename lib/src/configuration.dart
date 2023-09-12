@@ -824,6 +824,7 @@ class SyncWebSocketError extends SyncError {
   /// The numeric value indicating the type of the web socket error.
   SyncWebSocketErrorCode get code => SyncWebSocketErrorCode.fromInt(codeValue);
 
+  @Deprecated("SyncWebSocketError constructor is deprecated and will be removed in the future")
   SyncWebSocketError(
     String message,
     SyncErrorCategory category,
@@ -899,7 +900,7 @@ class CompensatingWriteInfo {
 /// {@category Sync}
 final class CompensatingWriteError extends SyncError {
   /// The [CompensatingWriteError] has error code of [SyncSessionErrorCode.compensatingWrite]
-  @Deprecated("Code property value is always `compensatingWrite`. It will be deleted.")
+  @Deprecated("This will be removed in the future.")
   SyncSessionErrorCode get code => SyncSessionErrorCode.compensatingWrite;
 
   /// The list of the compensating writes performed by the server.
