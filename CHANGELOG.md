@@ -6,11 +6,10 @@
 * Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
 * Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. Unknown error actions will be treated as an ApplicationBug error action and will cause sync to fail with an error via the sync error handler. (Core upgrade)
 * Added support for server log messages that are enabled by sync protocol version 10. AppServices request id will be provided in a server log message in a future server release. (Core upgrade)
-* Simplified sync errors. The following sync errors and error codes are deprecated: 
-  * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory`
-  * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError`.
-
-  * Added new Sync errors types `BadFlexibleSyncQueryError`, `WrongSyncTypeError` and `UnrecoverableSyncError`. ([#1387](https://github.com/realm/realm-dart/pull/1387))
+* Simplified sync errors. The following sync errors and error codes are deprecated ([#1387](https://github.com/realm/realm-dart/pull/1387)): 
+   * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError`
+   * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory`
+* Added new Sync errors types `BadFlexibleSyncQueryError`, `WrongSyncTypeError` and `UnrecoverableSyncError`. ([#1387](https://github.com/realm/realm-dart/pull/1387))
 
 ### Fixed
 * Crash when querying the size of a Object property through a link chain (Core upgrade, since v13.17.2)
@@ -22,7 +21,7 @@
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Made binding a `sync::Session` exception safe so if a `MultipleSyncAgents` exception is thrown, the the sync client can be torn down safely. (Core upgrade, since 13.4.1)
+* Made binding a `sync::Session` exception safe so if a `MultipleSyncAgents` exception is thrown, the sync client can be torn down safely. (Core upgrade, since 13.4.1)
 * Add information about the reason a synchronization session is used for to flexible sync client BIND message. (Core upgrade)
 * Sync protocol version bumped to 10. (Core upgrade)
 * Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)

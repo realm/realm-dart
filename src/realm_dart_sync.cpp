@@ -84,6 +84,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     buf.message = std::string(error.status.message);
     buf.categories = error.status.categories;
     buf.error = error.status.error;
+    // TODO: Map usercode_error and path when issue https://github.com/realm/realm-core/issues/6925 is fixed
     buf.original_file_path_key = std::string(error.c_original_file_path_key);
     buf.recovery_file_path_key = std::string(error.c_recovery_file_path_key);
     buf.is_fatal = error.is_fatal;

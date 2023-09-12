@@ -272,7 +272,7 @@ enum SyncErrorCategory {
 /// These errors will terminate the network connection
 /// (disconnect all sessions  associated with the affected connection),
 /// and the error will be reported via the connection state change listeners of the affected sessions.
-@Deprecated("Handle SyncError or its subclasses instead of checking the error codes.")
+@Deprecated("Use SyncError or its subclasses instead.")
 enum SyncClientErrorCode {
   /// Connection closed (no error)
   connectionClosed(100),

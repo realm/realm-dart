@@ -685,8 +685,8 @@ class _RealmCore {
 
       if (error != nullptr) {
         final err = arena<realm_error>();
-        bool asyncErrorAvailable = _realmLib.realm_get_async_error(error, err);
-        completer.completeError(RealmException("Failed to open realm ${asyncErrorAvailable ? err.ref.toLastError().toString() : ''}"));
+        bool success = _realmLib.realm_get_async_error(error, err);
+        completer.completeError(RealmException("Failed to open realm ${success ? err.ref.toLastError().toString() : ''}"));
         return;
       }
 
@@ -3178,7 +3178,6 @@ extension on realm_sync_error {
 
     return SyncErrorDetails(
       message,
-      status.categories,
       status.error,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
@@ -3225,7 +3224,7 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
 extension on Pointer<realm_error_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, ref.categories, ref.error);
+    final details = SyncErrorDetails(message, ref.error);
     return SyncErrorInternal.createSyncError(details);
   }
 }
@@ -3383,7 +3382,6 @@ extension PlatformEx on Platform {
 /// @nodoc
 class SyncErrorDetails {
   final String message;
-  final int _categoryFlag;
   final int code;
   final String? path;
   final bool isFatal;
@@ -3393,7 +3391,6 @@ class SyncErrorDetails {
   final List<CompensatingWriteInfo>? compensatingWrites;
   SyncErrorDetails(
     this.message,
-    this._categoryFlag,
     this.code, {
     this.path,
     this.isFatal = false,
@@ -3402,11 +3399,6 @@ class SyncErrorDetails {
     this.backupFilePath,
     this.compensatingWrites,
   });
-
-  // @categoryConstant param should be a value from `realm_error_category` class
-  bool _isFromCategory(int categoryConstant) {
-    return (_categoryFlag & categoryConstant) == categoryConstant;
-  }
 }
 
 extension on realm_error {
@@ -3444,13 +3436,12 @@ enum SyncErrorCodes {
   wrongSyncType(realm_errno.RLM_ERR_WRONG_SYNC_TYPE),
   syncWriteNotAllowed(realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED),
   authError(realm_errno.RLM_ERR_AUTH_ERROR),
-  unknownError(realm_errno.RLM_ERR_UNKNOWN),
-  notSyncError(-1);
+  unknownError(realm_errno.RLM_ERR_UNKNOWN);
 
   static final Map<int, SyncErrorCodes> _valuesMap = {for (var value in SyncErrorCodes.values) value.code: value};
 
   static SyncErrorCodes fromInt(int code) {
-    return SyncErrorCodes._valuesMap[code] ?? SyncErrorCodes.notSyncError;
+    return SyncErrorCodes._valuesMap[code] ?? SyncErrorCodes.unknownError;
   }
 
   final int code;
