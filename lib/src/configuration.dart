@@ -739,7 +739,7 @@ class SyncClientError extends SyncError {
     SyncClientErrorCode errorCode, {
     String? detailedMessage,
     this.isFatal = false,
-  }) : super._(message);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -764,7 +764,7 @@ class SyncConnectionError extends SyncError {
     SyncConnectionErrorCode errorCode, {
     String? detailedMessage,
     this.isFatal = false,
-  }) : super._(message);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -789,7 +789,7 @@ class SyncSessionError extends SyncError {
     SyncSessionErrorCode errorCode, {
     String? detailedMessage,
     this.isFatal = false,
-  }) : super._(message);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -810,7 +810,7 @@ class SyncResolveError extends SyncError {
     String message,
     SyncErrorCategory category,
     SyncResolveErrorCode errorCode,
-  ) : super._(message);
+  ) : super(message, category, errorCode.index);
 
   @override
   String toString() {
@@ -829,7 +829,7 @@ class SyncWebSocketError extends SyncError {
     SyncErrorCategory category,
     SyncWebSocketErrorCode errorCode, {
     String? detailedMessage,
-  }) : super._(message);
+  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
@@ -849,7 +849,7 @@ class GeneralSyncError extends SyncError {
     SyncErrorCategory category,
     int code, {
     String? detailedMessage,
-  }) : super._(message);
+  }) : super(message, category, code, detailedMessage: detailedMessage);
 
   @override
   String toString() {
