@@ -26,7 +26,7 @@
 * Sync protocol version bumped to 10. (Core upgrade)
 * Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
 
-* Using Core 13.19.0.
+* Using Core 13.20.0.
 
 ## 1.4.0 (2023-08-16)
 
