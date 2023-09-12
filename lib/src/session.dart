@@ -246,7 +246,7 @@ enum ProgressMode {
 }
 
 /// The category of a [SyncError].
-@Deprecated("The new errors are not classified by SyncErrorCategory anymore.")
+@Deprecated("Sync errors are not classified by SyncErrorCategory anymore.")
 enum SyncErrorCategory {
   /// The error originated from the client
   client,
