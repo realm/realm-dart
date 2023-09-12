@@ -3426,6 +3426,7 @@ enum SyncErrorCodes {
   syncClientResetRequired(realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED),
   syncCompensatingWrite(realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE),
   syncConnectFailed(realm_errno.RLM_ERR_SYNC_CONNECT_FAILED),
+  syncConnectTimeout(realm_errno.RLM_ERR_SYNC_CONNECT_TIMEOUT),
   syncInvalidSchemaChange(realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE),
   syncPermissionDenied(realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED),
   syncProtocolInvariantFailed(realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED),
