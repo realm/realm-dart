@@ -448,7 +448,7 @@ enum SyncConnectionErrorCode {
 /// Protocol session errors discovered by the server, and reported to the client
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
-@Deprecated("SyncError or its subclasses instead of using error codes.")
+@Deprecated("Use SyncError or its subclasses instead of using error codes.")
 enum SyncSessionErrorCode {
   /// Session closed (no error)
   sessionClosed(200),
@@ -602,7 +602,7 @@ enum SyncResolveErrorCode {
 /// Web socket errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
-@Deprecated("SyncError or its subclasses instead of using error codes.")
+@Deprecated("Use SyncError or its subclasses instead of using error codes.")
 enum SyncWebSocketErrorCode {
   /// Web socket resolution failed
   websocketResolveFailed(4400),
