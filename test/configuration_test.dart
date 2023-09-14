@@ -622,7 +622,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(credentials);
     final config = Configuration.flexibleSync(user, syncSchema);
 
-    final disconnectedConfig = Configuration.disconnectedSync([Task.schema], path: config.path, maxNumberOfActiveVersions: 1);
+    final disconnectedConfig = Configuration.disconnectedSync(syncSchema, path: config.path, maxNumberOfActiveVersions: 1);
     final realm = getRealm(disconnectedConfig); // First writing to the Realm when opening
     expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
   });
