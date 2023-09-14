@@ -10,10 +10,14 @@
    * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError`
    * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory`
 * Added new Sync errors types `BadFlexibleSyncQueryError`, `WrongSyncTypeError` and `UnrecoverableSyncError`. ([#1387](https://github.com/realm/realm-dart/pull/1387))
+* Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
 
 ### Fixed
 * Crash when querying the size of a Object property through a link chain (Core upgrade, since v13.17.2)
 * Deprecated `App.localAppName` and `App.localAppVersion`. They were not used by the server and were not needed to set them. ([#1387](https://github.com/realm/realm-dart/pull/1387))
+* Fixed crash in slab allocator (Assertion failed: ref + size <= next->first) Many issues like (Core upgrade, since 13.0.0)
+* When using OpenSSL (i.e. on non-Apple platforms) the `TlsHandshakeFailed` error code would never be reported and instead TLS errors would be reported as `SyncConnectFailed` (Core upgrade).
+* Sending empty UPLOAD messages may lead to 'Bad server version' errors and client reset. (Core upgrade, since v11.8.0)
 
 ### Breaking Changes
 
@@ -26,7 +30,7 @@
 * Sync protocol version bumped to 10. (Core upgrade)
 * Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
 
-* Using Core 13.20.0.
+* Using Core 13.20.1.
 
 ## 1.4.0 (2023-08-16)
 
