@@ -586,7 +586,7 @@ Future<void> main([List<String>? args]) async {
 
     List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
     expect(
-      () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
+      () => Configuration.flexibleSync(user, syncSchema, encryptionKey: key),
       throws<RealmException>("Wrong encryption key size"),
     );
   });

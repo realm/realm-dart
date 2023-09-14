@@ -35,21 +35,21 @@ Future<void> main([List<String>? args]) async {
     expect(
         Configuration.flexibleSync(
           user,
-          [Task.schema, Schedule.schema],
+          syncSchema,
           clientResetHandler: ManualRecoveryHandler((syncError) {}),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.manual);
     expect(
         Configuration.flexibleSync(
           user,
-          [Task.schema, Schedule.schema],
+          syncSchema,
           clientResetHandler: const DiscardUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.discardLocal);
     expect(
         Configuration.flexibleSync(
           user,
-          [Task.schema, Schedule.schema],
+          syncSchema,
           clientResetHandler: const RecoverUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recover);
@@ -57,12 +57,12 @@ Future<void> main([List<String>? args]) async {
     expect(
         Configuration.flexibleSync(
           user,
-          [Task.schema, Schedule.schema],
+          syncSchema,
           clientResetHandler: const RecoverOrDiscardUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recoverOrDiscard);
 
-    expect(Configuration.flexibleSync(user, [Task.schema, Schedule.schema]).clientResetHandler.clientResyncMode, ClientResyncModeInternal.recoverOrDiscard);
+    expect(Configuration.flexibleSync(user, syncSchema).clientResetHandler.clientResyncMode, ClientResyncModeInternal.recoverOrDiscard);
   });
 
   baasTest('ManualRecoveryHandler error is reported in callback', (appConfig) async {

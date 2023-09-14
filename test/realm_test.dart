@@ -1000,7 +1000,7 @@ Future<void> main([List<String>? args]) async {
     final realm = getRealm(configuration);
     expect(realm.isClosed, false);
     expect(
-      () => getRealm(Configuration.flexibleSync(user, [Task.schema])),
+      () => getRealm(Configuration.flexibleSync(user, syncSchema)),
       throws<RealmException>("already opened with a different encryption key"),
     );
   });
@@ -1737,7 +1737,7 @@ Future<void> main([List<String>? args]) async {
 
         // Create another user's realm and download the data
         var anotherUser = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final anotherUserRealm = getRealm(Configuration.flexibleSync(anotherUser, [Product.schema]));
+        final anotherUserRealm = getRealm(Configuration.flexibleSync(anotherUser, syncSchema));
         await _addSubscriptions(anotherUserRealm, productNamePrefix);
         await anotherUserRealm.syncSession.waitForUpload();
         await anotherUserRealm.syncSession.waitForDownload();
