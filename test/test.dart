@@ -347,6 +347,7 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
+final syncSchema = getSyncSchema();
 
 enum AppNames {
   flexible,
@@ -401,7 +402,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-      
+
       realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
@@ -681,7 +682,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
   app ??= App(await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema]);
+  final config = Configuration.flexibleSync(user, syncSchema);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
@@ -805,4 +806,19 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
   final splunk = Uri.encodeFull(
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
   print("Splunk logs: $splunk");
+}
+
+List<SchemaObject> getSyncSchema() {
+  return [
+    Task.schema,
+    Schedule.schema,
+    Product.schema,
+    Event.schema,
+    AllTypesEmbedded.schema,
+    ObjectWithEmbedded.schema,
+    RecursiveEmbedded1.schema,
+    RecursiveEmbedded2.schema,
+    RecursiveEmbedded3.schema,
+    NullableTypes.schema,
+  ];
 }

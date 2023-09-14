@@ -43,7 +43,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, syncSchema);
     final realm = getRealm(config);
 
     expect(realm.syncSession.user, user);
@@ -55,7 +55,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, syncSchema);
 
     // Don't use getRealm because we want the Realm to survive
     final realm = Realm(config);
@@ -282,7 +282,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('BadFlexibleSyncQueryError test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
+    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
       expect(syncError, isA<BadFlexibleSyncQueryError>());
       expect(syncError.message, isNotEmpty);
     });
@@ -295,7 +295,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('UnrecoverableSyncError test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
+    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
       expect(syncError, isA<UnrecoverableSyncError>());
       expect(syncError.message, isNotEmpty);
     });
@@ -307,7 +307,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('WrongSyncTypeError test error handler', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
+    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
       expect(syncError, isA<WrongSyncTypeError>());
       expect(syncError.message, isNotEmpty);
     });
@@ -357,7 +357,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when Realm is closed gets closed as well', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, syncSchema);
     final realm = getRealm(config);
 
     final session = realm.syncSession;

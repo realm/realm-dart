@@ -35,11 +35,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) asy
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, [
-      Task.schema,
-      Schedule.schema,
-      Event.schema,
-    ])
+    final configuration = Configuration.flexibleSync(user, syncSchema)
       ..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await testFunc(realm);
@@ -510,10 +506,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final config = Configuration.flexibleSync(
-      user,
-      [Task.schema],
-    );
+    final config = Configuration.flexibleSync(user, syncSchema);
 
     final realm = getRealm(config);
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
@@ -553,7 +546,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, syncSchema);
     final realm = getRealm(config);
 
     final subscriptions = realm.subscriptions;
@@ -568,7 +561,7 @@ Future<void> main([List<String>? args]) async {
     final productNamePrefix = generateRandomString(4);
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Product.schema], syncErrorHandler: (syncError) {
+    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
       compensatingWriteError = syncError;
     });
     final realm = getRealm(config);
