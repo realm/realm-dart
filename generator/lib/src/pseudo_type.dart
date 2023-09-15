@@ -55,5 +55,5 @@ class PseudoType extends TypeImpl {
   Element? get element2 => null;
 
   @override
-  Element? get element => _never;
+  Element? get element => null;
 }
