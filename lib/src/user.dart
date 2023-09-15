@@ -41,6 +41,7 @@ class User {
 
   late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
   late final FunctionsClient _functions = FunctionsClient._(this);
+  late final MongoDBClient _mongodbClient;
 
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
@@ -59,6 +60,16 @@ class User {
     _ensureLoggedIn('access API keys');
 
     return _functions;
+  }
+
+  /// Gets a [MongoDBClient] instance for accessing documents in an Atlas App Service database.
+  ///
+  /// Requires [serviceName] - the name of the service as configured on the server.
+  MongoDBClient getMongoDBClient({required String serviceName}) {
+    _ensureLoggedIn('access mongo DB');
+
+    _mongodbClient = MongoDBClient(this, serviceName);
+    return _mongodbClient;
   }
 
   User._(this._handle, this._app);
@@ -231,6 +242,8 @@ class UserProfile {
 
 /// A class exposing functionality for users to manage API keys from the client. It is always scoped
 /// to a particular [User] and can only be accessed via [User.apiKeys]
+///
+/// {@category Atlas App Services}
 class ApiKeyClient {
   final User _user;
 
@@ -309,6 +322,8 @@ class ApiKey {
 }
 
 /// A class exposing functionality for calling remote Atlas Functions.
+///
+/// {@category Atlas App Services}
 class FunctionsClient {
   final User _user;
 

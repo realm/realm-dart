@@ -2622,7 +2622,7 @@ class _RealmCore {
     completer.complete(stringResponse);
   }
 
-  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
+  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON, {String? serviceName}) {
     return using((arena) {
       final completer = Completer<String>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_call_function(
@@ -2630,7 +2630,7 @@ class _RealmCore {
             user.handle._pointer,
             functionName.toCharPtr(arena),
             argsAsJSON?.toCharPtr(arena) ?? nullptr,
-            nullptr,
+            serviceName?.toCharPtr(arena) ?? nullptr,
             Pointer.fromFunction(_call_app_function_callback),
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,

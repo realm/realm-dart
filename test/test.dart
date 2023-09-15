@@ -806,3 +806,10 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
   print("Splunk logs: $splunk");
 }
+
+
+String getBaasDatabaseName({AppNames appName = AppNames.flexible}) {
+  final app = baasApps[appName.name] ??
+      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  return "db_${app.uniqueName}";
+}

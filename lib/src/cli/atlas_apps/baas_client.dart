@@ -84,7 +84,32 @@ class BaasClient {
     }
   };''';
 
+  static const String _documentCollectionName = "AtlasDocAllTypes";
+  static const String _documentCollectionSchema = '''{
+        "title": "AtlasDocAllTypes",
+        "bsonType": "object",
+        "required": ["_id", "stringProp", "boolProp", "dateProp", "doubleProp", "objectIdProp", "uuidProp", "intProp"],
+        "properties": {
+          "_id": {"bsonType": "objectId"},
+          "stringProp": {"bsonType": "string"},
+          "boolProp": {"bsonType": "bool"},
+          "dateProp": {"bsonType": "date"},
+          "doubleProp": {"bsonType": "double"},
+          "objectIdProp": {"bsonType": "objectId"},
+          "uuidProp": {"bsonType": "uuid"},
+          "intProp": {"bsonType": "long"},
+          "nullableStringProp": {"bsonType": "string"},
+          "nullableBoolProp": {"bsonType": "bool"},
+          "nullableDateProp": {"bsonType": "date"},
+          "nullableDoubleProp": {"bsonType": "double"},
+          "nullableObjectIdProp": {"bsonType": "objectId"},
+          "nullableUuidProp": {"bsonType": "uuid"},
+          "nullableIntProp": {"bsonType": "long"}
+        }
+      }''';
+
   static const String defaultAppName = "flexible";
+  static const String serviceName = 'BackingDB';
 
   final String _baseUrl;
   final String? _clusterName;
@@ -355,6 +380,7 @@ class BaasClient {
 
       await _createMongoDBService(
         app,
+        serviceName,
         syncConfig: '''{
         "flexible_sync": {
           "state": "enabled",
@@ -382,6 +408,9 @@ class BaasClient {
       );
       await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
 
+      if (confirmationType != "email" && confirmationType != "auto") {
+        await createSchema(app, serviceName: serviceName, collectionName: _documentCollectionName, schema: _documentCollectionSchema);
+      }
       //create email/password user for tests
       final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
       print("Create user result: $createUserResult");
@@ -464,10 +493,10 @@ class BaasClient {
       }''');
   }
 
-  Future<String> _createMongoDBService(BaasApp app, {required String syncConfig, required String rules}) async {
-    final serviceName = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
+  Future<String> _createMongoDBService(BaasApp app, String serviceName, {required String syncConfig, required String rules}) async {
+    final serviceType = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
-    final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
+    final mongoServiceId = await _createService(app, serviceName, serviceType, mongoConfig);
 
     await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
 
@@ -581,7 +610,7 @@ class BaasClient {
     final app = BaasApp(appId, clientAppId, name, appUniqueName);
 
     final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
-    dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
+    dynamic service = services.firstWhere((dynamic s) => s["name"] == serviceName, orElse: () => throw Exception("Func 'confirmFunc' not found"));
     final mongoServiceId = service['_id'] as String;
     final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];
@@ -592,6 +621,15 @@ class BaasClient {
       'flexible_sync': flexibleSync,
     });
     await _patch('groups/$_groupId/apps/$app/services/$mongoServiceId/config', data);
+  }
+
+  Future<void> createSchema(BaasApp app, {required String serviceName, required String collectionName, required dynamic schema}) async {
+    print('Create schema $collectionName for ${app.clientAppId}');
+
+    final urlSchema = 'groups/$_groupId/apps/$app/schemas';
+    dynamic metadata = '{"database": "db_${app.uniqueName}", "collection": "$collectionName", "data_source": "$serviceName"}';
+    String fullSchema = '{"metadata": $metadata, "schema": $schema }';
+    await _post(urlSchema, fullSchema);
   }
 }
 
