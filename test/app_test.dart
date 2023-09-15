@@ -260,7 +260,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
 
     final user = await app.logIn(Credentials.anonymous());
-    final configuration = Configuration.flexibleSync(user, [Task.schema]);
+    final configuration = Configuration.flexibleSync(user, syncSchema);
     final realm = getRealm(configuration);
     final session = realm.syncSession;
 
