@@ -459,7 +459,15 @@ mixin RealmObject on RealmObjectBase implements RealmObjectMarker {}
 /// @nodoc
 mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {}
 
-/// @nodoc
+/// Base for any object that can be persisted in a [Realm], but cannot be retrieved,
+/// hence cannot be modified.
+///
+/// The benefit of using [AsymmetricObject] is that synchronization is one-way, and
+/// thus performs much better. However, they cannot be queried, or retrieved
+/// locally, which limits their use-cases greatly.
+///
+/// Use [AsymmetricObject] when you have a write-/only use case. You use it by
+/// parsing [ObjectType.asymmetricObject] to the [RealmModel] annotation.
 mixin AsymmetricObject on RealmObjectBase implements AsymmetricObjectMarker {}
 
 extension EmbeddedObjectExtension on EmbeddedObject {
