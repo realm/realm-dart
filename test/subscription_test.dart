@@ -474,9 +474,8 @@ Future<void> main([List<String>? args]) async {
     );
     final appY = App(appConfigurationY);
 
-    final credentials = Credentials.anonymous();
-    final userX = await appX.logIn(credentials);
-    final userY = await appY.logIn(credentials);
+    final userX = await appX.logIn(Credentials.anonymous(reuseCredentials: false));
+    final userY = await appY.logIn(Credentials.anonymous(reuseCredentials: false));
 
     final realmX = getRealm(Configuration.flexibleSync(userX, syncSchema));
     final realmY = getRealm(Configuration.flexibleSync(userY, syncSchema));
