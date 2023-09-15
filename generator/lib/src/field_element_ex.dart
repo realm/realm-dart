@@ -51,7 +51,7 @@ extension FieldElementEx on FieldElement {
 
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
-  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name2.toString() == name).initializer;
+  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.toString() == name).initializer;
 
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
@@ -187,17 +187,17 @@ extension FieldElementEx on FieldElement {
       String? linkOriginProperty;
 
       // Validate field type
-      final modelSpan = enclosingElement3.span!;
+      final modelSpan = enclosingElement.span!;
       final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
-        final notARealmTypeSpan = type.element2?.span;
+        final notARealmTypeSpan = type.element?.span;
         String todo;
         if (notARealmTypeSpan != null) {
           todo = //
               "Add a @RealmModel annotation on '$mappedTypeName', "
               "or an @Ignored annotation on '$displayName'.";
-        } else if (type.isDynamic && mappedTypeName != 'dynamic' && !mappedTypeName.startsWith(session.prefix)) {
+        } else if (session.mapping['_$mappedTypeName'] != null) {
           todo = "Did you intend to use _$mappedTypeName as type for '$displayName'?";
         } else {
           todo = "Remove the invalid field or add an @Ignored annotation on '$displayName'.";
@@ -209,7 +209,7 @@ extension FieldElementEx on FieldElement {
           primarySpan: typeSpan(file),
           primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement3.displayName}'",
+            modelSpan: "in realm model '${enclosingElement.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },
@@ -244,7 +244,7 @@ extension FieldElementEx on FieldElement {
                   primarySpan: typeSpan(file),
                   primaryLabel: 'Set element type is not supported',
                   element: this,
-                  todo: 'Ensure set element type ${typeArgument} is a type supported by RealmSet.');
+                  todo: 'Ensure set element type $typeArgument is a type supported by RealmSet.');
             }
 
             if (realmType == RealmPropertyType.mixed && typeArgument.isNullable) {
@@ -280,7 +280,7 @@ extension FieldElementEx on FieldElement {
 
           final sourceFieldName = backlink.value.getField('fieldName')?.toSymbolValue();
           final sourceType = (type as ParameterizedType).typeArguments.first;
-          final sourceField = (sourceType.element2 as ClassElement?)?.fields.where((f) => f.name == sourceFieldName).singleOrNull;
+          final sourceField = (sourceType.element as ClassElement?)?.fields.where((f) => f.name == sourceFieldName).singleOrNull;
 
           if (sourceField == null) {
             throw RealmInvalidGenerationSourceError(
@@ -292,7 +292,7 @@ extension FieldElementEx on FieldElement {
             );
           }
 
-          final thisType = (enclosingElement3 as ClassElement).thisType;
+          final thisType = (enclosingElement as ClassElement).thisType;
           final linkType = thisType.asNullable;
           final listOf = session.typeProvider.listType(thisType);
           if (sourceField.type != linkType && sourceField.type != listOf) {
