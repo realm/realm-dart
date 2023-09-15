@@ -39,6 +39,8 @@ import 'type_checkers.dart';
 extension FieldElementEx on FieldElement {
   static const realmSetUnsupportedRealmTypes = [RealmPropertyType.linkingObjects];
 
+  ClassElement get enclosingClassElement => enclosingElement as ClassElement;
+
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
   AnnotationValue? get ignoredInfo => annotationInfoOfExact(ignoredChecker);

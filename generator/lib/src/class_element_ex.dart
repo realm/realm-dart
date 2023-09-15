@@ -19,6 +19,7 @@
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:realm_common/realm_common.dart';
+import 'package:realm_generator/src/dart_type_ex.dart';
 import 'package:source_gen/source_gen.dart';
 import 'annotation_value.dart';
 import 'error.dart';
@@ -150,7 +151,7 @@ extension ClassElementEx on ClassElement {
         );
       }
 
-      final objectType = ObjectType.values[modelInfo.value.getField('type')!.getField('index')!.toIntValue()!];
+      final objectType = thisType.realmObjectType!;
 
       // Realm Core requires computed properties at the end so we sort them at generation time versus doing it at runtime every time.
       final mappedFields = fields.realmInfo.toList()..sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
@@ -163,6 +164,59 @@ extension ClassElementEx on ClassElement {
             secondarySpans: {span!: ''},
             primaryLabel: "$realmName is marked as embedded but has primary key defined",
             todo: 'Remove the @PrimaryKey annotation from the field or set the model type to a value different from ObjectType.embeddedObject.');
+      }
+
+      // TODO:
+      // What follows is the least intrusive handling of invariants for asymmetric
+      // objects I could come up with.
+      //
+      // Really this calls for a bigger refactoring of the generator code where we
+      // build a graph of RealmModelInfo and RealmFieldInfo, but I have multiple
+      // PRs inflight that touches this code, so I will defer the refactoring until
+      // they have landed.
+
+      // Check that no objects have links to asymmetric objects.
+      for (final field in mappedFields) {
+        final fieldElement = field.fieldElement;
+        final classElement = fieldElement.type.basicType.element as ClassElement;
+        if (classElement.thisType.isRealmModelOfType(ObjectType.asymmetricObject)) {
+          throw RealmInvalidGenerationSourceError(
+            'Linking to asymmetric objects is not allowed',
+            todo: 'Remove the field',
+            element: fieldElement,
+          );
+        }
+      }
+
+      // Check that asymmetric objects:
+      // 1) only have links to embedded objects.
+      // 2) have a primary key named _id.
+      if (objectType == ObjectType.asymmetricObject) {
+        var hasPrimaryKey = false;
+        for (final field in mappedFields) {
+          final fieldElement = field.fieldElement;
+          final classElement = fieldElement.type.basicType.element as ClassElement;
+          if (field.type.isRealmModel && !classElement.thisType.isRealmModelOfType(ObjectType.embeddedObject)) {
+            throw RealmInvalidGenerationSourceError('Asymmetric objects cannot link to non-embedded objects', todo: '', element: fieldElement);
+          }
+          if (field.isPrimaryKey) {
+            hasPrimaryKey = true;
+            if (field.realmName != '_id') {
+              throw RealmInvalidGenerationSourceError(
+                'Asymmetric objects must have a primary key named _id',
+                todo: 'Add @MapTo("_id") to the @PrimaryKey field',
+                element: fieldElement,
+              );
+            }
+          }
+        }
+        if (!hasPrimaryKey) {
+          throw RealmInvalidGenerationSourceError(
+            'Asymmetric objects must have a primary key named _id',
+            todo: 'Add a primary key named _id',
+            element: this,
+          );
+        }
       }
 
       return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);

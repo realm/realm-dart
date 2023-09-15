@@ -96,6 +96,7 @@ export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
+        AsymmetricObject,
         DynamicRealmObject,
         EmbeddedObject,
         EmbeddedObjectExtension,
@@ -276,6 +277,15 @@ class Realm implements Finalizable {
     object.manage(this, handle, accessor, update);
 
     return object;
+  }
+
+  /// TODO
+  void ingest<T extends AsymmetricObject>(T object) {
+    final metadata = _metadata.getByType(object.runtimeType);
+    final handle = _createObject(object, metadata, false);
+
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
+    object.manage(this, handle, accessor, false);
   }
 
   RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
