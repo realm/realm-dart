@@ -808,6 +808,11 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
   print("Splunk logs: $splunk");
 }
 
+/// Schema list for default app service
+/// used for all the flexible sync tests.
+/// The full list of schemas is required when creating
+/// a flexibleSync configuration to the default app service
+/// to avoid causing breaking changes in development mode.
 List<SchemaObject> getSyncSchema() {
   return [
     Task.schema,
