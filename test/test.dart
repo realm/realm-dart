@@ -333,6 +333,7 @@ class _Asymmetric {
   @MapTo('_id')
   late ObjectId id;
 
+  _Symmetric? symmetric;
   late List<_Embedded> embeddedObjects;
 }
 
