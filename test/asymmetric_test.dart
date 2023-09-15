@@ -68,7 +68,7 @@ Future<void> main([List<String>? args]) async {
     });
 
     // Find & query on an Asymmetric object is compile time error, but you can cheat with dynamic
-    expect(realm.dynamic.find('Asymmetric', oid), null); // should this throw instead?
+    expect(realm.dynamic.find('Asymmetric', oid), null);
     expect(() => realm.dynamic.all('Asymmetric'), throws<RealmException>('Query on ephemeral objects not allowed'));
 
     realm.syncSession.resume();

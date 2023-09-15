@@ -281,8 +281,9 @@ class Realm implements Finalizable {
 
   /// Ingest an [AsymmetricObject] to the [Realm].
   ///
-  /// Ingesting is a write only operation. The ingested object will be dead immediately
-  /// after commit, but still transferred to the backend when possible.
+  /// Ingesting is a write only operation. The ingested objects synchronizes to
+  /// the App Services backend and are deleted from the device. An [AsymmetricObject]
+  /// can never be read from the Realm.
   void ingest<T extends AsymmetricObject>(T object) {
     final metadata = _metadata.getByType(object.runtimeType);
     final handle = _createObject(object, metadata, false);
