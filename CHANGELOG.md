@@ -1,12 +1,9 @@
-## vNext (TBD)
+## 1.5.0 (2023-09-18)
 
 ### Enhancements
 * Support efficient `skip` on `RealmResults` ([#1391](https://github.com/realm/realm-dart/pull/1391))
 * Support efficient `indexOf` and `contains` on `RealmResults` ([#1394](https://github.com/realm/realm-dart/pull/1394))
 * Support asymmetric objects. ([#1400](https://github.com/realm/realm-dart/pull/1400))
-
-### Fixed
-* None
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
