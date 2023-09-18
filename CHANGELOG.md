@@ -12,7 +12,7 @@
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.17.2
 
 ## 1.4.0 (2023-08-16)
 
