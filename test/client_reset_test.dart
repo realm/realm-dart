@@ -249,21 +249,25 @@ Future<void> main([List<String>? args]) async {
 
           final realm = await getRealmAsync(config);
           await realm.syncSession.waitForUpload();
-
+          final objectId = ObjectId();
+          final addedObjectId = ObjectId();
+          final query = realm.query<Task>(r'_id IN $0', [
+            [objectId, addedObjectId]
+          ]);
           realm.subscriptions.update((mutableSubscriptions) {
-            mutableSubscriptions.add(realm.all<Task>());
+            mutableSubscriptions.add(query);
           });
           await realm.subscriptions.waitForSynchronization();
           await realm.syncSession.waitForDownload();
-          final tasksCount = realm.all<Task>().length;
+          final tasksCount = query.length;
 
           realm.syncSession.pause();
 
-          realm.write(() => realm.add(Task(ObjectId())));
-          expect(tasksCount, lessThan(realm.all<Task>().length));
+          realm.write(() => realm.add(Task(addedObjectId)));
+          expect(tasksCount, lessThan(query.length));
 
           final notifications = <RealmResultsChanges>[];
-          final subscription = realm.all<Task>().changes.listen((event) {
+          final subscription = query.changes.listen((event) {
             notifications.add(event);
           });
 
@@ -321,7 +325,9 @@ Future<void> main([List<String>? args]) async {
 
       final realm = await getRealmAsync(config);
       realm.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realm.all<Product>());
+        mutableSubscriptions.add(realm.query<Product>(r'_id IN $0', [
+          [syncedProduct.id, maybeProduct.id]
+        ]));
       });
       await realm.subscriptions.waitForSynchronization();
 
@@ -478,7 +484,7 @@ Future<void> main([List<String>? args]) async {
     final task1Id = ObjectId();
     final task2Id = ObjectId();
     final task3Id = ObjectId();
-
+    List<ObjectId> filterByIds = [task0Id, task1Id, task2Id, task3Id];
     comparer(Task t1, ObjectId id) => t1.id == id;
 
     final configA = Configuration.flexibleSync(userA, syncSchema, clientResetHandler: RecoverUnsyncedChangesHandler(
@@ -505,8 +511,8 @@ Future<void> main([List<String>? args]) async {
       },
     ));
 
-    final realmA = await _syncRealmForUser<Task>(configA, [Task(task0Id), Task(task1Id), Task(task2Id)]);
-    final realmB = await _syncRealmForUser<Task>(configB);
+    final realmA = await _syncRealmForUser<Task>(configA, filterByIds, [Task(task0Id), Task(task1Id), Task(task2Id)]);
+    final realmB = await _syncRealmForUser<Task>(configB, filterByIds);
 
     realmA.syncSession.pause();
     realmB.syncSession.pause();
@@ -558,10 +564,10 @@ Future<void> main([List<String>? args]) async {
   });
 }
 
-Future<Realm> _syncRealmForUser<T extends RealmObject>(FlexibleSyncConfiguration config, [List<T>? items]) async {
+Future<Realm> _syncRealmForUser<T extends RealmObject>(FlexibleSyncConfiguration config, List<ObjectId> filterByIds, [List<T>? items]) async {
   final realm = getRealm(config);
   realm.subscriptions.update((mutableSubscriptions) {
-    mutableSubscriptions.add<T>(realm.all<T>());
+    mutableSubscriptions.add<T>(realm.query<T>(r'_id IN $0', [filterByIds]));
   });
   await realm.subscriptions.waitForSynchronization();
 
