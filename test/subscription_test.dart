@@ -35,8 +35,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) asy
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema)
-      ..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = Configuration.flexibleSync(user, syncSchema)..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await testFunc(realm);
   });
@@ -479,19 +478,18 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, syncSchema));
-
-    realmX.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmX.all<Task>());
-    });
-
     final objectId = ObjectId();
-    realmX.write(() => realmX.add(Task(objectId)));
+  
+    realmX.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realmX.query<Task>(r'_id == $0', [objectId]));
+    });
     await realmX.subscriptions.waitForSynchronization();
+    realmX.write(() => realmX.add(Task(objectId)));
     await realmX.syncSession.waitForUpload();
-    
+
     final realmY = getRealm(Configuration.flexibleSync(userY, syncSchema));
     realmY.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmY.all<Task>());
+      mutableSubscriptions.add(realmY.query<Task>(r'_id == $0', [objectId]));
     });
     await realmY.subscriptions.waitForSynchronization();
     await realmY.syncSession.waitForDownload();
@@ -572,8 +570,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(compensatingWriteError, isA<CompensatingWriteError>());
     final sessionError = compensatingWriteError.as<CompensatingWriteError>();
-    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'),
-        isTrue);
+    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'), isTrue);
     expect(sessionError.compensatingWrites, isNotNull);
     final writeReason = sessionError.compensatingWrites!.first;
     expect(writeReason, isNotNull);
