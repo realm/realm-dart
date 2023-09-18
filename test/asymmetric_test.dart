@@ -111,6 +111,11 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
   });
 
+  test("Asymmetric don't work local realms", () {
+    expect(() => Realm(Configuration.local([Asymmetric.schema, Embedded.schema, Symmetric.schema])),
+        throws<RealmException>("Asymmetric table 'Asymmetric' not allowed in a local Realm"));
+  });
+
   // TODO
   // Test that asymmetric objects are actually transferred to backend, once we have
   // a mongoClient to query the backend with.
