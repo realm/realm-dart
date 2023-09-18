@@ -50,12 +50,10 @@ Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   Future<Realm> getSyncRealm(AppConfiguration config) async {
-    return await (AppConfiguration config, List<SchemaObject> schemas) async {
-      final app = App(config);
-      final user = await getAnonymousUser(app);
-      final realmConfig = Configuration.flexibleSync(user, schemas);
-      return getRealm(realmConfig);
-    }(config, [Asymmetric.schema, Embedded.schema, Symmetric.schema]);
+    final app = App(config);
+    final user = await getAnonymousUser(app);
+    final realmConfig = Configuration.flexibleSync(user, [Asymmetric.schema, Embedded.schema, Symmetric.schema]);
+    return getRealm(realmConfig);
   }
 
   baasTest('Asymmetric objects die even before upload', (config) async {
@@ -114,6 +112,11 @@ Future<void> main([List<String>? args]) async {
   test("Asymmetric don't work local realms", () {
     expect(() => Realm(Configuration.local([Asymmetric.schema, Embedded.schema, Symmetric.schema])),
         throws<RealmException>("Asymmetric table 'Asymmetric' not allowed in a local Realm"));
+  });
+
+  test("Asymmetric don't work with disconnectedSync", () {
+    final config = Configuration.disconnectedSync([Asymmetric.schema, Embedded.schema, Symmetric.schema], path: 'asymmetric_disconnected.realm');
+    expect(() => Realm(config), throws<RealmException>());
   });
 
   // TODO
