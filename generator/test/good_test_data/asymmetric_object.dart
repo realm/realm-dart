@@ -7,7 +7,7 @@ class _Asymmetric {
   late ObjectId id;
 
   late List<_Embedded> children;
-  late _Embedded? farther;
+  late _Embedded? father;
   late _Embedded? mother;
 }
 

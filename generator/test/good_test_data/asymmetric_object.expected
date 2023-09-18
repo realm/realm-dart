@@ -6,12 +6,12 @@ class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, RealmObject {
   Asymmetric(
     ObjectId id, {
-    Embedded? farther,
+    Embedded? father,
     Embedded? mother,
     Iterable<Embedded> children = const [],
   }) {
     RealmObjectBase.set(this, '_id', id);
-    RealmObjectBase.set(this, 'farther', farther);
+    RealmObjectBase.set(this, 'father', father);
     RealmObjectBase.set(this, 'mother', mother);
     RealmObjectBase.set<RealmList<Embedded>>(
         this, 'children', RealmList<Embedded>(children));
@@ -32,11 +32,11 @@ class Asymmetric extends _Asymmetric
       throw RealmUnsupportedSetError();
 
   @override
-  Embedded? get farther =>
-      RealmObjectBase.get<Embedded>(this, 'farther') as Embedded?;
+  Embedded? get father =>
+      RealmObjectBase.get<Embedded>(this, 'father') as Embedded?;
   @override
-  set farther(covariant Embedded? value) =>
-      RealmObjectBase.set(this, 'farther', value);
+  set father(covariant Embedded? value) =>
+      RealmObjectBase.set(this, 'father', value);
 
   @override
   Embedded? get mother =>
@@ -62,7 +62,7 @@ class Asymmetric extends _Asymmetric
           mapTo: '_id', primaryKey: true),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'Embedded', collectionType: RealmCollectionType.list),
-      SchemaProperty('farther', RealmPropertyType.object,
+      SchemaProperty('father', RealmPropertyType.object,
           optional: true, linkTarget: 'Embedded'),
       SchemaProperty('mother', RealmPropertyType.object,
           optional: true, linkTarget: 'Embedded'),
