@@ -1560,7 +1560,6 @@ Future<void> main([List<String>? args]) async {
 
     validateCompact(compacted, config.path, beforeCompactSize);
 
-    user = await app.logIn(credentials);
     //test the realm can be opened.
     final realm = getRealm(config);
   });
