@@ -1,0 +1,11 @@
+Asymmetric objects cannot link to non-embedded objects
+
+in: asset:pkg/test/error_test_data/asymmetric_link_to_non_embedded.dart:12:15
+    ╷
+6   │ @RealmModel(ObjectType.asymmetricObject)
+7   │ class _Asymmetric {
+    │       ━━━━━━━━━━━ in realm model for 'Asymmetric'
+... │
+12  │   _Symmetric? illegal;
+    │               ^^^^^^^ !
+    ╵
