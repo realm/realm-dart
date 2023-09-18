@@ -21,38 +21,13 @@ import 'package:test/expect.dart' hide throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
-part 'asymmetric_test.g.dart';
-
-@RealmModel(ObjectType.asymmetricObject)
-class _Asymmetric {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-
-  late List<_Embedded> embeddedObjects;
-}
-
-@RealmModel(ObjectType.embeddedObject)
-class _Embedded {
-  late int value;
-  late RealmValue any;
-  _Symmetric? symmetric;
-}
-
-@RealmModel()
-class _Symmetric {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-}
-
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   Future<Realm> getSyncRealm(AppConfiguration config) async {
     final app = App(config);
     final user = await getAnonymousUser(app);
-    final realmConfig = Configuration.flexibleSync(user, [Asymmetric.schema, Embedded.schema, Symmetric.schema]);
+    final realmConfig = Configuration.flexibleSync(user, syncSchema);
     return getRealm(realmConfig);
   }
 

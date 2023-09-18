@@ -324,6 +324,29 @@ class _ObjectWithDecimal {
   Decimal128? nullableDecimal;
 }
 
+@RealmModel(ObjectType.asymmetricObject)
+class _Asymmetric {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+
+  late List<_Embedded> embeddedObjects;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _Embedded {
+  late int value;
+  late RealmValue any;
+  _Symmetric? symmetric;
+}
+
+@RealmModel()
+class _Symmetric {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
@@ -825,5 +848,8 @@ List<SchemaObject> getSyncSchema() {
     RecursiveEmbedded2.schema,
     RecursiveEmbedded3.schema,
     NullableTypes.schema,
+    Asymmetric.schema,
+    Embedded.schema,
+    Symmetric.schema,
   ];
 }
