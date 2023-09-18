@@ -196,7 +196,7 @@ extension ClassElementEx on ClassElement {
         for (final field in mappedFields) {
           final fieldElement = field.fieldElement;
           final classElement = fieldElement.type.basicType.element as ClassElement;
-          if (field.type.isRealmModel && !classElement.thisType.isRealmModelOfType(ObjectType.embeddedObject)) {
+          if (field.type.basicType.isRealmModel && !classElement.thisType.isRealmModelOfType(ObjectType.embeddedObject)) {
             throw RealmInvalidGenerationSourceError('Asymmetric objects cannot link to non-embedded objects', todo: '', element: fieldElement);
           }
           if (field.isPrimaryKey) {
