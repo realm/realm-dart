@@ -769,6 +769,9 @@ class _RealmCore {
       case ObjectType.embeddedObject:
         type = EmbeddedObject;
         break;
+      case ObjectType.asymmetricObject:
+        type = AsymmetricObject;
+        break;
       default:
         throw RealmError('$baseType is not supported yet');
     }
