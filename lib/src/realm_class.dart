@@ -574,26 +574,14 @@ class Realm implements Finalizable {
       throw RealmException("Can't compact an in-memory Realm");
     }
 
-    late Configuration compactConfig;
-
     if (!File(config.path).existsSync()) {
       return false;
     }
 
-    if (config is LocalConfiguration) {
-      // `compact` opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
-      // We must allow that to happen so use the local config as is.
-      compactConfig = config;
-    } else if (config is DisconnectedSyncConfiguration) {
-      compactConfig = config;
-    } else if (config is FlexibleSyncConfiguration) {
-      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
-          path: config.path, fifoFilesFallbackPath: config.fifoFilesFallbackPath, encryptionKey: config.encryptionKey);
-    } else {
-      throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
+    final realm = Realm(config);
+    if (config is FlexibleSyncConfiguration) {
+      realm.syncSession.pause();
     }
-
-    final realm = Realm(compactConfig);
     try {
       return realmCore.compact(realm);
     } finally {

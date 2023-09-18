@@ -1533,12 +1533,10 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
     final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
+    final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
-    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, syncSchema, path: path);
+    final config = Configuration.flexibleSync(user, syncSchema);
     final beforeCompactSize = await createRealmForCompact(config);
-    user.logOut();
     Future<void>.delayed(Duration(seconds: 5));
 
     final compacted = Realm.compact(config);
@@ -1546,18 +1544,16 @@ Future<void> main([List<String>? args]) async {
     validateCompact(compacted, config.path, beforeCompactSize);
 
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path));
+    final realm = getRealm(config);
   });
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
     final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
+    final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.flexibleSync(user, syncSchema, encryptionKey: key, path: path);
+    final config = Configuration.flexibleSync(user, syncSchema, encryptionKey: key);
     final beforeCompactSize = await createRealmForCompact(config);
-    user.logOut();
     Future<void>.delayed(Duration(seconds: 5));
 
     final compacted = Realm.compact(config);
@@ -1566,7 +1562,7 @@ Future<void> main([List<String>? args]) async {
 
     user = await app.logIn(credentials);
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
+    final realm = getRealm(config);
   });
 
   test('Realm writeCopy local to existing file', () {
@@ -1722,7 +1718,7 @@ Future<void> main([List<String>? args]) async {
 
         expect(File(configCopy.path).existsSync(), isTrue);
         // Check data in copied realm before synchronization
-        final disconnectedConfig = Configuration.disconnectedSync(syncSchema, path: configCopy.path, encryptionKey: destinationEncryptedKey);
+        final disconnectedConfig = Configuration.disconnectedSync([Product.schema], path: configCopy.path, encryptionKey: destinationEncryptedKey);
         final disconnectedCopiedRealm = getRealm(disconnectedConfig);
         expect(disconnectedCopiedRealm.all<Product>().length, itemsCount);
         disconnectedCopiedRealm.close();
