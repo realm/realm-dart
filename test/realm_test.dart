@@ -1519,7 +1519,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    var config = Configuration.disconnectedSync(syncSchema, path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.disconnectedSync([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
     final beforeCompactSize = await createRealmForCompact(config);
 
@@ -1546,7 +1546,7 @@ Future<void> main([List<String>? args]) async {
     validateCompact(compacted, config.path, beforeCompactSize);
 
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync(syncSchema, path: path));
+    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path));
   });
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
@@ -1566,7 +1566,7 @@ Future<void> main([List<String>? args]) async {
 
     user = await app.logIn(credentials);
     //test the realm can be opened.
-    final realm = getRealm(Configuration.disconnectedSync(syncSchema, path: path, encryptionKey: key));
+    final realm = getRealm(Configuration.disconnectedSync([Product.schema], path: path, encryptionKey: key));
   });
 
   test('Realm writeCopy local to existing file', () {
