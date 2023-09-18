@@ -11,7 +11,6 @@
    * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory`
 * Added new Sync errors types `BadFlexibleSyncQueryError`, `WrongSyncTypeError` and `UnrecoverableSyncError`. ([#1387](https://github.com/realm/realm-dart/pull/1387))
 * Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
-* Support asymmetric objects. ([#1400](https://github.com/realm/realm-dart/pull/1400))
 
 ### Fixed
 * Crash when querying the size of a Object property through a link chain (Core upgrade, since v13.17.2)
@@ -32,6 +31,19 @@
 * Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
 
 * Using Core 13.20.1.
+
+## 1.5.0 (2023-09-18)
+
+### Enhancements
+* Support efficient `skip` on `RealmResults` ([#1391](https://github.com/realm/realm-dart/pull/1391))
+* Support efficient `indexOf` and `contains` on `RealmResults` ([#1394](https://github.com/realm/realm-dart/pull/1394))
+* Support asymmetric objects. ([#1400](https://github.com/realm/realm-dart/pull/1400))
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.17.2
 
 ## 1.4.0 (2023-08-16)
 
