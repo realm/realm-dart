@@ -479,7 +479,6 @@ Future<void> main([List<String>? args]) async {
     final userY = await appY.logIn(credentials);
 
     final realmX = getRealm(Configuration.flexibleSync(userX, syncSchema));
-    final realmY = getRealm(Configuration.flexibleSync(userY, syncSchema));
 
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.all<Task>());
@@ -487,17 +486,15 @@ Future<void> main([List<String>? args]) async {
 
     final objectId = ObjectId();
     realmX.write(() => realmX.add(Task(objectId)));
-
+    await realmX.subscriptions.waitForSynchronization();
+    await realmX.syncSession.waitForUpload();
+    
+    final realmY = getRealm(Configuration.flexibleSync(userY, syncSchema));
     realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.all<Task>());
     });
-
-    await realmX.subscriptions.waitForSynchronization();
     await realmY.subscriptions.waitForSynchronization();
-
-    await realmX.syncSession.waitForUpload();
     await realmY.syncSession.waitForDownload();
-
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
   });
