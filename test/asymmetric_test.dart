@@ -115,7 +115,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test("Asymmetric don't work with disconnectedSync", () {
-    final config = Configuration.disconnectedSync([Asymmetric.schema, Embedded.schema, Symmetric.schema], path: 'asymmetric_disconnected.realm');
+    final config = Configuration.disconnectedSync([Asymmetric.schema, Embedded.schema, Symmetric.schema], path: generateRandomRealmPath());
     expect(() => Realm(config), throws<RealmException>());
   });
 
