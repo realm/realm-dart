@@ -1536,7 +1536,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, syncSchema, path: path);
+    final config = Configuration.flexibleSync(user, [Task.schema], path: path);
     final beforeCompactSize = await createRealmForCompact(config);
     Future<void>.delayed(Duration(seconds: 5));
 
@@ -1546,7 +1546,7 @@ Future<void> main([List<String>? args]) async {
 
     //test the realm can be opened.
     final realm = getRealm(config);
-  }, skip: "Fails with the full schema.");
+  }, appName: AppNames.autoConfirm);
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
     final app = App(appConfiguration);
@@ -1554,7 +1554,7 @@ Future<void> main([List<String>? args]) async {
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, syncSchema, encryptionKey: key, path: path);
+    final config = Configuration.flexibleSync(user, [Task.schema], encryptionKey: key, path: path);
     final beforeCompactSize = await createRealmForCompact(config);
     Future<void>.delayed(Duration(seconds: 15));
 
@@ -1564,7 +1564,7 @@ Future<void> main([List<String>? args]) async {
 
     //test the realm can be opened.
     final realm = getRealm(config);
-  }, skip: "Fails with the full schema.");
+  }, appName: AppNames.autoConfirm);
 
   test('Realm writeCopy local to existing file', () {
     final config = Configuration.local([Car.schema]);
