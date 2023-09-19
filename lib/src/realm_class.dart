@@ -575,6 +575,7 @@ class Realm implements Finalizable {
     }
 
     if (!File(config.path).existsSync()) {
+      print("realm file doesn't exist: ${config.path}");
       return false;
     }
 

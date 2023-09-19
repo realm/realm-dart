@@ -1535,8 +1535,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
-    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, syncSchema, path: path);
+    final config = Configuration.flexibleSync(user, syncSchema);
     final beforeCompactSize = await createRealmForCompact(config);
     Future<void>.delayed(Duration(seconds: 5));
 
@@ -1553,8 +1552,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, syncSchema, encryptionKey: key, path: path);
+    final config = Configuration.flexibleSync(user, syncSchema, encryptionKey: key);
     final beforeCompactSize = await createRealmForCompact(config);
     Future<void>.delayed(Duration(seconds: 5));
 
