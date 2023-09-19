@@ -279,7 +279,7 @@ sealed class GeoShape {}
 ///   Location toLocation() => toGeoPoint().toLocation();
 /// }
 /// ```
-class GeoPoint implements GeoShape {
+final class GeoPoint implements GeoShape {
   final double lon;
   final double lat;
 
@@ -308,7 +308,7 @@ class GeoPoint implements GeoShape {
 ///
 /// This type can be used as the query argument for a `geoWithin` query.
 /// It cannot be persisted as a property on a realm object.
-class GeoBox implements GeoShape {
+final class GeoBox implements GeoShape {
   final GeoPoint southWest;
   final GeoPoint northEast;
 
@@ -342,7 +342,7 @@ extension on GeoRing {
 ///
 /// This type can be used as the query argument for a `geoWithin` query.
 /// It cannot be persisted as a property on a realm object.
-class GeoPolygon implements GeoShape {
+final class GeoPolygon implements GeoShape {
   final GeoRing outerRing;
   final List<GeoRing> holes;
 
@@ -383,7 +383,7 @@ const _radiansPerMeterOnEarthSphere = 1.5678502891116e-7; // at equator
 const _radiansPerDegree = pi / 180;
 
 /// An equatorial distance on earth's surface.
-class GeoDistance implements Comparable<GeoDistance> {
+final class GeoDistance implements Comparable<GeoDistance> {
   /// The distance in radians
   final double radians;
 
@@ -453,7 +453,7 @@ extension DoubleToGeoDistance on num {
 ///
 /// This type can be used as the query argument for a `geoWithin` query.
 /// It cannot be persisted as a property on a realm object.
-class GeoCircle implements GeoShape {
+final class GeoCircle implements GeoShape {
   final GeoPoint center;
   final GeoDistance radius;
 
