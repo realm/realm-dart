@@ -93,17 +93,6 @@ extension FieldElementEx on FieldElement {
       final indexed = indexedInfo;
       final backlink = backlinkInfo;
 
-      // Check for as-of-yet unsupported type
-      if (type.isDartCoreMap) {
-        throw RealmInvalidGenerationSourceError(
-          'Field type not supported yet',
-          element: this,
-          primarySpan: typeSpan(span!.file),
-          primaryLabel: 'not yet supported',
-          todo: 'Avoid using $modelTypeName for now',
-        );
-      }
-
       // Validate primary key
       if (primaryKey != null) {
         if (indexed != null) {

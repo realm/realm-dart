@@ -1,12 +1,12 @@
-Field type not supported yet
+Not a realm type
 
 in: asset:pkg/test/error_test_data/map_unsupported.dart:7:8
   ╷
 5 │ @RealmModel()
 6 │ class _Person {
   │       ━━━━━━━ in realm model for 'Person'
-7 │   late Map<String, _Person> relatives;
-  │        ^^^^^^^^^^^^^^^^^^^^ not yet supported
+7 │   late Map<int, _Person> relatives;
+  │        ^^^^^^^^^^^^^^^^^ Map<int, _Person> is not a realm model type
   ╵
-Avoid using Map<String, _Person> for now
+Remove the invalid field or add an @Ignored annotation on 'relatives'.
 
