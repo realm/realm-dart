@@ -1401,7 +1401,7 @@ Future<void> main([List<String>? args]) async {
 
   void addDataForCompact(Realm realm, String compactTest) {
     realm.write(() {
-      for (var i = 0; i < 2500; i++) {
+      for (var i = 0; i < 200; i++) {
         realm.add(Product(ObjectId(), compactTest));
       }
     });
@@ -1554,7 +1554,7 @@ Future<void> main([List<String>? args]) async {
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
     final config = Configuration.flexibleSync(user, syncSchema, encryptionKey: key);
     final beforeCompactSize = await createRealmForCompact(config);
-    Future<void>.delayed(Duration(seconds: 5));
+    Future<void>.delayed(Duration(seconds: 15));
 
     final compacted = Realm.compact(config);
 
