@@ -1399,8 +1399,7 @@ Future<void> main([List<String>? args]) async {
     expect(progressReturned, isFalse);
   });
 
-  const compactTest = "compact_test";
-  void addDataForCompact(Realm realm) {
+  void addDataForCompact(Realm realm, String compactTest) {
     realm.write(() {
       for (var i = 0; i < 2500; i++) {
         realm.add(Product(ObjectId(), compactTest));
@@ -1418,6 +1417,7 @@ Future<void> main([List<String>? args]) async {
 
   Future<int> createRealmForCompact(Configuration config) async {
     var realm = getRealm(config);
+    final compactTest = generateRandomString(10);
 
     if (config is FlexibleSyncConfiguration) {
       realm.subscriptions.update((mutableSubscriptions) {
@@ -1426,7 +1426,7 @@ Future<void> main([List<String>? args]) async {
       await realm.subscriptions.waitForSynchronization();
     }
 
-    addDataForCompact(realm);
+    addDataForCompact(realm, compactTest);
 
     if (config is FlexibleSyncConfiguration) {
       await realm.syncSession.waitForDownload();
