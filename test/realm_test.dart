@@ -1541,7 +1541,6 @@ Future<void> main([List<String>? args]) async {
     Future<void>.delayed(Duration(seconds: 5));
 
     final compacted = Realm.compact(config);
-
     validateCompact(compacted, config.path, beforeCompactSize);
 
     //test the realm can be opened.
@@ -1559,7 +1558,6 @@ Future<void> main([List<String>? args]) async {
     Future<void>.delayed(Duration(seconds: 15));
 
     final compacted = Realm.compact(config);
-
     validateCompact(compacted, config.path, beforeCompactSize);
 
     //test the realm can be opened.
