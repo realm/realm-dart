@@ -19,7 +19,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 
