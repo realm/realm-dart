@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
