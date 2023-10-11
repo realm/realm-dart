@@ -6,6 +6,7 @@ part of 'asymmetric_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, AsymmetricObject {
   Asymmetric(
@@ -53,6 +54,7 @@ class Asymmetric extends _Asymmetric
   }
 }
 
+// ignore_for_file: type=lint
 class Embedded extends _Embedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   Embedded(
@@ -105,6 +107,7 @@ class Embedded extends _Embedded
   }
 }
 
+// ignore_for_file: type=lint
 class Symmetric extends _Symmetric
     with RealmEntity, RealmObjectBase, RealmObject {
   Symmetric(

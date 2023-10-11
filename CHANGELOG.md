@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Suppressing rules for a  *.g.dart files ([#1413](https://github.com/realm/realm-dart/pull/1413))
 
 ### Fixed
 * None

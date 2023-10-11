@@ -2,6 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Indexable extends _Indexable
     with RealmEntity, RealmObjectBase, RealmObject {
   Indexable(

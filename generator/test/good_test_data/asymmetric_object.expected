@@ -2,6 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, RealmObject {
   Asymmetric(
@@ -70,6 +71,7 @@ class Asymmetric extends _Asymmetric
   }
 }
 
+// ignore_for_file: type=lint
 class Embedded extends _Embedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   Embedded(
