@@ -97,6 +97,9 @@ class _Task {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
+
+  @override
+  String toString() => 'Task($id)';
 }
 
 @RealmModel()
