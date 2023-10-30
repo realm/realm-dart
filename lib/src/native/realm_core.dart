@@ -1490,6 +1490,15 @@ class _RealmCore {
   bool userEquals(User first, User second) => _equals(first.handle, second.handle);
   bool subscriptionEquals(Subscription first, Subscription second) => _equals(first.handle, second.handle);
 
+  int objectGetHashCode(RealmObjectBase value) {
+    final link = realmCore._getObjectAsLink(value);
+
+    var hashCode = -986587137;
+    hashCode = (hashCode * -1521134295) + link.classKey;
+    hashCode = (hashCode * -1521134295) + link.targetKey;
+    return hashCode;
+  }
+
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
     return RealmResultsHandle._(resultsPointer, results.realm.handle);
