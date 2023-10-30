@@ -3416,38 +3416,3 @@ extension on realm_error {
     return LastError(error, message, userError);
   }
 }
-
-/// @nodoc
-enum SyncErrorCodes {
-  runtimeError(realm_errno.RLM_ERR_RUNTIME),
-  objectAlreadyExists(realm_errno.RLM_ERR_OBJECT_ALREADY_EXISTS),
-  badChangeset(realm_errno.RLM_ERR_BAD_CHANGESET),
-  autoClientResetFailed(realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED),
-  badSyncPartitionValue(realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE),
-  connectionClosed(realm_errno.RLM_ERR_CONNECTION_CLOSED),
-  invalidSubscriptionQuery(realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY),
-  syncClientResetRequired(realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED),
-  syncCompensatingWrite(realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE),
-  syncConnectFailed(realm_errno.RLM_ERR_SYNC_CONNECT_FAILED),
-  syncConnectTimeout(realm_errno.RLM_ERR_SYNC_CONNECT_TIMEOUT),
-  syncInvalidSchemaChange(realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE),
-  syncPermissionDenied(realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED),
-  syncProtocolInvariantFailed(realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED),
-  syncProtocolNegotiationFailed(realm_errno.RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED),
-  syncServerPermissionsChanged(realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED),
-  syncUserMismatch(realm_errno.RLM_ERR_SYNC_USER_MISMATCH),
-  tlsHandshakeFailed(realm_errno.RLM_ERR_TLS_HANDSHAKE_FAILED),
-  wrongSyncType(realm_errno.RLM_ERR_WRONG_SYNC_TYPE),
-  syncWriteNotAllowed(realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED),
-  authError(realm_errno.RLM_ERR_AUTH_ERROR),
-  unknownError(realm_errno.RLM_ERR_UNKNOWN);
-
-  static final Map<int, SyncErrorCodes> _valuesMap = {for (var value in SyncErrorCodes.values) value.code: value};
-
-  static SyncErrorCodes fromInt(int code) {
-    return SyncErrorCodes._valuesMap[code] ?? SyncErrorCodes.unknownError;
-  }
-
-  final int code;
-  const SyncErrorCodes(this.code);
-}

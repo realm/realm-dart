@@ -35,7 +35,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) asy
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema)..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await testFunc(realm);
   });
@@ -477,9 +477,9 @@ Future<void> main([List<String>? args]) async {
     final userX = await appX.logIn(credentials);
     final userY = await appY.logIn(credentials);
 
-    final realmX = getRealm(Configuration.flexibleSync(userX, syncSchema));
+    final realmX = getRealm(Configuration.flexibleSync(userX, getSyncSchema()));
     final objectId = ObjectId();
-  
+
     realmX.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmX.query<Task>(r'_id == $0', [objectId]));
     });
@@ -487,7 +487,7 @@ Future<void> main([List<String>? args]) async {
     realmX.write(() => realmX.add(Task(objectId)));
     await realmX.syncSession.waitForUpload();
 
-    final realmY = getRealm(Configuration.flexibleSync(userY, syncSchema));
+    final realmY = getRealm(Configuration.flexibleSync(userY, getSyncSchema()));
     realmY.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realmY.query<Task>(r'_id == $0', [objectId]));
     });
@@ -501,7 +501,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final config = Configuration.flexibleSync(user, syncSchema);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     final realm = getRealm(config);
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
@@ -541,7 +541,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final config = Configuration.flexibleSync(user, syncSchema);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
     final subscriptions = realm.subscriptions;
@@ -556,7 +556,7 @@ Future<void> main([List<String>? args]) async {
     final productNamePrefix = generateRandomString(4);
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
+    final config = Configuration.flexibleSync(user, getSyncSchema(), syncErrorHandler: (syncError) {
       compensatingWriteError = syncError;
     });
     final realm = getRealm(config);
@@ -569,7 +569,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
 
     expect(compensatingWriteError, isA<CompensatingWriteError>());
-    final sessionError = compensatingWriteError.as<CompensatingWriteError>();
+    final sessionError = compensatingWriteError as CompensatingWriteError;
     expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'), isTrue);
     expect(sessionError.compensatingWrites, isNotNull);
     final writeReason = sessionError.compensatingWrites!.first;

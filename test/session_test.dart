@@ -19,9 +19,7 @@
 import 'dart:async';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-import '../lib/src/session.dart' show SessionInternal;
 import 'test.dart';
-import '../lib/src/native/realm_core.dart' show SyncErrorCodes;
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -43,7 +41,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
     expect(realm.syncSession.user, user);
@@ -55,7 +53,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     // Don't use getRealm because we want the Realm to survive
     final realm = Realm(config);
@@ -279,43 +277,6 @@ Future<void> main([List<String>? args]) async {
     await downloadData.subscription.cancel();
   });
 
-  baasTest('BadFlexibleSyncQueryError test error handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
-      expect(syncError, isA<BadFlexibleSyncQueryError>());
-      expect(syncError.message, isNotEmpty);
-    });
-
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCodes.invalidSubscriptionQuery.code, false);
-  });
-
-  baasTest('UnrecoverableSyncError test error handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
-      expect(syncError, isA<UnrecoverableSyncError>());
-      expect(syncError.message, isNotEmpty);
-    });
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCodes.syncProtocolInvariantFailed.code, true);
-  });
-
-  baasTest('WrongSyncTypeError test error handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema, syncErrorHandler: (syncError) {
-      expect(syncError, isA<WrongSyncTypeError>());
-      expect(syncError.message, isNotEmpty);
-    });
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCodes.wrongSyncType.code, true);
-  });
-
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 
@@ -357,7 +318,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when Realm is closed gets closed as well', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, syncSchema);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
     final session = realm.syncSession;

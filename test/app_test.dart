@@ -258,10 +258,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('App.reconnect', (appConfiguration) async {
     final app = App(appConfiguration);
-
-    final user = await app.logIn(Credentials.anonymous());
-    final configuration = Configuration.flexibleSync(user, syncSchema);
-    final realm = getRealm(configuration);
+    final realm = await getIntegrationRealm(app: app);
     final session = realm.syncSession;
 
     // TODO: We miss a way to force a disconnect. Once we implement GenericNetworkTransport

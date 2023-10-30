@@ -995,12 +995,12 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final configuration = Configuration.flexibleSync(user, syncSchema, encryptionKey: key);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key);
 
     final realm = getRealm(configuration);
     expect(realm.isClosed, false);
     expect(
-      () => getRealm(Configuration.flexibleSync(user, syncSchema)),
+      () => getRealm(Configuration.flexibleSync(user, getSyncSchema())),
       throws<RealmException>("already opened with a different encryption key"),
     );
   });
@@ -1017,7 +1017,7 @@ Future<void> main([List<String>? args]) async {
     Future<void>.delayed(Duration(milliseconds: 10), () => transaction.commit());
 
     final transaction1 = await realm.beginWriteAsync();
-    
+
     await transaction1.commitAsync();
 
     expect(transaction.isOpen, false);
@@ -1231,7 +1231,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     final realm = await getRealmAsync(configuration);
     expect(realm.isClosed, false);
@@ -1254,7 +1254,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     final cancellationToken = CancellationToken();
     cancellationToken.cancel();
@@ -1265,7 +1265,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     final cancellationToken = CancellationToken();
     final isRealmCancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
@@ -1277,7 +1277,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     final cancellationToken = CancellationToken();
 
@@ -1292,7 +1292,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     final cancellationToken1 = CancellationToken();
     final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken1).isCancelled();
@@ -1308,12 +1308,12 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
-    final configuration1 = Configuration.flexibleSync(user1, syncSchema);
+    final configuration1 = Configuration.flexibleSync(user1, getSyncSchema());
     final cancellationToken1 = CancellationToken();
     final isRealm1Cancelled = getRealmAsync(configuration1, cancellationToken: cancellationToken1).isCancelled();
 
     final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, syncSchema);
+    final configuration2 = Configuration.flexibleSync(user2, getSyncSchema());
     final cancellationToken2 = CancellationToken();
     final isRealm2Cancelled = getRealmAsync(configuration2, cancellationToken: cancellationToken2).isCancelled();
 
@@ -1326,7 +1326,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     final cancellationToken = CancellationToken();
     final realm = await getRealmAsync(configuration, cancellationToken: cancellationToken);
@@ -1342,7 +1342,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, syncSchema);
+    final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     int transferredBytes = -1;
     final completer = Completer<void>();
@@ -1588,7 +1588,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
-    final configCopy = Configuration.flexibleSync(user, syncSchema);
+    final configCopy = Configuration.flexibleSync(user, getSyncSchema());
     expect(() => originalRealm.writeCopy(configCopy),
         throws<RealmException>("Realm cannot be converted to a flexible sync realm unless flexible sync is already enabled"));
   });
@@ -1704,14 +1704,14 @@ Future<void> main([List<String>? args]) async {
       baasTest('Realm writeCopy Sync->Sync - $testDescription can be opened and synced', (appConfiguration) async {
         final app = App(appConfiguration);
         var user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final originalConfig = Configuration.flexibleSync(user1, syncSchema, encryptionKey: sourceEncryptedKey);
+        final originalConfig = Configuration.flexibleSync(user1, getSyncSchema(), encryptionKey: sourceEncryptedKey);
         final originalRealm = getRealm(originalConfig);
         var itemsCount = 2;
         final productNamePrefix = generateRandomString(10);
         await _addDataToAtlas(originalRealm, productNamePrefix, itemsCount: itemsCount);
 
         var user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final configCopy = Configuration.flexibleSync(user2, syncSchema, encryptionKey: destinationEncryptedKey);
+        final configCopy = Configuration.flexibleSync(user2, getSyncSchema(), encryptionKey: destinationEncryptedKey);
         originalRealm.writeCopy(configCopy);
         originalRealm.close();
 
@@ -1732,7 +1732,7 @@ Future<void> main([List<String>? args]) async {
 
         // Create another user's realm and download the data
         var anotherUser = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final anotherUserRealm = getRealm(Configuration.flexibleSync(anotherUser, syncSchema));
+        final anotherUserRealm = getRealm(Configuration.flexibleSync(anotherUser, getSyncSchema()));
         await _addSubscriptions(anotherUserRealm, productNamePrefix);
         await anotherUserRealm.syncSession.waitForUpload();
         await anotherUserRealm.syncSession.waitForDownload();
@@ -1752,7 +1752,7 @@ Future<void> main([List<String>? args]) async {
       baasTest('Realm writeCopy Sync->Local - $testDescription can be opened and synced', (appConfiguration) async {
         final app = App(appConfiguration);
         var user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final originalConfig = Configuration.flexibleSync(user, syncSchema, encryptionKey: sourceEncryptedKey);
+        final originalConfig = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: sourceEncryptedKey);
         final originalRealm = getRealm(originalConfig);
         var itemsCount = 2;
         final productNamePrefix = generateRandomString(10);
@@ -1891,7 +1891,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final productName = generateRandomUnicodeString();
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config = Configuration.flexibleSync(user, syncSchema);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
     await _addSubscriptions(realm, productName);
     realm.write(() => realm.add(Product(ObjectId(), productName)));
@@ -1949,13 +1949,13 @@ extension on Future<Realm> {
 Future<Configuration> _subscribeForAtlasAddedData(App app, {String? queryDifferentiator, int itemsCount = 100}) async {
   final productNamePrefix = queryDifferentiator ?? generateRandomString(10);
   final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final config1 = Configuration.flexibleSync(user1, syncSchema);
+  final config1 = Configuration.flexibleSync(user1, getSyncSchema());
   final realm1 = getRealm(config1);
   await _addSubscriptions(realm1, productNamePrefix);
   realm1.close();
 
   final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final config2 = Configuration.flexibleSync(user2, syncSchema);
+  final config2 = Configuration.flexibleSync(user2, getSyncSchema());
   final realm2 = getRealm(config2);
   await _addDataToAtlas(realm2, productNamePrefix, itemsCount: itemsCount);
   realm2.close();

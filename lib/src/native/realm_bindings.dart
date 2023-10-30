@@ -3244,9 +3244,9 @@ class RealmLibrary {
   }
 
   late final _realm_dart_decimal128_from_stringPtr = _lookup<
-          ffi
-          .NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>(
-      'realm_dart_decimal128_from_string');
+      ffi.NativeFunction<
+          realm_decimal128_t Function(
+              ffi.Pointer<ffi.Char>)>>('realm_dart_decimal128_from_string');
   late final _realm_dart_decimal128_from_string =
       _realm_dart_decimal128_from_stringPtr
           .asFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>();
@@ -3520,9 +3520,9 @@ class RealmLibrary {
   }
 
   late final _realm_dart_invoke_unlock_callbackPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>(
-      'realm_dart_invoke_unlock_callback');
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Bool,
+              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_unlock_callback');
   late final _realm_dart_invoke_unlock_callback =
       _realm_dart_invoke_unlock_callbackPtr
           .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
@@ -3548,9 +3548,9 @@ class RealmLibrary {
   }
 
   late final _realm_dart_log_message_for_testingPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>(
-      'realm_dart_log_message_for_testing');
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_dart_log_message_for_testing');
   late final _realm_dart_log_message_for_testing =
       _realm_dart_log_message_for_testingPtr
           .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
@@ -3967,9 +3967,9 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_clearPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>>(
-      'realm_dictionary_clear');
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_clear');
   late final _realm_dictionary_clear = _realm_dictionary_clearPtr
       .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
 
@@ -4372,9 +4372,9 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_is_validPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>>(
-      'realm_dictionary_is_valid');
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_is_valid');
   late final _realm_dictionary_is_valid = _realm_dictionary_is_validPtr
       .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
 
@@ -4686,9 +4686,8 @@ class RealmLibrary {
   }
 
   late final _realm_freezePtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>(
-      'realm_freeze');
+      ffi.NativeFunction<
+          ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>('realm_freeze');
   late final _realm_freeze = _realm_freezePtr
       .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>();
 
@@ -6596,9 +6595,9 @@ class RealmLibrary {
   }
 
   late final _realm_object_as_linkPtr = _lookup<
-          ffi
-          .NativeFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>>(
-      'realm_object_as_link');
+      ffi.NativeFunction<
+          realm_link_t Function(
+              ffi.Pointer<realm_object_t>)>>('realm_object_as_link');
   late final _realm_object_as_link = _realm_object_as_linkPtr
       .asFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>();
 
@@ -8052,9 +8051,9 @@ class RealmLibrary {
   }
 
   late final _realm_scheduler_perform_workPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_scheduler_perform_work');
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_scheduler_t>)>>('realm_scheduler_perform_work');
   late final _realm_scheduler_perform_work = _realm_scheduler_perform_workPtr
       .asFunction<void Function(ffi.Pointer<realm_scheduler_t>)>();
 
@@ -8237,9 +8236,9 @@ class RealmLibrary {
   }
 
   late final _realm_set_auto_refreshPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_t>, ffi.Bool)>>(
-      'realm_set_auto_refresh');
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_t>, ffi.Bool)>>('realm_set_auto_refresh');
   late final _realm_set_auto_refresh = _realm_set_auto_refreshPtr
       .asFunction<void Function(ffi.Pointer<realm_t>, bool)>();
 
@@ -8679,9 +8678,9 @@ class RealmLibrary {
   }
 
   late final _realm_sync_client_config_newPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Pointer<realm_sync_client_config_t> Function()>>(
-      'realm_sync_client_config_new');
+      ffi.NativeFunction<
+          ffi.Pointer<realm_sync_client_config_t>
+              Function()>>('realm_sync_client_config_new');
   late final _realm_sync_client_config_new = _realm_sync_client_config_newPtr
       .asFunction<ffi.Pointer<realm_sync_client_config_t> Function()>();
 
@@ -8945,8 +8944,7 @@ class RealmLibrary {
 
   late final _realm_sync_client_config_set_user_agent_application_infoPtr =
       _lookup<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
                       ffi.Pointer<ffi.Char>)>>(
           'realm_sync_client_config_set_user_agent_application_info');
@@ -9715,8 +9713,7 @@ class RealmLibrary {
 
   late final _realm_sync_session_register_connection_state_change_callbackPtr =
       _lookup<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                       ffi.Pointer<realm_sync_session_t>,
                       realm_sync_connection_state_changed_func_t,
@@ -9858,29 +9855,24 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>();
 
-  void realm_sync_socket_callback_complete(
-    ffi.Pointer<realm_sync_socket_callback_t> realm_callback,
-    int status,
-    ffi.Pointer<ffi.Char> reason,
-  ) {
-    return _realm_sync_socket_callback_complete(
-      realm_callback,
-      status,
-      reason,
-    );
-  }
-
-  late final _realm_sync_socket_callback_completePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_sync_socket_callback_t>,
-              ffi.Int32,
-              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_callback_complete');
-  late final _realm_sync_socket_callback_complete =
-      _realm_sync_socket_callback_completePtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_socket_callback_t>, int,
-              ffi.Pointer<ffi.Char>)>();
-
+  /// Creates a new sync socket instance for the Sync Client that handles the operations for a custom
+  /// websocket and event loop implementation.
+  /// @param userdata CAPI implementation specific pointer containing custom context data that is provided to
+  /// each of the provided functions.
+  /// @param userdata_free function that will be called when the sync socket is destroyed to delete userdata. This
+  /// is required if userdata is not null.
+  /// @param post_func function that will be called to post a callback handler onto the event loop - use the
+  /// realm_sync_socket_post_complete() function when the callback handler is scheduled to run.
+  /// @param create_timer_func function that will be called to create a new timer resource with the callback
+  /// handler that will be run when the timer expires or an erorr occurs - use the
+  /// realm_sync_socket_timer_canceled() function if the timer is canceled or the
+  /// realm_sync_socket_timer_complete() function if the timer expires or an error occurs.
+  /// @param cancel_timer_func function that will be called when the timer has been canceled by the sync client.
+  /// @param free_timer_func function that will be called when the timer resource has been destroyed by the sync client.
+  /// @param websocket_connect_func function that will be called when the sync client creates a websocket.
+  /// @param websocket_write_func function that will be called when the sync client sends data over the websocket.
+  /// @param websocket_free_func function that will be called when the sync client closes the websocket conneciton.
+  /// @return a realm_sync_socket_t pointer suitable for passing to realm_sync_client_config_set_sync_socket()
   ffi.Pointer<realm_sync_socket_t> realm_sync_socket_new(
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -9930,32 +9922,132 @@ class RealmLibrary {
           realm_sync_socket_websocket_async_write_func_t,
           realm_sync_socket_websocket_free_func_t)>();
 
-  void realm_sync_socket_websocket_closed(
+  /// To be called to execute the callback function provided to the post_func when the event loop executes
+  /// that post'ed operation. The post_handler resource will automatically be destroyed during this
+  /// operation.
+  /// @param post_handler the post callback handler that was originally provided to the post_func
+  /// @param result the error code for the error that occurred or RLM_ERR_SYNC_SOCKET_SUCCESS if the
+  /// callback handler should be executed normally.
+  /// @param reason a string describing details about the error that occurred or empty string if no error.
+  /// NOTE: This function must be called by the event loop execution thread.
+  void realm_sync_socket_post_complete(
+    ffi.Pointer<realm_sync_socket_post_callback_t> post_handler,
+    int result,
+    ffi.Pointer<ffi.Char> reason,
+  ) {
+    return _realm_sync_socket_post_complete(
+      post_handler,
+      result,
+      reason,
+    );
+  }
+
+  late final _realm_sync_socket_post_completePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_socket_post_callback_t>,
+              ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_post_complete');
+  late final _realm_sync_socket_post_complete =
+      _realm_sync_socket_post_completePtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_socket_post_callback_t>, int,
+              ffi.Pointer<ffi.Char>)>();
+
+  /// To be called to execute the callback handler provided to the create_timer_func when the timer has been
+  /// canceled.
+  /// @param timer_handler the timer callback handler that was provided when the timer was created.
+  /// NOTE: This function must be called by the event loop execution thread.
+  void realm_sync_socket_timer_canceled(
+    ffi.Pointer<realm_sync_socket_timer_callback_t> timer_handler,
+  ) {
+    return _realm_sync_socket_timer_canceled(
+      timer_handler,
+    );
+  }
+
+  late final _realm_sync_socket_timer_canceledPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_sync_socket_timer_callback_t>)>>(
+      'realm_sync_socket_timer_canceled');
+  late final _realm_sync_socket_timer_canceled =
+      _realm_sync_socket_timer_canceledPtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_socket_timer_callback_t>)>();
+
+  /// To be called to execute the callback handler provided to the create_timer_func when the timer is
+  /// complete or an error occurs while processing the timer.
+  /// @param timer_handler the timer callback handler that was provided when the timer was created.
+  /// @param result the error code for the error that occurred or RLM_ERR_SYNC_SOCKET_SUCCESS if the timer
+  /// expired normally.
+  /// @param reason a string describing details about the error that occurred or empty string if no error.
+  /// NOTE: This function must be called by the event loop execution thread.
+  void realm_sync_socket_timer_complete(
+    ffi.Pointer<realm_sync_socket_timer_callback_t> timer_handler,
+    int result,
+    ffi.Pointer<ffi.Char> reason,
+  ) {
+    return _realm_sync_socket_timer_complete(
+      timer_handler,
+      result,
+      reason,
+    );
+  }
+
+  late final _realm_sync_socket_timer_completePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_socket_timer_callback_t>,
+              ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_timer_complete');
+  late final _realm_sync_socket_timer_complete =
+      _realm_sync_socket_timer_completePtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_socket_timer_callback_t>, int,
+              ffi.Pointer<ffi.Char>)>();
+
+  /// To be called when the websocket has been closed, either due to an error or a normal close operation.
+  /// @param realm_websocket_observer the websocket observer object that was provided to the websocket_connect_func
+  /// @param was_clean boolean value that indicates whether this is a normal close situation (true), the
+  /// close code was provided by the server via a close message (true), or if the close code was
+  /// generated by the local websocket as a result of some other error (false) (e.g. host
+  /// unreachable, etc.)
+  /// @param code the websocket close code (per the WebSocket spec) that describes why the websocket was closed.
+  /// @param reason a string describing details about the error that occurred or empty string if no error.
+  /// @return bool designates whether the WebSocket object has been destroyed during the execution of this
+  /// function. The normal return value is True to indicate the WebSocket object is no longer valid. If
+  /// False is returned, the WebSocket object will be destroyed at some point in the future.
+  /// NOTE: This function must be called by the event loop execution thread and should not be called
+  /// after the websocket_free_func has been called to release the websocket resources.
+  bool realm_sync_socket_websocket_closed(
     ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
     bool was_clean,
-    int status,
+    int code,
     ffi.Pointer<ffi.Char> reason,
   ) {
     return _realm_sync_socket_websocket_closed(
       realm_websocket_observer,
       was_clean,
-      status,
+      code,
       reason,
     );
   }
 
   late final _realm_sync_socket_websocket_closedPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
+          ffi.Bool Function(
               ffi.Pointer<realm_websocket_observer_t>,
               ffi.Bool,
               ffi.Int32,
               ffi.Pointer<ffi.Char>)>>('realm_sync_socket_websocket_closed');
   late final _realm_sync_socket_websocket_closed =
       _realm_sync_socket_websocket_closedPtr.asFunction<
-          void Function(ffi.Pointer<realm_websocket_observer_t>, bool, int,
+          bool Function(ffi.Pointer<realm_websocket_observer_t>, bool, int,
               ffi.Pointer<ffi.Char>)>();
 
+  /// To be called when the websocket successfully connects to the server.
+  /// @param realm_websocket_observer the websocket observer object that was provided to the websocket_connect_func
+  /// @param protocol the value of the Sec-WebSocket-Protocol header in the connect response from the server.
+  /// NOTE: This function must be called by the event loop execution thread and should not be called
+  /// after the websocket_free_func has been called to release the websocket resources.
   void realm_sync_socket_websocket_connected(
     ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
     ffi.Pointer<ffi.Char> protocol,
@@ -9975,6 +10067,12 @@ class RealmLibrary {
           void Function(ffi.Pointer<realm_websocket_observer_t>,
               ffi.Pointer<ffi.Char>)>();
 
+  /// To be called when an error occurs - the actual error value will be provided when the websocket_closed
+  /// function is called. This function informs that the socket object is in an error state and no further
+  /// TX operations should be performed.
+  /// @param realm_websocket_observer the websocket observer object that was provided to the websocket_connect_func
+  /// NOTE: This function must be called by the event loop execution thread and should not be called
+  /// after the websocket_free_func has been called to release the websocket resources.
   void realm_sync_socket_websocket_error(
     ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
   ) {
@@ -9991,7 +10089,17 @@ class RealmLibrary {
       _realm_sync_socket_websocket_errorPtr
           .asFunction<void Function(ffi.Pointer<realm_websocket_observer_t>)>();
 
-  void realm_sync_socket_websocket_message(
+  /// To be called to provide the received data to the Sync Client when a write operation has completed.
+  /// The data buffer can be safely discarded after this function has completed.
+  /// @param realm_websocket_observer the websocket observer object that was provided to the websocket_connect_func
+  /// @param data a pointer to the buffer that contains the data received over the websocket
+  /// @param data_size the number of bytes in the data buffer
+  /// @return bool designates whether the WebSocket object should continue processing messages. The normal return
+  /// value is true. False must be returned if the websocket object has been destroyed during execution of
+  /// the function.
+  /// NOTE: This function must be called by the event loop execution thread and should not be called
+  /// after the websocket_free_func has been called to release the websocket resources.
+  bool realm_sync_socket_websocket_message(
     ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
     ffi.Pointer<ffi.Char> data,
     int data_size,
@@ -10005,14 +10113,45 @@ class RealmLibrary {
 
   late final _realm_sync_socket_websocket_messagePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(
+          ffi.Bool Function(
               ffi.Pointer<realm_websocket_observer_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Size)>>('realm_sync_socket_websocket_message');
   late final _realm_sync_socket_websocket_message =
       _realm_sync_socket_websocket_messagePtr.asFunction<
-          void Function(ffi.Pointer<realm_websocket_observer_t>,
+          bool Function(ffi.Pointer<realm_websocket_observer_t>,
               ffi.Pointer<ffi.Char>, int)>();
+
+  /// To be called to execute the callback function provided to the websocket_write_func when the write
+  /// operation is complete. The write_handler resource will automatically be destroyed during this
+  /// operation.
+  /// @param write_handler the write callback handler that was originally provided to the websocket_write_func
+  /// @param result the error code for the error that occurred or RLM_ERR_SYNC_SOCKET_SUCCESS if write completed
+  /// successfully
+  /// @param reason a string describing details about the error that occurred or empty string if no error.
+  /// NOTE: This function must be called by the event loop execution thread.
+  void realm_sync_socket_write_complete(
+    ffi.Pointer<realm_sync_socket_write_callback_t> write_handler,
+    int result,
+    ffi.Pointer<ffi.Char> reason,
+  ) {
+    return _realm_sync_socket_write_complete(
+      write_handler,
+      result,
+      reason,
+    );
+  }
+
+  late final _realm_sync_socket_write_completePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<realm_sync_socket_write_callback_t>,
+              ffi.Int32,
+              ffi.Pointer<ffi.Char>)>>('realm_sync_socket_write_complete');
+  late final _realm_sync_socket_write_complete =
+      _realm_sync_socket_write_completePtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_socket_write_callback_t>, int,
+              ffi.Pointer<ffi.Char>)>();
 
   /// Access the subscription at index.
   /// @return the subscription or nullptr if the index is not valid
@@ -10176,6 +10315,32 @@ class RealmLibrary {
       _realm_sync_subscription_set_commitPtr.asFunction<
           ffi.Pointer<realm_flx_sync_subscription_set_t> Function(
               ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>)>();
+
+  /// Remove all subscriptions for a given class type. If operation completes successfully set the bool out param.
+  /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error).
+  bool realm_sync_subscription_set_erase_by_class_name(
+    ffi.Pointer<realm_flx_sync_mutable_subscription_set_t> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+    ffi.Pointer<ffi.Bool> erased,
+  ) {
+    return _realm_sync_subscription_set_erase_by_class_name(
+      arg0,
+      arg1,
+      erased,
+    );
+  }
+
+  late final _realm_sync_subscription_set_erase_by_class_namePtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Bool Function(
+                  ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+                  ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<ffi.Bool>)>>(
+      'realm_sync_subscription_set_erase_by_class_name');
+  late final _realm_sync_subscription_set_erase_by_class_name =
+      _realm_sync_subscription_set_erase_by_class_namePtr.asFunction<
+          bool Function(ffi.Pointer<realm_flx_sync_mutable_subscription_set_t>,
+              ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)>();
 
   /// Erase from subscription set by id. If operation completes successfully set the bool out param.
   /// @return true if no error occurred, false otherwise (use realm_get_last_error for fetching the error).
@@ -10628,20 +10793,6 @@ class RealmLibrary {
   late final _realm_user_get_app = _realm_user_get_appPtr.asFunction<
       ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_user_t>)>();
 
-  int realm_user_get_auth_provider(
-    ffi.Pointer<realm_user_t> arg0,
-  ) {
-    return _realm_user_get_auth_provider(
-      arg0,
-    );
-  }
-
-  late final _realm_user_get_auth_providerPtr = _lookup<
-          ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<realm_user_t>)>>(
-      'realm_user_get_auth_provider');
-  late final _realm_user_get_auth_provider = _realm_user_get_auth_providerPtr
-      .asFunction<int Function(ffi.Pointer<realm_user_t>)>();
-
   /// Get the custom user data from the user's access token.
   ///
   /// Returned value must be manually released with realm_free().
@@ -10694,21 +10845,6 @@ class RealmLibrary {
           ffi.Pointer<ffi.Char> Function(
               ffi.Pointer<realm_user_t>)>>('realm_user_get_identity');
   late final _realm_user_get_identity = _realm_user_get_identityPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
-
-  ffi.Pointer<ffi.Char> realm_user_get_local_identity(
-    ffi.Pointer<realm_user_t> arg0,
-  ) {
-    return _realm_user_get_local_identity(
-      arg0,
-    );
-  }
-
-  late final _realm_user_get_local_identityPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<realm_user_t>)>>('realm_user_get_local_identity');
-  late final _realm_user_get_local_identity = _realm_user_get_local_identityPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_user_t>)>();
 
   /// Get the user profile associated with this user.
@@ -10846,8 +10982,8 @@ class _SymbolAddresses {
       get realm_dart_decimal128_from_int64 =>
           _library._realm_dart_decimal128_from_int64Ptr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>
+          ffi.NativeFunction<
+              realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>
       get realm_dart_decimal128_from_string =>
           _library._realm_dart_decimal128_from_stringPtr;
   ffi.Pointer<
@@ -10913,15 +11049,15 @@ class _SymbolAddresses {
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
       get realm_dart_invoke_unlock_callback =>
           _library._realm_dart_invoke_unlock_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
       get realm_dart_log_message_for_testing =>
           _library._realm_dart_log_message_for_testingPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
@@ -10936,8 +11072,8 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
       get realm_dart_release_logger => _library._realm_dart_release_loggerPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32, Dart_Port)>>
@@ -10973,8 +11109,8 @@ class _SymbolAddresses {
       get realm_dart_sync_error_handler_callback =>
           _library._realm_dart_sync_error_handler_callbackPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
       get realm_dart_sync_on_subscription_state_changed_callback =>
           _library._realm_dart_sync_on_subscription_state_changed_callbackPtr;
   ffi.Pointer<
@@ -12030,24 +12166,36 @@ final class realm_sync_socket extends ffi.Opaque {}
 
 final class realm_sync_socket_callback extends ffi.Opaque {}
 
-typedef realm_sync_socket_callback_t = realm_sync_socket_callback;
+abstract class realm_sync_socket_callback_result {
+  static const int RLM_ERR_SYNC_SOCKET_SUCCESS = 0;
+  static const int RLM_ERR_SYNC_SOCKET_OPERATION_ABORTED = 1027;
+  static const int RLM_ERR_SYNC_SOCKET_RUNTIME = 1000;
+  static const int RLM_ERR_SYNC_SOCKET_OUT_OF_MEMORY = 1003;
+  static const int RLM_ERR_SYNC_SOCKET_ADDRESS_SPACE_EXHAUSTED = 1005;
+  static const int RLM_ERR_SYNC_SOCKET_CONNECTION_CLOSED = 1030;
+  static const int RLM_ERR_SYNC_SOCKET_NOT_SUPPORTED = 2001;
+  static const int RLM_ERR_SYNC_SOCKET_INVALID_ARGUMENT = 3000;
+}
+
 typedef realm_sync_socket_connect_func_t = ffi.Pointer<
     ffi.NativeFunction<
         realm_sync_socket_websocket_t Function(
             ffi.Pointer<ffi.Void> userdata,
             realm_websocket_endpoint_t endpoint,
-            ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer)>>;
+            ffi.Pointer<realm_websocket_observer_t> websocket_observer)>>;
 typedef realm_sync_socket_create_timer_func_t = ffi.Pointer<
     ffi.NativeFunction<
         realm_sync_socket_timer_t Function(
             ffi.Pointer<ffi.Void> userdata,
             ffi.Uint64 delay_ms,
-            ffi.Pointer<realm_sync_socket_callback_t> realm_callback)>>;
+            ffi.Pointer<realm_sync_socket_timer_callback_t> timer_callback)>>;
+typedef realm_sync_socket_post_callback_t = realm_sync_socket_callback;
 typedef realm_sync_socket_post_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void> userdata,
-            ffi.Pointer<realm_sync_socket_callback_t> realm_callback)>>;
+            ffi.Pointer<realm_sync_socket_post_callback_t> post_callback)>>;
 typedef realm_sync_socket_t = realm_sync_socket;
+typedef realm_sync_socket_timer_callback_t = realm_sync_socket_callback;
 typedef realm_sync_socket_timer_canceled_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void> userdata,
@@ -12061,15 +12209,16 @@ typedef realm_sync_socket_websocket_async_write_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(
             ffi.Pointer<ffi.Void> userdata,
-            realm_sync_socket_websocket_t websocket_userdata,
+            realm_sync_socket_websocket_t websocket,
             ffi.Pointer<ffi.Char> data,
             ffi.Size size,
-            ffi.Pointer<realm_sync_socket_callback_t> realm_callback)>>;
+            ffi.Pointer<realm_sync_socket_write_callback_t> write_callback)>>;
 typedef realm_sync_socket_websocket_free_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Void Function(ffi.Pointer<ffi.Void> userdata,
-            realm_sync_socket_websocket_t websocket_userdata)>>;
+            realm_sync_socket_websocket_t websocket)>>;
 typedef realm_sync_socket_websocket_t = ffi.Pointer<ffi.Void>;
+typedef realm_sync_socket_write_callback_t = realm_sync_socket_callback;
 typedef realm_sync_ssl_verify_func_t = ffi.Pointer<
     ffi.NativeFunction<
         ffi.Bool Function(

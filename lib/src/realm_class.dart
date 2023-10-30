@@ -61,7 +61,6 @@ export 'collections.dart' show Move;
 export "configuration.dart"
     show
         AfterResetCallback,
-        BadFlexibleSyncQueryError,
         BeforeResetCallback,
         ClientResetCallback,
         ClientResetError,
@@ -90,9 +89,7 @@ export "configuration.dart"
         SyncErrorHandler,
         SyncResolveError,
         SyncWebSocketError,
-        SyncSessionError,
-        UnrecoverableSyncError,
-        WrongSyncTypeError;
+        SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
@@ -120,6 +117,7 @@ export 'session.dart'
         ConnectionState,
         Session,
         SessionState,
+        SyncErrorCode,
         SyncClientErrorCode,
         SyncConnectionErrorCode,
         SyncErrorCategory,

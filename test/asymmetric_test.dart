@@ -24,15 +24,8 @@ import 'test.dart';
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  Future<Realm> getSyncRealm(AppConfiguration config) async {
-    final app = App(config);
-    final user = await getAnonymousUser(app);
-    final realmConfig = Configuration.flexibleSync(user, syncSchema);
-    return getRealm(realmConfig);
-  }
-
   baasTest('Asymmetric objects die even before upload', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
     realm.syncSession.pause();
 
     final oid = ObjectId();
@@ -49,7 +42,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Asymmetric re-add same PK', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
 
     final oid = ObjectId();
     realm.write(() {
@@ -67,7 +60,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Asymmetric tricks to add non-embedded links', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Symmetric>());

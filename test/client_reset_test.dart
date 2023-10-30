@@ -35,21 +35,21 @@ Future<void> main([List<String>? args]) async {
     expect(
         Configuration.flexibleSync(
           user,
-          syncSchema,
+          getSyncSchema(),
           clientResetHandler: ManualRecoveryHandler((syncError) {}),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.manual);
     expect(
         Configuration.flexibleSync(
           user,
-          syncSchema,
+          getSyncSchema(),
           clientResetHandler: const DiscardUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.discardLocal);
     expect(
         Configuration.flexibleSync(
           user,
-          syncSchema,
+          getSyncSchema(),
           clientResetHandler: const RecoverUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recover);
@@ -57,12 +57,12 @@ Future<void> main([List<String>? args]) async {
     expect(
         Configuration.flexibleSync(
           user,
-          syncSchema,
+          getSyncSchema(),
           clientResetHandler: const RecoverOrDiscardUnsyncedChangesHandler(),
         ).clientResetHandler.clientResyncMode,
         ClientResyncModeInternal.recoverOrDiscard);
 
-    expect(Configuration.flexibleSync(user, syncSchema).clientResetHandler.clientResyncMode, ClientResyncModeInternal.recoverOrDiscard);
+    expect(Configuration.flexibleSync(user, getSyncSchema()).clientResetHandler.clientResyncMode, ClientResyncModeInternal.recoverOrDiscard);
   });
 
   baasTest('ManualRecoveryHandler error is reported in callback', (appConfig) async {
@@ -72,7 +72,7 @@ Future<void> main([List<String>? args]) async {
     final resetCompleter = Completer<void>();
     final config = Configuration.flexibleSync(
       user,
-      syncSchema,
+      getSyncSchema(),
       clientResetHandler: ManualRecoveryHandler((syncError) {
         resetCompleter.completeError(syncError);
       }),
@@ -93,7 +93,7 @@ Future<void> main([List<String>? args]) async {
     final resetCompleter = Completer<void>();
     final config = Configuration.flexibleSync(
       user,
-      syncSchema,
+      getSyncSchema(),
       clientResetHandler: ManualRecoveryHandler((clientResetError) {
         resetCompleter.completeError(clientResetError);
       }),
@@ -122,7 +122,7 @@ Future<void> main([List<String>? args]) async {
     final resetCompleter = Completer<bool>();
     final config = Configuration.flexibleSync(
       user,
-      syncSchema,
+      getSyncSchema(),
       clientResetHandler: ManualRecoveryHandler((clientResetError) {
         resetCompleter.completeError(clientResetError);
       }),
@@ -152,7 +152,7 @@ Future<void> main([List<String>? args]) async {
       final user = await getIntegrationUser(app);
 
       final onManualResetFallback = Completer<void>();
-      final config = Configuration.flexibleSync(user, syncSchema,
+      final config = Configuration.flexibleSync(user, getSyncSchema(),
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onBeforeReset: (beforeResetRealm) => throw Exception("This fails!"),
@@ -177,7 +177,7 @@ Future<void> main([List<String>? args]) async {
         throw Exception("This fails!");
       }
 
-      final config = Configuration.flexibleSync(user, syncSchema,
+      final config = Configuration.flexibleSync(user, getSyncSchema(),
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onAfterRecovery: clientResetHandlerType != DiscardUnsyncedChangesHandler ? onAfterReset : null,
@@ -204,7 +204,7 @@ Future<void> main([List<String>? args]) async {
         onAfterCompleter.complete();
       }
 
-      final config = Configuration.flexibleSync(user, syncSchema,
+      final config = Configuration.flexibleSync(user, getSyncSchema(),
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
@@ -233,7 +233,7 @@ Future<void> main([List<String>? args]) async {
           int onAfterRecoveryOccurred = 0;
           final onAfterCompleter = Completer<void>();
 
-          final config = Configuration.flexibleSync(user, syncSchema,
+          final config = Configuration.flexibleSync(user, getSyncSchema(),
               clientResetHandler: Creator.create(
                 clientResetHandlerType,
                 onBeforeReset: (beforeResetRealm) => onBeforeResetOccurred++,
@@ -304,7 +304,7 @@ Future<void> main([List<String>? args]) async {
       final maybeProduct = Product(ObjectId(), "maybe synced");
       comparer(Product p1, Product p2) => p1.id == p2.id;
 
-      final config = Configuration.flexibleSync(user, syncSchema,
+      final config = Configuration.flexibleSync(user, getSyncSchema(),
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onBeforeReset: (beforeResetRealm) {
@@ -355,7 +355,7 @@ Future<void> main([List<String>? args]) async {
       bool recovery = false;
       bool discard = false;
 
-      final config = Configuration.flexibleSync(user, syncSchema,
+      final config = Configuration.flexibleSync(user, getSyncSchema(),
           clientResetHandler: RecoverOrDiscardUnsyncedChangesHandler(
             onBeforeReset: (beforeResetRealm) => onBeforeCompleter.complete(),
             onAfterRecovery: (Realm beforeResetRealm, Realm afterResetRealm) {
@@ -395,7 +395,7 @@ Future<void> main([List<String>? args]) async {
 
     final config = Configuration.flexibleSync(
       user,
-      syncSchema,
+      getSyncSchema(),
       clientResetHandler: DiscardUnsyncedChangesHandler(
         onBeforeReset: (beforeResetRealm) async {
           await Future<void>.delayed(Duration(seconds: 1));
@@ -432,7 +432,7 @@ Future<void> main([List<String>? args]) async {
     late ClientResetError clientResetErrorOnManualFallback;
     final config = Configuration.flexibleSync(
       user,
-      syncSchema,
+      getSyncSchema(),
       clientResetHandler: DiscardUnsyncedChangesHandler(
         onBeforeReset: (beforeResetRealm) {
           onBeforeResetOccurred++;
@@ -487,7 +487,7 @@ Future<void> main([List<String>? args]) async {
     List<ObjectId> filterByIds = [task0Id, task1Id, task2Id, task3Id];
     comparer(Task t1, ObjectId id) => t1.id == id;
 
-    final configA = Configuration.flexibleSync(userA, syncSchema, clientResetHandler: RecoverUnsyncedChangesHandler(
+    final configA = Configuration.flexibleSync(userA, getSyncSchema(), clientResetHandler: RecoverUnsyncedChangesHandler(
       onAfterReset: (beforeResetRealm, afterResetRealm) {
         try {
           _checkProducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id], notExpectedList: [task2Id, task3Id]);
@@ -499,7 +499,7 @@ Future<void> main([List<String>? args]) async {
       },
     ));
 
-    final configB = Configuration.flexibleSync(userB, syncSchema, clientResetHandler: RecoverUnsyncedChangesHandler(
+    final configB = Configuration.flexibleSync(userB, getSyncSchema(), clientResetHandler: RecoverUnsyncedChangesHandler(
       onAfterReset: (beforeResetRealm, afterResetRealm) {
         try {
           _checkProducts(beforeResetRealm, comparer, expectedList: [task0Id, task1Id, task2Id, task3Id]);
@@ -546,7 +546,7 @@ Future<void> main([List<String>? args]) async {
     late ClientResetError clientResetError;
     final config = Configuration.flexibleSync(
       user,
-      syncSchema,
+      getSyncSchema(),
       clientResetHandler: ManualRecoveryHandler((syncError) {
         clientResetError = syncError;
         resetCompleter.complete();

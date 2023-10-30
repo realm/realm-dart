@@ -373,7 +373,6 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
-final syncSchema = getSyncSchema();
 
 enum AppNames {
   flexible,
@@ -704,11 +703,11 @@ Future<String> createServerApiKey(App app, String name, {bool enabled = true}) a
   return await client.createApiKey(baasApp, name, enabled);
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
-  app ??= App(await getAppConfig());
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
+  app ??= App(appConfig ?? await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, syncSchema);
+  final config = Configuration.flexibleSync(user, getSyncSchema());
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {

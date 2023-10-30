@@ -136,9 +136,9 @@ RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userd
         realm_dart_sync_error_code(const realm_error& error_input)
             : message_buffer(error_input.message)
         {
-          error = error_input.error;
-          categories = error_input.categories;
-          message = message_buffer.c_str();
+            error = error_input.error;
+            categories = error_input.categories;
+            message = message_buffer.c_str();
         }
 
         const std::string message_buffer;
@@ -194,10 +194,10 @@ bool invoke_dart_and_await_result(realm::util::UniqueFunction<void(realm::util::
         completed = true;
         condition.notify_one();
     };
-    
+
     std::unique_lock lock(mutex);
     (*userCallback)(&unlockFunc);
-    condition.wait(lock, [&] (){ return completed; });
+    condition.wait(lock, [&]() { return completed; });
 
     return success;
 }

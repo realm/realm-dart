@@ -3,9 +3,9 @@
 ### Enhancements
 * Suppressing rules for a  *.g.dart files ([#1413](https://github.com/realm/realm-dart/pull/1413))
 * Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
-* Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. Unknown error actions will be treated as an ApplicationBug error action and will cause sync to fail with an error via the sync error handler. (Core upgrade)
+* Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. (Core upgrade)
 * Added support for server log messages that are enabled by sync protocol version 10. AppServices request id will be provided in a server log message in a future server release. (Core upgrade)
-* Simplified sync errors. The following sync errors and error codes are deprecated ([#1387](https://github.com/realm/realm-dart/pull/1387)): 
+* Simplified sync errors. The following sync errors and error codes are deprecated ([#1387](https://github.com/realm/realm-dart/pull/1387)):
    * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError`
    * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory`
 * Added new Sync errors types `BadFlexibleSyncQueryError`, `WrongSyncTypeError` and `UnrecoverableSyncError`. ([#1387](https://github.com/realm/realm-dart/pull/1387))
@@ -15,8 +15,11 @@
 * Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
 * Crash when querying the size of a Object property through a link chain (Core upgrade, since v13.17.2)
 * Deprecated `App.localAppName` and `App.localAppVersion`. They were not used by the server and were not needed to set them. ([#1387](https://github.com/realm/realm-dart/pull/1387))
-* Fixed crash in slab allocator (Assertion failed: ref + size <= next->first) Many issues like (Core upgrade, since 13.0.0)
+* Fixed crash in slab allocator (`Assertion failed: ref + size <= next->first`). (Core upgrade, since 13.0.0)
 * Sending empty UPLOAD messages may lead to 'Bad server version' errors and client reset. (Core upgrade, since v11.8.0)
+* If a user was logged out while an access token refresh was in progress, the refresh completing would mark the user as logged in again and the user would be in an inconsistent state. (Core 13.21.0)
+* Receiving a `write_not_allowed` error from the server would have led to a crash. (Core 13.22.0)
+* Fix interprocess locking for concurrent realm file access resulting in a interprocess deadlock on FAT32/exFAT filesystems. (Core 13.23.0)
 
 ### Breaking Changes
 
