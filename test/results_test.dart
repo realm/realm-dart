@@ -1008,9 +1008,23 @@ Future<void> main([List<String>? args]) async {
 
     for (int i = 0; i < max; i++) {
       for (var j = 0; j < max - i; j++) {
-        expect(all.skip(i + j).contains(tasks[i + j]), true);
+        expect(all.skip(i).contains(tasks[i + j]), true);
         expect(all.skip(i + j + 1).contains(tasks[i + j]), false);
       }
     }
+  });
+
+  test('RealmResults.skip().take()', () {
+    final config = Configuration.local([Task.schema]);
+    final realm = getRealm(config);
+    const max = 10;
+    realm.write(() {
+      realm.addAll(List.generate(max, (_) => Task(ObjectId())));
+    });
+
+    final results = realm.all<Task>();
+
+    expect(results.skip(2), results.toList().sublist(2));
+    expect(results.skip(2).take(3), [results[2], results[3], results[4]]);
   });
 }
