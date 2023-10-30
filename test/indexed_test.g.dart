@@ -6,6 +6,7 @@ part of 'indexed_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class WithIndexes extends _WithIndexes
     with RealmEntity, RealmObjectBase, RealmObject {
   WithIndexes(
@@ -88,6 +89,7 @@ class WithIndexes extends _WithIndexes
   }
 }
 
+// ignore_for_file: type=lint
 class NoIndexes extends _NoIndexes
     with RealmEntity, RealmObjectBase, RealmObject {
   NoIndexes(
@@ -163,6 +165,7 @@ class NoIndexes extends _NoIndexes
   }
 }
 
+// ignore_for_file: type=lint
 class ObjectWithFTSIndex extends _ObjectWithFTSIndex
     with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithFTSIndex(
