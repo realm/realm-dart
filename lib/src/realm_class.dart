@@ -126,11 +126,17 @@ export 'session.dart'
         Session,
         SessionState,
         SyncErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncClientErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncConnectionErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncErrorCategory,
+        // ignore: deprecated_member_use_from_same_package
         SyncResolveErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncWebSocketErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;

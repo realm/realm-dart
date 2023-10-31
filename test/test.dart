@@ -855,3 +855,20 @@ List<SchemaObject> getSyncSchema() {
     Symmetric.schema,
   ];
 }
+
+Future<bool> runWithRetries(bool Function() tester, {int retryDelay = 100, int attempts = 100}) async {
+  var success = tester();
+  var timeout = retryDelay * attempts;
+
+  while (!success && attempts > 0) {
+    await Future<void>.delayed(Duration(milliseconds: retryDelay));
+    success = tester();
+    attempts--;
+  }
+
+  if (!success) {
+    throw TimeoutException('Failed to meet condition after $timeout ms.');
+  }
+
+  return success;
+}

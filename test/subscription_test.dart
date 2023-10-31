@@ -570,7 +570,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(compensatingWriteError, isA<CompensatingWriteError>());
     final sessionError = compensatingWriteError as CompensatingWriteError;
-    expect(sessionError.message!.startsWith('Client attempted a write that is outside of permissions or query filters'), isTrue);
+    expect(sessionError.message, startsWith('Client attempted a write that is outside of permissions or query filters'));
     expect(sessionError.compensatingWrites, isNotNull);
     final writeReason = sessionError.compensatingWrites!.first;
     expect(writeReason, isNotNull);
