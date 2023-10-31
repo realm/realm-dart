@@ -18,7 +18,6 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';

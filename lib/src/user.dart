@@ -47,7 +47,6 @@ class User {
   /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
   ApiKeyClient get apiKeys {
     _ensureLoggedIn('access API keys');
-    _ensureCanAccessAPIKeys();
 
     return _apiKeys;
   }
@@ -160,12 +159,6 @@ class User {
   void _ensureLoggedIn([String clarification = 'perform this action']) {
     if (state != UserState.loggedIn) {
       throw RealmError('User must be logged in to $clarification');
-    }
-  }
-
-  void _ensureCanAccessAPIKeys() {
-    if (provider == AuthProviderType.apiKey) {
-      throw RealmError('Users logged in with API key cannot manage API keys');
     }
   }
 }

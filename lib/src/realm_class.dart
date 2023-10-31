@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
@@ -71,8 +72,6 @@ export "configuration.dart"
         DiscardUnsyncedChangesHandler,
         DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
-        GeneralSyncError,
-        GeneralSyncErrorCode,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
@@ -83,12 +82,21 @@ export "configuration.dart"
         RecoverUnsyncedChangesHandler,
         SchemaObject,
         ShouldCompactCallback,
-        SyncClientError,
-        SyncConnectionError,
         SyncError,
         SyncErrorHandler,
+        // ignore: deprecated_member_use_from_same_package
+        SyncClientError,
+        // ignore: deprecated_member_use_from_same_package
+        SyncConnectionError,
+        // ignore: deprecated_member_use_from_same_package
+        GeneralSyncError,
+        // ignore: deprecated_member_use_from_same_package
+        GeneralSyncErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncResolveError,
+        // ignore: deprecated_member_use_from_same_package
         SyncWebSocketError,
+        // ignore: deprecated_member_use_from_same_package
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
