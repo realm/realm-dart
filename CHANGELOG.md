@@ -20,8 +20,7 @@
 * If a user was logged out while an access token refresh was in progress, the refresh completing would mark the user as logged in again and the user would be in an inconsistent state. (Core 13.21.0)
 * Receiving a `write_not_allowed` error from the server would have led to a crash. (Core 13.22.0)
 * Fix interprocess locking for concurrent realm file access resulting in a interprocess deadlock on FAT32/exFAT filesystems. (Core 13.23.0)
-
-### Breaking Changes
+* Fixed RealmObject not overriding `hashCode`, which would lead to sets of RealmObjects potentially containing duplicates. ([#1418](https://github.com/realm/realm-dart/issues/1418))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
