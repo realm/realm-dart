@@ -300,24 +300,26 @@ Future<void> main([List<String>? args]) async {
       final user = await getIntegrationUser(app);
 
       final onAfterCompleter = Completer<void>();
-      final syncedProduct = Product(ObjectId(), "always synced");
-      final maybeProduct = Product(ObjectId(), "maybe synced");
-      comparer(Product p1, Product p2) => p1.id == p2.id;
+
+      final syncedId = ObjectId();
+      final maybeId = ObjectId();
+
+      comparer(Product p1, ObjectId expectedId) => p1.id == expectedId;
 
       final config = Configuration.flexibleSync(user, getSyncSchema(),
           clientResetHandler: Creator.create(
             clientResetHandlerType,
             onBeforeReset: (beforeResetRealm) {
-              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedId, maybeId]);
             },
             onAfterRecovery: (beforeResetRealm, afterResetRealm) {
-              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
-              _checkProducts(afterResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
+              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedId, maybeId]);
+              _checkProducts(afterResetRealm, comparer, expectedList: [syncedId, maybeId]);
               onAfterCompleter.complete();
             },
             onAfterDiscard: (beforeResetRealm, afterResetRealm) {
-              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedProduct, maybeProduct]);
-              _checkProducts(afterResetRealm, comparer, expectedList: [syncedProduct], notExpectedList: [maybeProduct]);
+              _checkProducts(beforeResetRealm, comparer, expectedList: [syncedId, maybeId]);
+              _checkProducts(afterResetRealm, comparer, expectedList: [syncedId], notExpectedList: [maybeId]);
               onAfterCompleter.complete();
             },
             onManualResetFallback: (clientResetError) => onAfterCompleter.completeError(clientResetError),
@@ -326,16 +328,16 @@ Future<void> main([List<String>? args]) async {
       final realm = await getRealmAsync(config);
       realm.subscriptions.update((mutableSubscriptions) {
         mutableSubscriptions.add(realm.query<Product>(r'_id IN $0', [
-          [syncedProduct.id, maybeProduct.id]
+          [syncedId, maybeId]
         ]));
       });
       await realm.subscriptions.waitForSynchronization();
 
-      realm.write(() => realm.add(syncedProduct));
+      realm.write(() => realm.add(Product(syncedId, "always synced")));
       await realm.syncSession.waitForUpload();
 
       realm.syncSession.pause();
-      realm.write(() => realm.add(maybeProduct));
+      realm.write(() => realm.add(Product(maybeId, "maybe synced")));
 
       await triggerClientReset(realm, restartSession: false);
       realm.syncSession.resume();
@@ -580,8 +582,8 @@ Future<Realm> _syncRealmForUser<T extends RealmObject>(FlexibleSyncConfiguration
   return realm;
 }
 
-void _checkProducts<T extends RealmObject, O extends Object?>(Realm realm, bool Function(T, O) truePredicate,
-    {required List<O> expectedList, List<O>? notExpectedList}) {
+void _checkProducts<T extends RealmObject, O extends Object?>(Realm realm, bool Function(T, ObjectId) truePredicate,
+    {required List<ObjectId> expectedList, List<ObjectId>? notExpectedList}) {
   final all = realm.all<T>();
   for (var expected in expectedList) {
     if (!all.any((p) => truePredicate(p, expected))) {
