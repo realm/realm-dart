@@ -89,8 +89,9 @@ class User {
   }
 
   /// Gets the [AuthProviderType] this [User] is currently logged in with.
+  @Deprecated("Get the auth provider from the user identity.")
   AuthProviderType get provider {
-    return realmCore.userGetAuthProviderType(this);
+    return identities.first.provider;
   }
 
   /// Gets the profile information for this [User].

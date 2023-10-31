@@ -2207,11 +2207,6 @@ class _RealmCore {
     return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
   }
 
-  AuthProviderType userGetAuthProviderType(User user) {
-    final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
-    return AuthProviderTypeInternal.getByValue(provider);
-  }
-
   AuthProviderType userGetCredentialsProviderType(Credentials credentials) {
     final provider = _realmLib.realm_auth_credentials_get_provider(credentials.handle._pointer);
     return AuthProviderTypeInternal.getByValue(provider);
