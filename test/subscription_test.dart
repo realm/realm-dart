@@ -592,7 +592,7 @@ Future<void> main([List<String>? args]) async {
     final writeReason = sessionError.compensatingWrites!.first;
     expect(writeReason, isNotNull);
     expect(writeReason.objectType, "Product");
-    expect(writeReason.reason, 'write to "$productId" in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
+    expect(writeReason.reason, 'write to ObjectID("$productId") in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
     expect(writeReason.primaryKey.value, productId);
   });
 }

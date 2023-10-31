@@ -5,6 +5,7 @@
 
 ### Fixed
 * Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
+* Fixed RealmObject not overriding `hashCode`, which would lead to sets of RealmObjects potentially containing duplicates. ([#1418](https://github.com/realm/realm-dart/issues/1418))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
