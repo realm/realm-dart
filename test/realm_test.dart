@@ -1538,9 +1538,8 @@ Future<void> main([List<String>? args]) async {
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
     final config = Configuration.flexibleSync(user, getSyncSchema(), path: path);
     final beforeCompactSize = await createRealmForCompact(config);
-    Future<void>.delayed(Duration(seconds: 5));
 
-    final compacted = Realm.compact(config);
+    final compacted = await runWithRetries(() => Realm.compact(config));
     validateCompact(compacted, config.path, beforeCompactSize);
 
     //test the realm can be opened.
