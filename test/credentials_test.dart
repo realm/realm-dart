@@ -38,8 +38,10 @@ Future<void> main([List<String>? args]) async {
 
     expect(user1, user2);
     expect(user1, isNot(user3));
-    expect(user1.provider, AuthProviderType.anonymous);
-    expect(user3.provider, AuthProviderType.anonymous);
+    expect(user1.identities.length, 1);
+    expect(user1.identities.first.provider, AuthProviderType.anonymous);
+    expect(user3.identities.length, 1);
+    expect(user3.identities.first.provider, AuthProviderType.anonymous);
   });
 
   test('Credentials email/password', () {
@@ -208,7 +210,7 @@ Future<void> main([List<String>? args]) async {
 
     expect(user.state, UserState.loggedIn);
     expect(user.identities[0].id, userId);
-    expect(user.provider, AuthProviderType.jwt);
+    expect(user.identities[0].provider, AuthProviderType.jwt);
     expect(user.profile.email, username);
     expect(user.profile.name, username);
     expect(user.profile.gender, "male");
@@ -261,7 +263,7 @@ Future<void> main([List<String>? args]) async {
     var userId = emailIdentity.id;
 
     expect(user.state, UserState.loggedIn);
-    expect(user.provider, AuthProviderType.emailPassword);
+    expect(user.identities.first.provider, AuthProviderType.emailPassword);
     expect(user.profile.email, username);
     expect(user.profile.name, isNull);
     expect(user.profile.gender, isNull);
@@ -285,7 +287,6 @@ Future<void> main([List<String>? args]) async {
     expect(jwtUser.state, UserState.loggedIn);
     expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.jwt).id, jwtUserId);
     expect(jwtUser.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword).id, userId);
-    expect(jwtUser.provider, AuthProviderType.jwt);
     expect(jwtUser.profile.email, username);
     expect(jwtUser.profile.name, username);
     expect(jwtUser.profile.gender, "male");
@@ -335,7 +336,6 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.function(payload);
     final user = await app.logIn(credentials);
     expect(user.identities[0].id, userId);
-    expect(user.provider, AuthProviderType.function);
     expect(user.identities[0].provider, AuthProviderType.function);
   });
 
@@ -347,14 +347,14 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.function(payload);
     final user = await app.logIn(credentials);
     expect(user.identities[0].id, userId);
-    expect(user.provider, AuthProviderType.function);
+    expect(user.identities[0].provider, AuthProviderType.function);
     user.logOut();
 
     final sameUser = await app.logIn(credentials);
     expect(sameUser.id, user.id);
 
     expect(sameUser.identities[0].id, userId);
-    expect(sameUser.provider, AuthProviderType.function);
+    expect(sameUser.identities[0].provider, AuthProviderType.function);
   });
 
   test('Credentials providers', () {

@@ -6,6 +6,7 @@ part of 'realm_value_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class TuckedIn extends _TuckedIn
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
@@ -45,6 +46,7 @@ class TuckedIn extends _TuckedIn
   }
 }
 
+// ignore_for_file: type=lint
 class AnythingGoes extends _AnythingGoes
     with RealmEntity, RealmObjectBase, RealmObject {
   AnythingGoes({
@@ -92,6 +94,7 @@ class AnythingGoes extends _AnythingGoes
   }
 }
 
+// ignore_for_file: type=lint
 class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 

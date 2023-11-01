@@ -97,6 +97,9 @@ class _Task {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
+
+  @override
+  String toString() => 'Task($id)';
 }
 
 @RealmModel()
@@ -324,6 +327,29 @@ class _ObjectWithDecimal {
   Decimal128? nullableDecimal;
 }
 
+@RealmModel(ObjectType.asymmetricObject)
+class _Asymmetric {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+
+  late List<_Embedded> embeddedObjects;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _Embedded {
+  late int value;
+  late RealmValue any;
+  _Symmetric? symmetric;
+}
+
+@RealmModel()
+class _Symmetric {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+}
+
 String? testName;
 Map<String, String?> arguments = {};
 final baasApps = <String, BaasApp>{};
@@ -390,7 +416,7 @@ Future<void> setupTests(List<String>? args) async {
 
   setUp(() {
     Realm.logger = Logger.detached('test run')
-      ..level = Level.INFO
+      ..level = Level.ALL
       ..onRecord.listen((record) {
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
@@ -401,7 +427,7 @@ Future<void> setupTests(List<String>? args) async {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-      
+
       realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
@@ -677,11 +703,11 @@ Future<String> createServerApiKey(App app, String name, {bool enabled = true}) a
   return await client.createApiKey(baasApp, name, enabled);
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator}) async {
-  app ??= App(await getAppConfig());
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
+  app ??= App(appConfig ?? await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, [Task.schema, Schedule.schema, NullableTypes.schema]);
+  final config = Configuration.flexibleSync(user, getSyncSchema());
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
@@ -805,4 +831,44 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
   final splunk = Uri.encodeFull(
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
   print("Splunk logs: $splunk");
+}
+
+/// Schema list for default app service
+/// used for all the flexible sync tests.
+/// The full list of schemas is required when creating
+/// a flexibleSync configuration to the default app service
+/// to avoid causing breaking changes in development mode.
+List<SchemaObject> getSyncSchema() {
+  return [
+    Task.schema,
+    Schedule.schema,
+    Product.schema,
+    Event.schema,
+    AllTypesEmbedded.schema,
+    ObjectWithEmbedded.schema,
+    RecursiveEmbedded1.schema,
+    RecursiveEmbedded2.schema,
+    RecursiveEmbedded3.schema,
+    NullableTypes.schema,
+    Asymmetric.schema,
+    Embedded.schema,
+    Symmetric.schema,
+  ];
+}
+
+Future<bool> runWithRetries(bool Function() tester, {int retryDelay = 100, int attempts = 100}) async {
+  var success = tester();
+  var timeout = retryDelay * attempts;
+
+  while (!success && attempts > 0) {
+    await Future<void>.delayed(Duration(milliseconds: retryDelay));
+    success = tester();
+    attempts--;
+  }
+
+  if (!success) {
+    throw TimeoutException('Failed to meet condition after $timeout ms.');
+  }
+
+  return success;
 }

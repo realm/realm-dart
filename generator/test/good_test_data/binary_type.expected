@@ -2,6 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   Foo(
     Uint8List requiredBinaryProp, {

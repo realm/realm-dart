@@ -21,43 +21,11 @@ import 'package:test/expect.dart' hide throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
-part 'asymmetric_test.g.dart';
-
-@RealmModel(ObjectType.asymmetricObject)
-class _Asymmetric {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-
-  late List<_Embedded> embeddedObjects;
-}
-
-@RealmModel(ObjectType.embeddedObject)
-class _Embedded {
-  late int value;
-  late RealmValue any;
-  _Symmetric? symmetric;
-}
-
-@RealmModel()
-class _Symmetric {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-}
-
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  Future<Realm> getSyncRealm(AppConfiguration config) async {
-    final app = App(config);
-    final user = await getAnonymousUser(app);
-    final realmConfig = Configuration.flexibleSync(user, [Asymmetric.schema, Embedded.schema, Symmetric.schema]);
-    return getRealm(realmConfig);
-  }
-
   baasTest('Asymmetric objects die even before upload', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
     realm.syncSession.pause();
 
     final oid = ObjectId();
@@ -74,7 +42,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Asymmetric re-add same PK', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
 
     final oid = ObjectId();
     realm.write(() {
@@ -92,7 +60,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Asymmetric tricks to add non-embedded links', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Symmetric>());
@@ -115,7 +83,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   test("Asymmetric don't work with disconnectedSync", () {
-    final config = Configuration.disconnectedSync([Asymmetric.schema, Embedded.schema, Symmetric.schema], path: 'asymmetric_disconnected.realm');
+    final config = Configuration.disconnectedSync([Asymmetric.schema, Embedded.schema, Symmetric.schema], path: generateRandomRealmPath());
     expect(() => Realm(config), throws<RealmException>());
   });
 

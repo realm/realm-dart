@@ -565,9 +565,6 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('RealmSet<$type> basic operations on unmanaged sets', () {
-      var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-      var realm = getRealm(config);
-
       var testSet = TestRealmSets(1);
       var set = testSet.setByType(type).set;
       var values = testSet.setByType(type).values;
@@ -716,7 +713,7 @@ Future<void> main([List<String>? args]) async {
         carsResult.changes,
         emitsInOrder(<Matcher>[
           isA<RealmResultsChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-          isA<RealmResultsChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
+          isA<RealmResultsChanges<Object?>>().having((changes) => changes.results.isEmpty, 'isCleared', true),
         ]));
     realm.write(() => testSets.objectsSet.clear());
   });
@@ -801,7 +798,7 @@ Future<void> main([List<String>? args]) async {
       if (count > 1) fail('Should only receive one event');
     }
   });
-  
+
   test('Query on RealmSet with IN-operator', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);

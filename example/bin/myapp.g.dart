@@ -6,6 +6,7 @@ part of 'myapp.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
@@ -70,6 +71,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
+// ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 

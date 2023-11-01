@@ -69,7 +69,8 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
 
     struct error_copy {
         std::string message;
-        std::string detailed_message;
+        realm_errno_e error;
+        realm_error_categories categories;
         std::string original_file_path_key;
         std::string recovery_file_path_key;
         bool is_fatal;
@@ -80,8 +81,10 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
         std::vector<realm_sync_error_compensating_write_info_t> compensating_writes_errors_info;
     } buf;
 
-    buf.message = error.error_code.message;
-    buf.detailed_message = std::string(error.detailed_message);
+    buf.message = std::string(error.status.message);
+    buf.categories = error.status.categories;
+    buf.error = error.status.error;
+    // TODO: Map usercode_error and path when issue https://github.com/realm/realm-core/issues/6925 is fixed
     buf.original_file_path_key = std::string(error.c_original_file_path_key);
     buf.recovery_file_path_key = std::string(error.c_recovery_file_path_key);
     buf.is_fatal = error.is_fatal;
@@ -112,8 +115,9 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, session = *session, error = std::move(error), buf = std::move(buf)]() mutable {
         //we moved buf so we need to update the error pointers here.
-        error.error_code.message = buf.message.c_str();
-        error.detailed_message = buf.detailed_message.c_str();
+        error.status.message = buf.message.c_str();
+        error.status.error = buf.error;
+        error.status.categories = buf.categories;
         error.c_original_file_path_key = buf.original_file_path_key.c_str();
         error.c_recovery_file_path_key = buf.recovery_file_path_key.c_str();
         error.is_fatal = buf.is_fatal;
@@ -124,15 +128,16 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
     });
 }
 
-RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_sync_error_code_t* error)
+RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_error_t* error)
 {
     // we need to make a deep copy of error, because the message pointer points to stack memory
-    struct realm_dart_sync_error_code : realm_sync_error_code
+    struct realm_dart_sync_error_code : realm_error_t
     {
-        realm_dart_sync_error_code(const realm_sync_error_code& error)
-            : realm_sync_error_code(error)
-            , message_buffer(error.message)
+        realm_dart_sync_error_code(const realm_error& error_input)
+            : message_buffer(error_input.message)
         {
+            error = error_input.error;
+            categories = error_input.categories;
             message = message_buffer.c_str();
         }
 
@@ -189,10 +194,10 @@ bool invoke_dart_and_await_result(realm::util::UniqueFunction<void(realm::util::
         completed = true;
         condition.notify_one();
     };
-    
+
     std::unique_lock lock(mutex);
     (*userCallback)(&unlockFunc);
-    condition.wait(lock, [&] (){ return completed; });
+    condition.wait(lock, [&]() { return completed; });
 
     return success;
 }
