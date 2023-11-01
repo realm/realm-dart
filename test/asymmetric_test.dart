@@ -60,7 +60,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Asymmetric add non-embedded links', (config) async {
-    final realm = await getSyncRealm(config);
+    final realm = await getIntegrationRealm(appConfig: config);
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Symmetric>());
