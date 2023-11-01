@@ -59,7 +59,7 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
   });
 
-  baasTest('Asymmetric tricks to add non-embedded links', (config) async {
+  baasTest('Asymmetric add non-embedded links', (config) async {
     final realm = await getIntegrationRealm(appConfig: config);
 
     realm.subscriptions.update((mutableSubscriptions) {
@@ -68,8 +68,7 @@ Future<void> main([List<String>? args]) async {
 
     realm.write(() {
       final s = realm.add(Symmetric(ObjectId()));
-      // Since this shenanigan is allowed, I have opened a feature request to allow
-      // direct links on a symmetric objects. See https://github.com/realm/realm-core/issues/6976.
+      realm.ingest(Asymmetric(ObjectId(), symmetric: s));
       realm.ingest(Asymmetric(ObjectId(), embeddedObjects: [Embedded(1, symmetric: s)]));
       realm.ingest(Asymmetric(ObjectId(), embeddedObjects: [Embedded(1, any: RealmValue.from(s))]));
     });

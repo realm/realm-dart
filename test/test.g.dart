@@ -2098,9 +2098,11 @@ class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, AsymmetricObject {
   Asymmetric(
     ObjectId id, {
+    Symmetric? symmetric,
     Iterable<Embedded> embeddedObjects = const [],
   }) {
     RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'symmetric', symmetric);
     RealmObjectBase.set<RealmList<Embedded>>(
         this, 'embeddedObjects', RealmList<Embedded>(embeddedObjects));
   }
@@ -2111,6 +2113,13 @@ class Asymmetric extends _Asymmetric
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
   @override
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  Symmetric? get symmetric =>
+      RealmObjectBase.get<Symmetric>(this, 'symmetric') as Symmetric?;
+  @override
+  set symmetric(covariant Symmetric? value) =>
+      RealmObjectBase.set(this, 'symmetric', value);
 
   @override
   RealmList<Embedded> get embeddedObjects =>
@@ -2135,6 +2144,8 @@ class Asymmetric extends _Asymmetric
         ObjectType.asymmetricObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
+      SchemaProperty('symmetric', RealmPropertyType.object,
+          optional: true, linkTarget: 'Symmetric'),
       SchemaProperty('embeddedObjects', RealmPropertyType.object,
           linkTarget: 'Embedded', collectionType: RealmCollectionType.list),
     ]);
