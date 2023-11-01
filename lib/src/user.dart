@@ -47,7 +47,6 @@ class User {
   /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
   ApiKeyClient get apiKeys {
     _ensureLoggedIn('access API keys');
-    _ensureCanAccessAPIKeys();
 
     return _apiKeys;
   }
@@ -89,8 +88,9 @@ class User {
   }
 
   /// Gets the [AuthProviderType] this [User] is currently logged in with.
+  @Deprecated("Get the auth provider from the user identity.")
   AuthProviderType get provider {
-    return realmCore.userGetAuthProviderType(this);
+    return identities.first.provider;
   }
 
   /// Gets the profile information for this [User].
@@ -159,12 +159,6 @@ class User {
   void _ensureLoggedIn([String clarification = 'perform this action']) {
     if (state != UserState.loggedIn) {
       throw RealmError('User must be logged in to $clarification');
-    }
-  }
-
-  void _ensureCanAccessAPIKeys() {
-    if (provider == AuthProviderType.apiKey) {
-      throw RealmError('Users logged in with API key cannot manage API keys');
     }
   }
 }

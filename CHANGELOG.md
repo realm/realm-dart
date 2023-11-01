@@ -2,16 +2,35 @@
 
 ### Enhancements
 * Suppressing rules for a  *.g.dart files ([#1413](https://github.com/realm/realm-dart/pull/1413))
+* Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
+* Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. (Core upgrade)
+* Added support for server log messages that are enabled by sync protocol version 10. AppServices request id will be provided in a server log message in a future server release. (Core upgrade)
+* Simplified sync errors. The following sync errors and error codes are deprecated ([#1387](https://github.com/realm/realm-dart/pull/1387)):
+   * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError` - replaced by `SyncError`.
+   * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory` - replaced by `SyncErrorCode`.
+* Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
 
 ### Fixed
 * Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
+* Crash when querying the size of a Object property through a link chain (Core upgrade, since v13.17.2)
+* Deprecated `App.localAppName` and `App.localAppVersion`. They were not used by the server and were not needed to set them. ([#1387](https://github.com/realm/realm-dart/pull/1387))
+* Fixed crash in slab allocator (`Assertion failed: ref + size <= next->first`). (Core upgrade, since 13.0.0)
+* Sending empty UPLOAD messages may lead to 'Bad server version' errors and client reset. (Core upgrade, since v11.8.0)
+* If a user was logged out while an access token refresh was in progress, the refresh completing would mark the user as logged in again and the user would be in an inconsistent state. (Core 13.21.0)
+* Receiving a `write_not_allowed` error from the server would have led to a crash. (Core 13.22.0)
+* Fix interprocess locking for concurrent realm file access resulting in a interprocess deadlock on FAT32/exFAT filesystems. (Core 13.23.0)
 * Fixed RealmObject not overriding `hashCode`, which would lead to sets of RealmObjects potentially containing duplicates. ([#1418](https://github.com/realm/realm-dart/issues/1418))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Made binding a `sync::Session` exception safe so if a `MultipleSyncAgents` exception is thrown, the sync client can be torn down safely. (Core upgrade, since 13.4.1)
+* Add information about the reason a synchronization session is used for to flexible sync client BIND message. (Core upgrade)
+* Sync protocol version bumped to 10. (Core upgrade)
+* Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
+
+* Using Core 13.20.1.
 
 ## 1.5.0 (2023-09-18)
 

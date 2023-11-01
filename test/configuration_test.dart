@@ -82,7 +82,7 @@ Future<void> main([List<String>? args]) async {
 
     var customDefaultRealmName = "myRealmName.realm";
     Configuration.defaultRealmName = customDefaultRealmName;
-    var config = Configuration.flexibleSync(user, [Task.schema]);
+    var config = Configuration.flexibleSync(user, getSyncSchema());
     expect(path.basename(config.path), path.basename(customDefaultRealmName));
 
     var realm = getRealm(config);
@@ -91,7 +91,7 @@ Future<void> main([List<String>? args]) async {
     //set a new defaultRealmName
     customDefaultRealmName = "anotherRealmName.realm";
     Configuration.defaultRealmName = customDefaultRealmName;
-    config = Configuration.flexibleSync(user, [Task.schema]);
+    config = Configuration.flexibleSync(user, getSyncSchema());
     realm = getRealm(config);
     expect(path.basename(realm.config.path), customDefaultRealmName);
   });
@@ -108,7 +108,7 @@ Future<void> main([List<String>? args]) async {
     var app = App(appConfig);
     var user = await app.logIn(Credentials.anonymous());
 
-    var config = Configuration.flexibleSync(user, [Task.schema]);
+    var config = Configuration.flexibleSync(user, getSyncSchema());
     expect(path.dirname(config.path), startsWith(path.dirname(customDefaultRealmPath)));
 
     var realm = getRealm(config);
@@ -125,7 +125,7 @@ Future<void> main([List<String>? args]) async {
 
     app = App(appConfig);
     user = await app.logIn(Credentials.anonymous());
-    config = Configuration.flexibleSync(user, [Task.schema]);
+    config = Configuration.flexibleSync(user, getSyncSchema());
     realm = getRealm(config);
     expect(path.dirname(realm.config.path), startsWith(path.dirname(customDefaultRealmPath)));
   });
@@ -497,7 +497,7 @@ Future<void> main([List<String>? args]) async {
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     var invoked = false;
-    var config = Configuration.flexibleSync(user, [Event.schema], shouldCompactCallback: (totalSize, usedSize) {
+    var config = Configuration.flexibleSync(user, getSyncSchema(), shouldCompactCallback: (totalSize, usedSize) {
       invoked = true;
       return false;
     });
@@ -510,7 +510,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
-    final config = Configuration.flexibleSync(user, [Car.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     expect(config.path, contains(user.id));
     expect(config.path, contains(appConfig.appId));
@@ -520,7 +520,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
-    final config = Configuration.flexibleSync(user, [Car.schema], path: 'my-custom-path.realm');
+    final config = Configuration.flexibleSync(user, getSyncSchema(), path: 'my-custom-path.realm');
 
     expect(config.path, 'my-custom-path.realm');
   });
@@ -532,7 +532,7 @@ Future<void> main([List<String>? args]) async {
       path.dirname(Configuration.defaultStoragePath),
       path.basename('my-custom-realm-name.realm'),
     );
-    final config = Configuration.flexibleSync(user, [Event.schema], path: customPath);
+    final config = Configuration.flexibleSync(user, getSyncSchema(), path: customPath);
     var realm = getRealm(config);
   });
 
@@ -543,8 +543,7 @@ Future<void> main([List<String>? args]) async {
     final dir = await Directory.systemTemp.createTemp();
     final realmPath = path.join(dir.path, 'test.realm');
 
-    final schema = [Task.schema];
-    final flexibleSyncConfig = Configuration.flexibleSync(user, schema, path: realmPath);
+    final flexibleSyncConfig = Configuration.flexibleSync(user, getSyncSchema(), path: realmPath);
     final realm = getRealm(flexibleSyncConfig);
     final oid = ObjectId();
     realm.subscriptions.update((mutableSubscriptions) {
@@ -553,7 +552,7 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(Task(oid)));
     realm.close();
 
-    final disconnectedSyncConfig = Configuration.disconnectedSync(schema, path: realmPath);
+    final disconnectedSyncConfig = Configuration.disconnectedSync([Task.schema], path: realmPath);
     final disconnectedRealm = getRealm(disconnectedSyncConfig);
     expect(disconnectedRealm.find<Task>(oid), isNotNull);
   });
@@ -587,7 +586,7 @@ Future<void> main([List<String>? args]) async {
 
     List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
     expect(
-      () => Configuration.flexibleSync(user, [Task.schema], encryptionKey: key),
+      () => Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key),
       throws<RealmException>("Wrong encryption key size"),
     );
   });
@@ -611,7 +610,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
 
-    final config = Configuration.flexibleSync(user, [Task.schema], maxNumberOfActiveVersions: 1);
+    final config = Configuration.flexibleSync(user, getSyncSchema(), maxNumberOfActiveVersions: 1);
     final realm = await getRealmAsync(config); // First writing to the Realm when opening
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm.all<Task>()));
     expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
@@ -621,7 +620,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     final disconnectedConfig = Configuration.disconnectedSync([Task.schema], path: config.path, maxNumberOfActiveVersions: 1);
     final realm = getRealm(disconnectedConfig); // First writing to the Realm when opening
