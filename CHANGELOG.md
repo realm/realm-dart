@@ -9,6 +9,7 @@
    * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError` - replaced by `SyncError`.
    * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory` - replaced by `SyncErrorCode`.
 * Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
+* Lift a restriction that prevents asymmetric objects from linking to non-embedded objects. ([#1403](https://github.com/realm/realm-dart/issues/1403))
 
 ### Fixed
 * Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
@@ -30,7 +31,7 @@
 * Sync protocol version bumped to 10. (Core upgrade)
 * Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
 
-* Using Core 13.20.1.
+* Using Core 13.23.2.
 
 ## 1.5.0 (2023-09-18)
 
