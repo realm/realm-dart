@@ -58,7 +58,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: ${{ contains(inputs.os, 'linux') && '3.0.6' || 'stable'}}
+          sdk: stable
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Install dependencies
