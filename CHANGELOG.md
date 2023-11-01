@@ -6,9 +6,8 @@
 * Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. (Core upgrade)
 * Added support for server log messages that are enabled by sync protocol version 10. AppServices request id will be provided in a server log message in a future server release. (Core upgrade)
 * Simplified sync errors. The following sync errors and error codes are deprecated ([#1387](https://github.com/realm/realm-dart/pull/1387)):
-   * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError`
-   * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory`
-* Added new Sync errors types `BadFlexibleSyncQueryError`, `WrongSyncTypeError` and `UnrecoverableSyncError`. ([#1387](https://github.com/realm/realm-dart/pull/1387))
+   * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError` - replaced by `SyncError`.
+   * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory` - replaced by `SyncErrorCode`.
 * Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
 
 ### Fixed
