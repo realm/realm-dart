@@ -105,10 +105,12 @@ class AppConfiguration {
   /// These can be the same conceptual app developed for different platforms, or
   /// significantly different client side applications that operate on the same data - e.g. an event managing
   /// service that has different clients apps for organizers and attendees.
+  @Deprecated("localAppName is not used.")
   final String? localAppName;
 
   /// The [localAppVersion] can be specified, if you wish to distinguish different client versions of the
   /// same application.
+  @Deprecated("localAppVersion is not used.")
   final String? localAppVersion;
 
   /// Enumeration that specifies how and if logged-in User objects are persisted across application launches.

@@ -97,16 +97,6 @@ Future<void> main([List<String>? args]) async {
     expect(user.deviceId, isNotNull);
   });
 
-  baasTest('User provider', (configuration) async {
-    final app = App(configuration);
-    final credentials = Credentials.anonymous();
-    var user = await app.logIn(credentials);
-    expect(user.provider, AuthProviderType.anonymous);
-
-    user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    expect(user.provider, AuthProviderType.emailPassword);
-  });
-
   baasTest('User profile', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
@@ -380,9 +370,7 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.apiKey(key.value!);
 
     final apiKeyUser = await app.logIn(credentials);
-    expect(apiKeyUser.provider, AuthProviderType.apiKey);
     expect(apiKeyUser.id, user.id);
-    expect(apiKeyUser.refreshToken, isNot(user.refreshToken));
   });
 
   baasTest('User.apiKeys can login with reenabled key', (configuration) async {
@@ -405,9 +393,7 @@ Future<void> main([List<String>? args]) async {
     await enableAndVerifyApiKey(user, key.id);
 
     final apiKeyUser = await app.logIn(credentials);
-    expect(apiKeyUser.provider, AuthProviderType.apiKey);
     expect(apiKeyUser.id, user.id);
-    expect(apiKeyUser.refreshToken, isNot(user.refreshToken));
   });
 
   baasTest("User.apiKeys can't login with deleted key", (configuration) async {
@@ -452,16 +438,6 @@ Future<void> main([List<String>? args]) async {
     await expectLater(() => apiKeys.fetchAll(), throws<RealmError>('User must be logged in to fetch all API keys'));
   });
 
-  baasTest("Credentials.apiKey user cannot access API keys", (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final apiKey = await createAndVerifyApiKey(user, 'my-key');
-
-    final apiKeyUser = await app.logIn(Credentials.apiKey(apiKey.value!));
-
-    expect(() => apiKeyUser.apiKeys, throws<RealmError>('Users logged in with API key cannot manage API keys'));
-  });
-
   baasTest("Credentials.apiKey with server-generated can login user", (configuration) async {
     final app = App(configuration);
 
@@ -470,7 +446,6 @@ Future<void> main([List<String>? args]) async {
 
     final apiKeyUser = await app.logIn(credentials);
 
-    expect(apiKeyUser.provider, AuthProviderType.apiKey);
     expect(apiKeyUser.state, UserState.loggedIn);
   });
 

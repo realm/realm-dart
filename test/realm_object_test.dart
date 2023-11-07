@@ -18,7 +18,6 @@
 
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
@@ -722,5 +721,103 @@ Future<void> main([List<String>? args]) async {
       ++count; // saw true due to new event from changes
       if (count > 1) fail('Should only receive one event');
     }
+  });
+
+  test('RealmObject read deleted object properties', () {
+    var config = Configuration.local([Team.schema, Person.schema]);
+    var realm = getRealm(config);
+
+    var team = Team("TeamOne");
+    realm.write(() => realm.add(team));
+    var teams = realm.all<Team>();
+    var teamBeforeDelete = teams[0];
+    realm.write(() => realm.delete(team));
+    expect(team.isValid, false);
+    expect(teamBeforeDelete.isValid, false);
+    expect(team, teamBeforeDelete);
+    expect(() => team.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+    expect(() => teamBeforeDelete.name, throws<RealmException>("Accessing object of type Team which has been invalidated or deleted"));
+  });
+
+  test('RealmObject.hashCode changes after adding to Realm', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team("TeamOne");
+
+    final unmanagedHash = team.hashCode;
+
+    realm.write(() => realm.add(team));
+
+    final managedHash = team.hashCode;
+
+    expect(managedHash, isNot(unmanagedHash));
+    expect(managedHash, equals(team.hashCode));
+  });
+
+  test('RealmObject.hashCode is different for different objects', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final a = Team("a");
+    final b = Team("b");
+
+    expect(a.hashCode, isNot(b.hashCode));
+
+    realm.write(() {
+      realm.add(a);
+      realm.add(b);
+    });
+
+    expect(a.hashCode, isNot(b.hashCode));
+  });
+
+  test('RealmObject.hashCode is same for equal objects', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team("TeamOne");
+
+    realm.write(() {
+      realm.add(team);
+    });
+
+    final teamAgain = realm.all<Team>().first;
+
+    expect(team.hashCode, equals(teamAgain.hashCode));
+  });
+
+  test('RealmObject.hashCode remains stable after deletion', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    final team = Team("TeamOne");
+
+    realm.write(() {
+      realm.add(team);
+    });
+
+    final teamAgain = realm.all<Team>().first;
+
+    final managedHash = team.hashCode;
+
+    realm.write(() => realm.delete(team));
+
+    expect(team.hashCode, equals(managedHash)); // Object that was just deleted shouldn't change its hash code
+    expect(teamAgain.hashCode, equals(managedHash)); // Object that didn't hash its hash code and its row got deleted should still have the same hash code
+  });
+
+  test("RealmObject when added to set doesn't have duplicates", () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(Team("TeamOne"));
+    });
+
+    final setOne = realm.all<Team>().toSet();
+    final setTwo = realm.all<Team>().toSet();
+
+    expect(setOne.difference(setTwo).length, 0);
   });
 }

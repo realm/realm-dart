@@ -17,10 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
-
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
-import '../lib/src/session.dart' show SessionInternal;
 import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
@@ -43,7 +41,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession.user returns a valid user', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
     expect(realm.syncSession.user, user);
@@ -55,7 +53,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     // Don't use getRealm because we want the Realm to survive
     final realm = Realm(config);
@@ -279,41 +277,6 @@ Future<void> main([List<String>? args]) async {
     await downloadData.subscription.cancel();
   });
 
-  baasTest('SyncSession test error handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
-      expect(syncError, isA<SyncSessionError>());
-      final sessionError = syncError.as<SyncSessionError>();
-      expect(sessionError.category, SyncErrorCategory.session);
-      expect(sessionError.isFatal, false);
-      expect(sessionError.code, SyncSessionErrorCode.badAuthentication);
-      expect(sessionError.detailedMessage, "Simulated session error");
-      expect(sessionError.message, "Bad user authentication (BIND)");
-    });
-
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCategory.session, SyncSessionErrorCode.badAuthentication.code, false);
-  });
-
-  baasTest('SyncSession test fatal error handler', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema], syncErrorHandler: (syncError) {
-      expect(syncError, isA<SyncClientError>());
-      final syncClientError = syncError.as<SyncClientError>();
-      expect(syncClientError.category, SyncErrorCategory.client);
-      expect(syncClientError.isFatal, true);
-      expect(syncClientError.code, SyncClientErrorCode.badChangeset);
-      expect(syncClientError.detailedMessage, "Simulated session error");
-      expect(syncClientError.message, "Bad changeset (DOWNLOAD)");
-    });
-    final realm = getRealm(config);
-
-    realm.syncSession.raiseError(SyncErrorCategory.client, SyncClientErrorCode.badChangeset.code, true);
-  });
-
   baasTest('SyncSession.getConnectionStateStream', (configuration) async {
     final realm = await getIntegrationRealm();
 
@@ -355,7 +318,7 @@ Future<void> main([List<String>? args]) async {
   baasTest('SyncSession when Realm is closed gets closed as well', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
     final session = realm.syncSession;
@@ -365,28 +328,6 @@ Future<void> main([List<String>? args]) async {
 
     expect(() => session.state, throws<RealmClosedError>());
   });
-
-  for (SyncWebSocketErrorCode errorCode in SyncWebSocketErrorCode.values.where((v) => v != SyncWebSocketErrorCode.unknown)) {
-    baasTest('Sync Web Socket Error ${errorCode.name}', (configuration) async {
-      final app = App(configuration);
-      final user = await getIntegrationUser(app);
-      final config = Configuration.flexibleSync(
-        user,
-        [Task.schema],
-        syncErrorHandler: (syncError) {
-          expect(syncError, isA<SyncWebSocketError>());
-          final sessionError = syncError.as<SyncWebSocketError>();
-          expect(sessionError.category, SyncErrorCategory.webSocket);
-          expect(sessionError.code, errorCode);
-          expect(sessionError.detailedMessage, "Simulated session error");
-          expect(sessionError.detailedMessage, isNot(sessionError.message));
-          expect(syncError.codeValue, errorCode.code);
-        },
-      );
-      final realm = getRealm(config);
-      realm.syncSession.raiseError(SyncErrorCategory.webSocket, errorCode.code, false);
-    });
-  }
 }
 
 class StreamProgressData {

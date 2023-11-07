@@ -1,0 +1,114 @@
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class Asymmetric extends _Asymmetric
+    with RealmEntity, RealmObjectBase, RealmObject {
+  Asymmetric(
+    ObjectId id, {
+    Embedded? father,
+    Embedded? mother,
+    Iterable<Embedded> children = const [],
+  }) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'father', father);
+    RealmObjectBase.set(this, 'mother', mother);
+    RealmObjectBase.set<RealmList<Embedded>>(
+        this, 'children', RealmList<Embedded>(children));
+  }
+
+  Asymmetric._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  RealmList<Embedded> get children =>
+      RealmObjectBase.get<Embedded>(this, 'children') as RealmList<Embedded>;
+  @override
+  set children(covariant RealmList<Embedded> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Embedded? get father =>
+      RealmObjectBase.get<Embedded>(this, 'father') as Embedded?;
+  @override
+  set father(covariant Embedded? value) =>
+      RealmObjectBase.set(this, 'father', value);
+
+  @override
+  Embedded? get mother =>
+      RealmObjectBase.get<Embedded>(this, 'mother') as Embedded?;
+  @override
+  set mother(covariant Embedded? value) =>
+      RealmObjectBase.set(this, 'mother', value);
+
+  @override
+  Stream<RealmObjectChanges<Asymmetric>> get changes =>
+      RealmObjectBase.getChanges<Asymmetric>(this);
+
+  @override
+  Asymmetric freeze() => RealmObjectBase.freezeObject<Asymmetric>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Asymmetric._);
+    return const SchemaObject(
+        ObjectType.realmObject, Asymmetric, 'Asymmetric', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('children', RealmPropertyType.object,
+          linkTarget: 'Embedded', collectionType: RealmCollectionType.list),
+      SchemaProperty('father', RealmPropertyType.object,
+          optional: true, linkTarget: 'Embedded'),
+      SchemaProperty('mother', RealmPropertyType.object,
+          optional: true, linkTarget: 'Embedded'),
+    ]);
+  }
+}
+
+// ignore_for_file: type=lint
+class Embedded extends _Embedded
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  Embedded(
+    String name,
+    int age,
+  ) {
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'age', age);
+  }
+
+  Embedded._();
+
+  @override
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  int get age => RealmObjectBase.get<int>(this, 'age') as int;
+  @override
+  set age(int value) => RealmObjectBase.set(this, 'age', value);
+
+  @override
+  Stream<RealmObjectChanges<Embedded>> get changes =>
+      RealmObjectBase.getChanges<Embedded>(this);
+
+  @override
+  Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(Embedded._);
+    return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
+      SchemaProperty('name', RealmPropertyType.string),
+      SchemaProperty('age', RealmPropertyType.int),
+    ]);
+  }
+}
+

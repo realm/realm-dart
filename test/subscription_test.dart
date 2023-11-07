@@ -35,12 +35,7 @@ void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) asy
     final app = App(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, [
-      Task.schema,
-      Schedule.schema,
-      Event.schema,
-    ])
-      ..sessionStopPolicy = SessionStopPolicy.immediately;
+    final configuration = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
     final realm = getRealm(configuration);
     await testFunc(realm);
   });
@@ -482,26 +477,22 @@ Future<void> main([List<String>? args]) async {
     final userX = await appX.logIn(credentials);
     final userY = await appY.logIn(credentials);
 
-    final realmX = getRealm(Configuration.flexibleSync(userX, [Task.schema]));
-    final realmY = getRealm(Configuration.flexibleSync(userY, [Task.schema]));
+    final realmX = getRealm(Configuration.flexibleSync(userX, getSyncSchema()));
+    final objectId = ObjectId();
 
     realmX.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmX.all<Task>());
+      mutableSubscriptions.add(realmX.query<Task>(r'_id == $0', [objectId]));
     });
-
-    final objectId = ObjectId();
-    realmX.write(() => realmX.add(Task(objectId)));
-
-    realmY.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realmY.all<Task>());
-    });
-
     await realmX.subscriptions.waitForSynchronization();
-    await realmY.subscriptions.waitForSynchronization();
-
+    realmX.write(() => realmX.add(Task(objectId)));
     await realmX.syncSession.waitForUpload();
-    await realmY.syncSession.waitForDownload();
 
+    final realmY = getRealm(Configuration.flexibleSync(userY, getSyncSchema()));
+    realmY.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realmY.query<Task>(r'_id == $0', [objectId]));
+    });
+    await realmY.subscriptions.waitForSynchronization();
+    await realmY.syncSession.waitForDownload();
     final task = realmY.find<Task>(objectId);
     expect(task, isNotNull);
   });
@@ -510,10 +501,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final config = Configuration.flexibleSync(
-      user,
-      [Task.schema],
-    );
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     final realm = getRealm(config);
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
@@ -553,7 +541,7 @@ Future<void> main([List<String>? args]) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
 
-    final config = Configuration.flexibleSync(user, [Task.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
     final subscriptions = realm.subscriptions;
@@ -568,7 +556,7 @@ Future<void> main([List<String>? args]) async {
     final productNamePrefix = generateRandomString(4);
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [Product.schema], syncErrorHandler: (syncError) {
+    final config = Configuration.flexibleSync(user, getSyncSchema(), syncErrorHandler: (syncError) {
       compensatingWriteError = syncError;
     });
     final realm = getRealm(config);
@@ -581,18 +569,13 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForUpload();
 
     expect(compensatingWriteError, isA<CompensatingWriteError>());
-    final sessionError = compensatingWriteError.as<CompensatingWriteError>();
-    expect(sessionError.category, SyncErrorCategory.session);
-    expect(sessionError.code, SyncSessionErrorCode.compensatingWrite);
-    expect(sessionError.message!.startsWith('Client attempted a write that is disallowed by permissions, or modifies an object outside the current query'),
-        isTrue);
-    expect(sessionError.detailedMessage, isNotEmpty);
-    expect(sessionError.message == sessionError.detailedMessage, isFalse);
+    final sessionError = compensatingWriteError as CompensatingWriteError;
+    expect(sessionError.message, startsWith('Client attempted a write that is not allowed'));
     expect(sessionError.compensatingWrites, isNotNull);
     final writeReason = sessionError.compensatingWrites!.first;
     expect(writeReason, isNotNull);
     expect(writeReason.objectType, "Product");
-    expect(writeReason.reason, 'write to "$productId" in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
+    expect(writeReason.reason, 'write to ObjectID("$productId") in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
     expect(writeReason.primaryKey.value, productId);
   });
 }

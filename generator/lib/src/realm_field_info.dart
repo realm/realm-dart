@@ -61,7 +61,7 @@ class RealmFieldInfo {
   String get basicNonNullableMappedTypeName => type.basicType.asNonNullable.mappedName;
 
   String get basicRealmTypeName =>
-      fieldElement.modelType.basicType.asNonNullable.element2?.remappedRealmName ?? fieldElement.modelType.asNonNullable.basicMappedName;
+      fieldElement.modelType.basicType.asNonNullable.element?.remappedRealmName ?? fieldElement.modelType.asNonNullable.basicMappedName;
 
   String get modelTypeName => fieldElement.modelTypeName;
 

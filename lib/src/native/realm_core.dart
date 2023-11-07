@@ -88,7 +88,7 @@ final _pluginLib = () {
 }();
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '1.4.0';
+const libraryVersion = '1.5.0';
 
 _RealmCore realmCore = _RealmCore();
 
@@ -631,10 +631,10 @@ class _RealmCore {
     }, unlockCallbackFunc);
   }
 
-  void raiseError(Session session, SyncErrorCategory category, int errorCode, bool isFatal) {
+  void raiseError(Session session, int errorCode, bool isFatal) {
     using((arena) {
       final message = "Simulated session error".toCharPtr(arena);
-      _realmLib.realm_sync_session_handle_error_for_testing(session.handle._pointer, errorCode, category.index, message, isFatal);
+      _realmLib.realm_sync_session_handle_error_for_testing(session.handle._pointer, errorCode, message, isFatal);
     });
   }
 
@@ -685,8 +685,8 @@ class _RealmCore {
 
       if (error != nullptr) {
         final err = arena<realm_error>();
-        _realmLib.realm_get_async_error(error, err);
-        completer.completeError(RealmException("Failed to open realm ${err.ref.toLastError().toString()}"));
+        bool success = _realmLib.realm_get_async_error(error, err);
+        completer.completeError(RealmException("Failed to open realm ${success ? err.ref.toLastError().toString() : ''}"));
         return;
       }
 
@@ -768,6 +768,9 @@ class _RealmCore {
         break;
       case ObjectType.embeddedObject:
         type = EmbeddedObject;
+        break;
+      case ObjectType.asymmetricObject:
+        type = AsymmetricObject;
         break;
       default:
         throw RealmError('$baseType is not supported yet');
@@ -1209,6 +1212,23 @@ class _RealmCore {
     });
   }
 
+  int resultsFind(RealmResults results, Object? value) {
+    return using((Arena arena) {
+      final out_index = arena<Size>();
+      final out_found = arena<Bool>();
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(
+        () => _realmLib.realm_results_find(
+          results.handle._pointer,
+          realm_value,
+          out_index,
+          out_found,
+        ),
+      );
+      return out_found.value ? out_index.value : -1;
+    });
+  }
+
   RealmObjectHandle resultsGetObjectAt(RealmResults results, int index) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_get_object(results.handle._pointer, index));
     return RealmObjectHandle._(pointer, results.realm.handle);
@@ -1470,6 +1490,15 @@ class _RealmCore {
   bool userEquals(User first, User second) => _equals(first.handle, second.handle);
   bool subscriptionEquals(Subscription first, Subscription second) => _equals(first.handle, second.handle);
 
+  int objectGetHashCode(RealmObjectBase value) {
+    final link = realmCore._getObjectAsLink(value);
+
+    var hashCode = -986587137;
+    hashCode = (hashCode * -1521134295) + link.classKey;
+    hashCode = (hashCode * -1521134295) + link.targetKey;
+    return hashCode;
+  }
+
   RealmResultsHandle resultsSnapshot(RealmResults results) {
     final resultsPointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_snapshot(results.handle._pointer));
     return RealmResultsHandle._(resultsPointer, results.realm.handle);
@@ -1608,18 +1637,6 @@ class _RealmCore {
       _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
 
       _realmLib.realm_app_config_set_bundle_id(handle._pointer, getBundleId().toCharPtr(arena));
-
-      if (configuration.localAppName != null) {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, configuration.localAppName!.toCharPtr(arena));
-      } else {
-        _realmLib.realm_app_config_set_local_app_name(handle._pointer, ''.toCharPtr(arena));
-      }
-
-      if (configuration.localAppVersion != null) {
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, configuration.localAppVersion!.toCharPtr(arena));
-      } else {
-        _realmLib.realm_app_config_set_local_app_version(handle._pointer, ''.toCharPtr(arena));
-      }
 
       return handle;
     });
@@ -2199,11 +2216,6 @@ class _RealmCore {
     return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
   }
 
-  AuthProviderType userGetAuthProviderType(User user) {
-    final provider = _realmLib.realm_user_get_auth_provider(user.handle._pointer);
-    return AuthProviderTypeInternal.getByValue(provider);
-  }
-
   AuthProviderType userGetCredentialsProviderType(Credentials credentials) {
     final provider = _realmLib.realm_auth_credentials_get_provider(credentials.handle._pointer);
     return AuthProviderTypeInternal.getByValue(provider);
@@ -2310,7 +2322,7 @@ class _RealmCore {
 
   Future<void> sessionWaitForUpload(Session session) {
     final completer = Completer<void>();
-    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_sessionWaitCompletionCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
     _realmLib.realm_sync_session_wait_for_upload_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
         userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
@@ -2320,7 +2332,7 @@ class _RealmCore {
   Future<void> sessionWaitForDownload(Session session, [CancellationToken? cancellationToken]) {
     final completer = CancellableCompleter<void>(cancellationToken);
     if (!completer.isCancelled) {
-      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_error_code_t>)>(_sessionWaitCompletionCallback);
+      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_sessionWaitCompletionCallback);
       final userdata = _realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle._pointer);
       _realmLib.realm_sync_session_wait_for_download_completion(session.handle._pointer, _realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
           userdata.cast(), _realmLib.addresses.realm_dart_userdata_async_free);
@@ -2328,7 +2340,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_sync_error_code_t> errorCode) {
+  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_error_t> errorCode) {
     final completer = userdata as Completer<void>;
     if (completer.isCompleted) {
       return;
@@ -2987,7 +2999,15 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
     realm_query_arg.ref.arg = allocator<realm_value_t>();
     realm_query_arg.ref.nb_args = 1;
     realm_query_arg.ref.is_list = false;
-    _intoRealmValue(value, realm_query_arg.ref.arg.ref, allocator);
+    _intoRealmValueHack(value, realm_query_arg.ref.arg.ref, allocator);
+  }
+}
+
+void _intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
+  if (value is GeoShape) {
+    _intoRealmValue(value.toString(), realm_value, allocator);
+  } else {
+    _intoRealmValue(value, realm_value, allocator);
   }
 }
 
@@ -3166,19 +3186,14 @@ extension on Pointer<Utf8> {
 
 extension on realm_sync_error {
   SyncErrorDetails toSyncErrorDetails() {
-    final message = error_code.message.cast<Utf8>().toRealmDartString()!;
-    final SyncErrorCategory category = SyncErrorCategory.values[error_code.category];
-    final detailedMessage = detailed_message.cast<Utf8>().toRealmDartString();
-
+    final message = status.message.cast<Utf8>().toRealmDartString()!;
     final userInfoMap = user_info_map.toMap(user_info_length);
     final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
     final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
 
     return SyncErrorDetails(
       message,
-      category,
-      error_code.value,
-      detailedMessage: detailedMessage,
+      status.error,
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
       originalFilePath: userInfoMap?[originalFilePathKey],
@@ -3221,10 +3236,10 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
   }
 }
 
-extension on Pointer<realm_sync_error_code_t> {
+extension on Pointer<realm_error_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, SyncErrorCategory.values[ref.category], ref.value);
+    final details = SyncErrorDetails(message, ref.error);
     return SyncErrorInternal.createSyncError(details);
   }
 }
@@ -3382,19 +3397,17 @@ extension PlatformEx on Platform {
 /// @nodoc
 class SyncErrorDetails {
   final String message;
-  final SyncErrorCategory category;
   final int code;
-  final String? detailedMessage;
+  final String? path;
   final bool isFatal;
   final bool isClientResetRequested;
   final String? originalFilePath;
   final String? backupFilePath;
   final List<CompensatingWriteInfo>? compensatingWrites;
-  const SyncErrorDetails(
+  SyncErrorDetails(
     this.message,
-    this.category,
     this.code, {
-    this.detailedMessage,
+    this.path,
     this.isFatal = false,
     this.isClientResetRequested = false,
     this.originalFilePath,

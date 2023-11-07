@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       runner:
-        description: GitHub runnar image to execute on.
+        description: GitHub runner image to execute on.
         required: true
         type: string
       architecture:
@@ -58,7 +58,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: stable
+          sdk: ${{ contains(inputs.os, 'linux') && '3.0.6' || 'stable'}}
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Install dependencies
@@ -90,7 +90,7 @@ jobs:
             --check-ignore \
             --lcov \
             --packages .dart_tool/package_config.json \
-            --report-on lib
+            --report-on lib,common
           lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
 
       - name: Publish realm_dart coverage

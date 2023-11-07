@@ -2,6 +2,7 @@
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   IntPK(
     int id,
@@ -33,6 +34,7 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
+// ignore_for_file: type=lint
 class NullableIntPK extends _NullableIntPK
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableIntPK(
@@ -67,6 +69,7 @@ class NullableIntPK extends _NullableIntPK
   }
 }
 
+// ignore_for_file: type=lint
 class StringPK extends _StringPK
     with RealmEntity, RealmObjectBase, RealmObject {
   StringPK(
@@ -99,6 +102,7 @@ class StringPK extends _StringPK
   }
 }
 
+// ignore_for_file: type=lint
 class NullableStringPK extends _NullableStringPK
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableStringPK(
@@ -134,6 +138,7 @@ class NullableStringPK extends _NullableStringPK
   }
 }
 
+// ignore_for_file: type=lint
 class ObjectIdPK extends _ObjectIdPK
     with RealmEntity, RealmObjectBase, RealmObject {
   ObjectIdPK(
@@ -166,6 +171,7 @@ class ObjectIdPK extends _ObjectIdPK
   }
 }
 
+// ignore_for_file: type=lint
 class NullableObjectIdPK extends _NullableObjectIdPK
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableObjectIdPK(
@@ -201,6 +207,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   }
 }
 
+// ignore_for_file: type=lint
 class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
   UuidPK(
     Uuid id,
@@ -232,6 +239,7 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
+// ignore_for_file: type=lint
 class NullableUuidPK extends _NullableUuidPK
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableUuidPK(
