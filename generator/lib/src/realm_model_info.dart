@@ -114,19 +114,23 @@ class RealmModelInfo {
       yield 'static SchemaObject _initSchema() {';
       {
         yield 'RealmObjectBase.registerFactory($name._);';
-        yield "return const SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
+        yield "return SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
         {
           yield* fields.map((f) {
             final namedArgs = {
-              if (f.name != f.realmName) 'mapTo': f.realmName,
+              if (f.name != f.realmName) 'mapTo': "'${f.realmName}'",
               if (f.optional) 'optional': f.optional,
               if (f.isPrimaryKey) 'primaryKey': f.isPrimaryKey,
               if (f.indexType != null) 'indexType': f.indexType,
-              if (f.realmType == RealmPropertyType.object) 'linkTarget': f.basicRealmTypeName,
+              if (f.realmType == RealmPropertyType.object) ...{
+                'linkTarget': "'${f.basicRealmTypeName}'",
+                'linkTargetSchema': '() => ${f.fieldElement.modelType.asNonNullable.basicMappedName}.schema',
+              },
               if (f.realmType == RealmPropertyType.linkingObjects) ...{
-                'linkOriginProperty': f.linkOriginProperty!,
+                'linkOriginProperty': "'${f.linkOriginProperty!}'",
                 'collectionType': RealmCollectionType.list,
-                'linkTarget': f.basicRealmTypeName,
+                'linkTarget': "'${f.basicRealmTypeName}'",
+                'linkTargetSchema': '() => ${f.fieldElement.modelType.asNonNullable.basicMappedName}.schema',
               },
               if (f.realmCollectionType != RealmCollectionType.none) 'collectionType': f.realmCollectionType,
             };
@@ -145,11 +149,7 @@ extension<K, V> on Map<K, V> {
   String toArgsString() {
     return () sync* {
       for (final e in entries) {
-        if (e.value is String) {
-          yield "${e.key}: '${e.value}'";
-        } else {
-          yield '${e.key}: ${e.value}';
-        }
+        yield '${e.key}: ${e.value}';
       }
     }()
         .join(',');

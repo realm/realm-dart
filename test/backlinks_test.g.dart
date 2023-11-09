@@ -58,12 +58,17 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Source._);
-    return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
+    return SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneTarget', RealmPropertyType.object,
-          mapTo: 'et mål', optional: true, linkTarget: 'Target'),
+          mapTo: 'et mål',
+          optional: true,
+          linkTarget: 'Target',
+          linkTargetSchema: () => Target.schema),
       SchemaProperty('manyTargets', RealmPropertyType.object,
-          linkTarget: 'Target', collectionType: RealmCollectionType.list),
+          linkTarget: 'Target',
+          linkTargetSchema: () => Target.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -127,16 +132,18 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Target._);
-    return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
+    return SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneToMany', RealmPropertyType.linkingObjects,
           linkOriginProperty: 'et mål',
           collectionType: RealmCollectionType.list,
-          linkTarget: 'Source'),
+          linkTarget: 'Source',
+          linkTargetSchema: () => Source.schema),
       SchemaProperty('manyToMany', RealmPropertyType.linkingObjects,
           linkOriginProperty: 'manyTargets',
           collectionType: RealmCollectionType.list,
-          linkTarget: 'Source'),
+          linkTarget: 'Source',
+          linkTargetSchema: () => Source.schema),
     ]);
   }
 }

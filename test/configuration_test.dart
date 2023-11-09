@@ -25,6 +25,13 @@ import '../lib/realm.dart';
 import 'test.dart';
 import '../flavor_helpers.dart';
 
+part 'configuration_test.g.dart';
+
+@RealmModel()
+class _LinkToClassInAnotherFile {
+  late List<$RemappedClass> listProperty;
+}
+
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
@@ -636,5 +643,15 @@ Future<void> main([List<String>? args]) async {
     final frozen2 = realm.freeze();
     realm.write(() => realm.add(Dog("Foxi2")));
     expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (3) in the Realm exceeded the limit of 2"));
+  });
+
+  test('Configuration.local pulls transitive closure of schema', () {
+    final config = Configuration.local([Team.schema, LinkToClassInAnotherFile.schema]);
+
+    expect(config.schemaObjects.length, 4);
+    expect(config.schemaObjects, contains(Team.schema));
+    expect(config.schemaObjects, contains(Person.schema));
+    expect(config.schemaObjects, contains(LinkToClassInAnotherFile.schema));
+    expect(config.schemaObjects, contains(RemappedClass.schema));
   });
 }

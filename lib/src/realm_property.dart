@@ -55,6 +55,8 @@ class SchemaProperty {
   /// Indicates that the property should be persisted under a different name
   String get mapTo => _mapTo ?? name;
 
+  final SchemaObject Function()? linkTargetSchema;
+
   /// @nodoc
   const SchemaProperty(
     this.name,
@@ -66,5 +68,6 @@ class SchemaProperty {
     this.linkTarget,
     this.linkOriginProperty,
     this.collectionType = RealmCollectionType.none,
+    this.linkTargetSchema,
   }) : _mapTo = mapTo;
 }

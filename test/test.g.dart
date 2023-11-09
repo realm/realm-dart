@@ -32,7 +32,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Car._);
-    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
   }
@@ -64,7 +64,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Person._);
-    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }
@@ -111,11 +111,13 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Dog._);
-    return const SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
+    return SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
       SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
+          optional: true,
+          linkTarget: 'Person',
+          linkTargetSchema: () => Person.schema),
     ]);
   }
 }
@@ -165,10 +167,12 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Team._);
-    return const SchemaObject(ObjectType.realmObject, Team, 'Team', [
+    return SchemaObject(ObjectType.realmObject, Team, 'Team', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('players', RealmPropertyType.object,
-          linkTarget: 'Person', collectionType: RealmCollectionType.list),
+          linkTarget: 'Person',
+          linkTargetSchema: () => Person.schema,
+          collectionType: RealmCollectionType.list),
       SchemaProperty('scores', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
     ]);
@@ -224,12 +228,14 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Student._);
-    return const SchemaObject(ObjectType.realmObject, Student, 'Student', [
+    return SchemaObject(ObjectType.realmObject, Student, 'Student', [
       SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
       SchemaProperty('school', RealmPropertyType.object,
-          optional: true, linkTarget: 'School'),
+          optional: true,
+          linkTarget: 'School',
+          linkTargetSchema: () => School.schema),
     ]);
   }
 }
@@ -296,15 +302,21 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(School._);
-    return const SchemaObject(ObjectType.realmObject, School, 'School', [
+    return SchemaObject(ObjectType.realmObject, School, 'School', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('city', RealmPropertyType.string, optional: true),
       SchemaProperty('students', RealmPropertyType.object,
-          linkTarget: 'Student', collectionType: RealmCollectionType.list),
+          linkTarget: 'Student',
+          linkTargetSchema: () => Student.schema,
+          collectionType: RealmCollectionType.list),
       SchemaProperty('branchOfSchool', RealmPropertyType.object,
-          optional: true, linkTarget: 'School'),
+          optional: true,
+          linkTarget: 'School',
+          linkTargetSchema: () => School.schema),
       SchemaProperty('branches', RealmPropertyType.object,
-          linkTarget: 'School', collectionType: RealmCollectionType.list),
+          linkTarget: 'School',
+          linkTargetSchema: () => School.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -349,13 +361,14 @@ class RemappedClass extends $RemappedClass
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RemappedClass._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, RemappedClass, 'myRemappedClass', [
       SchemaProperty('remappedProperty', RealmPropertyType.string,
           mapTo: 'primitive_property'),
       SchemaProperty('listProperty', RealmPropertyType.object,
           mapTo: 'list-with-dashes',
           linkTarget: 'myRemappedClass',
+          linkTargetSchema: () => RemappedClass.schema,
           collectionType: RealmCollectionType.list),
     ]);
   }
@@ -387,7 +400,7 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Task._);
-    return const SchemaObject(ObjectType.realmObject, Task, 'Task', [
+    return SchemaObject(ObjectType.realmObject, Task, 'Task', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);
@@ -429,7 +442,7 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Product._);
-    return const SchemaObject(ObjectType.realmObject, Product, 'Product', [
+    return SchemaObject(ObjectType.realmObject, Product, 'Product', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string,
@@ -474,11 +487,13 @@ class Schedule extends _Schedule
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Schedule._);
-    return const SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
+    return SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('tasks', RealmPropertyType.object,
-          linkTarget: 'Task', collectionType: RealmCollectionType.list),
+          linkTarget: 'Task',
+          linkTargetSchema: () => Task.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -531,7 +546,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Foo._);
-    return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
+    return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
       SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
@@ -716,7 +731,7 @@ class AllTypes extends _AllTypes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(AllTypes._);
-    return const SchemaObject(ObjectType.realmObject, AllTypes, 'AllTypes', [
+    return SchemaObject(ObjectType.realmObject, AllTypes, 'AllTypes', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
       SchemaProperty('dateProp', RealmPropertyType.timestamp),
@@ -793,13 +808,16 @@ class LinksClass extends _LinksClass
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(LinksClass._);
-    return const SchemaObject(
-        ObjectType.realmObject, LinksClass, 'LinksClass', [
+    return SchemaObject(ObjectType.realmObject, LinksClass, 'LinksClass', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
       SchemaProperty('link', RealmPropertyType.object,
-          optional: true, linkTarget: 'LinksClass'),
+          optional: true,
+          linkTarget: 'LinksClass',
+          linkTargetSchema: () => LinksClass.schema),
       SchemaProperty('list', RealmPropertyType.object,
-          linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
+          linkTarget: 'LinksClass',
+          linkTargetSchema: () => LinksClass.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -986,7 +1004,7 @@ class AllCollections extends _AllCollections
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(AllCollections._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, AllCollections, 'AllCollections', [
       SchemaProperty('strings', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
@@ -1125,7 +1143,7 @@ class NullableTypes extends _NullableTypes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableTypes._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableTypes, 'NullableTypes', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
@@ -1206,7 +1224,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Event._);
-    return const SchemaObject(ObjectType.realmObject, Event, 'Event', [
+    return SchemaObject(ObjectType.realmObject, Event, 'Event', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string,
@@ -1271,14 +1289,20 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Party._);
-    return const SchemaObject(ObjectType.realmObject, Party, 'Party', [
+    return SchemaObject(ObjectType.realmObject, Party, 'Party', [
       SchemaProperty('host', RealmPropertyType.object,
-          optional: true, linkTarget: 'Friend'),
+          optional: true,
+          linkTarget: 'Friend',
+          linkTargetSchema: () => Friend.schema),
       SchemaProperty('year', RealmPropertyType.int),
       SchemaProperty('guests', RealmPropertyType.object,
-          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+          linkTarget: 'Friend',
+          linkTargetSchema: () => Friend.schema,
+          collectionType: RealmCollectionType.list),
       SchemaProperty('previous', RealmPropertyType.object,
-          optional: true, linkTarget: 'Party'),
+          optional: true,
+          linkTarget: 'Party',
+          linkTargetSchema: () => Party.schema),
     ]);
   }
 }
@@ -1342,13 +1366,17 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Friend._);
-    return const SchemaObject(ObjectType.realmObject, Friend, 'Friend', [
+    return SchemaObject(ObjectType.realmObject, Friend, 'Friend', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int),
       SchemaProperty('bestFriend', RealmPropertyType.object,
-          optional: true, linkTarget: 'Friend'),
+          optional: true,
+          linkTarget: 'Friend',
+          linkTargetSchema: () => Friend.schema),
       SchemaProperty('friends', RealmPropertyType.object,
-          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+          linkTarget: 'Friend',
+          linkTargetSchema: () => Friend.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -1390,7 +1418,7 @@ class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(When._);
-    return const SchemaObject(ObjectType.realmObject, When, 'When', [
+    return SchemaObject(ObjectType.realmObject, When, 'When', [
       SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
       SchemaProperty('locationName', RealmPropertyType.string),
     ]);
@@ -1440,10 +1468,12 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Player._);
-    return const SchemaObject(ObjectType.realmObject, Player, 'Player', [
+    return SchemaObject(ObjectType.realmObject, Player, 'Player', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('game', RealmPropertyType.object,
-          optional: true, linkTarget: 'Game'),
+          optional: true,
+          linkTarget: 'Game',
+          linkTargetSchema: () => Game.schema),
       SchemaProperty('scoresByRound', RealmPropertyType.int,
           optional: true, collectionType: RealmCollectionType.list),
     ]);
@@ -1479,9 +1509,11 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Game._);
-    return const SchemaObject(ObjectType.realmObject, Game, 'Game', [
+    return SchemaObject(ObjectType.realmObject, Game, 'Game', [
       SchemaProperty('winnerByRound', RealmPropertyType.object,
-          linkTarget: 'Player', collectionType: RealmCollectionType.list),
+          linkTarget: 'Player',
+          linkTargetSchema: () => Player.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -1722,7 +1754,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(AllTypesEmbedded._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.embeddedObject, AllTypesEmbedded, 'AllTypesEmbedded', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
@@ -1846,20 +1878,26 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectWithEmbedded._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, ObjectWithEmbedded, 'ObjectWithEmbedded', [
       SchemaProperty('id', RealmPropertyType.string,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.uuid, optional: true),
       SchemaProperty('singleObject', RealmPropertyType.object,
-          optional: true, linkTarget: 'AllTypesEmbedded'),
+          optional: true,
+          linkTarget: 'AllTypesEmbedded',
+          linkTargetSchema: () => AllTypesEmbedded.schema),
       SchemaProperty('list', RealmPropertyType.object,
           linkTarget: 'AllTypesEmbedded',
+          linkTargetSchema: () => AllTypesEmbedded.schema,
           collectionType: RealmCollectionType.list),
       SchemaProperty('recursiveObject', RealmPropertyType.object,
-          optional: true, linkTarget: 'RecursiveEmbedded1'),
+          optional: true,
+          linkTarget: 'RecursiveEmbedded1',
+          linkTargetSchema: () => RecursiveEmbedded1.schema),
       SchemaProperty('recursiveList', RealmPropertyType.object,
           linkTarget: 'RecursiveEmbedded1',
+          linkTargetSchema: () => RecursiveEmbedded1.schema,
           collectionType: RealmCollectionType.list),
     ]);
   }
@@ -1924,16 +1962,21 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RecursiveEmbedded1._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded1, 'RecursiveEmbedded1', [
       SchemaProperty('value', RealmPropertyType.string),
       SchemaProperty('child', RealmPropertyType.object,
-          optional: true, linkTarget: 'RecursiveEmbedded2'),
+          optional: true,
+          linkTarget: 'RecursiveEmbedded2',
+          linkTargetSchema: () => RecursiveEmbedded2.schema),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'RecursiveEmbedded2',
+          linkTargetSchema: () => RecursiveEmbedded2.schema,
           collectionType: RealmCollectionType.list),
       SchemaProperty('realmObject', RealmPropertyType.object,
-          optional: true, linkTarget: 'ObjectWithEmbedded'),
+          optional: true,
+          linkTarget: 'ObjectWithEmbedded',
+          linkTargetSchema: () => ObjectWithEmbedded.schema),
     ]);
   }
 }
@@ -1997,16 +2040,21 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RecursiveEmbedded2._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded2, 'RecursiveEmbedded2', [
       SchemaProperty('value', RealmPropertyType.string),
       SchemaProperty('child', RealmPropertyType.object,
-          optional: true, linkTarget: 'RecursiveEmbedded3'),
+          optional: true,
+          linkTarget: 'RecursiveEmbedded3',
+          linkTargetSchema: () => RecursiveEmbedded3.schema),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'RecursiveEmbedded3',
+          linkTargetSchema: () => RecursiveEmbedded3.schema,
           collectionType: RealmCollectionType.list),
       SchemaProperty('realmObject', RealmPropertyType.object,
-          optional: true, linkTarget: 'ObjectWithEmbedded'),
+          optional: true,
+          linkTarget: 'ObjectWithEmbedded',
+          linkTargetSchema: () => ObjectWithEmbedded.schema),
     ]);
   }
 }
@@ -2039,7 +2087,7 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RecursiveEmbedded3._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded3, 'RecursiveEmbedded3', [
       SchemaProperty('value', RealmPropertyType.string),
     ]);
@@ -2084,7 +2132,7 @@ class ObjectWithDecimal extends _ObjectWithDecimal
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectWithDecimal._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
       SchemaProperty('decimal', RealmPropertyType.decimal128),
       SchemaProperty('nullableDecimal', RealmPropertyType.decimal128,
@@ -2140,14 +2188,17 @@ class Asymmetric extends _Asymmetric
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Asymmetric._);
-    return const SchemaObject(
-        ObjectType.asymmetricObject, Asymmetric, 'Asymmetric', [
+    return SchemaObject(ObjectType.asymmetricObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('symmetric', RealmPropertyType.object,
-          optional: true, linkTarget: 'Symmetric'),
+          optional: true,
+          linkTarget: 'Symmetric',
+          linkTargetSchema: () => Symmetric.schema),
       SchemaProperty('embeddedObjects', RealmPropertyType.object,
-          linkTarget: 'Embedded', collectionType: RealmCollectionType.list),
+          linkTarget: 'Embedded',
+          linkTargetSchema: () => Embedded.schema,
+          collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -2196,11 +2247,13 @@ class Embedded extends _Embedded
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Embedded._);
-    return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
+    return SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('value', RealmPropertyType.int),
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),
       SchemaProperty('symmetric', RealmPropertyType.object,
-          optional: true, linkTarget: 'Symmetric'),
+          optional: true,
+          linkTarget: 'Symmetric',
+          linkTargetSchema: () => Symmetric.schema),
     ]);
   }
 }
@@ -2232,7 +2285,7 @@ class Symmetric extends _Symmetric
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Symmetric._);
-    return const SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
+    return SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);

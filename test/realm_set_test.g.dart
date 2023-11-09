@@ -39,7 +39,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Car._);
-    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
     ]);
@@ -256,7 +256,7 @@ class TestRealmSets extends _TestRealmSets
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(TestRealmSets._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolSet', RealmPropertyType.bool,
@@ -276,7 +276,9 @@ class TestRealmSets extends _TestRealmSets
       SchemaProperty('mixedSet', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.set),
       SchemaProperty('objectsSet', RealmPropertyType.object,
-          linkTarget: 'Car', collectionType: RealmCollectionType.set),
+          linkTarget: 'Car',
+          linkTargetSchema: () => Car.schema,
+          collectionType: RealmCollectionType.set),
       SchemaProperty('binarySet', RealmPropertyType.binary,
           collectionType: RealmCollectionType.set),
       SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
