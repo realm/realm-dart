@@ -90,7 +90,7 @@ jobs:
             --check-ignore \
             --lcov \
             --packages .dart_tool/package_config.json \
-            --report-on lib
+            --report-on lib,common
           lcov --remove ./coverage/lcov.info '*.g.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
 
       - name: Publish realm_dart coverage

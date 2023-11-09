@@ -33,7 +33,7 @@ enum ObjectType {
   /// A special type of object used to facilitate unidirectional synchronization
   /// with Atlas App Services. It is used to push data to Realm without the ability
   /// to query or modify it.
-  _asymmetricObject('AsymmetricObject', 2);
+  asymmetricObject('AsymmetricObject', 2);
 
   const ObjectType([this._className = 'Unknown', this._flags = -1]);
 

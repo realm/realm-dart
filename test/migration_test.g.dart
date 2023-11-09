@@ -6,6 +6,7 @@ part of 'migration_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class PersonIntName extends _PersonIntName
     with RealmEntity, RealmObjectBase, RealmObject {
   PersonIntName(
@@ -38,6 +39,7 @@ class PersonIntName extends _PersonIntName
   }
 }
 
+// ignore_for_file: type=lint
 class StudentV1 extends _StudentV1
     with RealmEntity, RealmObjectBase, RealmObject {
   StudentV1(
@@ -79,6 +81,7 @@ class StudentV1 extends _StudentV1
   }
 }
 
+// ignore_for_file: type=lint
 class MyObjectWithTypo extends _MyObjectWithTypo
     with RealmEntity, RealmObjectBase, RealmObject {
   MyObjectWithTypo(
@@ -121,6 +124,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   }
 }
 
+// ignore_for_file: type=lint
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
     with RealmEntity, RealmObjectBase, RealmObject {
   MyObjectWithoutTypo(
@@ -163,6 +167,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   }
 }
 
+// ignore_for_file: type=lint
 class MyObjectWithoutValue extends _MyObjectWithoutValue
     with RealmEntity, RealmObjectBase, RealmObject {
   MyObjectWithoutValue(

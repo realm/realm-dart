@@ -22,6 +22,8 @@ import '../realm.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
 
+import '../src/native/realm_bindings.dart';
+
 /// An object encapsulating a synchronization session. Sessions represent the
 /// communication between the client (and a local Realm file on disk), and the
 /// server. Sessions are always created by the SDK and vended out through various
@@ -76,10 +78,6 @@ class Session implements Finalizable {
     final controller = SessionConnectionStateController(this);
     return controller.createStream();
   }
-
-  void _raiseSessionError(SyncErrorCategory category, int errorCode, bool isFatal) {
-    realmCore.raiseError(this, category, errorCode, isFatal);
-  }
 }
 
 /// A type containing information about the progress state at a given instant.
@@ -123,8 +121,8 @@ extension SessionInternal on Session {
     return _handle;
   }
 
-  void raiseError(SyncErrorCategory category, int errorCode, bool isFatal) {
-    realmCore.raiseError(this, category, errorCode, isFatal);
+  void raiseError(int errorCode, bool isFatal) {
+    realmCore.raiseError(this, errorCode, isFatal);
   }
 
   static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
@@ -247,7 +245,74 @@ enum ProgressMode {
   forCurrentlyOutstandingWork,
 }
 
+/// Error code enumeration, indicating the type of [SyncError].
+enum SyncErrorCode {
+  /// Unrecognized error code. It usually indicates incompatibility between the App Services server and client SDK versions.
+  runtimeError(realm_errno.RLM_ERR_RUNTIME),
+
+  /// The partition value specified by the user is not valid - i.e. its the wrong type or is encoded incorrectly.
+  badPartitionValue(realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE),
+
+  /// A fundamental invariant in the communication between the client and the server was not upheld. This typically indicates
+  /// a bug in the synchronization layer and should be reported at https://github.com/realm/realm-core/issues.
+  protocolInvariantFailed(realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED),
+
+  /// The changeset is invalid.
+  badChangeset(realm_errno.RLM_ERR_BAD_CHANGESET),
+
+  /// The client attempted to create a subscription for a query is invalid/malformed.
+  invalidSubscriptionQuery(realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY),
+
+  /// A client reset has occurred. This error code will only be reported via a [ClientResetError] and only
+  /// in the case manual client reset handling is required - either via [ManualRecoveryHandler] or when
+  /// `onManualReset` is invoked on one of the automatic client reset handlers.
+  clientReset(realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED),
+
+  /// The client attempted to upload an invalid schema change - either an additive schema change
+  /// when developer mode is <c>off</c> or a destructive schema change.
+  invalidSchemaChange(realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE),
+
+  /// Permission to Realm has been denied.
+  permissionDenied(realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED),
+
+  /// The server permissions for this file have changed since the last time it was used.
+  serverPermissionsChanged(realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED),
+
+  /// The user for this session doesn't match the user who originally created the file. This can happen
+  /// if you explicitly specify the Realm file path in the configuration and you open the Realm first with
+  /// user A, then with user B without changing the on-disk path.
+  userMismatch(realm_errno.RLM_ERR_SYNC_USER_MISMATCH),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an object
+  /// outside the current query - this will result in a [CompensatingWriteError].
+  writeNotAllowed(realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED),
+
+  /// Automatic client reset has failed. This will only be reported via [ClientResetError]
+  /// when an automatic client reset handler was used but it failed to perform the client reset operation -
+  /// typically due to a breaking schema change in the server schema or due to an exception occurring in the
+  /// before or after client reset callbacks.
+  autoClientResetFailed(realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED),
+
+  /// The wrong sync type was used to connect to the server. This means that you're trying to connect
+  /// to an app configured to use partition sync.
+  wrongSyncType(realm_errno.RLM_ERR_WRONG_SYNC_TYPE),
+
+  /// Client attempted a write that is disallowed by permissions, or modifies an
+  /// object outside the current query, and the server undid the modification.
+  compensatingWrite(realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE);
+
+  static final Map<int, SyncErrorCode> _valuesMap = {for (var value in SyncErrorCode.values) value.code: value};
+
+  static SyncErrorCode fromInt(int code) {
+    return SyncErrorCode._valuesMap[code] ?? SyncErrorCode.runtimeError;
+  }
+
+  final int code;
+  const SyncErrorCode(this.code);
+}
+
 /// The category of a [SyncError].
+@Deprecated("Sync errors are not classified by SyncErrorCategory anymore.")
 enum SyncErrorCategory {
   /// The error originated from the client
   client,
@@ -273,6 +338,7 @@ enum SyncErrorCategory {
 /// These errors will terminate the network connection
 /// (disconnect all sessions  associated with the affected connection),
 /// and the error will be reported via the connection state change listeners of the affected sessions.
+@Deprecated("Use SyncError or its subclasses instead.")
 enum SyncClientErrorCode {
   /// Connection closed (no error)
   connectionClosed(100),
@@ -384,6 +450,7 @@ enum SyncClientErrorCode {
 /// Protocol connection errors discovered by the server, and reported to the client
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+@Deprecated("Use SyncError or its subclasses instead of using error codes.")
 enum SyncConnectionErrorCode {
   // Connection level and protocol errors
   /// Connection closed (no error)
@@ -447,6 +514,7 @@ enum SyncConnectionErrorCode {
 /// Protocol session errors discovered by the server, and reported to the client
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+@Deprecated("Use SyncError or its subclasses instead of using error codes.")
 enum SyncSessionErrorCode {
   /// Session closed (no error)
   sessionClosed(200),
@@ -600,6 +668,7 @@ enum SyncResolveErrorCode {
 /// Web socket errors.
 ///
 /// These errors will be reported via the error handlers of the affected sessions.
+@Deprecated("Use SyncError or its subclasses instead of using error codes.")
 enum SyncWebSocketErrorCode {
   /// Web socket resolution failed
   websocketResolveFailed(4400),

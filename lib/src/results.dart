@@ -88,7 +88,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
     var results = this;
     if (_supportsSnapshot) {
       final handle = realmCore.resultsSnapshot(this);
-      results = RealmResultsInternal.create<T>(handle, realm, _metadata);
+      results = RealmResultsInternal.create<T>(handle, realm, _metadata, _skipOffset);
     }
     return _RealmResultsIterator(results);
   }
@@ -279,8 +279,9 @@ extension RealmResultsInternal on RealmResults {
     RealmResultsHandle handle,
     Realm realm,
     RealmObjectMetadata? metadata,
+    [int skip = 0]
   ) =>
-      RealmResults<T>._(handle, realm, metadata);
+      RealmResults<T>._(handle, realm, metadata, skip);
 }
 
 /// Describes the changes in a Realm results collection since the last time the notification callback was invoked.

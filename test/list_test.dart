@@ -1233,7 +1233,7 @@ Future<void> main([List<String>? args]) async {
         playersAsResults.changes,
         emitsInOrder(<Matcher>[
           isA<RealmResultsChanges<Person>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-          isA<RealmResultsChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
+          isA<RealmResultsChanges<Person>>().having((changes) => changes.results.isEmpty, 'isCleared', true),
         ]));
     realm.write(() => team.players.clear());
     expect(playersAsResults.length, 0);

@@ -34,7 +34,18 @@ extension DartTypeEx on DartType {
   bool get isRealmValue => const TypeChecker.fromRuntime(RealmValue).isAssignableFromType(this);
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
   bool get isRealmSet => realmCollectionType == RealmCollectionType.set;
-  bool get isRealmModel => element2 != null ? realmModelChecker.annotationsOfExact(element2!).isNotEmpty : false;
+
+  ObjectType? get realmObjectType {
+    if (element == null) return null;
+    final realmModelAnnotation = realmModelChecker.firstAnnotationOfExact(element!);
+    if (realmModelAnnotation == null) return null; // not a RealmModel
+    final index = realmModelAnnotation.getField('type')!.getField('index')!.toIntValue()!;
+    return ObjectType.values[index];
+  }
+
+  bool get isRealmModel => realmObjectType != null;
+  bool isRealmModelOfType(ObjectType type) => realmObjectType == type;
+
   bool get isUint8List => isExactly<Uint8List>();
 
   bool get isNullable => session.typeSystem.isNullable(this);
@@ -50,7 +61,7 @@ extension DartTypeEx on DartType {
     return RealmCollectionType.none;
   }
 
-  DartType? get nullIfDynamic => isDynamic ? null : this;
+  DartType? get nullIfDynamic => this is DynamicType ? null : this;
 
   DartType get basicType {
     final self = this;

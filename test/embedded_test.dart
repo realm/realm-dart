@@ -16,8 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:typed_data';
-
 import 'package:test/test.dart' hide test, throws;
 
 import '../lib/realm.dart';
@@ -36,14 +34,6 @@ Future<void> main([List<String>? args]) async {
     return getRealm(config);
   }
 
-  Future<Realm> getSyncRealm(AppConfiguration config) async {
-    final app = App(config);
-    final user = await getAnonymousUser(app);
-    final realmConfig = Configuration.flexibleSync(
-        user, [AllTypesEmbedded.schema, ObjectWithEmbedded.schema, RecursiveEmbedded1.schema, RecursiveEmbedded2.schema, RecursiveEmbedded3.schema]);
-    return getRealm(realmConfig);
-  }
-
   test('Local Realm with orphan embedded schemas works', () {
     final config = Configuration.local([AllTypesEmbedded.schema]);
     final realm = getRealm(config);
@@ -58,10 +48,10 @@ Future<void> main([List<String>? args]) async {
   baasTest('Synchronized Realm with orphan embedded schemas throws', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
-    final config = Configuration.flexibleSync(user, [AllTypesEmbedded.schema]);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
 
     expect(() => getRealm(config), throws<RealmException>("Embedded object 'AllTypesEmbedded' is unreachable by any link path from top level objects"));
-  });
+  }, skip: "This test requires a new app service with missing embedded parent schema.");
 
   test('Embedded object roundtrip', () {
     final realm = getLocalRealm();
@@ -400,7 +390,7 @@ Future<void> main([List<String>? args]) async {
   });
 
   baasTest('Embedded objects synchronization', (config) async {
-    final realm1 = await getSyncRealm(config);
+    final realm1 = await getIntegrationRealm(appConfig: config);
 
     final differentiator = Uuid.v4();
     realm1.subscriptions.update((mutableSubscriptions) {
@@ -417,7 +407,7 @@ Future<void> main([List<String>? args]) async {
     await realm1.subscriptions.waitForSynchronization();
     await realm1.syncSession.waitForUpload();
 
-    final realm2 = await getSyncRealm(config);
+    final realm2 = await getIntegrationRealm(appConfig: config);
     realm2.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm2.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
     });

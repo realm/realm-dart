@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
@@ -38,13 +39,19 @@ export 'package:cancellation_token/cancellation_token.dart' show CancellationTok
 export 'package:realm_common/realm_common.dart'
     show
         Backlink,
+        DoubleToGeoDistance,
+        GeoBox,
+        GeoCircle,
+        GeoDistance,
+        GeoPoint,
+        GeoRing,
+        GeoShape,
         Ignored,
         Indexed,
         MapTo,
         ObjectId,
         ObjectType,
         PrimaryKey,
-        RealmValue,
         RealmClosedError,
         RealmCollectionType,
         RealmError,
@@ -53,6 +60,7 @@ export 'package:realm_common/realm_common.dart'
         RealmPropertyType,
         RealmStateError,
         RealmUnsupportedSetError,
+        RealmValue,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
@@ -71,8 +79,6 @@ export "configuration.dart"
         DiscardUnsyncedChangesHandler,
         DisconnectedSyncConfiguration,
         FlexibleSyncConfiguration,
-        GeneralSyncError,
-        GeneralSyncErrorCode,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
@@ -83,12 +89,21 @@ export "configuration.dart"
         RecoverUnsyncedChangesHandler,
         SchemaObject,
         ShouldCompactCallback,
-        SyncClientError,
-        SyncConnectionError,
         SyncError,
         SyncErrorHandler,
+        // ignore: deprecated_member_use_from_same_package
+        SyncClientError,
+        // ignore: deprecated_member_use_from_same_package
+        SyncConnectionError,
+        // ignore: deprecated_member_use_from_same_package
+        GeneralSyncError,
+        // ignore: deprecated_member_use_from_same_package
+        GeneralSyncErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncResolveError,
+        // ignore: deprecated_member_use_from_same_package
         SyncWebSocketError,
+        // ignore: deprecated_member_use_from_same_package
         SyncSessionError;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
@@ -96,6 +111,7 @@ export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
+        AsymmetricObject,
         DynamicRealmObject,
         EmbeddedObject,
         EmbeddedObjectExtension,
@@ -116,11 +132,18 @@ export 'session.dart'
         ConnectionState,
         Session,
         SessionState,
+        SyncErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncClientErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncConnectionErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncErrorCategory,
+        // ignore: deprecated_member_use_from_same_package
         SyncResolveErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncWebSocketErrorCode,
+        // ignore: deprecated_member_use_from_same_package
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
@@ -276,6 +299,19 @@ class Realm implements Finalizable {
     object.manage(this, handle, accessor, update);
 
     return object;
+  }
+
+  /// Ingest an [AsymmetricObject] to the [Realm].
+  ///
+  /// Ingesting is a write only operation. The ingested objects synchronizes to
+  /// the App Services backend and are deleted from the device. An [AsymmetricObject]
+  /// can never be read from the Realm.
+  void ingest<T extends AsymmetricObject>(T object) {
+    final metadata = _metadata.getByType(object.runtimeType);
+    final handle = _createObject(object, metadata, false);
+
+    final accessor = RealmCoreAccessor(metadata, _isInMigration);
+    object.manage(this, handle, accessor, false);
   }
 
   RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
@@ -557,26 +593,15 @@ class Realm implements Finalizable {
       throw RealmException("Can't compact an in-memory Realm");
     }
 
-    late Configuration compactConfig;
-
     if (!File(config.path).existsSync()) {
+      print("realm file doesn't exist: ${config.path}");
       return false;
     }
 
-    if (config is LocalConfiguration) {
-      // `compact` opens the realm file so it can triger schema version upgrade, file format upgrade, migration and initial data callbacks etc.
-      // We must allow that to happen so use the local config as is.
-      compactConfig = config;
-    } else if (config is DisconnectedSyncConfiguration) {
-      compactConfig = config;
-    } else if (config is FlexibleSyncConfiguration) {
-      compactConfig = Configuration.disconnectedSync(config.schemaObjects.toList(),
-          path: config.path, fifoFilesFallbackPath: config.fifoFilesFallbackPath, encryptionKey: config.encryptionKey);
-    } else {
-      throw RealmError("Unsupported realm configuration type ${config.runtimeType}");
+    final realm = Realm(config);
+    if (config is FlexibleSyncConfiguration) {
+      realm.syncSession.pause();
     }
-
-    final realm = Realm(compactConfig);
     try {
       return realmCore.compact(realm);
     } finally {

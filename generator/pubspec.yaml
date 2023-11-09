@@ -3,7 +3,7 @@ description: >-
              Generates RealmObject classes from Realm data model classes.
              This package is part of the official Realm Flutter and Realm Dart SDKs.
 
-version: 1.4.0
+version: 1.5.0
 
 homepage: https://www.realm.io
 repository: https://github.com/realm/realm-dart
@@ -15,7 +15,7 @@ environment:
   sdk: ^3.0.2
 
 dependencies:
-  analyzer: ^5.0.0
+  analyzer: ^5.13.0
   build_resolvers: ^2.0.9
   build: ^2.0.0
   dart_style: ^2.2.0

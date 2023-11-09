@@ -212,11 +212,14 @@ Future<void> main([List<String>? args]) async {
       return result;
     });
 
+    final expected = [
+      const LoggedMessage(RealmLogLevel.error, "2"),
+      const LoggedMessage(RealmLogLevel.error, "2"),
+      const LoggedMessage(RealmLogLevel.error, "first only"),
+      const LoggedMessage(RealmLogLevel.trace, "3")
+    ];
+
     //first isolate should have collected all the messages
-    expect(actual.length, 4);
-    expect(actual[0], const LoggedMessage(RealmLogLevel.error, "2"));
-    expect(actual[1], const LoggedMessage(RealmLogLevel.error, "2"));
-    expect(actual[2], const LoggedMessage(RealmLogLevel.error, "first only"));
-    expect(actual[3], const LoggedMessage(RealmLogLevel.trace, "3"));
+    expect(actual, expected);
   });
 }

@@ -44,8 +44,6 @@ Future<void> main([List<String>? args]) async {
       baseFilePath: Directory.systemTemp,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
-      localAppName: 'bar',
-      localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.disabled,
       maxConnectionTimeout: const Duration(minutes: 1),
       httpClient: httpClient,
@@ -79,8 +77,6 @@ Future<void> main([List<String>? args]) async {
       baseFilePath: Directory.systemTemp,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
-      localAppName: 'bar',
-      localAppVersion: "1.0.0",
       metadataPersistenceMode: MetadataPersistenceMode.encrypted,
       metadataEncryptionKey: base64.decode("ekey"),
       maxConnectionTimeout: const Duration(minutes: 1),
@@ -262,10 +258,7 @@ Future<void> main([List<String>? args]) async {
 
   baasTest('App.reconnect', (appConfiguration) async {
     final app = App(appConfiguration);
-
-    final user = await app.logIn(Credentials.anonymous());
-    final configuration = Configuration.flexibleSync(user, [Task.schema]);
-    final realm = getRealm(configuration);
+    final realm = await getIntegrationRealm(app: app);
     final session = realm.syncSession;
 
     // TODO: We miss a way to force a disconnect. Once we implement GenericNetworkTransport

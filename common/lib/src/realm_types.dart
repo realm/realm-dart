@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:ffi';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
@@ -139,6 +140,9 @@ abstract class RealmObjectMarker implements RealmObjectBaseMarker {}
 /// @nodoc
 abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
 
+/// @nodoc
+abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
+
 /// A type that can represent any valid realm data type, except collections and embedded objects.
 ///
 /// You can use [RealmValue] to declare fields on realm models, in which case it must be non-nullable,
@@ -223,4 +227,249 @@ class RealmValue {
 
   @override
   String toString() => 'RealmValue($value)';
+}
+
+/// A base type for the supported geospatial shapes.
+sealed class GeoShape {}
+
+/// A point on the earth's surface.
+///
+/// It cannot be persisted as a property on a realm object.
+///
+/// Instead, you must use a custom embedded object with the following structure:
+/// ```dart
+/// @RealmModel(ObjectType.embeddedObject)
+/// class _Location {
+///   final String type = 'Point';
+///   final List<double> coordinates = const [0, 0];
+///
+///   // The rest of the class is just convenience methods
+///   double get lon => coordinates[0];
+///   set lon(double value) => coordinates[0] = value;
+///
+///   double get lat => coordinates[1];
+///   set lat(double value) => coordinates[1] = value;
+///
+///   GeoPoint toGeoPoint() => GeoPoint(lon: lon, lat: lat);
+/// }
+/// ```
+/// You can then use it as a property on a realm object:
+/// ```dart
+/// @RealmModel()
+/// class _Restaurant {
+///   @PrimaryKey()
+///   late String name;
+///   _Location? location;
+/// }
+/// ```
+/// For convenience add an extension method on [GeoPoint]:
+/// ```dart
+/// extension on GeoPoint {
+///   Location toLocation() {
+///     return Location(coordinates: [lon, lat]);
+///   }
+/// }
+/// ```
+/// to easily convert between [GeoPoint]s and `Location`s.
+///
+/// The following may also be useful:
+/// ```dart
+/// extension on (num, num) {
+///   GeoPoint toGeoPoint() => GeoPoint(lon: $1.toDouble(), lat: $2.toDouble());
+///   Location toLocation() => toGeoPoint().toLocation();
+/// }
+/// ```
+final class GeoPoint implements GeoShape {
+  final double lon;
+  final double lat;
+
+  /// Create a point from a [lon]gitude and [lat]gitude.
+  /// [lon] must be between -180 and 180, and [lat] must be between -90 and 90.
+  GeoPoint({required this.lon, required this.lat}) {
+    if (lon < -180 || lon > 180) throw ArgumentError.value(lon, 'lon', 'must be between -180 and 180');
+    if (lat < -90 || lat > 90) throw ArgumentError.value(lat, 'lat', 'must be between -90 and 90');
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoPoint) return false;
+    return lat == other.lat && lon == other.lon;
+  }
+
+  @override
+  int get hashCode => Object.hash(lon, lat);
+
+  @override
+  String toString() => '[$lon, $lat]';
+}
+
+/// A box on the earth's surface.
+///
+/// This type can be used as the query argument for a `geoWithin` query.
+/// It cannot be persisted as a property on a realm object.
+final class GeoBox implements GeoShape {
+  final GeoPoint southWest;
+  final GeoPoint northEast;
+
+  /// Create a box from a [southWest] and a [northEast] point
+  const GeoBox(this.southWest, this.northEast);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoBox) return false;
+    return southWest == other.southWest && northEast == other.northEast;
+  }
+
+  @override
+  int get hashCode => Object.hash(southWest, northEast);
+
+  @override
+  String toString() => 'geoBox($southWest, $northEast)';
+}
+
+typedef GeoRing = List<GeoPoint>;
+
+extension on GeoRing {
+  void validate() {
+    if (first != last) throw ArgumentError('Vertices must form a ring (first != last)');
+    if (length < 4) throw ArgumentError('Ring must have at least 3 different vertices');
+  }
+}
+
+/// A polygon on the earth's surface.
+///
+/// This type can be used as the query argument for a `geoWithin` query.
+/// It cannot be persisted as a property on a realm object.
+final class GeoPolygon implements GeoShape {
+  final GeoRing outerRing;
+  final List<GeoRing> holes;
+
+  /// Create a polygon from an [outerRing] and a list of [holes]
+  /// The outer ring must be a closed ring, and the holes must be non-overlapping
+  /// closed rings inside the outer ring.
+  GeoPolygon(this.outerRing, [this.holes = const []]) {
+    outerRing.validate();
+    for (final hole in holes) {
+      hole.validate();
+    }
+  }
+
+  @override
+  operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoPolygon) return false;
+    return outerRing == other.outerRing && holes == other.holes;
+  }
+
+  @override
+  int get hashCode => Object.hash(outerRing, holes);
+
+  @override
+  String toString() {
+    ringToString(GeoRing ring) => '{${ring.join(', ')}}';
+
+    final outerRingString = ringToString(outerRing);
+    if (holes.isEmpty) return 'geoPolygon($outerRingString)';
+
+    final holesString = holes.map(ringToString).join(', ');
+    return 'geoPolygon($outerRingString, $holesString)';
+  }
+}
+
+const _metersPerMile = 1609.344;
+const _radiansPerMeterOnEarthSphere = 1.5678502891116e-7; // at equator
+const _radiansPerDegree = pi / 180;
+
+/// An equatorial distance on earth's surface.
+final class GeoDistance implements Comparable<GeoDistance> {
+  /// The distance in radians
+  final double radians;
+
+  /// Create a distance from radians
+  const GeoDistance(this.radians);
+
+  /// Create a distance from [meters]
+  GeoDistance.fromMeters(double meters) : radians = meters * _radiansPerMeterOnEarthSphere;
+
+  /// Create a distance from [degrees]
+  GeoDistance.fromDegrees(double degrees) : radians = degrees * _radiansPerDegree;
+
+  /// Create a distance from [kilometers]
+  factory GeoDistance.fromKilometers(double kilometers) => GeoDistance.fromMeters(kilometers * 1000);
+
+  /// Create a distance from [miles]
+  factory GeoDistance.fromMiles(double miles) => GeoDistance.fromMeters(miles * _metersPerMile);
+
+  /// The distance in degrees
+  double get degrees => radians / _radiansPerDegree;
+
+  /// The distance in meters
+  double get meters => radians / _radiansPerMeterOnEarthSphere;
+
+  /// The distance in kilometers
+  double get kilometers => meters / 1000;
+
+  /// The distance in miles
+  double get miles => meters / _metersPerMile;
+
+  @override
+  int compareTo(GeoDistance other) => radians.compareTo(other.radians);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoDistance) return false;
+    return compareTo(other) == 0;
+  }
+
+  @override
+  int get hashCode => radians.hashCode;
+
+  @override
+  String toString() => '$radians';
+}
+
+/// Convert a [num] to a [GeoDistance]
+extension DoubleToGeoDistance on num {
+  /// Create a distance from radians
+  GeoDistance get radians => GeoDistance(toDouble());
+
+  /// Create a distance from degrees
+  GeoDistance get degrees => GeoDistance.fromDegrees(toDouble());
+
+  /// Create a distance from meters
+  GeoDistance get meters => GeoDistance.fromMeters(toDouble());
+
+  /// Create a distance from kilometers
+  GeoDistance get kilometers => GeoDistance.fromKilometers(toDouble());
+
+  /// Create a distance from miles
+  GeoDistance get miles => GeoDistance.fromMiles(toDouble());
+}
+
+/// A circle on the earth's surface.
+///
+/// This type can be used as the query argument for a `geoWithin` query.
+/// It cannot be persisted as a property on a realm object.
+final class GeoCircle implements GeoShape {
+  final GeoPoint center;
+  final GeoDistance radius;
+
+  /// Create a circle from a [center] point and a [radius]
+  const GeoCircle(this.center, this.radius);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! GeoCircle) return false;
+    return center == other.center && radius == other.radius;
+  }
+
+  @override
+  int get hashCode => Object.hash(center, radius);
+
+  @override
+  String toString() => 'geoCircle($center, $radius)';
 }

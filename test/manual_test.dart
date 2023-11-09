@@ -148,7 +148,7 @@ Future<void> main([List<String>? args]) async {
       final credentials = Credentials.facebook(accessToken);
       final user = await app.logIn(credentials);
       expect(user.state, UserState.loggedIn);
-      expect(user.provider, AuthProviderType.facebook);
+      expect(user.identities[0].provider, AuthProviderType.facebook);
       expect(user.profile.name, "Open Graph Test User");
     }, skip: "Manual test");
   }, skip: "Manual tests");

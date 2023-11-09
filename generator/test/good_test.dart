@@ -36,6 +36,7 @@ class _MappedToo {
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class MappedToo extends _MappedToo
     with RealmEntity, RealmObjectBase, RealmObject {
   MappedToo({
