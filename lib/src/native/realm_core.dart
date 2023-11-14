@@ -1768,8 +1768,6 @@ class _RealmCore {
         // Build request
         late HttpClientRequest request;
 
-        // this throws if requestMethod is unknown _HttpMethod
-
         switch (method) {
           case _HttpMethod.delete:
             request = await client.deleteUrl(url);
@@ -1796,8 +1794,16 @@ class _RealmCore {
           request.add(utf8.encode(body));
         }
 
+        Realm.logger.log(RealmLogLevel.debug, "HTTP Transport: Executing $method $url");
+
+        final stopwatch = Stopwatch()..start();
+
         // Do the call..
         final response = await request.close();
+
+        stopwatch.stop();
+        Realm.logger.log(RealmLogLevel.debug, "HTTP Transport: Executed $method $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
+
         final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
 
         // Report back to core
@@ -1825,13 +1831,13 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (socketEx) {
-        Realm.logger.log(Level.WARNING, "A SocketException occurred while executing $method $url: $socketEx");
+        Realm.logger.log(RealmLogLevel.warn, "HTTP Transport: SocketException executing $method $url: $socketEx");
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (httpEx) {
-        Realm.logger.log(Level.WARNING, "A HttpException occurred while executing $method $url: $httpEx");
+        Realm.logger.log(RealmLogLevel.warn, "HTTP Transport: HttpException executing $method $url: $httpEx");
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
       } catch (ex) {
-        Realm.logger.log(Level.SEVERE, "A HttpException occurred while executing $method $url: $ex");
+        Realm.logger.log(RealmLogLevel.error, "HTTP Transport: Exception executing $method $url: $ex");
         responseRef.custom_status_code = _CustomErrorCode.unknown.code;
       } finally {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);

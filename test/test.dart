@@ -419,6 +419,10 @@ Future<void> setupTests(List<String>? args) async {
     Realm.logger = Logger.detached('test run')
       ..level = Level.ALL
       ..onRecord.listen((record) {
+        if (record.level.value >= RealmLogLevel.warn.value) {
+          print('${record.time} ${record.level.name}: ${record.message}');
+        }
+
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
 
