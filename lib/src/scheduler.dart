@@ -38,8 +38,8 @@ class Scheduler {
         final level = message[0] as int;
         final text = message[1] as String;
         Realm.logger.log(LevelExt.fromInt(level), text);
-      } else {
-        realmCore.invokeScheduler(handle);
+      } else if (message is int) {
+        realmCore.invokeScheduler(message);
       }
     };
 

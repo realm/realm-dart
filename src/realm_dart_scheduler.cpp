@@ -33,7 +33,8 @@ struct SchedulerData {
     void* callback_userData = nullptr;
     realm_free_userdata_func_t free_userData_func = nullptr;
 
-    SchedulerData(uint64_t isolate, Dart_Port dartPort) : port(dartPort), threadId(std::this_thread::get_id()), isolateId(isolate)
+    SchedulerData(uint64_t isolate, Dart_Port dartPort)
+        : port(dartPort), threadId(std::this_thread::get_id()), isolateId(isolate)
     {}
 };
 
@@ -46,9 +47,9 @@ void realm_dart_scheduler_free_userData(void* userData) {
 }
 
 //This can be invoked on any thread.
-void realm_dart_scheduler_notify(void* userData) {
+void realm_dart_scheduler_notify(void* userData, realm_work_queue_t* work_queue) {
     auto& schedulerData = *static_cast<SchedulerData*>(userData);
-    std::uintptr_t pointer = reinterpret_cast<std::uintptr_t>(userData);
+    std::uintptr_t pointer = reinterpret_cast<std::uintptr_t>(work_queue);
     Dart_PostInteger_DL(schedulerData.port, pointer);
 }
 
@@ -84,14 +85,12 @@ bool realm_dart_scheduler_can_deliver_notifications(void* userData) {
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port) {
     SchedulerData* schedulerData = new SchedulerData(isolateId, port);
 
-    realm_scheduler_t* realm_scheduler = realm_scheduler_new(schedulerData,
+    return realm_scheduler_new(schedulerData,
         realm_dart_scheduler_free_userData,
         realm_dart_scheduler_notify,
         realm_dart_scheduler_is_on_thread,
         realm_dart_scheduler_is_same_as,
         realm_dart_scheduler_can_deliver_notifications);
-
-    return realm_scheduler;
 }
 
 //Used for debugging
