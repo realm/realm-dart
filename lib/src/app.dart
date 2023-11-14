@@ -257,6 +257,11 @@ class AppException extends RealmException {
 
   @override
   String toString() {
-    return "AppException: $message, link to server logs: $linkToServerLogs";
+    var errorString = "AppException: $message, status code: $statusCode";
+    if (linkToServerLogs != null) {
+      errorString += ", link to server logs: $linkToServerLogs";
+    }
+
+    return errorString;
   }
 }

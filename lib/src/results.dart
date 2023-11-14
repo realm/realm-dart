@@ -250,10 +250,9 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
   }
 
   bool subscriptionIsChanged(Subscription? existingSubscription, Subscription updatedSubscription) {
-    bool changed = existingSubscription == null ||
+    return existingSubscription == null ||
         existingSubscription.objectClassName != updatedSubscription.objectClassName ||
         existingSubscription.queryString != updatedSubscription.queryString;
-    return changed;
   }
 }
 
@@ -275,12 +274,7 @@ extension RealmResultsInternal on RealmResults {
 
   RealmObjectMetadata get metadata => _metadata!;
 
-  static RealmResults<T> create<T extends Object?>(
-    RealmResultsHandle handle,
-    Realm realm,
-    RealmObjectMetadata? metadata,
-    [int skip = 0]
-  ) =>
+  static RealmResults<T> create<T extends Object?>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata, [int skip = 0]) =>
       RealmResults<T>._(handle, realm, metadata, skip);
 }
 

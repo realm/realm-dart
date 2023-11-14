@@ -1762,12 +1762,13 @@ class _RealmCore {
     await using((arena) async {
       final response_pointer = arena<realm_http_response>();
       final responseRef = response_pointer.ref;
+      final method = _HttpMethod.values[requestMethod];
+
       try {
         // Build request
         late HttpClientRequest request;
 
         // this throws if requestMethod is unknown _HttpMethod
-        final method = _HttpMethod.values[requestMethod];
 
         switch (method) {
           case _HttpMethod.delete:
@@ -1823,11 +1824,14 @@ class _RealmCore {
         });
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
-      } on SocketException catch (_) {
+      } on SocketException catch (socketEx) {
+        Realm.logger.log(Level.WARNING, "A SocketException occurred while executing $method $url: $socketEx");
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
-      } on HttpException catch (_) {
+      } on HttpException catch (httpEx) {
+        Realm.logger.log(Level.WARNING, "A HttpException occurred while executing $method $url: $httpEx");
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
-      } catch (_) {
+      } catch (ex) {
+        Realm.logger.log(Level.SEVERE, "A HttpException occurred while executing $method $url: $ex");
         responseRef.custom_status_code = _CustomErrorCode.unknown.code;
       } finally {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
