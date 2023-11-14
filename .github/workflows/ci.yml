@@ -673,24 +673,23 @@ jobs:
 
   slack-on-failure:
     name: Report failure in main branch
-    needs: 
+    needs:
       - cleanup-dart-matrix
       - cleanup-flutter-matrix
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && github.ref == 'refs/heads/main'
     steps:
         # Run this action to set env.WORKFLOW_CONCLUSION
       - uses: technote-space/workflow-conclusion-action@45ce8e0eb155657ab8ccf346ade734257fd196a5
 
       - uses: act10ns/slack@ed1309ab9862e57e9e583e51c7889486b9a00b0f
-        if: ${{ github.ref == 'refs/heads/main' && env.WORKFLOW_CONCLUSION == 'FAILURE' }} 
+        if: ${{ github.ref == 'refs/heads/main' && env.WORKFLOW_CONCLUSION == 'FAILURE' }}
         # Statuses: neutral, success, skipped, cancelled, timed_out, action_required, failure
         with:
-          status: ${{ env.WORKFLOW_CONCLUSION }} 
+          status: ${{ env.WORKFLOW_CONCLUSION }}
           webhook-url: ${{ secrets.SLACK_DART_WEBHOOK }}
           channel: '#realm-github-dart'
           message: |
             *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
             <{{refUrl}}|`{{ref}}` - {{description}}>
             {{#if description}}<{{diffUrl}}|branch: `{{diffRef}}`>{{/if}}
-       
