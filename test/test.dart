@@ -652,15 +652,9 @@ Future<void> baasTest(
   skip = shouldSkip(baasUri, skip);
 
   test(name, () async {
-    print('Executing test: $name');
-
-    try {
-      final config = await getAppConfig(appName: appName);
-      await testFunction(config);
-    } catch (error) {
-      printSplunkLogLink(appName, baasUri);
-      rethrow;
-    }
+    printSplunkLogLink(appName, baasUri);
+    final config = await getAppConfig(appName: appName);
+    await testFunction(config);
   }, skip: skip);
 }
 
@@ -832,15 +826,16 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
   if (uriVariable == null) {
     return;
   }
+
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
   final baasUri = Uri.parse(uriVariable);
 
-  print("App service name: ${app.uniqueName}");
+  testing.printOnFailure("App service name: ${app.uniqueName}");
   final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
   final splunk = Uri.encodeFull(
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
-  print("Splunk logs: $splunk");
+  testing.printOnFailure("Splunk logs: $splunk");
 }
 
 /// Schema list for default app service

@@ -44,9 +44,6 @@
 * Support efficient `indexOf` and `contains` on `RealmResults` ([#1394](https://github.com/realm/realm-dart/pull/1394))
 * Support asymmetric objects. ([#1400](https://github.com/realm/realm-dart/pull/1400))
 
-### Fixed
-* None
-
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
