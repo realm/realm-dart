@@ -708,7 +708,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfig
   app ??= App(appConfig ?? await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, getSyncSchema());
+  final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
