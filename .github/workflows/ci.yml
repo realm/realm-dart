@@ -13,7 +13,7 @@ env:
   REALM_CI: true
 
 concurrency:
-  group: ${{ github.head_ref || github.run_id }}
+  group: ${{ github.head_ref || github.run_id }}_temp
   cancel-in-progress: true
 
 jobs:
