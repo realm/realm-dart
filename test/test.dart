@@ -396,9 +396,12 @@ void test(String name, dynamic Function() testFunction, {dynamic skip, Map<Strin
     return;
   }
 
-  var timeout = 30;
+  var timeout = 60;
   assert(() {
-    timeout = Duration.secondsPerDay;
+    if (Platform.environment['CI'] == null) {
+      timeout = Duration(minutes: 5).inSeconds;
+    }
+
     return true;
   }());
 
