@@ -645,6 +645,8 @@ Future<void> baasTest(
   skip = shouldSkip(baasUri, skip);
 
   test(name, () async {
+    print('Executing test: $name');
+
     try {
       final config = await getAppConfig(appName: appName);
       await testFunction(config);
