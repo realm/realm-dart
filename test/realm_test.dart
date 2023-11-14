@@ -26,7 +26,6 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:path/path.dart' as p;
-import 'package:cancellation_token/cancellation_token.dart';
 import '../lib/realm.dart';
 import 'test.dart';
 import '../lib/src/native/realm_core.dart';
@@ -1971,8 +1970,8 @@ Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCo
   await realm.syncSession.waitForDownload();
 }
 
-Future<void> _addSubscriptions(Realm realm, String searchByPreffix) async {
-  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPreffix]);
+Future<void> _addSubscriptions(Realm realm, String searchByPrefix) async {
+  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPrefix]);
   if (realm.subscriptions.find(query) == null) {
     realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
   }

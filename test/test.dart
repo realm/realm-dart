@@ -396,9 +396,12 @@ void test(String name, dynamic Function() testFunction, {dynamic skip, Map<Strin
     return;
   }
 
-  var timeout = 30;
+  var timeout = 60;
   assert(() {
-    timeout = Duration.secondsPerDay;
+    if (Platform.environment['CI'] == null) {
+      timeout = Duration(minutes: 5).inSeconds;
+    }
+
     return true;
   }());
 
@@ -419,6 +422,10 @@ Future<void> setupTests(List<String>? args) async {
     Realm.logger = Logger.detached('test run')
       ..level = Level.ALL
       ..onRecord.listen((record) {
+        if (record.level.value >= RealmLogLevel.warn.value) {
+          print('${record.time} ${record.level.name}: ${record.message}');
+        }
+
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
 
@@ -645,13 +652,9 @@ Future<void> baasTest(
   skip = shouldSkip(baasUri, skip);
 
   test(name, () async {
-    try {
-      final config = await getAppConfig(appName: appName);
-      await testFunction(config);
-    } catch (error) {
-      printSplunkLogLink(appName, baasUri);
-      rethrow;
-    }
+    printSplunkLogLink(appName, baasUri);
+    final config = await getAppConfig(appName: appName);
+    await testFunction(config);
   }, skip: skip);
 }
 
@@ -708,7 +711,7 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfig
   app ??= App(appConfig ?? await getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, getSyncSchema());
+  final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
@@ -823,15 +826,16 @@ void printSplunkLogLink(AppNames appName, String? uriVariable) {
   if (uriVariable == null) {
     return;
   }
+
   final app = baasApps[appName.name] ??
       baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
   final baasUri = Uri.parse(uriVariable);
 
-  print("App service name: ${app.uniqueName}");
+  testing.printOnFailure("App service name: ${app.uniqueName}");
   final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
   final splunk = Uri.encodeFull(
       "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
-  print("Splunk logs: $splunk");
+  testing.printOnFailure("Splunk logs: $splunk");
 }
 
 /// Schema list for default app service

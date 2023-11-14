@@ -12,6 +12,8 @@
 * Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
 * Lift a restriction that prevents asymmetric objects from linking to non-embedded objects. ([#1403](https://github.com/realm/realm-dart/issues/1403))
 * Add ISRG X1 Root certificate (used by lets-encrypt and hence MongoDB) to `SecurityContext` of the default `HttpClient`. This ensure we work out-of-the-box on older devices (in particular Android 7 and earlier), as well as some Windows machines. ([#1187](https://github.com/realm/realm-dart/issues/1187), [#1370](https://github.com/realm/realm-dart/issues/1370))
+* Added new flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added named parameter to `MutableSubscriptionSet.clear({bool unnamedOnly = false})` for removing all the unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
+* Added `cancellationToken` parameter to `Session.waitForDownload()`, `Session.waitForUpload()` and `SubscriptionSet.waitForSynchronization()`. ([#1354](https://github.com/realm/realm-dart/pull/1354))
 
 ### Fixed
 * Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
@@ -54,7 +56,6 @@
 * Support ReamSet.freeze() ([#1342](https://github.com/realm/realm-dart/pull/1342))
 * Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
 * Support for passing `List`, `Set` or `Iterable` arguments to queries with `IN`-operators. ([#1346](https://github.com/realm/realm-dart/pull/1346))
-
 
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))

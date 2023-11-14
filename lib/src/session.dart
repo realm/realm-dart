@@ -59,9 +59,11 @@ class Session implements Finalizable {
   void resume() => realmCore.sessionResume(this);
 
   /// Waits for the [Session] to finish all pending uploads.
-  Future<void> waitForUpload() => realmCore.sessionWaitForUpload(this);
+  /// An optional [cancellationToken] can be used to cancel the wait operation.
+  Future<void> waitForUpload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForUpload(this, cancellationToken);
 
   /// Waits for the [Session] to finish all pending downloads.
+  /// An optional [cancellationToken] can be used to cancel the wait operation.
   Future<void> waitForDownload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForDownload(this, cancellationToken);
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.

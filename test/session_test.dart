@@ -135,6 +135,19 @@ Future<void> main([List<String>? args]) async {
     await realm.syncSession.waitForDownload();
   });
 
+  baasTest('SyncSession.waitForDownload/waitForUpload canceled', (configuration) async {
+    final realm = await getIntegrationRealm();
+    final cancellationDownloadToken = CancellationToken();
+    final waitForDownloadFuture = realm.syncSession.waitForDownload(cancellationDownloadToken);
+    cancellationDownloadToken.cancel();
+    expect(() async => await waitForDownloadFuture, throwsA(isA<CancelledException>()));
+
+    final cancellationUploadToken = CancellationToken();
+    final waitForUploadFuture = realm.syncSession.waitForUpload(cancellationUploadToken);
+    cancellationUploadToken.cancel();
+    expect(() async => await waitForUploadFuture, throwsA(isA<CancelledException>()));
+  });
+
   baasTest('SyncSesison.waitForUpload with changes', (configuration) async {
     final differentiator = ObjectId();
 

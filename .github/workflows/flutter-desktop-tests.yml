@@ -74,6 +74,10 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
+      - name: Bump ulimit
+        run: ulimit -n 10240
+        if: ${{ contains(inputs.os, 'macos') }}
+
       # This will be a no-op under normal circumstances since the cluster would have been deployed
       # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
       - name: Create cluster

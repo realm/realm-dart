@@ -147,8 +147,8 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
     return result == null ? null : Subscription._(result);
   }
 
-  Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state) async {
-    final result = await realmCore.waitForSubscriptionSetStateChange(this, state);
+  Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state, [CancellationToken? cancellationToken]) async {
+    final result = await realmCore.waitForSubscriptionSetStateChange(this, state, cancellationToken);
     realmCore.refreshSubscriptionSet(this);
     return result;
   }
@@ -159,8 +159,9 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   /// the returned [Future] will complete immediately. If the state is
   /// [SubscriptionSetState.error], the returned future will throw an
   /// error.
-  Future<void> waitForSynchronization() async {
-    final result = await _waitForStateChange(SubscriptionSetState.complete);
+  /// An optional [cancellationToken] can be used to cancel the wait operation.
+  Future<void> waitForSynchronization([CancellationToken? cancellationToken]) async {
+    final result = await _waitForStateChange(SubscriptionSetState.complete, cancellationToken);
     if (result == SubscriptionSetState.error) {
       throw error!;
     }
@@ -184,7 +185,7 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   @override
   Iterator<Subscription> get iterator => _SubscriptionIterator._(this);
 
-  /// Update the subscription set and send the request to the server in the background.
+  /// Updates the subscription set and send the request to the server in the background.
   ///
   /// Calling [update] is a prerequisite for mutating the subscription set,
   /// using a [MutableSubscriptionSet] passed to the [action].
@@ -272,21 +273,22 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
   }
 
-  /// Remove the [subscription] from the set, if it exists.
+  /// Removes the [subscription] from the set, if it exists.
   bool remove(Subscription subscription) {
     return realmCore.eraseSubscriptionById(this, subscription);
   }
 
-  /// Remove the [query] from the set, if it exists.
+  /// Removes the [query] from the set, if it exists.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
     return realmCore.eraseSubscriptionByResults(this, query);
   }
 
-  /// Remove the [query] from the set that matches by [name], if it exists.
+  /// Removes the subscription from the set that matches by [name], if it exists.
   bool removeByName(String name) {
     return realmCore.eraseSubscriptionByName(this, name);
   }
 
+  /// Removes the subscriptions from the set that matches by type, if it exists.
   bool removeByType<T extends RealmObject>() {
     final name = realm.schema.singleWhere((e) => e.type == T).name;
     var result = false;
@@ -300,9 +302,19 @@ class MutableSubscriptionSet extends SubscriptionSet {
     return result;
   }
 
-  /// Clear the subscription set.
-  void clear() {
-    realmCore.clearSubscriptionSet(this);
+  /// Clears the subscription set.
+  /// If [unnamedOnly] is `true`, then only unnamed subscriptions will be removed.
+  void clear({bool unnamedOnly = false}) {
+    if (unnamedOnly) {
+      for (var i = length - 1; i >= 0; i--) {
+        final subscription = this[i];
+        if (subscription.name == null) {
+          remove(subscription);
+        }
+      }
+    } else {
+      realmCore.clearSubscriptionSet(this);
+    }
   }
 }
 
