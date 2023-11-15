@@ -40,6 +40,8 @@ class Scheduler {
         Realm.logger.log(LevelExt.fromInt(level), text);
       } else if (message is int) {
         realmCore.invokeScheduler(message);
+      } else {
+        Realm.logger.log(RealmLogLevel.error, 'Unexpected Scheduler message type: ${message.runtimeType} - $message');
       }
     };
 
