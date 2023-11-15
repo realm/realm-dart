@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.6.0 (2023-11-15)
 
 ### Enhancements
 * Support for performing geo spatial queries using the new classes: `GeoPoint`, `GeoCircle`, `GeoBox` and `GeoPolygon`. See `GeoPoint` documentation on how to persist locations ([#1389](https://github.com/realm/realm-dart/pull/1389))
