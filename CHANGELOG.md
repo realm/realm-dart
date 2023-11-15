@@ -25,6 +25,10 @@
 * Receiving a `write_not_allowed` error from the server would have led to a crash. (Core 13.22.0)
 * Fix interprocess locking for concurrent realm file access resulting in a interprocess deadlock on FAT32/exFAT filesystems. (Core 13.23.0)
 * Fixed RealmObject not overriding `hashCode`, which would lead to sets of RealmObjects potentially containing duplicates. ([#1418](https://github.com/realm/realm-dart/issues/1418))
+* `realm.subscriptions.waitForSynchronization` will now correctly receive an error if a fatal session error occurs that would prevent it from ever completing. Previously the future would never resolve. (Core 13.23.3)
+* Fixed FLX subscriptions not being sent to the server if the session was interrupted during bootstrapping. (Core 13.23.3)
+* Fixed application crash with 'KeyNotFound' exception when subscriptions are marked complete after a client reset. (Core 13.23.3)
+* A crash at a very specific time during a DiscardLocal client reset on a FLX Realm could leave subscriptions in an invalid state. (Core 13.23.4)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

@@ -651,8 +651,9 @@ class _RealmCore {
     return SchedulerHandle._(schedulerPtr);
   }
 
-  void invokeScheduler(SchedulerHandle schedulerHandle) {
-    _realmLib.realm_scheduler_perform_work(schedulerHandle._pointer);
+  void invokeScheduler(int workQueue) {
+    final queuePointer = Pointer<realm_work_queue>.fromAddress(workQueue);
+    _realmLib.realm_scheduler_perform_work(queuePointer);
   }
 
   RealmHandle openRealm(Configuration config) {
