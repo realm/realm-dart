@@ -65,7 +65,7 @@ Dfvp7OOGAN6dEOM4+qR9sdjoSYKEBpsr6GtPAQw4dy753ec5
 -----END CERTIFICATE-----''';
 
   try {
-    final context = SecurityContext.defaultContext;
+    final context = SecurityContext(withTrustedRoots: true);
     context.setTrustedCertificatesBytes(const AsciiEncoder().convert(isrgRootX1CertPEM));
     return HttpClient(context: context);
   } on TlsException catch (e) {
