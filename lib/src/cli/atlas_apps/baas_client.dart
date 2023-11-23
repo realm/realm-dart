@@ -159,11 +159,32 @@ class BaasClient {
     return result;
   }
 
+  Future<void> waitForInitialSync() async {
+    final apps = await _getApps();
+    await Future.wait(apps.map((app) async {
+      while (!await _isSyncComplete(app)) {
+        await Future.delayed(Duration(seconds: 5));
+      }
+    }));
+  }
+
   Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
     final existingApp = existingApps[appName];
     if (existingApp == null) {
       existingApps[appName] = await _createApp(appName, appSuffix, confirmationType: confirmationType);
     }
+  }
+
+  Future<bool> _isSyncComplete(BaasApp app) async {
+    final response = await _get('groups/$_groupId/apps/$app/sync/progress');
+
+    Map<String, dynamic> progressInfo = response['progress'];
+    var complete = true;
+    for (final key in progressInfo.keys) {
+      complete = complete && progressInfo[key]['complete'] as bool;
+    }
+
+    return complete;
   }
 
   Future<List<BaasApp>> _getApps() async {
@@ -603,7 +624,7 @@ class BaasApp {
   Object? error;
 
   BaasApp(this.appId, this.clientAppId, this.name, this.uniqueName);
-  
+
   BaasApp._empty(this.name)
       : appId = "",
         clientAppId = "",

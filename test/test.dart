@@ -628,6 +628,7 @@ Future<Object> setupBaas() async {
     client.publicRSAKey = publicRSAKeyForJWTValidation;
 
     final apps = await client.getOrCreateApps();
+    await client.waitForInitialSync();
     baasApps.addAll(apps);
     baasClient = client;
     return true;
