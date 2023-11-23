@@ -161,11 +161,14 @@ class BaasClient {
 
   Future<void> waitForInitialSync() async {
     final apps = await _getApps();
-    await Future.wait(apps.map((app) async {
+    for (final app in apps) {
       while (!await _isSyncComplete(app)) {
+        print('Initial sync for ${app.name} is incomplete. Waiting 5 seconds.');
         await Future.delayed(Duration(seconds: 5));
       }
-    }));
+
+      print('Initial sync for ${app.name} is complete.');
+    }
   }
 
   Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
@@ -176,15 +179,20 @@ class BaasClient {
   }
 
   Future<bool> _isSyncComplete(BaasApp app) async {
+    print('Checking sync completion for ${app.name}');
     final response = await _get('groups/$_groupId/apps/$app/sync/progress');
 
     Map<String, dynamic> progressInfo = response['progress'];
-    var complete = true;
     for (final key in progressInfo.keys) {
-      complete = complete && progressInfo[key]['complete'] as bool;
+      final namespaceComplete = progressInfo[key]['complete'] as bool;
+      print('Namespace $key: $namespaceComplete');
+
+      if (!namespaceComplete) {
+        return false;
+      }
     }
 
-    return complete;
+    return true;
   }
 
   Future<List<BaasApp>> _getApps() async {
