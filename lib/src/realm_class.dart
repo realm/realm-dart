@@ -35,17 +35,23 @@ import 'session.dart';
 import 'subscription.dart';
 import 'set.dart';
 
-export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, CancelledException;
+export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, TimeoutCancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
     show
         Backlink,
+        DoubleToGeoDistance,
+        GeoBox,
+        GeoCircle,
+        GeoDistance,
+        GeoPoint,
+        GeoRing,
+        GeoShape,
         Ignored,
         Indexed,
         MapTo,
         ObjectId,
         ObjectType,
         PrimaryKey,
-        RealmValue,
         RealmClosedError,
         RealmCollectionType,
         RealmError,
@@ -54,6 +60,7 @@ export 'package:realm_common/realm_common.dart'
         RealmPropertyType,
         RealmStateError,
         RealmUnsupportedSetError,
+        RealmValue,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
@@ -115,7 +122,7 @@ export 'realm_object.dart'
         RealmObjectChanges,
         UserCallbackException;
 export 'realm_property.dart';
-export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults;
+export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
 export 'session.dart'
     show
         ConnectionStateChange,

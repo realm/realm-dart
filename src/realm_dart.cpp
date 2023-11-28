@@ -118,7 +118,7 @@ RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc) {
 // Stamped into the library by the build system (see prepare-release.yml)
 // Keep this method as it is written and do not format it. 
 // We have a github workflow that looks for and replaces this string as it is written here.
-RLM_API const char* realm_dart_library_version() { return "1.5.0"; }
+RLM_API const char* realm_dart_library_version() { return "1.6.0"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() { 

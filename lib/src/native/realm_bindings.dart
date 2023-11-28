@@ -8044,7 +8044,7 @@ class RealmLibrary {
   /// be called each time the notify callback passed to the scheduler
   /// is invoked.
   void realm_scheduler_perform_work(
-    ffi.Pointer<realm_scheduler_t> arg0,
+    ffi.Pointer<realm_work_queue_t> arg0,
   ) {
     return _realm_scheduler_perform_work(
       arg0,
@@ -8053,10 +8053,10 @@ class RealmLibrary {
 
   late final _realm_scheduler_perform_workPtr = _lookup<
           ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_scheduler_t>)>>(
+          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_work_queue_t>)>>(
       'realm_scheduler_perform_work');
   late final _realm_scheduler_perform_work = _realm_scheduler_perform_workPtr
-      .asFunction<void Function(ffi.Pointer<realm_scheduler_t>)>();
+      .asFunction<void Function(ffi.Pointer<realm_work_queue_t>)>();
 
   /// For platforms with no default scheduler implementation, register a factory
   /// function which can produce custom schedulers. If there is a platform-specific
@@ -11943,7 +11943,9 @@ typedef realm_scheduler_is_same_as_func_t = ffi.Pointer<
         ffi.Bool Function(ffi.Pointer<ffi.Void> scheduler_userdata_1,
             ffi.Pointer<ffi.Void> scheduler_userdata_2)>>;
 typedef realm_scheduler_notify_func_t = ffi.Pointer<
-    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void> userdata)>>;
+    ffi.NativeFunction<
+        ffi.Void Function(ffi.Pointer<ffi.Void> userdata,
+            ffi.Pointer<realm_work_queue_t> work_queue)>>;
 typedef realm_scheduler_t = realm_scheduler;
 
 final class realm_schema extends ffi.Opaque {}
@@ -12372,5 +12374,9 @@ typedef realm_websocket_endpoint_t = realm_websocket_endpoint;
 final class realm_websocket_observer extends ffi.Opaque {}
 
 typedef realm_websocket_observer_t = realm_websocket_observer;
+
+final class realm_work_queue extends ffi.Opaque {}
+
+typedef realm_work_queue_t = realm_work_queue;
 
 final class shared_realm extends ffi.Opaque {}

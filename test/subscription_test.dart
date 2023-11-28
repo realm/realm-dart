@@ -20,26 +20,12 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart';
 import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
-import '../lib/src/configuration.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
 import 'test.dart';
-
-@isTest
-void testSubscriptions(String name, FutureOr<void> Function(Realm) testFunc) async {
-  baasTest(name, (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
-    final realm = getRealm(configuration);
-    await testFunc(realm);
-  });
-}
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
@@ -50,13 +36,24 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.subscriptions, throws<RealmError>());
   });
 
-  testSubscriptions('SubscriptionSet.state/waitForSynchronization', (realm) async {
+  baasTest('SubscriptionSet.state/waitForSynchronization', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     await subscriptions.waitForSynchronization();
     expect(subscriptions.state, SubscriptionSetState.complete);
   });
 
-  testSubscriptions('SubscriptionSet.version', (realm) async {
+  baasTest('SubscriptionSet.state/waitForSynchronization canceled', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
+    final subscriptions = realm.subscriptions;
+    final cancellationToken = CancellationToken();
+    final waitFuture = subscriptions.waitForSynchronization(cancellationToken);
+    cancellationToken.cancel();
+    expect(() async => await waitFuture, throwsA(isA<CancelledException>()));
+  });
+
+  baasTest('SubscriptionSet.version', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     expect(subscriptions.version, 0);
 
@@ -75,7 +72,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.version, 2);
   });
 
-  testSubscriptions('MutableSubscriptionSet.add', (realm) {
+  baasTest('MutableSubscriptionSet.add', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -86,7 +84,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), isNotNull);
   });
 
-  testSubscriptions('MutableSubscriptionSet.add named', (realm) {
+  baasTest('MutableSubscriptionSet.add named', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
@@ -98,7 +97,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.findByName(name), s);
   });
 
-  testSubscriptions('SubscriptionSet.find', (realm) {
+  baasTest('SubscriptionSet.find', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -110,7 +110,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), isNotNull);
   });
 
-  testSubscriptions('SubscriptionSet.find return match, even if named', (realm) {
+  baasTest('SubscriptionSet.find return match, even if named', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -123,7 +124,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.find(query), s);
   });
 
-  testSubscriptions('SubscriptionSet.findByName', (realm) {
+  baasTest('SubscriptionSet.findByName', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
@@ -135,7 +137,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.findByName(name), isNotNull);
   });
 
-  testSubscriptions('MutableSubscriptionSet.remove', (realm) {
+  baasTest('MutableSubscriptionSet.remove', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -152,7 +155,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('MutableSubscriptionSet.removeByQuery', (realm) {
+  baasTest('MutableSubscriptionSet.removeByQuery', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     final query = realm.all<Task>();
 
@@ -167,7 +171,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('MutableSubscriptionSet.removeByName', (realm) {
+  baasTest('MutableSubscriptionSet.removeByName', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     const name = 'some name';
@@ -182,7 +187,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('MutableSubscriptionSet.removeAll', (realm) {
+  baasTest('MutableSubscriptionSet.removeAll', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
@@ -197,7 +203,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, isEmpty);
   });
 
-  testSubscriptions('SubscriptionSet.elementAt', (realm) {
+  baasTest('SubscriptionSet.elementAt', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
@@ -219,7 +226,8 @@ Future<void> main([List<String>? args]) async {
     expect(() => subscriptions[1000], throws<RangeError>());
   });
 
-  testSubscriptions('MutableSubscriptionSet.elementAt', (realm) {
+  baasTest('MutableSubscriptionSet.elementAt', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
@@ -231,7 +239,8 @@ Future<void> main([List<String>? args]) async {
     });
   });
 
-  testSubscriptions('MutableSubscriptionSet.add double-add throws', (realm) {
+  baasTest('MutableSubscriptionSet.add double-add throws', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     // Adding same unnamed query twice without requesting an update will just de-duplicate
@@ -258,7 +267,8 @@ Future<void> main([List<String>? args]) async {
     }, throws<RealmException>('Duplicate subscription'));
   });
 
-  testSubscriptions('MutableSubscriptionSet.add with update flag', (realm) {
+  baasTest('MutableSubscriptionSet.add with update flag', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
@@ -276,7 +286,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions.length, 2);
   });
 
-  testSubscriptions('MutableSubscriptionSet.add multiple queries for same class', (realm) {
+  baasTest('MutableSubscriptionSet.add multiple queries for same class', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
     final random = Random.secure();
 
@@ -305,7 +316,8 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  testSubscriptions('MutableSubscriptionSet.add same name, different classes', (realm) {
+  baasTest('MutableSubscriptionSet.add same name, different classes', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     expect(
@@ -316,7 +328,8 @@ Future<void> main([List<String>? args]) async {
         throws<RealmException>());
   });
 
-  testSubscriptions('MutableSubscriptionSet.add same name, different classes, with update flag', (realm) {
+  baasTest('MutableSubscriptionSet.add same name, different classes, with update flag', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     late Subscription subscription;
@@ -329,7 +342,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions[0], subscription); // last added wins
   });
 
-  testSubscriptions('MutableSubscriptionSet.add same query, different classes', (realm) {
+  baasTest('MutableSubscriptionSet.add same query, different classes', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     subscriptions.update((mutableSubscriptions) {
@@ -343,7 +357,8 @@ Future<void> main([List<String>? args]) async {
     }
   });
 
-  testSubscriptions('MutableSubscriptionSet.add illegal query', (realm) async {
+  baasTest('MutableSubscriptionSet.add illegal query', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     // Illegal query for subscription:
@@ -356,7 +371,8 @@ Future<void> main([List<String>? args]) async {
     expect(() async => await subscriptions.waitForSynchronization(), throws<RealmException>("invalid RQL"));
   });
 
-  testSubscriptions('MutableSubscriptionSet.remove same query, different classes', (realm) {
+  baasTest('MutableSubscriptionSet.remove same query, different classes', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     late Subscription s;
@@ -374,7 +390,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, [s]);
   });
 
-  testSubscriptions('MutableSubscriptionSet.removeByType', (realm) {
+  baasTest('MutableSubscriptionSet.removeByType', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     late Subscription s;
@@ -394,7 +411,8 @@ Future<void> main([List<String>? args]) async {
     expect(subscriptions, [s]);
   });
 
-  testSubscriptions('Get subscriptions', (realm) async {
+  baasTest('Get subscriptions', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     expect(subscriptions, isEmpty);
@@ -430,7 +448,8 @@ Future<void> main([List<String>? args]) async {
     await subscriptions.waitForSynchronization();
   });
 
-  testSubscriptions('Subscription properties roundtrip', (realm) async {
+  baasTest('Subscription properties roundtrip', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     final subscriptions = realm.subscriptions;
 
     final before = DateTime.now().toUtc();
@@ -507,7 +526,8 @@ Future<void> main([List<String>? args]) async {
     expect(() => realm.write(() => realm.add(Task(ObjectId()))), throws<RealmException>("no flexible sync subscription has been created"));
   });
 
-  testSubscriptions('Filter realm data using query subscription', (realm) async {
+  baasTest('Filter realm data using query subscription', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.all<Event>());
     });
@@ -537,12 +557,8 @@ Future<void> main([List<String>? args]) async {
     expect(filtered.length, all.length);
   });
 
-  baasTest('Subscriptions when realm is closed gets closed as well', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-    final realm = getRealm(config);
+  baasTest('Subscriptions when realm is closed gets closed as well', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
 
     final subscriptions = realm.subscriptions;
     expect(() => subscriptions.state, returnsNormally);
@@ -578,4 +594,192 @@ Future<void> main([List<String>? args]) async {
     expect(writeReason.reason, 'write to ObjectID("$productId") in table "${writeReason.objectType}" not allowed; object is outside of the current query view');
     expect(writeReason.primaryKey.value, productId);
   });
+
+  baasTest('Flexible sync subscribe/unsubscribe API', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
+    final prefix = generateRandomString(4);
+    final byTestRun = "name BEGINSWITH '$prefix'";
+    final query = realm.query<Event>(byTestRun);
+    await query.subscribe();
+
+    // Write new data and upload
+    realm.write(() {
+      realm.addAll([
+        Event(ObjectId(), name: "$prefix NPM Event", isCompleted: true, durationInMinutes: 30),
+        Event(ObjectId(), name: "$prefix NPM Meeting", isCompleted: false, durationInMinutes: 10),
+        Event(ObjectId(), name: "$prefix Some other event", isCompleted: true, durationInMinutes: 15),
+      ]);
+    });
+    expect(query.length, 3);
+    await realm.syncSession.waitForUpload();
+
+    // Remove all the data from realm file after synchronization completes
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.clear());
+    await realm.subscriptions.waitForSynchronization();
+    expect(query.length, 0);
+
+    // Subscribing will download only the objects with names containing 'NPM'
+    final subscribedByName = await realm.query<Event>('$byTestRun AND name CONTAINS \$0', ["NPM"]).subscribe();
+    expect(subscribedByName.length, 2);
+
+    // Adding subscription by duration on top of downloaded objects by name
+    // will remove the objects, which don't match duration < 20, from the local realm
+    final subscribedByNameAndDuration = await subscribedByName.query(r'durationInMinutes < $0', [20]).subscribe();
+    expect(subscribedByNameAndDuration.length, 1);
+    expect(subscribedByNameAndDuration[0].durationInMinutes, 10);
+    expect(subscribedByNameAndDuration[0].name, contains("NPM"));
+
+    // Query local realm by duration
+    final filteredByDuration = realm.query<Event>("$byTestRun AND durationInMinutes < \$0", [20]);
+    expect(filteredByDuration.length, 1); // duration 10 only, because there is subscription by name containing 'NPM' and duration < 20
+
+    // Subscribing only by duration will download all objects with duration < 20 independent on the name
+    final subscribedByDuration = await filteredByDuration.subscribe();
+    expect(subscribedByDuration.length, 2); // duration 10 and 15, because all objects with durations < 20 are downloaded
+  });
+
+  test("Using flexible sync subscribe API for local realm throws", () async {
+    final config = Configuration.local([Event.schema]);
+    final realm = getRealm(config);
+    await expectLater(
+        () => realm.all<Event>().subscribe(), throws<RealmError>("subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration"));
+    expect(() => realm.all<Event>().unsubscribe(), throws<RealmError>("unsubscribe is only allowed on Realms opened with a FlexibleSyncConfiguration"));
+  });
+
+  baasTest('Flexible sync subscribe API - duplicated subscription', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
+    final subscriptionName1 = "sub1";
+    final subscriptionName2 = "sub2";
+    final query1 = realm.all<Event>();
+    final query2 = realm.query<Event>("name = \$0", ["some name"]);
+
+    await query1.subscribe(name: subscriptionName1);
+    expect(realm.subscriptions.length, 1);
+
+    //Replace subscription with query2 using the same name and update flag
+    await query2.subscribe(name: subscriptionName1, update: true);
+    expect(realm.subscriptions.length, 1);
+    expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
+
+    //Subscribe for the same query2 with different name
+    await query2.subscribe(name: subscriptionName2);
+    expect(realm.subscriptions.length, 2);
+    expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
+    expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
+
+    //Add query subscription with the same name and update=false throws
+    await expectLater(() => query1.subscribe(name: subscriptionName2), throws<RealmException>("Duplicate subscription with name: $subscriptionName2"));
+  });
+
+  baasTest('Flexible sync subscribe/unsubscribe and removeAllUnnamed', (config) async {
+    final realm = await getIntegrationRealm(appConfig: config);
+    final subscriptionName1 = "sub1";
+    final subscriptionName2 = "sub2";
+    final query = realm.all<Event>();
+    final queryFiltered = realm.query<Event>("name='x'");
+
+    final unnamedResults = await query.subscribe(); // +1 unnamed subscription
+    await query.subscribe(); // +0 subscription already exists
+    await realm.all<Event>().subscribe(); // +0 subscription already exists
+    await queryFiltered.subscribe(); // +1 unnamed subscription
+    final namedResults1 = await query.subscribe(name: subscriptionName1); // +1 named subscription
+    final namedResults2 = await query.subscribe(name: subscriptionName2); // +1 named subscription
+    expect(realm.subscriptions.length, 4);
+
+    expect(query.unsubscribe(), isFalse); // -0 (query is not a subscription)
+    expect(realm.subscriptions.length, 4);
+
+    expect(unnamedResults.unsubscribe(), isTrue); // -1 unnamed subscription on query
+    expect(realm.subscriptions.length, 3);
+    expect(realm.subscriptions.find(queryFiltered), isNotNull);
+    expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
+    expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
+
+    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.clear(unnamedOnly: true)); // -1 unnamed subscription on queryFiltered
+
+    expect(realm.subscriptions.length, 2);
+    expect(realm.subscriptions.findByName(subscriptionName1), isNotNull);
+    expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
+
+    expect(namedResults1.unsubscribe(), isTrue); // -1 named subscription sub1
+    expect(realm.subscriptions.length, 1);
+    expect(realm.subscriptions.findByName(subscriptionName2), isNotNull);
+
+    expect(namedResults2.unsubscribe(), isTrue); // -1 named subscription
+    expect(realm.subscriptions.length, 0);
+  });
+
+  baasTest('Flexible sync subscribe/unsubscribe API wait for download', (configuration) async {
+    int count = 2;
+    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration, count);
+    final results = await query.subscribe(waitForSyncMode: WaitForSyncMode.never);
+    expect(results.length, 0); // didn't wait for downloading because of WaitForSyncMode.never
+
+    final second = await query.subscribe(waitForSyncMode: WaitForSyncMode.always);
+    expect(second.length, count); // product_1 and product_21
+  });
+
+  baasTest('Flexible sync subscribe/unsubscribe cancellation token', (configuration) async {
+    RealmResults<Product> query = await _getQueryToSubscribeForDownload(configuration, 3);
+
+    // Wait Always if timeout expired
+    final timeoutCancellationToken = TimeoutCancellationToken(Duration(microseconds: 0));
+    await expectLater(
+      () async => await query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationToken: timeoutCancellationToken),
+      throwsA(isA<TimeoutException>()),
+    );
+
+    // Wait Always but cancel berfore
+    final cancellationToken = CancellationToken();
+    cancellationToken.cancel();
+    await expectLater(
+      query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationToken: cancellationToken),
+      throwsA(isA<CancelledException>()),
+    );
+
+    // Wait Never but cancel before
+    final cancellationToken1 = CancellationToken();
+    cancellationToken1.cancel();
+    await expectLater(
+      query.subscribe(waitForSyncMode: WaitForSyncMode.never, cancellationToken: cancellationToken1),
+      throwsA(isA<CancelledException>()),
+    );
+
+    // Wait Always but cancel after
+    final cancellationToken2 = CancellationToken();
+    final subFuture = query.subscribe(waitForSyncMode: WaitForSyncMode.always, cancellationToken: cancellationToken2);
+    cancellationToken2.cancel();
+
+    expect(
+      () async => await subFuture,
+      throwsA(isA<CancelledException>()),
+    );
+  });
+}
+
+Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration configuration, int takeCount) async {
+  final prefix = generateRandomString(4);
+  final byTestRun = "name BEGINSWITH '$prefix'";
+  App app = App(configuration);
+  final userA = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+  final configA = Configuration.flexibleSync(userA, getSyncSchema());
+  final realmA = getRealm(configA);
+  await realmA.query<Product>(byTestRun).subscribe();
+  List<String> names = [];
+  realmA.write(() {
+    for (var i = 0; i < 20; i++) {
+      final name = "${prefix}_${i + 1}";
+      names.add(name);
+      realmA.add(Product(ObjectId(), name));
+    }
+  });
+  await realmA.syncSession.waitForUpload();
+  realmA.close();
+
+  final userB = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+  final configB = Configuration.flexibleSync(userB, getSyncSchema());
+  final realmB = getRealm(configB);
+  final query = realmB.query<Product>('$byTestRun AND name IN \$0', [names.take(takeCount)]);
+
+  return query;
 }

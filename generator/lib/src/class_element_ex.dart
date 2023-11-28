@@ -188,17 +188,11 @@ extension ClassElementEx on ClassElement {
         }
       }
 
-      // Check that asymmetric objects:
-      // 1) only have links to embedded objects.
-      // 2) have a primary key named _id.
+      // Check that asymmetric objects have a primary key named _id.
       if (objectType == ObjectType.asymmetricObject) {
         var hasPrimaryKey = false;
         for (final field in mappedFields) {
           final fieldElement = field.fieldElement;
-          final classElement = fieldElement.type.basicType.element as ClassElement;
-          if (field.type.basicType.isRealmModel && !classElement.thisType.isRealmModelOfType(ObjectType.embeddedObject)) {
-            throw RealmInvalidGenerationSourceError('Asymmetric objects cannot link to non-embedded objects', todo: '', element: fieldElement);
-          }
           if (field.isPrimaryKey) {
             hasPrimaryKey = true;
             if (field.realmName != '_id') {

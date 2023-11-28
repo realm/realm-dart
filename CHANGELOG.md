@@ -1,6 +1,21 @@
 ## vNext (TBD)
 
 ### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
+## 1.6.0 (2023-11-15)
+
+### Enhancements
+* Support for performing geo spatial queries using the new classes: `GeoPoint`, `GeoCircle`, `GeoBox` and `GeoPolygon`. See `GeoPoint` documentation on how to persist locations ([#1389](https://github.com/realm/realm-dart/pull/1389))
 * Suppressing rules for a  *.g.dart files ([#1413](https://github.com/realm/realm-dart/pull/1413))
 * Full text search supports searching for prefix only. Eg. "description TEXT 'alex*'" (Core upgrade)
 * Unknown protocol errors received from the baas server will no longer cause the application to crash if a valid error action is also received. (Core upgrade)
@@ -9,6 +24,10 @@
    * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncWebSocketError`, `GeneralSyncError` - replaced by `SyncError`.
    * `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncWebSocketErrorCode`, `GeneralSyncErrorCode, SyncErrorCategory` - replaced by `SyncErrorCode`.
 * Throw an exception if `File::unlock` has failed, in order to inform the SDK that we are likely hitting some limitation on the OS filesystem, instead of crashing  the application and use the same file locking logic for all the platforms. (Core upgrade)
+* Lift a restriction that prevents asymmetric objects from linking to non-embedded objects. ([#1403](https://github.com/realm/realm-dart/issues/1403))
+* Add ISRG X1 Root certificate (used by lets-encrypt and hence MongoDB) to `SecurityContext` of the default `HttpClient`. This ensure we work out-of-the-box on older devices (in particular Android 7 and earlier), as well as some Windows machines. ([#1187](https://github.com/realm/realm-dart/issues/1187), [#1370](https://github.com/realm/realm-dart/issues/1370))
+* Added new flexible sync API `RealmResults.subscribe()` and `RealmResults.unsubscribe()` as an easy way to create subscriptions and download data in background. Added named parameter to `MutableSubscriptionSet.clear({bool unnamedOnly = false})` for removing all the unnamed subscriptions. ([#1354](https://github.com/realm/realm-dart/pull/1354))
+* Added `cancellationToken` parameter to `Session.waitForDownload()`, `Session.waitForUpload()` and `SubscriptionSet.waitForSynchronization()`. ([#1354](https://github.com/realm/realm-dart/pull/1354))
 
 ### Fixed
 * Fixed iteration after `skip` bug ([#1409](https://github.com/realm/realm-dart/issues/1409))
@@ -20,6 +39,10 @@
 * Receiving a `write_not_allowed` error from the server would have led to a crash. (Core 13.22.0)
 * Fix interprocess locking for concurrent realm file access resulting in a interprocess deadlock on FAT32/exFAT filesystems. (Core 13.23.0)
 * Fixed RealmObject not overriding `hashCode`, which would lead to sets of RealmObjects potentially containing duplicates. ([#1418](https://github.com/realm/realm-dart/issues/1418))
+* `realm.subscriptions.waitForSynchronization` will now correctly receive an error if a fatal session error occurs that would prevent it from ever completing. Previously the future would never resolve. (Core 13.23.3)
+* Fixed FLX subscriptions not being sent to the server if the session was interrupted during bootstrapping. (Core 13.23.3)
+* Fixed application crash with 'KeyNotFound' exception when subscriptions are marked complete after a client reset. (Core 13.23.3)
+* A crash at a very specific time during a DiscardLocal client reset on a FLX Realm could leave subscriptions in an invalid state. (Core 13.23.4)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
@@ -30,7 +53,7 @@
 * Sync protocol version bumped to 10. (Core upgrade)
 * Handle `badChangeset` error when printing changeset contents in debug. (Core upgrade)
 
-* Using Core 13.20.1.
+* Using Core 13.23.2.
 
 ## 1.5.0 (2023-09-18)
 
@@ -52,7 +75,6 @@
 * Added support for query on `RealmSet`. ([#1346](https://github.com/realm/realm-dart/pull/1346))
 * Support for passing `List`, `Set` or `Iterable` arguments to queries with `IN`-operators. ([#1346](https://github.com/realm/realm-dart/pull/1346))
 
-
 ### Fixed
 * Fixed an early unlock race condition during client reset callbacks. ([#1335](https://github.com/realm/realm-dart/pull/1335))
 * Rare corruption of files on streaming format (often following compact, convert or copying to a new file). (Core upgrade, since v12.12.0)
@@ -64,6 +86,7 @@
 * Fix failed assertion for unknown app server errors (Core upgrade, since v12.9.0).
 * Testing the size of a collection of links against zero would sometimes fail (sometimes = "difficult to explain"). (Core upgrade, since v13.15.1)
 * `Session.getProgressStream` now returns a regular stream, instead of a broadcast stream. ([#1375](https://github.com/realm/realm-dart/pull/1375))
+* Add ISRG X1 Root certificate (used by lets-encrypt and hence MongoDB) to `SecurityContext` of the default `HttpClient`. This ensure we work out-of-the-box on older devices (in particular Android 7 and earlier), as well as some Windows machines. ([#1187](https://github.com/realm/realm-dart/issues/1187), [#1370](https://github.com/realm/realm-dart/issues/1370))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
