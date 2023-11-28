@@ -90,6 +90,8 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
+* Flutter: ^3.13.0
+* Dart: ^3.1.0
 
 ### Internal
 * Using Core 13.17.2.

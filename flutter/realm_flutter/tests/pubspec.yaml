@@ -6,8 +6,8 @@ publish_to: "none"
 version: 1.6.0
 
 environment:
-  sdk: ^3.0.2
-  flutter: ^3.10.2
+  sdk: ^3.1.0
+  flutter: ^3.13.0
 
 dependencies:
   flutter:
@@ -23,12 +23,17 @@ dependencies:
 dev_dependencies:
   flutter_driver:
     sdk: flutter
+  flutter_test:
+    sdk: flutter  
   flutter_lints: ^2.0.1
   build_runner: ^2.1.2
-  test: ^1.20.1
+  test: any
   timezone: ^0.9.0
 
 flutter:
   uses-material-design: true
   assets:
     - data/realm_files/old-format.realm
+
+dependency_overrides:
+  test_api: ^0.6.1
