@@ -4686,9 +4686,8 @@ class RealmLibrary {
   }
 
   late final _realm_freezePtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>(
-      'realm_freeze');
+      ffi.NativeFunction<
+          ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>('realm_freeze');
   late final _realm_freeze = _realm_freezePtr
       .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>();
 
@@ -8945,8 +8944,7 @@ class RealmLibrary {
 
   late final _realm_sync_client_config_set_user_agent_application_infoPtr =
       _lookup<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
                       ffi.Pointer<ffi.Char>)>>(
           'realm_sync_client_config_set_user_agent_application_info');
@@ -9715,8 +9713,7 @@ class RealmLibrary {
 
   late final _realm_sync_session_register_connection_state_change_callbackPtr =
       _lookup<
-              ffi
-              .NativeFunction<
+              ffi.NativeFunction<
                   ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                       ffi.Pointer<realm_sync_session_t>,
                       realm_sync_connection_state_changed_func_t,
