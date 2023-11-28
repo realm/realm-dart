@@ -5,7 +5,7 @@ description: >-
 publish_to: none
 
 environment:
-  sdk: ^3.0.2
+  sdk: ^3.1.0
 
 dev_dependencies:
-  ffigen: ^8.0.2
+  ffigen: ^9.0.1

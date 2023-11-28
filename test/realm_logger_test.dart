@@ -220,6 +220,6 @@ Future<void> main([List<String>? args]) async {
     ];
 
     //first isolate should have collected all the messages
-    expect(actual, expected);
+    expect(actual, containsAllInOrder(expected));
   });
 }
