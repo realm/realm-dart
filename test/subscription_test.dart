@@ -654,6 +654,7 @@ Future<void> main([List<String>? args]) async {
     final query2 = realm.query<Event>("name = \$0", ["some name"]);
 
     await query1.subscribe(name: subscriptionName1);
+    expect(realm.subscriptions.version, 1);
     expect(realm.subscriptions.length, 1);
 
     //Replace subscription with query2 using the same name and update flag

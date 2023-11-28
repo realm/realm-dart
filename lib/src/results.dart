@@ -203,9 +203,10 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
     CancellationToken? cancellationToken,
     bool update = false,
   }) async {
-    Subscription? existingSubscription = name == null ? realm.subscriptions.find(this) : realm.subscriptions.findByName(name);
+    final subscriptions = realm.subscriptions;
+    Subscription? existingSubscription = name == null ? subscriptions.find(this) : subscriptions.findByName(name);
     late Subscription updatedSubscription;
-    realm.subscriptions.update((mutableSubscriptions) {
+    subscriptions.update((mutableSubscriptions) {
       updatedSubscription = mutableSubscriptions.add(this, name: name, update: update);
     });
     bool shouldWait = waitForSyncMode == WaitForSyncMode.always ||
@@ -216,7 +217,7 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
         throw cancellationToken.exception!;
       }
       if (shouldWait) {
-        await realm.subscriptions.waitForSynchronization(cancellationToken);
+        await subscriptions.waitForSynchronization(cancellationToken);
         await realm.syncSession.waitForDownload(cancellationToken);
       }
       return _SubscribedRealmResult._(this, subscriptionName: name);

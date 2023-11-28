@@ -177,13 +177,11 @@ class BaasClient {
 
   Future<bool> _isSyncComplete(BaasApp app) async {
     try {
-      print('Checking sync completion for ${app.name}');
       final response = await _get('groups/$_groupId/apps/$app/sync/progress');
 
       Map<String, dynamic> progressInfo = response['progress'];
       for (final key in progressInfo.keys) {
         final namespaceComplete = progressInfo[key]['complete'] as bool;
-        print('Namespace $key: $namespaceComplete');
 
         if (!namespaceComplete) {
           return false;
