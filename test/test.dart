@@ -640,13 +640,18 @@ Future<Object> setupBaas() async {
 }
 
 Future<void> _waitForInitialSync() async {
-  try {
-    final realm = await getIntegrationRealm();
-    await realm.syncSession.waitForUpload();
-    await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
-  } catch (e) {
-    print(e);
-    await _waitForInitialSync();
+  while (true) {
+    try {
+      print('Validating initial sync is complete...');
+      await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
+      final realm = await getIntegrationRealm();
+      await realm.syncSession.waitForUpload();
+      await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
+      return;
+    } catch (e) {
+      print(e);
+      await _waitForInitialSync();
+    }
   }
 }
 

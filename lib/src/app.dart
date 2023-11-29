@@ -64,18 +64,20 @@ he8Y4IWS6wY7bCkjCWDcRQJMEhg76fsO3txE+FiYruq9RUWhiF1myv4Q6W+CyBFC
 Dfvp7OOGAN6dEOM4+qR9sdjoSYKEBpsr6GtPAQw4dy753ec5
 -----END CERTIFICATE-----''';
 
-  try {
-    final context = SecurityContext.defaultContext;
-    context.setTrustedCertificatesBytes(const AsciiEncoder().convert(isrgRootX1CertPEM));
-    return HttpClient(context: context);
-  } on TlsException catch (e) {
-    if (e.osError?.message.contains("CERT_ALREADY_IN_HASH_TABLE") == true) {
+  if (Platform.isWindows) {
+    try {
+      final context = SecurityContext(withTrustedRoots: true);
+      context.setTrustedCertificatesBytes(const AsciiEncoder().convert(isrgRootX1CertPEM));
+      return HttpClient(context: context);
+    } on TlsException catch (e) {
       // certificate is already trusted. Nothing to do here
-      return HttpClient();
-    } else {
-      rethrow;
+      if (e.osError?.message.contains("CERT_ALREADY_IN_HASH_TABLE") != true) {
+        rethrow;
+      }
     }
   }
+
+  return HttpClient();
 }();
 
 /// A class exposing configuration options for an [App]
