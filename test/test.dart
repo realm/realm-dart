@@ -630,10 +630,23 @@ Future<Object> setupBaas() async {
     final apps = await client.getOrCreateApps();
     baasApps.addAll(apps);
     baasClient = client;
+
+    await _waitForInitialSync();
     return true;
   } catch (error) {
     print(error);
     return error;
+  }
+}
+
+Future<void> _waitForInitialSync() async {
+  try {
+    final realm = await getIntegrationRealm();
+    await realm.syncSession.waitForUpload();
+    await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
+  } catch (e) {
+    print(e);
+    await _waitForInitialSync();
   }
 }
 
@@ -670,11 +683,13 @@ dynamic shouldSkip(String? baasUri, dynamic skip) {
   return skip;
 }
 
-Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) async {
+Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) => _getAppConfig(appName.name);
+
+Future<AppConfiguration> _getAppConfig(String appName) async {
   final baasUrl = arguments[argBaasUrl];
 
-  final app = baasApps[appName.name] ??
-      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
+  final app =
+      baasApps[appName] ?? baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
   if (app.error != null) {
     throw app.error!;
   }
