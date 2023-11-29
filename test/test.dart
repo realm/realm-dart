@@ -646,6 +646,7 @@ Future<void> _waitForInitialSync() async {
       await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
       final realm = await getIntegrationRealm();
       await realm.syncSession.waitForUpload();
+      await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
       return;
     } catch (e) {
       print(e);
