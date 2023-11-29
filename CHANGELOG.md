@@ -4,13 +4,15 @@
 * None
 
 ### Fixed
-* None
+* Fixed an issue where connections to Atlas App Services would fail on Android with a certificate expiration error. (Issue [#1430](https://github.com/realm/realm-dart/issues/1430))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
+* Flutter: ^3.13.0
+* Dart: ^3.1.0
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.23.2.
 
 ## 1.6.0 (2023-11-15)
 
@@ -90,8 +92,6 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
-* Flutter: ^3.13.0
-* Dart: ^3.1.0
 
 ### Internal
 * Using Core 13.17.2.
