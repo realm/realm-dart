@@ -1,7 +1,4 @@
-## vNext (TBD)
-
-### Enhancements
-* None
+## 1.6.1 (2023-11-30)
 
 ### Fixed
 * Fixed an issue where connections to Atlas App Services would fail on Android with a certificate expiration error. (Issue [#1430](https://github.com/realm/realm-dart/issues/1430))
