@@ -653,8 +653,20 @@ Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async
   final userId = config.user.id;
   final appId = baasApps.values.firstWhere((element) => element.clientAppId == config.user.app.id).appId;
 
-  final result = await config.user.functions.call('triggerClientResetOnSyncServer', [userId, appId]) as Map<String, dynamic>;
-  expect(result['status'], 'success');
+  for (var i = 0; i < 5; i++) {
+    try {
+      final result = await config.user.functions.call('triggerClientResetOnSyncServer', [userId, appId]) as Map<String, dynamic>;
+      expect(result['status'], 'success');
+      break;
+    } catch (e) {
+      if (i == 4) {
+        rethrow;
+      }
+
+      print('Failed to trigger client reset: $e');
+      await Future.delayed(Duration(seconds: i));
+    }
+  }
 
   if (restartSession) {
     session.resume();

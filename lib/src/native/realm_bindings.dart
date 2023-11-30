@@ -3053,6 +3053,37 @@ class RealmLibrary {
       bool Function(
           ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t, bool)>();
 
+  /// Helper method for making it easier to to convert SDK input to the underlying
+  /// `realm_key_path_array_t`.
+  ///
+  /// @return A pointer to the converted key path array. NULL in case of an error.
+  ffi.Pointer<realm_key_path_array_t> realm_create_key_path_array(
+    ffi.Pointer<realm_t> realm,
+    int object_class_key,
+    int num_key_paths,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> user_key_paths,
+  ) {
+    return _realm_create_key_path_array(
+      realm,
+      object_class_key,
+      num_key_paths,
+      user_key_paths,
+    );
+  }
+
+  late final _realm_create_key_path_arrayPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_key_path_array_t> Function(
+                  ffi.Pointer<realm_t>,
+                  realm_class_key_t,
+                  ffi.Size,
+                  ffi.Pointer<ffi.Pointer<ffi.Char>>)>>(
+      'realm_create_key_path_array');
+  late final _realm_create_key_path_array =
+      _realm_create_key_path_arrayPtr.asFunction<
+          ffi.Pointer<realm_key_path_array_t> Function(ffi.Pointer<realm_t>,
+              int, int, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+
   /// Get a thread-safe reference representing the same underlying object as some
   /// API object.
   ///
@@ -3925,14 +3956,14 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_key_path_array_t> arg3,
+    ffi.Pointer<realm_key_path_array_t> key_path_array,
     realm_on_dictionary_change_func_t on_change,
   ) {
     return _realm_dictionary_add_notification_callback(
       arg0,
       userdata,
       userdata_free,
-      arg3,
+      key_path_array,
       on_change,
     );
   }
@@ -5498,14 +5529,14 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_key_path_array_t> arg3,
+    ffi.Pointer<realm_key_path_array_t> key_path_array,
     realm_on_collection_change_func_t on_change,
   ) {
     return _realm_list_add_notification_callback(
       arg0,
       userdata,
       userdata_free,
-      arg3,
+      key_path_array,
       on_change,
     );
   }
@@ -6553,14 +6584,14 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_key_path_array_t> arg3,
+    ffi.Pointer<realm_key_path_array_t> key_path_array,
     realm_on_object_change_func_t on_change,
   ) {
     return _realm_object_add_notification_callback(
       arg0,
       userdata,
       userdata_free,
-      arg3,
+      key_path_array,
       on_change,
     );
   }
@@ -7407,14 +7438,14 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_key_path_array_t> arg3,
+    ffi.Pointer<realm_key_path_array_t> key_path_array,
     realm_on_collection_change_func_t arg4,
   ) {
     return _realm_results_add_notification_callback(
       arg0,
       userdata,
       userdata_free,
-      arg3,
+      key_path_array,
       arg4,
     );
   }
@@ -8195,14 +8226,14 @@ class RealmLibrary {
     ffi.Pointer<realm_set_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
-    ffi.Pointer<realm_key_path_array_t> arg3,
+    ffi.Pointer<realm_key_path_array_t> key_path_array,
     realm_on_collection_change_func_t on_change,
   ) {
     return _realm_set_add_notification_callback(
       arg0,
       userdata,
       userdata_free,
-      arg3,
+      key_path_array,
       on_change,
     );
   }
@@ -11688,32 +11719,9 @@ final class realm_index_range extends ffi.Struct {
 
 typedef realm_index_range_t = realm_index_range;
 
-final class realm_key_path extends ffi.Struct {
-  @ffi.Size()
-  external int nb_elements;
-
-  external ffi.Pointer<realm_key_path_elem_t> path_elements;
-}
-
-final class realm_key_path_array extends ffi.Struct {
-  @ffi.Size()
-  external int nb_elements;
-
-  external ffi.Pointer<realm_key_path_t> paths;
-}
+final class realm_key_path_array extends ffi.Opaque {}
 
 typedef realm_key_path_array_t = realm_key_path_array;
-
-final class realm_key_path_elem extends ffi.Struct {
-  @realm_class_key_t()
-  external int object;
-
-  @realm_property_key_t()
-  external int property;
-}
-
-typedef realm_key_path_elem_t = realm_key_path_elem;
-typedef realm_key_path_t = realm_key_path;
 
 final class realm_link extends ffi.Struct {
   @realm_class_key_t()
