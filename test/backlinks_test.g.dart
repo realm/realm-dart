@@ -68,7 +68,6 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 

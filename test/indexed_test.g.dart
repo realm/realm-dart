@@ -89,7 +89,6 @@ class WithIndexes extends _WithIndexes
   }
 }
 
-// ignore_for_file: type=lint
 class NoIndexes extends _NoIndexes
     with RealmEntity, RealmObjectBase, RealmObject {
   NoIndexes(
@@ -165,7 +164,6 @@ class NoIndexes extends _NoIndexes
   }
 }
 
-// ignore_for_file: type=lint
 class ObjectWithFTSIndex extends _ObjectWithFTSIndex
     with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithFTSIndex(

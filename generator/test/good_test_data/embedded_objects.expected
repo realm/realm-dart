@@ -48,7 +48,6 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   Child1(
     String value, {
@@ -113,7 +112,6 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
   Child2(
     bool boolProp,

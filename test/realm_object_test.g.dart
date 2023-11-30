@@ -41,7 +41,6 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableObjectIdPrimaryKey(
@@ -77,7 +76,6 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class IntPrimaryKey extends _IntPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   IntPrimaryKey(
@@ -111,7 +109,6 @@ class IntPrimaryKey extends _IntPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class NullableIntPrimaryKey extends _NullableIntPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableIntPrimaryKey(
@@ -147,7 +144,6 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class StringPrimaryKey extends _StringPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   StringPrimaryKey(
@@ -182,7 +178,6 @@ class StringPrimaryKey extends _StringPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class NullableStringPrimaryKey extends _NullableStringPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableStringPrimaryKey(
@@ -218,7 +213,6 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class UuidPrimaryKey extends _UuidPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   UuidPrimaryKey(
@@ -252,7 +246,6 @@ class UuidPrimaryKey extends _UuidPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableUuidPrimaryKey(
@@ -288,7 +281,6 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   }
 }
 
-// ignore_for_file: type=lint
 class RemappedFromAnotherFile extends _RemappedFromAnotherFile
     with RealmEntity, RealmObjectBase, RealmObject {
   RemappedFromAnotherFile({
@@ -329,7 +321,6 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   }
 }
 
-// ignore_for_file: type=lint
 class BoolValue extends _BoolValue
     with RealmEntity, RealmObjectBase, RealmObject {
   BoolValue(

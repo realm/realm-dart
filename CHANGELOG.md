@@ -5,6 +5,7 @@
 
 ### Fixed
 * Fixed an issue where connections to Atlas App Services would fail on Android with a certificate expiration error. (Issue [#1430](https://github.com/realm/realm-dart/issues/1430))
+* Fixed an issue with the generator where having multiple generated classes in the same file would result in multiple `// ignore_for_file: type=lint` lines being added, which itself was generating a lint warning. (Issue [#1412](https://github.com/realm/realm-dart/issues/1412))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

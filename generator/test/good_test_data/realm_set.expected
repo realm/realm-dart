@@ -34,7 +34,6 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class RealmSets extends _RealmSets
     with RealmEntity, RealmObjectBase, RealmObject {
   RealmSets(
