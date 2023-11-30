@@ -6,7 +6,7 @@ import 'package:realm_common/realm_common.dart';
 
 @RealmModel()
 class _LotsOfMaps {
-  late Map<String, _Person> persons;
+  late Map<String, _Person?> persons;
   late Map<String, bool> bools;
   late Map<String, DateTime> dateTimes;
   late Map<String, Decimal128> decimals;

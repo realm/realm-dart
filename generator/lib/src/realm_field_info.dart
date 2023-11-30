@@ -52,6 +52,7 @@ class RealmFieldInfo {
   bool get isRealmBacklink => realmType == RealmPropertyType.linkingObjects;
   bool get isMixed => realmType == RealmPropertyType.mixed;
   bool get isComputed => isRealmBacklink; // only computed, so far
+  bool get isDartCoreMap => type.isDartCoreMap;
 
   String get name => fieldElement.name;
   String get realmName => mapTo ?? name;
@@ -61,7 +62,7 @@ class RealmFieldInfo {
   String get basicNonNullableMappedTypeName => type.basicType.asNonNullable.mappedName;
 
   String get basicRealmTypeName =>
-      fieldElement.modelType.basicType.asNonNullable.element?.remappedRealmName ?? fieldElement.modelType.asNonNullable.basicMappedName;
+      fieldElement.modelType.basicType.asNonNullable.element?.remappedRealmName ?? fieldElement.modelType.basicType.asNonNullable.basicMappedName;
 
   String get modelTypeName => fieldElement.modelTypeName;
 

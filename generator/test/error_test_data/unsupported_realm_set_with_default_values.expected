@@ -1,4 +1,4 @@
-Default values for set are not supported.
+Default values for sets are not supported.
 
 in: asset:pkg/test/error_test_data/unsupported_realm_set_with_default_values.dart:10:27
     ╷

@@ -56,7 +56,7 @@ extension DartTypeEx on DartType {
     if (isDartCoreSet) return RealmCollectionType.set;
     if (isDartCoreList) return RealmCollectionType.list;
     if (isDartCoreMap && (this as ParameterizedType).typeArguments.first == session.typeProvider.stringType) {
-      return RealmCollectionType.dictionary;
+      return RealmCollectionType.map;
     }
     return RealmCollectionType.none;
   }

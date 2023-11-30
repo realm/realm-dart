@@ -8,5 +8,5 @@ in: asset:pkg/test/error_test_data/nullable_realm_value.dart:7:3
 7 │   RealmValue? wrong;
   │   ^^^^^^^^^^^ RealmValue? is nullable
   ╵
-Change type to RealmValue
+Change type to RealmValue. RealmValue can hold null, but must not be nullable itself.
 

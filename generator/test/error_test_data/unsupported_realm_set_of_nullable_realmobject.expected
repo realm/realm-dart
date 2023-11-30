@@ -1,4 +1,4 @@
-Nullable realm objects are not allowed in sets
+Realm objects in sets must be non-nullable
 
 in: asset:pkg/test/error_test_data/unsupported_realm_set_of_nullable_realmobject.dart:10:8
     ╷

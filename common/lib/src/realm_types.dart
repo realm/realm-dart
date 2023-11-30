@@ -98,7 +98,20 @@ enum RealmCollectionType {
   list,
   set,
   _3, // ignore: unused_field, constant_identifier_names
-  dictionary,
+  map;
+
+  String get plural {
+    switch (this) {
+      case RealmCollectionType.list:
+        return "lists";
+      case RealmCollectionType.set:
+        return "sets";
+      case RealmCollectionType.map:
+        return "maps";
+      default:
+        return "none";
+    }
+  }
 }
 
 /// A base class of all Realm errors.

@@ -2,23 +2,24 @@
 // RealmObjectGenerator
 // **************************************************************************
 
+// ignore_for_file: type=lint
 class LotsOfMaps extends _LotsOfMaps
     with RealmEntity, RealmObjectBase, RealmObject {
   LotsOfMaps({
-    Iterable<Person> persons,
-    Iterable<bool> bools,
-    Iterable<DateTime> dateTimes,
-    Iterable<Decimal128> decimals,
-    Iterable<double> doubles,
-    Iterable<int> ints,
-    Iterable<ObjectId> objectIds,
-    Iterable<RealmValue> any,
-    Iterable<String> strings,
-    Iterable<Uint8List> binary,
-    Iterable<Uuid> uuids,
+    Map<String, Person?> persons,
+    Map<String, bool> bools,
+    Map<String, DateTime> dateTimes,
+    Map<String, Decimal128> decimals,
+    Map<String, double> doubles,
+    Map<String, int> ints,
+    Map<String, ObjectId> objectIds,
+    Map<String, RealmValue> any,
+    Map<String, String> strings,
+    Map<String, Uint8List> binary,
+    Map<String, Uuid> uuids,
   }) {
-    RealmObjectBase.set<RealmMap<String, Person>>(
-        this, 'persons', RealmMap<String, Person>(persons));
+    RealmObjectBase.set<RealmMap<String, Person?>>(
+        this, 'persons', RealmMap<String, Person?>(persons));
     RealmObjectBase.set<RealmMap<String, bool>>(
         this, 'bools', RealmMap<String, bool>(bools));
     RealmObjectBase.set<RealmMap<String, DateTime>>(
@@ -44,10 +45,10 @@ class LotsOfMaps extends _LotsOfMaps
   LotsOfMaps._();
 
   @override
-  RealmMap<String, Person> get persons =>
-      RealmObjectBase.get<Person>(this, 'persons') as RealmMap<String, Person>;
+  RealmMap<String, Person?> get persons =>
+      RealmObjectBase.get<Person?>(this, 'persons') as RealmMap<String, Person?>;
   @override
-  set persons(covariant RealmMap<String, Person> value) =>
+  set persons(covariant RealmMap<String, Person?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -139,31 +140,32 @@ class LotsOfMaps extends _LotsOfMaps
     return const SchemaObject(
         ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
-          linkTarget: 'Person', collectionType: RealmCollectionType.dictionary),
+          optional: true, linkTarget: 'Person', collectionType: RealmCollectionType.map),
       SchemaProperty('bools', RealmPropertyType.bool,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('dateTimes', RealmPropertyType.timestamp,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('decimals', RealmPropertyType.decimal128,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('doubles', RealmPropertyType.double,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('ints', RealmPropertyType.int,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('objectIds', RealmPropertyType.objectid,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('any', RealmPropertyType.mixed,
-          optional: true, collectionType: RealmCollectionType.dictionary),
+          optional: true, collectionType: RealmCollectionType.map),
       SchemaProperty('strings', RealmPropertyType.string,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('binary', RealmPropertyType.binary,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
       SchemaProperty('uuids', RealmPropertyType.uuid,
-          collectionType: RealmCollectionType.dictionary),
+          collectionType: RealmCollectionType.map),
     ]);
   }
 }
 
+// ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person(
     String name,

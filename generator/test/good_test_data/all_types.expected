@@ -68,6 +68,8 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmValue any = const RealmValue.nullValue(),
     Iterable<int> list = const [],
     Iterable<RealmValue> manyAny = const [],
+    Set<int> set = const {},
+    Map<String, int> map,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Bar>({
@@ -89,6 +91,9 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'decimal', decimal);
     RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
     RealmObjectBase.set<RealmList<RealmValue>>(this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmSet<int>>(this, 'set', RealmSet<int>(set));
+    RealmObjectBase.set<RealmMap<String, int>>(
+        this, 'map', RealmMap<String, int>(map));
   }
 
   Bar._();
@@ -147,6 +152,19 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.get<int>(this, 'list') as RealmList<int>;
   @override
   set list(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get set =>
+      RealmObjectBase.get<int>(this, 'set') as RealmSet<int>;
+  @override
+  set set(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<String, int> get map =>
+      RealmObjectBase.get<int>(this, 'map') as RealmMap<String, int>;
+  @override
+  set map(covariant RealmMap<String, int> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   String? get anOptionalString =>
@@ -212,6 +230,10 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('uuid', RealmPropertyType.uuid, indexType: RealmIndexType.regular),
       SchemaProperty('list', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
+      SchemaProperty('set', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('map', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
       SchemaProperty('anOptionalString', RealmPropertyType.string,
           optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),

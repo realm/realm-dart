@@ -49,9 +49,10 @@ class RealmModelInfo {
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
         final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
-        final collections = fields.where((f) => f.isRealmCollection && !f.isDartCoreSet).toList();
+        final collections = fields.where((f) => f.isRealmCollection && !f.isDartCoreSet && !f.isDartCoreMap).toList();
         final sets = fields.where((f) => f.isDartCoreSet).toList();
-        if (notRequired.isNotEmpty || collections.isNotEmpty || sets.isNotEmpty) {
+        final maps = fields.where((f) => f.isDartCoreMap).toList();
+        if (notRequired.isNotEmpty || collections.isNotEmpty || sets.isNotEmpty || maps.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) {
             if (f.type.isUint8List && f.hasDefaultValue) {
@@ -61,6 +62,7 @@ class RealmModelInfo {
           });
           yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield* sets.map((c) => 'Set<${c.type.basicMappedName}> ${c.name}${c.initializer},');
+          yield* maps.map((c) => 'Map<String, ${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield '}';
         }
 
@@ -87,6 +89,10 @@ class RealmModelInfo {
         });
 
         yield* sets.map((c) {
+          return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
+        });
+
+        yield* maps.map((c) {
           return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
         });
       }

@@ -29,9 +29,9 @@ class _Bar {
   late Uuid uuid;
   @Ignored()
   var theMeaningOfEverything = 42;
-  var list = [0]; // list of ints with default value
-  // late Set<int> set; // not supported yet
-  // late map = <String, int>{}; // not supported yet
+  late List<int> list;
+  late Set<int> set;
+  late Map<String, int> map;
 
   @Indexed()
   String? anOptionalString;

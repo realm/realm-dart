@@ -209,7 +209,7 @@ extension FieldElementEx on FieldElement {
       } else {
         // Validate collections and backlinks
         if (type.isRealmCollection || backlink != null) {
-          final typeDescription = type.isRealmCollection ? (type.isRealmSet ? 'sets' : 'collections') : 'backlinks';
+          final typeDescription = type.isRealmCollection ? type.realmCollectionType.plural : 'backlinks';
           if (type.isNullable) {
             throw RealmInvalidGenerationSourceError(
               'Realm $typeDescription cannot be nullable',
@@ -220,40 +220,65 @@ extension FieldElementEx on FieldElement {
             );
           }
           final itemType = type.basicType;
-          if (itemType.isRealmModel && itemType.isNullable) {
-            throw RealmInvalidGenerationSourceError('Nullable realm objects are not allowed in $typeDescription',
+          final objectsShouldBeNullable = type.realmCollectionType == RealmCollectionType.map;
+          if (itemType.isRealmModel && itemType.isNullable != objectsShouldBeNullable) {
+            final requestedObjectType = objectsShouldBeNullable ? 'nullable' : 'non-nullable';
+            final invalidObjectType = objectsShouldBeNullable ? 'non-nullable' : 'nullable';
+
+            throw RealmInvalidGenerationSourceError('Realm objects in $typeDescription must be $requestedObjectType',
                 primarySpan: typeSpan(file),
-                primaryLabel: 'which has a nullable realm object element type',
+                primaryLabel: 'which has a $invalidObjectType realm object element type',
                 element: this,
-                todo: 'Ensure element type is non-nullable');
+                todo: 'Ensure element type is $requestedObjectType');
           }
 
-          if (type.isRealmSet) {
-            final typeArgument = (type as ParameterizedType).typeArguments.first;
-            if (realmSetUnsupportedRealmTypes.contains(realmType)) {
-              throw RealmInvalidGenerationSourceError('$type is not supported',
-                  primarySpan: typeSpan(file),
-                  primaryLabel: 'Set element type is not supported',
-                  element: this,
-                  todo: 'Ensure set element type $typeArgument is a type supported by RealmSet.');
-            }
+          if (realmType == RealmPropertyType.mixed && itemType.isNullable) {
+            throw RealmInvalidGenerationSourceError('$type is not supported',
+                primarySpan: typeSpan(file),
+                primaryLabel: 'Nullable RealmValues are not supported',
+                element: this,
+                todo: 'Ensure the RealmValue type argument is non-nullable. RealmValue can hold null, but must not be nullable itself.');
+          }
 
-            if (realmType == RealmPropertyType.mixed && typeArgument.isNullable) {
-              throw RealmInvalidGenerationSourceError('$type is not supported',
-                  primarySpan: typeSpan(file),
-                  primaryLabel: 'Set of nullable RealmValues is not supported',
-                  element: this,
-                  todo: 'Did you mean to use Set<RealmValue> instead?');
-            }
+          if (itemType.isRealmCollection || itemType.realmType == RealmPropertyType.linkingObjects) {
+            throw RealmInvalidGenerationSourceError('$type is not supported',
+                primarySpan: typeSpan(file),
+                primaryLabel: 'Collections of collections are not supported',
+                element: this,
+                todo: 'Ensure the collection element type $itemType is not Iterable.');
+          }
 
-            final initExpression = initializerExpression;
-            if (initExpression != null) {
-              throw RealmInvalidGenerationSourceError('Default values for set are not supported.',
-                  primarySpan: initializerExpressionSpan(file, initExpression),
-                  primaryLabel: 'Remove the default value.',
-                  element: this,
-                  todo: 'Remove the default value for field $displayName.');
-            }
+          final initExpression = initializerExpression;
+          if (initExpression != null) {
+            throw RealmInvalidGenerationSourceError('Default values for $typeDescription are not supported.',
+                primarySpan: initializerExpressionSpan(file, initExpression),
+                primaryLabel: 'Remove the default value.',
+                element: this,
+                todo: 'Remove the default value for field $displayName.');
+          }
+
+          switch (type.realmCollectionType) {
+            case RealmCollectionType.map:
+              final keyType = (type as ParameterizedType).typeArguments.first;
+              if (!keyType.isDartCoreString || keyType.isNullable) {
+                throw RealmInvalidGenerationSourceError('$type is not supported',
+                    primarySpan: typeSpan(file),
+                    primaryLabel: 'Non-String keys are not supported in maps',
+                    element: this,
+                    todo: 'Change the map key type to be String');
+              }
+              break;
+            case RealmCollectionType.set:
+              if (itemType.realmObjectType == ObjectType.embeddedObject) {
+                throw RealmInvalidGenerationSourceError('$type is not supported',
+                    primarySpan: typeSpan(file),
+                    primaryLabel: 'Embedded objects in sets are not supported',
+                    element: this,
+                    todo: 'Change the collection element to be a non-embedded object');
+              }
+              break;
+            default:
+              break;
           }
         }
 
@@ -330,7 +355,7 @@ extension FieldElementEx on FieldElement {
             'RealmValue fields cannot be nullable',
             primarySpan: typeSpan(file),
             primaryLabel: '$modelTypeName is nullable',
-            todo: 'Change type to ${modelType.asNonNullable}',
+            todo: 'Change type to RealmValue. RealmValue can hold null, but must not be nullable itself.',
             element: this,
           );
         }
