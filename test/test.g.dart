@@ -38,7 +38,6 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person(
     String name,
@@ -70,7 +69,6 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   Dog(
     String name, {
@@ -120,7 +118,6 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   Team(
     String name, {
@@ -175,7 +172,6 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   Student(
     int number, {
@@ -234,7 +230,6 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   School(
     String name, {
@@ -309,7 +304,6 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class RemappedClass extends $RemappedClass
     with RealmEntity, RealmObjectBase, RealmObject {
   RemappedClass(
@@ -361,7 +355,6 @@ class RemappedClass extends $RemappedClass
   }
 }
 
-// ignore_for_file: type=lint
 class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   Task(
     ObjectId id,
@@ -394,7 +387,6 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   Product(
     ObjectId id,
@@ -438,7 +430,6 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Schedule extends _Schedule
     with RealmEntity, RealmObjectBase, RealmObject {
   Schedule(
@@ -483,7 +474,6 @@ class Schedule extends _Schedule
   }
 }
 
-// ignore_for_file: type=lint
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   Foo(
     Uint8List requiredBinaryProp, {
@@ -540,7 +530,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class AllTypes extends _AllTypes
     with RealmEntity, RealmObjectBase, RealmObject {
   AllTypes(
@@ -747,7 +736,6 @@ class AllTypes extends _AllTypes
   }
 }
 
-// ignore_for_file: type=lint
 class LinksClass extends _LinksClass
     with RealmEntity, RealmObjectBase, RealmObject {
   LinksClass(
@@ -804,7 +792,6 @@ class LinksClass extends _LinksClass
   }
 }
 
-// ignore_for_file: type=lint
 class AllCollections extends _AllCollections
     with RealmEntity, RealmObjectBase, RealmObject {
   AllCollections({
@@ -1024,7 +1011,6 @@ class AllCollections extends _AllCollections
   }
 }
 
-// ignore_for_file: type=lint
 class NullableTypes extends _NullableTypes
     with RealmEntity, RealmObjectBase, RealmObject {
   NullableTypes(
@@ -1144,7 +1130,6 @@ class NullableTypes extends _NullableTypes
   }
 }
 
-// ignore_for_file: type=lint
 class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   Event(
     ObjectId id, {
@@ -1220,7 +1205,6 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   Party(
     int year, {
@@ -1283,7 +1267,6 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
@@ -1353,7 +1336,6 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
   When(
     DateTime dateTimeUtc,
@@ -1397,7 +1379,6 @@ class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   Player(
     String name, {
@@ -1450,7 +1431,6 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   Game({
     Iterable<Player> winnerByRound = const [],
@@ -1486,7 +1466,6 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class AllTypesEmbedded extends _AllTypesEmbedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   AllTypesEmbedded(
@@ -1767,7 +1746,6 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   }
 }
 
-// ignore_for_file: type=lint
 class ObjectWithEmbedded extends _ObjectWithEmbedded
     with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithEmbedded(
@@ -1865,7 +1843,6 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
   }
 }
 
-// ignore_for_file: type=lint
 class RecursiveEmbedded1 extends _RecursiveEmbedded1
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   RecursiveEmbedded1(
@@ -1938,7 +1915,6 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
   }
 }
 
-// ignore_for_file: type=lint
 class RecursiveEmbedded2 extends _RecursiveEmbedded2
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   RecursiveEmbedded2(
@@ -2011,7 +1987,6 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
   }
 }
 
-// ignore_for_file: type=lint
 class RecursiveEmbedded3 extends _RecursiveEmbedded3
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   RecursiveEmbedded3(
@@ -2046,7 +2021,6 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
   }
 }
 
-// ignore_for_file: type=lint
 class ObjectWithDecimal extends _ObjectWithDecimal
     with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithDecimal(
@@ -2093,7 +2067,6 @@ class ObjectWithDecimal extends _ObjectWithDecimal
   }
 }
 
-// ignore_for_file: type=lint
 class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, AsymmetricObject {
   Asymmetric(
@@ -2152,7 +2125,6 @@ class Asymmetric extends _Asymmetric
   }
 }
 
-// ignore_for_file: type=lint
 class Embedded extends _Embedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   Embedded(
@@ -2205,7 +2177,6 @@ class Embedded extends _Embedded
   }
 }
 
-// ignore_for_file: type=lint
 class Symmetric extends _Symmetric
     with RealmEntity, RealmObjectBase, RealmObject {
   Symmetric(

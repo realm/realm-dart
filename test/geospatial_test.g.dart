@@ -56,7 +56,6 @@ class Location extends _Location
   }
 }
 
-// ignore_for_file: type=lint
 class Restaurant extends _Restaurant
     with RealmEntity, RealmObjectBase, RealmObject {
   Restaurant(
@@ -101,7 +100,6 @@ class Restaurant extends _Restaurant
   }
 }
 
-// ignore_for_file: type=lint
 class LocationList extends _LocationList
     with RealmEntity, RealmObjectBase, RealmObject {
   LocationList({

@@ -32,7 +32,6 @@ class RealmModelInfo {
   const RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
 
   Iterable<String> toCode() sync* {
-    yield '// ignore_for_file: type=lint';
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
       final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();

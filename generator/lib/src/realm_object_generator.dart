@@ -58,7 +58,9 @@ class RealmObjectGenerator extends Generator {
         final result = await _getResolvedLibrary(library.element, buildStep.resolver);
         return scopeSession(
           result,
-          () => library.classes.realmInfo.expand((m) => m.toCode()).join('\n'),
+          () {
+            return ['// ignore_for_file: type=lint', ...library.classes.realmInfo.expand((m) => m.toCode())].join('\n');
+          },
           color: stdout.supportsAnsiEscapes,
         );
       },

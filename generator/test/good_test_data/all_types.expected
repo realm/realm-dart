@@ -50,7 +50,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
@@ -227,7 +226,6 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
-// ignore_for_file: type=lint
 class PrimitiveTypes extends _PrimitiveTypes
     with RealmEntity, RealmObjectBase, RealmObject {
   PrimitiveTypes(
