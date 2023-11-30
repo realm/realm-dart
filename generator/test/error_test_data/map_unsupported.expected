@@ -1,12 +1,12 @@
-Not a realm type
+Map<int, _Person?> is not supported
 
 in: asset:pkg/test/error_test_data/map_unsupported.dart:7:8
   ╷
 5 │ @RealmModel()
 6 │ class _Person {
   │       ━━━━━━━ in realm model for 'Person'
-7 │   late Map<int, _Person> relatives;
-  │        ^^^^^^^^^^^^^^^^^ Map<int, _Person> is not a realm model type
+7 │   late Map<int, _Person?> relatives;
+  │        ^^^^^^^^^^^^^^^^^^ Non-String keys are not supported in maps
   ╵
-Remove the invalid field or add an @Ignored annotation on 'relatives'.
+Change the map key type to be String
 

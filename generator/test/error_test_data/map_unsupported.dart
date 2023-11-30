@@ -4,5 +4,5 @@ import 'package:realm_common/realm_common.dart';
 
 @RealmModel()
 class _Person {
-  late Map<int, _Person> relatives;
+  late Map<int, _Person?> relatives;
 }

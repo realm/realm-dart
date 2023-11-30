@@ -55,9 +55,7 @@ extension DartTypeEx on DartType {
   RealmCollectionType get realmCollectionType {
     if (isDartCoreSet) return RealmCollectionType.set;
     if (isDartCoreList) return RealmCollectionType.list;
-    if (isDartCoreMap && (this as ParameterizedType).typeArguments.first == session.typeProvider.stringType) {
-      return RealmCollectionType.map;
-    }
+    if (isDartCoreMap) return RealmCollectionType.map;
     return RealmCollectionType.none;
   }
 
