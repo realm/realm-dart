@@ -392,7 +392,6 @@ BaasHelper? baasHelper;
 Future<void> setupTests(List<String>? args) async {
   final testArgs = parseTestArguments(args);
   testName = testArgs["name"];
-  baasHelper = await BaasHelper.setupBaas(testArgs);
 
   setUp(() {
     Realm.logger = Logger.detached('test run')
@@ -425,6 +424,8 @@ Future<void> setupTests(List<String>? args) async {
       }
     });
   });
+
+  baasHelper = await BaasHelper.setupBaas(testArgs);
 
   // Enable this to print platform info, including current PID
   await _printPlatformInfo();

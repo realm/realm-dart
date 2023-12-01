@@ -1,10 +1,8 @@
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' as testing;
-import 'package:test/test.dart';
 
 import '../lib/src/cli/atlas_apps/baas_client.dart';
 import '../lib/realm.dart';
@@ -281,7 +279,9 @@ class BaasHelper {
     for (var i = 0; i < 5; i++) {
       try {
         final result = await config.user.functions.call('triggerClientResetOnSyncServer', [userId, appId]) as Map<String, dynamic>;
-        expect(result['status'], 'success');
+        if (result['status'] != 'success') {
+          throw 'Unsuccesful status: ${result['status']}';
+        }
         break;
       } catch (e) {
         if (i == 4) {
