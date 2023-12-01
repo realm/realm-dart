@@ -388,7 +388,7 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 }
 
 BaasHelper? baasHelper;
-late final Map<String, String?> _testArgs;
+Map<String, String?> _testArgs = {};
 
 Future<void> setupTests(List<String>? args) async {
   _testArgs = parseTestArguments(args);
