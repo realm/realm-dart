@@ -7,8 +7,6 @@ import 'package:test/test.dart' as testing;
 import '../lib/src/cli/atlas_apps/baas_client.dart';
 import '../lib/realm.dart';
 
-import 'test.dart';
-
 part 'baas_helper.g.dart';
 
 const String argBaasUrl = "BAAS_URL";
@@ -136,7 +134,7 @@ class BaasHelper {
             throw "$argUseBaaSaaS can't be combined with $argBaasCluster";
           }
 
-          (baasUrl, _) = await BaasClient.deployContainer();
+          (baasUrl, _) = await BaasClient.retry(() => BaasClient.deployContainer());
         } else {
           baasUrl = args[argBaasUrl];
         }
@@ -153,9 +151,9 @@ class BaasHelper {
             differentiator: args[argDifferentiator])))!;
       }
 
-      final client = await (baasInfo.cluster == null
+      final client = await BaasClient.retry(() => (baasInfo!.cluster == null
           ? BaasClient.docker(baasInfo.baasUrl, baasInfo.differentiator)
-          : BaasClient.atlas(baasInfo.baasUrl, baasInfo.cluster!, baasInfo.apiKey!, baasInfo.privateApiKey!, baasInfo.projectId!, baasInfo.differentiator));
+          : BaasClient.atlas(baasInfo.baasUrl, baasInfo.cluster!, baasInfo.apiKey!, baasInfo.privateApiKey!, baasInfo.projectId!, baasInfo.differentiator)));
 
       client.publicRSAKey = publicRSAKeyForJWTValidation;
       return (client, baasInfo);
@@ -195,10 +193,6 @@ class BaasHelper {
       try {
         final baasApp = _baasApps[app.name]!;
         print('Validating initial sync is complete...');
-        await _baasClient.waitForInitialSync(baasApp);
-        final appConfig = await _getAppConfig(baasApp.name);
-        final realm = await getIntegrationRealm(appConfig: appConfig);
-        await realm.syncSession.waitForUpload();
         await _baasClient.waitForInitialSync(baasApp);
         return;
       } catch (e) {

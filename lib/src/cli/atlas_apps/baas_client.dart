@@ -146,51 +146,47 @@ class BaasClient {
   }
 
   static Future<void> deleteContainer(String id) async {
-    for (var i = 0; i < 5; i++) {
-      try {
-        print('Deleting BaaS container $id... ');
+    try {
+      print('Deleting BaaS container $id... ');
 
-        final authHelper = await BaasAuthHelper.create();
+      final authHelper = await BaasAuthHelper.create();
 
-        await authHelper.callFunction('stopContainer', arguments: [id]);
-        return;
-      } catch (e) {
-        if (i == 4) {
-          rethrow;
-        }
-
-        print('Failed to deploy container: $e');
-      }
+      await authHelper.callFunction('stopContainer', arguments: [id]);
+      return;
+    } catch (e) {
+      print('Failed to deploy container: $e');
+      rethrow;
     }
-
-    throw 'UNREACHABLE';
   }
 
   static Future<(String httpUrl, String containerId)> deployContainer() async {
-    for (var i = 0; i < 5; i++) {
+    print('Deploying new BaaS container... ');
+
+    final authHelper = await BaasAuthHelper.create();
+
+    final response = await authHelper.callFunction('startContainer') as Map<String, dynamic>;
+    final taskId = response['taskId'] as String;
+
+    String? httpUrl;
+    while (httpUrl == null) {
+      await Future.delayed(Duration(seconds: 1));
+      httpUrl = await _waitForContainer(authHelper, taskId);
+    }
+
+    print('Deployed BaaS instance at $httpUrl');
+
+    return (httpUrl, taskId);
+  }
+
+  static Future<T> retry<T>(Future<T> Function() func, {int attempts = 5}) async {
+    while (attempts >= 0) {
       try {
-        print('Deploying new BaaS container... ');
-
-        final authHelper = await BaasAuthHelper.create();
-
-        final response = await authHelper.callFunction('startContainer') as Map<String, dynamic>;
-        final taskId = response['taskId'] as String;
-
-        String? httpUrl;
-        while (httpUrl == null) {
-          await Future.delayed(Duration(seconds: 1));
-          httpUrl = await _waitForContainer(authHelper, taskId);
-        }
-
-        print('Deployed BaaS instance at $httpUrl');
-
-        return (httpUrl, taskId);
+        return await func();
       } catch (e) {
-        if (i == 4) {
+        print('An error occurred: $e');
+        if (--attempts == 0) {
           rethrow;
         }
-
-        print('Failed to deploy container: $e');
       }
     }
 

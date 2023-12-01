@@ -66,7 +66,7 @@ class DeleteAppsCommand extends Command<void> {
         abort('--container-id must be supplied when --use-baas-aas is set');
       }
 
-      await BaasClient.deleteContainer(options.containerId!);
+      await BaasClient.retry(() => BaasClient.deleteContainer(options.containerId!));
     } else {
       final differentiator = options.differentiator ?? 'local';
 
