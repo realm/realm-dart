@@ -87,7 +87,7 @@ const String lordOfTheFlies = 'Lord of the Flies';
 const String wheelOfTime = 'The Wheel of Time';
 const String silmarillion = 'The Silmarillion';
 
-void main([List<String>? args]) async {
+Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
   intFactory(int i) => i.hashCode;

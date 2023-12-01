@@ -6,8 +6,6 @@ import 'package:test/test.dart';
 import 'const.dart';
 
 void main(List<String> args) {
-  print("Current PID $pid");
-
   group('Realm tests', () {
     FlutterDriver? driver;
 

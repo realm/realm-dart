@@ -388,10 +388,15 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 }
 
 BaasHelper? baasHelper;
+late final Map<String, String?> _testArgs;
 
 Future<void> setupTests(List<String>? args) async {
-  final testArgs = parseTestArguments(args);
-  testName = testArgs["name"];
+  _testArgs = parseTestArguments(args);
+  testName = _testArgs["name"];
+
+  setUpAll(() async {
+    baasHelper = await BaasHelper.setupBaas(_testArgs);
+  });
 
   setUp(() {
     Realm.logger = Logger.detached('test run')
@@ -424,8 +429,6 @@ Future<void> setupTests(List<String>? args) async {
       }
     });
   });
-
-  baasHelper = await BaasHelper.setupBaas(testArgs);
 
   // Enable this to print platform info, including current PID
   await _printPlatformInfo();
@@ -565,9 +568,11 @@ Future<void> baasTest(
 
 dynamic shouldSkip(dynamic skip) {
   if (skip == null) {
-    skip = baasHelper == null ? "BAAS URL not present" : false;
+    skip = BaasHelper.shouldRunBaasTests(_testArgs) ? false : "BAAS URL not present";
   } else if (skip is bool) {
-    if (baasHelper == null) skip = "BAAS URL not present";
+    if (!BaasHelper.shouldRunBaasTests(_testArgs)) {
+      skip = "BAAS URL not present";
+    }
   }
 
   return skip;

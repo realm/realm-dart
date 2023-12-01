@@ -121,6 +121,10 @@ class BaasHelper {
     return result;
   }
 
+  static bool shouldRunBaasTests(Map<String, String?> args) {
+    return args[argUseBaaSaaS] == 'true' || args[argBaasUrl] != null;
+  }
+
   BaasHelper._(this._baasClient);
 
   static Future<(BaasClient?, BaasInfo?)> _setupClient(Map<String, String?> args, Realm realm) async {
