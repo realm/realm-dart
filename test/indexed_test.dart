@@ -146,7 +146,8 @@ Future<void> main([List<String>? args]) async {
       expect(allNotIndexed.length, max);
 
       // Inefficient, but fast enough for this test
-      final searchOrder = (List.generate(max, (i) => i)..shuffle(Random(42))).map((i) => testCase.factory(i)).take(1000).toList();
+      final halfMax = max ~/ 2;
+      final searchOrder = (List.generate(halfMax, (i) => halfMax + i)..shuffle(Random(42))).map((i) => testCase.factory(i)).take(1000).toList();
 
       @pragma('vm:no-interrupts')
       Duration measureSpeed<T extends RealmObject>(RealmResults<T> results) {
@@ -155,7 +156,7 @@ Future<void> main([List<String>? args]) async {
 
         final sw = Stopwatch()..start();
         for (final q in queries) {
-          found.add(q.singleOrNull); // evaluate query
+          found.add(q.single); // evaluate query
         }
         final timing = sw.elapsed;
 
