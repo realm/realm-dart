@@ -18,9 +18,34 @@
 
 import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
-import 'package:realm_dart/src/app.dart';
 import 'dart:convert';
-import '../../realm_dart.dart';
+
+class BaasAuthHelper {
+  static const String _appId = 'baas-container-service-autzb';
+  final String _accessToken;
+  final String _location;
+
+  BaasAuthHelper._(this._accessToken, this._location);
+
+  static Future<BaasAuthHelper> create() async {
+    final locationResponse = await http.get(Uri.parse('https://realm.mongodb.com/api/client/v2.0/app/$_appId/location'));
+    final locationJson = BaasClient._decodeResponse(locationResponse) as Map<String, dynamic>;
+    final location = locationJson['hostname'] as String;
+
+    final loginResponse = await http.post(Uri.parse('$location/api/client/v2.0/app/$_appId/auth/providers/anon-user/login'));
+    final loginJson = BaasClient._decodeResponse(loginResponse) as Map<String, dynamic>;
+    final accessToken = loginJson['access_token'] as String;
+
+    return BaasAuthHelper._(accessToken, location);
+  }
+
+  Future<dynamic> callFunction(String name) async {
+    final response = await http.post(Uri.parse('$_location/api/client/v2.0/app/$_appId/functions/call'),
+        headers: {'Authorization': 'Bearer $_accessToken'}, body: jsonEncode({'name': name, 'arguments': []}));
+
+    return BaasClient._decodeResponse(response);
+  }
+}
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -102,7 +127,7 @@ class BaasClient {
   BaasClient._(this.baseUrl, String? differentiator, [this._clusterName])
       : _adminApiUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}-$_clusterName';
+        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}${_clusterName == null ? '' : '-$_clusterName'}';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
@@ -121,28 +146,39 @@ class BaasClient {
   }
 
   static Future<String> deployContainer() async {
-    print('Deploying new BaaS container... ');
+    for (var i = 0; i < 5; i++) {
+      try {
+        print('Deploying new BaaS container... ');
 
-    final appId = 'baas-container-service-autzb';
-    final app = App(AppConfiguration(appId));
-    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final response = await user.functions.call('startContainer') as Map<String, dynamic>;
-    final taskId = response['taskId'] as String;
+        final authHelper = await BaasAuthHelper.create();
 
-    String? httpUrl;
-    while (httpUrl == null) {
-      await Future.delayed(Duration(seconds: 1));
-      httpUrl = await _waitForContainer(user, taskId);
+        final response = await authHelper.callFunction('startContainer') as Map<String, dynamic>;
+        final taskId = response['taskId'] as String;
+
+        String? httpUrl;
+        while (httpUrl == null) {
+          await Future.delayed(Duration(seconds: 1));
+          httpUrl = await _waitForContainer(authHelper, taskId);
+        }
+
+        print('Deployed BaaS instance at $httpUrl');
+
+        return httpUrl;
+      } catch (e) {
+        if (i == 4) {
+          rethrow;
+        }
+
+        print('Failed to deploy container: $e');
+      }
     }
 
-    print('Deployed BaaS instance at $httpUrl');
-
-    return httpUrl;
+    throw 'UNREACHABLE';
   }
 
-  static Future<String?> _waitForContainer(User user, String taskId) async {
+  static Future<String?> _waitForContainer(BaasAuthHelper authHelper, String taskId) async {
     try {
-      final containers = await user.functions.call('listContainers') as List<dynamic>;
+      final containers = await authHelper.callFunction('listContainers') as List<dynamic>;
       final targetContainer = containers.firstWhereOrNull((c) => c['id'] == taskId);
       if (targetContainer == null) {
         print('$taskId is not found in container list. Retrying...');
@@ -608,7 +644,7 @@ class BaasClient {
     return _decodeResponse(response, payload);
   }
 
-  dynamic _decodeResponse(http.Response response, [String? payload]) {
+  static dynamic _decodeResponse(http.Response response, [String? payload]) {
     if (response.statusCode > 399 || response.statusCode < 200) {
       throw Exception('Failed to ${response.request?.method} ${response.request?.url}: ${response.statusCode} ${response.body}. Body: $payload');
     }
