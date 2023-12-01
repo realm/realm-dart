@@ -100,7 +100,6 @@ class BaasInfo extends _BaasInfo
   }
 }
 
-// ignore_for_file: type=lint
 class BaasAppDetails extends _BaasAppDetails
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   BaasAppDetails(
