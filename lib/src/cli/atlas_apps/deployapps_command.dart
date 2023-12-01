@@ -80,8 +80,8 @@ RwIDAQAB
     if (options.useBaaSaaS) {
       late String containerId;
       (baasUrl, containerId) = await BaasClient.deployContainer();
-      await File('baasUrl').writeAsString(baasUrl);
-      await File('containerId').writeAsString(containerId);
+      await File('baasurl').writeAsString(baasUrl);
+      await File('containerid').writeAsString(containerId);
       print('BaasUrl: $baasUrl');
     } else {
       baasUrl = options.baasUrl!;
