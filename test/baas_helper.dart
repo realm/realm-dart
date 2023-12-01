@@ -138,7 +138,7 @@ class BaasHelper {
             throw "$argUseBaaSaaS can't be combined with $argBaasCluster";
           }
 
-          baasUrl = await BaasClient.deployContainer();
+          (baasUrl, _) = await BaasClient.deployContainer();
         } else {
           baasUrl = args[argBaasUrl];
         }
