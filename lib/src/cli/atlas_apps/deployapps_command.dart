@@ -78,10 +78,11 @@ RwIDAQAB
 
     late String baasUrl;
     if (options.useBaaSaaS) {
-      baasUrl = await BaasClient.deployContainer();
-      final file = File('baasUrl.txt');
-      await file.writeAsString(baasUrl);
-      print('BaasUrl: $baasUrl. Written to ${file.path}');
+      late String containerId;
+      (baasUrl, containerId) = await BaasClient.deployContainer();
+      await File('baasUrl').writeAsString(baasUrl);
+      await File('containerId').writeAsString(containerId);
+      print('BaasUrl: $baasUrl');
     } else {
       baasUrl = options.baasUrl!;
     }

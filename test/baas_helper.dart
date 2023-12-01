@@ -111,7 +111,7 @@ class BaasHelper {
       throw _error!;
     }
 
-    final realmPath = _path.join(Directory.current.path, 'baasmeta', 'baas_$pid.realm');
+    final realmPath = _path.join(Configuration.defaultStoragePath, 'baasmeta', 'baas_$pid.realm');
     final realm = Realm(Configuration.local([BaasInfo.schema, BaasAppDetails.schema], path: realmPath));
     final (client, baasInfo) = await _setupClient(args, realm);
     if (client == null || baasInfo == null) {

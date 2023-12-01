@@ -39,9 +39,9 @@ class BaasAuthHelper {
     return BaasAuthHelper._(accessToken, location);
   }
 
-  Future<dynamic> callFunction(String name) async {
+  Future<dynamic> callFunction(String name, {List<Object> arguments = const []}) async {
     final response = await http.post(Uri.parse('$_location/api/client/v2.0/app/$_appId/functions/call'),
-        headers: {'Authorization': 'Bearer $_accessToken'}, body: jsonEncode({'name': name, 'arguments': []}));
+        headers: {'Authorization': 'Bearer $_accessToken'}, body: jsonEncode({'name': name, 'arguments': arguments}));
 
     return BaasClient._decodeResponse(response);
   }
@@ -145,7 +145,28 @@ class BaasClient {
     return result;
   }
 
-  static Future<String> deployContainer() async {
+  static Future<void> deleteContainer(String id) async {
+    for (var i = 0; i < 5; i++) {
+      try {
+        print('Deleting BaaS container $id... ');
+
+        final authHelper = await BaasAuthHelper.create();
+
+        await authHelper.callFunction('stopContainer', arguments: [id]);
+        return;
+      } catch (e) {
+        if (i == 4) {
+          rethrow;
+        }
+
+        print('Failed to deploy container: $e');
+      }
+    }
+
+    throw 'UNREACHABLE';
+  }
+
+  static Future<(String httpUrl, String containerId)> deployContainer() async {
     for (var i = 0; i < 5; i++) {
       try {
         print('Deploying new BaaS container... ');
@@ -163,7 +184,7 @@ class BaasClient {
 
         print('Deployed BaaS instance at $httpUrl');
 
-        return httpUrl;
+        return (httpUrl, taskId);
       } catch (e) {
         if (i == 4) {
           rethrow;

@@ -62,17 +62,20 @@ class DeleteAppsCommand extends Command<void> {
     }
 
     if (options.useBaaSaaS) {
-      print('Deleting apps from BaaSaaS container is not supported or necessary');
-      return;
+      if (options.containerId == null) {
+        abort('--container-id must be supplied when --use-baas-aas is set');
+      }
+
+      await BaasClient.deleteContainer(options.containerId!);
+    } else {
+      final differentiator = options.differentiator ?? 'local';
+
+      final client = await (options.atlasCluster == null
+          ? BaasClient.docker(options.baasUrl!, differentiator)
+          : BaasClient.atlas(options.baasUrl!, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+
+      await client.deleteApps();
     }
-
-    final differentiator = options.differentiator ?? 'local';
-
-    final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl!, differentiator)
-        : BaasClient.atlas(options.baasUrl!, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
-
-    await client.deleteApps();
   }
 
   void abort(String error) {

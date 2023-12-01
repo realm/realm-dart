@@ -14,6 +14,7 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       projectId: result['project-id'] as String?,
       differentiator: result['differentiator'] as String?,
       useBaaSaaS: result['use-baas-aas'] as bool,
+      containerId: result['container-id'] as String?,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
@@ -47,6 +48,11 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addFlag(
     'use-baas-aas',
     help: 'Spawn a new container for BaaSaaS and creates app in it.',
+  )
+  ..addOption(
+    'container-id',
+    help:
+        'Container id to be cleaned up. Only to be used with use-baas-aas and delete command',
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

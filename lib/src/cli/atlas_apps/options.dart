@@ -43,7 +43,10 @@ class Options {
   @CliOption(help: 'Spawn a new container for BaaSaaS and creates app in it.', name: 'use-baas-aas')
   final bool useBaaSaaS;
 
-  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.useBaaSaaS = false});
+  @CliOption(help: 'Container id to be cleaned up. Only to be used with use-baas-aas and delete command')
+  final String? containerId;
+
+  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.useBaaSaaS = false, this.containerId});
 }
 
 String get usage => _$parserForOptions.usage;

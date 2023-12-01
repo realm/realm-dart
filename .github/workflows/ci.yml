@@ -85,6 +85,15 @@ jobs:
       runner: windows-latest
       baasurl: ${{ needs.deploy-cluster-dart-windows.outputs.url }}
 
+  cleanup-cluster-dart-windows:
+    name: Cleanup Cluster for Dart Windows
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - dart-tests-windows
+      - deploy-cluster-dart-windows
+    with:
+      containerId: ${{ needs.deploy-cluster-dart-windows.outputs.containerId }}
+
   deploy-cluster-dart-macos:
     name: Deploy Cluster for Dart MacOS
     uses: ./.github/workflows/deploy-baas.yml
@@ -100,6 +109,15 @@ jobs:
       os: macos
       runner: macos-latest
       baasurl: ${{ needs.deploy-cluster-dart-macos.outputs.url }}
+
+  cleanup-cluster-dart-macos:
+    name: Cleanup Cluster for Dart macOS
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - dart-tests-macos
+      - deploy-cluster-dart-macos
+    with:
+      containerId: ${{ needs.deploy-cluster-dart-macos.outputs.containerId }}
 
   deploy-cluster-dart-macos-arm:
     name: Deploy Cluster for Dart MacOS Arm
@@ -118,6 +136,15 @@ jobs:
       architecture: arm
       baasurl: ${{ needs.deploy-cluster-dart-macos-arm.outputs.url }}
 
+  cleanup-cluster-dart-macos-arm:
+    name: Cleanup Cluster for Dart macOS Arm
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - dart-tests-macos-arm
+      - deploy-cluster-dart-macos-arm
+    with:
+      containerId: ${{ needs.deploy-cluster-dart-macos-arm.outputs.containerId }}
+
   deploy-cluster-dart-linux:
     name: Deploy Cluster for Dart Linux
     uses: ./.github/workflows/deploy-baas.yml
@@ -134,6 +161,14 @@ jobs:
       runner: ubuntu-latest
       baasurl: ${{ needs.deploy-cluster-dart-linux.outputs.url }}
 
+  cleanup-cluster-dart-linux:
+    name: Cleanup Cluster for Dart Linux
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - dart-tests-linux
+      - deploy-cluster-dart-linux
+    with:
+      containerId: ${{ needs.deploy-cluster-dart-linux.outputs.containerId }}
 
 # Flutter jobs
   deploy-cluster-flutter-windows:
@@ -152,6 +187,15 @@ jobs:
       runner: windows-latest
       baasurl: ${{ needs.deploy-cluster-flutter-windows.outputs.url }}
 
+  cleanup-cluster-flutter-windows:
+    name: Cleanup Cluster for Flutter Windows
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - flutter-tests-windows
+      - deploy-cluster-flutter-windows
+    with:
+      containerId: ${{ needs.deploy-cluster-flutter-windows.outputs.containerId }}
+
   deploy-cluster-flutter-macos:
     name: Deploy Cluster for Flutter MacOS
     uses: ./.github/workflows/deploy-baas.yml
@@ -168,6 +212,15 @@ jobs:
       runner: macos-13 # workaround to: https://github.com/flutter/flutter/issues/118469 latest is still macos-12 ¯\_(ツ)_/¯
       baasurl: ${{ needs.deploy-cluster-flutter-macos.outputs.url }}
 
+  cleanup-cluster-flutter-macos:
+    name: Cleanup Cluster for Flutter macOS
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - flutter-tests-macos
+      - deploy-cluster-flutter-macos
+    with:
+      containerId: ${{ needs.deploy-cluster-flutter-macos.outputs.containerId }}
+
   deploy-cluster-flutter-linux:
     name: Deploy Cluster for Flutter Linux
     uses: ./.github/workflows/deploy-baas.yml
@@ -183,6 +236,15 @@ jobs:
       os: linux
       runner: ubuntu-latest
       baasurl: ${{ needs.deploy-cluster-flutter-linux.outputs.url }}
+
+  cleanup-cluster-flutter-linux:
+    name: Cleanup Cluster for Flutter Linux
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - flutter-tests-linux
+      - deploy-cluster-flutter-linux
+    with:
+      containerId: ${{ needs.deploy-cluster-flutter-linux.outputs.containerId }}
 
   deploy-cluster-flutter-ios:
     name: Deploy Cluster for Flutter iOS
@@ -244,6 +306,15 @@ jobs:
         run: |
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
+
+  cleanup-cluster-flutter-ios:
+    name: Cleanup Cluster for Flutter iOS
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - flutter-tests-ios
+      - deploy-cluster-flutter-ios
+    with:
+      containerId: ${{ needs.deploy-cluster-flutter-ios.outputs.containerId }}
 
   deploy-cluster-flutter-android:
     name: Deploy Cluster for Flutter Android
@@ -332,6 +403,15 @@ jobs:
           cmake: 3.10.2.4988404
           script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
           working-directory: ./flutter/realm_flutter/tests
+
+  cleanup-cluster-flutter-android:
+    name: Cleanup Cluster for Flutter Android
+    uses: ./.github/workflows/terminate-baas.yml
+    needs:
+      - flutter-tests-android
+      - deploy-cluster-flutter-android
+    with:
+      containerId: ${{ needs.deploy-cluster-flutter-android.outputs.containerId }}
 
 # Generator jobs
 
