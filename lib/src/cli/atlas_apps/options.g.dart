@@ -7,19 +7,19 @@ part of 'options.dart';
 // **************************************************************************
 
 Options _$parseOptionsResult(ArgResults result) => Options(
-      result['baas-url'] as String,
+      baasUrl: result['baas-url'] as String?,
       atlasCluster: result['atlas-cluster'] as String?,
       apiKey: result['api-key'] as String?,
       privateApiKey: result['private-api-key'] as String?,
       projectId: result['project-id'] as String?,
       differentiator: result['differentiator'] as String?,
+      useBaaSaaS: result['use-baas-aas'] as bool,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'baas-url',
     help: 'Url for MongoDB Atlas.',
-    defaultsTo: 'http://localhost:9090',
   )
   ..addOption(
     'differentiator',
@@ -43,6 +43,10 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
     'project-id',
     help:
         'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
+  )
+  ..addFlag(
+    'use-baas-aas',
+    help: 'Spawn a new container for BaaSaaS and creates app in it.',
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

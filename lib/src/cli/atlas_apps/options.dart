@@ -22,8 +22,8 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help: 'Url for MongoDB Atlas.', defaultsTo: 'http://localhost:9090')
-  final String baasUrl;
+  @CliOption(help: 'Url for MongoDB Atlas.')
+  final String? baasUrl;
 
   @CliOption(help: 'The database prefix that will be used for the sync service.')
   final String? differentiator;
@@ -40,7 +40,10 @@ class Options {
   @CliOption(help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.')
   final String? projectId;
 
-  Options(this.baasUrl, {this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator});
+  @CliOption(help: 'Spawn a new container for BaaSaaS and creates app in it.', name: 'use-baas-aas')
+  final bool useBaaSaaS;
+
+  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.useBaaSaaS = false});
 }
 
 String get usage => _$parserForOptions.usage;

@@ -16,8 +16,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
+import 'package:realm_dart/src/app.dart';
 import 'dart:convert';
+import '../../realm_dart.dart';
 
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
@@ -86,20 +89,20 @@ class BaasClient {
 
   static const String defaultAppName = "flexible";
 
-  final String _baseUrl;
+  final String _adminApiUrl;
   final String? _clusterName;
   final Map<String, String> _headers;
   final String _appSuffix;
-  final String _sharedAppSuffix;
+
+  final String baseUrl;
 
   late String _groupId;
   late String publicRSAKey = '';
 
-  BaasClient._(String baseUrl, String? differentiator, [this._clusterName])
-      : _baseUrl = '$baseUrl/api/admin/v3.0',
+  BaasClient._(this.baseUrl, String? differentiator, [this._clusterName])
+      : _adminApiUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}-$_clusterName',
-        _sharedAppSuffix = '-shared-$_clusterName';
+        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}-$_clusterName';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
@@ -115,6 +118,55 @@ class BaasClient {
     print('Current GroupID ${result._groupId}');
 
     return result;
+  }
+
+  static Future<String> deployContainer() async {
+    print('Deploying new BaaS container... ');
+
+    final appId = 'baas-container-service-autzb';
+    final app = App(AppConfiguration(appId));
+    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
+    final response = await user.functions.call('startContainer') as Map<String, dynamic>;
+    final taskId = response['taskId'] as String;
+
+    String? httpUrl;
+    while (httpUrl == null) {
+      await Future.delayed(Duration(seconds: 1));
+      httpUrl = await _waitForContainer(user, taskId);
+    }
+
+    print('Deployed BaaS instance at $httpUrl');
+
+    return httpUrl;
+  }
+
+  static Future<String?> _waitForContainer(User user, String taskId) async {
+    try {
+      final containers = await user.functions.call('listContainers') as List<dynamic>;
+      final targetContainer = containers.firstWhereOrNull((c) => c['id'] == taskId);
+      if (targetContainer == null) {
+        print('$taskId is not found in container list. Retrying...');
+        return null;
+      }
+
+      if (targetContainer['lastStatus'] != 'RUNNING') {
+        print('$taskId status is ${targetContainer['lastStatus']}. Retrying...');
+        return null;
+      }
+
+      final httpUrl = targetContainer['httpUrl'] as String;
+
+      final response = await http.get(Uri.parse('$httpUrl/api/private/v1.0/version'));
+      if (response.statusCode > 300) {
+        print('$taskId version response is ${response.statusCode}. Retrying...');
+        return null;
+      }
+
+      return targetContainer['httpUrl'] as String;
+    } catch (e) {
+      print('Error waiting for container: $e');
+      return null;
+    }
   }
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
@@ -133,34 +185,16 @@ class BaasClient {
   /// for [atlas] one, it will return only apps with suffix equal to the cluster name. If no apps exist,
   /// then it will create the test applications and return them.
   /// @nodoc
-  Future<Map<String, BaasApp>> getOrCreateApps() async {
-    final result = await _getExistingApps();
-    await _createAppIfNotExists(result, defaultAppName, _appSuffix);
-    await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
-    await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
-    return result;
-  }
-
-  Future<Map<String, BaasApp>> getOrCreateSharedApps() async {
-    final result = await _getExistingApps();
-    await _createAppIfNotExists(result, "autoConfirm", _sharedAppSuffix, confirmationType: "auto");
-    await _createAppIfNotExists(result, "emailConfirm", _sharedAppSuffix, confirmationType: "email");
-    return result;
-  }
-
-  Future<Map<String, BaasApp>> _getExistingApps() async {
-    final result = <String, BaasApp>{};
+  Future<List<BaasApp>> getOrCreateApps() async {
     var apps = await _getApps();
-    if (apps.isNotEmpty) {
-      for (final app in apps) {
-        result[app.name] = app;
-      }
-    }
-    return result;
+    await _createAppIfNotExists(apps, defaultAppName, _appSuffix);
+    await _createAppIfNotExists(apps, "autoConfirm", _appSuffix, confirmationType: "auto");
+    await _createAppIfNotExists(apps, "emailConfirm", _appSuffix, confirmationType: "email");
+    return apps;
   }
 
   Future<void> waitForInitialSync(BaasApp app) async {
-    while (!await _isSyncComplete(app)) {
+    while (!await _isSyncComplete(app.appId)) {
       print('Initial sync for ${app.name} is incomplete. Waiting 5 seconds.');
       await Future.delayed(Duration(seconds: 5));
     }
@@ -168,16 +202,16 @@ class BaasClient {
     print('Initial sync for ${app.name} is complete.');
   }
 
-  Future<void> _createAppIfNotExists(Map<String, BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
-    final existingApp = existingApps[appName];
+  Future<void> _createAppIfNotExists(List<BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
+    final existingApp = existingApps.firstWhereOrNull((a) => a.name == appName);
     if (existingApp == null) {
-      existingApps[appName] = await _createApp(appName, appSuffix, confirmationType: confirmationType);
+      existingApps.add(await _createApp(appName, appSuffix, confirmationType: confirmationType));
     }
   }
 
-  Future<bool> _isSyncComplete(BaasApp app) async {
+  Future<bool> _isSyncComplete(String appId) async {
     try {
-      final response = await _get('groups/$_groupId/apps/$app/sync/progress');
+      final response = await _get('groups/$_groupId/apps/$appId/sync/progress');
 
       Map<String, dynamic> progressInfo = response['progress'];
       for (final key in progressInfo.keys) {
@@ -203,8 +237,6 @@ class BaasClient {
           final String appName;
           if (name.endsWith(_appSuffix)) {
             appName = name.substring(0, name.length - _appSuffix.length);
-          } else if (name.endsWith(_sharedAppSuffix)) {
-            appName = name.substring(0, name.length - _sharedAppSuffix.length);
           } else {
             return null;
           }
@@ -217,10 +249,9 @@ class BaasClient {
 
   Future<void> updateAppConfirmFunction(String name, [String? source]) async {
     final uniqueName = "$name$_appSuffix";
-    final uniqueSharedAppName = "$name$_sharedAppSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
     dynamic doc = docs.firstWhere((dynamic d) {
-      return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
+      return d["name"] == uniqueName;
     }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
     final appUniqueName = doc['name'] as String;
@@ -453,10 +484,10 @@ class BaasClient {
     }
   }
 
-  Future<String> createApiKey(BaasApp app, String name, bool enabled) async {
-    final dynamic result = await _post('groups/$_groupId/apps/${app.appId}/api_keys', '{ "name":"$name" }');
+  Future<String> createApiKey(String appId, String name, bool enabled) async {
+    final dynamic result = await _post('groups/$_groupId/apps/$appId/api_keys', '{ "name":"$name" }');
     if (!enabled) {
-      await _put('groups/$_groupId/apps/${app.appId}/api_keys/${result['_id']}/disable', '');
+      await _put('groups/$_groupId/apps/$appId/api_keys/${result['_id']}/disable', '');
     }
 
     return result['key'] as String;
@@ -549,7 +580,7 @@ class BaasClient {
   }
 
   Uri _getUri(String relativePath) {
-    return Uri.parse('$_baseUrl/$relativePath');
+    return Uri.parse('$_adminApiUrl/$relativePath');
   }
 
   Future<dynamic> _post(String relativePath, String payload) async {
@@ -599,10 +630,9 @@ class BaasClient {
 
   Future<void> setAutomaticRecoveryEnabled(String name, bool enable) async {
     final uniqueName = "$name$_appSuffix";
-    final uniqueSharedAppName = "$name$_sharedAppSuffix";
     final dynamic docs = await _get('groups/$_groupId/apps');
     dynamic doc = docs.firstWhere((dynamic d) {
-      return d["name"] == uniqueName || d["name"] == uniqueSharedAppName;
+      return d["name"] == uniqueName;
     }, orElse: () => throw Exception("BAAS app not found"));
     final appId = doc['_id'] as String;
     final appUniqueName = doc['name'] as String;

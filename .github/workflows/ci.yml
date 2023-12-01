@@ -17,224 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-dart-cluster:
-    name: Deploy Dart cluster
-    secrets: inherit
-    uses: ./.github/workflows/create-cluster.yml
-    with:
-     prefix: d
-
-  deploy-flutter-cluster:
-    name: Deploy Flutter cluster
-    secrets: inherit
-    uses: ./.github/workflows/create-cluster.yml
-    with:
-     prefix: f
-
-  create-dart-shared-apps:
-    name: Create Dart shared Apps
-    secrets: inherit
-    needs:
-      - deploy-dart-cluster
-    uses: ./.github/workflows/shared-apps.yml
-    with:
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
-     env: Dart
-
-  create-flutter-shared-apps:
-    name: Create Flutter shared Apps
-    secrets: inherit
-    needs:
-      - deploy-flutter-cluster
-    uses: ./.github/workflows/shared-apps.yml
-    with:
-     cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
-     env: Flutter
-
-  delete-dart-cluster:
-    runs-on: ubuntu-latest
-    name: Delete Dart Cluster
-    timeout-minutes: 5
-    continue-on-error: true
-    needs:
-      - deploy-dart-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - dart-tests-linux-ubuntu-20
-
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@338bf3e7575015a28faec8b67614385d122aece7
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
-
-  delete-flutter-cluster:
-    runs-on: ubuntu-latest
-    name: Delete Flutter Cluster
-    timeout-minutes: 5
-    continue-on-error: true
-    needs:
-      - deploy-flutter-cluster
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
-    steps:
-      - uses: realm/ci-actions/mdb-realm/cleanup@338bf3e7575015a28faec8b67614385d122aece7
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
-
-  cleanup-dart-shared-apps:
-    name: Delete Dart shared Apps
-    secrets: inherit
-    needs:
-      - deploy-dart-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - dart-tests-linux-ubuntu-20
-    uses: ./.github/workflows/shared-apps.yml
-    if: always()
-    with:
-     cleanup: true
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
-     env: Dart
-
-  cleanup-flutter-shared-apps:
-    name: Delete Flutter shared Apps
-    secrets: inherit
-    needs:
-      - deploy-flutter-cluster
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
-    uses: ./.github/workflows/shared-apps.yml
-    if: always()
-    with:
-     cleanup: true
-     cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
-     env: Flutter
-
-  cleanup-dart-matrix:
-    needs:
-      - deploy-dart-cluster
-      - dart-tests-windows
-      - dart-tests-macos
-      - dart-tests-macos-arm
-      - dart-tests-linux
-      - dart-tests-linux-ubuntu-20
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: dm
-            description: dart macos
-          - app: dma
-            description: dart macos-arm
-          - app: dl
-            description: dart linux
-          - app: dl2
-            description: dart linux (ubuntu 20)
-          - app: dw
-            description: dart windows
-    runs-on: ubuntu-latest
-    name: Cleanup apps for ${{ matrix.description }}
-    timeout-minutes: 20
-    if: always()
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-        with:
-          submodules: false
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Cleanup Dart apps
-        run: |
-          dart run realm_dart delete-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
-  cleanup-flutter-matrix:
-    needs:
-      - deploy-flutter-cluster
-      - flutter-desktop-tests-windows
-      - flutter-desktop-tests-macos
-      - flutter-desktop-tests-linux
-      - flutter-desktop-tests-linux-ubuntu-20
-      - flutter-ios
-      - flutter-android
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: fm
-            description: flutter macos
-          - app: fl
-            description: flutter linux
-          - app: fl2
-            description: flutter linux (ubuntu 20)
-          - app: fw
-            description: flutter windows
-          - app: fa
-            description: flutter android
-          - app: fi
-            description: flutter iOS
-    runs-on: ubuntu-latest
-    name: Cleanup apps for ${{ matrix.description }}
-    timeout-minutes: 20
-    if: always()
-    env:
-      BAAS_CLUSTER: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: ${{ matrix.app }}${{ github.run_id }}${{ github.run_attempt }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
-        with:
-          submodules: false
-
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Cleanup Flutter apps
-        run: |
-          dart run realm_dart delete-apps \
-            --baas-url ${{ env.BAAS_URL }} \
-            --atlas-cluster ${{ env.BAAS_CLUSTER }} \
-            --api-key ${{ env.BAAS_API_KEY }} \
-            --private-api-key ${{ env.BAAS_PRIVATE_API_KEY }} \
-            --project-id ${{ env.BAAS_PROJECT_ID }} \
-            --differentiator '${{ env.BAAS_DIFFERENTIATOR }}'
-
   build-windows:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
@@ -287,149 +69,136 @@ jobs:
 
 # Dart jobs
 
+  deploy-cluster-dart-windows:
+    name: Deploy Cluster for Dart Windows
+    uses: ./.github/workflows/deploy-baas.yml
+
   dart-tests-windows:
     name: Windows Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-windows
-      - deploy-dart-cluster
-      - create-dart-shared-apps
+      - deploy-cluster-dart-windows
     secrets: inherit
     with:
-     os: windows
-     runner: windows-latest
-     app: dw
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
+      os: windows
+      runner: windows-latest
+      baasurl: ${{ needs.deploy-cluster-dart-windows.outputs.url }}
+
+  deploy-cluster-dart-macos:
+    name: Deploy Cluster for Dart MacOS
+    uses: ./.github/workflows/deploy-baas.yml
 
   dart-tests-macos:
     name: MacOS Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-dart-cluster
-      - create-dart-shared-apps
+      - deploy-cluster-dart-macos
     secrets: inherit
     with:
-     os: macos
-     runner: macos-latest
-     app: dm
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
+      os: macos
+      runner: macos-latest
+      baasurl: ${{ needs.deploy-cluster-dart-macos.outputs.url }}
+
+  deploy-cluster-dart-macos-arm:
+    name: Deploy Cluster for Dart MacOS Arm
+    uses: ./.github/workflows/deploy-baas.yml
 
   dart-tests-macos-arm:
     name: MacOS Arm Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-dart-cluster
-      - create-dart-shared-apps
+      - deploy-cluster-dart-macos-arm
     secrets: inherit
     with:
-     os: macos
-     runner: macos-arm
-     architecture: arm
-     app: dma
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
+      os: macos
+      runner: macos-arm
+      architecture: arm
+      baasurl: ${{ needs.deploy-cluster-dart-macos-arm.outputs.url }}
+
+  deploy-cluster-dart-linux:
+    name: Deploy Cluster for Dart Linux
+    uses: ./.github/workflows/deploy-baas.yml
 
   dart-tests-linux:
     name: Linux Dart Tests
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-linux
-      - deploy-dart-cluster
-      - create-dart-shared-apps
+      - deploy-cluster-dart-linux
     secrets: inherit
     with:
-     os: linux
-     runner: ubuntu-latest
-     app: dl
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
+      os: linux
+      runner: ubuntu-latest
+      baasurl: ${{ needs.deploy-cluster-dart-linux.outputs.url }}
 
-  dart-tests-linux-ubuntu-20:
-    name: Linux Dart Tests (ubuntu 20)
-    uses: ./.github/workflows/dart-desktop-tests.yml
-    needs:
-      - build-linux
-      - deploy-dart-cluster
-      - create-dart-shared-apps
-    secrets: inherit
-    with:
-     os: linux
-     runner: ubuntu-20.04
-     app: dl2
-     cluster: ${{ needs.deploy-dart-cluster.outputs.clusterName }}
 
 # Flutter jobs
+  deploy-cluster-flutter-windows:
+    name: Deploy Cluster for Flutter Windows
+    uses: ./.github/workflows/deploy-baas.yml
 
-  flutter-desktop-tests-windows:
+  flutter-tests-windows:
     name: Windows Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-windows
-      - deploy-flutter-cluster
-      - create-flutter-shared-apps
+      - deploy-cluster-flutter-windows
     secrets: inherit
     with:
-     os: windows
-     runner: windows-latest
-     app: fw
-     cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
+      os: windows
+      runner: windows-latest
+      baasurl: ${{ needs.deploy-cluster-flutter-windows.outputs.url }}
 
-  flutter-desktop-tests-macos:
+  deploy-cluster-flutter-macos:
+    name: Deploy Cluster for Flutter MacOS
+    uses: ./.github/workflows/deploy-baas.yml
+
+  flutter-tests-macos:
     name: MacOS Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-flutter-cluster
-      - create-flutter-shared-apps
+      - deploy-cluster-flutter-macos
     secrets: inherit
     with:
-     os: macos
-     runner: macos-13 # workaround to: https://github.com/flutter/flutter/issues/118469 latest is still macos-12 ¯\_(ツ)_/¯
-     app: fm
-     cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
+      os: macos
+      runner: macos-13 # workaround to: https://github.com/flutter/flutter/issues/118469 latest is still macos-12 ¯\_(ツ)_/¯
+      baasurl: ${{ needs.deploy-cluster-flutter-macos.outputs.url }}
 
-  flutter-desktop-tests-linux:
+  deploy-cluster-flutter-linux:
+    name: Deploy Cluster for Flutter Linux
+    uses: ./.github/workflows/deploy-baas.yml
+
+  flutter-tests-linux:
     name: Linux Flutter Tests
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-linux
-      - deploy-flutter-cluster
-      - create-flutter-shared-apps
+      - deploy-cluster-flutter-linux
     secrets: inherit
     with:
-     os: linux
-     runner: ubuntu-latest
-     app: fl
-     cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
+      os: linux
+      runner: ubuntu-latest
+      baasurl: ${{ needs.deploy-cluster-flutter-linux.outputs.url }}
 
-  flutter-desktop-tests-linux-ubuntu-20:
-    name: Linux Flutter Tests (ubuntu 20)
-    uses: ./.github/workflows/flutter-desktop-tests.yml
-    needs:
-      - build-linux
-      - deploy-flutter-cluster
-      - create-flutter-shared-apps
-    secrets: inherit
-    with:
-     os: linux
-     runner: ubuntu-20.04
-     app: fl2
-     cluster: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
+  deploy-cluster-flutter-ios:
+    name: Deploy Cluster for Flutter iOS
+    uses: ./.github/workflows/deploy-baas.yml
 
-  flutter-ios:
+  flutter-tests-ios:
     runs-on: macos-latest
     name: IOS Flutter Tests
     timeout-minutes: 45
     needs:
-      - deploy-flutter-cluster
+      - deploy-cluster-flutter-ios
       - build-ios-xcframework
-      - create-flutter-shared-apps
     env:
-      BAAS_CLUSTER: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
+      BAAS_URL: ${{ needs.deploy-cluster-flutter-ios.outputs.url }}
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
@@ -459,36 +228,38 @@ jobs:
           os: 'iOS'
           os_version: '>= 14.0'
 
-      # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
+      # # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      # - name: Create cluster
+      #   uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
+      #   with:
+      #     realmUrl: ${{ env.BAAS_URL }}
+      #     atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+      #     projectId: ${{ env.BAAS_PROJECT_ID }}
+      #     apiKey: ${{ env.BAAS_API_KEY }}
+      #     privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+      #     clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests on iOS Simulator
         run: |
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
         working-directory: ./flutter/realm_flutter/tests
 
-  flutter-android:
+  deploy-cluster-flutter-android:
+    name: Deploy Cluster for Flutter Android
+    uses: ./.github/workflows/deploy-baas.yml
+
+  flutter-tests-android:
     runs-on: macos-latest
     name: Android Flutter Tests
     timeout-minutes: 45
     needs:
-      - deploy-flutter-cluster
+      - deploy-cluster-flutter-android
       - build-android-combined
-      - create-flutter-shared-apps
     env:
-      BAAS_CLUSTER: ${{ needs.deploy-flutter-cluster.outputs.clusterName }}
-      BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
-    steps:
+      BAAS_URL: ${{ needs.deploy-cluster-flutter-android.outputs.url }}
 
+    steps:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
@@ -537,17 +308,17 @@ jobs:
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
 
-      # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
+      # # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      # - name: Create cluster
+      #   uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
+      #   with:
+      #     realmUrl: ${{ env.BAAS_URL }}
+      #     atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+      #     projectId: ${{ env.BAAS_PROJECT_ID }}
+      #     apiKey: ${{ env.BAAS_API_KEY }}
+      #     privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+      #     clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -674,8 +445,15 @@ jobs:
   slack-on-failure:
     name: Report failure in main branch
     needs:
-      - cleanup-dart-matrix
-      - cleanup-flutter-matrix
+      - dart-tests-linux
+      - dart-tests-macos
+      - dart-tests-macos-arm
+      - dart-tests-windows
+      - flutter-tests-linux
+      - flutter-tests-macos
+      - flutter-tests-windows
+      - flutter-tests-ios
+      - flutter-tests-android
     runs-on: ubuntu-latest
     if: always() && github.ref == 'refs/heads/main'
     steps:

@@ -1,0 +1,42 @@
+name: Deploy cluster and apps
+
+on:
+  workflow_call:
+    outputs:
+      url:
+        description: "The url to connect to"
+        value: ${{ jobs.deploy-baas.outputs.url }}
+
+env:
+  REALM_CI: true
+
+jobs:
+  deploy-baas:
+    runs-on: ubuntu-latest
+    name: Deploy BaaS
+    timeout-minutes: 15
+    outputs:
+      url: ${{ steps.baas-url.outputs.content }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          submodules: false
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Deploy cluster and apps
+        run: dart run realm_dart deploy-apps --use-baas-aas
+
+      - name: Read baas url
+        id: baas-url
+        uses: jaywcjlove/github-action-read-file@3e97449450678b461303d4820406de059f4830ea
+        with:
+          path: baasUrl.txt

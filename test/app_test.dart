@@ -28,6 +28,7 @@ import 'test.dart';
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
+  final a = 5;
 
   test('AppConfiguration can be initialized', () {
     Configuration.defaultRealmPath = path.join(Configuration.defaultStoragePath, Configuration.defaultRealmName);

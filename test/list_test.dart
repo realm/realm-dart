@@ -349,6 +349,7 @@ Future<void> main([List<String>? args]) async {
             op(list, i);
           }
         });
+        realm.refresh();
       }
     });
   }

@@ -15,20 +15,12 @@ on:
         description: Architecture to execute on.
         required: false
         type: string
-      app:
-        description: App name prefix
-        required: true
-        type: string
-      cluster:
-        description: Cluster name to deploy.
+      baasurl:
+        description: BaaS url to test against.
         required: true
         type: string
 
 env:
-  BAAS_URL: ${{ secrets.REALM_QA_URL }}
-  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
   REALM_CI: true
 
 jobs:
@@ -37,8 +29,7 @@ jobs:
     name: Flutter tests on ${{inputs.os }}-${{ inputs.architecture }}
     timeout-minutes: 45
     env:
-      BAAS_CLUSTER: ${{ inputs.cluster }}
-      BAAS_DIFFERENTIATOR:  ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
+      BAAS_URL: ${{ inputs.baasurl }}
     steps:
 
       - name: Checkout
@@ -78,17 +69,17 @@ jobs:
         run: ulimit -n 10240
         if: ${{ contains(inputs.os, 'macos') }}
 
-      # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
+      # # This will be a no-op under normal circumstances since the cluster would have been deployed
+      # # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
+      # - name: Create cluster
+      #   uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
+      #   with:
+      #     realmUrl: ${{ env.BAAS_URL }}
+      #     atlasUrl: ${{ secrets.ATLAS_QA_URL }}
+      #     projectId: ${{ env.BAAS_PROJECT_ID }}
+      #     apiKey: ${{ env.BAAS_API_KEY }}
+      #     privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
+      #     clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
         run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"

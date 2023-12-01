@@ -56,36 +56,55 @@ RwIDAQAB
 
     if (options.atlasCluster != null) {
       if (options.apiKey == null) {
-        abort('--api-key must be supplied when --atlas-cluster is not set');
+        abort('--api-key must be supplied when --atlas-cluster is set');
       }
 
       if (options.privateApiKey == null) {
-        abort('--private-api-key must be supplied when --atlas-cluster is not set');
+        abort('--private-api-key must be supplied when --atlas-cluster is set');
       }
 
       if (options.projectId == null) {
-        abort('--project-id must be supplied when --atlas-cluster is not set');
+        abort('--project-id must be supplied when --atlas-cluster is set');
+      }
+
+      if (options.useBaaSaaS) {
+        abort('--use-baas-aas cannot be used when --atlas-cluster is set');
       }
     }
 
-    final differentiator = options.differentiator ?? 'shared';
+    if (!options.useBaaSaaS && options.baasUrl == null) {
+      abort('--baas-url must be supplied when --use-baas-aas is not set');
+    }
+
+    late String baasUrl;
+    if (options.useBaaSaaS) {
+      baasUrl = await BaasClient.deployContainer();
+      final file = File('baasUrl.txt');
+      await file.writeAsString(baasUrl);
+      print('BaasUrl: $baasUrl. Written to ${file.path}');
+    } else {
+      baasUrl = options.baasUrl!;
+    }
+
+    final differentiator = options.differentiator;
     try {
       final client = await (options.atlasCluster == null
-          ? BaasClient.docker(options.baasUrl, differentiator)
-          : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+          ? BaasClient.docker(baasUrl, differentiator)
+          : BaasClient.atlas(baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
       client.publicRSAKey = publicRSAKeyForJWTValidation;
-      var apps = await client.getOrCreateSharedApps();
+      var apps = await client.getOrCreateApps();
       print('App import is complete. There are: ${apps.length} apps on the server:');
       List<String> listApps = [];
-      apps.forEach((_, value) {
+      for (var value in apps) {
         print("  App '${value.name}': '${value.clientAppId}'");
         if (value.error != null) {
           print(value.error!);
         }
         listApps.add(value.appId);
-      });
+      }
       print("appIds: ");
       print(listApps.join(","));
+      exit(0);
     } catch (error) {
       print(error);
     }
