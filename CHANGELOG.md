@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
