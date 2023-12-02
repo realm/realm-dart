@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:analyzer/dart/ast/ast.dart';
+import 'package:analyzer/src/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
@@ -249,12 +250,12 @@ extension FieldElementEx on FieldElement {
           }
 
           final initExpression = initializerExpression;
-          if (initExpression != null) {
-            throw RealmInvalidGenerationSourceError('Default values for $typeDescription are not supported.',
+          if (initExpression != null && !_isValidCollectionInitializer(initExpression)) {
+            throw RealmInvalidGenerationSourceError('Non-empty default values for $typeDescription are not supported.',
                 primarySpan: initializerExpressionSpan(file, initExpression),
                 primaryLabel: 'Remove the default value.',
                 element: this,
-                todo: 'Remove the default value for field $displayName.');
+                todo: 'Remove the default value for field $displayName or change it to be an empty collection.');
           }
 
           switch (type.realmCollectionType) {
@@ -381,5 +382,17 @@ extension FieldElementEx on FieldElement {
         element: this,
       );
     }
+  }
+
+  bool _isValidCollectionInitializer(Expression initExpression) {
+    if (initExpression is AstNodeImpl) {
+      final astNode = initExpression as AstNodeImpl;
+      final elementsNode = astNode.namedChildEntities.where((e) => e.name == 'elements').singleOrNull;
+      final nodeValue = elementsNode?.value;
+      if (nodeValue is NodeList && nodeValue.isEmpty) {
+        return true;
+      }
+    }
+    return false;
   }
 }

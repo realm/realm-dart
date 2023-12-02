@@ -1,0 +1,13 @@
+Non-empty default values for maps are not supported.
+
+in: asset:pkg/test/error_test_data/dict_non_empty_initializer.dart:8:31
+    ╷
+5   │ @RealmModel()
+6   │ class _Bad {
+    │       ━━━━ in realm model for 'Bad'
+... │
+8   │   final dictWithInitializer = {"a": 5};
+    │                               ^^^^^^^^ Remove the default value.
+    ╵
+Remove the default value for field dictWithInitializer or change it to be an empty collection.
+
