@@ -48,6 +48,14 @@ class CollectionChanges {
   const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves, this.isCleared);
 }
 
+class MapChanges {
+  final List<String> deletions;
+  final List<String> insertions;
+  final List<String> modifications;
+
+  const MapChanges(this.deletions, this.insertions, this.modifications);
+}
+
 /// Describes the changes in a Realm collection since the last time the notification callback was invoked.
 class RealmCollectionChanges implements Finalizable {
   final RealmCollectionChangesHandle _handle;

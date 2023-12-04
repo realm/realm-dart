@@ -88,7 +88,8 @@ extension DartTypeEx on DartType {
           }
           if (self.isDartCoreMap) {
             final mappedMap = provider.mapType(self.typeArguments.first, mapped);
-            return PseudoType('Realm${mappedMap.getDisplayString(withNullability: true)}', nullabilitySuffix: mappedMap.nullabilitySuffix);
+            return PseudoType('RealmMap<${mappedMap.typeArguments.last.getDisplayString(withNullability: true)}>',
+                nullabilitySuffix: mappedMap.nullabilitySuffix);
           }
         }
       }

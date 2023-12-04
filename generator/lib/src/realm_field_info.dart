@@ -73,6 +73,7 @@ class RealmFieldInfo {
     if (isMixed && !type.isRealmCollection) return ' = const RealmValue.nullValue()';
     if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
     if (type.isDartCoreSet) return ' = const {}';
+    if (type.isDartCoreMap) return ' = const {}';
     return ''; // no initializer
   }
 

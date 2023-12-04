@@ -34,6 +34,7 @@ import 'scheduler.dart';
 import 'session.dart';
 import 'subscription.dart';
 import 'set.dart';
+import 'map.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, TimeoutCancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -108,6 +109,7 @@ export "configuration.dart"
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
+export 'map.dart' show RealmMap, RealmMapChanges;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
@@ -737,6 +739,10 @@ extension RealmInternal on Realm {
     return RealmSetInternal.create<T>(handle, this, metadata);
   }
 
+  RealmMap<T> createMap<T extends Object?>(RealmMapHandle handle, RealmObjectMetadata? metadata) {
+    return RealmMapInternal.create<T>(handle, this, metadata);
+  }
+
   List<String> getPropertyNames(Type type, List<int> propertyKeys) {
     final metadata = _metadata.getByType(type);
     final result = <String>[];
@@ -805,6 +811,15 @@ extension RealmInternal on Realm {
     }
 
     return createSet<T>(handle, set.metadata);
+  }
+
+  RealmMap<T>? resolveMap<T extends Object?>(ManagedRealmMap map) {
+    final handle = realmCore.resolveMap(map, this);
+    if (handle == null) {
+      return null;
+    }
+
+    return createMap<T>(handle, map.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
@@ -949,11 +964,11 @@ class RealmMetadata {
 
   RealmObjectMetadata? getByClassKeyIfExists(int key) => _classKeyMap[key];
 
-  Tuple<Type, RealmObjectMetadata> getByClassKey(int key) {
+  (Type type, RealmObjectMetadata meta) getByClassKey(int key) {
     final meta = _classKeyMap[key];
     if (meta != null) {
       final type = _typeMap.entries.firstWhereOrNull((e) => e.value.classKey == key)?.key ?? RealmObjectBase;
-      return Tuple(type, meta);
+      return (type, meta);
     }
     throw RealmError("Object with classKey $key not found in the current Realm's schema.");
   }
