@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Updated the minimum required CMake version for Flutter on Linux to 3.19. (Issue [#1381](https://github.com/realm/realm-dart/issues/1381))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
