@@ -1874,8 +1874,15 @@ class _RealmCore {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
-    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create_cached(appConfigHandle._pointer, syncClientConfigHandle._pointer));
     return AppHandle._(realmAppPtr);
+  }
+
+  AppHandle? getApp(String id, String? baseUrl) {
+    return using((arena) {
+      final ptr = _realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena));
+      return ptr == nullptr ? null : AppHandle._(ptr);
+    });
   }
 
   String appGetId(App app) {

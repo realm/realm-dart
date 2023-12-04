@@ -404,6 +404,28 @@ class RealmLibrary {
       ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
           ffi.Pointer<realm_sync_client_config_t>)>();
 
+  /// Create cached realm_app_t* instance given a valid realm configuration and sync client configuration.
+  ///
+  /// @return A non-null pointer if no error occurred.
+  ffi.Pointer<realm_app_t> realm_app_create_cached(
+    ffi.Pointer<realm_app_config_t> arg0,
+    ffi.Pointer<realm_sync_client_config_t> arg1,
+  ) {
+    return _realm_app_create_cached(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_create_cachedPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
+                  ffi.Pointer<realm_sync_client_config_t>)>>(
+      'realm_app_create_cached');
+  late final _realm_app_create_cached = _realm_app_create_cachedPtr.asFunction<
+      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
+          ffi.Pointer<realm_sync_client_config_t>)>();
+
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous(
     bool reuse_credentials,
   ) {
@@ -991,6 +1013,27 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>)>>('realm_app_get_app_id');
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
+
+  /// Get a cached realm_app_t* instance given an app id.
+  ///
+  /// @return A non-null pointer if no error occurred.
+  ffi.Pointer<realm_app_t> realm_app_get_cached(
+    ffi.Pointer<ffi.Char> app_id,
+    ffi.Pointer<ffi.Char> base_url,
+  ) {
+    return _realm_app_get_cached(
+      app_id,
+      base_url,
+    );
+  }
+
+  late final _realm_app_get_cachedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_t> Function(ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_get_cached');
+  late final _realm_app_get_cached = _realm_app_get_cachedPtr.asFunction<
+      ffi.Pointer<realm_app_t> Function(
+          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<realm_user_t> realm_app_get_current_user(
     ffi.Pointer<realm_app_t> arg0,

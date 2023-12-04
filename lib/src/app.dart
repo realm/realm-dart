@@ -18,6 +18,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
@@ -172,8 +173,22 @@ class App implements Finalizable {
   /// create this [App].
   String get id => realmCore.appGetId(this);
 
-  /// Create an app with a particular [AppConfiguration]
-  App(AppConfiguration configuration) : this._(_createApp(configuration));
+  /// Create an app with a particular [AppConfiguration]. This constructor should only be used on the main isolate and,
+  /// ideally, only once as soon as the app starts.
+  App(AppConfiguration configuration) : _handle = _createApp(configuration) {
+    if (Isolate.current.debugName != 'main') {
+      Realm.logger.log(RealmLogLevel.warn,
+          "App constructor called on Isolate ${Isolate.current.debugName} which doesn't appear to be the main isolate. If you need an app instance on a background isolate use App.getById after constructing the App on the main isolate.");
+    }
+  }
+
+  /// Obtain an [App] instance by id. The app must have first been created by calling the constructor that takes an [AppConfiguration]
+  /// on the main isolate. If an App hasn't been already constructed with the same id, will return null. This method is safe to call
+  /// on a background isolate.
+  static App? getById(String id, {Uri? baseUrl}) {
+    final handle = realmCore.getApp(id, baseUrl.toString());
+    return handle == null ? null : App._(handle);
+  }
 
   App._(this._handle);
 

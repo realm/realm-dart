@@ -651,6 +651,8 @@ Future<void> _waitForInitialSync() async {
     } catch (e) {
       print(e);
       await _waitForInitialSync();
+    } finally {
+      clearCachedApps();
     }
   }
 }

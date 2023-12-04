@@ -1906,6 +1906,60 @@ Future<void> main([List<String>? args]) async {
     expect(query.length, 1);
     expect(query[0].name, productName);
   });
+
+  baasTest('Synchronized Realm can be opened on multiple isolates', (appConfiguration) async {
+    clearCachedApps();
+
+    final app = App(appConfiguration);
+    final user = await getAnonymousUser(app);
+    final config = Configuration.flexibleSync(user, getSyncSchema());
+    final realm = getRealm(config);
+
+    final receivePort = ReceivePort();
+
+    final subscriptionId = ObjectId();
+
+    await Isolate.spawn((List<Object> args) async {
+      Realm? bgRealm;
+
+      final sendPort = args[0] as SendPort;
+      try {
+        final appId = args[1] as String;
+        final baseUrl = args[2] as Uri;
+        final userId = args[3] as String;
+        final realmPath = args[4] as String;
+        final subscriptionId = args[5] as ObjectId;
+        final bgApp = App.getById(appId, baseUrl: baseUrl)!;
+        if (bgApp.id != appId) throw 'Expected App.id ${bgApp.id} == $appId';
+        if (bgApp.currentUser?.id != userId) throw 'Expected User.id ${bgApp.currentUser?.id} == $userId';
+        if (bgApp.users.length != 1) throw 'Expected users.length == 1';
+
+        final bgUser = bgApp.users.singleWhere((element) => element.id == userId);
+        final bgConfig = Configuration.flexibleSync(bgUser, getSyncSchema(), path: realmPath);
+        bgRealm = Realm(bgConfig);
+        await bgRealm.query<Product>('id == \$0', [subscriptionId]).subscribe();
+
+        bgRealm.write(() {
+          bgRealm!.add(Product(subscriptionId, 'abc'));
+        });
+
+        Isolate.exit(sendPort, null);
+      } catch (e) {
+        Isolate.exit(sendPort, e);
+      } finally {
+        bgRealm?.close();
+      }
+    }, [receivePort.sendPort, app.id, appConfiguration.baseUrl, user.id, realm.config.path, subscriptionId]);
+
+    final exitInfo = await receivePort.first;
+    expect(exitInfo, null);
+
+    realm.refresh();
+
+    final product = realm.all<Product>().single;
+    expect(product.id, subscriptionId);
+    expect(product.name, 'abc');
+  });
 }
 
 List<int> generateEncryptionKey() {
