@@ -4,6 +4,7 @@
 * None
 
 ### Fixed
+* Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))
 * Updated the minimum required CMake version for Flutter on Linux to 3.19. (Issue [#1381](https://github.com/realm/realm-dart/issues/1381))
 
 ### Compatibility
