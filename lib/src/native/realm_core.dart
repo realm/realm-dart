@@ -3448,9 +3448,9 @@ extension on realm_error {
   LastError toLastError() {
     final message = this.message.cast<Utf8>().toRealmDartString();
     Object? userError;
-    if (error == realm_errno.RLM_ERR_CALLBACK && usercode_error != nullptr) {
-      userError = usercode_error.toObject(isPersistent: true);
-      _realmLib.realm_dart_delete_persistent_handle(usercode_error);
+    if (error == realm_errno.RLM_ERR_CALLBACK && user_code_error != nullptr) {
+      userError = user_code_error.toObject(isPersistent: true);
+      _realmLib.realm_dart_delete_persistent_handle(user_code_error);
     }
 
     return LastError(error, message, userError);
