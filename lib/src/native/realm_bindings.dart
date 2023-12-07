@@ -7413,7 +7413,7 @@ class RealmLibrary {
 
   /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
   /// and retrieve a it later via realm_get_last_error.
-  /// Most importantly the SDK is responsible to handle the memory pointed by usercode_error.
+  /// Most importantly the SDK is responsible to handle the memory pointed by user_code_error.
   /// @param usercode_error pointer representing whatever object the SDK treats as exception/error.
   void realm_register_user_code_callback_error(
     ffi.Pointer<ffi.Void> usercode_error,
@@ -11516,6 +11516,7 @@ abstract class realm_errno {
   static const int RLM_ERR_TLS_HANDSHAKE_FAILED = 1042;
   static const int RLM_ERR_WRONG_SYNC_TYPE = 1043;
   static const int RLM_ERR_SYNC_WRITE_NOT_ALLOWED = 1044;
+  static const int RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH = 1045;
   static const int RLM_ERR_SYSTEM_ERROR = 1999;
   static const int RLM_ERR_LOGIC = 2000;
   static const int RLM_ERR_NOT_SUPPORTED = 2001;
@@ -11644,7 +11645,7 @@ final class realm_error extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> message;
 
-  external ffi.Pointer<ffi.Void> usercode_error;
+  external ffi.Pointer<ffi.Void> user_code_error;
 
   external ffi.Pointer<ffi.Char> path;
 }
@@ -12135,6 +12136,8 @@ final class realm_sync_error extends ffi.Struct {
 
   @ffi.Size()
   external int compensating_writes_length;
+
+  external ffi.Pointer<ffi.Void> user_code_error;
 }
 
 abstract class realm_sync_error_action {
