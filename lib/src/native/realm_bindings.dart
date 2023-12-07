@@ -1014,26 +1014,29 @@ class RealmLibrary {
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
 
-  /// Get a cached realm_app_t* instance given an app id.
+  /// Get a cached realm_app_t* instance given an app id. out_app may be null if the app with this id hasn't been
+  /// previously cached by calling realm_app_create_cached.
   ///
-  /// @return A non-null pointer if no error occurred.
-  ffi.Pointer<realm_app_t> realm_app_get_cached(
+  /// @return true if no error occurred.
+  bool realm_app_get_cached(
     ffi.Pointer<ffi.Char> app_id,
     ffi.Pointer<ffi.Char> base_url,
+    ffi.Pointer<ffi.Pointer<realm_app_t>> out_app,
   ) {
     return _realm_app_get_cached(
       app_id,
       base_url,
+      out_app,
     );
   }
 
   late final _realm_app_get_cachedPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<realm_app_t> Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('realm_app_get_cached');
+          ffi.Bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<realm_app_t>>)>>('realm_app_get_cached');
   late final _realm_app_get_cached = _realm_app_get_cachedPtr.asFunction<
-      ffi.Pointer<realm_app_t> Function(
-          ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+      bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Pointer<realm_app_t>>)>();
 
   ffi.Pointer<realm_user_t> realm_app_get_current_user(
     ffi.Pointer<realm_app_t> arg0,

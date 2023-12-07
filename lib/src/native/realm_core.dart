@@ -1880,8 +1880,9 @@ class _RealmCore {
 
   AppHandle? getApp(String id, String? baseUrl) {
     return using((arena) {
-      final ptr = _realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena));
-      return ptr == nullptr ? null : AppHandle._(ptr);
+      final out_app = arena<Pointer<realm_app>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), out_app));
+      return out_app.value == nullptr ? null : AppHandle._(out_app.value);
     });
   }
 
