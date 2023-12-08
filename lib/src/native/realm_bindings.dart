@@ -3587,22 +3587,22 @@ class RealmLibrary {
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void realm_dart_invoke_unlock_callback(
-    bool success,
+    ffi.Pointer<ffi.Void> error,
     ffi.Pointer<ffi.Void> unlockFunc,
   ) {
     return _realm_dart_invoke_unlock_callback(
-      success,
+      error,
       unlockFunc,
     );
   }
 
   late final _realm_dart_invoke_unlock_callbackPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>(
-      'realm_dart_invoke_unlock_callback');
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_unlock_callback');
   late final _realm_dart_invoke_unlock_callback =
-      _realm_dart_invoke_unlock_callbackPtr
-          .asFunction<void Function(bool, ffi.Pointer<ffi.Void>)>();
+      _realm_dart_invoke_unlock_callbackPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
 
   ffi.Pointer<ffi.Char> realm_dart_library_version() {
     return _realm_dart_library_version();
@@ -11126,8 +11126,8 @@ class _SymbolAddresses {
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Bool, ffi.Pointer<ffi.Void>)>>
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
       get realm_dart_invoke_unlock_callback =>
           _library._realm_dart_invoke_unlock_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
