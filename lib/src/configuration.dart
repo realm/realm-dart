@@ -636,14 +636,15 @@ class ClientResetError extends SyncError {
   ClientResetError._(
     String message,
     SyncErrorCode code,
-    this._app, {
+    this._app,
+    Object? innerError, {
     this.backupFilePath,
     this.originalFilePath,
-  }) : super._(message, code);
+  }) : super._(message, code, innerError);
 
   @override
   String toString() {
-    return "ClientResetError message: $message";
+    return "ClientResetError message: $message${innerError == null ? '' : ", inner error: '$innerError'"}";
   }
 
   /// Initiates the client reset process.
@@ -670,7 +671,7 @@ class SyncError extends RealmError {
   /// The code that describes this error.
   final SyncErrorCode code;
 
-  SyncError._(String message, this.code) : super(message);
+  SyncError._(String message, this.code, this.innerError) : super(message);
 
   /// The numeric code value indicating the type of the sync error.
   @Deprecated("Errors of SyncError subclasses will be created base on the error code. Error codes won't be returned anymore.")
@@ -688,13 +689,16 @@ class SyncError extends RealmError {
   @Deprecated("SyncError constructor is deprecated and will be removed in the future")
   SyncError(String message, this.category, int codeValue, {this.detailedMessage})
       : code = SyncErrorCode.fromInt(codeValue),
+        innerError = null,
         super(message);
 
   /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
   @Deprecated("This method is deprecated and will be removed in the future")
   static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
-    return SyncError._(message, SyncErrorCode.fromInt(code));
+    return SyncError._(message, SyncErrorCode.fromInt(code), null);
   }
+
+  final Object? innerError;
 
   @override
   String toString() {
@@ -731,9 +735,10 @@ final class CompensatingWriteError extends SyncError {
   late final List<CompensatingWriteInfo>? compensatingWrites;
 
   CompensatingWriteError._(
-    String message, {
+    String message,
+    Object? innerError, {
     this.compensatingWrites,
-  }) : super._(message, SyncErrorCode.compensatingWrite);
+  }) : super._(message, SyncErrorCode.compensatingWrite, innerError);
 
   @override
   String toString() {
@@ -752,16 +757,18 @@ extension SyncErrorInternal on SyncError {
           error.message,
           errorCode,
           app,
+          error.userError,
           originalFilePath: error.originalFilePath,
           backupFilePath: error.backupFilePath,
         ),
       SyncErrorCode.clientReset =>
-        ClientResetError._(error.message, errorCode, app, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath),
+        ClientResetError._(error.message, errorCode, app, error.userError, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath),
       SyncErrorCode.compensatingWrite => CompensatingWriteError._(
           error.message,
+          error.userError,
           compensatingWrites: error.compensatingWrites,
         ),
-      _ => SyncError._(error.message, errorCode),
+      _ => SyncError._(error.message, errorCode, error.userError),
     };
   }
 }

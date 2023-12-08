@@ -165,7 +165,10 @@ Future<void> main([List<String>? args]) async {
       await baasHelper!.triggerClientReset(realm);
 
       final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
-      await expectLater(clientResetFuture, throws<ClientResetError>());
+      await expectLater(
+          clientResetFuture,
+          throwsA(isA<ClientResetError>().having((e) => e.innerError?.toString(), 'innerError', 'Exception: This fails!').having((e) => e.toString(), 'message',
+              "ClientResetError message: A fatal error occurred during client reset: 'User-provided callback failed', inner error: 'Exception: This fails!'")));
     });
 
     baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onAfterReset', (appConfig) async {
@@ -174,7 +177,7 @@ Future<void> main([List<String>? args]) async {
 
       final onManualResetFallback = Completer<void>();
       void onAfterReset(Realm beforeResetRealm, Realm afterResetRealm) {
-        throw Exception("This fails!");
+        throw Exception("This fails too!");
       }
 
       final config = Configuration.flexibleSync(user, getSyncSchema(),
@@ -191,7 +194,12 @@ Future<void> main([List<String>? args]) async {
       await baasHelper!.triggerClientReset(realm);
 
       final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
-      await expectLater(clientResetFuture, throws<ClientResetError>());
+      await expectLater(
+          clientResetFuture,
+          throwsA(isA<ClientResetError>().having((e) => e.innerError?.toString(), 'innerError', 'Exception: This fails too!').having(
+              (e) => e.toString(),
+              'message',
+              "ClientResetError message: A fatal error occurred during client reset: 'User-provided callback failed', inner error: 'Exception: This fails too!'")));
     });
 
     baasTest('$clientResetHandlerType.onBeforeReset and onAfterReset are invoked', (appConfig) async {
@@ -466,6 +474,8 @@ Future<void> main([List<String>? args]) async {
     expect(onBeforeResetOccurred, 1);
 
     expect(clientResetErrorOnManualFallback.message, isNotEmpty);
+    expect(clientResetErrorOnManualFallback.innerError, isNotNull);
+    expect(clientResetErrorOnManualFallback.innerError.toString(), 'Exception: Cause onManualResetFallback');
   });
 
   // 1. userA adds [task0, task1, task2] and syncs it, then disconnects
