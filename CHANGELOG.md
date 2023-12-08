@@ -1,7 +1,10 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Reworked how creating an `App` instance works across isolates:
+  * The `App(AppConfiguration)` constructor should only be used on the main isolate. Ideally, it should be called once as soon as your app launches. If you attempt to use it on a background isolate (as indicated by `Isolate.debugName` being different from `main`), a warning will be logged.
+  * Added a new method - `App.getById` that allows you to obtain an already constructed app on a background isolate.
+  (Issue [#1433](https://github.com/realm/realm-dart/issues/1433))
 
 ### Fixed
 * Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))

@@ -404,6 +404,28 @@ class RealmLibrary {
       ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
           ffi.Pointer<realm_sync_client_config_t>)>();
 
+  /// Create cached realm_app_t* instance given a valid realm configuration and sync client configuration.
+  ///
+  /// @return A non-null pointer if no error occurred.
+  ffi.Pointer<realm_app_t> realm_app_create_cached(
+    ffi.Pointer<realm_app_config_t> arg0,
+    ffi.Pointer<realm_sync_client_config_t> arg1,
+  ) {
+    return _realm_app_create_cached(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_create_cachedPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
+                  ffi.Pointer<realm_sync_client_config_t>)>>(
+      'realm_app_create_cached');
+  late final _realm_app_create_cached = _realm_app_create_cachedPtr.asFunction<
+      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
+          ffi.Pointer<realm_sync_client_config_t>)>();
+
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous(
     bool reuse_credentials,
   ) {
@@ -991,6 +1013,30 @@ class RealmLibrary {
               ffi.Pointer<realm_app_t>)>>('realm_app_get_app_id');
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
+
+  /// Get a cached realm_app_t* instance given an app id. out_app may be null if the app with this id hasn't been
+  /// previously cached by calling realm_app_create_cached.
+  ///
+  /// @return true if no error occurred.
+  bool realm_app_get_cached(
+    ffi.Pointer<ffi.Char> app_id,
+    ffi.Pointer<ffi.Char> base_url,
+    ffi.Pointer<ffi.Pointer<realm_app_t>> out_app,
+  ) {
+    return _realm_app_get_cached(
+      app_id,
+      base_url,
+      out_app,
+    );
+  }
+
+  late final _realm_app_get_cachedPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Pointer<realm_app_t>>)>>('realm_app_get_cached');
+  late final _realm_app_get_cached = _realm_app_get_cachedPtr.asFunction<
+      bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Pointer<realm_app_t>>)>();
 
   ffi.Pointer<realm_user_t> realm_app_get_current_user(
     ffi.Pointer<realm_app_t> arg0,
@@ -7367,7 +7413,7 @@ class RealmLibrary {
 
   /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
   /// and retrieve a it later via realm_get_last_error.
-  /// Most importantly the SDK is responsible to handle the memory pointed by usercode_error.
+  /// Most importantly the SDK is responsible to handle the memory pointed by user_code_error.
   /// @param usercode_error pointer representing whatever object the SDK treats as exception/error.
   void realm_register_user_code_callback_error(
     ffi.Pointer<ffi.Void> usercode_error,
@@ -11470,6 +11516,7 @@ abstract class realm_errno {
   static const int RLM_ERR_TLS_HANDSHAKE_FAILED = 1042;
   static const int RLM_ERR_WRONG_SYNC_TYPE = 1043;
   static const int RLM_ERR_SYNC_WRITE_NOT_ALLOWED = 1044;
+  static const int RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH = 1045;
   static const int RLM_ERR_SYSTEM_ERROR = 1999;
   static const int RLM_ERR_LOGIC = 2000;
   static const int RLM_ERR_NOT_SUPPORTED = 2001;
@@ -11598,7 +11645,7 @@ final class realm_error extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> message;
 
-  external ffi.Pointer<ffi.Void> usercode_error;
+  external ffi.Pointer<ffi.Void> user_code_error;
 
   external ffi.Pointer<ffi.Char> path;
 }
@@ -12089,6 +12136,8 @@ final class realm_sync_error extends ffi.Struct {
 
   @ffi.Size()
   external int compensating_writes_length;
+
+  external ffi.Pointer<ffi.Void> user_code_error;
 }
 
 abstract class realm_sync_error_action {

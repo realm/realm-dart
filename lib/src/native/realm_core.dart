@@ -1874,8 +1874,16 @@ class _RealmCore {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
-    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create_cached(appConfigHandle._pointer, syncClientConfigHandle._pointer));
     return AppHandle._(realmAppPtr);
+  }
+
+  AppHandle? getApp(String id, String? baseUrl) {
+    return using((arena) {
+      final out_app = arena<Pointer<realm_app>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), out_app));
+      return out_app.value == nullptr ? null : AppHandle._(out_app.value);
+    });
   }
 
   String appGetId(App app) {
@@ -3440,9 +3448,9 @@ extension on realm_error {
   LastError toLastError() {
     final message = this.message.cast<Utf8>().toRealmDartString();
     Object? userError;
-    if (error == realm_errno.RLM_ERR_CALLBACK && usercode_error != nullptr) {
-      userError = usercode_error.toObject(isPersistent: true);
-      _realmLib.realm_dart_delete_persistent_handle(usercode_error);
+    if (error == realm_errno.RLM_ERR_CALLBACK && user_code_error != nullptr) {
+      userError = user_code_error.toObject(isPersistent: true);
+      _realmLib.realm_dart_delete_persistent_handle(user_code_error);
     }
 
     return LastError(error, message, userError);

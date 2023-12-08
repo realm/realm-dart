@@ -18,6 +18,10 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:math';
+import 'package:logging/logging.dart';
+import 'package:meta/meta.dart';
 import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 import 'package:crypto/crypto.dart';
@@ -299,6 +303,39 @@ Future<void> main([List<String>? args]) async {
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     final expected = base64Encode(sha256.convert([...salt, ...utf8.encode(text)]).bytes);
     expect(realmCore.getBundleId(), expected);
+  });
+
+  test('app.getById without apps returns null', () {
+    clearCachedApps();
+    final app = App.getById('abc');
+    expect(app, null);
+  });
+
+  baasTest('app.getById with different baseUrl returns null', (appConfig) {
+    final app = App(appConfig);
+    expect(App.getById(app.id, baseUrl: Uri.parse('https://foo.bar')), null);
+    expect(App.getById(app.id, baseUrl: appConfig.baseUrl), isNotNull);
+  });
+
+  baasTest('App(AppConfiguration) on background isolate logs warning', (appConfig) async {
+    final receivePort = ReceivePort();
+    await Isolate.spawn((args) {
+      final logger = Logger.detached('foo');
+      final sb = StringBuffer();
+      logger.onRecord.listen((event) {
+        sb.writeln('${event.level}: ${event.message}');
+      });
+
+      Realm.logger = logger;
+
+      final sendPort = args[0];
+      App(AppConfiguration('abc'));
+      Isolate.exit(sendPort, sb.toString());
+    }, [receivePort.sendPort]);
+
+    final log = await receivePort.first as String;
+
+    expect(log, contains('App constructor called on Isolate'));
   });
 }
 
