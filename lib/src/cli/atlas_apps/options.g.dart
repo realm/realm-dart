@@ -13,7 +13,7 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       privateApiKey: result['private-api-key'] as String?,
       projectId: result['project-id'] as String?,
       differentiator: result['differentiator'] as String?,
-      useBaaSaaS: result['use-baas-aas'] as bool,
+      baasaasApiKey: result['baasaas-api-key'] as String?,
       containerId: result['container-id'] as String?,
     );
 
@@ -45,9 +45,10 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
     help:
         'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
   )
-  ..addFlag(
-    'use-baas-aas',
-    help: 'Spawn a new container for BaaSaaS and creates app in it.',
+  ..addOption(
+    'baasaas-api-key',
+    help:
+        'API key to use with BaaSaaS to wpawn a new container and create apps in it.',
   )
   ..addOption(
     'container-id',

@@ -40,13 +40,13 @@ class Options {
   @CliOption(help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.')
   final String? projectId;
 
-  @CliOption(help: 'Spawn a new container for BaaSaaS and creates app in it.', name: 'use-baas-aas')
-  final bool useBaaSaaS;
+  @CliOption(help: 'API key to use with BaaSaaS to wpawn a new container and create apps in it.', name: 'baasaas-api-key')
+  final String? baasaasApiKey;
 
   @CliOption(help: 'Container id to be cleaned up. Only to be used with use-baas-aas and delete command')
   final String? containerId;
 
-  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.useBaaSaaS = false, this.containerId});
+  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.baasaasApiKey, this.containerId});
 }
 
 String get usage => _$parserForOptions.usage;

@@ -27,12 +27,13 @@ class BaasAuthHelper {
 
   BaasAuthHelper._(this._accessToken, this._location);
 
-  static Future<BaasAuthHelper> create() async {
+  static Future<BaasAuthHelper> create(String apiKey) async {
     final locationResponse = await http.get(Uri.parse('https://realm.mongodb.com/api/client/v2.0/app/$_appId/location'));
     final locationJson = BaasClient._decodeResponse(locationResponse) as Map<String, dynamic>;
     final location = locationJson['hostname'] as String;
 
-    final loginResponse = await http.post(Uri.parse('$location/api/client/v2.0/app/$_appId/auth/providers/anon-user/login'));
+    final loginResponse = await http.post(Uri.parse('$location/api/client/v2.0/app/$_appId/auth/providers/api-key/login'),
+        body: jsonEncode({'key': apiKey}), headers: {'Content-Type': 'application/json'});
     final loginJson = BaasClient._decodeResponse(loginResponse) as Map<String, dynamic>;
     final accessToken = loginJson['access_token'] as String;
 
@@ -145,11 +146,11 @@ class BaasClient {
     return result;
   }
 
-  static Future<void> deleteContainer(String id) async {
+  static Future<void> deleteContainer(String id, String apiKey) async {
     try {
       print('Deleting BaaS container $id... ');
 
-      final authHelper = await BaasAuthHelper.create();
+      final authHelper = await BaasAuthHelper.create(apiKey);
 
       await authHelper.callFunction('stopContainer', arguments: [id]);
       return;
@@ -159,23 +160,23 @@ class BaasClient {
     }
   }
 
-  static Future<(String httpUrl, String containerId)> deployContainer() async {
+  static Future<(String httpUrl, String containerId)> deployContainer(String apiKey) async {
     print('Deploying new BaaS container... ');
 
-    final authHelper = await BaasAuthHelper.create();
+    final authHelper = await BaasAuthHelper.create(apiKey);
 
     final response = await authHelper.callFunction('startContainer') as Map<String, dynamic>;
-    final taskId = response['taskId'] as String;
+    final id = response['id'] as String;
 
     String? httpUrl;
     while (httpUrl == null) {
       await Future.delayed(Duration(seconds: 1));
-      httpUrl = await _waitForContainer(authHelper, taskId);
+      httpUrl = await _waitForContainer(authHelper, id);
     }
 
     print('Deployed BaaS instance at $httpUrl');
 
-    return (httpUrl, taskId);
+    return (httpUrl, id);
   }
 
   static Future<T> retry<T>(Future<T> Function() func, {int attempts = 5}) async {

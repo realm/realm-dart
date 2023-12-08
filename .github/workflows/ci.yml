@@ -72,6 +72,7 @@ jobs:
   deploy-cluster-dart-windows:
     name: Deploy Cluster for Dart Windows
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   dart-tests-windows:
     name: Windows Dart Tests
@@ -97,6 +98,7 @@ jobs:
   deploy-cluster-dart-macos:
     name: Deploy Cluster for Dart MacOS
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   dart-tests-macos:
     name: MacOS Dart Tests
@@ -122,6 +124,7 @@ jobs:
   deploy-cluster-dart-macos-arm:
     name: Deploy Cluster for Dart MacOS Arm
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   dart-tests-macos-arm:
     name: MacOS Arm Dart Tests
@@ -148,6 +151,7 @@ jobs:
   deploy-cluster-dart-linux:
     name: Deploy Cluster for Dart Linux
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   dart-tests-linux:
     name: Linux Dart Tests
@@ -174,6 +178,7 @@ jobs:
   deploy-cluster-flutter-windows:
     name: Deploy Cluster for Flutter Windows
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   flutter-tests-windows:
     name: Windows Flutter Tests
@@ -199,6 +204,7 @@ jobs:
   deploy-cluster-flutter-macos:
     name: Deploy Cluster for Flutter MacOS
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   flutter-tests-macos:
     name: MacOS Flutter Tests
@@ -224,6 +230,7 @@ jobs:
   deploy-cluster-flutter-linux:
     name: Deploy Cluster for Flutter Linux
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   flutter-tests-linux:
     name: Linux Flutter Tests
@@ -249,6 +256,7 @@ jobs:
   deploy-cluster-flutter-ios:
     name: Deploy Cluster for Flutter iOS
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   flutter-tests-ios:
     runs-on: macos-latest
@@ -319,6 +327,7 @@ jobs:
   deploy-cluster-flutter-android:
     name: Deploy Cluster for Flutter Android
     uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
 
   flutter-tests-android:
     runs-on: macos-latest

@@ -67,19 +67,19 @@ RwIDAQAB
         abort('--project-id must be supplied when --atlas-cluster is set');
       }
 
-      if (options.useBaaSaaS) {
-        abort('--use-baas-aas cannot be used when --atlas-cluster is set');
+      if (options.baasaasApiKey != null) {
+        abort('--baasaas-api-key cannot be used when --atlas-cluster is set');
       }
     }
 
-    if (!options.useBaaSaaS && options.baasUrl == null) {
-      abort('--baas-url must be supplied when --use-baas-aas is not set');
+    if (options.baasaasApiKey == null && options.baasUrl == null) {
+      abort('--baas-url must be supplied when --baasaas-api-key is null');
     }
 
     late String baasUrl;
-    if (options.useBaaSaaS) {
+    if (options.baasaasApiKey != null) {
       late String containerId;
-      (baasUrl, containerId) = await BaasClient.deployContainer();
+      (baasUrl, containerId) = await BaasClient.deployContainer(options.baasaasApiKey!);
       await File('baasurl').writeAsString(baasUrl);
       await File('containerid').writeAsString(containerId);
       print('BaasUrl: $baasUrl');

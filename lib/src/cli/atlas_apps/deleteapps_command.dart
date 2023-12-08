@@ -57,16 +57,16 @@ class DeleteAppsCommand extends Command<void> {
       }
     }
 
-    if (!options.useBaaSaaS && options.baasUrl == null) {
-      abort('--baas-url must be supplied when --use-baas-aas is not set');
+    if (options.baasaasApiKey == null && options.baasUrl == null) {
+      abort('--baas-url must be supplied when --baasaas-api-key is null');
     }
 
-    if (options.useBaaSaaS) {
+    if (options.baasaasApiKey != null) {
       if (options.containerId == null) {
-        abort('--container-id must be supplied when --use-baas-aas is set');
+        abort('--container-id must be supplied when --baasaas-api-key is set');
       }
 
-      await BaasClient.retry(() => BaasClient.deleteContainer(options.containerId!));
+      await BaasClient.retry(() => BaasClient.deleteContainer(options.containerId!, options.baasaasApiKey!));
     } else {
       final differentiator = options.differentiator ?? 'local';
 

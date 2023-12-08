@@ -15,7 +15,7 @@ const String argBaasApiKey = "BAAS_API_KEY";
 const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
 const String argBaasProjectId = "BAAS_PROJECT_ID";
 const String argDifferentiator = "BAAS_DIFFERENTIATOR";
-const String argUseBaaSaaS = "BAAS_USE_BAASAAS";
+const String argBaasaasApiKey = "BAAS_BAASAAS_API_KEY";
 
 const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
@@ -37,7 +37,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addOption(argBaasPrivateApiKey)
     ..addOption(argBaasProjectId)
     ..addOption(argDifferentiator)
-    ..addOption(argUseBaaSaaS);
+    ..addOption(argBaasaasApiKey);
 
   final result = parser.parse(arguments ?? []);
   testArgs
@@ -48,7 +48,7 @@ Map<String, String?> parseTestArguments(List<String>? arguments) {
     ..addArgument(result, argBaasPrivateApiKey)
     ..addArgument(result, argBaasProjectId)
     ..addArgument(result, argDifferentiator)
-    ..addArgument(result, argUseBaaSaaS);
+    ..addArgument(result, argBaasaasApiKey);
 
   return testArgs;
 }
@@ -122,7 +122,7 @@ class BaasHelper {
   }
 
   static bool shouldRunBaasTests(Map<String, String?> args) {
-    return args[argUseBaaSaaS] == 'true' || args[argBaasUrl] != null;
+    return args[argBaasaasApiKey] != null || args[argBaasUrl] != null;
   }
 
   BaasHelper._(this._baasClient);
@@ -131,16 +131,16 @@ class BaasHelper {
     try {
       var baasInfo = realm.all<BaasInfo>().firstOrNull;
       if (baasInfo == null) {
-        late String? baasUrl;
-        final useBaaSaaS = args[argUseBaaSaaS] == 'true';
-        if (useBaaSaaS) {
-          if (args[argBaasCluster] != null) {
-            throw "$argUseBaaSaaS can't be combined with $argBaasCluster";
-          }
+        var baasUrl = args[argBaasUrl];
+        if (baasUrl == null) {
+          final baasaasApiKey = args[argBaasaasApiKey];
+          if (baasaasApiKey != null) {
+            if (args[argBaasCluster] != null) {
+              throw "$argBaasaasApiKey can't be combined with $argBaasCluster";
+            }
 
-          (baasUrl, _) = await BaasClient.retry(() => BaasClient.deployContainer());
-        } else {
-          baasUrl = args[argBaasUrl];
+            (baasUrl, _) = await BaasClient.retry(() => BaasClient.deployContainer(baasaasApiKey));
+          }
         }
 
         if (baasUrl == null) {

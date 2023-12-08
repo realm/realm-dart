@@ -37,7 +37,7 @@ jobs:
         run: dart pub get
 
       - name: Deploy cluster and apps
-        run: dart run realm_dart deploy-apps --use-baas-aas
+        run: dart run realm_dart deploy-apps --baasaas-api-key ${{ secrets.BAASAAS_API_KEY }}
       - name: Set outputs
         id: set-outputs
         run: |
