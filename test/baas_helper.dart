@@ -4,8 +4,9 @@ import 'package:args/args.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' as testing;
 
-import '../lib/src/cli/atlas_apps/baas_client.dart';
 import '../lib/realm.dart';
+import '../lib/src/cli/atlas_apps/baas_client.dart';
+import '../lib/src/native/realm_core.dart';
 
 part 'baas_helper.g.dart';
 
@@ -201,6 +202,8 @@ class BaasHelper {
         return;
       } catch (e) {
         print(e);
+      } finally {
+        realmCore.clearCachedApps();
       }
     }
   }
