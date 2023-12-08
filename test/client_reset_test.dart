@@ -165,7 +165,10 @@ Future<void> main([List<String>? args]) async {
       await triggerClientReset(realm);
 
       final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
-      await expectLater(clientResetFuture, throws<ClientResetError>());
+      await expectLater(
+          clientResetFuture,
+          throwsA(isA<ClientResetError>().having((e) => e.innerError?.toString(), 'innerError', 'Exception: This fails!').having((e) => e.toString(), 'message',
+              "ClientResetError message: A fatal error occurred during client reset: 'User-provided callback failed', inner error: 'Exception: This fails!'")));
     });
 
     baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onAfterReset', (appConfig) async {

@@ -110,18 +110,18 @@ RLM_API void realm_dart_userdata_async_free(void* userdata) {
     });
 }
 
-RLM_API void realm_dart_invoke_unlock_callback(bool success, void* unlockFunc) {
-    auto castFunc = (reinterpret_cast<realm::util::UniqueFunction<void(bool)>*>(unlockFunc));
-    (*castFunc)(success);
+RLM_API void realm_dart_invoke_unlock_callback(realm_userdata_t error, void* unlockFunc) {
+    auto castFunc = (reinterpret_cast<realm::util::UniqueFunction<void(realm_userdata_t)>*>(unlockFunc));
+    (*castFunc)(error);
 }
 
 // Stamped into the library by the build system (see prepare-release.yml)
-// Keep this method as it is written and do not format it. 
+// Keep this method as it is written and do not format it.
 // We have a github workflow that looks for and replaces this string as it is written here.
 RLM_API const char* realm_dart_library_version() { return "1.6.1"; }
 
 //for debugging only
-// RLM_API void realm_dart_gc() { 
+// RLM_API void realm_dart_gc() {
 //     Dart_ExecuteInternalCommand_DL("gc-now", nullptr);
 // }
 
