@@ -54,12 +54,12 @@ jobs:
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
   build-android-combined:
-    name: Android binaries combine
+    name: Build combine Android
     needs: build-android
     uses: ./.github/workflows/binary-combine-android.yml
 
   build-ios-xcframework:
-    name: IOS binaries combine
+    name: Build combine iOS
     needs: build-ios
     uses: ./.github/workflows/binary-combine-ios.yml
 
@@ -341,7 +341,6 @@ jobs:
     with:
       differentiator: fa${{ github.run_id }}${{ github.run_attempt }}
 
-
   flutter-tests-android:
     runs-on: macos-latest
     name: Flutter Tests Android
@@ -350,7 +349,7 @@ jobs:
       - deploy-cluster-flutter-android
       - build-android-combined
     env:
-      BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
+      BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
 
     steps:
