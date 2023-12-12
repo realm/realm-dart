@@ -3,15 +3,18 @@ name: Deploy BaaS and apps
 on:
   workflow_call:
     outputs:
-      url:
-        description: The url to connect to
-        value: ${{ jobs.deploy-baas.outputs.url }}
       containerId:
         description: The container id of the BaaS instance
         value: ${{ jobs.deploy-baas.outputs.containerId }}
+    inputs:
+      differentiator:
+        description: Differentiator for the BaaS container.
+        required: true
+        type: string
 
 env:
   REALM_CI: true
+  BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
 
 jobs:
   deploy-baas:
@@ -41,7 +44,5 @@ jobs:
       - name: Set outputs
         id: set-outputs
         run: |
-          baas_url=`cat baasurl`
           container_id=`cat containerid`
-          echo "baasUrl=$baas_url" >> "$GITHUB_OUTPUT"
           echo "containerId=$container_id" >> "$GITHUB_OUTPUT"

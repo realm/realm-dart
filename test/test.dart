@@ -555,7 +555,7 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  baasHelper?.throwIfSetupFailed();
+  BaasHelper.throwIfSetupFailed();
 
   skip = shouldSkip(skip);
 

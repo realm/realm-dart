@@ -1,14 +1,11 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' as testing;
 
 import '../lib/realm.dart';
 import '../lib/src/cli/atlas_apps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
-
-part 'baas_helper.g.dart';
 
 const String argBaasUrl = "BAAS_URL";
 const String argBaasCluster = "BAAS_CLUSTER";
@@ -73,28 +70,6 @@ enum AppNames {
   emailConfirm,
 }
 
-@RealmModel()
-class _BaasInfo {
-  late String baasUrl;
-  String? cluster;
-  String? apiKey;
-  String? privateApiKey;
-  String? projectId;
-  String? differentiator;
-
-  late List<_BaasAppDetails> apps;
-}
-
-@RealmModel(ObjectType.embeddedObject)
-class _BaasAppDetails {
-  late String appId;
-  late String clientAppId;
-  late String name;
-  late String uniqueName;
-
-  String? error;
-}
-
 class BaasHelper {
   final BaasClient _baasClient;
   final _baasApps = <String, BaasApp>{};
@@ -104,22 +79,22 @@ class BaasHelper {
   static Object? _error;
 
   static Future<BaasHelper?> setupBaas(Map<String, String?> args) async {
-    if (_error != null) {
-      throw _error!;
+    try {
+      final client = await _setupClient(args);
+      if (client == null) {
+        return null;
+      }
+
+      final result = BaasHelper._(client);
+
+      await result._setupApps();
+
+      return result;
+    } catch (e) {
+      print(e);
+      _error = e;
+      rethrow;
     }
-
-    final realmPath = _path.join(Configuration.defaultStoragePath, 'baasmeta', 'baas_$pid.realm');
-    final realm = Realm(Configuration.local([BaasInfo.schema, BaasAppDetails.schema], path: realmPath));
-    final (client, baasInfo) = await _setupClient(args, realm);
-    if (client == null || baasInfo == null) {
-      return null;
-    }
-
-    final result = BaasHelper._(client);
-
-    await result._setupApps(baasInfo);
-
-    return result;
   }
 
   static bool shouldRunBaasTests(Map<String, String?> args) {
@@ -128,64 +103,46 @@ class BaasHelper {
 
   BaasHelper._(this._baasClient);
 
-  static Future<(BaasClient?, BaasInfo?)> _setupClient(Map<String, String?> args, Realm realm) async {
-    try {
-      var baasInfo = realm.all<BaasInfo>().firstOrNull;
-      if (baasInfo == null) {
-        var baasUrl = args[argBaasUrl];
-        if (baasUrl == null) {
-          final baasaasApiKey = args[argBaasaasApiKey];
-          if (baasaasApiKey != null) {
-            if (args[argBaasCluster] != null) {
-              throw "$argBaasaasApiKey can't be combined with $argBaasCluster";
-            }
-
-            (baasUrl, _) = await BaasClient.retry(() => BaasClient.deployContainer(baasaasApiKey));
-          }
+  static Future<BaasClient?> _setupClient(Map<String, String?> args) async {
+    var baasUrl = args[argBaasUrl];
+    final differentiator = args[argDifferentiator] ?? 'local';
+    if (baasUrl == null) {
+      final baasaasApiKey = args[argBaasaasApiKey];
+      if (baasaasApiKey != null) {
+        if (args[argBaasCluster] != null) {
+          throw "$argBaasaasApiKey can't be combined with $argBaasCluster";
         }
 
-        if (baasUrl == null) {
-          return (null, null);
-        }
-
-        baasInfo = realm.write(() => realm.add(BaasInfo(baasUrl!,
-            cluster: args[argBaasCluster],
-            apiKey: args[argBaasApiKey],
-            privateApiKey: args[argBaasPrivateApiKey],
-            projectId: args[argBaasProjectId],
-            differentiator: args[argDifferentiator])))!;
+        (baasUrl, _) = await BaasClient.retry(() => BaasClient.getOrDeployContainer(baasaasApiKey, differentiator));
       }
-
-      final client = await BaasClient.retry(() => (baasInfo!.cluster == null
-          ? BaasClient.docker(baasInfo.baasUrl, baasInfo.differentiator)
-          : BaasClient.atlas(baasInfo.baasUrl, baasInfo.cluster!, baasInfo.apiKey!, baasInfo.privateApiKey!, baasInfo.projectId!, baasInfo.differentiator)));
-
-      client.publicRSAKey = publicRSAKeyForJWTValidation;
-      return (client, baasInfo);
-    } catch (error) {
-      print(error);
-      _error = error;
-      return (null, null);
     }
+
+    if (baasUrl == null) {
+      return null;
+    }
+
+    final cluster = args[argBaasCluster];
+    final apiKey = args[argBaasApiKey];
+    final privateApiKey = args[argBaasPrivateApiKey];
+    final projectId = args[argBaasProjectId];
+
+    final client = await BaasClient.retry(() => (cluster == null
+        ? BaasClient.docker(baasUrl!, differentiator)
+        : BaasClient.atlas(baasUrl!, cluster, apiKey!, privateApiKey!, projectId!, differentiator)));
+
+    client.publicRSAKey = publicRSAKeyForJWTValidation;
+    return client;
   }
 
-  Future<void> _setupApps(BaasInfo baasInfo) async {
+  Future<void> _setupApps() async {
     try {
-      var isNewDeployment = false;
-      if (baasInfo.apps.isEmpty) {
-        final apps = await _baasClient.getOrCreateApps();
-        baasInfo.realm.write(() {
-          baasInfo.apps.addAll(apps.map((e) => BaasAppDetails(e.appId, e.clientAppId, e.name, e.uniqueName, error: e.error?.toString())));
-        });
-        isNewDeployment = true;
-      }
+      final apps = await _baasClient.getOrCreateApps();
 
-      for (final app in baasInfo.apps) {
-        _baasApps[app.name] = BaasApp(app.appId, app.clientAppId, app.name, app.uniqueName)..error = app.error;
-      }
-
-      if (isNewDeployment) {
-        await _waitForInitialSync(AppNames.flexible);
+      for (final app in apps) {
+        _baasApps[app.name] = app;
+        if (app.name == AppNames.flexible.name && app.isNewDeployment) {
+          await _waitForInitialSync(app);
+        }
       }
     } catch (error) {
       print(error);
@@ -193,12 +150,11 @@ class BaasHelper {
     }
   }
 
-  Future<void> _waitForInitialSync(AppNames app) async {
+  Future<void> _waitForInitialSync(BaasApp app) async {
     while (true) {
       try {
-        final baasApp = _baasApps[app.name]!;
         print('Validating initial sync is complete...');
-        await _baasClient.waitForInitialSync(baasApp);
+        await _baasClient.waitForInitialSync(app);
         return;
       } catch (e) {
         print(e);
@@ -213,7 +169,7 @@ class BaasHelper {
     return await _baasClient.createApiKey(baasApp.appId, name, enabled);
   }
 
-  void throwIfSetupFailed() {
+  static void throwIfSetupFailed() {
     if (_error != null) {
       throw _error!;
     }

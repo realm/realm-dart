@@ -76,10 +76,12 @@ RwIDAQAB
       abort('--baas-url must be supplied when --baasaas-api-key is null');
     }
 
+    final differentiator = options.differentiator ?? 'local';
+
     late String baasUrl;
     if (options.baasaasApiKey != null) {
       late String containerId;
-      (baasUrl, containerId) = await BaasClient.deployContainer(options.baasaasApiKey!);
+      (baasUrl, containerId) = await BaasClient.getOrDeployContainer(options.baasaasApiKey!, differentiator);
       await File('baasurl').writeAsString(baasUrl);
       await File('containerid').writeAsString(containerId);
       print('BaasUrl: $baasUrl');
@@ -87,7 +89,6 @@ RwIDAQAB
       baasUrl = options.baasUrl!;
     }
 
-    final differentiator = options.differentiator;
     try {
       final client = await (options.atlasCluster == null
           ? BaasClient.docker(baasUrl, differentiator)

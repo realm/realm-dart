@@ -22,29 +22,25 @@ import 'dart:convert';
 
 class BaasAuthHelper {
   static const String _appId = 'baas-container-service-autzb';
-  final String _accessToken;
+  final String _apiKey;
   final String _location;
 
-  BaasAuthHelper._(this._accessToken, this._location);
+  BaasAuthHelper(this._apiKey) : _location = 'https://us-east-1.aws.data.mongodb-api.com';
 
-  static Future<BaasAuthHelper> create(String apiKey) async {
-    final locationResponse = await http.get(Uri.parse('https://realm.mongodb.com/api/client/v2.0/app/$_appId/location'));
-    final locationJson = BaasClient._decodeResponse(locationResponse) as Map<String, dynamic>;
-    final location = locationJson['hostname'] as String;
-
-    final loginResponse = await http.post(Uri.parse('$location/api/client/v2.0/app/$_appId/auth/providers/api-key/login'),
-        body: jsonEncode({'key': apiKey}), headers: {'Content-Type': 'application/json'});
-    final loginJson = BaasClient._decodeResponse(loginResponse) as Map<String, dynamic>;
-    final accessToken = loginJson['access_token'] as String;
-
-    return BaasAuthHelper._(accessToken, location);
-  }
-
-  Future<dynamic> callFunction(String name, {List<Object> arguments = const []}) async {
-    final response = await http.post(Uri.parse('$_location/api/client/v2.0/app/$_appId/functions/call'),
-        headers: {'Authorization': 'Bearer $_accessToken'}, body: jsonEncode({'name': name, 'arguments': arguments}));
+  Future<dynamic> callEndpoint(String name, {Object? body, Map<String, String>? query, bool isPost = true}) async {
+    var url = '$_location/app/$_appId/endpoint/$name';
+    if (query != null) {
+      url = '$url?${query.entries.map((kvp) => '${kvp.key}=${kvp.value}').join('&')}';
+    }
+    final headers = {'apiKey': _apiKey};
+    final response = isPost ? await http.post(Uri.parse(url), headers: headers, body: jsonEncode(body)) : await http.get(Uri.parse(url), headers: headers);
 
     return BaasClient._decodeResponse(response);
+  }
+
+  Future<String> getUserId() async {
+    final response = await callEndpoint('userinfo', isPost: false) as Map<String, dynamic>;
+    return response['id'] as String;
   }
 }
 
@@ -125,15 +121,15 @@ class BaasClient {
   late String _groupId;
   late String publicRSAKey = '';
 
-  BaasClient._(this.baseUrl, String? differentiator, [this._clusterName])
+  BaasClient._(this.baseUrl, String differentiator, [this._clusterName])
       : _adminApiUrl = '$baseUrl/api/admin/v3.0',
         _headers = <String, String>{'Accept': 'application/json'},
-        _appSuffix = '-${shortenDifferentiator(differentiator ?? 'local')}${_clusterName == null ? '' : '-$_clusterName'}';
+        _appSuffix = '-${shortenDifferentiator(differentiator)}${_clusterName == null ? '' : '-$_clusterName'}';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
   /// for instructions on how to set it up.
   /// @nodoc
-  static Future<BaasClient> docker(String baseUrl, String? differentiator) async {
+  static Future<BaasClient> docker(String baseUrl, String differentiator) async {
     final result = BaasClient._(baseUrl, differentiator);
 
     await result._authenticate('local-userpass', '{ "username": "unique_user@domain.com", "password": "password" }');
@@ -150,9 +146,9 @@ class BaasClient {
     try {
       print('Deleting BaaS container $id... ');
 
-      final authHelper = await BaasAuthHelper.create(apiKey);
+      final authHelper = BaasAuthHelper(apiKey);
 
-      await authHelper.callFunction('stopContainer', arguments: [id]);
+      await authHelper.callEndpoint('stopContainer', query: {'id': id});
       return;
     } catch (e) {
       print('Failed to deploy container: $e');
@@ -160,12 +156,20 @@ class BaasClient {
     }
   }
 
-  static Future<(String httpUrl, String containerId)> deployContainer(String apiKey) async {
+  static Future<(String httpUrl, String containerId)> getOrDeployContainer(String apiKey, String differentiator) async {
+    final authHelper = BaasAuthHelper(apiKey);
+    final containers = await _getContainers(authHelper);
+    final userId = await authHelper.getUserId();
+    final existing = containers.firstWhereOrNull((c) => c.creatorId == userId && c.tags['DIFFERENTIATOR'] == differentiator);
+    if (existing != null) {
+      print('Using existing BaaS container at ${existing.httpUrl}');
+      return (existing.httpUrl, existing.id);
+    }
+
     print('Deploying new BaaS container... ');
-
-    final authHelper = await BaasAuthHelper.create(apiKey);
-
-    final response = await authHelper.callFunction('startContainer') as Map<String, dynamic>;
+    final response = await authHelper.callEndpoint('startContainer', body: [
+      {'key': 'DIFFERENTIATOR', 'value': differentiator}
+    ]) as Map<String, dynamic>;
     final id = response['id'] as String;
 
     String? httpUrl;
@@ -194,21 +198,25 @@ class BaasClient {
     throw 'UNREACHABLE';
   }
 
+  static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper) async {
+    return (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).toList();
+  }
+
   static Future<String?> _waitForContainer(BaasAuthHelper authHelper, String taskId) async {
     try {
-      final containers = await authHelper.callFunction('listContainers') as List<dynamic>;
-      final targetContainer = containers.firstWhereOrNull((c) => c['id'] == taskId);
+      final containers = await _getContainers(authHelper);
+      final targetContainer = containers.firstWhereOrNull((c) => c.id == taskId);
       if (targetContainer == null) {
         print('$taskId is not found in container list. Retrying...');
         return null;
       }
 
-      if (targetContainer['lastStatus'] != 'RUNNING') {
-        print('$taskId status is ${targetContainer['lastStatus']}. Retrying...');
+      if (!targetContainer.isRunning) {
+        print('$taskId status is ${targetContainer.lastStatus}. Retrying...');
         return null;
       }
 
-      final httpUrl = targetContainer['httpUrl'] as String;
+      final httpUrl = targetContainer.httpUrl;
 
       final response = await http.get(Uri.parse('$httpUrl/api/private/v1.0/version'));
       if (response.statusCode > 300) {
@@ -216,7 +224,7 @@ class BaasClient {
         return null;
       }
 
-      return targetContainer['httpUrl'] as String;
+      return httpUrl;
     } catch (e) {
       print('Error waiting for container: $e');
       return null;
@@ -225,7 +233,7 @@ class BaasClient {
 
   /// A client that imports apps to a MongoDB Atlas environment (typically realm-dev or realm-qa).
   /// @nodoc
-  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String? differentiator) async {
+  static Future<BaasClient> atlas(String baseUrl, String cluster, String apiKey, String privateApiKey, String groupId, String differentiator) async {
     final BaasClient result = BaasClient._(baseUrl, differentiator, cluster);
 
     await result._authenticate('mongodb-cloud', '{ "username": "$apiKey", "apiKey": "$privateApiKey" }');
@@ -294,7 +302,7 @@ class BaasClient {
           } else {
             return null;
           }
-          return BaasApp(doc['_id'] as String, doc['client_app_id'] as String, appName, name);
+          return BaasApp(appId: doc['_id'] as String, clientAppId: doc['client_app_id'] as String, name: appName, uniqueName: name, isNewDeployment: false);
         })
         .where((doc) => doc != null)
         .map((doc) => doc!)
@@ -310,7 +318,7 @@ class BaasClient {
     final appId = doc['_id'] as String;
     final appUniqueName = doc['name'] as String;
     final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name, appUniqueName);
+    final app = BaasApp(appId: appId, clientAppId: clientAppId, name: name, uniqueName: appUniqueName, isNewDeployment: false);
 
     final dynamic functions = await _get('groups/$_groupId/apps/$appId/functions');
     dynamic function = functions.firstWhere((dynamic f) => f["name"] == "confirmFunc", orElse: () => throw Exception("Func 'confirmFunc' not found"));
@@ -326,10 +334,8 @@ class BaasClient {
     BaasApp? app;
     try {
       final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$uniqueName" }');
-      final appId = doc['_id'] as String;
-      final clientAppId = doc['client_app_id'] as String;
 
-      app = BaasApp(appId, clientAppId, name, uniqueName);
+      app = BaasApp(appId: doc['_id'] as String, clientAppId: doc['client_app_id'] as String, name: name, uniqueName: uniqueName, isNewDeployment: true);
 
       final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
       final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
@@ -358,7 +364,7 @@ class BaasClient {
 
       if (publicRSAKey.isNotEmpty) {
         String publicRSAKeyEncoded = jsonEncode(publicRSAKey);
-        final dynamic createSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
+        final dynamic createSecretResult = await _post('groups/$_groupId/apps/$app/secrets', '{"name":"rsPublicKey","value":$publicRSAKeyEncoded}');
         String keyName = createSecretResult['name'] as String;
 
         await enableProvider(app, 'custom-token', config: '''{
@@ -421,7 +427,7 @@ class BaasClient {
             }''');
 
         const facebookSecret = "876750ac6d06618b323dee591602897f";
-        final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$appId/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
+        final dynamic createFacebookSecretResult = await _post('groups/$_groupId/apps/$app/secrets', '{"name":"facebookSecret","value":"$facebookSecret"}');
         String facebookClientSecretKeyName = createFacebookSecretResult['name'] as String;
         await enableProvider(app, 'oauth2-facebook', config: '''{
           "clientId": "1265617494254819"
@@ -494,10 +500,10 @@ class BaasClient {
         ]
       }''',
       );
-      await _put('groups/$_groupId/apps/$appId/sync/config', '{ "development_mode_enabled": true }');
+      await _put('groups/$_groupId/apps/$app/sync/config', '{ "development_mode_enabled": true }');
 
       //create email/password user for tests
-      final dynamic createUserResult = await _post('groups/$_groupId/apps/$appId/users', '{"email": "realm-test@realm.io", "password":"123456"}');
+      final dynamic createUserResult = await _post('groups/$_groupId/apps/$app/users', '{"email": "realm-test@realm.io", "password":"123456"}');
       print("Create user result: $createUserResult");
     } catch (error) {
       print(error);
@@ -688,15 +694,13 @@ class BaasClient {
     dynamic doc = docs.firstWhere((dynamic d) {
       return d["name"] == uniqueName;
     }, orElse: () => throw Exception("BAAS app not found"));
-    final appId = doc['_id'] as String;
-    final appUniqueName = doc['name'] as String;
-    final clientAppId = doc['client_app_id'] as String;
-    final app = BaasApp(appId, clientAppId, name, appUniqueName);
+    final app = BaasApp(
+        appId: doc['_id'] as String, clientAppId: doc['client_app_id'] as String, name: name, uniqueName: doc['name'] as String, isNewDeployment: false);
 
-    final dynamic services = await _get('groups/$_groupId/apps/$appId/services');
+    final dynamic services = await _get('groups/$_groupId/apps/$app/services');
     dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
     final mongoServiceId = service['_id'] as String;
-    final dynamic configDocs = await _get('groups/$_groupId/apps/$appId/services/$mongoServiceId/config');
+    final dynamic configDocs = await _get('groups/$_groupId/apps/$app/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];
     final dynamic clusterName = configDocs['clusterName'];
     flexibleSync["is_recovery_mode_disabled"] = !enable;
@@ -708,19 +712,37 @@ class BaasClient {
   }
 }
 
+class _ContainerInfo {
+  final String id;
+  bool get isRunning => lastStatus == 'RUNNING';
+  final String httpUrl;
+  final String lastStatus;
+  final Map<String, String> tags;
+  final String creatorId;
+
+  _ContainerInfo.fromJson(Map<String, dynamic> json)
+      : id = json['id'] as String,
+        lastStatus = json['lastStatus'],
+        httpUrl = json['httpUrl'] as String,
+        tags = {for (var v in json['tags'] as List<dynamic>) v['key']: v['value']},
+        creatorId = json['creatorId'] as String;
+}
+
 class BaasApp {
   final String appId;
   final String clientAppId;
   final String name;
   final String uniqueName;
+  final bool isNewDeployment;
   Object? error;
 
-  BaasApp(this.appId, this.clientAppId, this.name, this.uniqueName);
+  BaasApp({required this.appId, required this.clientAppId, required this.name, required this.uniqueName, required this.isNewDeployment});
 
   BaasApp._empty(this.name)
       : appId = "",
         clientAppId = "",
-        uniqueName = "";
+        uniqueName = "",
+        isNewDeployment = false;
 
   @override
   String toString() {

@@ -6,10 +6,6 @@ on:
       - main
   pull_request:
 env:
-  BAAS_URL: ${{ secrets.REALM_QA_URL }}
-  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
   REALM_CI: true
 
 concurrency:
@@ -73,6 +69,8 @@ jobs:
     name: Deploy Cluster for Dart Windows
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-windows:
     name: Windows Dart Tests
@@ -84,7 +82,7 @@ jobs:
     with:
       os: windows
       runner: windows-latest
-      baasurl: ${{ needs.deploy-cluster-dart-windows.outputs.url }}
+      differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-dart-windows:
     name: Cleanup Cluster for Dart Windows
@@ -99,6 +97,8 @@ jobs:
     name: Deploy Cluster for Dart MacOS
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-macos:
     name: MacOS Dart Tests
@@ -110,7 +110,7 @@ jobs:
     with:
       os: macos
       runner: macos-latest
-      baasurl: ${{ needs.deploy-cluster-dart-macos.outputs.url }}
+      differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-dart-macos:
     name: Cleanup Cluster for Dart macOS
@@ -125,6 +125,8 @@ jobs:
     name: Deploy Cluster for Dart MacOS Arm
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-macos-arm:
     name: MacOS Arm Dart Tests
@@ -137,7 +139,7 @@ jobs:
       os: macos
       runner: macos-arm
       architecture: arm
-      baasurl: ${{ needs.deploy-cluster-dart-macos-arm.outputs.url }}
+      differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-dart-macos-arm:
     name: Cleanup Cluster for Dart macOS Arm
@@ -152,6 +154,8 @@ jobs:
     name: Deploy Cluster for Dart Linux
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-linux:
     name: Linux Dart Tests
@@ -163,7 +167,7 @@ jobs:
     with:
       os: linux
       runner: ubuntu-latest
-      baasurl: ${{ needs.deploy-cluster-dart-linux.outputs.url }}
+      differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-dart-linux:
     name: Cleanup Cluster for Dart Linux
@@ -179,6 +183,8 @@ jobs:
     name: Deploy Cluster for Flutter Windows
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-windows:
     name: Windows Flutter Tests
@@ -190,7 +196,8 @@ jobs:
     with:
       os: windows
       runner: windows-latest
-      baasurl: ${{ needs.deploy-cluster-flutter-windows.outputs.url }}
+      differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
+
 
   cleanup-cluster-flutter-windows:
     name: Cleanup Cluster for Flutter Windows
@@ -205,6 +212,8 @@ jobs:
     name: Deploy Cluster for Flutter MacOS
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-macos:
     name: MacOS Flutter Tests
@@ -216,7 +225,7 @@ jobs:
     with:
       os: macos
       runner: macos-13 # workaround to: https://github.com/flutter/flutter/issues/118469 latest is still macos-12 ¯\_(ツ)_/¯
-      baasurl: ${{ needs.deploy-cluster-flutter-macos.outputs.url }}
+      differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-flutter-macos:
     name: Cleanup Cluster for Flutter macOS
@@ -231,6 +240,8 @@ jobs:
     name: Deploy Cluster for Flutter Linux
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-linux:
     name: Linux Flutter Tests
@@ -242,7 +253,7 @@ jobs:
     with:
       os: linux
       runner: ubuntu-latest
-      baasurl: ${{ needs.deploy-cluster-flutter-linux.outputs.url }}
+      differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-flutter-linux:
     name: Cleanup Cluster for Flutter Linux
@@ -257,6 +268,8 @@ jobs:
     name: Deploy Cluster for Flutter iOS
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: fi${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-ios:
     runs-on: macos-latest
@@ -266,7 +279,7 @@ jobs:
       - deploy-cluster-flutter-ios
       - build-ios-xcframework
     env:
-      BAAS_URL: ${{ needs.deploy-cluster-flutter-ios.outputs.url }}
+      BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
 
     steps:
       - name: Checkout
@@ -298,18 +311,6 @@ jobs:
           os: 'iOS'
           os_version: '>= 14.0'
 
-      # # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      # - name: Create cluster
-      #   uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-      #   with:
-      #     realmUrl: ${{ env.BAAS_URL }}
-      #     atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-      #     projectId: ${{ env.BAAS_PROJECT_ID }}
-      #     apiKey: ${{ env.BAAS_API_KEY }}
-      #     privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-      #     clusterName: ${{ env.BAAS_CLUSTER }}
-
       - name: Run tests on iOS Simulator
         run: |
           flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
@@ -328,6 +329,9 @@ jobs:
     name: Deploy Cluster for Flutter Android
     uses: ./.github/workflows/deploy-baas.yml
     secrets: inherit
+    with:
+      differentiator: fa${{ github.run_id }}${{ github.run_attempt }}
+
 
   flutter-tests-android:
     runs-on: macos-latest
@@ -337,7 +341,7 @@ jobs:
       - deploy-cluster-flutter-android
       - build-android-combined
     env:
-      BAAS_URL: ${{ needs.deploy-cluster-flutter-android.outputs.url }}
+      BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
 
     steps:
       - name: Checkout
@@ -387,18 +391,6 @@ jobs:
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
-
-      # # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      # - name: Create cluster
-      #   uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-      #   with:
-      #     realmUrl: ${{ env.BAAS_URL }}
-      #     atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-      #     projectId: ${{ env.BAAS_PROJECT_ID }}
-      #     apiKey: ${{ env.BAAS_API_KEY }}
-      #     privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-      #     clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2

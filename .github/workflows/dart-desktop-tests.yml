@@ -15,8 +15,8 @@ on:
         description: Architecture to execute on.
         required: false
         type: string
-      baasurl:
-        description: BaaS url to test against.
+      differentiator:
+        description: Differentiator for the BaaS container.
         required: true
         type: string
 
@@ -28,8 +28,6 @@ jobs:
     runs-on: ${{ inputs.runner }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     timeout-minutes: 45
-    env:
-      BAAS_URL: ${{ inputs.baasurl }}
 
     steps:
       - name: Checkout
@@ -58,18 +56,6 @@ jobs:
       - name: Bump ulimit
         run: ulimit -n 10240
         if: ${{ contains(inputs.os, 'macos') }}
-
-      # # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      # - name: Create cluster
-      #   uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-      #   with:
-      #     realmUrl: ${{ env.BAAS_URL }}
-      #     atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-      #     projectId: ${{ env.BAAS_PROJECT_ID }}
-      #     apiKey: ${{ env.BAAS_API_KEY }}
-      #     privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-      #     clusterName: ${{ env.BAAS_CLUSTER }}
 
       - name: Run tests
         run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
