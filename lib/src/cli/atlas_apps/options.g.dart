@@ -14,7 +14,6 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       projectId: result['project-id'] as String?,
       differentiator: result['differentiator'] as String?,
       baasaasApiKey: result['baasaas-api-key'] as String?,
-      containerId: result['container-id'] as String?,
     );
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
@@ -49,11 +48,6 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
     'baasaas-api-key',
     help:
         'API key to use with BaaSaaS to wpawn a new container and create apps in it.',
-  )
-  ..addOption(
-    'container-id',
-    help:
-        'Container id to be cleaned up. Only to be used with use-baas-aas and delete command',
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

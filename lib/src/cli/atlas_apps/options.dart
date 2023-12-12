@@ -43,10 +43,7 @@ class Options {
   @CliOption(help: 'API key to use with BaaSaaS to wpawn a new container and create apps in it.', name: 'baasaas-api-key')
   final String? baasaasApiKey;
 
-  @CliOption(help: 'Container id to be cleaned up. Only to be used with use-baas-aas and delete command')
-  final String? containerId;
-
-  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.baasaasApiKey, this.containerId});
+  Options({this.baasUrl, this.atlasCluster, this.apiKey, this.privateApiKey, this.projectId, this.differentiator, this.baasaasApiKey});
 }
 
 String get usage => _$parserForOptions.usage;

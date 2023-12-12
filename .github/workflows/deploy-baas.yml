@@ -2,10 +2,6 @@ name: Deploy BaaS and apps
 
 on:
   workflow_call:
-    outputs:
-      containerId:
-        description: The container id of the BaaS instance
-        value: ${{ jobs.deploy-baas.outputs.containerId }}
     inputs:
       differentiator:
         description: Differentiator for the BaaS container.
@@ -20,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy BaaS
     timeout-minutes: 15
-    outputs:
-      url: ${{ steps.set-outputs.outputs.baasUrl }}
-      containerId: ${{ steps.set-outputs.outputs.containerId }}
     steps:
       - name: Checkout
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
@@ -40,8 +33,3 @@ jobs:
 
       - name: Deploy cluster and apps
         run: dart run realm_dart deploy-apps --baasaas-api-key ${{ secrets.BAASAAS_API_KEY }} --differentiator ${{ inputs.differentiator }}
-      - name: Set outputs
-        id: set-outputs
-        run: |
-          container_id=`cat containerid`
-          echo "containerId=$container_id" >> "$GITHUB_OUTPUT"

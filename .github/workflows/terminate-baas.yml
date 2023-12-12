@@ -3,8 +3,9 @@ name: Terminate BaaS
 on:
   workflow_call:
     inputs:
-      containerId:
-        description: "The url to connect to"
+      differentiator:
+        description: Differentiator for the BaaS container.
+        required: true
         type: string
 
 env:
@@ -31,4 +32,4 @@ jobs:
         run: dart pub get
 
       - name: Terminate baas
-        run: dart run realm_dart delete-apps --baasaas-api-key ${{ secrets.BAASAAS_API_KEY }} --container-id ${{ inputs.containerId }}
+        run: dart run realm_dart delete-apps --baasaas-api-key ${{ secrets.BAASAAS_API_KEY }} --differentiator ${{ inputs.differentiator }}

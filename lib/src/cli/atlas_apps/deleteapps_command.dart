@@ -61,15 +61,11 @@ class DeleteAppsCommand extends Command<void> {
       abort('--baas-url must be supplied when --baasaas-api-key is null');
     }
 
+    final differentiator = options.differentiator ?? 'local';
+
     if (options.baasaasApiKey != null) {
-      if (options.containerId == null) {
-        abort('--container-id must be supplied when --baasaas-api-key is set');
-      }
-
-      await BaasClient.retry(() => BaasClient.deleteContainer(options.containerId!, options.baasaasApiKey!));
+      await BaasClient.retry(() => BaasClient.deleteContainer(options.baasaasApiKey!, differentiator));
     } else {
-      final differentiator = options.differentiator ?? 'local';
-
       final client = await (options.atlasCluster == null
           ? BaasClient.docker(options.baasUrl!, differentiator)
           : BaasClient.atlas(options.baasUrl!, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));

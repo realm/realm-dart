@@ -142,25 +142,26 @@ class BaasClient {
     return result;
   }
 
-  static Future<void> deleteContainer(String id, String apiKey) async {
+  static Future<void> deleteContainer(String apiKey, String differentiator) async {
     try {
-      print('Deleting BaaS container $id... ');
-
+      print('Stopping all containers with differentiator $differentiator');
       final authHelper = BaasAuthHelper(apiKey);
-
-      await authHelper.callEndpoint('stopContainer', query: {'id': id});
+      final containers = await _getContainers(authHelper, differentiator: differentiator);
+      for (final container in containers) {
+        print('Stopping container ${container.id}');
+        await authHelper.callEndpoint('stopContainer', query: {'id': container.id});
+        print('Stopped container ${container.id}');
+      }
       return;
     } catch (e) {
-      print('Failed to deploy container: $e');
+      print('Failed to destroy container: $e');
       rethrow;
     }
   }
 
   static Future<(String httpUrl, String containerId)> getOrDeployContainer(String apiKey, String differentiator) async {
     final authHelper = BaasAuthHelper(apiKey);
-    final containers = await _getContainers(authHelper);
-    final userId = await authHelper.getUserId();
-    final existing = containers.firstWhereOrNull((c) => c.creatorId == userId && c.tags['DIFFERENTIATOR'] == differentiator);
+    final existing = (await _getContainers(authHelper, differentiator: differentiator)).firstOrNull;
     if (existing != null) {
       print('Using existing BaaS container at ${existing.httpUrl}');
       return (existing.httpUrl, existing.id);
@@ -198,8 +199,14 @@ class BaasClient {
     throw 'UNREACHABLE';
   }
 
-  static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper) async {
-    return (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull().toList();
+  static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper, {String? differentiator}) async {
+    var result = (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull();
+    if (differentiator != null) {
+      final userId = await helper.getUserId();
+      result = result.where((c) => c.creatorId == userId && c.tags['DIFFERENTIATOR'] == differentiator);
+    }
+
+    return result.toList();
   }
 
   static Future<String?> _waitForContainer(BaasAuthHelper authHelper, String taskId) async {

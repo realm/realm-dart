@@ -90,10 +90,9 @@ jobs:
     if: always()
     needs:
       - dart-tests-windows
-      - deploy-cluster-dart-windows
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-dart-windows.outputs.containerId }}
+      differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-dart-macos:
     name: Deploy Cluster for Dart MacOS
@@ -120,10 +119,9 @@ jobs:
     if: always()
     needs:
       - dart-tests-macos
-      - deploy-cluster-dart-macos
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-dart-macos.outputs.containerId }}
+      differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-dart-macos-arm:
     name: Deploy Cluster for Dart MacOS Arm
@@ -151,10 +149,9 @@ jobs:
     if: always()
     needs:
       - dart-tests-macos-arm
-      - deploy-cluster-dart-macos-arm
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-dart-macos-arm.outputs.containerId }}
+      differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-dart-linux:
     name: Deploy Cluster for Dart Linux
@@ -181,10 +178,9 @@ jobs:
     if: always()
     needs:
       - dart-tests-linux
-      - deploy-cluster-dart-linux
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-dart-linux.outputs.containerId }}
+      differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
 
 # Flutter jobs
   deploy-cluster-flutter-windows:
@@ -213,10 +209,9 @@ jobs:
     if: always()
     needs:
       - flutter-tests-windows
-      - deploy-cluster-flutter-windows
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-flutter-windows.outputs.containerId }}
+      differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-flutter-macos:
     name: Deploy Cluster for Flutter MacOS
@@ -243,10 +238,9 @@ jobs:
     if: always()
     needs:
       - flutter-tests-macos
-      - deploy-cluster-flutter-macos
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-flutter-macos.outputs.containerId }}
+      differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-flutter-linux:
     name: Deploy Cluster for Flutter Linux
@@ -273,10 +267,9 @@ jobs:
     if: always()
     needs:
       - flutter-tests-linux
-      - deploy-cluster-flutter-linux
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-flutter-linux.outputs.containerId }}
+      differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-flutter-ios:
     name: Deploy Cluster for Flutter iOS
@@ -337,10 +330,9 @@ jobs:
     if: always()
     needs:
       - flutter-tests-ios
-      - deploy-cluster-flutter-ios
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-flutter-ios.outputs.containerId }}
+      differentiator: fi${{ github.run_id }}${{ github.run_attempt }}
 
   deploy-cluster-flutter-android:
     name: Deploy Cluster for Flutter Android
@@ -428,10 +420,9 @@ jobs:
     if: always()
     needs:
       - flutter-tests-android
-      - deploy-cluster-flutter-android
     secrets: inherit
     with:
-      containerId: ${{ needs.deploy-cluster-flutter-android.outputs.containerId }}
+      differentiator: fa${{ github.run_id }}${{ github.run_attempt }}
 
 # Generator jobs
 
