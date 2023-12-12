@@ -22,6 +22,8 @@ on:
 
 env:
   REALM_CI: true
+  BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+  BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
 
 jobs:
   dart-tests:

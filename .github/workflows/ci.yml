@@ -90,6 +90,7 @@ jobs:
     needs:
       - dart-tests-windows
       - deploy-cluster-dart-windows
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-dart-windows.outputs.containerId }}
 
@@ -118,6 +119,7 @@ jobs:
     needs:
       - dart-tests-macos
       - deploy-cluster-dart-macos
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-dart-macos.outputs.containerId }}
 
@@ -147,6 +149,7 @@ jobs:
     needs:
       - dart-tests-macos-arm
       - deploy-cluster-dart-macos-arm
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-dart-macos-arm.outputs.containerId }}
 
@@ -175,6 +178,7 @@ jobs:
     needs:
       - dart-tests-linux
       - deploy-cluster-dart-linux
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-dart-linux.outputs.containerId }}
 
@@ -205,6 +209,7 @@ jobs:
     needs:
       - flutter-tests-windows
       - deploy-cluster-flutter-windows
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-flutter-windows.outputs.containerId }}
 
@@ -233,6 +238,7 @@ jobs:
     needs:
       - flutter-tests-macos
       - deploy-cluster-flutter-macos
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-flutter-macos.outputs.containerId }}
 
@@ -261,6 +267,7 @@ jobs:
     needs:
       - flutter-tests-linux
       - deploy-cluster-flutter-linux
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-flutter-linux.outputs.containerId }}
 
@@ -280,6 +287,7 @@ jobs:
       - build-ios-xcframework
     env:
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
+      BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
 
     steps:
       - name: Checkout
@@ -322,6 +330,7 @@ jobs:
     needs:
       - flutter-tests-ios
       - deploy-cluster-flutter-ios
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-flutter-ios.outputs.containerId }}
 
@@ -342,6 +351,7 @@ jobs:
       - build-android-combined
     env:
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
+      BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
 
     steps:
       - name: Checkout
@@ -411,6 +421,7 @@ jobs:
     needs:
       - flutter-tests-android
       - deploy-cluster-flutter-android
+    secrets: inherit
     with:
       containerId: ${{ needs.deploy-cluster-flutter-android.outputs.containerId }}
 

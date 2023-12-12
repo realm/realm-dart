@@ -29,7 +29,7 @@ jobs:
     name: Flutter tests on ${{inputs.os }}-${{ inputs.architecture }}
     timeout-minutes: 45
     env:
-      BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+      BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
       BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
 
     steps:
