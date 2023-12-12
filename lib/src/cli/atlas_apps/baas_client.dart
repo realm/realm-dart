@@ -199,7 +199,7 @@ class BaasClient {
   }
 
   static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper) async {
-    return (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).toList();
+    return (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull().toList();
   }
 
   static Future<String?> _waitForContainer(BaasAuthHelper authHelper, String taskId) async {
@@ -720,12 +720,21 @@ class _ContainerInfo {
   final Map<String, String> tags;
   final String creatorId;
 
-  _ContainerInfo.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as String,
-        lastStatus = json['lastStatus'],
-        httpUrl = json['httpUrl'] as String,
-        tags = {for (var v in json['tags'] as List<dynamic>) v['key']: v['value']},
-        creatorId = json['creatorId'] as String;
+  _ContainerInfo._(this.id, this.httpUrl, this.lastStatus, this.tags, this.creatorId);
+
+  static _ContainerInfo? fromJson(Map<String, dynamic> json) {
+    final httpUrl = json['httpUrl'] as String?;
+    if (httpUrl == null) {
+      return null;
+    }
+
+    final id = json['id'] as String;
+    final lastStatus = json['lastStatus'];
+    final tags = {for (var v in json['tags'] as List<dynamic>) v['key'] as String: v['value'] as String};
+    final creatorId = json['creatorId'] as String;
+
+    return _ContainerInfo._(id, httpUrl, lastStatus, tags, creatorId);
+  }
 }
 
 class BaasApp {
