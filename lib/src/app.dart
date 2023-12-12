@@ -176,7 +176,11 @@ class App implements Finalizable {
   /// Create an app with a particular [AppConfiguration]. This constructor should only be used on the main isolate and,
   /// ideally, only once as soon as the app starts.
   App(AppConfiguration configuration) : _handle = _createApp(configuration) {
-    if (Isolate.current.debugName != 'main') {
+    // This is not foolproof, but could point people to errors they may have in their app. Realm apps are cached natively, so calling App(config)
+    // on a background isolate will not recreate the app. Instead, users should construct the app on the main isolate and then call getById on the
+    // background isolates. This check will log a warning if the isolate name is != 'main' and doesn't start with 'test/' since dart test will
+    // construct a new isolate per file and we don't want to log excessively in unit test projects.
+    if (Isolate.current.debugName != 'main' && Isolate.current.debugName?.startsWith('test/') == false) {
       Realm.logger.log(RealmLogLevel.warn,
           "App constructor called on Isolate ${Isolate.current.debugName} which doesn't appear to be the main isolate. If you need an app instance on a background isolate use App.getById after constructing the App on the main isolate.");
     }

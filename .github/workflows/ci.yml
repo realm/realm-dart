@@ -73,7 +73,7 @@ jobs:
       differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-windows:
-    name: Windows Dart Tests
+    name: Dart Tests Windows
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-windows
@@ -102,7 +102,7 @@ jobs:
       differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-macos:
-    name: MacOS Dart Tests
+    name: Dart Tests MacOS
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
@@ -131,7 +131,7 @@ jobs:
       differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-macos-arm:
-    name: MacOS Arm Dart Tests
+    name: Dart Tests MacOS Arm
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
@@ -161,7 +161,7 @@ jobs:
       differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-linux:
-    name: Linux Dart Tests
+    name: Dart Tests Linux
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-linux
@@ -191,7 +191,7 @@ jobs:
       differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-windows:
-    name: Windows Flutter Tests
+    name: Flutter Tests Windows
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-windows
@@ -221,7 +221,7 @@ jobs:
       differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-macos:
-    name: MacOS Flutter Tests
+    name: Flutter Tests MacOS
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
@@ -250,7 +250,7 @@ jobs:
       differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-linux:
-    name: Linux Flutter Tests
+    name: Flutter Tests Linux
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-linux
@@ -280,7 +280,7 @@ jobs:
 
   flutter-tests-ios:
     runs-on: macos-latest
-    name: IOS Flutter Tests
+    name: Flutter Tests iOS
     timeout-minutes: 45
     needs:
       - deploy-cluster-flutter-ios
@@ -344,7 +344,7 @@ jobs:
 
   flutter-tests-android:
     runs-on: macos-latest
-    name: Android Flutter Tests
+    name: Flutter Tests Android
     timeout-minutes: 45
     needs:
       - deploy-cluster-flutter-android
