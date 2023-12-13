@@ -70,7 +70,6 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          fail-on-error: false
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
