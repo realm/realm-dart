@@ -50,13 +50,30 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   /// Returns the element of type `T` at the specified [index].
   @override
   T elementAt(int index) {
-    if (this is RealmResults<RealmObjectBase>) {
-      final handle = realmCore.resultsGetObjectAt(this, _skipOffset + index);
-      final accessor = RealmCoreAccessor(metadata, realm.isInMigration);
-      return RealmObjectInternal.create(T, realm, handle, accessor) as T;
-    } else {
-      return realmCore.resultsGetElementAt(this, _skipOffset + index) as T;
+    // TODO: this is identical to list[] - consider refactoring to combine them.
+    if (index < 0 || index >= length) {
+      throw RangeError.range(index, 0, length - 1);
     }
+
+    var value = realmCore.resultsGetElementAt(this, _skipOffset + index);
+
+    if (value is RealmObjectHandle) {
+      late RealmObjectMetadata targetMetadata;
+      late Type type;
+      if (T == RealmValue) {
+        (type, targetMetadata) = realm.metadata.getByClassKey(realmCore.getClassKey(value));
+      } else {
+        targetMetadata = _metadata!;
+        type = T;
+      }
+      value = realm.createObject(type, value, targetMetadata);
+    }
+
+    if (T == RealmValue) {
+      value = RealmValue.from(value);
+    }
+
+    return value as T;
   }
 
   @pragma('vm:prefer-inline')

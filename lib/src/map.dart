@@ -109,6 +109,12 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
       }
 
       if (T == RealmValue) {
+        // Maps must return `null` if attempting to access a non-existing key. Without this check,
+        // we'd return RealmValue(null) which is different.
+        if (value == null && !containsKey(key)) {
+          return null;
+        }
+
         value = RealmValue.from(value);
       }
 

@@ -46,6 +46,39 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   }
 }
 
+class EmbeddedValue extends _EmbeddedValue
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  EmbeddedValue(
+    int intValue,
+  ) {
+    RealmObjectBase.set(this, 'intValue', intValue);
+  }
+
+  EmbeddedValue._();
+
+  @override
+  int get intValue => RealmObjectBase.get<int>(this, 'intValue') as int;
+  @override
+  set intValue(int value) => RealmObjectBase.set(this, 'intValue', value);
+
+  @override
+  Stream<RealmObjectChanges<EmbeddedValue>> get changes =>
+      RealmObjectBase.getChanges<EmbeddedValue>(this);
+
+  @override
+  EmbeddedValue freeze() => RealmObjectBase.freezeObject<EmbeddedValue>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(EmbeddedValue._);
+    return const SchemaObject(
+        ObjectType.embeddedObject, EmbeddedValue, 'EmbeddedValue', [
+      SchemaProperty('intValue', RealmPropertyType.int),
+    ]);
+  }
+}
+
 class TestRealmMaps extends _TestRealmMaps
     with RealmEntity, RealmObjectBase, RealmObject {
   TestRealmMaps(
@@ -57,9 +90,8 @@ class TestRealmMaps extends _TestRealmMaps
     Map<String, DateTime> dateTimeMap = const {},
     Map<String, ObjectId> objectIdMap = const {},
     Map<String, Uuid> uuidMap = const {},
-    Map<String, RealmValue> mixedMap = const {},
-    Map<String, Car?> objectsMap = const {},
     Map<String, Uint8List> binaryMap = const {},
+    Map<String, Decimal128> decimalMap = const {},
     Map<String, bool?> nullableBoolMap = const {},
     Map<String, int?> nullableIntMap = const {},
     Map<String, String?> nullableStringMap = const {},
@@ -68,6 +100,10 @@ class TestRealmMaps extends _TestRealmMaps
     Map<String, ObjectId?> nullableObjectIdMap = const {},
     Map<String, Uuid?> nullableUuidMap = const {},
     Map<String, Uint8List?> nullableBinaryMap = const {},
+    Map<String, Decimal128?> nullableDecimalMap = const {},
+    Map<String, Car?> objectsMap = const {},
+    Map<String, EmbeddedValue?> embeddedMap = const {},
+    Map<String, RealmValue> mixedMap = const {},
   }) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmMap<bool>>(
@@ -83,12 +119,10 @@ class TestRealmMaps extends _TestRealmMaps
         this, 'objectIdMap', RealmMap<ObjectId>(objectIdMap));
     RealmObjectBase.set<RealmMap<Uuid>>(
         this, 'uuidMap', RealmMap<Uuid>(uuidMap));
-    RealmObjectBase.set<RealmMap<RealmValue>>(
-        this, 'mixedMap', RealmMap<RealmValue>(mixedMap));
-    RealmObjectBase.set<RealmMap<Car?>>(
-        this, 'objectsMap', RealmMap<Car?>(objectsMap));
     RealmObjectBase.set<RealmMap<Uint8List>>(
         this, 'binaryMap', RealmMap<Uint8List>(binaryMap));
+    RealmObjectBase.set<RealmMap<Decimal128>>(
+        this, 'decimalMap', RealmMap<Decimal128>(decimalMap));
     RealmObjectBase.set<RealmMap<bool?>>(
         this, 'nullableBoolMap', RealmMap<bool?>(nullableBoolMap));
     RealmObjectBase.set<RealmMap<int?>>(
@@ -105,6 +139,14 @@ class TestRealmMaps extends _TestRealmMaps
         this, 'nullableUuidMap', RealmMap<Uuid?>(nullableUuidMap));
     RealmObjectBase.set<RealmMap<Uint8List?>>(
         this, 'nullableBinaryMap', RealmMap<Uint8List?>(nullableBinaryMap));
+    RealmObjectBase.set<RealmMap<Decimal128?>>(
+        this, 'nullableDecimalMap', RealmMap<Decimal128?>(nullableDecimalMap));
+    RealmObjectBase.set<RealmMap<Car?>>(
+        this, 'objectsMap', RealmMap<Car?>(objectsMap));
+    RealmObjectBase.set<RealmMap<EmbeddedValue?>>(
+        this, 'embeddedMap', RealmMap<EmbeddedValue?>(embeddedMap));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'mixedMap', RealmMap<RealmValue>(mixedMap));
   }
 
   TestRealmMaps._();
@@ -163,24 +205,18 @@ class TestRealmMaps extends _TestRealmMaps
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<RealmValue> get mixedMap =>
-      RealmObjectBase.get<RealmValue>(this, 'mixedMap') as RealmMap<RealmValue>;
-  @override
-  set mixedMap(covariant RealmMap<RealmValue> value) =>
-      throw RealmUnsupportedSetError();
-
-  @override
-  RealmMap<Car?> get objectsMap =>
-      RealmObjectBase.get<Car?>(this, 'objectsMap') as RealmMap<Car?>;
-  @override
-  set objectsMap(covariant RealmMap<Car?> value) =>
-      throw RealmUnsupportedSetError();
-
-  @override
   RealmMap<Uint8List> get binaryMap =>
       RealmObjectBase.get<Uint8List>(this, 'binaryMap') as RealmMap<Uint8List>;
   @override
   set binaryMap(covariant RealmMap<Uint8List> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<Decimal128> get decimalMap =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalMap')
+          as RealmMap<Decimal128>;
+  @override
+  set decimalMap(covariant RealmMap<Decimal128> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -245,6 +281,36 @@ class TestRealmMaps extends _TestRealmMaps
       throw RealmUnsupportedSetError();
 
   @override
+  RealmMap<Decimal128?> get nullableDecimalMap =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalMap')
+          as RealmMap<Decimal128?>;
+  @override
+  set nullableDecimalMap(covariant RealmMap<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<Car?> get objectsMap =>
+      RealmObjectBase.get<Car?>(this, 'objectsMap') as RealmMap<Car?>;
+  @override
+  set objectsMap(covariant RealmMap<Car?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<EmbeddedValue?> get embeddedMap =>
+      RealmObjectBase.get<EmbeddedValue?>(this, 'embeddedMap')
+          as RealmMap<EmbeddedValue?>;
+  @override
+  set embeddedMap(covariant RealmMap<EmbeddedValue?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<RealmValue> get mixedMap =>
+      RealmObjectBase.get<RealmValue>(this, 'mixedMap') as RealmMap<RealmValue>;
+  @override
+  set mixedMap(covariant RealmMap<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<TestRealmMaps>> get changes =>
       RealmObjectBase.getChanges<TestRealmMaps>(this);
 
@@ -272,13 +338,9 @@ class TestRealmMaps extends _TestRealmMaps
           collectionType: RealmCollectionType.map),
       SchemaProperty('uuidMap', RealmPropertyType.uuid,
           collectionType: RealmCollectionType.map),
-      SchemaProperty('mixedMap', RealmPropertyType.mixed,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('objectsMap', RealmPropertyType.object,
-          optional: true,
-          linkTarget: 'Car',
-          collectionType: RealmCollectionType.map),
       SchemaProperty('binaryMap', RealmPropertyType.binary,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('decimalMap', RealmPropertyType.decimal128,
           collectionType: RealmCollectionType.map),
       SchemaProperty('nullableBoolMap', RealmPropertyType.bool,
           optional: true, collectionType: RealmCollectionType.map),
@@ -295,6 +357,18 @@ class TestRealmMaps extends _TestRealmMaps
       SchemaProperty('nullableUuidMap', RealmPropertyType.uuid,
           optional: true, collectionType: RealmCollectionType.map),
       SchemaProperty('nullableBinaryMap', RealmPropertyType.binary,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableDecimalMap', RealmPropertyType.decimal128,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('objectsMap', RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'Car',
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('embeddedMap', RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'EmbeddedValue',
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('mixedMap', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.map),
     ]);
   }

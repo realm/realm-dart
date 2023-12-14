@@ -16,11 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:ffi';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 
@@ -28,51 +27,16 @@ import 'test.dart';
 
 part 'realm_map_test.g.dart';
 
-class _NullableBool {}
-
-class _NullableInt {}
-
-class _NullableString {}
-
-class _NullableDouble {}
-
-class _NullableDateTime {}
-
-class _NullableObjectId {}
-
-class _NullableUuid {}
-
-class _NullableObjects {}
-
-class _NullableUint8List {}
-
-/// When changing update also `mapByType`
-List<Type> supportedTypes = [
-  bool,
-  int,
-  String,
-  double,
-  DateTime,
-  ObjectId,
-  Uuid,
-  RealmValue,
-  RealmObject,
-  Uint8List,
-  _NullableBool,
-  _NullableInt,
-  _NullableString,
-  _NullableDouble,
-  _NullableDateTime,
-  _NullableObjectId,
-  _NullableUuid,
-  _NullableUint8List
-];
-
 @RealmModel()
 class _Car {
   @PrimaryKey()
   late String make;
   late String? color;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _EmbeddedValue {
+  late int intValue;
 }
 
 @RealmModel()
@@ -87,9 +51,8 @@ class _TestRealmMaps {
   late Map<String, DateTime> dateTimeMap;
   late Map<String, ObjectId> objectIdMap;
   late Map<String, Uuid> uuidMap;
-  late Map<String, RealmValue> mixedMap;
-  late Map<String, _Car?> objectsMap;
   late Map<String, Uint8List> binaryMap;
+  late Map<String, Decimal128> decimalMap;
 
   late Map<String, bool?> nullableBoolMap;
   late Map<String, int?> nullableIntMap;
@@ -99,734 +62,604 @@ class _TestRealmMaps {
   late Map<String, ObjectId?> nullableObjectIdMap;
   late Map<String, Uuid?> nullableUuidMap;
   late Map<String, Uint8List?> nullableBinaryMap;
+  late Map<String, Decimal128?> nullableDecimalMap;
 
-  /// When changing update also `supportedTypes`
-  Maps mapByType(Type type) {
-    switch (type) {
-      case bool:
-        return Maps(boolMap as RealmMap<bool>, [true, false]);
-      case int:
-        return Maps(intMap as RealmMap<int>, [-1, 0, 1]);
-      case String:
-        return Maps(stringMap as RealmMap<String>, ['Tesla', 'VW', 'Audi']);
-      case double:
-        return Maps(doubleMap as RealmMap<double>, [-1.1, 0.1, 1.1, 2.2, 3.3, 3.14]);
-      case DateTime:
-        return Maps(dateTimeMap as RealmMap<DateTime>, [DateTime(2023).toUtc(), DateTime(1981).toUtc()]);
-      case ObjectId:
-        return Maps(objectIdMap as RealmMap<ObjectId>, [ObjectId.fromTimestamp(DateTime(2023).toUtc()), ObjectId.fromTimestamp(DateTime(1981).toUtc())]);
-      case Uuid:
-        return Maps(uuidMap as RealmMap<Uuid>, [Uuid.fromString("12345678123456781234567812345678"), Uuid.fromString("82345678123456781234567812345678")]);
-      case Uint8List:
-        return Maps(binaryMap as RealmMap<Uint8List>, [
-          Uint8List.fromList([1, 2, 3]),
-          Uint8List.fromList([3, 2, 1])
-        ]);
-      case RealmValue:
-        return Maps(mixedMap as RealmMap<RealmValue>, [RealmValue.nullValue(), RealmValue.int(1), RealmValue.realmObject(Car("Tesla"))],
-            (realm, value) => realm.find<Car>((value as Car).make));
-      case RealmObject:
-        return Maps(objectsMap as RealmMap<Car?>, [Car("Tesla"), Car("VW"), Car("Audi")], (realm, value) => realm.find<Car>((value as Car).make));
-      case _NullableBool:
-        return Maps(nullableBoolMap as RealmMap<bool?>, [...values(bool), null]);
-      case _NullableInt:
-        return Maps(nullableIntMap as RealmMap<int?>, [...values(int), null]);
-      case _NullableString:
-        return Maps(nullableStringMap as RealmMap<String?>, [...values(String), null]);
-      case _NullableDouble:
-        return Maps(nullableDoubleMap as RealmMap<double?>, [...values(double), null]);
-      case _NullableDateTime:
-        return Maps(nullableDateTimeMap as RealmMap<DateTime?>, [...values(DateTime), null]);
-      case _NullableObjectId:
-        return Maps(nullableObjectIdMap as RealmMap<ObjectId?>, [...values(ObjectId), null]);
-      case _NullableUuid:
-        return Maps(nullableUuidMap as RealmMap<Uuid?>, [...values(Uuid), null]);
-      case _NullableUint8List:
-        return Maps(nullableBinaryMap as RealmMap<Uint8List?>, [...values(Uint8List), null]);
-      default:
-        throw RealmError("Unsupported type $type");
-    }
-  }
+  late Map<String, _Car?> objectsMap;
+  late Map<String, _EmbeddedValue?> embeddedMap;
 
-  Iterable<Object?> values(Type type) {
-    return mapByType(type).entries.values;
-  }
+  late Map<String, RealmValue> mixedMap;
+}
 
-  Iterable<Object?> getValuesOrManagedValues(Realm realm, Type type) {
-    final map = mapByType(type);
-    if (!map.entries.values.any((element) => element is RealmObject || element is RealmValue)) {
-      return map.entries.values;
-    }
+class TestCaseData<T> {
+  final T Function(T) _cloneFunc;
+  final bool Function(T?, T?) _equalityFunc;
 
-    return map.entries.values.map<Object?>((value) {
-      if (value is RealmValue && value.value is! RealmObject) {
-        return value;
+  final T _sampleValue;
+
+  final List<(String key, T value)> _initialValues;
+
+  List<(String key, T value)> get initialValues => _initialValues.map((kvp) => (kvp.$1, _cloneFunc(kvp.$2))).toList();
+
+  T get sampleValue => _cloneFunc(_sampleValue);
+
+  TestCaseData(this._sampleValue, {bool Function(T?, T?)? equalityFunc, List<(String key, T value)> initialValues = const [], T Function(T)? cloneFunc})
+      : _equalityFunc = equalityFunc ?? ((a, b) => a == b),
+        _cloneFunc = cloneFunc ?? ((v) => v),
+        _initialValues = initialValues;
+
+  void seed(Map<String, T> target, {Iterable<(String key, T value)>? values}) {
+    _writeIfNecessary(target, () {
+      target.clear();
+      for (var (key, value) in values ?? initialValues) {
+        target[key] = value;
       }
-
-      return _getManagedValue(map, realm, value);
     });
   }
 
-  Object? _getManagedValue(Maps map, Realm realm, Object? value) {
-    if (value is RealmValue) {
-      return RealmValue.from(_getManagedValue(map, realm, value.value));
+  void assertEquivalent(Map<String, T> target) {
+    final reference = _getReferenceMap();
+    _isEquivalent(target, reference);
+  }
+
+  void assertContainsKey(Map<String, T> target) {
+    for (final (key, _) in initialValues) {
+      expect(target.containsKey(key), true, reason: 'expected to find $key');
     }
 
-    RealmObject? realmValue = map.getRealmObject!(realm, value as RealmObject);
-    return realmValue;
+    expect(target.containsKey(Uuid.v4().toString()), false);
+  }
+
+  void assertKeys(Map<String, T> target) {
+    expect(target.keys, unorderedEquals(initialValues.map((e) => e.$1)));
+  }
+
+  void assertValues(Map<String, T> target) {
+    expect(target.values.length, initialValues.length);
+    final actualValues = target.values;
+    for (final (_, value) in initialValues) {
+      expect(actualValues.where((element) => _equalityFunc(element, value)).length, greaterThanOrEqualTo(1)); // values may be duplicates
+    }
+
+    // Test in the other direction in case we have duplicates
+    for (final value in actualValues) {
+      expect(initialValues.where((element) => _equalityFunc(element.$2, value)).length, greaterThanOrEqualTo(1)); // values may be duplicates
+    }
+  }
+
+  void assertEntries(Map<String, T> target) {
+    final reference = _getReferenceMap();
+    for (final kvp in target.entries) {
+      expect(reference.containsKey(kvp.key), true);
+      expect(_equalityFunc(reference[kvp.key], target[kvp.key]), true);
+
+      reference.remove(kvp.key);
+    }
+
+    expect(reference, isEmpty);
+  }
+
+  void assertAccessor(Map<String, T> target) {
+    for (final (key, value) in initialValues) {
+      expect(_equalityFunc(target[key], value), true);
+    }
+
+    expect(target[Uuid.v4().toString()], null);
+  }
+
+  void assertSet(Map<String, T> target) {
+    var expectedLength = target.length;
+
+    if (target.isNotEmpty) {
+      final key = target.keys.first;
+      _writeIfNecessary(target, () {
+        target[key] = sampleValue;
+      });
+
+      expect(target.containsKey(key), true);
+      expect(_equalityFunc(target[key], sampleValue), true);
+      expect(target.length, expectedLength);
+    }
+
+    final newKey = Uuid.v4().toString();
+    _writeIfNecessary(target, () {
+      target[newKey] = sampleValue;
+    });
+
+    expectedLength++;
+
+    expect(target.containsKey(newKey), true);
+    expect(_equalityFunc(target[newKey], sampleValue), true);
+    expect(target.length, expectedLength);
+  }
+
+  void assertRemove(Map<String, T> target) {
+    seed(target);
+
+    var expectedLength = target.length;
+
+    if (target.isNotEmpty) {
+      final kvp = target.entries.last;
+      final removedValue = _writeIfNecessary(target, () => target.remove(kvp.key));
+      expectedLength--;
+
+      expect(removedValue, kvp.value);
+      expect(target.containsKey(kvp.key), false);
+      expect(target.length, expectedLength);
+    }
+
+    final newKey = Uuid.v4().toString();
+    final removedValue = _writeIfNecessary(target, () => target.remove(newKey));
+
+    expect(removedValue, null);
+    expect(target.containsKey(newKey), false);
+    expect(target.length, expectedLength);
+  }
+
+  (int index, String key, T value)? _getDifferentValue(Map<String, T> collection, T valueToCompare) {
+    var index = 0;
+    for (final kvp in collection.entries) {
+      if (!_areValuesEqual(kvp.value, valueToCompare)) {
+        return (index, kvp.key, kvp.value);
+      }
+
+      index++;
+    }
+
+    return null;
+  }
+
+  void _isEquivalent(Map<String, T> actual, Map<String, T> expected) {
+    expect(actual, hasLength(expected.length));
+    for (final kvp in expected.entries) {
+      final actualEntry = actual.entries.firstWhereOrNull((element) => element.key == kvp.key);
+      expect(actualEntry, isNotNull, reason: 'expect actual to contain ${kvp.key}');
+      final actualValue = actual[kvp.key];
+      expect(_equalityFunc(actualValue, kvp.value), true, reason: 'expected $actualValue == ${kvp.value}');
+    }
+  }
+
+  bool _areValuesEqual(T first, T second) {
+    if (first == second) {
+      return true;
+    }
+
+    if (first is Uint8List && second is Uint8List) {
+      return IterableEquality().equals(first, second);
+    }
+
+    return false;
+  }
+
+  U _writeIfNecessary<U>(Map<String, T> collection, U Function() writeAction) {
+    Transaction? transaction;
+    try {
+      if (collection is RealmMap<T> && collection.isManaged) {
+        transaction = collection.realm.beginWrite();
+      }
+
+      final result = writeAction();
+
+      transaction?.commit();
+
+      return result;
+    } catch (e) {
+      transaction?.rollback();
+      rethrow;
+    }
+  }
+
+  Map<String, T> _getReferenceMap() => {for (var v in initialValues) v.$1: v.$2};
+
+  @override
+  String toString() {
+    return _initialValues.map((kvp) => '${kvp.$1}-${kvp.$2}').join(', ');
   }
 }
 
-class Maps {
-  final RealmMap<Object?> map;
-  final Map<String, Object?> entries;
-  RealmObject? Function(Realm realm, RealmObject value)? getRealmObject = (realm, value) => value;
+List<TestCaseData<bool>> boolTestValues = [
+  TestCaseData(true),
+  TestCaseData(true, initialValues: [('a', true)]),
+  TestCaseData(false, initialValues: [('b', false)]),
+  TestCaseData(true, initialValues: [('a', false), ('b', true)]),
+  TestCaseData(false, initialValues: [('a', true), ('b', false), ('c', true)]),
+];
 
-  Maps(this.map, Iterable<Object?> values, [this.getRealmObject])
-      : entries = Map<String, Object?>.fromEntries(values.mapIndexed((index, element) => MapEntry('key$index', element)));
+List<TestCaseData<bool?>> nullableBoolTestValues = [
+  TestCaseData(true),
+  TestCaseData(true, initialValues: [('a', true)]),
+  TestCaseData(true, initialValues: [('b', false)]),
+  TestCaseData(false, initialValues: [('c', null)]),
+  TestCaseData(true, initialValues: [('a', false), ('b', true)]),
+  TestCaseData(null, initialValues: [('a', true), ('b', false), ('c', null)]),
+];
+
+List<TestCaseData<int>> intTestCases = [
+  TestCaseData(123456789),
+  TestCaseData(123456789, initialValues: [('123', 123)]),
+  TestCaseData(123456789, initialValues: [('123', -123)]),
+  TestCaseData(123456789, initialValues: [('a', 1), ('b', 1), ('c', 1)]),
+  TestCaseData(123456789, initialValues: [('a', 1), ('b', 2), ('c', 3)]),
+  TestCaseData(123456789, initialValues: [('a', -0x8000000000000000), ('z', 0x7FFFFFFFFFFFFFFF)]),
+  TestCaseData(123456789, initialValues: [('a', -0x8000000000000000), ('zero', 0), ('one', 1), ('z', 0x7FFFFFFFFFFFFFFF)]),
+];
+
+List<TestCaseData<int?>> nullableIntTestCases = [
+  TestCaseData(1234),
+  TestCaseData(null, initialValues: [('123', 123)]),
+  TestCaseData(1234, initialValues: [('123', -123)]),
+  TestCaseData(1234, initialValues: [('null', null)]),
+  TestCaseData(1234, initialValues: [('null1', null), ('null2', null), ('null3', null)]),
+  TestCaseData(null, initialValues: [('a', 1), ('b', null), ('c', 3)]),
+  TestCaseData(1234, initialValues: [('a', -0x8000000000000000), ('m', null), ('z', 0x7FFFFFFFFFFFFFFF)]),
+  TestCaseData(1234, initialValues: [('a', -0x8000000000000000), ('zero', 0), ('null', null), ('one', 1), ('z', 0x7FFFFFFFFFFFFFFF)]),
+];
+
+List<TestCaseData<String>> stringTestValues = [
+  TestCaseData(''),
+  TestCaseData('', initialValues: [('123', 'abc')]),
+  TestCaseData('', initialValues: [('a', 'AbCdEfG'), ('b', 'HiJklMn'), ('c', 'OpQrStU')]),
+  TestCaseData('', initialValues: [('a', 'vwxyz'), ('b', ''), ('c', ' ')]),
+  TestCaseData('', initialValues: [('a', ''), ('z', 'aa bb cc dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz')]),
+  TestCaseData('', initialValues: [('a', ''), ('z', 'lorem ipsum'), ('zero', '-1234567890'), ('one', 'lololo')]),
+];
+
+List<TestCaseData<String?>> nullableStringTestValues = [
+  TestCaseData(null),
+  TestCaseData(null, initialValues: [('123', 'abc')]),
+  TestCaseData('', initialValues: [('null', null)]),
+  TestCaseData('', initialValues: [('null1', null), ('null2', null)]),
+  TestCaseData('', initialValues: [('a', 'AbCdEfG'), ('b', null), ('c', 'OpQrStU')]),
+  TestCaseData(null, initialValues: [('a', 'vwxyz'), ('b', null), ('c', ''), ('d', ' ')]),
+  TestCaseData('', initialValues: [('a', ''), ('m', null), ('z', 'aa bb cc dd ee ff gg hh ii jj kk ll mm nn oo pp qq rr ss tt uu vv ww xx yy zz')]),
+  TestCaseData('', initialValues: [('a', ''), ('zero', 'lorem ipsum'), ('null', null), ('one', '-1234567890'), ('z', 'lololo')]),
+];
+
+List<TestCaseData<double>> doubleTestValues = [
+  TestCaseData(789.123),
+  TestCaseData(789.123, initialValues: [('123', 123.123)]),
+  TestCaseData(789.123, initialValues: [('123', -123.456)]),
+  TestCaseData(789.123, initialValues: [('a', 1.1), ('b', 1.1), ('c', 1.1)]),
+  TestCaseData(789.123, initialValues: [('a', 1), ('b', 2.2), ('c', 3.3)]),
+  TestCaseData(789.123,
+      initialValues: [('a', 1), ('b', 2.2), ('c', 3.3), ('d', 4385948963486946854968945789458794538793438693486934869.238593285932859238952398)]),
+  TestCaseData(789.123, initialValues: [('a', -double.maxFinite), ('z', double.maxFinite)]),
+  TestCaseData(789.123, initialValues: [('a', -double.maxFinite), ('zero', 0.0), ('one', 1.1), ('z', double.maxFinite)]),
+];
+
+List<TestCaseData<double?>> nullableDoubleTestValues = [
+  TestCaseData(-123.789),
+  TestCaseData(-123.789, initialValues: [('123', 123.123)]),
+  TestCaseData(null, initialValues: [('123', -123.456)]),
+  TestCaseData(-123.789, initialValues: [('null', null)]),
+  TestCaseData(-123.789, initialValues: [('null1', null), ('null2', null)]),
+  TestCaseData(-123.789, initialValues: [('a', 1), ('b', null), ('c', 3.3)]),
+  TestCaseData(null,
+      initialValues: [('a', 1), ('b', null), ('c', 3.3), ('d', 4385948963486946854968945789458794538793438693486934869.238593285932859238952398)]),
+  TestCaseData(-123.789, initialValues: [('a', -double.maxFinite), ('m', null), ('z', double.maxFinite)]),
+  TestCaseData(-123.789, initialValues: [('a', -double.maxFinite), ('zero', 0), ('null', null), ('one', 1.1), ('z', double.maxFinite)]),
+];
+
+List<TestCaseData<Decimal128>> decimal128TestValues = [
+  TestCaseData(Decimal128.parse('1.5')),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [('123', Decimal128.parse('123.123'))]),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [('123', Decimal128.parse('-123.456'))]),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [('a', Decimal128.parse('1.1')), ('b', Decimal128.parse('1.1')), ('c', Decimal128.parse('1.1'))]),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [('a', Decimal128.parse('1')), ('b', Decimal128.parse('2.2')), ('c', Decimal128.parse('3.3'))]),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [
+    ('a', Decimal128.parse('1')),
+    ('b', Decimal128.parse('2.2')),
+    ('c', Decimal128.parse('3.3')),
+    ('d', Decimal128.parse('43859489538793438693486934869.238436346943634634634634634634634634634593285932859238952398'))
+  ]),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [
+    ('a', Decimal128.parse('-79228162514264337593543950335')),
+    ('a1', Decimal128.parse('-79228162514264337593543950335')),
+    ('z', Decimal128.parse('79228162514264337593543950335')),
+    ('z1', Decimal128.parse('79228162514264337593543950335'))
+  ]),
+  TestCaseData(Decimal128.parse('1.5'), initialValues: [
+    ('a', Decimal128.parse('-79228162514264337593543950335')),
+    ('zero', Decimal128.parse('0')),
+    ('one', Decimal128.parse('1.1')),
+    ('z', Decimal128.parse('79228162514264337593543950335'))
+  ]),
+];
+
+List<TestCaseData<Decimal128?>> nullableDecimal128TestValues = [
+  TestCaseData(null),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [('123', Decimal128.parse('123.123'))]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [('123', Decimal128.parse('-123.456'))]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [('null', null)]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [('null1', null), ('null2', null)]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [('a', Decimal128.parse('1')), ('b', null), ('c', Decimal128.parse('3.3'))]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [
+    ('a', Decimal128.parse('1')),
+    ('b', null),
+    ('c', Decimal128.parse('3.3')),
+    ('d', Decimal128.parse('43859489538793438693486934869.238436346943634634634634634634634634634593285932859238952398'))
+  ]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [
+    ('a', Decimal128.parse('-79228162514264337593543950335')),
+    ('a1', Decimal128.parse('-79228162514264337593543950335')),
+    ('m', null),
+    ('z', Decimal128.parse('79228162514264337593543950335'))
+  ]),
+  TestCaseData(Decimal128.parse('-9.7'), initialValues: [
+    ('a', Decimal128.parse('-79228162514264337593543950335')),
+    ('zero', Decimal128.parse('0')),
+    ('null', null),
+    ('one', Decimal128.parse('1.1')),
+    ('z', Decimal128.parse('79228162514264337593543950335'))
+  ]),
+];
+
+DateTime date0 = DateTime(0).toUtc();
+DateTime date1 = DateTime(1999, 3, 4, 5, 30, 23).toUtc();
+DateTime date2 = DateTime(2030, 1, 3, 9, 25, 34).toUtc();
+
+List<TestCaseData<DateTime>> dateTimeTestValues = [
+  TestCaseData(DateTime.now().toUtc()),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('123', date1)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('123', date2)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', date1), ('b', date1), ('c', date1)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', date0), ('b', date1), ('c', date2)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', DateTime.fromMillisecondsSinceEpoch(0).toUtc()), ('z', date2)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', DateTime.fromMillisecondsSinceEpoch(0).toUtc()), ('zero', date1), ('one', date2), ('z', date2)]),
+];
+
+List<TestCaseData<DateTime?>> nullableDateTimeTestValues = [
+  TestCaseData(null),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('123', date1)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('123', date2)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('null', null)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('null1', null), ('null2', null)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', date0), ('b', null), ('c', date2)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', date2), ('b', null), ('c', date1), ('d', date0)]),
+  TestCaseData(DateTime.now().toUtc(), initialValues: [('a', DateTime.fromMillisecondsSinceEpoch(0).toUtc()), ('m', null), ('z', date2)]),
+  TestCaseData(DateTime.now().toUtc(),
+      initialValues: [('a', DateTime.fromMillisecondsSinceEpoch(0).toUtc()), ('zero', date1), ('null', null), ('one', date2), ('z', date2)]),
+];
+
+ObjectId objectId0 = ObjectId.fromValues(987654321, 5, 1);
+ObjectId objectId1 = ObjectId.fromValues(0, 0, 0);
+ObjectId objectId2 = ObjectId.fromValues(987654321, 5, 2);
+ObjectId objectId3 = ObjectId.fromValues(55555, 123, 1);
+
+List<TestCaseData<ObjectId>> objectIdTestValues = [
+  TestCaseData(ObjectId()),
+  TestCaseData(ObjectId(), initialValues: [('123', objectId1)]),
+  TestCaseData(ObjectId(), initialValues: [('123', objectId2)]),
+  TestCaseData(ObjectId(), initialValues: [('a', objectId1), ('b', objectId1), ('c', objectId1)]),
+  TestCaseData(ObjectId(), initialValues: [('a', objectId0), ('b', objectId1), ('c', objectId2)]),
+  TestCaseData(ObjectId(), initialValues: [('a', objectId0), ('z', objectId3)]),
+  TestCaseData(ObjectId(), initialValues: [('a', objectId0), ('zero', objectId1), ('one', objectId2), ('z', objectId3)]),
+];
+
+List<TestCaseData<ObjectId?>> nullableObjectIdTestValues = [
+  TestCaseData(ObjectId()),
+  TestCaseData(ObjectId(), initialValues: [('123', objectId1)]),
+  TestCaseData(ObjectId(), initialValues: [('123', objectId2)]),
+  TestCaseData(ObjectId(), initialValues: [('null', null)]),
+  TestCaseData(ObjectId(), initialValues: [('null1', null), ('null2', null)]),
+  TestCaseData(null, initialValues: [('a', objectId0), ('b', null), ('c', objectId2)]),
+  TestCaseData(ObjectId(), initialValues: [('a', objectId2), ('b', null), ('c', objectId1), ('d', objectId0)]),
+  TestCaseData(ObjectId(), initialValues: [('a', objectId0), ('m', null), ('z', objectId3)]),
+  TestCaseData(null, initialValues: [('a', objectId0), ('zero', objectId1), ('null', null), ('one', objectId2), ('z', objectId3)]),
+];
+
+Uuid uuid0 = Uuid.fromString('48f11f3a-7609-471f-b7ab-81c20c723ed9');
+Uuid uuid1 = Uuid.fromString('957ba4de-3966-46f6-b19f-242996608a8b');
+Uuid uuid2 = Uuid.fromString('081924e2-8e62-4af1-bc9c-e1a7fc365d84');
+Uuid uuid3 = Uuid.fromString('0bef5993-7480-4862-abdc-160bb364d1f3');
+
+List<TestCaseData<Uuid>> uuidTestValues = [
+  TestCaseData(Uuid.v4()),
+  TestCaseData(Uuid.v4(), initialValues: [('123', uuid1)]),
+  TestCaseData(Uuid.v4(), initialValues: [('123', uuid2)]),
+  TestCaseData(Uuid.v4(), initialValues: [('a', uuid1), ('b', uuid1), ('c', uuid1)]),
+  TestCaseData(Uuid.v4(), initialValues: [('a', uuid0), ('b', uuid1), ('c', uuid2)]),
+  TestCaseData(Uuid.v4(), initialValues: [('a', uuid0), ('z', uuid3)]),
+  TestCaseData(Uuid.v4(), initialValues: [('a', uuid0), ('zero', uuid1), ('one', uuid2), ('z', uuid3)]),
+];
+
+List<TestCaseData<Uuid?>> nullableUuidTestValues = [
+  TestCaseData(Uuid.v4()),
+  TestCaseData(Uuid.v4(), initialValues: [('123', uuid1)]),
+  TestCaseData(Uuid.v4(), initialValues: [('123', uuid2)]),
+  TestCaseData(Uuid.v4(), initialValues: [('null', null)]),
+  TestCaseData(Uuid.v4(), initialValues: [('null1', null), ('null2', null)]),
+  TestCaseData(null, initialValues: [('a', uuid0), ('b', null), ('c', uuid2)]),
+  TestCaseData(Uuid.v4(), initialValues: [('a', uuid2), ('b', null), ('c', uuid1), ('d', uuid0)]),
+  TestCaseData(Uuid.v4(), initialValues: [('a', uuid0), ('m', null), ('z', uuid3)]),
+  TestCaseData(null, initialValues: [('a', uuid0), ('zero', uuid1), ('null', null), ('one', uuid2), ('z', uuid3)]),
+];
+
+Uint8List byteArray0 = Uint8List.fromList([1, 2, 3]);
+Uint8List byteArray1 = Uint8List.fromList([4, 5, 6]);
+Uint8List byteArray2 = Uint8List.fromList([7, 8, 9]);
+
+List<TestCaseData<Uint8List>> byteArrayTestValues = [
+  TestCaseData(Uint8List.fromList([1, 2, 3]), equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]), initialValues: [('123', byteArray1)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]), initialValues: [('123', byteArray2)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]),
+      initialValues: [('a', byteArray1), ('b', byteArray1), ('c', byteArray1)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]),
+      initialValues: [('a', byteArray0), ('b', byteArray1), ('c', byteArray2)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]),
+      initialValues: [
+        ('a', Uint8List.fromList([0])),
+        ('z', Uint8List.fromList([255]))
+      ],
+      equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]),
+      initialValues: [
+        ('a', byteArray0),
+        ('zero', byteArray1),
+        ('one', byteArray2),
+        ('z', Uint8List.fromList([255]))
+      ],
+      equalityFunc: IterableEquality().equals),
+];
+
+List<TestCaseData<Uint8List?>> nullableByteArrayTestValues = [
+  TestCaseData(null),
+  TestCaseData(Uint8List.fromList([1, 2, 3]), initialValues: [('123', byteArray1)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]), initialValues: [('123', byteArray2)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]), initialValues: [('null', null)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]), initialValues: [('null1', null), ('null2', null)], equalityFunc: IterableEquality().equals),
+  TestCaseData(null, initialValues: [('a', byteArray0), ('b', null), ('c', byteArray2)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]),
+      initialValues: [('a', byteArray2), ('b', null), ('c', byteArray1), ('d', byteArray0)], equalityFunc: IterableEquality().equals),
+  TestCaseData(Uint8List.fromList([1, 2, 3]),
+      initialValues: [
+        ('a', byteArray0),
+        ('m', null),
+        ('z', Uint8List.fromList([255]))
+      ],
+      equalityFunc: IterableEquality().equals),
+  TestCaseData(null,
+      initialValues: [
+        ('a', byteArray0),
+        ('zero', byteArray1),
+        ('null', null),
+        ('one', byteArray2),
+        ('z', Uint8List.fromList([255]))
+      ],
+      equalityFunc: IterableEquality().equals),
+];
+
+List<TestCaseData<RealmValue>> realmValueTestValues = [
+  TestCaseData(RealmValue.string('sampleValue'), initialValues: [
+    ('nullKey', RealmValue.nullValue()),
+    ('intKey', RealmValue.int(10)),
+    ('boolKey', RealmValue.bool(true)),
+    ('stringKey', RealmValue.string('abc')),
+    ('dataKey', RealmValue.uint8List(Uint8List.fromList([0, 1, 2]))),
+    ('dateKey', RealmValue.dateTime(DateTime.fromMillisecondsSinceEpoch(1616137641000).toUtc())),
+    ('doubleKey', RealmValue.double(2.5)),
+    ('decimalKey', RealmValue.decimal128(Decimal128.fromDouble(5.0))),
+    ('objectIdKey', RealmValue.objectId(ObjectId.fromHexString('5f63e882536de46d71877979'))),
+    ('guidKey', RealmValue.from(Uuid.fromString('F2952191-A847-41C3-8362-497F92CB7D24'))),
+    ('objectKey', RealmValue.from(Car('Honda')))
+  ])
+];
+
+List<TestCaseData<EmbeddedValue?>> _embeddedObjectTestValues = [
+  TestCaseData(null),
+  TestCaseData(null,
+      initialValues: [('123', EmbeddedValue(1))],
+      equalityFunc: (a, b) => a?.intValue == b?.intValue,
+      cloneFunc: (a) => a == null ? null : EmbeddedValue(a.intValue)),
+  TestCaseData(EmbeddedValue(999),
+      initialValues: [('123', EmbeddedValue(1))],
+      equalityFunc: (a, b) => a?.intValue == b?.intValue,
+      cloneFunc: (a) => a == null ? null : EmbeddedValue(a.intValue)),
+  TestCaseData(EmbeddedValue(999),
+      initialValues: [('null', null)], equalityFunc: (a, b) => a?.intValue == b?.intValue, cloneFunc: (a) => a == null ? null : EmbeddedValue(a.intValue)),
+  TestCaseData(EmbeddedValue(999),
+      initialValues: [('null1', null), ('null2', null)],
+      equalityFunc: (a, b) => a?.intValue == b?.intValue,
+      cloneFunc: (a) => a == null ? null : EmbeddedValue(a.intValue)),
+  TestCaseData(EmbeddedValue(999),
+      initialValues: [('a', EmbeddedValue(1)), ('null', null), ('z', EmbeddedValue(2))],
+      equalityFunc: (a, b) => a?.intValue == b?.intValue,
+      cloneFunc: (a) => a == null ? null : EmbeddedValue(a.intValue)),
+];
+
+@isTest
+void testUnmanaged<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<T> testData) {
+  test('$T unmanaged: $testData', () async {
+    final testObject = TestRealmMaps(0);
+    final map = accessor(testObject);
+
+    testData.seed(map);
+
+    await runTestsCore(testData, map, expectManaged: false);
+
+    expect(() => map.freeze(), throwsA(isA<RealmStateError>()));
+  });
+}
+
+@isTest
+void testManaged<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<T> testData) {
+  test('$T managed: $testData', () async {
+    final testObject = TestRealmMaps(0);
+    final map = accessor(testObject);
+
+    testData.seed(map);
+
+    final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
+    final realm = getRealm(config);
+
+    realm.write(() {
+      realm.add(testObject);
+    });
+
+    final managedMap = accessor(testObject);
+    expect(identical(map, managedMap), false);
+
+    await runTestsCore(testData, managedMap, expectManaged: true);
+
+    // TODO: freeze, notifications
+  });
+}
+
+Future<void> runTestsCore<T>(TestCaseData<T> testData, RealmMap<T> map, {required bool expectManaged}) async {
+  expect(map.isManaged, expectManaged);
+  expect(map.isValid, true);
+
+  testData.assertEquivalent(map);
+  testData.assertContainsKey(map);
+  testData.assertKeys(map);
+  testData.assertValues(map);
+  testData.assertEntries(map);
+  testData.assertAccessor(map);
+  testData.assertSet(map);
+  testData.assertRemove(map);
+}
+
+@isTest
+void runTests<T>(List<TestCaseData<T>> tests, RealmMap<T> Function(TestRealmMaps) accessor) {
+  group('$T test cases', () {
+    for (var test in tests) {
+      testUnmanaged(accessor, test);
+      testManaged(accessor, test);
+    }
+  });
 }
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  for (var type in supportedTypes) {
-    test('RealmMap<$type> unmanaged map add', () {
-      final testMap = TestRealmMaps(1);
-      final testInfo = testMap.mapByType(type);
-      final map = testInfo.map;
-      final entries = testInfo.entries;
+  runTests(boolTestValues, (e) => e.boolMap);
+  runTests(nullableBoolTestValues, (e) => e.nullableBoolMap);
 
-      for (final key in entries.keys) {
-        map[key] = entries[key];
-      }
+  runTests(intTestCases, (e) => e.intMap);
+  runTests(nullableIntTestCases, (e) => e.nullableIntMap);
 
-      expect(map.length, equals(entries.length));
-      expect(map, equals(entries));
-    });
+  runTests(stringTestValues, (e) => e.stringMap);
+  runTests(nullableStringTestValues, (e) => e.nullableStringMap);
 
-    test('RealmMap<$type> unmanaged map remove', () {
-      final testMap = TestRealmMaps(1);
-      final testInfo = testMap.mapByType(type);
+  runTests(doubleTestValues, (e) => e.doubleMap);
+  runTests(nullableDoubleTestValues, (e) => e.nullableDoubleMap);
 
-      final map = testInfo.map;
-      final entries = testInfo.entries;
+  runTests(decimal128TestValues, (e) => e.decimalMap);
+  runTests(nullableDecimal128TestValues, (e) => e.nullableDecimalMap);
 
-      final key = entries.keys.first;
-      map[key] = entries[key];
-      expect(map.containsKey(key), true);
-      expect(map.length, 1);
+  runTests(dateTimeTestValues, (e) => e.dateTimeMap);
+  runTests(nullableDateTimeTestValues, (e) => e.nullableDateTimeMap);
 
-      map.remove(key);
-      expect(map.containsKey(key), false);
-      expect(map.length, 0);
-    });
+  runTests(objectIdTestValues, (e) => e.objectIdMap);
+  runTests(nullableObjectIdTestValues, (e) => e.nullableObjectIdMap);
 
-    test('RealmMap<$type> creation', () {
-      final config = Configuration.local([TestRealmMaps.schema, Car.schema]);
-      final realm = getRealm(config);
+  runTests(uuidTestValues, (e) => e.uuidMap);
+  runTests(nullableUuidTestValues, (e) => e.nullableUuidMap);
 
-      var testMap = TestRealmMaps(1);
+  runTests(byteArrayTestValues, (e) => e.binaryMap);
+  runTests(nullableByteArrayTestValues, (e) => e.nullableBinaryMap);
 
-      realm.write(() {
-        realm.add(testMap);
-      });
+  runTests(realmValueTestValues, (e) => e.mixedMap);
 
-      expect(realm.find<TestRealmMaps>(1), isNotNull);
-
-      testMap = realm.find<TestRealmMaps>(1)!;
-      var map = testMap.mapByType(type).map;
-
-      expect(map.length, 0);
-    });
-
-    test('RealmMap<$type> create from unmanaged', () {
-      final config = Configuration.local([TestRealmMaps.schema, Car.schema]);
-      final realm = getRealm(config);
-
-      var testMap = TestRealmMaps(1);
-      final testInfo = testMap.mapByType(type);
-
-      for (var kvp in testInfo.entries.entries) {
-        testInfo.map[kvp.key] = kvp.value;
-      }
-
-      realm.write(() {
-        realm.add(testMap);
-      });
-
-      testMap = realm.find<TestRealmMaps>(1)!;
-      final map = testMap.mapByType(type).map;
-      expect(map.length, testInfo.entries.length);
-
-      for (var kvp in testInfo.entries.entries) {
-        expect(map.containsKey(kvp.key), true);
-        expect(map.containsValue(kvp.value), true);
-        expect(map[kvp.key], kvp.value);
-      }
-    });
-  }
-
-  //   test('RealmSet<$type> contains', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     var testSet = TestRealmSets(1);
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.values(type);
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //     });
-
-  //     set = testSet.mapByType(type).set;
-
-  //     expect(set.contains(values.first), false);
-
-  //     realm.write(() {
-  //       set.add(values.first);
-  //     });
-
-  //     testSet = realm.find<TestRealmSets>(1)!;
-  //     set = testSet.mapByType(type).set;
-  //     expect(set.contains(values.first), true);
-  //   });
-
-  //   test('RealmSet<$type> add', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     final testSet = TestRealmSets(1);
-
-  //     var values = testSet.values(type);
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //       var set = testSet.mapByType(type).set;
-  //       expect(set.add(values.first), true);
-
-  //       //adding an already existing value is a no operation
-  //       expect(set.add(values.first), false);
-  //     });
-
-  //     var set = testSet.mapByType(type).set;
-  //     // values = testSet.values(type);
-  //     values = testSet.getValuesOrManagedValues(realm, type);
-
-  //     expect(set.contains(values.first), true);
-  //   });
-
-  //   test('RealmSet<$type> remove', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     var testSet = TestRealmSets(1);
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //     });
-
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.values(type);
-
-  //     realm.write(() {
-  //       set.add(values.first);
-  //     });
-
-  //     expect(set.length, 1);
-
-  //     realm.write(() {
-  //       expect(set.remove(values.first), true);
-
-  //       //removing a value not in the set should return false.
-  //       expect(set.remove(values.first), false);
-  //     });
-
-  //     expect(set.length, 0);
-  //   });
-
-  //   test('RealmSet<$type> length', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     final testSet = TestRealmSets(1);
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //     });
-
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.values(type);
-
-  //     expect(set.length, 0);
-
-  //     realm.write(() {
-  //       set.add(values.first);
-  //     });
-
-  //     expect(set.length, 1);
-
-  //     realm.write(() {
-  //       for (var value in values) {
-  //         set.add(value);
-  //       }
-  //     });
-
-  //     expect(set.length, values.length);
-  //   });
-
-  //   test('RealmSet<$type> elementAt', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     final testSet = TestRealmSets(1);
-  //     var values = testSet.values(type);
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //       var set = testSet.mapByType(type).set;
-  //       set.add(values.first);
-  //     });
-
-  //     var set = testSet.mapByType(type).set;
-
-  //     expect(() => set.elementAt(-1), throws<RealmException>("Index out of range"));
-  //     expect(() => set.elementAt(800), throws<RealmException>("Error getting value at index 800"));
-  //     expect(set.elementAt(0), values[0]);
-  //   });
-
-  //   test('RealmSet<$type> lookup', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     final testSet = TestRealmSets(1);
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //     });
-
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.values(type);
-
-  //     expect(set.lookup(values.first), null);
-
-  //     realm.write(() {
-  //       set.add(values.first);
-  //     });
-
-  //     expect(set.lookup(values.first), values.first);
-  //   });
-
-  //   test('RealmSet<$type> toSet', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     final testSet = TestRealmSets(1);
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.values(type);
-  //     set.add(values.first);
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //     });
-
-  //     set = testSet.mapByType(type).set;
-
-  //     final newSet = set.toSet();
-  //     expect(newSet != set, true);
-  //     newSet.add(values[1]);
-  //     expect(newSet.length, 2);
-  //     expect(set.length, 1);
-  //   });
-
-  //   test('RealmSet<$type> clear', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     final testSet = TestRealmSets(1);
-  //     var values = testSet.values(type);
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //       var set = testSet.mapByType(type).set;
-  //       for (var value in values) {
-  //         set.add(value);
-  //       }
-  //     });
-
-  //     var set = testSet.mapByType(type).set;
-
-  //     expect(set.length, values.length);
-
-  //     realm.write(() {
-  //       set.clear();
-  //     });
-
-  //     expect(set.length, 0);
-  //   });
-
-  //   test('RealmSet<$type> iterator', () {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     var testSet = TestRealmSets(1);
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.values(type);
-
-  //     for (var value in values) {
-  //       set.add(value);
-  //     }
-
-  //     realm.write(() {
-  //       realm.add(testSet);
-  //     });
-
-  //     set = testSet.mapByType(type).set;
-  //     expect(set.length, equals(values.length));
-
-  //     for (var element in set) {
-  //       if (element is Uint8List) {
-  //         expect(values.any((e) => (e as Uint8List).equals(element)), true);
-  //       } else {
-  //         expect(values.contains(element), true);
-  //       }
-  //     }
-  //   });
-
-  //   test('RealmSet<$type> notifications', () async {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     var testSet = TestRealmSets(1);
-  //     realm.write(() => realm.add(testSet));
-
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.mapByType(type).values;
-
-  //     var state = 0;
-  //     final maxSate = 2;
-  //     final subscription = set.changes.listen((changes) {
-  //       if (state == 0) {
-  //         expect(changes.inserted.isEmpty, true);
-  //         expect(changes.modified.isEmpty, true);
-  //         expect(changes.deleted.isEmpty, true);
-  //         expect(changes.newModified.isEmpty, true);
-  //         expect(changes.moved.isEmpty, true);
-  //       } else if (state == 1) {
-  //         expect(changes.inserted, [0]); //new object at index 0
-  //         expect(changes.modified.isEmpty, true);
-  //         expect(changes.deleted.isEmpty, true);
-  //         expect(changes.newModified.isEmpty, true);
-  //         expect(changes.moved.isEmpty, true);
-  //       } else if (state == 2) {
-  //         expect(changes.inserted.isEmpty, true); //new object at index 0
-  //         expect(changes.modified.isEmpty, true);
-  //         expect(changes.deleted, [0]);
-  //         expect(changes.newModified.isEmpty, true);
-  //         expect(changes.moved.isEmpty, true);
-  //       }
-  //       state++;
-  //     });
-
-  //     await Future<void>.delayed(Duration(milliseconds: 20));
-  //     realm.write(() {
-  //       set.add(values.first);
-  //     });
-
-  //     await Future<void>.delayed(Duration(milliseconds: 20));
-  //     realm.write(() {
-  //       set.remove(values.first);
-  //     });
-
-  //     expect(state, maxSate);
-
-  //     await Future<void>.delayed(Duration(milliseconds: 20));
-  //     subscription.cancel();
-
-  //     await Future<void>.delayed(Duration(milliseconds: 20));
-  //   });
-
-  //   test('RealmSet<$type>.isCleared notifications', () async {
-  //     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //     var realm = getRealm(config);
-
-  //     var testSet = TestRealmSets(1);
-  //     realm.write(() => realm.add(testSet));
-
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.mapByType(type).values;
-  //     realm.write(() {
-  //       set.add(values.first);
-  //     });
-
-  //     expectLater(
-  //         set.changes,
-  //         emitsInOrder(<Matcher>[
-  //           isA<RealmSetChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-  //           isA<RealmSetChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
-  //         ]));
-  //     realm.write(() => set.clear());
-  //   });
-
-  //   test('RealmSet<$type> basic operations on unmanaged sets', () {
-  //     var testSet = TestRealmSets(1);
-  //     var set = testSet.mapByType(type).set;
-  //     var values = testSet.mapByType(type).values;
-
-  //     set.add(values.first);
-  //     expect(set.contains(values.first), true);
-  //     expect(set.length, 1);
-
-  //     set.add(values.first);
-  //     expect(set.contains(values.first), true);
-  //     expect(set.length, 1);
-
-  //     expect(set.elementAt(0), values.first);
-
-  //     set.add(values.elementAt(0));
-  //     set.add(values.elementAt(1));
-  //     expect(set.contains(values.elementAt(0)), true);
-  //     expect(set.contains(values.elementAt(1)), true);
-  //     expect(set.length, 2);
-
-  //     set.remove(values.elementAt(0));
-  //     expect(set.contains(values.elementAt(0)), false);
-  //     expect(set.length, 1);
-  //     set.remove(values.elementAt(1));
-  //     expect(set.contains(values.elementAt(1)), false);
-  //     expect(set.length, 0);
-  //   });
-  // }
-
-  // test('RealmSet<RealmObject> deleteMany', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   var testSet = TestRealmSets(1)..objectsSet.addAll([Car("Tesla"), Car("Audi")]);
-
-  //   realm.write(() {
-  //     realm.add(testSet);
-  //   });
-
-  //   expect(realm.find<TestRealmSets>(1), isNotNull);
-
-  //   testSet = realm.find<TestRealmSets>(1)!;
-  //   expect(testSet.objectsSet.length, 2);
-  //   expect(realm.all<Car>().length, 2);
-
-  //   realm.write(() {
-  //     realm.deleteMany(testSet.objectsSet);
-  //   });
-
-  //   expect(testSet.objectsSet.length, 0);
-  //   expect(realm.all<Car>().length, 0);
-  // });
-
-  // test('UnmanagedRealmSet<RealmObject> deleteMany', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   var testSet = TestRealmSets(1);
-  //   var unmanagedSet = testSet.objectsSet;
-
-  //   realm.write(() {
-  //     realm.add(testSet);
-  //     testSet.objectsSet.addAll([Car("Tesla"), Car("Audi")]);
-  //   });
-
-  //   var cars = realm.all<Car>();
-  //   unmanagedSet.addAll([...cars]);
-
-  //   realm.write(() {
-  //     realm.deleteMany(unmanagedSet);
-  //   });
-
-  //   cars = realm.all<Car>();
-  //   expect(cars.length, 0);
-  // });
-
-  // test('RealmSet<RealmObject> add a set of already managed objects', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   realm.write(() {
-  //     realm.addAll([Car("Tesla"), Car("Audi")]);
-  //   });
-
-  //   var testSet = TestRealmSets(1)..objectsSet.addAll(realm.all<Car>());
-
-  //   realm.write(() {
-  //     realm.add(testSet);
-  //   });
-
-  //   expect(realm.find<TestRealmSets>(1), isNotNull);
-
-  //   testSet = realm.find<TestRealmSets>(1)!;
-  //   expect(testSet.objectsSet.length, 2);
-  //   expect(realm.all<Car>().length, 2);
-  //   expect(testSet.objectsSet.first.make, "Tesla");
-  // });
-
-  // test('RealmSet of RealmObjects/RealmValue', () {
-  //   final config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   final realm = getRealm(config);
-
-  //   final cars = [Car("Tesla"), Car("Audi")];
-  //   var testSet = TestRealmSets(1)
-  //     ..objectsSet.addAll(cars)
-  //     ..mixedSet.addAll(cars.map(RealmValue.from));
-
-  //   realm.write(() {
-  //     realm.add(testSet);
-  //   });
-
-  //   expect(testSet.objectsSet, cars);
-  //   expect(testSet.mixedSet.map((m) => m.as<Car>()), cars);
-  //   expect(testSet.objectsSet.map((c) => c.make), ['Tesla', 'Audi']);
-  //   expect(testSet.mixedSet.map((m) => m.as<Car>().make), ['Tesla', 'Audi']);
-  // });
-
-  // test('RealmSet.asResults()', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   final cars = [Car("Tesla"), Car("Audi")];
-  //   final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
-
-  //   expect(() => testSets.objectsSet.asResults(), throwsStateError); // unmanaged set
-
-  //   realm.write(() {
-  //     realm.add(testSets);
-  //   });
-
-  //   expect(testSets.objectsSet.asResults(), cars);
-  // });
-
-  // test('RealmSet.asResults().isCleared notifications', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   final cars = [Car("Tesla"), Car("Audi")];
-  //   final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
-
-  //   realm.write(() {
-  //     realm.add(testSets);
-  //   });
-  //   final carsResult = testSets.objectsSet.asResults();
-  //   expectLater(
-  //       carsResult.changes,
-  //       emitsInOrder(<Matcher>[
-  //         isA<RealmResultsChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-  //         isA<RealmResultsChanges<Object?>>().having((changes) => changes.results.isEmpty, 'isCleared', true),
-  //       ]));
-  //   realm.write(() => testSets.objectsSet.clear());
-  // });
-
-  // test('Set.freeze freezes the set', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   final liveCars = realm.write(() {
-  //     return realm.add(TestRealmSets(1, objectsSet: {
-  //       Car('Tesla'),
-  //     }));
-  //   }).objectsSet;
-
-  //   final frozenCars = freezeSet(liveCars);
-
-  //   expect(frozenCars.length, 1);
-  //   expect(frozenCars.isFrozen, true);
-  //   expect(frozenCars.realm.isFrozen, true);
-  //   expect(frozenCars.first.isFrozen, true);
-
-  //   realm.write(() {
-  //     liveCars.add(Car('Audi'));
-  //   });
-
-  //   expect(liveCars.length, 2);
-  //   expect(frozenCars.length, 1);
-  //   expect(frozenCars.single.make, 'Tesla');
-  // });
-
-  // test("FrozenSet.changes throws", () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   realm.write(() {
-  //     realm.add(TestRealmSets(1, objectsSet: {
-  //       Car("Tesla"),
-  //       Car("Audi"),
-  //     }));
-  //   });
-
-  //   final frozenBools = freezeSet(realm.all<TestRealmSets>().single.boolSet);
-
-  //   expect(() => frozenBools.changes, throws<RealmStateError>('Set is frozen and cannot emit changes'));
-  // });
-
-  // test('UnmanagedSet.freeze throws', () {
-  //   final set = TestRealmSets(1);
-
-  //   expect(() => set.boolSet.freeze(), throws<RealmStateError>("Unmanaged sets can't be frozen"));
-  // });
-
-  // test('RealmSet.changes - await for with yield ', () async {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   final cars = realm.write(() {
-  //     return realm.add(TestRealmSets(1, objectsSet: {
-  //       Car('Tesla'),
-  //     }));
-  //   }).objectsSet;
-
-  //   final wait = const Duration(seconds: 1);
-
-  //   Stream<bool> trueWaitFalse() async* {
-  //     yield true;
-  //     await Future<void>.delayed(wait);
-  //     yield false; // nothing has happened in the meantime
-  //   }
-
-  //   // ignore: prefer_function_declarations_over_variables
-  //   final awaitForWithYield = () async* {
-  //     await for (final c in cars.changes) {
-  //       yield c;
-  //     }
-  //   };
-
-  //   int count = 0;
-  //   await for (final c in awaitForWithYield().map((_) => trueWaitFalse()).switchLatest()) {
-  //     if (!c) break; // saw false after waiting
-  //     ++count; // saw true due to new event from changes
-  //     if (count > 1) fail('Should only receive one event');
-  //   }
-  // });
-
-  // test('Query on RealmSet with IN-operator', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   final cars = [Car("Tesla"), Car("Ford"), Car("Audi")];
-  //   final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
-
-  //   realm.write(() {
-  //     realm.add(testSets);
-  //   });
-  //   final result = testSets.objectsSet.query(r'make IN $0', [
-  //     ['Tesla', 'Audi']
-  //   ]);
-  //   expect(result.length, 2);
-  // });
-
-  // test('Query on RealmSet allows null in arguments', () {
-  //   var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-  //   var realm = getRealm(config);
-
-  //   final cars = [Car("Tesla", color: "black"), Car("Ford"), Car("Audi")];
-  //   final testSets = TestRealmSets(1)..objectsSet.addAll(cars);
-
-  //   realm.write(() {
-  //     realm.add(testSets);
-  //   });
-  //   var result = testSets.objectsSet.query(r'color = $0', [null]);
-  //   expect(result.length, 2);
-  // });
+  runTests(_embeddedObjectTestValues, (e) => e.embeddedMap);
 }

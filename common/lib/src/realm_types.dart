@@ -21,6 +21,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
+import 'package:collection/collection.dart';
 
 Type _typeOf<T>() => T;
 
@@ -229,6 +230,10 @@ class RealmValue {
   @override
   operator ==(Object? other) {
     if (other is RealmValue) {
+      if (value is Uint8List && other.value is Uint8List) {
+        return ListEquality().equals(value as Uint8List, other.value as Uint8List);
+      }
+
       return value == other.value;
     }
 
