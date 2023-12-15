@@ -226,16 +226,14 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
   Stream<RealmListChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
 }
 
-// The query operations on lists, as well as the ability to subscribe for notifications,
-// only work for list of objects (core restriction), so we add these as an extension methods
-// to allow the compiler to prevent misuse.
+// The query operations on lists, only work for list of objects (core restriction),
+// so we add these as an extension methods to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
   /// Only works for lists of [RealmObject]s or [EmbeddedObject]s.
   ///
-  /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://academy.realm.io/posts/nspredicate-cheatsheet/)
-  /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+  /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = realmCore.queryList(asManaged(), query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);

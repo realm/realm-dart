@@ -37,8 +37,6 @@ abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<S
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
-  factory RealmMap._(RealmMapHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmMap._(handle, realm, metadata);
-
   /// Creates an unmanaged RealmList from [items]
   factory RealmMap(Map<String, T> items) => UnmanagedRealmMap(items);
 
@@ -201,6 +199,20 @@ class RealmMapChanges<T extends Object?> {
 
   /// The keys of the map, whose corresponding values were modified in this version.
   List<String> get modified => _changes.modifications;
+}
+
+// The query operations on maps only work for maps of objects (core restriction),
+// so we add these as an extension methods to allow the compiler to prevent misuse.
+extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
+  /// Filters the map values and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
+  ///
+  /// Only works for lists of [RealmObject]s or [EmbeddedObject]s.
+  ///
+  /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
+  RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
+    final handle = realmCore.queryMap(asManaged(), query, arguments);
+    return RealmResultsInternal.create<T>(handle, realm, metadata);
+  }
 }
 
 /// @nodoc

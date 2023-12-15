@@ -109,7 +109,7 @@ export "configuration.dart"
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
-export 'map.dart' show RealmMap, RealmMapChanges;
+export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show

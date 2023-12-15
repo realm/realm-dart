@@ -1203,6 +1203,29 @@ class _RealmCore {
     });
   }
 
+  RealmResultsHandle queryMap(ManagedRealmMap target, String query, List<Object?> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_query_arg_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
+      }
+
+      final results = mapGetValues(target);
+      final queryHandle = _RealmQueryHandle._(
+          _realmLib.invokeGetPointer(
+            () => _realmLib.realm_query_parse_for_results(
+              results._pointer,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          target.realm.handle);
+      return _queryFindAll(queryHandle);
+    });
+  }
+
   RealmResultsHandle resultsFromList(RealmList list) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_to_results(list.handle._pointer));
     return RealmResultsHandle._(pointer, list.realm.handle);
@@ -1716,7 +1739,7 @@ class _RealmCore {
         return;
       }
 
-      final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
+      final changesHandle = RealmMapChangesHandle._(clonedData.cast());
       controller.onChanges(changesHandle);
     } catch (e) {
       controller.onError(RealmError("Error handling change notifications. Error: $e"));
