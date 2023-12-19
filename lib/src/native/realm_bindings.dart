@@ -1424,6 +1424,65 @@ class RealmLibrary {
       bool Function(ffi.Pointer<realm_app_t>, ffi.Pointer<realm_user_t>,
           ffi.Pointer<ffi.Pointer<realm_user_t>>)>();
 
+  /// Returns the current value of the base URL used to communicate with the server.
+  /// @param app ptr to realm_app
+  /// Return value must be manually released with realm_free()
+  ffi.Pointer<ffi.Char> realm_app_get_base_url(
+    ffi.Pointer<realm_app_t> app
+  ) {
+    return _realm_app_get_base_url(
+      app,
+    );
+  }
+
+  late final _realm_app_get_base_urlPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<realm_app_t>)>>('realm_app_get_base_url');
+  late final _realm_app_get_base_url =
+      _realm_app_get_base_urlPtr.asFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<realm_app_t>)>();
+
+  /// Temporarily overrides the [baseUrl] value from [AppConfiguration] with a new [baseUrl] value
+  /// used for communicating with the server.
+  /// @param app ptr to realm_app
+  /// @param base_url character string containing the new base url value
+  /// @param callback invoked once operation has completed
+  /// @param userdata custom userdata ptr
+  /// @param userdata_free deleter for custom userdata
+  /// @return True if no error has been recorded, False otherwise
+  bool realm_app_update_base_url(
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<ffi.Char> base_url,
+    realm_app_void_completion_func_t callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_app_update_base_url(
+      app,
+      base_url,
+      callback,
+      userdata,
+      userdata_free,
+    );
+  }
+
+  late final _realm_app_update_base_urlPtr = _lookup<
+    ffi.NativeFunction<
+        ffi.Bool Function(
+            ffi.Pointer<realm_app_t>,
+            ffi.Pointer<ffi.Char>,
+            realm_app_void_completion_func_t,
+            ffi.Pointer<ffi.Void>,
+            realm_free_userdata_func_t)>>('realm_app_update_base_url');
+  late final _realm_app_update_base_url = _realm_app_update_base_urlPtr.asFunction<
+      bool Function(ffi.Pointer<realm_app_t>,
+                    ffi.Pointer<ffi.Char>,
+                    realm_app_void_completion_func_t,
+                    ffi.Pointer<ffi.Void>,
+                    realm_free_userdata_func_t)>();
+
   /// Get the default realm file path based on the user and partition value in the config.
   ///
   /// @param custom_filename custom name for the realm file itself. Can be null,
