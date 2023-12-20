@@ -19,9 +19,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:math';
 import 'package:logging/logging.dart';
-import 'package:meta/meta.dart';
 import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 import 'package:crypto/crypto.dart';
@@ -296,6 +294,33 @@ Future<void> main([List<String>? args]) async {
       () => app.switchUser(user1),
       throws<RealmException>("Switch user failed. Error code: 4101 . Message: User is no longer valid or is logged out"),
     );
+  });
+
+  baasTest('App get Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.getBaseUrl();
+    expect(baseUrl, isNotNull);
+    expect(baseUrl, configuration.baseUrl);
+  });
+
+  baasTest('App update Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.getBaseUrl();
+    final urlString = baseUrl?.toString() ?? configuration.baseUrl.toString();
+    // Grab an alternate address for the original baseUrl
+    List<InternetAddress> addrs = await InternetAddress.lookup(urlString, type: InternetAddressType.IPv4);
+    var newUrl;
+    if (addrs.isNotEmpty) {
+      newUrl = addrs[0].toString();
+    }
+    await app.updateBaseUrl(Uri.parse(newUrl));
+    final newBaseUrl = app.getBaseUrl();
+    expect(newBaseUrl, isNotNull);
+    expect(newBaseUrl, configuration.baseUrl);
   });
 
   test('bundleId is salted, hashed and encoded', () {
