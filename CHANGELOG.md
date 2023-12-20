@@ -5,11 +5,13 @@
   * The `App(AppConfiguration)` constructor should only be used on the main isolate. Ideally, it should be called once as soon as your app launches. If you attempt to use it on a background isolate (as indicated by `Isolate.debugName` being different from `main`), a warning will be logged.
   * Added a new method - `App.getById` that allows you to obtain an already constructed app on a background isolate.
   (Issue [#1433](https://github.com/realm/realm-dart/issues/1433))
+* Added `App.updateBaseUrl` method for updating the App's base URL for switching between cloud and edge servers. The current Sync Session(s) must be paused before calling this method and the user must log in again afterwards before the Sync Session can be resumed. (PR [#1454](https://github.com/realm/realm-dart/pull/1454))
 
 ### Fixed
 * Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))
 * Updated the minimum required CMake version for Flutter on Linux to 3.19. (Issue [#1381](https://github.com/realm/realm-dart/issues/1381))
 * Errors in user-provided client reset callbacks, such as `RecoverOrDiscardUnsyncedChangesHandler.onBeforeReset/onAfterDiscard` would not be correctly propagated and the client reset exception would contain a message like `A fatal error occurred during client reset: 'User-provided callback failed'` but no details about the actual error. Now `SyncError` has an `innerError` field which contains the original error thrown in the callback. (PR [#1447](https://github.com/realm/realm-dart/pull/1447))
+* App was not using the current baseUrl value from AppConfiguration when it is created and always used the cached value stored upon the first contact with the server. (Core XX.XX.X)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
