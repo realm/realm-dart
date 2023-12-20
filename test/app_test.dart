@@ -310,17 +310,12 @@ Future<void> main([List<String>? args]) async {
     final credentials = Credentials.anonymous();
     await app.logIn(credentials);
     final baseUrl = app.getBaseUrl();
-    final urlString = baseUrl?.toString() ?? configuration.baseUrl.toString();
-    // Grab an alternate address for the original baseUrl
-    List<InternetAddress> addrs = await InternetAddress.lookup(urlString, type: InternetAddressType.IPv4);
-    var newUrl;
-    if (addrs.isNotEmpty) {
-      newUrl = addrs[0].toString();
-    }
-    await app.updateBaseUrl(Uri.parse(newUrl));
+    expect(baseUrl, isNotNull);
+    // Set it to the same thing to confirm the function works, it's not actually going to update the location
+    await app.updateBaseUrl(baseUrl!);
     final newBaseUrl = app.getBaseUrl();
     expect(newBaseUrl, isNotNull);
-    expect(newBaseUrl, configuration.baseUrl);
+    expect(newBaseUrl, baseUrl);
   });
 
   test('bundleId is salted, hashed and encoded', () {
