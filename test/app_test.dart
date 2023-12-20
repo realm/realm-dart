@@ -308,6 +308,33 @@ void main() {
     );
   });
 
+  baasTest('App get Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.getBaseUrl();
+    expect(baseUrl, isNotNull);
+    expect(baseUrl, configuration.baseUrl);
+  });
+
+  baasTest('App update Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.getBaseUrl();
+    final urlString = baseUrl?.toString() ?? configuration.baseUrl.toString();
+    // Grab an alternate address for the original baseUrl
+    List<InternetAddress> addrs = await InternetAddress.lookup(urlString, type: InternetAddressType.IPv4);
+    var newUrl;
+    if (addrs.isNotEmpty) {
+      newUrl = addrs[0].toString();
+    }
+    await app.updateBaseUrl(Uri.parse(newUrl));
+    final newBaseUrl = app.getBaseUrl();
+    expect(newBaseUrl, isNotNull);
+    expect(newBaseUrl, configuration.baseUrl);
+  });
+
   test('bundleId is salted, hashed and encoded', () {
     final text = isFlutterPlatform ? "realm_tests" : "realm_dart";
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
