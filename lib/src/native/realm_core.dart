@@ -2347,17 +2347,16 @@ class _RealmCore {
 
   Future<void> updateBaseUrl(App app, Uri baseUrl) {
     final completer = Completer<void>();
-    String url = baseUrl.toString();
     using((arena) {
-    _realmLib.invokeGetBool(
-        () => _realmLib.realm_app_update_base_url(
-              app.handle._pointer,
-              url.toCharPtr(arena),
-              Pointer.fromFunction(void_completion_callback),
-              completer.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle,
-            ),
-        "Update base URL failed");
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_app_update_base_url(
+                app.handle._pointer,
+                baseUrl.toString().toCharPtr(arena),
+                _realmLib.addresses.realm_dart_void_completion_callback,
+                _createAsyncCallbackUserdata(completer),
+                _realmLib.addresses.realm_dart_userdata_async_free,
+              ),
+          "Update base URL failed");
     });
     return completer.future;
   }
