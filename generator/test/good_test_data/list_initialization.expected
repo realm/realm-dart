@@ -29,12 +29,12 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
         this, 'initSetWithType', RealmSet<int>(initSetWithType));
     RealmObjectBase.set<RealmSet<int>>(
         this, 'initSetConst', RealmSet<int>(initSetConst));
-    RealmObjectBase.set<RealmMap<String, int>>(
-        this, 'initMap', RealmMap<String, int>(initMap));
-    RealmObjectBase.set<RealmMap<String, int>>(
-        this, 'initMapWithType', RealmMap<String, int>(initMapWithType));
-    RealmObjectBase.set<RealmMap<String, int>>(
-        this, 'initMapConst', RealmMap<String, int>(initMapConst));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'initMap', RealmMap<int>(initMap));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'initMapWithType', RealmMap<int>(initMapWithType));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'initMapConst', RealmMap<int>(initMapConst));
   }
 
   Person._();
@@ -89,25 +89,25 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, int> get initMap =>
-      RealmObjectBase.get<int>(this, 'initMap') as RealmMap<String, int>;
+  RealmMap<int> get initMap =>
+      RealmObjectBase.get<int>(this, 'initMap') as RealmMap<int>;
   @override
-  set initMap(covariant RealmMap<String, int> value) =>
+  set initMap(covariant RealmMap<int> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, int> get initMapWithType =>
+  RealmMap<int> get initMapWithType =>
       RealmObjectBase.get<int>(this, 'initMapWithType')
-          as RealmMap<String, int>;
+          as RealmMap<int>;
   @override
-  set initMapWithType(covariant RealmMap<String, int> value) =>
+  set initMapWithType(covariant RealmMap<int> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, int> get initMapConst =>
-      RealmObjectBase.get<int>(this, 'initMapConst') as RealmMap<String, int>;
+  RealmMap<int> get initMapConst =>
+      RealmObjectBase.get<int>(this, 'initMapConst') as RealmMap<int>;
   @override
-  set initMapConst(covariant RealmMap<String, int> value) =>
+  set initMapConst(covariant RealmMap<int> value) =>
       throw RealmUnsupportedSetError();
 
   @override

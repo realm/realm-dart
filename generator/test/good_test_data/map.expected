@@ -18,112 +18,112 @@ class LotsOfMaps extends _LotsOfMaps
     Map<String, Uint8List> binary,
     Map<String, Uuid> uuids,
   }) {
-    RealmObjectBase.set<RealmMap<String, Person?>>(
-        this, 'persons', RealmMap<String, Person?>(persons));
-    RealmObjectBase.set<RealmMap<String, bool>>(
-        this, 'bools', RealmMap<String, bool>(bools));
-    RealmObjectBase.set<RealmMap<String, DateTime>>(
-        this, 'dateTimes', RealmMap<String, DateTime>(dateTimes));
-    RealmObjectBase.set<RealmMap<String, Decimal128>>(
-        this, 'decimals', RealmMap<String, Decimal128>(decimals));
-    RealmObjectBase.set<RealmMap<String, double>>(
-        this, 'doubles', RealmMap<String, double>(doubles));
-    RealmObjectBase.set<RealmMap<String, int>>(
-        this, 'ints', RealmMap<String, int>(ints));
-    RealmObjectBase.set<RealmMap<String, ObjectId>>(
-        this, 'objectIds', RealmMap<String, ObjectId>(objectIds));
-    RealmObjectBase.set<RealmMap<String, RealmValue>>(
-        this, 'any', RealmMap<String, RealmValue>(any));
-    RealmObjectBase.set<RealmMap<String, String>>(
-        this, 'strings', RealmMap<String, String>(strings));
-    RealmObjectBase.set<RealmMap<String, Uint8List>>(
-        this, 'binary', RealmMap<String, Uint8List>(binary));
-    RealmObjectBase.set<RealmMap<String, Uuid>>(
-        this, 'uuids', RealmMap<String, Uuid>(uuids));
+    RealmObjectBase.set<RealmMap<Person?>>(
+        this, 'persons', RealmMap<Person?>(persons));
+    RealmObjectBase.set<RealmMap<bool>>(
+        this, 'bools', RealmMap<bool>(bools));
+    RealmObjectBase.set<RealmMap<DateTime>>(
+        this, 'dateTimes', RealmMap<DateTime>(dateTimes));
+    RealmObjectBase.set<RealmMap<Decimal128>>(
+        this, 'decimals', RealmMap<Decimal128>(decimals));
+    RealmObjectBase.set<RealmMap<double>>(
+        this, 'doubles', RealmMap<double>(doubles));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'ints', RealmMap<int>(ints));
+    RealmObjectBase.set<RealmMap<ObjectId>>(
+        this, 'objectIds', RealmMap<ObjectId>(objectIds));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'any', RealmMap<RealmValue>(any));
+    RealmObjectBase.set<RealmMap<String>>(
+        this, 'strings', RealmMap<String>(strings));
+    RealmObjectBase.set<RealmMap<Uint8List>>(
+        this, 'binary', RealmMap<Uint8List>(binary));
+    RealmObjectBase.set<RealmMap<Uuid>>(
+        this, 'uuids', RealmMap<Uuid>(uuids));
   }
 
   LotsOfMaps._();
 
   @override
-  RealmMap<String, Person?> get persons =>
-      RealmObjectBase.get<Person?>(this, 'persons') as RealmMap<String, Person?>;
+  RealmMap<Person?> get persons =>
+      RealmObjectBase.get<Person?>(this, 'persons') as RealmMap<Person?>;
   @override
-  set persons(covariant RealmMap<String, Person?> value) =>
+  set persons(covariant RealmMap<Person?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, bool> get bools =>
-      RealmObjectBase.get<bool>(this, 'bools') as RealmMap<String, bool>;
+  RealmMap<bool> get bools =>
+      RealmObjectBase.get<bool>(this, 'bools') as RealmMap<bool>;
   @override
-  set bools(covariant RealmMap<String, bool> value) =>
+  set bools(covariant RealmMap<bool> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, DateTime> get dateTimes =>
+  RealmMap<DateTime> get dateTimes =>
       RealmObjectBase.get<DateTime>(this, 'dateTimes')
-          as RealmMap<String, DateTime>;
+          as RealmMap<DateTime>;
   @override
-  set dateTimes(covariant RealmMap<String, DateTime> value) =>
+  set dateTimes(covariant RealmMap<DateTime> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, Decimal128> get decimals =>
+  RealmMap<Decimal128> get decimals =>
       RealmObjectBase.get<Decimal128>(this, 'decimals')
-          as RealmMap<String, Decimal128>;
+          as RealmMap<Decimal128>;
   @override
-  set decimals(covariant RealmMap<String, Decimal128> value) =>
+  set decimals(covariant RealmMap<Decimal128> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, double> get doubles =>
-      RealmObjectBase.get<double>(this, 'doubles') as RealmMap<String, double>;
+  RealmMap<double> get doubles =>
+      RealmObjectBase.get<double>(this, 'doubles') as RealmMap<double>;
   @override
-  set doubles(covariant RealmMap<String, double> value) =>
+  set doubles(covariant RealmMap<double> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, int> get ints =>
-      RealmObjectBase.get<int>(this, 'ints') as RealmMap<String, int>;
+  RealmMap<int> get ints =>
+      RealmObjectBase.get<int>(this, 'ints') as RealmMap<int>;
   @override
-  set ints(covariant RealmMap<String, int> value) =>
+  set ints(covariant RealmMap<int> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, ObjectId> get objectIds =>
+  RealmMap<ObjectId> get objectIds =>
       RealmObjectBase.get<ObjectId>(this, 'objectIds')
-          as RealmMap<String, ObjectId>;
+          as RealmMap<ObjectId>;
   @override
-  set objectIds(covariant RealmMap<String, ObjectId> value) =>
+  set objectIds(covariant RealmMap<ObjectId> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, RealmValue> get any =>
+  RealmMap<RealmValue> get any =>
       RealmObjectBase.get<RealmValue>(this, 'any')
-          as RealmMap<String, RealmValue>;
+          as RealmMap<RealmValue>;
   @override
-  set any(covariant RealmMap<String, RealmValue> value) =>
+  set any(covariant RealmMap<RealmValue> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, String> get strings =>
-      RealmObjectBase.get<String>(this, 'strings') as RealmMap<String, String>;
+  RealmMap<String> get strings =>
+      RealmObjectBase.get<String>(this, 'strings') as RealmMap<String>;
   @override
-  set strings(covariant RealmMap<String, String> value) =>
+  set strings(covariant RealmMap<String> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, Uint8List> get binary =>
+  RealmMap<Uint8List> get binary =>
       RealmObjectBase.get<Uint8List>(this, 'binary')
-          as RealmMap<String, Uint8List>;
+          as RealmMap<Uint8List>;
   @override
-  set binary(covariant RealmMap<String, Uint8List> value) =>
+  set binary(covariant RealmMap<Uint8List> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, Uuid> get uuids =>
-      RealmObjectBase.get<Uuid>(this, 'uuids') as RealmMap<String, Uuid>;
+  RealmMap<Uuid> get uuids =>
+      RealmObjectBase.get<Uuid>(this, 'uuids') as RealmMap<Uuid>;
   @override
-  set uuids(covariant RealmMap<String, Uuid> value) =>
+  set uuids(covariant RealmMap<Uuid> value) =>
       throw RealmUnsupportedSetError();
 
   @override

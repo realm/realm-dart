@@ -92,8 +92,8 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
     RealmObjectBase.set<RealmList<RealmValue>>(this, 'manyAny', RealmList<RealmValue>(manyAny));
     RealmObjectBase.set<RealmSet<int>>(this, 'set', RealmSet<int>(set));
-    RealmObjectBase.set<RealmMap<String, int>>(
-        this, 'map', RealmMap<String, int>(map));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'map', RealmMap<int>(map));
   }
 
   Bar._();
@@ -160,10 +160,10 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   set set(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String, int> get map =>
-      RealmObjectBase.get<int>(this, 'map') as RealmMap<String, int>;
+  RealmMap<int> get map =>
+      RealmObjectBase.get<int>(this, 'map') as RealmMap<int>;
   @override
-  set map(covariant RealmMap<String, int> value) =>
+  set map(covariant RealmMap<int> value) =>
       throw RealmUnsupportedSetError();
 
   @override
