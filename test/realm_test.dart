@@ -33,10 +33,6 @@ import '../lib/src/native/realm_core.dart';
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
 
-  test('Expect this test to fail', () {
-    expect(5, 4);
-  });
-
   test('Realm can be created', () {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
