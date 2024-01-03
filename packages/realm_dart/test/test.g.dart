@@ -849,3 +849,72 @@ extension ObjectWithDecimalEJsonEncoderExtension on ObjectWithDecimal {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => encodeObjectWithDecimal(this);
 }
+
+EJsonValue encodeAsymmetric(Asymmetric value) {
+  return {
+    'id': value.id.toEJson(),
+    'symmetric': value.symmetric.toEJson(),
+    'embeddedObjects': value.embeddedObjects.toEJson()
+  };
+}
+
+Asymmetric decodeAsymmetric(EJsonValue ejson) {
+  return switch (ejson) {
+    {
+      'id': EJsonValue id,
+      'symmetric': EJsonValue symmetric,
+      'embeddedObjects': EJsonValue embeddedObjects
+    } =>
+      Asymmetric(id.to<ObjectId>(),
+          symmetric: symmetric.to<Symmetric?>(),
+          embeddedObjects: embeddedObjects.to<Iterable<Embedded>>()),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+extension AsymmetricEJsonEncoderExtension on Asymmetric {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => encodeAsymmetric(this);
+}
+
+EJsonValue encodeEmbedded(Embedded value) {
+  return {
+    'value': value.value.toEJson(),
+    'any': value.any.toEJson(),
+    'symmetric': value.symmetric.toEJson()
+  };
+}
+
+Embedded decodeEmbedded(EJsonValue ejson) {
+  return switch (ejson) {
+    {
+      'value': EJsonValue value,
+      'any': EJsonValue any,
+      'symmetric': EJsonValue symmetric
+    } =>
+      Embedded(value.to<int>(),
+          any: any.to<RealmValue>(), symmetric: symmetric.to<Symmetric?>()),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+extension EmbeddedEJsonEncoderExtension on Embedded {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => encodeEmbedded(this);
+}
+
+EJsonValue encodeSymmetric(Symmetric value) {
+  return {'id': value.id.toEJson()};
+}
+
+Symmetric decodeSymmetric(EJsonValue ejson) {
+  return switch (ejson) {
+    {'id': EJsonValue id} => Symmetric(id.to<ObjectId>()),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+extension SymmetricEJsonEncoderExtension on Symmetric {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => encodeSymmetric(this);
+}
