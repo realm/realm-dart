@@ -48,6 +48,7 @@ class CollectionChanges {
   const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves, this.isCleared);
 }
 
+/// @nodoc
 class MapChanges {
   final List<String> deletions;
   final List<String> insertions;

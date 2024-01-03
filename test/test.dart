@@ -77,7 +77,7 @@ class _School {
   @PrimaryKey()
   late String name;
   late String? city;
-  late List<_Student> students;
+  List<_Student> students = [];
   late _School? branchOfSchool;
   late List<_School> branches;
 }
@@ -116,7 +116,7 @@ class _Schedule {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  late final List<_Task> tasks;
+  final tasks = <_Task>[];
 }
 
 @RealmModel()
@@ -216,7 +216,7 @@ class _Party {
   // no primary key!
   _Friend? host;
   late int year;
-  late final List<_Friend> guests;
+  final guests = <_Friend>[];
   _Party? previous;
 }
 
@@ -226,7 +226,7 @@ class _Friend {
   late String name;
   var age = 42;
   _Friend? bestFriend;
-  late final List<_Friend> friends;
+  final friends = <_Friend>[];
 }
 
 @RealmModel()
@@ -240,12 +240,12 @@ class _Player {
   @PrimaryKey()
   late String name;
   _Game? game;
-  late final List<int?> scoresByRound; // null means player didn't finish
+  final scoresByRound = <int?>[]; // null means player didn't finish
 }
 
 @RealmModel()
 class _Game {
-  late final List<_Player> winnerByRound;
+  final winnerByRound = <_Player>[];
   int get rounds => winnerByRound.length;
 }
 
