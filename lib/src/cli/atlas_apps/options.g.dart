@@ -47,7 +47,7 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'baasaas-api-key',
     help:
-        'API key to use with BaaSaaS to wpawn a new container and create apps in it.',
+        'API key to use with BaaSaaS to spawn a new container and create apps in it.',
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
