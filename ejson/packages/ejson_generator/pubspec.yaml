@@ -30,6 +30,6 @@ dev_dependencies:
   dart_style: ^2.3.1
   ejson: ^0.1.0
   ejson_annotation: ^0.1.0
-  lints: ^2.0.0
+  lints: ^3.0.0
   meta: ^1.9.1
   test: ^1.21.0
