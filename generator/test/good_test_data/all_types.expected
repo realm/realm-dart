@@ -69,7 +69,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     Iterable<int> list = const [],
     Iterable<RealmValue> manyAny = const [],
     Set<int> set = const {},
-    Map<String, int> map,
+    Map<String, int> map = const {},
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Bar>({

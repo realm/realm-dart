@@ -6,17 +6,17 @@
 class LotsOfMaps extends _LotsOfMaps
     with RealmEntity, RealmObjectBase, RealmObject {
   LotsOfMaps({
-    Map<String, Person?> persons,
-    Map<String, bool> bools,
-    Map<String, DateTime> dateTimes,
-    Map<String, Decimal128> decimals,
-    Map<String, double> doubles,
-    Map<String, int> ints,
-    Map<String, ObjectId> objectIds,
-    Map<String, RealmValue> any,
-    Map<String, String> strings,
-    Map<String, Uint8List> binary,
-    Map<String, Uuid> uuids,
+    Map<String, Person?> persons = const {},
+    Map<String, bool> bools = const {},
+    Map<String, DateTime> dateTimes = const {},
+    Map<String, Decimal128> decimals = const {},
+    Map<String, double> doubles = const {},
+    Map<String, int> ints = const {},
+    Map<String, ObjectId> objectIds = const {},
+    Map<String, RealmValue> any = const {},
+    Map<String, String> strings = const {},
+    Map<String, Uint8List> binary = const {},
+    Map<String, Uuid> uuids = const {},
   }) {
     RealmObjectBase.set<RealmMap<Person?>>(
         this, 'persons', RealmMap<Person?>(persons));
