@@ -28,6 +28,7 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'results.dart';
 import 'set.dart';
+import 'map.dart';
 
 typedef DartDynamic = dynamic;
 
@@ -145,73 +146,95 @@ class RealmCoreAccessor implements RealmAccessor {
   Object? get<T extends Object?>(RealmObjectBase object, String name) {
     try {
       final propertyMeta = metadata[name];
-      if (propertyMeta.collectionType == RealmCollectionType.list) {
-        if (propertyMeta.propertyType == RealmPropertyType.linkingObjects) {
-          final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
-          final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
-          final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
-          return RealmResultsInternal.create<T>(handle, object.realm, sourceMeta);
-        }
 
-        final handle = realmCore.getListProperty(object, propertyMeta.key);
-        final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
-
-        if (propertyMeta.propertyType == RealmPropertyType.mixed) {
-          return object.realm.createList<RealmValue>(handle, metadata);
-        }
-
-        // listMetadata is not null when we have list of RealmObjects. If the API was
-        // called with a generic object arg - get<Object> we construct a list of
-        // RealmObjects since we don't know the type of the object.
-        if (listMetadata != null && _isTypeGenericObject<T>()) {
-          switch (listMetadata.schema.baseType) {
-            case ObjectType.realmObject:
-              return object.realm.createList<RealmObject>(handle, listMetadata);
-            case ObjectType.embeddedObject:
-              return object.realm.createList<EmbeddedObject>(handle, listMetadata);
-            case ObjectType.asymmetricObject:
-              return object.realm.createList<AsymmetricObject>(handle, listMetadata);
-            default:
-              throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
+      switch (propertyMeta.collectionType) {
+        case RealmCollectionType.list:
+          if (propertyMeta.propertyType == RealmPropertyType.linkingObjects) {
+            final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
+            final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
+            final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
+            return RealmResultsInternal.create<T>(handle, object.realm, sourceMeta);
           }
-        }
-        return object.realm.createList<T>(handle, listMetadata);
+
+          final handle = realmCore.getListProperty(object, propertyMeta.key);
+          final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+
+          if (propertyMeta.propertyType == RealmPropertyType.mixed) {
+            return object.realm.createList<RealmValue>(handle, metadata);
+          }
+
+          // listMetadata is not null when we have list of RealmObjects. If the API was
+          // called with a generic object arg - get<Object> we construct a list of
+          // RealmObjects since we don't know the type of the object.
+          if (listMetadata != null && _isTypeGenericObject<T>()) {
+            switch (listMetadata.schema.baseType) {
+              case ObjectType.realmObject:
+                return object.realm.createList<RealmObject>(handle, listMetadata);
+              case ObjectType.embeddedObject:
+                return object.realm.createList<EmbeddedObject>(handle, listMetadata);
+              case ObjectType.asymmetricObject:
+                return object.realm.createList<AsymmetricObject>(handle, listMetadata);
+              default:
+                throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
+            }
+          }
+          return object.realm.createList<T>(handle, listMetadata);
+        case RealmCollectionType.set:
+          final handle = realmCore.getSetProperty(object, propertyMeta.key);
+          final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+          return RealmSetInternal.create<T>(handle, object.realm, setMetadata);
+        case RealmCollectionType.map:
+          final handle = realmCore.getMapProperty(object, propertyMeta.key);
+          final mapMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
+
+          if (propertyMeta.propertyType == RealmPropertyType.mixed) {
+            return object.realm.createMap<RealmValue>(handle, metadata);
+          }
+
+          // mapMetadata is not null when we have map of RealmObjects. If the API was
+          // called with a generic object arg - get<Object> we construct a map of
+          // RealmObjects since we don't know the type of the object.
+          if (mapMetadata != null && _isTypeGenericObject<T>()) {
+            switch (mapMetadata.schema.baseType) {
+              case ObjectType.realmObject:
+                return object.realm.createMap<RealmObject>(handle, mapMetadata);
+              case ObjectType.embeddedObject:
+                return object.realm.createMap<EmbeddedObject>(handle, mapMetadata);
+              case ObjectType.asymmetricObject:
+                return object.realm.createMap<AsymmetricObject>(handle, mapMetadata);
+              default:
+                throw RealmError('Map of ${mapMetadata.schema.baseType} is not supported yet');
+            }
+          }
+          return object.realm.createMap<T>(handle, mapMetadata);
+        default:
+          var value = realmCore.getProperty(object, propertyMeta.key);
+
+          if (value is RealmObjectHandle) {
+            final meta = object.realm.metadata;
+            final typeName = propertyMeta.objectType;
+
+            late Type type;
+            late RealmObjectMetadata targetMetadata;
+
+            if (propertyMeta.propertyType == RealmPropertyType.mixed) {
+              (type, targetMetadata) = meta.getByClassKey(realmCore.getClassKey(value));
+            } else {
+              // If we have an object but the user called the API without providing a generic
+              // arg, we construct a RealmObject since we don't know the type of the object.
+              type = _isTypeGenericObject<T>() ? RealmObjectBase : T;
+              targetMetadata = typeName != null ? meta.getByName(typeName) : meta.getByType(type);
+            }
+
+            value = object.realm.createObject(type, value, targetMetadata);
+          }
+
+          if (T == RealmValue) {
+            value = RealmValue.from(value);
+          }
+
+          return value;
       }
-
-      if (propertyMeta.collectionType == RealmCollectionType.set) {
-        final handle = realmCore.getSetProperty(object, propertyMeta.key);
-        final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
-        return RealmSetInternal.create<T>(handle, object.realm, setMetadata);
-      }
-
-      var value = realmCore.getProperty(object, propertyMeta.key);
-
-      if (value is RealmObjectHandle) {
-        final meta = object.realm.metadata;
-        final typeName = propertyMeta.objectType;
-
-        late Type type;
-        late RealmObjectMetadata targetMetadata;
-
-        if (propertyMeta.propertyType == RealmPropertyType.mixed) {
-          final tuple = meta.getByClassKey(realmCore.getClassKey(value));
-          type = tuple.item1;
-          targetMetadata = tuple.item2;
-        } else {
-          // If we have an object but the user called the API without providing a generic
-          // arg, we construct a RealmObject since we don't know the type of the object.
-          type = _isTypeGenericObject<T>() ? RealmObjectBase : T;
-          targetMetadata = typeName != null ? meta.getByName(typeName) : meta.getByType(type);
-        }
-
-        value = object.realm.createObject(type, value, targetMetadata);
-      }
-
-      if (T == RealmValue) {
-        value = RealmValue.from(value);
-      }
-
-      return value;
     } on Exception catch (e) {
       throw RealmException("Error getting property ${metadata._realmObjectTypeName}.$name Error: $e");
     }
@@ -221,29 +244,20 @@ class RealmCoreAccessor implements RealmAccessor {
   void set(RealmObjectBase object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
-      if (value is RealmList<Object?>) {
+      if (value is RealmList) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
-        if (update) realmCore.listClear(handle);
+        if (update) {
+          realmCore.listClear(handle);
+        }
+
         for (var i = 0; i < value.length; i++) {
           RealmListInternal.setValue(handle, object.realm, i, value[i], update: update);
         }
         return;
       }
 
-      if (value is EmbeddedObject) {
-        if (value.isManaged) {
-          throw RealmError("Can't set an embedded object that is already managed");
-        }
-
-        final handle = realmCore.createEmbeddedObject(object, propertyMeta.key);
-        object.realm.manageEmbedded(handle, value, update: update);
-        return;
-      }
-
-      object.realm.addUnmanagedRealmObjectFromValue(value, update);
-
       //TODO: set from ManagedRealmList is not supported yet
-      if (value is UnmanagedRealmSet) {
+      if (value is RealmSet) {
         final handle = realmCore.getSetProperty(object, propertyMeta.key);
         if (update) {
           realmCore.realmSetClear(handle);
@@ -262,6 +276,30 @@ class RealmCoreAccessor implements RealmAccessor {
         }
         return;
       }
+
+      if (value is RealmMap) {
+        final handle = realmCore.getMapProperty(object, propertyMeta.key);
+        if (update) {
+          realmCore.mapClear(handle);
+        }
+
+        for (var kvp in value.entries) {
+          RealmMapInternal.setValue(handle, object.realm, kvp.key, kvp.value, update: update);
+        }
+        return;
+      }
+
+      if (value is EmbeddedObject) {
+        if (value.isManaged) {
+          throw RealmError("Can't set an embedded object that is already managed");
+        }
+
+        final handle = realmCore.createEmbeddedObject(object, propertyMeta.key);
+        object.realm.manageEmbedded(handle, value, update: update);
+        return;
+      }
+
+      object.realm.addUnmanagedRealmObjectFromValue(value, update);
 
       if (propertyMeta.isPrimaryKey && !isInMigration) {
         final currentValue = realmCore.getProperty(object, propertyMeta.key);
@@ -490,8 +528,8 @@ extension EmbeddedObjectExtension on EmbeddedObject {
     }
 
     final parent = realmCore.getEmbeddedParent(this);
-    final metadata = realm.metadata.getByClassKey(parent.item2);
-    return realm.createObject(metadata.item1, parent.item1, metadata.item2);
+    final (type, metadata) = realm.metadata.getByClassKey(parent.item2);
+    return realm.createObject(type, parent.item1, metadata);
   }
 }
 

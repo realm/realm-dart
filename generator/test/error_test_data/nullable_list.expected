@@ -1,4 +1,4 @@
-Realm collections cannot be nullable
+Realm lists cannot be nullable
 
 in: asset:pkg/test/error_test_data/nullable_list.dart:10:3
     ╷

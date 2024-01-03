@@ -245,7 +245,7 @@ class _Player {
 
 @RealmModel()
 class _Game {
-  final winnerByRound = <_Player>[]; // null means no winner yet
+  final winnerByRound = <_Player>[];
   int get rounds => winnerByRound.length;
 }
 

@@ -69,11 +69,7 @@ Future<void> main([List<String>? args]) async {
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
         expect(something.oneAny.type, x.runtimeType);
         expect(something.oneAny.value, x);
-        if (x is Uint8List) {
-          expect(something.oneAny, isNot(RealmValue.from(x)));
-        } else {
-          expect(something.oneAny, RealmValue.from(x));
-        }
+        expect(something.oneAny, RealmValue.from(x));
       });
     }
 

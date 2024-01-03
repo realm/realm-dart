@@ -30,7 +30,7 @@ part 'geospatial_test.g.dart';
 @RealmModel(ObjectType.embeddedObject)
 class _Location {
   final String type = 'Point';
-  final List<double> coordinates = const [0, 0];
+  late final List<double> coordinates;
 
   double get lon => coordinates[0];
   set lon(double value) => coordinates[0] = value;
@@ -62,7 +62,7 @@ void createRestaurants(Realm realm) {
 
 @RealmModel()
 class _LocationList {
-  final locations = <_Location>[];
+  late final List<_Location> locations;
 
   @override
   String toString() => '[${locations.join(', ')}]';

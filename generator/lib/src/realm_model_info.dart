@@ -43,15 +43,17 @@ class RealmModelInfo {
         yield '';
       }
 
+      // Constructor
       yield '$name(';
       {
         final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
 
         final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
-        final collections = fields.where((f) => f.isRealmCollection && !f.isDartCoreSet).toList();
+        final lists = fields.where((f) => f.isDartCoreList).toList();
         final sets = fields.where((f) => f.isDartCoreSet).toList();
-        if (notRequired.isNotEmpty || collections.isNotEmpty || sets.isNotEmpty) {
+        final maps = fields.where((f) => f.isDartCoreMap).toList();
+        if (notRequired.isNotEmpty || lists.isNotEmpty || sets.isNotEmpty || maps.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) {
             if (f.type.isUint8List && f.hasDefaultValue) {
@@ -59,8 +61,9 @@ class RealmModelInfo {
             }
             return '${f.mappedTypeName} ${f.name}${f.initializer},';
           });
-          yield* collections.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
+          yield* lists.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield* sets.map((c) => 'Set<${c.type.basicMappedName}> ${c.name}${c.initializer},');
+          yield* maps.map((c) => 'Map<String, ${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield '}';
         }
 
@@ -82,11 +85,15 @@ class RealmModelInfo {
           return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
         });
 
-        yield* collections.map((c) {
+        yield* lists.map((c) {
           return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
         });
 
         yield* sets.map((c) {
+          return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
+        });
+
+        yield* maps.map((c) {
           return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
         });
       }
@@ -95,19 +102,23 @@ class RealmModelInfo {
       yield '$name._();';
       yield '';
 
+      // Properties
       yield* fields.expand((f) => [
             ...f.toCode(),
             '',
           ]);
 
+      // Changes
       yield '@override';
       yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectBase.getChanges<$name>(this);';
       yield '';
 
+      // Freeze
       yield '@override';
       yield '$name freeze() => RealmObjectBase.freezeObject<$name>(this);';
       yield '';
 
+      // Schema
       yield 'static SchemaObject get schema => _schema ??= _initSchema();';
       yield 'static SchemaObject? _schema;';
       yield 'static SchemaObject _initSchema() {';

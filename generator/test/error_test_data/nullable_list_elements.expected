@@ -1,4 +1,4 @@
-Nullable realm objects are not allowed in collections
+Realm objects in lists must be non-nullable
 
 in: asset:pkg/test/error_test_data/nullable_list_elements.dart:14:8
     ╷

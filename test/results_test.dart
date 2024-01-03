@@ -132,7 +132,7 @@ Future<void> main([List<String>? args]) async {
 
     final cars = realm.all<Car>();
 
-    expect(() => cars[0], throws<RealmException>("Requested index 0 calling get() on Results when empty"));
+    expect(() => cars[0], throws<RangeError>());
   });
 
   test('Results iteration test', () {
@@ -961,11 +961,11 @@ Future<void> main([List<String>? args]) async {
     final rit = results.iterator;
 
     // you are not supposed to call current before first moveNext
-    expect(() => rit.current, throwsA(isA<RealmException>()));
+    expect(() => rit.current, throwsA(isA<RangeError>()));
     expect(rit.moveNext(), isTrue);
     expect(rit.moveNext(), isFalse);
     // you are not supposed to call current, if moveNext return false
-    expect(() => rit.current, throwsA(isA<RealmException>()));
+    expect(() => rit.current, throwsA(isA<RangeError>()));
   });
 
   test('RealmResults.indexOf', () {

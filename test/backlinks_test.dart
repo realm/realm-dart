@@ -28,7 +28,7 @@ class _Source {
   String name = 'source';
   @MapTo('et mål') // to throw a curve ball..
   _Target? oneTarget;
-  List<_Target> manyTargets = [];
+  late List<_Target> manyTargets;
 }
 
 @RealmModel()
