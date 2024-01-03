@@ -56,10 +56,15 @@ class RealmObjectGenerator extends Generator {
     return await measure(
       () async {
         final result = await _getResolvedLibrary(library.element, buildStep.resolver);
+
         return scopeSession(
           result,
           () {
-            return ['// ignore_for_file: type=lint', ...library.classes.realmInfo.expand((m) => m.toCode())].join('\n');
+            final codeLines = library.classes.realmInfo.expand((m) => m.toCode())..toList();
+            if (codeLines.isEmpty) {
+              return '';
+            }
+            return ['// ignore_for_file: type=lint', ...codeLines].join('\n');
           },
           color: stdout.supportsAnsiEscapes,
         );

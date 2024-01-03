@@ -588,14 +588,13 @@ class _RealmCore {
   }
 
   static void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
-    bool success = true;
+    Pointer<Void> user_error = nullptr;
     try {
       await callback();
     } catch (error) {
-      success = false;
-      _realmLib.realm_register_user_code_callback_error(error.toPersistentHandle());
+      user_error = error.toPersistentHandle();
     } finally {
-      _realmLib.realm_dart_invoke_unlock_callback(success, unlockCallbackFunc);
+      _realmLib.realm_dart_invoke_unlock_callback(user_error, unlockCallbackFunc);
     }
   }
 
@@ -2062,8 +2061,16 @@ class _RealmCore {
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
-    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create_cached(appConfigHandle._pointer, syncClientConfigHandle._pointer));
     return AppHandle._(realmAppPtr);
+  }
+
+  AppHandle? getApp(String id, String? baseUrl) {
+    return using((arena) {
+      final out_app = arena<Pointer<realm_app>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), out_app));
+      return out_app.value == nullptr ? null : AppHandle._(out_app.value);
+    });
   }
 
   String appGetId(App app) {
@@ -3397,6 +3404,16 @@ extension on Pointer<Void> {
 
     return object;
   }
+
+  Object? toUserCodeError() {
+    if (this != nullptr) {
+      final result = toObject(isPersistent: true);
+      _realmLib.realm_dart_delete_persistent_handle(this);
+      return result;
+    }
+
+    return null;
+  }
 }
 
 extension on Pointer<Utf8> {
@@ -3430,6 +3447,7 @@ extension on realm_sync_error {
     return SyncErrorDetails(
       message,
       status.error,
+      user_code_error.toUserCodeError(),
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
       originalFilePath: userInfoMap?[originalFilePathKey],
@@ -3475,7 +3493,7 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
 extension on Pointer<realm_error_t> {
   SyncError toSyncError() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, ref.error);
+    final details = SyncErrorDetails(message, ref.error, ref.user_code_error.toUserCodeError());
     return SyncErrorInternal.createSyncError(details);
   }
 }
@@ -3640,9 +3658,12 @@ class SyncErrorDetails {
   final String? originalFilePath;
   final String? backupFilePath;
   final List<CompensatingWriteInfo>? compensatingWrites;
+  final Object? userError;
+
   SyncErrorDetails(
     this.message,
-    this.code, {
+    this.code,
+    this.userError, {
     this.path,
     this.isFatal = false,
     this.isClientResetRequested = false,
@@ -3655,12 +3676,6 @@ class SyncErrorDetails {
 extension on realm_error {
   LastError toLastError() {
     final message = this.message.cast<Utf8>().toRealmDartString();
-    Object? userError;
-    if (error == realm_errno.RLM_ERR_CALLBACK && usercode_error != nullptr) {
-      userError = usercode_error.toObject(isPersistent: true);
-      _realmLib.realm_dart_delete_persistent_handle(usercode_error);
-    }
-
-    return LastError(error, message, userError);
+    return LastError(error, message, user_code_error.toUserCodeError());
   }
 }
