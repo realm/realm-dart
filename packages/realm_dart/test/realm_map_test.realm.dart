@@ -8,6 +8,7 @@ part of 'realm_map_test.dart';
 
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Car(
     String make, {
     String? color,
@@ -48,6 +49,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
 class EmbeddedValue extends _EmbeddedValue
     with RealmEntity, RealmObjectBase, EmbeddedObject {
+  @ejson
   EmbeddedValue(
     int intValue,
   ) {
@@ -81,6 +83,7 @@ class EmbeddedValue extends _EmbeddedValue
 
 class TestRealmMaps extends _TestRealmMaps
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   TestRealmMaps(
     int key, {
     Map<String, bool> boolMap = const {},

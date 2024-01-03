@@ -11,6 +11,7 @@ class Location extends _Location
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
+  @ejson
   Location({
     String type = 'Point',
     Iterable<double> coordinates = const [],
@@ -58,6 +59,7 @@ class Location extends _Location
 
 class Restaurant extends _Restaurant
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Restaurant(
     String name, {
     Location? location,
@@ -102,6 +104,7 @@ class Restaurant extends _Restaurant
 
 class LocationList extends _LocationList
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   LocationList({
     Iterable<Location> locations = const [],
   }) {
