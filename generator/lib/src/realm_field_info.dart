@@ -43,8 +43,6 @@ class RealmFieldInfo {
   DartType get type => fieldElement.type;
 
   bool get isFinal => fieldElement.isFinal;
-  bool get isRealmCollection => type.isRealmCollection;
-  bool get isDartCoreSet => type.isDartCoreSet;
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.basicType.isNullable || realmType == RealmPropertyType.mixed;
@@ -52,6 +50,11 @@ class RealmFieldInfo {
   bool get isRealmBacklink => realmType == RealmPropertyType.linkingObjects;
   bool get isMixed => realmType == RealmPropertyType.mixed;
   bool get isComputed => isRealmBacklink; // only computed, so far
+
+  bool get isRealmCollection => type.isRealmCollection;
+  bool get isDartCoreList => type.isDartCoreList;
+  bool get isDartCoreSet => type.isDartCoreSet;
+  bool get isDartCoreMap => type.isDartCoreMap;
 
   String get name => fieldElement.name;
   String get realmName => mapTo ?? name;
@@ -61,17 +64,18 @@ class RealmFieldInfo {
   String get basicNonNullableMappedTypeName => type.basicType.asNonNullable.mappedName;
 
   String get basicRealmTypeName =>
-      fieldElement.modelType.basicType.asNonNullable.element?.remappedRealmName ?? fieldElement.modelType.asNonNullable.basicMappedName;
+      fieldElement.modelType.basicType.asNonNullable.element?.remappedRealmName ?? fieldElement.modelType.basicType.asNonNullable.basicMappedName;
 
   String get modelTypeName => fieldElement.modelTypeName;
 
   String get mappedTypeName => fieldElement.mappedTypeName;
 
   String get initializer {
-    if (type.isDartCoreList) return ' = const []';
-    if (isMixed && !type.isRealmCollection) return ' = const RealmValue.nullValue()';
+    if (type.realmCollectionType == RealmCollectionType.list) return ' = const []';
+    if (type.realmCollectionType == RealmCollectionType.set) return ' = const {}';
+    if (type.realmCollectionType == RealmCollectionType.map) return ' = const {}';
+    if (isMixed) return ' = const RealmValue.nullValue()';
     if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
-    if (type.isDartCoreSet) return ' = const {}';
     return ''; // no initializer
   }
 

@@ -21,6 +21,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
+import 'package:collection/collection.dart';
 
 Type _typeOf<T>() => T;
 
@@ -98,7 +99,20 @@ enum RealmCollectionType {
   list,
   set,
   _3, // ignore: unused_field, constant_identifier_names
-  dictionary,
+  map;
+
+  String get plural {
+    switch (this) {
+      case RealmCollectionType.list:
+        return "lists";
+      case RealmCollectionType.set:
+        return "sets";
+      case RealmCollectionType.map:
+        return "maps";
+      default:
+        return "none";
+    }
+  }
 }
 
 /// A base class of all Realm errors.
@@ -216,6 +230,10 @@ class RealmValue {
   @override
   operator ==(Object? other) {
     if (other is RealmValue) {
+      if (value is Uint8List && other.value is Uint8List) {
+        return ListEquality().equals(value as Uint8List, other.value as Uint8List);
+      }
+
       return value == other.value;
     }
 

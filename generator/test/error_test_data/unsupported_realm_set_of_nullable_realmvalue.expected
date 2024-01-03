@@ -7,7 +7,7 @@ in: asset:pkg/test/error_test_data/unsupported_realm_set_of_nullable_realmvalue.
     │       ━━━━ in realm model for 'Bad'
 ... │
 10  │   late Set<RealmValue?> wrong1;
-    │        ^^^^^^^^^^^^^^^^ Set of nullable RealmValues is not supported
+    │        ^^^^^^^^^^^^^^^^ Nullable RealmValues are not supported
     ╵
-Did you mean to use Set<RealmValue> instead?
+Ensure the RealmValue type argument is non-nullable. RealmValue can hold null, but must not be nullable itself.
 

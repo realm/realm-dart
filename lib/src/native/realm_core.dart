@@ -39,6 +39,7 @@ import '../configuration.dart';
 import '../credentials.dart';
 import '../init.dart';
 import '../list.dart';
+import '../map.dart';
 import '../migration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
@@ -1201,6 +1202,29 @@ class _RealmCore {
     });
   }
 
+  RealmResultsHandle queryMap(ManagedRealmMap target, String query, List<Object?> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_query_arg_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
+      }
+
+      final results = mapGetValues(target);
+      final queryHandle = _RealmQueryHandle._(
+          _realmLib.invokeGetPointer(
+            () => _realmLib.realm_query_parse_for_results(
+              results._pointer,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          target.realm.handle);
+      return _queryFindAll(queryHandle);
+    });
+  }
+
   RealmResultsHandle resultsFromList(RealmList list) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_list_to_results(list.handle._pointer));
     return RealmResultsHandle._(pointer, list.realm.handle);
@@ -1313,6 +1337,41 @@ class _RealmCore {
         moves,
         out_collection_cleared.value,
       );
+    });
+  }
+
+  MapChanges getMapChanges(RealmMapChangesHandle changes) {
+    return using((arena) {
+      final out_num_deletions = arena<Size>();
+      final out_num_insertions = arena<Size>();
+      final out_num_modifications = arena<Size>();
+      _realmLib.realm_dictionary_get_changes(
+        changes._pointer,
+        out_num_deletions,
+        out_num_insertions,
+        out_num_modifications,
+      );
+
+      final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
+      final insertionCount = out_num_insertions != nullptr ? out_num_insertions.value : 0;
+      final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
+
+      final out_deletion_indexes = arena<realm_value>(deletionsCount);
+      final out_insertion_indexes = arena<realm_value>(insertionCount);
+      final out_modification_indexes = arena<realm_value>(modificationCount);
+
+      _realmLib.realm_dictionary_get_changed_keys(
+        changes._pointer,
+        out_deletion_indexes,
+        out_num_deletions,
+        out_insertion_indexes,
+        out_num_insertions,
+        out_modification_indexes,
+        out_num_modifications,
+      );
+
+      return MapChanges(out_deletion_indexes.toStringList(deletionsCount), out_insertion_indexes.toStringList(insertionCount),
+          out_modification_indexes.toStringList(modificationCount));
     });
   }
 
@@ -1488,6 +1547,98 @@ class _RealmCore {
     return RealmNotificationTokenHandle._(pointer, realmSet.realm.handle);
   }
 
+  int mapGetSize(RealmMapHandle handle) {
+    return using((Arena arena) {
+      final size = arena<Size>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_size(handle._pointer, size));
+      return size.value;
+    });
+  }
+
+  bool mapRemoveKey(RealmMapHandle handle, String key) {
+    return using((Arena arena) {
+      final keyValue = _toRealmValue(key, arena);
+      final out_erased = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_erase(handle._pointer, keyValue.ref, out_erased));
+      return out_erased.value;
+    });
+  }
+
+  Object? mapGetElement(RealmMap map, String key) {
+    return using((Arena arena) {
+      final realm_value = arena<realm_value_t>();
+      final key_value = _toRealmValue(key, arena);
+      final out_found = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_find(map.handle._pointer, key_value.ref, realm_value, out_found));
+      if (out_found.value) {
+        return realm_value.toDartValue(map.realm);
+      }
+
+      return null;
+    });
+  }
+
+  bool mapIsValid(RealmMap map) {
+    return _realmLib.realm_dictionary_is_valid(map.handle._pointer);
+  }
+
+  void mapClear(RealmMapHandle mapHandle) {
+    _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_clear(mapHandle._pointer));
+  }
+
+  RealmResultsHandle mapGetKeys(ManagedRealmMap map) {
+    return using((Arena arena) {
+      final out_size = arena<Size>();
+      final out_keys = arena<Pointer<realm_results>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_get_keys(map.handle._pointer, out_size, out_keys));
+      return RealmResultsHandle._(out_keys.value, map.realm.handle);
+    });
+  }
+
+  RealmResultsHandle mapGetValues(ManagedRealmMap map) {
+    final result = _realmLib.invokeGetPointer(() => _realmLib.realm_dictionary_to_results(map.handle._pointer));
+    return RealmResultsHandle._(result, map.realm.handle);
+  }
+
+  bool mapContainsKey(ManagedRealmMap map, String key) {
+    return using((Arena arena) {
+      final key_value = _toRealmValue(key, arena);
+      final out_found = arena<Bool>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_contains_key(map.handle._pointer, key_value.ref, out_found));
+      return out_found.value;
+    });
+  }
+
+  bool mapContainsValue(ManagedRealmMap map, Object? value) {
+    return using((Arena arena) {
+      final key_value = _toRealmValue(value, arena);
+      final out_index = arena<Size>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_contains_value(map.handle._pointer, key_value.ref, out_index));
+      return out_index.value > -1;
+    });
+  }
+
+  RealmObjectHandle mapInsertEmbeddedObject(Realm realm, RealmMapHandle handle, String key) {
+    return using((Arena arena) {
+      final realm_value = _toRealmValue(key, arena);
+      final ptr = _realmLib.invokeGetPointer(() => _realmLib.realm_dictionary_insert_embedded(handle._pointer, realm_value.ref));
+      return RealmObjectHandle._(ptr, realm.handle);
+    });
+  }
+
+  void mapInsertValue(RealmMapHandle handle, String key, Object? value) {
+    using((Arena arena) {
+      final key_value = _toRealmValue(key, arena);
+      final realm_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_insert(handle._pointer, key_value.ref, realm_value.ref, nullptr, nullptr));
+    });
+  }
+
+  RealmMapHandle getMapProperty(RealmObjectBase object, int propertyKey) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_get_dictionary(object.handle._pointer, propertyKey));
+    return RealmMapHandle._(pointer, object.realm.handle);
+  }
+
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
     return _realmLib.realm_equals(first._pointer.cast(), second._pointer.cast());
   }
@@ -1569,6 +1720,31 @@ class _RealmCore {
     }
   }
 
+  static void map_change_callback(Pointer<Void> userdata, Pointer<realm_dictionary_changes> data) {
+    NotificationsController? controller = userdata.toObject();
+    if (controller == null) {
+      return;
+    }
+
+    if (data == nullptr) {
+      controller.onError(RealmError("Invalid notifications data received"));
+      return;
+    }
+
+    try {
+      final clonedData = _realmLib.realm_clone(data.cast());
+      if (clonedData == nullptr) {
+        controller.onError(RealmError("Error while cloning notifications data"));
+        return;
+      }
+
+      final changesHandle = RealmMapChangesHandle._(clonedData.cast());
+      controller.onChanges(changesHandle);
+    } catch (e) {
+      controller.onError(RealmError("Error handling change notifications. Error: $e"));
+    }
+  }
+
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           results.handle._pointer,
@@ -1603,6 +1779,18 @@ class _RealmCore {
         ));
 
     return RealmNotificationTokenHandle._(pointer, object.realm.handle);
+  }
+
+  RealmNotificationTokenHandle subscribeMapNotifications(RealmMap map, NotificationsController controller) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_dictionary_add_notification_callback(
+          map.handle._pointer,
+          controller.toWeakHandle(),
+          nullptr,
+          nullptr,
+          Pointer.fromFunction(map_change_callback),
+        ));
+
+    return RealmNotificationTokenHandle._(pointer, map.realm.handle);
   }
 
   bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
@@ -2512,6 +2700,14 @@ class _RealmCore {
     });
   }
 
+  RealmMapHandle? resolveMap(ManagedRealmMap map, Realm frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_dictionary>>();
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_resolve_in(map.handle._pointer, frozenRealm.handle._pointer, resultPtr));
+      return resultPtr == nullptr ? null : RealmMapHandle._(resultPtr.value, frozenRealm.handle);
+    });
+  }
+
   static void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
     final Completer<ApiKey>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
@@ -2880,6 +3076,10 @@ class RealmSetHandle extends RootedHandleBase<realm_set> {
   RealmSetHandle._(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 }
 
+class RealmMapHandle extends RootedHandleBase<realm_dictionary> {
+  RealmMapHandle._(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
+}
+
 class _RealmQueryHandle extends RootedHandleBase<realm_query> {
   _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
 }
@@ -2894,6 +3094,10 @@ class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<
 
 class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {
   RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
+}
+
+class RealmMapChangesHandle extends HandleBase<realm_dictionary_changes> {
+  RealmMapChangesHandle._(Pointer<realm_dictionary_changes> pointer) : super(pointer, 256);
 }
 
 class RealmObjectChangesHandle extends HandleBase<realm_object_changes> {
@@ -3171,6 +3375,18 @@ extension on Pointer<Size> {
     for (var i = 1; i < count; i++) {
       result[i] = elementAt(i).value;
     }
+    return result;
+  }
+}
+
+extension on Pointer<realm_value> {
+  List<String> toStringList(int count) {
+    final result = List.filled(count, '');
+    for (var i = 0; i < count; i++) {
+      final str_value = elementAt(i).ref.values.string;
+      result[i] = str_value.data.cast<Utf8>().toRealmDartString(length: str_value.size)!;
+    }
+
     return result;
   }
 }
