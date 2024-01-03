@@ -81,7 +81,7 @@ Future<void> main([List<String>? args]) async {
     final realm = await getRealmAsync(config);
     await realm.syncSession.waitForUpload();
 
-    await triggerClientReset(realm);
+    await baasHelper!.triggerClientReset(realm);
     final clientResetFuture = resetCompleter.future.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
     await expectLater(clientResetFuture, throws<ClientResetError>('Bad client file identifier'));
   });
@@ -108,7 +108,7 @@ Future<void> main([List<String>? args]) async {
       clientResetError.resetRealm();
     }, test: (error) => error is ClientResetError);
 
-    await triggerClientReset(realm);
+    await baasHelper!.triggerClientReset(realm);
 
     await resetRealmFuture.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
 
@@ -136,7 +136,7 @@ Future<void> main([List<String>? args]) async {
       return clientResetError.resetRealm();
     }, test: (error) => error is ClientResetError);
 
-    await triggerClientReset(realm);
+    await baasHelper!.triggerClientReset(realm);
 
     expect(await resetRealmFuture.timeout(defaultWaitTimeout), !Platform.isWindows);
     expect(File(config.path).existsSync(), Platform.isWindows); // posix and windows semantics are different
@@ -162,7 +162,7 @@ Future<void> main([List<String>? args]) async {
       final realm = await getRealmAsync(config);
       await realm.syncSession.waitForUpload();
 
-      await triggerClientReset(realm);
+      await baasHelper!.triggerClientReset(realm);
 
       final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
       await expectLater(
@@ -191,7 +191,7 @@ Future<void> main([List<String>? args]) async {
       final realm = await getRealmAsync(config);
       await realm.syncSession.waitForUpload();
 
-      await triggerClientReset(realm);
+      await baasHelper!.triggerClientReset(realm);
 
       final clientResetFuture = onManualResetFallback.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
       await expectLater(
@@ -223,7 +223,7 @@ Future<void> main([List<String>? args]) async {
       final realm = await getRealmAsync(config);
       await realm.syncSession.waitForUpload();
 
-      await triggerClientReset(realm);
+      await baasHelper!.triggerClientReset(realm);
 
       await onBeforeCompleter.future.timeout(defaultWaitTimeout, onTimeout: () => throw TimeoutException("onBeforeReset is not reported"));
       await onAfterCompleter.future.timeout(defaultWaitTimeout, onTimeout: () => throw TimeoutException("onAfterReset is not reported."));
@@ -281,9 +281,9 @@ Future<void> main([List<String>? args]) async {
 
           await waitForCondition(() => notifications.length == 1, timeout: Duration(seconds: 3));
           if (shouldDisableAutoRecoveryForApp) {
-            await disableAutoRecoveryForApp(baasAppName);
+            await baasHelper!.disableAutoRecoveryForApp(baasAppName);
           }
-          await triggerClientReset(realm, restartSession: false);
+          await baasHelper!.triggerClientReset(realm, restartSession: false);
           realm.syncSession.resume();
           await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterDiscard nor onManualResetFallback is reported.");
 
@@ -297,7 +297,7 @@ Future<void> main([List<String>? args]) async {
           expect(notifications.firstWhere((n) => n.deleted.isNotEmpty), isNotNull);
         } finally {
           if (shouldDisableAutoRecoveryForApp) {
-            await enableAutoRecoveryForApp(baasAppName);
+            await baasHelper!.enableAutoRecoveryForApp(baasAppName);
           }
         }
       });
@@ -347,7 +347,7 @@ Future<void> main([List<String>? args]) async {
       realm.syncSession.pause();
       realm.write(() => realm.add(Product(maybeId, "maybe synced")));
 
-      await triggerClientReset(realm, restartSession: false);
+      await baasHelper!.triggerClientReset(realm, restartSession: false);
       realm.syncSession.resume();
       await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterDiscard, onAfterDiscard nor onManualResetFallback is reported.");
     });
@@ -381,9 +381,9 @@ Future<void> main([List<String>? args]) async {
       final realm = await getRealmAsync(config);
       await realm.syncSession.waitForUpload();
 
-      await disableAutoRecoveryForApp(baasAppName);
+      await baasHelper!.disableAutoRecoveryForApp(baasAppName);
       try {
-        await triggerClientReset(realm);
+        await baasHelper!.triggerClientReset(realm);
 
         await onBeforeCompleter.future.wait(defaultWaitTimeout, "onBeforeReset is not reported.");
         await onAfterCompleter.future.wait(defaultWaitTimeout, "Neither onAfterRecovery nor onAfterDiscard is reported.");
@@ -391,7 +391,7 @@ Future<void> main([List<String>? args]) async {
         expect(recovery, isFalse);
         expect(discard, isTrue);
       } finally {
-        await enableAutoRecoveryForApp(baasAppName);
+        await baasHelper!.enableAutoRecoveryForApp(baasAppName);
       }
     });
   }
@@ -423,7 +423,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = await getRealmAsync(config);
     await realm.syncSession.waitForUpload();
-    await triggerClientReset(realm);
+    await baasHelper!.triggerClientReset(realm);
 
     await onAfterCompleter.future.wait(defaultWaitTimeout, "onAfterReset is not reported.");
 
@@ -465,7 +465,7 @@ Future<void> main([List<String>? args]) async {
 
     final realm = await getRealmAsync(config);
     await realm.syncSession.waitForUpload();
-    await triggerClientReset(realm);
+    await baasHelper!.triggerClientReset(realm);
 
     await manualResetFallbackCompleter.future.wait(defaultWaitTimeout, "onManualResetFallback is not reported.");
 
@@ -535,11 +535,11 @@ Future<void> main([List<String>? args]) async {
 
     realmB.write(() => realmB.add<Task>(Task(task3Id)));
 
-    await triggerClientReset(realmA);
+    await baasHelper!.triggerClientReset(realmA);
     await realmA.syncSession.waitForUpload();
     await afterRecoverCompleterA.future.wait(defaultWaitTimeout, "onAfterReset for realmA is not reported.");
 
-    await triggerClientReset(realmB, restartSession: false);
+    await baasHelper!.triggerClientReset(realmB, restartSession: false);
     realmB.syncSession.resume();
     await realmB.syncSession.waitForUpload();
     await afterRecoverCompleterB.future.wait(defaultWaitTimeout, "onAfterReset for realmB is not reported.");
@@ -568,7 +568,7 @@ Future<void> main([List<String>? args]) async {
     final realm = await getRealmAsync(config);
     await realm.syncSession.waitForUpload();
 
-    await triggerClientReset(realm);
+    await baasHelper!.triggerClientReset(realm);
     await resetCompleter.future.wait(defaultWaitTimeout, "ClientResetError is not reported.");
 
     expect(clientResetError.message, isNotEmpty);
@@ -649,54 +649,8 @@ class Creator {
   }
 }
 
-Future<void> triggerClientReset(Realm realm, {bool restartSession = true}) async {
-  final config = realm.config;
-  if (config is! FlexibleSyncConfiguration) {
-    throw RealmError('This should only be invoked for sync realms');
-  }
-
-  final session = realm.syncSession;
-  if (restartSession) {
-    session.pause();
-  }
-
-  final userId = config.user.id;
-  final appId = baasApps.values.firstWhere((element) => element.clientAppId == config.user.app.id).appId;
-
-  for (var i = 0; i < 5; i++) {
-    try {
-      final result = await config.user.functions.call('triggerClientResetOnSyncServer', [userId, appId]) as Map<String, dynamic>;
-      expect(result['status'], 'success');
-      break;
-    } catch (e) {
-      if (i == 4) {
-        rethrow;
-      }
-
-      print('Failed to trigger client reset: $e');
-      await Future.delayed(Duration(seconds: i));
-    }
-  }
-
-  if (restartSession) {
-    session.resume();
-  }
-}
-
 extension on Future<void> {
   Future<void> wait(Duration duration, [String message = "Timeout waiting a future to complete."]) {
     return timeout(duration, onTimeout: () => throw TimeoutException(message));
   }
-}
-
-Future<void> disableAutoRecoveryForApp(AppNames appName) async {
-  final client = baasClient ?? (throw StateError("No BAAS client"));
-  final baasAppName = baasApps[appName.name]!.name;
-  await client.setAutomaticRecoveryEnabled(baasAppName, false);
-}
-
-Future<void> enableAutoRecoveryForApp(AppNames appName) async {
-  final client = baasClient ?? (throw StateError("No BAAS client"));
-  final baasAppName = baasApps[appName.name]!.name;
-  await client.setAutomaticRecoveryEnabled(baasAppName, true);
 }

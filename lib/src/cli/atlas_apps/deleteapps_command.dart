@@ -56,13 +56,22 @@ class DeleteAppsCommand extends Command<void> {
         abort('--project-id must be supplied when --atlas-cluster is not set');
       }
     }
+
+    if (options.baasaasApiKey == null && options.baasUrl == null) {
+      abort('--baas-url must be supplied when --baasaas-api-key is null');
+    }
+
     final differentiator = options.differentiator ?? 'local';
 
-    final client = await (options.atlasCluster == null
-        ? BaasClient.docker(options.baasUrl, differentiator)
-        : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+    if (options.baasaasApiKey != null) {
+      await BaasClient.retry(() => BaasClient.deleteContainer(options.baasaasApiKey!, differentiator));
+    } else {
+      final client = await (options.atlasCluster == null
+          ? BaasClient.docker(options.baasUrl!, differentiator)
+          : BaasClient.atlas(options.baasUrl!, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
 
-    await client.deleteApps();
+      await client.deleteApps();
+    }
   }
 
   void abort(String error) {

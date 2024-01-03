@@ -87,8 +87,8 @@ const String lordOfTheFlies = 'Lord of the Flies';
 const String wheelOfTime = 'The Wheel of Time';
 const String silmarillion = 'The Silmarillion';
 
-void main([List<String>? args]) {
-  setupTests(args);
+Future<void> main([List<String>? args]) async {
+  await setupTests(args);
 
   intFactory(int i) => i.hashCode;
   boolFactory(int i) => i % 2 == 0;
@@ -98,13 +98,17 @@ void main([List<String>? args]) {
   uuidFactory(int i) => Uuid.fromBytes(Uint8List(16).buffer..asByteData().setInt64(0, i.hashCode));
 
   // skip timestamp for now, as timestamps are not indexed properly it seems
-  final indexedTestData = [('anInt', intFactory), ('string', stringFactory), ('objectId', objectIdFactory), ('uuid', uuidFactory)];
+  final indexedTestData = [
+    (name: 'anInt', factory: intFactory),
+    (name: 'string', factory: stringFactory),
+    (name: 'objectId', factory: objectIdFactory),
+    (name: 'uuid', factory: uuidFactory)
+  ];
 
   for (final testCase in indexedTestData) {
-    test('Indexed faster: ${testCase.$1}', () {
+    test('Indexed faster: ${testCase.name}', () {
       final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
-      Realm.deleteRealm(config.path);
-      final realm = Realm(config);
+      final realm = getRealm(config);
       const max = 100000;
       final allIndexed = realm.all<WithIndexes>();
       final allNotIndexed = realm.all<NoIndexes>();
@@ -142,16 +146,17 @@ void main([List<String>? args]) {
       expect(allNotIndexed.length, max);
 
       // Inefficient, but fast enough for this test
-      final searchOrder = (List.generate(max, (i) => i)..shuffle(Random(42))).map((i) => testCase.$2(i)).take(1000).toList();
+      final halfMax = max ~/ 2;
+      final searchOrder = (List.generate(halfMax, (i) => halfMax + i)..shuffle(Random(42))).map((i) => testCase.factory(i)).take(1000).toList();
 
       @pragma('vm:no-interrupts')
       Duration measureSpeed<T extends RealmObject>(RealmResults<T> results) {
-        final queries = searchOrder.map((v) => results.query('${testCase.$1} == \$0', [v])).toList(); // pre-calculate queries
+        final queries = searchOrder.map((v) => results.query('${testCase.name} == \$0', [v])).toList(); // pre-calculate queries
         final found = <T?>[];
 
         final sw = Stopwatch()..start();
         for (final q in queries) {
-          found.add(q.singleOrNull); // evaluate query
+          found.add(q.single); // evaluate query
         }
         final timing = sw.elapsed;
 
@@ -166,7 +171,7 @@ void main([List<String>? args]) {
       final lookupCount = searchOrder.length;
 
       display(Type type, Duration duration) {
-        print('$lookupCount lookups of ${'$type'.padRight(12)} on ${testCase.$1.padRight(10)} : ${duration.inMicroseconds ~/ lookupCount} us/lookup');
+        print('$lookupCount lookups of ${'$type'.padRight(12)} on ${testCase.name.padRight(10)} : ${duration.inMicroseconds ~/ lookupCount} us/lookup');
       }
 
       final indexedTime = measureSpeed(allIndexed);

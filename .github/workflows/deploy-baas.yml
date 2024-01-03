@@ -1,0 +1,35 @@
+name: Deploy BaaS and apps
+
+on:
+  workflow_call:
+    inputs:
+      differentiator:
+        description: Differentiator for the BaaS container.
+        required: true
+        type: string
+
+env:
+  REALM_CI: true
+
+jobs:
+  deploy-baas:
+    runs-on: ubuntu-latest
+    name: Deploy BaaS
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          submodules: false
+
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
+        with:
+          sdk: stable
+          architecture: 'x64'
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Deploy cluster and apps
+        run: dart run realm_dart deploy-apps --baasaas-api-key ${{ secrets.BAASAAS_API_KEY }} --differentiator ${{ inputs.differentiator }}

@@ -6,8 +6,6 @@ import 'package:test/test.dart';
 import 'const.dart';
 
 void main(List<String> args) {
-  print("Current PID $pid");
-
   group('Realm tests', () {
     FlutterDriver? driver;
 
@@ -28,6 +26,7 @@ void main(List<String> args) {
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PRIVATE_API_KEY");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_PROJECT_ID");
       testCommandWithArgs += getArgFromEnvVariable("BAAS_DIFFERENTIATOR");
+      testCommandWithArgs += getArgFromEnvVariable("BAAS_BAASAAS_API_KEY");
 
       String result = await driver!.requestData(testCommandWithArgs, timeout: const Duration(minutes: 30));
       if (result.isNotEmpty) {

@@ -15,30 +15,21 @@ on:
         description: Architecture to execute on.
         required: false
         type: string
-      app:
-        description: App name prefix.
-        required: true
-        type: string
-      cluster:
-        description: Cluster name to deploy.
+      differentiator:
+        description: Differentiator for the BaaS container.
         required: true
         type: string
 
 env:
-  BAAS_URL: ${{ secrets.REALM_QA_URL }}
-  BAAS_API_KEY: ${{ secrets.ATLAS_QA_PUBLIC_API_KEY }}
-  BAAS_PRIVATE_API_KEY: ${{ secrets.ATLAS_QA_PRIVATE_API_KEY }}
-  BAAS_PROJECT_ID: ${{ secrets.ATLAS_QA_PROJECT_ID}}
   REALM_CI: true
+  BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+  BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
 
 jobs:
   dart-tests:
     runs-on: ${{ inputs.runner }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     timeout-minutes: 45
-    env:
-      BAAS_CLUSTER: ${{ inputs.cluster }}
-      BAAS_DIFFERENTIATOR: ${{ inputs.app }}${{ github.run_id }}${{ github.run_attempt }}
 
     steps:
       - name: Checkout
@@ -68,20 +59,17 @@ jobs:
         run: ulimit -n 10240
         if: ${{ contains(inputs.os, 'macos') }}
 
-      # This will be a no-op under normal circumstances since the cluster would have been deployed
-      # in deploy-cluster. It is needed in case we want to re-run the job after the cluster has been reaped.
-      - name: Create cluster
-        uses: realm/ci-actions/mdb-realm/deploy@338bf3e7575015a28faec8b67614385d122aece7
-        with:
-          realmUrl: ${{ env.BAAS_URL }}
-          atlasUrl: ${{ secrets.ATLAS_QA_URL }}
-          projectId: ${{ env.BAAS_PROJECT_ID }}
-          apiKey: ${{ env.BAAS_API_KEY }}
-          privateApiKey: ${{ env.BAAS_PRIVATE_API_KEY }}
-          clusterName: ${{ env.BAAS_CLUSTER }}
-
       - name: Run tests
-        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random
+        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random --file-reporter="json:test-results.json" || true
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: Test Results Dart ${{ inputs.os }} ${{ inputs.architecture }}
+          path: test-results.json
+          reporter: dart-json
+          only-summary: true
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report

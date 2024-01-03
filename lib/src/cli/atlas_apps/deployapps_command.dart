@@ -56,36 +56,57 @@ RwIDAQAB
 
     if (options.atlasCluster != null) {
       if (options.apiKey == null) {
-        abort('--api-key must be supplied when --atlas-cluster is not set');
+        abort('--api-key must be supplied when --atlas-cluster is set');
       }
 
       if (options.privateApiKey == null) {
-        abort('--private-api-key must be supplied when --atlas-cluster is not set');
+        abort('--private-api-key must be supplied when --atlas-cluster is set');
       }
 
       if (options.projectId == null) {
-        abort('--project-id must be supplied when --atlas-cluster is not set');
+        abort('--project-id must be supplied when --atlas-cluster is set');
+      }
+
+      if (options.baasaasApiKey != null) {
+        abort('--baasaas-api-key cannot be used when --atlas-cluster is set');
       }
     }
 
-    final differentiator = options.differentiator ?? 'shared';
+    if (options.baasaasApiKey == null && options.baasUrl == null) {
+      abort('--baas-url must be supplied when --baasaas-api-key is null');
+    }
+
+    final differentiator = options.differentiator ?? 'local';
+
+    late String baasUrl;
+    if (options.baasaasApiKey != null) {
+      late String containerId;
+      (baasUrl, containerId) = await BaasClient.getOrDeployContainer(options.baasaasApiKey!, differentiator);
+      await File('baasurl').writeAsString(baasUrl);
+      await File('containerid').writeAsString(containerId);
+      print('BaasUrl: $baasUrl');
+    } else {
+      baasUrl = options.baasUrl!;
+    }
+
     try {
       final client = await (options.atlasCluster == null
-          ? BaasClient.docker(options.baasUrl, differentiator)
-          : BaasClient.atlas(options.baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
+          ? BaasClient.docker(baasUrl, differentiator)
+          : BaasClient.atlas(baasUrl, options.atlasCluster!, options.apiKey!, options.privateApiKey!, options.projectId!, differentiator));
       client.publicRSAKey = publicRSAKeyForJWTValidation;
-      var apps = await client.getOrCreateSharedApps();
+      var apps = await client.getOrCreateApps();
       print('App import is complete. There are: ${apps.length} apps on the server:');
       List<String> listApps = [];
-      apps.forEach((_, value) {
+      for (var value in apps) {
         print("  App '${value.name}': '${value.clientAppId}'");
         if (value.error != null) {
           print(value.error!);
         }
         listApps.add(value.appId);
-      });
+      }
       print("appIds: ");
       print(listApps.join(","));
+      exit(0);
     } catch (error) {
       print(error);
     }

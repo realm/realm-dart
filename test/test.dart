@@ -27,11 +27,13 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
-import 'package:args/args.dart';
 import '../lib/realm.dart';
-import '../lib/src/cli/atlas_apps/baas_client.dart';
 import '../lib/src/native/realm_core.dart';
 import '../lib/src/configuration.dart';
+
+import 'baas_helper.dart';
+
+export 'baas_helper.dart' show AppNames;
 
 part 'test.g.dart';
 
@@ -352,38 +354,11 @@ class _Symmetric {
 }
 
 String? testName;
-Map<String, String?> arguments = {};
-final baasApps = <String, BaasApp>{};
 final _openRealms = Queue<Realm>();
-const String argBaasUrl = "BAAS_URL";
-const String argBaasCluster = "BAAS_CLUSTER";
-const String argBaasApiKey = "BAAS_API_KEY";
-const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
-const String argBaasProjectId = "BAAS_PROJECT_ID";
-const String argDifferentiator = "BAAS_DIFFERENTIATOR";
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
-const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
-leeJa4wqYTnaVYV+5bX9FmFXVoN+vHbMLEteMvSw4L3kSRZdcqxY7cTuhlpAvkXP
-Yq6qSI+bW8T4jGW963uCc83UhVMx4MH/PzipAlfcPjVO2u4c+dmpgZQpgEmA467u
-tauXUhmTsGpgNg2Gvc61B7Ny4LphshsyrfaJ9WjA/NM6LOmEBW3JPNcVG2qyU+gt
-O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
-87ztpg6o3DZJRmTp2lAnkNLmxXlFkOSNIwiT3qqyRZOh4DuxPOpfg9K+vtFmRdEJ
-RwIDAQAB
------END PUBLIC KEY-----''';
 final int encryptionKeySize = 64;
-
-enum AppNames {
-  flexible,
-
-  // For application with name 'autoConfirm' and with confirmationType = 'auto'
-  // all the usernames are automatically confirmed.
-  autoConfirm,
-
-  emailConfirm,
-}
 
 const int maxInt = 9223372036854775807;
 const int minInt = -9223372036854775808;
@@ -412,11 +387,16 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
   testing.test(name, testFunction, skip: "Test is disabled");
 }
 
-Future<void> setupTests(List<String>? args) async {
-  arguments = parseTestArguments(args);
-  testName = arguments["name"];
+BaasHelper? baasHelper;
+Map<String, String?> _testArgs = {};
 
-  setUpAll(() async => await (_baasSetupResult ??= setupBaas()));
+Future<void> setupTests(List<String>? args) async {
+  _testArgs = parseTestArguments(args);
+  testName = _testArgs["name"];
+
+  setUpAll(() async {
+    baasHelper = await BaasHelper.setupBaas(_testArgs);
+  });
 
   setUp(() {
     Realm.logger = Logger.detached('test run')
@@ -568,95 +548,6 @@ Future<void> tryDeleteRealm(String path) async {
   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
-Map<String, String?> parseTestArguments(List<String>? arguments) {
-  Map<String, String?> testArgs = {};
-  final parser = ArgParser()
-    ..addOption("name")
-    ..addOption(argBaasUrl)
-    ..addOption(argBaasCluster)
-    ..addOption(argBaasApiKey)
-    ..addOption(argBaasPrivateApiKey)
-    ..addOption(argBaasProjectId)
-    ..addOption(argDifferentiator);
-
-  final result = parser.parse(arguments ?? []);
-  testArgs
-    ..addArgument(result, "name")
-    ..addArgument(result, argBaasUrl)
-    ..addArgument(result, argBaasCluster)
-    ..addArgument(result, argBaasApiKey)
-    ..addArgument(result, argBaasPrivateApiKey)
-    ..addArgument(result, argBaasProjectId)
-    ..addArgument(result, argDifferentiator);
-
-  return testArgs;
-}
-
-extension on Map<String, String?> {
-  void addArgument(ArgResults parsedResult, String argName) {
-    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
-    if (value != null && value.isNotEmpty) {
-      this[argName] = value;
-    }
-  }
-}
-
-BaasClient? baasClient;
-Future<Object>? _baasSetupResult;
-
-Future<Object> setupBaas() async {
-  if (_baasSetupResult != null) {
-    return _baasSetupResult!;
-  }
-
-  try {
-    final baasUrl = arguments[argBaasUrl];
-    if (baasUrl == null) {
-      return true;
-    }
-
-    final cluster = arguments[argBaasCluster];
-    final apiKey = arguments[argBaasApiKey];
-    final privateApiKey = arguments[argBaasPrivateApiKey];
-    final projectId = arguments[argBaasProjectId];
-    final differentiator = arguments[argDifferentiator];
-
-    final client = await (cluster == null
-        ? BaasClient.docker(baasUrl, differentiator)
-        : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator));
-
-    client.publicRSAKey = publicRSAKeyForJWTValidation;
-
-    final apps = await client.getOrCreateApps();
-    baasApps.addAll(apps);
-    baasClient = client;
-
-    await _waitForInitialSync();
-    return true;
-  } catch (error) {
-    print(error);
-    return error;
-  }
-}
-
-Future<void> _waitForInitialSync() async {
-  while (true) {
-    try {
-      print('Validating initial sync is complete...');
-      await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
-      final realm = await getIntegrationRealm();
-      await realm.syncSession.waitForUpload();
-      await baasClient!.waitForInitialSync(baasApps[AppNames.flexible.name]!);
-      return;
-    } catch (e) {
-      print(e);
-      await _waitForInitialSync();
-    } finally {
-      clearCachedApps();
-    }
-  }
-}
-
 @isTest
 Future<void> baasTest(
   String name,
@@ -664,51 +555,27 @@ Future<void> baasTest(
   AppNames appName = AppNames.flexible,
   dynamic skip,
 }) async {
-  if (_baasSetupResult is Error) {
-    throw _baasSetupResult!;
-  }
+  BaasHelper.throwIfSetupFailed();
 
-  final baasUri = arguments[argBaasUrl];
-  skip = shouldSkip(baasUri, skip);
+  skip = shouldSkip(skip);
 
   test(name, () async {
-    printSplunkLogLink(appName, baasUri);
-    final config = await getAppConfig(appName: appName);
+    baasHelper!.printSplunkLogLink(appName, baasHelper?.baseUrl);
+    final config = await baasHelper!.getAppConfig(appName: appName);
     await testFunction(config);
   }, skip: skip);
 }
 
-dynamic shouldSkip(String? baasUri, dynamic skip) {
-  final url = baasUri != null ? Uri.tryParse(baasUri) : null;
-
+dynamic shouldSkip(dynamic skip) {
   if (skip == null) {
-    skip = url == null ? "BAAS URL not present" : false;
+    skip = BaasHelper.shouldRunBaasTests(_testArgs) ? false : "BAAS URL not present";
   } else if (skip is bool) {
-    if (url == null) skip = "BAAS URL not present";
+    if (!BaasHelper.shouldRunBaasTests(_testArgs)) {
+      skip = "BAAS URL not present";
+    }
   }
 
   return skip;
-}
-
-Future<AppConfiguration> getAppConfig({AppNames appName = AppNames.flexible}) => _getAppConfig(appName.name);
-
-Future<AppConfiguration> _getAppConfig(String appName) async {
-  final baasUrl = arguments[argBaasUrl];
-
-  final app =
-      baasApps[appName] ?? baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-  if (app.error != null) {
-    throw app.error!;
-  }
-
-  final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
-  return AppConfiguration(
-    app.clientAppId,
-    baseUrl: Uri.parse(baasUrl!),
-    baseFilePath: temporaryDir,
-    maxConnectionTimeout: Duration(minutes: 10),
-    defaultRequestTimeout: Duration(minutes: 7),
-  );
 }
 
 Future<User> getIntegrationUser(App app) async {
@@ -723,14 +590,8 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
-Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
-  final baasApp = baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
-  final client = baasClient ?? (throw StateError("No BAAS client"));
-  return await client.createApiKey(baasApp, name, enabled);
-}
-
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
-  app ??= App(appConfig ?? await getAppConfig());
+  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app);
 
   final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
@@ -842,22 +703,6 @@ extension StreamEx<T> on Stream<Stream<T>> {
     await outer.cancel();
     await inner?.cancel();
   }
-}
-
-void printSplunkLogLink(AppNames appName, String? uriVariable) {
-  if (uriVariable == null) {
-    return;
-  }
-
-  final app = baasApps[appName.name] ??
-      baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
-  final baasUri = Uri.parse(uriVariable);
-
-  testing.printOnFailure("App service name: ${app.uniqueName}");
-  final host = baasUri.host.endsWith('-qa.mongodb.com') ? "-qa" : "";
-  final splunk = Uri.encodeFull(
-      "https://splunk.corp.mongodb.com/en-US/app/search/search?q=search index=baas$host \"${app.uniqueName}-*\" | reverse | top error msg&earliest=-7d&latest=now&display.general.type=visualizations");
-  testing.printOnFailure("Splunk logs: $splunk");
 }
 
 /// Schema list for default app service

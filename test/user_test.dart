@@ -441,7 +441,7 @@ Future<void> main([List<String>? args]) async {
   baasTest("Credentials.apiKey with server-generated can login user", (configuration) async {
     final app = App(configuration);
 
-    final apiKey = await createServerApiKey(app, ObjectId().toString());
+    final apiKey = await baasHelper!.createServerApiKey(app, ObjectId().toString());
     final credentials = Credentials.apiKey(apiKey);
 
     final apiKeyUser = await app.logIn(credentials);
@@ -452,7 +452,7 @@ Future<void> main([List<String>? args]) async {
   baasTest("Credentials.apiKey with disabled server api key throws an error", (configuration) async {
     final app = App(configuration);
 
-    final apiKey = await createServerApiKey(app, ObjectId().toString(), enabled: false);
+    final apiKey = await baasHelper!.createServerApiKey(app, ObjectId().toString(), enabled: false);
     final credentials = Credentials.apiKey(apiKey);
 
     await expectLater(

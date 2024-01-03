@@ -100,9 +100,9 @@ Future<void> main([List<String>? args]) async {
     var customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
     Configuration.defaultRealmPath = customDefaultRealmPath;
 
-    final appClientId = baasApps[AppNames.flexible.name]!.clientAppId;
-    final baasUrl = arguments[argBaasUrl];
-    var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl!));
+    final appClientId = baasHelper!.getClientAppId(appName: AppNames.flexible);
+    final baasUrl = baasHelper!.baseUrl;
+    var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
     expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
 
     var app = App(appConfig);
