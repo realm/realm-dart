@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+library;
 
 export 'src/configuration.dart';
 export 'src/decoding.dart';

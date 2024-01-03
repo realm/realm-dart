@@ -15,6 +15,7 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
+library;
 
 import 'package:ejson/ejson.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
