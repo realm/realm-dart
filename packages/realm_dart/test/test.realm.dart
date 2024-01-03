@@ -2096,6 +2096,7 @@ class ObjectWithDecimal extends _ObjectWithDecimal
 
 class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, AsymmetricObject {
+  @ejson
   Asymmetric(
     ObjectId id, {
     Symmetric? symmetric,
@@ -2154,6 +2155,7 @@ class Asymmetric extends _Asymmetric
 
 class Embedded extends _Embedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
+  @ejson
   Embedded(
     int value, {
     RealmValue any = const RealmValue.nullValue(),
@@ -2206,6 +2208,7 @@ class Embedded extends _Embedded
 
 class Symmetric extends _Symmetric
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Symmetric(
     ObjectId id,
   ) {
