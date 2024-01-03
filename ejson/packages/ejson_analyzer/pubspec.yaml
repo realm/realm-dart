@@ -8,7 +8,7 @@ environment:
   sdk: ^3.0.2
 
 dependencies:
-  analyzer: ^5.12.0
+  analyzer: ^6.0.0
   ejson_annotation: ^0.1.0
   source_gen: ^1.3.2
 

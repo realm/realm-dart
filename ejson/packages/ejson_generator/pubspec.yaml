@@ -19,7 +19,7 @@ environment:
   sdk: ^3.0.1
 
 dependencies:
-  analyzer: ^5.12.0
+  analyzer: ^6.0.0
   build: ^2.4.0
   ejson_analyzer: ^0.1.0
   source_gen: ^1.3.2
