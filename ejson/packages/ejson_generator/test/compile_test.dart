@@ -31,16 +31,7 @@ void testCompile(String description, dynamic source, dynamic matcher,
       final writer = InMemoryAssetWriter();
       await testBuilder(
         getEJsonGenerator(),
-        {
-          'pkg|source.dart': '''
-import 'package:ejson/ejson.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
-
-$source
-
-void main() {}
-''',
-        },
+        {'pkg|source.dart': source},
         writer: writer,
         reader: await PackageAssetReader.currentIsolate(),
       );
@@ -57,6 +48,9 @@ Future<void> main() async {
     testCompile(
       'two annotated ctors',
       r'''
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 class TwoAnnotatedCtors {
   final int i;
   @ejson
@@ -74,6 +68,9 @@ class TwoAnnotatedCtors {
     testCompile(
       'missing getter',
       r'''
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 class MissingGetter {
   final int _i; // missing a getter for _i called i
   @ejson
@@ -86,6 +83,9 @@ class MissingGetter {
     testCompile(
       'mismatching getter',
       r'''
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 class MismatchingGetter {
   final int _i;
   String get i => _i.toString(); // getter is not of type int
@@ -101,6 +101,9 @@ class MismatchingGetter {
     testCompile(
       'private field',
       r'''
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 class PrivateFieldIsOkay {
   final int _i; // private fields are okay
   @ejson
@@ -113,6 +116,9 @@ class PrivateFieldIsOkay {
     testCompile(
       'mismatching getter but custom encoder',
       r'''
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 EJsonValue _encode(MismatchingGetterButCustomEncoder value) => {'i': value._i};
 
 class MismatchingGetterButCustomEncoder {
@@ -129,6 +135,9 @@ class MismatchingGetterButCustomEncoder {
     testCompile(
       'empty class',
       r'''
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+
 class Empty {
   @ejson
   const Empty();
