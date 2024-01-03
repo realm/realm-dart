@@ -9,11 +9,11 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
     Iterable<int> initList = const [],
     Iterable<int> initListWithType = const [],
     Iterable<int> initListConst = const [],
-    Set<int> initSet = {},
-    Set<int> initSetWithType = <int>{},
+    Set<int> initSet = const {},
+    Set<int> initSetWithType = const {},
     Set<int> initSetConst = const {},
-    Map<String, int> initMap = {},
-    Map<String, int> initMapWithType = <String, int>{},
+    Map<String, int> initMap = const {},
+    Map<String, int> initMapWithType = const {},
     Map<String, int> initMapConst = const {},
   }) {
     RealmObjectBase.set<RealmList<Person>>(
