@@ -1,16 +1,34 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Added support for fields of type `Map<String, T>` where `T` is any supported Realm type. You can define a model with a map like:
+  ```dart
+  @RealmModel()
+  class _LotsOfMaps {
+    late Map<String, _Person?> persons;
+    late Map<String, bool> bools;
+    late Map<String, DateTime> dateTimes;
+    late Map<String, Decimal128> decimals;
+    late Map<String, double> doubles;
+    late Map<String, int> ints;
+    late Map<String, ObjectId> objectIds;
+    late Map<String, RealmValue> realmValues;
+    late Map<String, String> strings;
+    late Map<String, Uint8List> datas;
+    late Map<String, Uuid> uuids;
+  }
+  ```
+
+  The map keys may not contain `.` or start with `$`. (Issue [#685](https://github.com/realm/realm-dart/issues/685))
 
 ### Fixed
-* None
+* Fixed a bug where the generator would not emit errors for invalid default values for collection properties. Default values for collection properties are not supported unless the default value is an empty collection. (PR [#1406](https://github.com/realm/realm-dart/pull/1406))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.24.0.
 
 ## 1.6.1 (2023-11-30)
 

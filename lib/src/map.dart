@@ -29,6 +29,7 @@ import 'realm_object.dart';
 import 'realm_class.dart';
 import 'results.dart';
 
+/// RealmMap is a collection that contains key-value pairs of <String, T>.
 abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<String, T>, Finalizable {
   /// Gets a value indicating whether this collection is still valid to use.
   ///
@@ -37,10 +38,10 @@ abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<S
   /// and it's parent object hasn't been deleted.
   bool get isValid;
 
-  /// Creates an unmanaged RealmList from [items]
+  /// Creates an unmanaged RealmMap from [items]
   factory RealmMap(Map<String, T> items) => UnmanagedRealmMap(items);
 
-  /// Creates a frozen snapshot of this `RealmList`.
+  /// Creates a frozen snapshot of this `RealmMap`.
   RealmMap<T> freeze();
 
   /// Allows listening for changes when the contents of this collection changes.
@@ -57,7 +58,7 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
   RealmMap<T> freeze() => throw RealmStateError("Unmanaged maps can't be frozen");
 
   @override
-  Stream<RealmMapChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
+  Stream<RealmMapChanges<T>> get changes => throw RealmStateError("Unmanaged maps don't support changes");
 }
 
 class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> implements RealmMap<T> {
@@ -125,8 +126,8 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   @override
   void operator []=(String key, Object? value) => RealmMapInternal.setValue(handle, realm, key, value);
 
-  /// Removes all objects from this list; the length of the list becomes zero.
-  /// The objects are not deleted from the realm, but are no longer referenced from this list.
+  /// Removes all objects from this map; the length of the map becomes zero.
+  /// The objects are not deleted from the realm, but are no longer referenced from this map.
   @override
   void clear() => realmCore.mapClear(handle);
 
@@ -206,7 +207,7 @@ class RealmMapChanges<T extends Object?> {
 extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   /// Filters the map values and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
   ///
-  /// Only works for lists of [RealmObject]s or [EmbeddedObject]s.
+  /// Only works for maps of [RealmObject]s or [EmbeddedObject]s.
   ///
   /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
