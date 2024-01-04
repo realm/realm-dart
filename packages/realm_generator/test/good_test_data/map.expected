@@ -9,6 +9,7 @@ part of 'map.dart';
 // ignore_for_file: type=lint
 class LotsOfMaps extends _LotsOfMaps
     with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   LotsOfMaps({
     Map<String, Person?> persons = const {},
     Map<String, bool> bools = const {},
@@ -170,6 +171,7 @@ class LotsOfMaps extends _LotsOfMaps
 }
 
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
+  @ejson
   Person(
     String name,
   ) {
