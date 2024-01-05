@@ -2895,7 +2895,7 @@ class LastError {
   LastError(this.code, [this.message, this.userError]);
 
   @override
-  String toString() => message ?? '';
+  String toString() => "${message ?? 'No message'}. Error code: $code.";
 }
 
 // Flag to enable trace on finalization.
