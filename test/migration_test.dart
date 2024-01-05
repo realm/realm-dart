@@ -109,7 +109,11 @@ Future<void> main([List<String>? args]) async {
       invoked = true;
     });
 
-    expect(() => getRealm(config2), throws<RealmException>('Migration is required due to the following errors'));
+    expect(
+        () => getRealm(config2),
+        throwsA(isA<MigrationRequiredException>()
+            .having((e) => e.message, 'message', contains('Migration is required due to the following errors'))
+            .having((e) => e.helpLink, 'helpLink', isNotNull)));
     expect(invoked, false);
   });
 

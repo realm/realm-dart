@@ -154,7 +154,13 @@ class _RealmCore {
         throw UserCallbackException(lastError!.userError!);
       }
 
-      throw RealmException('${errorMessage != null ? "$errorMessage. " : ""}${lastError ?? ""}');
+      final message = '${errorMessage != null ? "$errorMessage. " : ""}${lastError ?? ""}';
+      switch (lastError?.code) {
+        case realm_errno.RLM_ERR_SCHEMA_MISMATCH:
+          throw MigrationRequiredException(message);
+        default:
+          throw RealmException(message);
+      }
     });
   }
 
@@ -694,7 +700,8 @@ class _RealmCore {
       if (error != nullptr) {
         final err = arena<realm_error>();
         bool success = _realmLib.realm_get_async_error(error, err);
-        completer.completeError(RealmException("Failed to open realm ${success ? err.ref.toLastError().toString() : ''}"));
+        final lastError = success ? err.ref.toLastError() : null;
+        completer.completeError(RealmException("Failed to open realm${lastError?.message ?? ''}"));
         return;
       }
 
@@ -2888,9 +2895,7 @@ class LastError {
   LastError(this.code, [this.message, this.userError]);
 
   @override
-  String toString() {
-    return "Error code: $code ${(message != null ? ". Message: $message" : "")}";
-  }
+  String toString() => message ?? '';
 }
 
 // Flag to enable trace on finalization.

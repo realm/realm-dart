@@ -582,11 +582,27 @@ extension RealmObjectInternal on RealmObjectBase {
 class RealmException implements Exception {
   final String message;
 
-  RealmException(this.message);
+  /// A link to the documentation that explains how to resolve the error.
+  final String? helpLink;
+
+  RealmException(this.message, {this.helpLink});
 
   @override
   String toString() {
     return "RealmException: $message";
+  }
+}
+
+/// An exception thrown when a Realm is opened with a different schema and a migration is required.
+/// See [LocalConfiguration.migrationCallback] for more details.
+class MigrationRequiredException extends RealmException {
+  MigrationRequiredException(String message)
+      : super(message,
+            helpLink: "https://www.mongodb.com/docs/realm/sdk/flutter/realm-database/model-data/update-realm-object-schema/#manually-migrate-schema");
+
+  @override
+  String toString() {
+    return "Migration required: $message. See $helpLink for more details.";
   }
 }
 
