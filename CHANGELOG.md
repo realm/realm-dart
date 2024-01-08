@@ -24,6 +24,7 @@
   ```
 
   The map keys may not contain `.` or start with `$`. (Issue [#685](https://github.com/realm/realm-dart/issues/685))
+* Added a new exception - `MigrationRequiredException` that will be thrown when a local Realm is opened with a schema that differs from the schema on disk and no migration callback is supplied. Additionally, a `helpLink` property has been added to `RealmException` and its subclasses to provide a link to the documentation for the error. (Issue [#1448](https://github.com/realm/realm-dart/issues/1448))
 
 ### Fixed
 * Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))

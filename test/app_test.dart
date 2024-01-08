@@ -19,9 +19,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:math';
 import 'package:logging/logging.dart';
-import 'package:meta/meta.dart';
 import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 import 'package:crypto/crypto.dart';
@@ -294,7 +292,7 @@ Future<void> main([List<String>? args]) async {
     expect(app.currentUser, user2);
     expect(
       () => app.switchUser(user1),
-      throws<RealmException>("Switch user failed. Error code: 4101 . Message: User is no longer valid or is logged out"),
+      throws<RealmException>("Switch user failed. User is no longer valid or is logged out"),
     );
   });
 
