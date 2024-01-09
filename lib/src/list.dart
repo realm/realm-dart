@@ -313,6 +313,9 @@ class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
   final RealmList<T> list;
 
   RealmListChanges._(super.handle, this.list);
+
+  /// `true` if the underlying list was deleted.
+  bool get isCollectionDeleted => changes.isDeleted;
 }
 
 /// @nodoc

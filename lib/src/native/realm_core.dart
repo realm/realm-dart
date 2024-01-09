@@ -1295,6 +1295,7 @@ class _RealmCore {
       final out_num_modifications = arena<Size>();
       final out_num_moves = arena<Size>();
       final out_collection_cleared = arena<Bool>();
+      final out_collection_was_deleted = arena<Bool>();
       _realmLib.realm_collection_changes_get_num_changes(
         changes._pointer,
         out_num_deletions,
@@ -1302,6 +1303,7 @@ class _RealmCore {
         out_num_modifications,
         out_num_moves,
         out_collection_cleared,
+        out_collection_was_deleted,
       );
 
       final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
@@ -1343,6 +1345,7 @@ class _RealmCore {
         out_modification_indexes_after.toIntList(modificationCount),
         moves,
         out_collection_cleared.value,
+        out_collection_was_deleted.value,
       );
     });
   }
@@ -1352,11 +1355,13 @@ class _RealmCore {
       final out_num_deletions = arena<Size>();
       final out_num_insertions = arena<Size>();
       final out_num_modifications = arena<Size>();
+      final out_collection_was_deleted = arena<Bool>();
       _realmLib.realm_dictionary_get_changes(
         changes._pointer,
         out_num_deletions,
         out_num_insertions,
         out_num_modifications,
+        out_collection_was_deleted,
       );
 
       final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
@@ -1366,6 +1371,7 @@ class _RealmCore {
       final out_deletion_indexes = arena<realm_value>(deletionsCount);
       final out_insertion_indexes = arena<realm_value>(insertionCount);
       final out_modification_indexes = arena<realm_value>(modificationCount);
+      final out_collection_was_cleared = arena<Bool>();
 
       _realmLib.realm_dictionary_get_changed_keys(
         changes._pointer,
@@ -1375,10 +1381,11 @@ class _RealmCore {
         out_num_insertions,
         out_modification_indexes,
         out_num_modifications,
+        out_collection_was_cleared,
       );
 
       return MapChanges(out_deletion_indexes.toStringList(deletionsCount), out_insertion_indexes.toStringList(insertionCount),
-          out_modification_indexes.toStringList(modificationCount));
+          out_modification_indexes.toStringList(modificationCount), out_collection_was_cleared.value, out_collection_was_deleted.value);
     });
   }
 

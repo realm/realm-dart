@@ -200,6 +200,12 @@ class RealmMapChanges<T extends Object?> {
 
   /// The keys of the map, whose corresponding values were modified in this version.
   List<String> get modified => _changes.modifications;
+
+  /// `true` if the map was cleared.
+  bool get isCleared => _changes.isCleared;
+
+  /// `true` if the underlying map was deleted.
+  bool get isCollectionDeleted => _changes.isDeleted;
 }
 
 // The query operations on maps only work for maps of objects (core restriction),

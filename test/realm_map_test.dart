@@ -630,12 +630,12 @@ testNotifications<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<
       realm.add(testObject);
     });
 
-    // final managedMap = accessor(testObject);
-    // await runManagedNotificationTests(testData, managedMap);
+    final managedMap = accessor(testObject);
+    await runManagedNotificationTests(testData, managedMap, testObject);
   });
 
   test('$T key notifications', () async {
-    // TODO: for some reason, we don't appear to be getting key notifications
+    // TODO: for some reason, we don't appear to be getting key notifications: https://github.com/realm/realm-core/issues/7219
     final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
     final realm = getRealm(config);
 
@@ -667,7 +667,7 @@ testNotifications<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<
     realm.write(() {
       map.remove('a');
     });
-  }, skip: 'Key notifications are not working');
+  }, skip: 'Key notifications are not working: https://github.com/realm/realm-core/issues/7219');
 
   test('$T value notifications', () async {
     final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
@@ -718,7 +718,7 @@ Future<void> runTestsCore<T>(TestCaseData<T> testData, RealmMap<T> map, {require
   testData.assertRemove(map);
 }
 
-Future<void> runManagedNotificationTests<T>(TestCaseData<T> testData, RealmMap<T> map) async {
+Future<void> runManagedNotificationTests<T>(TestCaseData<T> testData, RealmMap<T> map, TestRealmMaps parent) async {
   final insertedKey = Uuid.v4().toString();
   final (keyToUpdate, _) = testData._getDifferentValue(map, testData.sampleValue);
 
@@ -729,16 +729,20 @@ Future<void> runManagedNotificationTests<T>(TestCaseData<T> testData, RealmMap<T
 
   var expectedCallbacks = 0;
 
-  Future<RealmMapChanges<T>> waitForChanges(({List<String> inserted, List<String> modified, List<String> deleted}) expected) async {
+  Future<RealmMapChanges<T>> waitForChanges(({List<String> inserted, List<String> modified, List<String> deleted})? expected) async {
     expectedCallbacks++;
 
     map.realm.refresh();
 
     await waitForCondition(() => changes.length == expectedCallbacks);
     final result = changes[expectedCallbacks - 1];
-    expect(result.inserted, expected.inserted);
-    expect(result.modified, expected.modified);
-    expect(result.deleted, expected.deleted);
+    if (expected != null) {
+      expect(result.inserted, expected.inserted);
+      expect(result.modified, expected.modified);
+      expect(result.deleted, expected.deleted);
+      expect(result.isCleared, false);
+      expect(result.isCollectionDeleted, false);
+    }
 
     return result;
   }
@@ -780,6 +784,35 @@ Future<void> runManagedNotificationTests<T>(TestCaseData<T> testData, RealmMap<T
 
   // We shouldn't have received a notification
   expect(changes.length, expectedCallbacks);
+
+  final subscription2 = map.changes.listen((change) {
+    changes.add(change);
+  });
+
+  // Initial callback
+  await waitForChanges((inserted: [], modified: [], deleted: []));
+
+  final preClearMapSize = map.length;
+  map.realm.write(() {
+    map.clear();
+  });
+
+  // Cleared callback
+  final clearedChange = await waitForChanges(null);
+  expect(clearedChange.isCleared, true);
+  expect(clearedChange.isCollectionDeleted, false);
+  expect(clearedChange.deleted.length, preClearMapSize);
+
+  parent.realm.write(() {
+    parent.realm.delete(parent);
+  });
+
+  // Deleted callback
+  final deletedChange = await waitForChanges(null);
+  expect(deletedChange.isCleared, false);
+  expect(deletedChange.isCollectionDeleted, true);
+
+  subscription2.cancel();
 }
 
 @isTest

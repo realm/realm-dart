@@ -330,6 +330,9 @@ class RealmSetChanges<T extends Object?> extends RealmCollectionChanges {
   final RealmSet<T> set;
 
   RealmSetChanges._(super.handle, this.set);
+
+  /// `true` if the underlying set was deleted.
+  bool get isCollectionDeleted => changes.isDeleted;
 }
 
 /// @nodoc
