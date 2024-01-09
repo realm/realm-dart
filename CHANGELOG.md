@@ -1,3 +1,31 @@
+## vNext-next (TBD)
+
+### Enhancements
+* Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)
+* Added `isCleared` to `RealmMapChanges` which will be `true` if the map has been cleared. (Core 14.0.0)
+* Querying a specific entry in a collection (in particular 'first and 'last') is supported. (Core 14.0.0)
+  ```dart
+  class _Owner {
+    late List<_Dog> dogs;
+  }
+
+  realm.query<Owner>('dogs[1].age = 5'); // Query all owners whose second dog element is 5 years old
+  realm.query<Owner>('dogs[FIRST].age = 5'); // Query all owners whose first dog is 5 years old
+  realm.query<Owner>('dogs[LAST].age = 5'); // Query all owners whose last dog is 5 years old
+  realm.query<Owner>('dogs[SIZE] = 10'); // Query all owners who have 10 dogs
+  ```
+
+### Fixed
+* If you have more than 8388606 links pointing to one specific object, the program will crash. (Core 14.0.0)
+* A Realm generated on a non-apple ARM 64 device and copied to another platform (and vice-versa) were non-portable due to a sorting order difference. This impacts strings or binaries that have their first difference at a non-ascii character. These items may not be found in a set, or in an indexed column if the strings had a long common prefix (> 200 characters). (Core 14.0.0)
+
+### Compatibility
+* Realm Studio: 14.0.0 or later.
+* Fileformat: Generates files with format v24. Reads and automatically upgrade from fileformat v10. If you want to upgrade from an earlier file format version you will have to use RealmCore v13.x.y or earlier.
+
+### Internal
+* Using Core 14.0.0
+
 ## vNext (TBD)
 
 ### Enhancements
