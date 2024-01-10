@@ -12715,8 +12715,7 @@ abstract class realm_value_type {
   static const int RLM_TYPE_LINK = 10;
   static const int RLM_TYPE_UUID = 11;
   static const int RLM_TYPE_LIST = 12;
-  static const int RLM_TYPE_SET = 13;
-  static const int RLM_TYPE_DICTIONARY = 14;
+  static const int RLM_TYPE_DICTIONARY = 13;
 }
 
 final class realm_version_id extends ffi.Struct {

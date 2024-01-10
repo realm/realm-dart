@@ -78,7 +78,7 @@ Future<void> main([List<String>? args]) async {
     test('Illegal value', () {
       final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
       final realm = getRealm(config);
-      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(<int>[1, 2])))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(realm)))), throwsArgumentError);
     });
 
     test('Embedded object not allowed in RealmValue', () {
