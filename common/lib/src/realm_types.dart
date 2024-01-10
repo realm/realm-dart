@@ -189,7 +189,12 @@ abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 class RealmValue {
   final Object? value;
   Type get type => value.runtimeType;
+
   T as<T>() => value as T; // better for code completion
+
+  List<RealmValue> asList() => as<List<RealmValue>>();
+
+  Map<String, RealmValue> asMap() => as<Map<String, RealmValue>>();
 
   // This is private, so user cannot accidentally construct an invalid instance
   const RealmValue._(this.value);
@@ -206,25 +211,33 @@ class RealmValue {
   const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
   const RealmValue.uuid(Uuid uuid) : this._(uuid);
   const RealmValue.uint8List(Uint8List binary) : this._(binary);
+  const RealmValue.list(List<RealmValue> list) : this._(list);
+  const RealmValue.map(Map<String, RealmValue> map) : this._(map);
 
   /// Will throw [ArgumentError]
   factory RealmValue.from(Object? object) {
-    if (object == null ||
-        object is bool ||
-        object is String ||
-        object is int ||
-        object is Float ||
-        object is double ||
-        object is RealmObjectMarker ||
-        object is DateTime ||
-        object is ObjectId ||
-        object is Decimal128 ||
-        object is Uuid ||
-        object is Uint8List) {
-      return RealmValue._(object);
-    } else {
-      throw ArgumentError.value(object, 'object', 'Unsupported type');
-    }
+    return switch (object) {
+      Object? o
+          when o == null ||
+              o is bool ||
+              o is String ||
+              o is int ||
+              o is double ||
+              o is RealmObjectMarker ||
+              o is DateTime ||
+              o is ObjectId ||
+              o is Decimal128 ||
+              o is Uuid ||
+              o is Uint8List =>
+        RealmValue._(o),
+      Map<String, RealmValue> d => RealmValue.map(d),
+      Map<String, dynamic> d => RealmValue.map(d.map((key, value) => MapEntry(key, RealmValue.from(value)))),
+      List<RealmValue> l => RealmValue.list(l),
+      List<dynamic> l => RealmValue.list(l.map((o) => RealmValue.from(o)).toList()),
+      Iterable<RealmValue> i => RealmValue.list(i.toList()),
+      Iterable<dynamic> i => RealmValue.list(i.map((o) => RealmValue.from(o)).toList()),
+      _ => throw ArgumentError.value(object.runtimeType, 'object', 'Unsupported type'),
+    };
   }
 
   @override

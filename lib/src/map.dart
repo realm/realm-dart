@@ -261,13 +261,12 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
         return;
       }
 
-      if (value is RealmValue) {
-        value = value.value;
+      if (value is RealmValue && value.isCollection) {
+        realmCore.mapInsertCollection(handle, realm, key, value);
+        return;
       }
 
-      if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value, update: update);
-      }
+      realm.addUnmanagedRealmObjectFromValue(value, update);
 
       realmCore.mapInsertValue(handle, key, value);
     } on Exception catch (e) {

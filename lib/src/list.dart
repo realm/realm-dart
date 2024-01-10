@@ -288,19 +288,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
         return;
       }
 
-      if (value is RealmValue) {
-        value = value.value;
+      if (value is RealmValue && value.isCollection) {
+        realmCore.listAddCollectionAt(handle, realm, index, value, insert || index >= length);
+        return;
       }
 
-      if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value, update: update);
-      }
+      realm.addUnmanagedRealmObjectFromValue(value, update);
 
-      if (insert || index >= length) {
-        realmCore.listInsertElementAt(handle, index, value);
-      } else {
-        realmCore.listSetElementAt(handle, index, value);
-      }
+      realmCore.listAddElementAt(handle, index, value, insert || index >= length);
     } on Exception catch (e) {
       throw RealmException("Error setting value at index $index. Error: $e");
     }

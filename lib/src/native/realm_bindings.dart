@@ -8608,7 +8608,7 @@ class RealmLibrary {
   late final _realm_set_clear =
       _realm_set_clearPtr.asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
 
-  bool realm_set_dictionary(
+  ffi.Pointer<realm_dictionary_t> realm_set_dictionary(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
@@ -8620,10 +8620,11 @@ class RealmLibrary {
 
   late final _realm_set_dictionaryPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>,
+          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_object_t>,
               realm_property_key_t)>>('realm_set_dictionary');
-  late final _realm_set_dictionary = _realm_set_dictionaryPtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>, int)>();
+  late final _realm_set_dictionary = _realm_set_dictionaryPtr.asFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+          ffi.Pointer<realm_object_t>, int)>();
 
   /// Create an embedded object in a given property.
   ///
@@ -8855,7 +8856,7 @@ class RealmLibrary {
       bool Function(ffi.Pointer<realm_object_t>, int, ffi.Pointer<ffi.Char>)>();
 
   /// Create a collection in a given Mixed property.
-  bool realm_set_list(
+  ffi.Pointer<realm_list_t> realm_set_list(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
@@ -8867,10 +8868,10 @@ class RealmLibrary {
 
   late final _realm_set_listPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>,
+          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>,
               realm_property_key_t)>>('realm_set_list');
-  late final _realm_set_list = _realm_set_listPtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>, int)>();
+  late final _realm_set_list = _realm_set_listPtr.asFunction<
+      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
 
   /// Install the default logger
   void realm_set_log_callback(

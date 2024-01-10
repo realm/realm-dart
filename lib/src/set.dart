@@ -108,6 +108,13 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
   UnmanagedRealmSet([Set<T>? items]) : super(items ?? <T>{});
 
   @override
+  bool add(T value) {
+    _throwOnRealmValueCollection(value);
+
+    return super.add(value);
+  }
+
+  @override
   // ignore: unused_element
   RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
 
@@ -143,6 +150,8 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
   @override
   bool add(T value) {
+    _throwOnRealmValueCollection(value);
+
     if (_isManagedRealmObject(value)) {
       //It is valid to call `add` with managed objects already in the set.
       _ensureManagedByThis(value, "add");
@@ -379,5 +388,13 @@ extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = realmCore.querySet(asManaged(), query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
+  }
+}
+
+extension on RealmSet {
+  void _throwOnRealmValueCollection(Object? value) {
+    if (value is RealmValue && value.isCollection) {
+      throw RealmStateError('Storing collections inside Set<RealmValue> is not supported');
+    }
   }
 }
