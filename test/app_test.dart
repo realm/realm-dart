@@ -309,6 +309,30 @@ Future<void> main([List<String>? args]) async {
     expect(app, null);
   });
 
+  test('app.logIn unsuccessful logIn attempt on background isolate', () {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    const appId = 'fake-app-id';
+    App(AppConfiguration(appId, baseUrl: Uri.parse('https://this-is-a-fake-url.com')));
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        await app!.logIn(Credentials.anonymous()); // <-- this line used to crash
+      },
+    ), throwsA(isA<AppException>()));
+  });
+
+  baasTest('app.logIn successful logIn on background isolate', (configuration) {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    final appId = configuration.appId;
+    App(configuration);
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        await app!.logIn(Credentials.anonymous()); // <-- this line used to crash
+      },
+    ), completes);
+  });
+
   baasTest('app.getById with different baseUrl returns null', (appConfig) {
     final app = App(appConfig);
     expect(App.getById(app.id, baseUrl: Uri.parse('https://foo.bar')), null);
