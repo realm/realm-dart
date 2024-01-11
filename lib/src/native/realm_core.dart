@@ -524,10 +524,7 @@ class _RealmCore {
   static bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
     final realmHandle = RealmHandle._unowned(realmPtr);
     try {
-      final LocalConfiguration? config = userdata.toObject();
-      if (config == null) {
-        return false;
-      }
+      final LocalConfiguration config = userdata.toObject();
       final realm = RealmInternal.getUnowned(config, realmHandle);
       config.initialDataCallback!(realm);
       return true;
@@ -541,7 +538,7 @@ class _RealmCore {
   }
 
   static bool should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
-    Object? config = userdata.toObject();
+    final config = userdata.toObject();
 
     if (config is LocalConfiguration) {
       return config.shouldCompactCallback!(totalSize, usedSize);
@@ -557,10 +554,7 @@ class _RealmCore {
     final oldHandle = RealmHandle._unowned(oldRealmHandle);
     final newHandle = RealmHandle._unowned(newRealmHandle);
     try {
-      final LocalConfiguration? config = userdata.toObject();
-      if (config == null) {
-        return false;
-      }
+      final LocalConfiguration config = userdata.toObject();
 
       final oldSchemaVersion = _realmLib.realm_get_schema_version(oldRealmHandle);
       final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
@@ -899,20 +893,12 @@ class _RealmCore {
   }
 
   static void _completeAsyncBeginWrite(Pointer<Void> userdata) {
-    Completer<void>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
-
+    final Completer<void> completer = userdata.toObject(isPersistent: true);
     completer.complete();
   }
 
   static void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
-    Completer<void>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
-
+    final Completer<void> completer = userdata.toObject(isPersistent: true);
     if (error) {
       completer.completeError(RealmException(description.cast<Utf8>().toDartString()));
     } else {
@@ -1679,10 +1665,7 @@ class _RealmCore {
   }
 
   static void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
-    NotificationsController? controller = userdata.toObject();
-    if (controller == null) {
-      return;
-    }
+    final NotificationsController controller = userdata.toObject();
 
     if (data == nullptr) {
       controller.onError(RealmError("Invalid notifications data received"));
@@ -1704,10 +1687,7 @@ class _RealmCore {
   }
 
   static void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
-    NotificationsController? controller = userdata.toObject();
-    if (controller == null) {
-      return;
-    }
+    final NotificationsController controller = userdata.toObject();
 
     if (data == nullptr) {
       controller.onError(RealmError("Invalid notifications data received"));
@@ -1729,10 +1709,7 @@ class _RealmCore {
   }
 
   static void map_change_callback(Pointer<Void> userdata, Pointer<realm_dictionary_changes> data) {
-    NotificationsController? controller = userdata.toObject();
-    if (controller == null) {
-      return;
-    }
+    final NotificationsController controller = userdata.toObject();
 
     if (data == nullptr) {
       controller.onError(RealmError("Invalid notifications data received"));
@@ -1908,8 +1885,6 @@ class _RealmCore {
   }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
-    print('_createHttpTransport ${isolate.asDebugString}');
-
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
     final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
@@ -1920,8 +1895,6 @@ class _RealmCore {
   }
 
   static void _request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
-    print('_request_callback ${isolate.asDebugString}');
-
     //
     // The request struct only survives until end-of-call, even though
     // we explicitly call realm_http_transport_complete_request to
@@ -1959,8 +1932,6 @@ class _RealmCore {
     Map<String, String> headers,
     Pointer<Void> request_context,
   ) async {
-    print('_request_callback_async ${isolate.asDebugString}');
-
     await using((arena) async {
       final response_pointer = arena<realm_http_response>();
       final responseRef = response_pointer.ref;
@@ -2116,8 +2087,6 @@ class _RealmCore {
   }
 
   Future<UserHandle> logIn(App app, Credentials credentials) {
-    print(isolate.asDebugString);
-
     final completer = Completer<UserHandle>();
     final userCompletionCallback = Pointer.fromFunction<
         Void Function(
@@ -2148,11 +2117,7 @@ class _RealmCore {
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    print(isolate.asDebugString);
-    final Completer<void>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    final Completer<void> completer = userdata.toObject(isPersistent: true);
 
     if (error != nullptr) {
       completer.completeWithAppError(error);
@@ -2275,10 +2240,7 @@ class _RealmCore {
   }
 
   static void _logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    final Completer<void> completer = userdata.toObject(isPersistent: true);
 
     if (error != nullptr) {
       completer.completeWithAppError(error);
@@ -2758,10 +2720,7 @@ class _RealmCore {
   }
 
   static void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
-    final Completer<ApiKey>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    final Completer<ApiKey> completer = userdata.toObject(isPersistent: true);
 
     if (error != nullptr) {
       completer.completeWithAppError(error);
@@ -2777,10 +2736,7 @@ class _RealmCore {
   }
 
   static void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
-    final Completer<List<ApiKey>>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    final Completer<List<ApiKey>> completer = userdata.toObject(isPersistent: true);
 
     if (error != nullptr) {
       completer.completeWithAppError(error);
@@ -2876,10 +2832,8 @@ class _RealmCore {
   }
 
   static void _call_app_function_callback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
-    final Completer<String>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    final Completer<String> completer = userdata.toObject(isPersistent: true);
+
     if (error != nullptr) {
       completer.completeWithAppError(error);
       return;
@@ -3721,10 +3675,4 @@ extension on realm_error {
     final message = this.message.cast<Utf8>().toRealmDartString();
     return LastError(error, message, user_code_error.toUserCodeError());
   }
-}
-
-final isolate = Isolate.current;
-
-extension on Isolate {
-  String get asDebugString => 'isolate: $debugName, hashCode: $hashCode';
 }
