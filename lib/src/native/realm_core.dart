@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -105,7 +106,7 @@ class _RealmCore {
 
   final encryptionKeySize = 64;
   late final Logger defaultRealmLogger;
-  late StreamSubscription<Level?> realmLoggerLevelChangedSubscipiton;
+  late StreamSubscription<Level?> realmLoggerLevelChangedSubscription;
   // ignore: unused_field
   static late final _RealmCore _instance;
 
@@ -120,7 +121,7 @@ class _RealmCore {
 
   Logger _initDefaultLogger(Scheduler scheduler) {
     final logger = Logger.detached('Realm')..level = Level.INFO;
-    realmLoggerLevelChangedSubscipiton = logger.onLevelChanged.listen((logLevel) => loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
+    realmLoggerLevelChangedSubscription = logger.onLevelChanged.listen((logLevel) => loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
 
     bool isDefaultLogger = _realmLib.realm_dart_init_core_logger(logger.level.toInt());
     if (isDefaultLogger) {
@@ -1907,6 +1908,8 @@ class _RealmCore {
   }
 
   RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
+    print('_createHttpTransport ${isolate.asDebugString}');
+
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
     final requestCallbackUserdata = _realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle._pointer);
     return RealmHttpTransportHandle._(_realmLib.realm_http_transport_new(
@@ -1917,6 +1920,8 @@ class _RealmCore {
   }
 
   static void _request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
+    print('_request_callback ${isolate.asDebugString}');
+
     //
     // The request struct only survives until end-of-call, even though
     // we explicitly call realm_http_transport_complete_request to
@@ -1946,7 +1951,7 @@ class _RealmCore {
     // The request struct dies here!
   }
 
-  static void _request_callback_async(
+  static Future<void> _request_callback_async(
     HttpClient client,
     int requestMethod,
     Uri url,
@@ -1954,6 +1959,8 @@ class _RealmCore {
     Map<String, String> headers,
     Pointer<Void> request_context,
   ) async {
+    print('_request_callback_async ${isolate.asDebugString}');
+
     await using((arena) async {
       final response_pointer = arena<realm_http_response>();
       final responseRef = response_pointer.ref;
@@ -2064,7 +2071,14 @@ class _RealmCore {
     });
   }
 
+  static bool _firstTime = true;
   AppHandle createApp(AppConfiguration configuration) {
+    // to avoid caching apps across hot restarts we clear the cache on the first
+    // call to createApp in the root isolate.
+    if (_firstTime /* TODO: Pure Dart equivalent of: '&& ServiceBinding.rootIolateToken != null' */) {
+      _firstTime = false;
+      _realmLib.realm_clear_cached_apps();
+    }
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
@@ -2085,40 +2099,56 @@ class _RealmCore {
   }
 
   static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final Completer<UserHandle>? completer = userdata.toObject(isPersistent: true);
-    if (completer == null) {
-      return;
-    }
+    final Completer<UserHandle> completer = userdata.toObject(isPersistent: true)!;
 
     if (error != nullptr) {
       completer.completeWithAppError(error);
       return;
     }
 
-    var userClone = _realmLib.realm_clone(user.cast());
-    if (userClone == nullptr) {
+    user = _realmLib.realm_clone(user.cast()).cast(); // take an extra reference to the user object
+    if (user == nullptr) {
       completer.completeError(RealmException("Error while cloning user object."));
       return;
     }
 
-    completer.complete(UserHandle._(userClone.cast()));
+    completer.complete(UserHandle._(user.cast()));
   }
 
   Future<UserHandle> logIn(App app, Credentials credentials) {
+    print(isolate.asDebugString);
+
     final completer = Completer<UserHandle>();
+    final userCompletionCallback = Pointer.fromFunction<
+        Void Function(
+          Pointer<Void>,
+          Pointer<realm_user>,
+          Pointer<realm_app_error>,
+        )>(_app_user_completion_callback);
+
+    final userdata = _realmLib.realm_dart_userdata_async_new(
+      completer,
+      userCompletionCallback.cast(),
+      scheduler.handle._pointer,
+    );
+
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_in_with_credentials(
               app.handle._pointer,
               credentials.handle._pointer,
-              Pointer.fromFunction(_app_user_completion_callback),
-              completer.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              //_createVoidCallback(completer).nativeFunction,
+              //nullptr,
+              //nullptr,
+              _realmLib.addresses.realm_dart_user_completion_callback,
+              userdata.cast(),
+              _realmLib.addresses.realm_dart_userdata_async_free,
             ),
         "Login failed");
     return completer.future;
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+    print(isolate.asDebugString);
     final Completer<void>? completer = userdata.toObject(isPersistent: true);
     if (completer == null) {
       return;
@@ -2312,6 +2342,18 @@ class _RealmCore {
     return result;
   }
 
+  NativeCallable<Void Function(Pointer<Void> userdata, Pointer<realm_app_error> error)> _createVoidCallback(Completer<void> completer) {
+    late final NativeCallable<Void Function(Pointer<Void> userdata, Pointer<realm_app_error> error)> callback;
+    void done(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+      callback.close();
+      if (error != nullptr) return completer.completeWithAppError(error);
+      completer.complete();
+    }
+
+    callback = NativeCallable<Void Function(Pointer<Void> userdata, Pointer<realm_app_error> error)>.listener(done);
+    return callback;
+  }
+
   Future<void> removeUser(App app, User user) {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
@@ -2355,9 +2397,9 @@ class _RealmCore {
         () => _realmLib.realm_app_refresh_custom_data(
               app.handle._pointer,
               user.handle._pointer,
-              Pointer.fromFunction(void_completion_callback),
-              completer.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              _createVoidCallback(completer).nativeFunction, // Pointer.fromFunction(_app_user_completion_callback),
+              nullptr, // completer.toPersistentHandle(),
+              nullptr, // _realmLib.addresses.realm_dart_delete_persistent_handle,
             ),
         "Refresh custom data failed");
     return completer.future;
@@ -3397,17 +3439,13 @@ extension on Pointer<realm_value> {
 }
 
 extension on Pointer<Void> {
-  T? toObject<T extends Object>({bool isPersistent = false}) {
+  T toObject<T extends Object>({bool isPersistent = false}) {
     assert(this != nullptr, "Pointer<Void> is null");
 
     Object object = isPersistent ? _realmLib.realm_dart_persistent_handle_to_object(this) : _realmLib.realm_dart_weak_handle_to_object(this);
 
     assert(object is T, "$T expected");
-    if (object is! T) {
-      return null;
-    }
-
-    return object;
+    return object as T;
   }
 
   Object? toUserCodeError() {
@@ -3534,7 +3572,7 @@ extension on realm_property_info {
   }
 }
 
-extension on Completer<Object?> {
+extension<T> on Completer<T> {
   void completeWithAppError(Pointer<realm_app_error> error) {
     final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
     final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
@@ -3683,4 +3721,10 @@ extension on realm_error {
     final message = this.message.cast<Utf8>().toRealmDartString();
     return LastError(error, message, user_code_error.toUserCodeError());
   }
+}
+
+final isolate = Isolate.current;
+
+extension on Isolate {
+  String get asDebugString => 'isolate: $debugName, hashCode: $hashCode';
 }

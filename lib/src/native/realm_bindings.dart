@@ -3889,6 +3889,28 @@ class RealmLibrary {
       _realm_dart_sync_wait_for_completion_callbackPtr.asFunction<
           void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>();
 
+  void realm_dart_user_completion_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_user_t> user,
+    ffi.Pointer<realm_app_error_t> error,
+  ) {
+    return _realm_dart_user_completion_callback(
+      userdata,
+      user,
+      error,
+    );
+  }
+
+  late final _realm_dart_user_completion_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_user_t>, ffi.Pointer<realm_app_error_t>)>>(
+      'realm_dart_user_completion_callback');
+  late final _realm_dart_user_completion_callback =
+      _realm_dart_user_completion_callbackPtr.asFunction<
+          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_user_t>,
+              ffi.Pointer<realm_app_error_t>)>();
+
   void realm_dart_userdata_async_free(
     ffi.Pointer<ffi.Void> userdata,
   ) {
@@ -11201,6 +11223,12 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>
       get realm_dart_sync_wait_for_completion_callback =>
           _library._realm_dart_sync_wait_for_completion_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_user_t>, ffi.Pointer<realm_app_error_t>)>>
+      get realm_dart_user_completion_callback =>
+          _library._realm_dart_user_completion_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_userdata_async_free =>
           _library._realm_dart_userdata_async_freePtr;

@@ -236,3 +236,40 @@ RLM_API void realm_dart_async_open_task_callback(realm_userdata_t userdata, real
         (reinterpret_cast<realm_async_open_task_completion_func_t>(ud->dart_callback))(ud->handle, realm, error);
     });
 }
+
+RLM_API void realm_dart_user_completion_callback(realm_userdata_t userdata, realm_user_t* user, const realm_app_error_t* error)
+{
+    // we need to make a deep copy of error, because the message pointer points to stack memory
+    struct error_buf : realm_app_error
+    {
+        error_buf(const realm_app_error& error_input)
+            : message_buffer(error_input.message),
+              link_to_server_logs_buffer(error_input.link_to_server_logs != nullptr ? error_input.link_to_server_logs : "")
+        {
+            error = error_input.error;
+            categories = error_input.categories;
+            http_status_code = error_input.http_status_code;
+            message = message_buffer.c_str();
+            link_to_server_logs = link_to_server_logs_buffer.c_str();
+        }
+
+        const std::string message_buffer;
+        const std::string link_to_server_logs_buffer;
+    };
+
+    std::unique_ptr<error_buf> error_copy;
+    if (error != nullptr) {
+        error_copy = std::make_unique<error_buf>(*error);
+    }
+
+    // take an extra ref to the user, so that it doesn't get deleted before we invoke the callback
+    std::shared_ptr<realm::SyncUser> user_copy; 
+    if (user != nullptr) {
+        user_copy = realm_user(*user);
+    }
+
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, error = std::move(error_copy), user = realm_user(user_copy)]() mutable { 
+        (reinterpret_cast<realm_app_user_completion_func_t>(ud->dart_callback))(ud->handle, &user, error.get());
+    });
+}
