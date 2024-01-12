@@ -237,9 +237,9 @@ RLM_API void realm_dart_async_open_task_callback(realm_userdata_t userdata, real
     });
 }
 
-RLM_API void realm_dart_user_completion_callback(realm_userdata_t userdata, realm_user_t* user, const realm_app_error_t* error)
+std::unique_ptr<realm_app_error> realm_app_error_copy(const realm_app_error_t* error)
 {
-    // we need to make a deep copy of error, because the message pointer points to stack memory
+    // we make a deep copy of error, so it is valid after callback returns
     struct error_buf : realm_app_error
     {
         error_buf(const realm_app_error& error_input)
@@ -257,10 +257,19 @@ RLM_API void realm_dart_user_completion_callback(realm_userdata_t userdata, real
         const std::string link_to_server_logs_buffer;
     };
 
-    std::unique_ptr<error_buf> error_copy;
+    std::unique_ptr<realm_app_error> error_copy;
     if (error != nullptr) {
         error_copy = std::make_unique<error_buf>(*error);
     }
+
+
+    return error_copy;
+}
+
+RLM_API void realm_dart_user_completion_callback(realm_userdata_t userdata, realm_user_t* user, const realm_app_error_t* error)
+{
+    // we need to make a deep copy of error, because the message pointer points to stack memory
+    auto error_copy = realm_app_error_copy(error);
 
     // take an extra ref to the user, so that it doesn't get deleted before we invoke the callback
     std::shared_ptr<realm::SyncUser> user_copy; 
@@ -271,5 +280,16 @@ RLM_API void realm_dart_user_completion_callback(realm_userdata_t userdata, real
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, error = std::move(error_copy), user = realm_user(user_copy)]() mutable { 
         (reinterpret_cast<realm_app_user_completion_func_t>(ud->dart_callback))(ud->handle, &user, error.get());
+    });
+}
+
+RLM_API void realm_dart_void_completion_callback(realm_userdata_t userdata, const realm_app_error_t* error)
+{
+    // we need to make a deep copy of error, because the message pointer points to stack memory
+    auto error_copy = realm_app_error_copy(error);
+
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, error = std::move(error_copy)]() mutable { 
+        (reinterpret_cast<realm_app_void_completion_func_t>(ud->dart_callback))(ud->handle, error.get());
     });
 }
