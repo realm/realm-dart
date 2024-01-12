@@ -32,7 +32,7 @@ class _TuckedIn {
 
 @RealmModel()
 class _AnythingGoes {
-  // TODO: @Indexed() - depends on https://github.com/realm/realm-core/issues/7246
+  @Indexed()
   late RealmValue oneAny;
   late List<RealmValue> manyAny;
   late Map<String, RealmValue> dictOfAny;
@@ -46,6 +46,11 @@ class _Stuff {
 
 Future<void> main([List<String>? args]) async {
   await setupTests(args);
+
+  Realm getMixedRealm() {
+    final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+    return getRealm(config);
+  }
 
   group('RealmValue', () {
     final now = DateTime.now().toUtc();
@@ -66,8 +71,7 @@ Future<void> main([List<String>? args]) async {
 
     for (final x in values) {
       test('Roundtrip ${x.runtimeType} $x', () {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-        final realm = getRealm(config);
+        final realm = getMixedRealm();
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
         expect(something.oneAny.type, x.runtimeType);
         expect(something.oneAny.value, x);
@@ -76,14 +80,12 @@ Future<void> main([List<String>? args]) async {
     }
 
     test('Illegal value', () {
-      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-      final realm = getRealm(config);
+      final realm = getMixedRealm();
       expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(realm)))), throwsArgumentError);
     });
 
     test('Embedded object not allowed in RealmValue', () {
-      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-      final realm = getRealm(config);
+      final realm = getMixedRealm();
       expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
     });
 
@@ -222,8 +224,7 @@ Future<void> main([List<String>? args]) async {
     ];
 
     test('Roundtrip', () {
-      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-      final realm = getRealm(config);
+      final realm = getMixedRealm();
       final something = realm.write(() => realm.add(AnythingGoes(manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
@@ -245,8 +246,7 @@ Future<void> main([List<String>? args]) async {
       Uuid.v4(),
       Decimal128.fromInt(128),
     ];
-    final config = Configuration.local([AnythingGoes.schema, Stuff.schema]);
-    final realm = getRealm(config);
+    final realm = getMixedRealm();
     final realmValues = values.map(RealmValue.from);
     realm.write(() => realm.add(AnythingGoes(manyAny: realmValues, oneAny: realmValues.last)));
 
@@ -258,9 +258,35 @@ Future<void> main([List<String>? args]) async {
   });
 
   group('Collections in RealmValue', () {
+    void expectMatches(RealmValue actual, Object? expected) {
+      switch (actual.collectionType) {
+        case RealmCollectionType.list:
+          expect(expected, isList);
+          final actualList = actual.asList();
+          final expectedList = expected as List;
+          expect(actualList, hasLength(expectedList.length));
+          for (var i = 0; i < expectedList.length; i++) {
+            expectMatches(actualList[i], expectedList[i]);
+          }
+          break;
+        case RealmCollectionType.map:
+          expect(expected, isMap);
+          final actualMap = actual.asMap();
+          final expectedMap = expected as Map;
+          expect(actualMap, hasLength(expectedMap.length));
+          for (String key in expectedMap.keys) {
+            expect(actualMap.containsKey(key), true);
+            expectMatches(actualMap[key]!, expectedMap[key]);
+          }
+          break;
+        default:
+          expect(actual, RealmValue.from(expected));
+          break;
+      }
+    }
+
     test('Set<RealmValue> throws', () {
-      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-      final realm = getRealm(config);
+      final realm = getMixedRealm();
       final list = RealmValue.list([RealmValue.from(5)]);
       final map = RealmValue.map({'a': RealmValue.from('abc')});
 
@@ -277,14 +303,21 @@ Future<void> main([List<String>? args]) async {
     });
 
     test('List get and set', () {
-      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-      final realm = getRealm(config);
-      final list = RealmValue.list([RealmValue.from(5)]);
+      final realm = getMixedRealm();
+      final list = RealmValue.from([5]);
 
-      final obj = AnythingGoes(oneAny: list);
+      final obj = AnythingGoes(oneAny: list, manyAny: [list], dictOfAny: {'value': list});
       expect(obj.oneAny.value, isA<List<RealmValue>>());
       expect(obj.oneAny.asList().length, 1);
       expect(obj.oneAny.asList().single.value, 5);
+
+      expect(obj.manyAny[0].value, isA<List<RealmValue>>());
+      expect(obj.manyAny[0].asList().length, 1);
+      expect(obj.manyAny[0].asList().single.value, 5);
+
+      expect(obj.dictOfAny['value']!.value, isA<List<RealmValue>>());
+      expect(obj.dictOfAny['value']!.asList().length, 1);
+      expect(obj.dictOfAny['value']!.asList().single.value, 5);
 
       realm.write(() {
         realm.add(obj);
@@ -292,26 +325,44 @@ Future<void> main([List<String>? args]) async {
 
       final foundObj = realm.all<AnythingGoes>().single;
       expect(foundObj.oneAny.value, isA<List<RealmValue>>());
-      final foundList = foundObj.oneAny.asList();
-      expect(foundList.length, 1);
-      expect(foundList[0].value, 5);
+      expect(foundObj.oneAny.asList().length, 1);
+      expect(foundObj.oneAny.asList()[0].value, 5);
+
+      expect(foundObj.manyAny[0].value, isA<List<RealmValue>>());
+      expect(foundObj.manyAny[0].asList().length, 1);
+      expect(foundObj.manyAny[0].asList()[0].value, 5);
+
+      expect(foundObj.dictOfAny['value']!.value, isA<List<RealmValue>>());
+      expect(foundObj.dictOfAny['value']!.asList().length, 1);
+      expect(foundObj.dictOfAny['value']!.asList()[0].value, 5);
 
       realm.write(() {
-        foundList.add(RealmValue.from('abc'));
+        foundObj.oneAny.asList().add(RealmValue.from('abc'));
+        foundObj.manyAny[0].asList().add(RealmValue.from('abc'));
+        foundObj.dictOfAny['value']!.asList().add(RealmValue.from('abc'));
       });
 
       expect(obj.oneAny.asList()[1].value, 'abc');
+      expect(obj.manyAny[0].asList()[1].value, 'abc');
+      expect(obj.dictOfAny['value']!.asList()[1].value, 'abc');
     });
 
     test('Map get and set', () {
-      final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-      final realm = getRealm(config);
+      final realm = getMixedRealm();
       final map = RealmValue.from({'foo': 5});
 
-      final obj = AnythingGoes(oneAny: map);
+      final obj = AnythingGoes(oneAny: map, manyAny: [map], dictOfAny: {'value': map});
       expect(obj.oneAny.value, isA<Map<String, RealmValue>>());
       expect(obj.oneAny.asMap().length, 1);
       expect(obj.oneAny.asMap()['foo']!.value, 5);
+
+      expect(obj.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expect(obj.manyAny[0].asMap().length, 1);
+      expect(obj.manyAny[0].asMap()['foo']!.value, 5);
+
+      expect(obj.dictOfAny['value']!.value, isA<Map<String, RealmValue>>());
+      expect(obj.dictOfAny['value']!.asMap().length, 1);
+      expect(obj.dictOfAny['value']!.asMap()['foo']!.value, 5);
 
       realm.write(() {
         realm.add(obj);
@@ -319,20 +370,31 @@ Future<void> main([List<String>? args]) async {
 
       final foundObj = realm.all<AnythingGoes>().single;
       expect(foundObj.oneAny.value, isA<Map<String, RealmValue>>());
-      final foundMap = foundObj.oneAny.asMap();
-      expect(foundMap.length, 1);
-      expect(foundMap['foo']!.value, 5);
+      expect(foundObj.oneAny.asMap().length, 1);
+      expect(foundObj.oneAny.asMap()['foo']!.value, 5);
+
+      expect(foundObj.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expect(foundObj.manyAny[0].asMap().length, 1);
+      expect(foundObj.manyAny[0].asMap()['foo']!.value, 5);
+
+      expect(foundObj.dictOfAny['value']!.value, isA<Map<String, RealmValue>>());
+      expect(foundObj.dictOfAny['value']!.asMap().length, 1);
+      expect(foundObj.dictOfAny['value']!.asMap()['foo']!.value, 5);
 
       realm.write(() {
-        foundMap['bar'] = RealmValue.from('abc');
+        foundObj.oneAny.asMap()['bar'] = RealmValue.from('abc');
+        foundObj.manyAny[0].asMap()['bar'] = RealmValue.from('abc');
+        foundObj.dictOfAny['value']!.asMap()['bar'] = RealmValue.from('abc');
       });
 
       expect(obj.oneAny.asMap()['bar']!.value, 'abc');
+      expect(obj.manyAny[0].asMap()['bar']!.value, 'abc');
+      expect(obj.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
     });
 
     for (var isManaged in [true, false]) {
       final managedString = isManaged ? 'managed' : 'unmanaged';
-      RealmValue _persistAndFind(RealmValue rv, Realm realm) {
+      RealmValue persistIfNecessary(RealmValue rv, Realm realm) {
         if (isManaged) {
           realm.write(() {
             realm.add(AnythingGoes(oneAny: rv));
@@ -344,9 +406,16 @@ Future<void> main([List<String>? args]) async {
         return rv;
       }
 
+      void writeIfNecessary(Realm realm, void Function() func) {
+        if (isManaged) {
+          realm.write(() => func());
+        } else {
+          func();
+        }
+      }
+
       test('List when $managedString works with all types', () {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-        final realm = getRealm(config);
+        final realm = getMixedRealm();
         final originalList = [
           null,
           1,
@@ -362,7 +431,7 @@ Future<void> main([List<String>? args]) async {
           [5, 'abc'],
           {'int': -10, 'string': 'abc'}
         ];
-        final foundValue = _persistAndFind(RealmValue.from(originalList), realm);
+        final foundValue = persistIfNecessary(RealmValue.from(originalList), realm);
         expect(foundValue.value, isA<List<RealmValue>>());
 
         final foundList = foundValue.asList();
@@ -380,22 +449,31 @@ Future<void> main([List<String>? args]) async {
         expect(storedObj.as<Stuff>().i, 123);
 
         final storedList = foundList[primitiveCount + 1];
-        expect(storedList.value, isA<List<RealmValue>>());
-        expect(storedList.asList().length, 2);
-        expect(storedList.asList()[0].value, 5);
-        expect(storedList.asList()[1].value, 'abc');
+        expectMatches(storedList, [5, 'abc']);
 
         final storedDict = foundList[primitiveCount + 2];
-        expect(storedDict.value, isA<Map<String, RealmValue>>());
-        expect(storedDict.asMap().length, 2);
-        expect(storedDict.asMap()['int']!.value, -10);
-        expect(storedDict.asMap()['string']!.value, 'abc');
+        expectMatches(storedDict, {'int': -10, 'string': 'abc'});
         expect(storedDict.asMap()['non-existent'], null);
       });
 
+      test('List when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(oneAny: RealmValue.from([true, 5.3]));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        expectMatches(obj.oneAny, [true, 5.3]);
+
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
+        expectMatches(obj.oneAny, 999);
+
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from({'int': -100}));
+        expectMatches(obj.oneAny, {'int': -100});
+      });
+
       test('Map when $managedString works with all types', () {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
-        final realm = getRealm(config);
+        final realm = getMixedRealm();
         final originalMap = {
           'primitive_null': null,
           'primitive_int': 1,
@@ -411,7 +489,7 @@ Future<void> main([List<String>? args]) async {
           'list': [5, 'abc'],
           'map': {'int': -10, 'string': 'abc'}
         };
-        final foundValue = _persistAndFind(RealmValue.from(originalMap), realm);
+        final foundValue = persistIfNecessary(RealmValue.from(originalMap), realm);
         expect(foundValue.value, isA<Map<String, RealmValue>>());
 
         final foundMap = foundValue.asMap();
@@ -427,18 +505,122 @@ Future<void> main([List<String>? args]) async {
         expect(storedObj.as<Stuff>().i, 123);
 
         final storedList = foundMap['list']!;
-        expect(storedList.value, isA<List<RealmValue>>());
-        expect(storedList.asList().length, 2);
-        expect(storedList.asList()[0].value, 5);
-        expect(storedList.asList()[1].value, 'abc');
+        expectMatches(storedList, [5, 'abc']);
 
         final storedDict = foundMap['map']!;
-        expect(storedDict.value, isA<Map<String, RealmValue>>());
-        expect(storedDict.asMap().length, 2);
-        expect(storedDict.asMap()['int']!.value, -10);
-        expect(storedDict.asMap()['string']!.value, 'abc');
-        expect(storedDict.asMap()['non-existent'], null);
+        expectMatches(storedDict, {'int': -10, 'string': 'abc'});
+      });
+
+      test('Map when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        expectMatches(obj.oneAny, {'bool': true, 'double': 5.3});
+
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
+        expectMatches(obj.oneAny, 999);
+
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from([1.23456789]));
+        expectMatches(obj.oneAny, [1.23456789]);
+      });
+
+      test('RealmValue when $managedString can store complex struct', () {
+        final realm = getMixedRealm();
+        final rv = persistIfNecessary(
+            RealmValue.from([
+              {'0_bool': true, '0_double': 5.3},
+              {
+                '1_int': 5,
+                '1_map': {
+                  '2_decimal': Decimal128.fromDouble(0.1),
+                  '2_list': [
+                    'bla bla',
+                    {
+                      '3_dict': {'4_string': 'abc'}
+                    }
+                  ]
+                }
+              }
+            ]),
+            realm);
+
+        expectMatches(rv, [
+          {'0_bool': true, '0_double': 5.3},
+          {
+            '1_int': 5,
+            '1_map': {
+              '2_decimal': Decimal128.fromDouble(0.1),
+              '2_list': [
+                'bla bla',
+                {
+                  '3_dict': {'4_string': 'abc'}
+                }
+              ]
+            }
+          }
+        ]);
+
+        writeIfNecessary(realm, () {
+          rv.asList().removeAt(0);
+        });
+
+        expectMatches(rv, [
+          {
+            '1_int': 5,
+            '1_map': {
+              '2_decimal': Decimal128.fromDouble(0.1),
+              '2_list': [
+                'bla bla',
+                {
+                  '3_dict': {'4_string': 'abc'}
+                }
+              ]
+            }
+          }
+        ]);
+
+        writeIfNecessary(realm, () {
+          rv.asList()[0].asMap()['1_double'] = RealmValue.double(5.5);
+          rv.asList()[0].asMap().remove('1_map');
+          rv.asList().add(RealmValue.bool(true));
+        });
+
+        expectMatches(rv, [
+          {'1_int': 5, '1_double': 5.5},
+          true
+        ]);
       });
     }
+
+    test('List in RealmValue when unmanaged is same instance', () {
+      final list = [RealmValue.bool(true), RealmValue.string('abc')];
+      final rv = RealmValue.list(list);
+      expect(identical(rv.asList(), list), true);
+    });
+
+    test('List in RealmValue when managed is different instance', () {
+      final list = [RealmValue.bool(true), RealmValue.string('abc')];
+      final rv = RealmValue.list(list);
+      final realm = getMixedRealm();
+      final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
+      expect(identical(obj.oneAny.asList(), list), false);
+    });
+
+    test('Map in RealmValue when unmanaged is same instance', () {
+      final map = {'bool': RealmValue.bool(true), 'str': RealmValue.string('abc')};
+      final rv = RealmValue.map(map);
+      expect(identical(rv.asMap(), map), true);
+    });
+
+    test('Map in RealmValue when managed is different instance', () {
+      final map = {'bool': RealmValue.bool(true), 'str': RealmValue.string('abc')};
+      final rv = RealmValue.map(map);
+      final realm = getMixedRealm();
+      final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
+      expect(identical(obj.oneAny.asMap(), map), false);
+    });
   });
 }

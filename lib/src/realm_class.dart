@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
@@ -1058,5 +1059,15 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
   void _stop() {
     _tokenHandle?.release();
     _tokenHandle = null;
+  }
+}
+
+extension RealmValueInternal on RealmValue {
+  bool get isCollection => collectionType != null;
+
+  RealmCollectionType? get collectionType {
+    if (value is List && value is! Uint8List) return RealmCollectionType.list;
+    if (value is Map) return RealmCollectionType.map;
+    return null;
   }
 }

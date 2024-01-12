@@ -2920,7 +2920,7 @@ class _RealmCore {
     CollectionHandleBase? collectionHandle;
     try {
       switch (value.collectionType) {
-        case realm_value_type.RLM_TYPE_LIST:
+        case RealmCollectionType.list:
           final listPointer = _realmLib.invokeGetPointer(createList);
           final listHandle = RealmListHandle._(listPointer, realm.handle);
           collectionHandle = listHandle;
@@ -2929,7 +2929,7 @@ class _RealmCore {
           for (final item in value.value as List<RealmValue>) {
             list.add(item);
           }
-        case realm_value_type.RLM_TYPE_DICTIONARY:
+        case RealmCollectionType.map:
           final mapPointer = _realmLib.invokeGetPointer(createMap);
           final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
           collectionHandle = mapHandle;
@@ -2940,36 +2940,6 @@ class _RealmCore {
           }
         default:
           throw RealmStateError('_createCollection invoked with type that is not list or map.');
-      }
-    } finally {
-      collectionHandle?.release();
-    }
-  }
-
-  void _populateCollection(Realm realm, RealmValue content, Pointer<realm_list> Function() getList, Pointer<realm_dictionary> Function() getMap) {
-    CollectionHandleBase? collectionHandle;
-    try {
-      switch (content.collectionType) {
-        case realm_value_type.RLM_TYPE_LIST:
-          final listPointer = _realmLib.invokeGetPointer(getList);
-          final listHandle = RealmListHandle._(listPointer, realm.handle);
-          collectionHandle = listHandle;
-
-          final list = realm.createList<RealmValue>(listHandle, null);
-          for (final item in content.value as List<RealmValue>) {
-            list.add(item);
-          }
-        case realm_value_type.RLM_TYPE_DICTIONARY:
-          final mapPointer = _realmLib.invokeGetPointer(getMap);
-          final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
-          collectionHandle = mapHandle;
-
-          final map = realm.createMap<RealmValue>(mapHandle, null);
-          for (final kvp in (content.value as Map<String, RealmValue>).entries) {
-            map[kvp.key] = kvp.value;
-          }
-        default:
-          throw RealmStateError('listAddCollectionAt called with type that is not collection');
       }
     } finally {
       collectionHandle?.release();
@@ -3303,17 +3273,6 @@ extension _RealmLibraryEx on RealmLibrary {
       realmCore.throwLastError(errorMessage);
     }
     return result;
-  }
-}
-
-T _toCollectionMethod<T>(RealmValue value, {required T onMap, required T onList}) {
-  switch (value.collectionType) {
-    case realm_value_type.RLM_TYPE_LIST:
-      return onList;
-    case realm_value_type.RLM_TYPE_DICTIONARY:
-      return onMap;
-    default:
-      throw RealmStateError('_toCollectionRealmValue invoked with type that is not list or map.');
   }
 }
 
@@ -3815,15 +3774,5 @@ extension on realm_error {
   LastError toLastError() {
     final message = this.message.cast<Utf8>().toRealmDartString();
     return LastError(error, message, user_code_error.toUserCodeError());
-  }
-}
-
-extension RealmValueInternal on RealmValue {
-  bool get isCollection => collectionType != null;
-
-  int? get collectionType {
-    if (value is List && value is! Uint8List) return realm_value_type.RLM_TYPE_LIST;
-    if (value is Map) return realm_value_type.RLM_TYPE_DICTIONARY;
-    return null;
   }
 }

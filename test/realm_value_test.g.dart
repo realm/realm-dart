@@ -106,7 +106,8 @@ class AnythingGoes extends _AnythingGoes
     RealmObjectBase.registerFactory(AnythingGoes._);
     return const SchemaObject(
         ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
-      SchemaProperty('oneAny', RealmPropertyType.mixed, optional: true),
+      SchemaProperty('oneAny', RealmPropertyType.mixed,
+          optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),
       SchemaProperty('dictOfAny', RealmPropertyType.mixed,
