@@ -644,12 +644,12 @@ Future<void> main([List<String>? args]) async {
       });
 
       final List<RealmListChanges<RealmValue>> listChanges = [];
-      final listSubscription = obj.oneAny.asList().changes.listen((event) {
+      final listSubscription = obj.oneAny.as<RealmList<RealmValue>>().changes.listen((event) {
         listChanges.add(event);
       });
 
       final List<RealmMapChanges<RealmValue>> mapChanges = [];
-      final mapSubscription = obj.oneAny.asList()[1].asMap().changes.listen((event) {
+      final mapSubscription = obj.oneAny.asList()[1].as<RealmMap<RealmValue>>().changes.listen((event) {
         mapChanges.add(event);
       });
 

@@ -191,6 +191,10 @@ class RealmValue {
 
   T as<T>() => value as T; // better for code completion
 
+  List<RealmValue> asList() => as<List<RealmValue>>();
+
+  Map<String, RealmValue> asMap() => as<Map<String, RealmValue>>();
+
   // This is private, so user cannot accidentally construct an invalid instance
   const RealmValue._(this.value);
 
