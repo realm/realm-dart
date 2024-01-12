@@ -1062,6 +1062,7 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
   }
 }
 
+/// @nodoc
 extension RealmValueInternal on RealmValue {
   bool get isCollection => collectionType != null;
 
@@ -1070,4 +1071,11 @@ extension RealmValueInternal on RealmValue {
     if (value is Map) return RealmCollectionType.map;
     return null;
   }
+}
+
+// TODO: should this be here or should we move RealmList/RealmMap to common?
+extension RealmValueCollections on RealmValue {
+  RealmList<RealmValue> asList() => as<RealmList<RealmValue>>();
+
+  RealmMap<RealmValue> asMap() => as<RealmMap<RealmValue>>();
 }

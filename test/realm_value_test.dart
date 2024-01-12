@@ -622,5 +622,117 @@ Future<void> main([List<String>? args]) async {
       final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
       expect(identical(obj.oneAny.asMap(), map), false);
     });
+
+    test('Notifications', () async {
+      final realm = getMixedRealm();
+      final obj = AnythingGoes(
+          oneAny: RealmValue.from([
+        5,
+        {
+          'foo': 'bar',
+          'list': [10]
+        }
+      ]));
+
+      realm.write(() {
+        realm.add(obj);
+      });
+
+      final List<RealmObjectChanges<AnythingGoes>> parentChanges = [];
+      final subscription = obj.changes.listen((event) {
+        parentChanges.add(event);
+      });
+
+      final List<RealmListChanges<RealmValue>> listChanges = [];
+      final listSubscription = obj.oneAny.asList().changes.listen((event) {
+        listChanges.add(event);
+      });
+
+      final List<RealmMapChanges<RealmValue>> mapChanges = [];
+      final mapSubscription = obj.oneAny.asList()[1].asMap().changes.listen((event) {
+        mapChanges.add(event);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      parentChanges.clear();
+      listChanges.clear();
+      mapChanges.clear();
+
+      realm.write(() {
+        obj.oneAny.asList().add(RealmValue.bool(true));
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      expect(parentChanges, hasLength(1));
+      expect(parentChanges[0].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(1));
+      expect(listChanges[0].inserted, [2]);
+      expect(listChanges[0].deleted, isEmpty);
+      expect(listChanges[0].modified, isEmpty);
+      expect(listChanges[0].isCleared, false);
+      expect(listChanges[0].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(0));
+
+      realm.write(() {
+        obj.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
+        obj.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      expect(parentChanges, hasLength(2));
+      expect(parentChanges[1].properties, ['oneAny']);
+
+      // Collection changes are only emitted if the collection is directly modified
+      // but won't be emitted if an item inside the collection changes. In this case,
+      // we're modifying the dictionary inside the list, but not reassigning any list
+      // elements, so we shouldn't get a notification
+      expect(listChanges, hasLength(1));
+
+      expect(mapChanges, hasLength(1));
+      expect(mapChanges[0].modified, ['list']);
+      expect(mapChanges[0].inserted, ['new-value']);
+      expect(mapChanges[0].deleted, isEmpty);
+      expect(mapChanges[0].isCleared, false);
+      expect(mapChanges[0].isCollectionDeleted, false);
+
+      realm.write(() {
+        obj.oneAny.asList().removeAt(1);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      expect(parentChanges, hasLength(3));
+      expect(parentChanges[2].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(2));
+      expect(listChanges[1].inserted, isEmpty);
+      expect(listChanges[1].deleted, [1]);
+      expect(listChanges[1].modified, isEmpty);
+      expect(listChanges[1].isCleared, false);
+      expect(listChanges[1].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(2));
+      expect(mapChanges[1].isCollectionDeleted, true);
+
+      subscription.cancel();
+      listSubscription.cancel();
+      mapSubscription.cancel();
+
+      realm.write(() {
+        obj.oneAny = RealmValue.bool(false);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Subscriptions have been canceled - shouldn't get more notifications
+      expect(parentChanges, hasLength(3));
+      expect(listChanges, hasLength(2));
+      expect(mapChanges, hasLength(2));
+    });
   });
 }

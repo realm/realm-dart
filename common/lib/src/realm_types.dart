@@ -191,10 +191,6 @@ class RealmValue {
 
   T as<T>() => value as T; // better for code completion
 
-  List<RealmValue> asList() => as<List<RealmValue>>();
-
-  Map<String, RealmValue> asMap() => as<Map<String, RealmValue>>();
-
   // This is private, so user cannot accidentally construct an invalid instance
   const RealmValue._(this.value);
 
@@ -213,22 +209,23 @@ class RealmValue {
   const RealmValue.list(List<RealmValue> list) : this._(list);
   const RealmValue.map(Map<String, RealmValue> map) : this._(map);
 
-  /// Will throw [ArgumentError]
+  /// Constructs a RealmValue from an arbitrary object. Collections will be converted recursively as long
+  /// as all their values are compatible.
+  ///
+  /// Throws [ArgumentError] if any of the values inside the graph cannot be stored in a [RealmValue].
   factory RealmValue.from(Object? object) {
     return switch (object) {
-      Object? o
-          when o == null ||
-              o is bool ||
-              o is String ||
-              o is int ||
-              o is double ||
-              o is RealmObjectMarker ||
-              o is DateTime ||
-              o is ObjectId ||
-              o is Decimal128 ||
-              o is Uuid ||
-              o is Uint8List =>
-        RealmValue._(o),
+      null => RealmValue.nullValue(),
+      bool b => RealmValue.bool(b),
+      String text => RealmValue.string(text),
+      int i => RealmValue.int(i),
+      double d => RealmValue.double(d),
+      RealmObjectMarker o => RealmValue.realmObject(o),
+      DateTime d => RealmValue.dateTime(d),
+      ObjectId id => RealmValue.objectId(id),
+      Decimal128 decimal => RealmValue.decimal128(decimal),
+      Uuid uuid => RealmValue.uuid(uuid),
+      Uint8List binary => RealmValue.uint8List(binary),
       Map<String, RealmValue> d => RealmValue.map(d),
       Map<String, dynamic> d => RealmValue.map(d.map((key, value) => MapEntry(key, RealmValue.from(value)))),
       List<RealmValue> l => RealmValue.list(l),
