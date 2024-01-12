@@ -3948,6 +3948,26 @@ class RealmLibrary {
           realm_dart_userdata_async_t Function(
               Object, ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>();
 
+  void realm_dart_void_completion_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_app_error_t> error,
+  ) {
+    return _realm_dart_void_completion_callback(
+      userdata,
+      error,
+    );
+  }
+
+  late final _realm_dart_void_completion_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>>(
+      'realm_dart_void_completion_callback');
+  late final _realm_dart_void_completion_callback =
+      _realm_dart_void_completion_callbackPtr.asFunction<
+          void Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>();
+
   Object realm_dart_weak_handle_to_object(
     ffi.Pointer<ffi.Void> handle,
   ) {
@@ -11238,6 +11258,12 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>>
       get realm_dart_userdata_async_new =>
           _library._realm_dart_userdata_async_newPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>>
+      get realm_dart_void_completion_callback =>
+          _library._realm_dart_void_completion_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_weak_handle_to_object =>
           _library._realm_dart_weak_handle_to_objectPtr;

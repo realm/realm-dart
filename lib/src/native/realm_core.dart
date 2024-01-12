@@ -21,7 +21,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -2086,9 +2085,8 @@ class _RealmCore {
     completer.complete(UserHandle._(user.cast()));
   }
 
-  Future<UserHandle> logIn(App app, Credentials credentials) {
-    final completer = Completer<UserHandle>();
-    final userCompletionCallback = Pointer.fromFunction<
+  Pointer<Void> _createAsyncUserCallbackUserdata(Completer<void> completer) {
+    final callback = Pointer.fromFunction<
         Void Function(
           Pointer<Void>,
           Pointer<realm_user>,
@@ -2097,23 +2095,28 @@ class _RealmCore {
 
     final userdata = _realmLib.realm_dart_userdata_async_new(
       completer,
-      userCompletionCallback.cast(),
+      callback.cast(),
       scheduler.handle._pointer,
     );
+
+    return userdata.cast();
+  }
+
+  Future<UserHandle> logIn(App app, Credentials credentials) async {
+    final completer = Completer<UserHandle>();
+    final userdata = _createAsyncUserCallbackUserdata(completer);
 
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_log_in_with_credentials(
               app.handle._pointer,
               credentials.handle._pointer,
-              //_createVoidCallback(completer).nativeFunction,
-              //nullptr,
-              //nullptr,
               _realmLib.addresses.realm_dart_user_completion_callback,
-              userdata.cast(),
+              userdata,
               _realmLib.addresses.realm_dart_userdata_async_free,
             ),
         "Login failed");
-    return completer.future;
+
+    return await completer.future;
   }
 
   static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
@@ -2134,27 +2137,27 @@ class _RealmCore {
             app.handle._pointer,
             email.toCharPtr(arena),
             password.toRealmString(arena).ref,
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
     return completer.future;
   }
 
-  Future<void> emailPasswordConfirmUser(App app, String token, String tokenId) {
+  Future<void> emailPasswordConfirmUser(App app, String token, String tokenId) async {
     final completer = Completer<void>();
     using((arena) {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_confirm_user(
             app.handle._pointer,
             token.toCharPtr(arena),
             tokenId.toCharPtr(arena),
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
-    return completer.future;
+    return await completer.future;
   }
 
   Future<void> emailPasswordResendUserConfirmation(App app, String email) {
@@ -2163,9 +2166,9 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_resend_confirmation_email(
             app.handle._pointer,
             email.toCharPtr(arena),
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
     return completer.future;
@@ -2179,9 +2182,9 @@ class _RealmCore {
             password.toRealmString(arena).ref,
             token.toCharPtr(arena),
             tokenId.toCharPtr(arena),
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
     return completer.future;
@@ -2193,9 +2196,9 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_send_reset_password_email(
             app.handle._pointer,
             email.toCharPtr(arena),
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
     return completer.future;
@@ -2209,9 +2212,9 @@ class _RealmCore {
             email.toCharPtr(arena),
             password.toRealmString(arena).ref,
             argsAsJSON != null ? argsAsJSON.toCharPtr(arena) : nullptr,
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
     return completer.future;
@@ -2223,9 +2226,9 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_email_password_provider_client_retry_custom_confirmation(
             app.handle._pointer,
             email.toCharPtr(arena),
-            Pointer.fromFunction(void_completion_callback),
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
     });
     return completer.future;
@@ -2239,26 +2242,15 @@ class _RealmCore {
     return UserHandle._(userPtr);
   }
 
-  static void _logOutCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void> completer = userdata.toObject(isPersistent: true);
-
-    if (error != nullptr) {
-      completer.completeWithAppError(error);
-      return;
-    }
-
-    completer.complete();
-  }
-
   Future<void> logOut(App application, User? user) {
     final completer = Completer<void>();
     if (user == null) {
       _realmLib.invokeGetBool(
           () => _realmLib.realm_app_log_out_current_user(
                 application.handle._pointer,
-                Pointer.fromFunction(_logOutCallback),
-                completer.toPersistentHandle(),
-                _realmLib.addresses.realm_dart_delete_persistent_handle,
+                _realmLib.addresses.realm_dart_void_completion_callback,
+                _createAsyncCallbackUserdata(completer),
+                _realmLib.addresses.realm_dart_userdata_async_free,
               ),
           "Logout failed");
     } else {
@@ -2266,9 +2258,9 @@ class _RealmCore {
           () => _realmLib.realm_app_log_out(
                 application.handle._pointer,
                 user.handle._pointer,
-                Pointer.fromFunction(_logOutCallback),
-                completer.toPersistentHandle(),
-                _realmLib.addresses.realm_dart_delete_persistent_handle,
+                _realmLib.addresses.realm_dart_void_completion_callback,
+                _createAsyncCallbackUserdata(completer),
+                _realmLib.addresses.realm_dart_userdata_async_free,
               ),
           "Logout failed");
     }
@@ -2304,27 +2296,15 @@ class _RealmCore {
     return result;
   }
 
-  NativeCallable<Void Function(Pointer<Void> userdata, Pointer<realm_app_error> error)> _createVoidCallback(Completer<void> completer) {
-    late final NativeCallable<Void Function(Pointer<Void> userdata, Pointer<realm_app_error> error)> callback;
-    void done(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-      callback.close();
-      if (error != nullptr) return completer.completeWithAppError(error);
-      completer.complete();
-    }
-
-    callback = NativeCallable<Void Function(Pointer<Void> userdata, Pointer<realm_app_error> error)>.listener(done);
-    return callback;
-  }
-
   Future<void> removeUser(App app, User user) {
     final completer = Completer<void>();
     _realmLib.invokeGetBool(
         () => _realmLib.realm_app_remove_user(
               app.handle._pointer,
               user.handle._pointer,
-              Pointer.fromFunction(void_completion_callback),
-              completer.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              _realmLib.addresses.realm_dart_void_completion_callback,
+              _createAsyncCallbackUserdata(completer),
+              _realmLib.addresses.realm_dart_userdata_async_free,
             ),
         "Remove user failed");
     return completer.future;
@@ -2359,9 +2339,9 @@ class _RealmCore {
         () => _realmLib.realm_app_refresh_custom_data(
               app.handle._pointer,
               user.handle._pointer,
-              _createVoidCallback(completer).nativeFunction, // Pointer.fromFunction(_app_user_completion_callback),
-              nullptr, // completer.toPersistentHandle(),
-              nullptr, // _realmLib.addresses.realm_dart_delete_persistent_handle,
+              _realmLib.addresses.realm_dart_void_completion_callback,
+              _createAsyncCallbackUserdata(completer),
+              _realmLib.addresses.realm_dart_userdata_async_free,
             ),
         "Refresh custom data failed");
     return completer.future;
@@ -2374,9 +2354,9 @@ class _RealmCore {
               app.handle._pointer,
               user.handle._pointer,
               credentials.handle._pointer,
-              Pointer.fromFunction(_app_user_completion_callback),
-              completer.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              _realmLib.addresses.realm_dart_user_completion_callback,
+              _createAsyncUserCallbackUserdata(completer),
+              _realmLib.addresses.realm_dart_userdata_async_free,
             ),
         "Link credentials failed");
     return completer.future;
@@ -2665,9 +2645,9 @@ class _RealmCore {
         () => _realmLib.realm_app_delete_user(
               app.handle._pointer,
               user.handle._pointer,
-              Pointer.fromFunction(void_completion_callback),
-              completer.toPersistentHandle(),
-              _realmLib.addresses.realm_dart_delete_persistent_handle,
+              _realmLib.addresses.realm_dart_void_completion_callback,
+              _createAsyncCallbackUserdata(completer),
+              _realmLib.addresses.realm_dart_userdata_async_free,
             ),
         "Delete user failed");
     return completer.future;
@@ -2761,8 +2741,14 @@ class _RealmCore {
     return using((Arena arena) {
       final namePtr = name.toCharPtr(arena);
       final completer = Completer<ApiKey>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_create_apikey(user.app.handle._pointer, user.handle._pointer, namePtr,
-          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_create_apikey(
+            user.app.handle._pointer,
+            user.handle._pointer,
+            namePtr,
+            Pointer.fromFunction(_app_api_key_completion_callback), // TODO
+            completer.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+          ));
 
       return completer.future;
     });
@@ -2772,8 +2758,14 @@ class _RealmCore {
     return using((Arena arena) {
       final completer = Completer<ApiKey>();
       final native_id = id.toNative(arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
-          Pointer.fromFunction(_app_api_key_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikey(
+            user.app.handle._pointer,
+            user.handle._pointer,
+            native_id.ref,
+            Pointer.fromFunction(_app_api_key_completion_callback), // TODO
+            completer.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+          ));
 
       return completer.future;
     });
@@ -2785,7 +2777,7 @@ class _RealmCore {
       _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_fetch_apikeys(
           user.app.handle._pointer,
           user.handle._pointer,
-          Pointer.fromFunction(_app_api_key_array_completion_callback),
+          Pointer.fromFunction(_app_api_key_array_completion_callback), // TODO
           completer.toPersistentHandle(),
           _realmLib.addresses.realm_dart_delete_persistent_handle));
 
@@ -2797,24 +2789,48 @@ class _RealmCore {
     return using((Arena arena) {
       final completer = Completer<void>();
       final native_id = id.toNative(arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_delete_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
-          Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_delete_apikey(
+            user.app.handle._pointer,
+            user.handle._pointer,
+            native_id.ref,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
+          ));
 
       return completer.future;
     });
+  }
+
+  Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Object object) {
+    final callback = Pointer.fromFunction<
+        Void Function(
+          Pointer<Void>,
+          Pointer<realm_app_error>,
+        )>(void_completion_callback);
+
+    final userdata = _realmLib.realm_dart_userdata_async_new(
+      object,
+      callback.cast(),
+      scheduler.handle._pointer,
+    );
+
+    return userdata.cast();
   }
 
   Future<void> disableApiKey(User user, ObjectId objectId) {
     return using((Arena arena) {
       final completer = Completer<void>();
       final native_id = objectId.toNative(arena);
+
       _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_disable_apikey(
-          user.app.handle._pointer,
-          user.handle._pointer,
-          native_id.ref,
-          Pointer.fromFunction(void_completion_callback),
-          completer.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle));
+            user.app.handle._pointer,
+            user.handle._pointer,
+            native_id.ref,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
+          ));
 
       return completer.future;
     });
@@ -2824,8 +2840,14 @@ class _RealmCore {
     return using((Arena arena) {
       final completer = Completer<void>();
       final native_id = objectId.toNative(arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_enable_apikey(user.app.handle._pointer, user.handle._pointer, native_id.ref,
-          Pointer.fromFunction(void_completion_callback), completer.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+      _realmLib.invokeGetBool(() => _realmLib.realm_app_user_apikey_provider_client_enable_apikey(
+            user.app.handle._pointer,
+            user.handle._pointer,
+            native_id.ref,
+            _realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
+          ));
 
       return completer.future;
     });
@@ -2852,7 +2874,7 @@ class _RealmCore {
             functionName.toCharPtr(arena),
             argsAsJSON?.toCharPtr(arena) ?? nullptr,
             nullptr,
-            Pointer.fromFunction(_call_app_function_callback),
+            Pointer.fromFunction(_call_app_function_callback), // TODO
             completer.toPersistentHandle(),
             _realmLib.addresses.realm_dart_delete_persistent_handle,
           ));
