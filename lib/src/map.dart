@@ -49,7 +49,13 @@ abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<S
 }
 
 class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<String, T> with RealmEntity implements RealmMap<T> {
-  UnmanagedRealmMap([Map<String, T>? items]) : super(Map<String, T>.from(items ?? <String, T>{}));
+  final Map<String, T> _base;
+
+  UnmanagedRealmMap([Map<String, T>? items]) : this._(items is Map<String, T> ? items : Map<String, T>.from(items ?? <String, T>{}));
+
+  UnmanagedRealmMap._(Map<String, T> items)
+      : _base = items,
+        super(items);
 
   @override
   bool get isValid => true;

@@ -644,12 +644,12 @@ Future<void> main([List<String>? args]) async {
       });
 
       final List<RealmListChanges<RealmValue>> listChanges = [];
-      final listSubscription = obj.oneAny.as<RealmList<RealmValue>>().changes.listen((event) {
+      final listSubscription = obj.oneAny.asList().changes.listen((event) {
         listChanges.add(event);
       });
 
       final List<RealmMapChanges<RealmValue>> mapChanges = [];
-      final mapSubscription = obj.oneAny.asList()[1].as<RealmMap<RealmValue>>().changes.listen((event) {
+      final mapSubscription = obj.oneAny.asList()[1].asMap().changes.listen((event) {
         mapChanges.add(event);
       });
 
@@ -691,6 +691,9 @@ Future<void> main([List<String>? args]) async {
       // but won't be emitted if an item inside the collection changes. In this case,
       // we're modifying the dictionary inside the list, but not reassigning any list
       // elements, so we shouldn't get a notification
+
+      // TODO: this is inconsistent with how lists behave today - talk to Claus/Ferdinando
+      // about the expectations
       expect(listChanges, hasLength(1));
 
       expect(mapChanges, hasLength(1));

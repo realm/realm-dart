@@ -205,7 +205,13 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 }
 
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
-  UnmanagedRealmList([Iterable<T>? items]) : super(List<T>.from(items ?? <T>[]));
+  final List<T> _base;
+
+  UnmanagedRealmList([Iterable<T>? items]) : this._(items is List<T> ? items : List<T>.from(items ?? <T>[]));
+
+  UnmanagedRealmList._(List<T> items)
+      : _base = items,
+        super(items);
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
@@ -224,6 +230,14 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   @override
   Stream<RealmListChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
+
+  @override
+  bool operator ==(Object? other) {
+    return _base == other;
+  }
+
+  @override
+  int get hashCode => _base.hashCode;
 }
 
 // The query operations on lists, only work for list of objects (core restriction),

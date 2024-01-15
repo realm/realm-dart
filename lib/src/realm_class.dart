@@ -1072,3 +1072,24 @@ extension RealmValueInternal on RealmValue {
     return null;
   }
 }
+
+/// Extensions on RealmValue providing convenience conversion operators
+extension RealmValueConvenience on RealmValue {
+  /// Casts [value] to a List<RealmValue>. It will throw an exception if [value] is not a list.
+  RealmList<RealmValue> asList() {
+    if (value is RealmList<RealmValue>) {
+      return as<RealmList<RealmValue>>();
+    }
+
+    return UnmanagedRealmList(as<List<RealmValue>>());
+  }
+
+  /// Casts [value] to a Map<String, RealmValue>. It will throw an exception if [value] is not a map.
+  RealmMap<RealmValue> asMap() {
+    if (value is RealmMap<RealmValue>) {
+      return as<RealmMap<RealmValue>>();
+    }
+
+    return UnmanagedRealmMap(as<Map<String, RealmValue>>());
+  }
+}

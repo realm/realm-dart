@@ -189,11 +189,11 @@ class RealmValue {
   final Object? value;
   Type get type => value.runtimeType;
 
+  // TODO
+  // RealmValueType get realmValueType;
+
+  /// Casts [value] to [T]. An exception will be thrown if the value is not convertible to [T].
   T as<T>() => value as T; // better for code completion
-
-  List<RealmValue> asList() => as<List<RealmValue>>();
-
-  Map<String, RealmValue> asMap() => as<Map<String, RealmValue>>();
 
   // This is private, so user cannot accidentally construct an invalid instance
   const RealmValue._(this.value);
@@ -248,6 +248,8 @@ class RealmValue {
       }
 
       return value == other.value;
+
+      // TODO: talk to Claus/Ferdinando about equality of collections - we should try not to do deep eqaulity there
     }
 
     return value == other;
