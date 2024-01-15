@@ -22,6 +22,7 @@
 #include <thread>
 
 #include "realm_dart_scheduler.h"
+#include "realm_dart_scheduler.hpp"
 #include "realm_dart_logger.h"
 struct SchedulerData {
     //used for debugging
@@ -37,6 +38,8 @@ struct SchedulerData {
         : port(dartPort), threadId(std::this_thread::get_id()), isolateId(isolate)
     {}
 };
+
+thread_local std::shared_ptr<realm::util::Scheduler> isolate_scheduler;
 
 //This can be invoked on any thread
 void realm_dart_scheduler_free_userData(void* userData) {
@@ -85,12 +88,16 @@ bool realm_dart_scheduler_can_deliver_notifications(void* userData) {
 RLM_API realm_scheduler_t* realm_dart_create_scheduler(uint64_t isolateId, Dart_Port port) {
     SchedulerData* schedulerData = new SchedulerData(isolateId, port);
 
-    return realm_scheduler_new(schedulerData,
+    auto scheduler = realm_scheduler_new(schedulerData,
         realm_dart_scheduler_free_userData,
         realm_dart_scheduler_notify,
         realm_dart_scheduler_is_on_thread,
         realm_dart_scheduler_is_same_as,
         realm_dart_scheduler_can_deliver_notifications);
+
+    isolate_scheduler = std::shared_ptr<realm::util::Scheduler>(*scheduler);
+
+    return scheduler;
 }
 
 //Used for debugging

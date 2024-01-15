@@ -2035,7 +2035,7 @@ class _RealmCore {
         Realm.logger.log(RealmLogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
         responseRef.custom_status_code = _CustomErrorCode.unknown.code;
       } finally {
-        _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
+        _realmLib.realm_dart_http_transport_complete_request(request_context, response_pointer);
       }
     });
   }
@@ -2073,6 +2073,8 @@ class _RealmCore {
   }
 
   AppHandle? getApp(String id, String? baseUrl) {
+    // Make sure the scheduler is created as we may need it for http requests.
+    final _ = scheduler;
     return using((arena) {
       final out_app = arena<Pointer<realm_app>>();
       _realmLib.invokeGetBool(() => _realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), out_app));

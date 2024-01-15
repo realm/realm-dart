@@ -21,6 +21,16 @@
 
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
+#include "realm_dart_scheduler.hpp"
+
+// This is a warpper around the request_context supplied by Core. It adds a pointer to the thread_local
+// scheduler on the requesting thread, which will then be used to bounce back to the original thread when
+// processing the response. This makes sure that we don't jump between isolates, even if the app is configured
+// on Isolate 1, and an http request is triggered on Isolate 2.
+struct RequestInfo {
+    void* completion_func;
+    std::shared_ptr<realm::util::Scheduler> scheduler;
+};
 
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context) {
     // the pointers in request are to stack values, we need to make copies and move them into the scheduler invocation
@@ -41,13 +51,43 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_h
     }
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, request = std::move(request), buf = std::move(buf), request_context]() mutable {
+    ud->scheduler->invoke([ud, request = std::move(request), buf = std::move(buf), request_info = new RequestInfo{ request_context, isolate_scheduler }]() mutable {
         //we moved buf so we need to update the request pointers here.
         request.url = buf.url.c_str();
         request.body = buf.body.data();
         request.headers = buf.headers.data();
-        (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request, request_context));
+        (reinterpret_cast<realm_http_request_func_t>(ud->dart_callback)(ud->handle, request, request_info));
     });
+}
+
+RLM_API void realm_dart_http_transport_complete_request(void* request_context, const realm_http_response_t* response)
+{
+    // This is essentially a copy-paste of CNetworkTransport::on_response_completed since we need to copy the data out of the
+    // response anyway. The only addition is invoking the scheduler if it's supplied by the request handler.
+    realm::app::HttpHeaders headers;
+    for (size_t i = 0; i < response->num_headers; i++) {
+        headers.emplace(response->headers[i].name, response->headers[i].value);
+    }
+    auto body = std::string(response->body, response->body_size);
+    auto status_code = response->status_code;
+    auto custom_status_code = response->custom_status_code;
+
+    auto request_info = reinterpret_cast<RequestInfo*>(request_context);
+    std::unique_ptr<realm::util::UniqueFunction<void(const realm::app::Response&)>> completion(
+        static_cast<realm::util::UniqueFunction<void(const realm::app::Response&)>*>(request_info->completion_func));
+
+    if (request_info->scheduler != nullptr) {
+        request_info->scheduler->invoke([completion = std::move(completion), status_code, custom_status_code, headers = std::move(headers), body = std::move(body)]() {
+            (*completion)({ status_code, custom_status_code, std::move(headers),
+                            std::move(body) });
+
+        });
+    }
+    else {
+        (*completion)({ status_code, custom_status_code, std::move(headers),
+                        std::move(body) });
+    }
+    delete request_info;
 }
 
 RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message)

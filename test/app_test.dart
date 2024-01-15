@@ -335,6 +335,25 @@ Future<void> main([List<String>? args]) async {
 
     expect(log, contains('App constructor called on Isolate'));
   });
+
+  test('app.logIn on background isolate', () {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    const appId = 'fake-app-id';
+    App(AppConfiguration(appId, baseUrl: Uri.parse('https://this-is-a-fake-url.com')));
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        try {
+          await app!.logIn(Credentials.anonymous()); // <-- this line used to crash, now it throws
+          fail('Expected an error from login');
+        } on AppException catch (e) {
+          if (!e.message.contains('non-zero custom status code considered fatal')) {
+            rethrow;
+          }
+        }
+      },
+    ), completes);
+  });
 }
 
 extension PersonExt on Person {

@@ -3556,6 +3556,26 @@ class RealmLibrary {
           void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>();
 
+  void realm_dart_http_transport_complete_request(
+    ffi.Pointer<ffi.Void> request_context,
+    ffi.Pointer<realm_http_response_t> response,
+  ) {
+    return _realm_dart_http_transport_complete_request(
+      request_context,
+      response,
+    );
+  }
+
+  late final _realm_dart_http_transport_complete_requestPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_http_response_t>)>>(
+      'realm_dart_http_transport_complete_request');
+  late final _realm_dart_http_transport_complete_request =
+      _realm_dart_http_transport_complete_requestPtr.asFunction<
+          void Function(
+              ffi.Pointer<ffi.Void>, ffi.Pointer<realm_http_response_t>)>();
+
   /// Returns `true` if Realm Core logger was initialized.
   bool realm_dart_init_core_logger(
     int level,
@@ -11119,6 +11139,12 @@ class _SymbolAddresses {
           ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
       _library._realm_dart_http_request_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_http_response_t>)>>
+      get realm_dart_http_transport_complete_request =>
+          _library._realm_dart_http_transport_complete_requestPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>
       get realm_dart_init_core_logger =>
           _library._realm_dart_init_core_loggerPtr;
