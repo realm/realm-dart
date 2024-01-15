@@ -53,7 +53,6 @@ Future<void> main([List<String>? args]) async {
   }
 
   group('RealmValue', () {
-    final now = DateTime.now().toUtc();
     final values = <Object?>[
       null,
       true,
@@ -62,9 +61,9 @@ Future<void> main([List<String>? args]) async {
       3.14,
       AnythingGoes(),
       Stuff(),
-      now,
-      ObjectId.fromTimestamp(now),
-      Uuid.v4(),
+      DateTime.utc(2024, 5, 3, 23, 11, 54),
+      ObjectId.fromHexString('64c13ab08edf48a008793cac'),
+      Uuid.fromString('7a459a5e-5eb6-45f6-9b72-8f794e324105'),
       Decimal128.fromDouble(128.128),
       Uint8List.fromList([1, 2, 0])
     ];
@@ -73,7 +72,7 @@ Future<void> main([List<String>? args]) async {
       test('Roundtrip ${x.runtimeType} $x', () {
         final realm = getMixedRealm();
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
-        expect(something.oneAny.type, x.runtimeType);
+        expect(something.oneAny.value.runtimeType, x.runtimeType);
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
       });
@@ -94,48 +93,44 @@ Future<void> main([List<String>? args]) async {
         final something = AnythingGoes(oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
 
-        // Uint8List can not be in the switch
-        if (something.oneAny.type == Uint8List(0).runtimeType) {
-          expect(value, isA<Uint8List>());
-          return;
-        }
-
         switch (something.oneAny.type) {
-          case Null:
+          case RealmValueType.nullValue:
             expect(value, isA<void>());
             break;
-          case bool:
+          case RealmValueType.bool:
             expect(value, isA<bool>());
             break;
-          case String:
+          case RealmValueType.string:
             expect(value, isA<String>());
             break;
-          case int:
+          case RealmValueType.int:
             expect(value, isA<int>());
             break;
-          case double:
+          case RealmValueType.double:
             expect(value, isA<double>());
             break;
-          case AnythingGoes: // RealmObject won't work with switch
+          case RealmValueType.object:
             expect(value, isA<AnythingGoes>());
-            break;
-          case Stuff: // RealmObject won't work with switch
             expect(value, isA<Stuff>());
             break;
-          case DateTime:
+          case RealmValueType.dateTime:
             expect(value, isA<DateTime>());
             break;
-          case ObjectId:
+          case RealmValueType.objectId:
             expect(value, isA<ObjectId>());
             break;
-          case Uuid:
+          case RealmValueType.uuid:
             expect(value, isA<Uuid>());
             break;
-          case Decimal128:
+          case RealmValueType.decimal:
             expect(value, isA<Decimal128>());
             break;
-          default:
-            fail('${something.oneAny} not handled correctly in switch');
+          case RealmValueType.binary:
+            expect(value, isA<Uint8List>());
+            break;
+          case RealmValueType.list:
+          case RealmValueType.map:
+            fail('List and map should not be tested here.');
         }
       });
     }
@@ -146,29 +141,29 @@ Future<void> main([List<String>? args]) async {
         final value = something.oneAny.value;
         final type = something.oneAny.type;
         if (value == null) {
-          expect(type, Null);
+          expect(type, RealmValueType.nullValue);
         } else if (value is int) {
-          expect(type, int);
+          expect(type, RealmValueType.int);
         } else if (value is String) {
-          expect(type, String);
+          expect(type, RealmValueType.string);
         } else if (value is bool) {
-          expect(type, bool);
+          expect(type, RealmValueType.bool);
         } else if (value is double) {
-          expect(type, double);
+          expect(type, RealmValueType.double);
         } else if (value is DateTime) {
-          expect(type, DateTime);
+          expect(type, RealmValueType.dateTime);
         } else if (value is Uuid) {
-          expect(type, Uuid);
+          expect(type, RealmValueType.uuid);
         } else if (value is ObjectId) {
-          expect(type, ObjectId);
+          expect(type, RealmValueType.objectId);
         } else if (value is Decimal128) {
-          expect(type, Decimal128);
+          expect(type, RealmValueType.decimal);
         } else if (value is Uint8List) {
-          expect(type, Uint8List(0).runtimeType);
+          expect(type, RealmValueType.binary);
         } else if (value is AnythingGoes) {
-          expect(type, AnythingGoes);
+          expect(type, RealmValueType.object);
         } else if (value is Stuff) {
-          expect(type, Stuff);
+          expect(type, RealmValueType.object);
         } else {
           fail('$value not handled correctly in if-is');
         }
@@ -433,6 +428,7 @@ Future<void> main([List<String>? args]) async {
         ];
         final foundValue = persistIfNecessary(RealmValue.from(originalList), realm);
         expect(foundValue.value, isA<List<RealmValue>>());
+        expect(foundValue.type, RealmValueType.list);
 
         final foundList = foundValue.asList();
         expect(foundList.length, originalList.length);
@@ -463,6 +459,7 @@ Future<void> main([List<String>? args]) async {
           realm.write(() => realm.add(obj));
         }
 
+        expect(obj.oneAny.type, RealmValueType.list);
         expectMatches(obj.oneAny, [true, 5.3]);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
@@ -491,6 +488,7 @@ Future<void> main([List<String>? args]) async {
         };
         final foundValue = persistIfNecessary(RealmValue.from(originalMap), realm);
         expect(foundValue.value, isA<Map<String, RealmValue>>());
+        expect(foundValue.type, RealmValueType.map);
 
         final foundMap = foundValue.asMap();
         expect(foundMap.length, foundMap.length);
@@ -518,6 +516,7 @@ Future<void> main([List<String>? args]) async {
           realm.write(() => realm.add(obj));
         }
 
+        expect(obj.oneAny.type, RealmValueType.list);
         expectMatches(obj.oneAny, {'bool': true, 'double': 5.3});
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));

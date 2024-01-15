@@ -63,6 +63,7 @@ export 'package:realm_common/realm_common.dart'
         RealmStateError,
         RealmUnsupportedSetError,
         RealmValue,
+        RealmValueType,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface

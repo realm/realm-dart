@@ -156,6 +156,48 @@ abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
 /// @nodoc
 abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 
+/// An enum describing the possible types that can be wrapped inside [RealmValue]
+enum RealmValueType {
+  /// The [RealmValue] represents `null`
+  nullValue,
+
+  /// The [RealmValue] represents a [bool] value
+  bool,
+
+  /// The [RealmValue] represents a [String] value
+  string,
+
+  /// The [RealmValue] represents an [int] value
+  int,
+
+  /// The [RealmValue] represents a [double] value
+  double,
+
+  /// The [RealmValue] represents a `RealmObject` instance value
+  object,
+
+  /// The [RealmValue] represents an [ObjectId] value
+  objectId,
+
+  /// The [RealmValue] represents a [DateTime] value
+  dateTime,
+
+  /// The [RealmValue] represents a [Decimal128] value
+  decimal,
+
+  /// The [RealmValue] represents an [Uuid] value
+  uuid,
+
+  /// The [RealmValue] represents a binary ([Uint8List]) value
+  binary,
+
+  /// The [RealmValue] represents a `List<RealmValue>`
+  list,
+
+  /// The [RealmValue] represents a `Map<String, RealmValue>`
+  map,
+}
+
 /// A type that can represent any valid realm data type, except collections and embedded objects.
 ///
 /// You can use [RealmValue] to declare fields on realm models, in which case it must be non-nullable,
@@ -187,31 +229,29 @@ abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 /// ```
 class RealmValue {
   final Object? value;
-  Type get type => value.runtimeType;
 
-  // TODO
-  // RealmValueType get realmValueType;
+  final RealmValueType type;
 
   /// Casts [value] to [T]. An exception will be thrown if the value is not convertible to [T].
   T as<T>() => value as T; // better for code completion
 
   // This is private, so user cannot accidentally construct an invalid instance
-  const RealmValue._(this.value);
+  const RealmValue._(this.value, this.type);
 
-  const RealmValue.nullValue() : this._(null);
-  const RealmValue.bool(bool b) : this._(b);
-  const RealmValue.string(String text) : this._(text);
-  const RealmValue.int(int i) : this._(i);
-  const RealmValue.double(double d) : this._(d);
+  const RealmValue.nullValue() : this._(null, RealmValueType.nullValue);
+  const RealmValue.bool(bool b) : this._(b, RealmValueType.bool);
+  const RealmValue.string(String text) : this._(text, RealmValueType.string);
+  const RealmValue.int(int i) : this._(i, RealmValueType.int);
+  const RealmValue.double(double d) : this._(d, RealmValueType.double);
   // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
-  const RealmValue.realmObject(RealmObjectMarker o) : this._(o);
-  const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
-  const RealmValue.objectId(ObjectId id) : this._(id);
-  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
-  const RealmValue.uuid(Uuid uuid) : this._(uuid);
-  const RealmValue.uint8List(Uint8List binary) : this._(binary);
-  const RealmValue.list(List<RealmValue> list) : this._(list);
-  const RealmValue.map(Map<String, RealmValue> map) : this._(map);
+  const RealmValue.realmObject(RealmObjectMarker o) : this._(o, RealmValueType.object);
+  const RealmValue.dateTime(DateTime timestamp) : this._(timestamp, RealmValueType.dateTime);
+  const RealmValue.objectId(ObjectId id) : this._(id, RealmValueType.objectId);
+  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal, RealmValueType.decimal);
+  const RealmValue.uuid(Uuid uuid) : this._(uuid, RealmValueType.uuid);
+  const RealmValue.binary(Uint8List binary) : this._(binary, RealmValueType.binary);
+  const RealmValue.list(List<RealmValue> list) : this._(list, RealmValueType.list);
+  const RealmValue.map(Map<String, RealmValue> map) : this._(map, RealmValueType.map);
 
   /// Constructs a RealmValue from an arbitrary object. Collections will be converted recursively as long
   /// as all their values are compatible.
@@ -229,7 +269,7 @@ class RealmValue {
       ObjectId id => RealmValue.objectId(id),
       Decimal128 decimal => RealmValue.decimal128(decimal),
       Uuid uuid => RealmValue.uuid(uuid),
-      Uint8List binary => RealmValue.uint8List(binary),
+      Uint8List binary => RealmValue.binary(binary),
       Map<String, RealmValue> d => RealmValue.map(d),
       Map<String, dynamic> d => RealmValue.map(d.map((key, value) => MapEntry(key, RealmValue.from(value)))),
       List<RealmValue> l => RealmValue.list(l),
