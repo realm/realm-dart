@@ -31,12 +31,29 @@
 * Updated the minimum required CMake version for Flutter on Linux to 3.19. (Issue [#1381](https://github.com/realm/realm-dart/issues/1381))
 * Errors in user-provided client reset callbacks, such as `RecoverOrDiscardUnsyncedChangesHandler.onBeforeReset/onAfterDiscard` would not be correctly propagated and the client reset exception would contain a message like `A fatal error occurred during client reset: 'User-provided callback failed'` but no details about the actual error. Now `SyncError` has an `innerError` field which contains the original error thrown in the callback. (PR [#1447](https://github.com/realm/realm-dart/pull/1447))
 * Fixed a bug where the generator would not emit errors for invalid default values for collection properties. Default values for collection properties are not supported unless the default value is an empty collection. (PR [#1406](https://github.com/realm/realm-dart/pull/1406))
+* Bad performance of initial Sync download involving many backlinks (Issue [#7217](https://github.com/realm/realm-core/issues/7217), Core 13.25.1)
+* Exceptions thrown during bootstrap application will now be surfaced to the user via the sync error handler rather than terminating the program with an unhandled exception. (PR [#7197](https://github.com/realm/realm-core/pull/7197), Core 13.25.0).
+* Exceptions thrown during bootstrap application could crash the sync client with an `!m_sess` assertion if the bootstrap was being applied during sync::Session activation. (Issue [#7196](https://github.com/realm/realm-core/issues/7196), Core 13.25.0).
+* If a SyncSession was explicitly resumed via `App.reconnect()` while it was waiting to auto-resume after a non-fatal error and then another non-fatal error was received, the sync client could crash with a `!m_try_again_activation_timer` assertion. (Issue [#6961](https://github.com/realm/realm-core/issues/6961), Core 13.25.0)
+* Fixed several causes of "decryption failed" exceptions that could happen when opening multiple encrypted Realm files in the same process while using Apple/linux and storing the Realms on an exFAT file system. (Issue [#7156](https://github.com/realm/realm-core/issues/7156), Core 13.24.1)
+* Fixed deadlock which occurred when accessing the current user from the `App` from within a callback from the `User` listener (Issue [#7183](https://github.com/realm/realm-core/issues/7183), Core 13.24.1)
+* Having a class name of length 57 would make client reset crash as a limit of 56 was wrongly enforced (57 is the correct limit) (Issue [#7176](https://github.com/realm/realm-core/issues/7176), Core 13.24.1)
+* Automatic client reset recovery on flexible sync Realms would apply recovered changes in multiple write transactions, releasing the write lock in between. This had several observable negative effects:
+  - Other threads reading from the Realm while a client reset was in progress could observe invalid mid-reset state.
+  - Other threads could potentially write in the middle of a client reset, resulting in history diverging from the server.
+  - The change notifications produced by client resets were not minimal and would report that some things changed which actually didn't.
+  - All pending subscriptions were marked as Superseded and then recreating, resulting in anything waiting for subscriptions to complete firing early.
+  (PR [#7161](https://github.com/realm/realm-core/pull/7161), Core 13.24.1).
+* If the very first open of a flexible sync Realm triggered a client reset, the configuration had an initial subscriptions callback, both before and after reset callbacks, and the initial subscription callback began a read transaction without ending it (which is normally going to be the case), opening the frozen Realm for the after reset callback would trigger a BadVersion exception (PR [#7161](https://github.com/realm/realm-core/pull/7161), Core 13.24.1).
+* Changesets have wrong timestamps if the local clock lags behind 2015-01-01T00:00:00Z. The sync client now throws an exception if that happens. (PR [#7180](https://github.com/realm/realm-core/pull/7180), Core 13.24.1)
+* Allow propagation of user code exceptions happening during client reset callbacks. (Issue [#7098](https://github.com/realm/realm-core/issues/7098), Core 13.24.1)
+
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core 13.24.0.
+* Using Core 13.25.1.
 
 ## 1.6.1 (2023-11-30)
 
