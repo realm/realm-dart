@@ -29,34 +29,36 @@ import '../test/subscription_test.dart' as subscription_test;
 import '../test/user_test.dart' as user_test;
 import '../test/realm_logger_test.dart' as realm_logger_test;
 
-Future<String> main(List<String> args) async {
+Future<String> main() async {
+  configuration_test.copyFile = _copyBundledFile;
+
   final Completer<String> completer = Completer<String>();
 
   try {
     final List<String> failedTests = [];
 
-    await app_test.main(args);
-    await asymmetric_test.main(args);
-    await backlinks_test.main(args);
-    await client_reset_test.main(args);
-    await configuration_test.main(args);
-    await credentials_test.main(args);
-    await decimal128_test.main(args);
-    await dynamic_realm_test.main(args);
-    await embedded_test.main(args);
-    await geospatial_test.main(args);
-    await indexed_test.main(args);
-    await list_test.main(args);
-    await migration_test.main(args);
-    await realm_logger_test.main(args);
-    await realm_object_test.main(args);
-    await realm_set_test.main(args);
-    await realm_test.main(args);
-    await realm_value_test.main(args);
-    await results_test.main(args);
-    await session_test.main(args);
-    await subscription_test.main(args);
-    await user_test.main(args);
+    app_test.main();
+    asymmetric_test.main();
+    backlinks_test.main();
+    client_reset_test.main();
+    configuration_test.main();
+    credentials_test.main();
+    decimal128_test.main();
+    dynamic_realm_test.main();
+    embedded_test.main();
+    geospatial_test.main();
+    indexed_test.main();
+    list_test.main();
+    migration_test.main();
+    realm_logger_test.main();
+    realm_object_test.main();
+    realm_set_test.main();
+    realm_test.main();
+    realm_value_test.main();
+    results_test.main();
+    session_test.main();
+    subscription_test.main();
+    user_test.main();
 
     tearDown(() {
       if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {

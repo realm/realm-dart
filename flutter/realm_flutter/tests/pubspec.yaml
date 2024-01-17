@@ -33,7 +33,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - data/realm_files/old-format.realm
-
-dependency_overrides:
-  test_api: ^0.6.1
+    - test/data/realm_files/old-format.realm

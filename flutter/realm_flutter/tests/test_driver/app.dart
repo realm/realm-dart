@@ -20,13 +20,13 @@ void main(List<String> args) async {
         // Build correct test arguments using the dart test arg name '--name'
         testArgs.addAll(['--name', testName]);
       }
-      
+
       if (command.contains("--")) {
         testArgs.addAll(command.substring(command.indexOf("--")).split(" "));
       }
 
       //Invoke the actual Dart tests inside Flutter
-      return await tests.main(testArgs);
+      return tests.main();
     } else {
       throw Exception('Unknown command: $command');
     }
