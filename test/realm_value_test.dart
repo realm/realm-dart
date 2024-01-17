@@ -16,6 +16,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
@@ -97,7 +98,7 @@ Future<void> main([List<String>? args]) async {
           case RealmValueType.nullValue:
             expect(value, isA<void>());
             break;
-          case RealmValueType.bool:
+          case RealmValueType.boolean:
             expect(value, isA<bool>());
             break;
           case RealmValueType.string:
@@ -110,8 +111,7 @@ Future<void> main([List<String>? args]) async {
             expect(value, isA<double>());
             break;
           case RealmValueType.object:
-            expect(value, isA<AnythingGoes>());
-            expect(value, isA<Stuff>());
+            expect(value is AnythingGoes || value is Stuff, true);
             break;
           case RealmValueType.dateTime:
             expect(value, isA<DateTime>());
@@ -147,7 +147,7 @@ Future<void> main([List<String>? args]) async {
         } else if (value is String) {
           expect(type, RealmValueType.string);
         } else if (value is bool) {
-          expect(type, RealmValueType.bool);
+          expect(type, RealmValueType.boolean);
         } else if (value is double) {
           expect(type, RealmValueType.double);
         } else if (value is DateTime) {
@@ -270,7 +270,7 @@ Future<void> main([List<String>? args]) async {
           final expectedMap = expected as Map;
           expect(actualMap, hasLength(expectedMap.length));
           for (String key in expectedMap.keys) {
-            expect(actualMap.containsKey(key), true);
+            expect(actualMap.containsKey(key), true, reason: "Didn't find $key in the actual map");
             expectMatches(actualMap[key]!, expectedMap[key]);
           }
           break;
@@ -516,7 +516,7 @@ Future<void> main([List<String>? args]) async {
           realm.write(() => realm.add(obj));
         }
 
-        expect(obj.oneAny.type, RealmValueType.list);
+        expect(obj.oneAny.type, RealmValueType.map);
         expectMatches(obj.oneAny, {'bool': true, 'double': 5.3});
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
@@ -594,10 +594,64 @@ Future<void> main([List<String>? args]) async {
       });
     }
 
-    test('List in RealmValue when unmanaged is same instance', () {
+    test('List inside RealmValue equality', () {
+      final realm = getMixedRealm();
+      final originalList = [1];
+      final managedValue = realm.write(() {
+        return realm.add(AnythingGoes(oneAny: RealmValue.from(originalList))).oneAny;
+      });
+
+      final unmanagedValue = RealmValue.from(originalList);
+
+      expect(managedValue.type, RealmValueType.list);
+      expect(unmanagedValue.type, RealmValueType.list);
+
+      expect(managedValue.asList().isManaged, true);
+      expect(unmanagedValue.asList().isManaged, false);
+
+      expect(managedValue == unmanagedValue, false);
+      expect(unmanagedValue == managedValue, false);
+      expect(managedValue == managedValue, false);
+      expect(unmanagedValue == unmanagedValue, false);
+
+      // ignore: unrelated_type_equality_checks
+      expect(managedValue == originalList, false);
+
+      // ignore: unrelated_type_equality_checks
+      expect(unmanagedValue == originalList, false);
+    });
+
+    test('Map inside RealmValue equality', () {
+      final realm = getMixedRealm();
+      final originalMap = {'foo': 'bar'};
+      final managedValue = realm.write(() {
+        return realm.add(AnythingGoes(oneAny: RealmValue.from(originalMap))).oneAny;
+      });
+
+      final unmanagedValue = RealmValue.from(originalMap);
+
+      expect(managedValue.type, RealmValueType.map);
+      expect(unmanagedValue.type, RealmValueType.map);
+
+      expect(managedValue.asMap().isManaged, true);
+      expect(unmanagedValue.asMap().isManaged, false);
+
+      expect(managedValue == unmanagedValue, false);
+      expect(unmanagedValue == managedValue, false);
+      expect(managedValue == managedValue, false);
+      expect(unmanagedValue == unmanagedValue, false);
+
+      // ignore: unrelated_type_equality_checks
+      expect(managedValue == originalMap, false);
+
+      // ignore: unrelated_type_equality_checks
+      expect(unmanagedValue == originalMap, false);
+    });
+
+    test('List in RealmValue when unmanaged is equal to original list', () {
       final list = [RealmValue.bool(true), RealmValue.string('abc')];
       final rv = RealmValue.list(list);
-      expect(identical(rv.asList(), list), true);
+      expect(rv.asList() == list, true);
     });
 
     test('List in RealmValue when managed is different instance', () {
@@ -608,10 +662,10 @@ Future<void> main([List<String>? args]) async {
       expect(identical(obj.oneAny.asList(), list), false);
     });
 
-    test('Map in RealmValue when unmanaged is same instance', () {
+    test('Map in RealmValue when unmanaged is equal to original map', () {
       final map = {'bool': RealmValue.bool(true), 'str': RealmValue.string('abc')};
       final rv = RealmValue.map(map);
-      expect(identical(rv.asMap(), map), true);
+      expect(rv.asMap() == map, true);
     });
 
     test('Map in RealmValue when managed is different instance', () {

@@ -207,7 +207,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
   final List<T> _base;
 
-  UnmanagedRealmList([Iterable<T>? items]) : this._(items is List<T> ? items : List<T>.from(items ?? <T>[]));
+  UnmanagedRealmList([Iterable<T>? items]) : this._(List<T>.from(items ?? <T>[]));
 
   UnmanagedRealmList._(List<T> items)
       : _base = items,
@@ -277,6 +277,10 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
   }
 
   RealmObjectMetadata? get metadata => asManaged()._metadata;
+
+  static RealmList<T> createFromList<T>(List<T> items) {
+    return UnmanagedRealmList._(items);
+  }
 
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 

@@ -161,8 +161,8 @@ enum RealmValueType {
   /// The [RealmValue] represents `null`
   nullValue,
 
-  /// The [RealmValue] represents a [bool] value
-  bool,
+  /// The [RealmValue] represents a [boolean] value
+  boolean,
 
   /// The [RealmValue] represents a [String] value
   string,
@@ -195,7 +195,10 @@ enum RealmValueType {
   list,
 
   /// The [RealmValue] represents a `Map<String, RealmValue>`
-  map,
+  map;
+
+  /// Returns `true` if the enum value represents a collection - i.e. it's [list] or [map].
+  bool get isCollection => this == RealmValueType.list || this == RealmValueType.map;
 }
 
 /// A type that can represent any valid realm data type, except collections and embedded objects.
@@ -239,7 +242,7 @@ class RealmValue {
   const RealmValue._(this.value, this.type);
 
   const RealmValue.nullValue() : this._(null, RealmValueType.nullValue);
-  const RealmValue.bool(bool b) : this._(b, RealmValueType.bool);
+  const RealmValue.bool(bool b) : this._(b, RealmValueType.boolean);
   const RealmValue.string(String text) : this._(text, RealmValueType.string);
   const RealmValue.int(int i) : this._(i, RealmValueType.int);
   const RealmValue.double(double d) : this._(d, RealmValueType.double);
@@ -282,21 +285,24 @@ class RealmValue {
 
   @override
   operator ==(Object? other) {
+    // We always return false when comparing two RealmValue collections.
+    if (type.isCollection) {
+      return false;
+    }
+
     if (other is RealmValue) {
       if (value is Uint8List && other.value is Uint8List) {
         return ListEquality().equals(value as Uint8List, other.value as Uint8List);
       }
 
-      return value == other.value;
-
-      // TODO: talk to Claus/Ferdinando about equality of collections - we should try not to do deep eqaulity there
+      return type == other.type && value == other.value;
     }
 
     return value == other;
   }
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode => Object.hash(type, value);
 
   @override
   String toString() => 'RealmValue($value)';

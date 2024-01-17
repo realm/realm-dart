@@ -1082,7 +1082,7 @@ extension RealmValueConvenience on RealmValue {
       return as<RealmList<RealmValue>>();
     }
 
-    return UnmanagedRealmList(as<List<RealmValue>>());
+    return RealmListInternal.createFromList(as<List<RealmValue>>());
   }
 
   /// Casts [value] to a Map<String, RealmValue>. It will throw an exception if [value] is not a map.
@@ -1091,6 +1091,6 @@ extension RealmValueConvenience on RealmValue {
       return as<RealmMap<RealmValue>>();
     }
 
-    return UnmanagedRealmMap(as<Map<String, RealmValue>>());
+    return RealmMapInternal.createFromMap(as<Map<String, RealmValue>>());
   }
 }
