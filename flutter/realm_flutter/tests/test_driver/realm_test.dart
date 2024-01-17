@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:test/test.dart';
 // ignore: implementation_imports
 import 'package:test_api/src/backend/invoker.dart';
@@ -19,6 +21,7 @@ import '../test/geospatial_test.dart' as geospatial_test;
 import '../test/indexed_test.dart' as indexed_test;
 import '../test/list_test.dart' as list_test;
 import '../test/migration_test.dart' as migration_test;
+import '../test/realm_logger_test.dart' as realm_logger_test;
 import '../test/realm_object_test.dart' as realm_object_test;
 import '../test/realm_set_test.dart' as realm_set_test;
 import '../test/realm_test.dart' as realm_test;
@@ -27,7 +30,12 @@ import '../test/results_test.dart' as results_test;
 import '../test/session_test.dart' as session_test;
 import '../test/subscription_test.dart' as subscription_test;
 import '../test/user_test.dart' as user_test;
-import '../test/realm_logger_test.dart' as realm_logger_test;
+
+Future<void> _copyBundledFile(String fromPath, String toPath) async {
+  final data = await rootBundle.load(fromPath);
+  final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  await File(toPath).writeAsBytes(bytes);
+}
 
 Future<String> main() async {
   configuration_test.copyFile = _copyBundledFile;

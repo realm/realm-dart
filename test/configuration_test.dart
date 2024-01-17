@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
 import 'dart:io';
 import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
@@ -212,7 +211,7 @@ void main() {
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
-    await copyBundledFile('data/realm_files/old-format.realm', config.path);
+    await copyFile('test/data/realm_files/old-format.realm', config.path);
     expect(() {
       getRealm(config);
     }, throws<RealmException>("Database upgrade required but prohibited."));
@@ -220,7 +219,7 @@ void main() {
 
   test('Configuration - disableFormatUpgrade=false', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
-    await copyBundledFile('data/realm_files/old-format.realm', config.path);
+    await copyFile('test/data/realm_files/old-format.realm', config.path);
     final realm = getRealm(config);
   });
 
@@ -383,8 +382,8 @@ void main() {
     expect(() => george.name, throws<RealmClosedError>());
     expect(people.realm.isClosed, true);
 
-    final peopleAagain = realm.all<Person>();
-    expect(peopleAagain.length, 1);
+    final peopleAgain = realm.all<Person>();
+    expect(peopleAgain.length, 1);
   });
 
   test('Configuration.shouldCompact can return false', () {
@@ -638,6 +637,8 @@ void main() {
   });
 }
 
-Future<void> copyBundledFile(String fromPath, String toPath) async {
-  await File(path.join('test', fromPath)).copy(toPath);
+Future<void> _copyFile(String fromPath, String toPath) async {
+  await File(fromPath).copy(toPath);
 }
+
+var copyFile = _copyFile; // default, but allow integration_test to override

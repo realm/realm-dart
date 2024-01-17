@@ -27,6 +27,7 @@ dev_dependencies:
     sdk: flutter  
   flutter_lints: ^3.0.1
   build_runner: ^2.1.2
+  test_api: ^0.6.1
   test: any
   timezone: ^0.9.0
 

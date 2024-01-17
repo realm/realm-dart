@@ -388,24 +388,22 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 }
 
 BaasHelper? baasHelper;
-Map<String, String?> _testArgs = {};
 
 void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
-  });
 
-  setUp(() {
     Realm.logger = Logger.detached('test run')
       ..level = Level.ALL
       ..onRecord.listen((record) {
-        if (record.level.value >= RealmLogLevel.warn.value) {
-          print('${record.time} ${record.level.name}: ${record.message}');
-        }
-
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
 
+    // Enable this to print platform info, including current PID
+    _printPlatformInfo();
+  });
+
+  setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;
 
@@ -426,9 +424,6 @@ void setupTests() {
       }
     });
   });
-
-  // Enable this to print platform info, including current PID
-  _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
@@ -506,9 +501,9 @@ RealmSet<T> freezeSet<T>(RealmSet<T> set) {
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
 T freezeObject<T extends RealmObjectBase>(T object) {
-  final frozen = object.freeze();
+  final frozen = object.freeze() as T;
   _openRealms.add(frozen.realm);
-  return frozen as T;
+  return frozen;
 }
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
