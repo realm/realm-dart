@@ -89,8 +89,8 @@ class _BoolValue {
   late bool value;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('RealmObject get property', () {
     var config = Configuration.local([Car.schema]);

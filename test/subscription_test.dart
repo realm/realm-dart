@@ -27,8 +27,8 @@ import '../lib/src/native/realm_core.dart';
 import '../lib/src/subscription.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Get subscriptions throws on wrong configuration', () {
     final config = Configuration.local([Task.schema]);

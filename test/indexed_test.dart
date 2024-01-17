@@ -87,8 +87,8 @@ const String lordOfTheFlies = 'Lord of the Flies';
 const String wheelOfTime = 'The Wheel of Time';
 const String silmarillion = 'The Silmarillion';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   intFactory(int i) => i.hashCode;
   boolFactory(int i) => i % 2 == 0;

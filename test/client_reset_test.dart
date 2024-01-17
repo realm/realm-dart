@@ -26,8 +26,8 @@ import 'test.dart';
 
 const defaultWaitTimeout = Duration(seconds: 300);
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
     final app = App(appConfiguration);

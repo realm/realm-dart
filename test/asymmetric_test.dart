@@ -21,8 +21,8 @@ import 'package:test/expect.dart' hide throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   baasTest('Asymmetric objects die even before upload', (config) async {
     final realm = await getIntegrationRealm(appConfig: config);

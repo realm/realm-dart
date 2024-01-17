@@ -183,8 +183,8 @@ class Sets {
   Sets(this.set, this.values, [this.getRealmObject]);
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   for (var type in supportedTypes) {
     test('RealmSet<$type> unmanaged set add', () {

@@ -390,12 +390,9 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 BaasHelper? baasHelper;
 Map<String, String?> _testArgs = {};
 
-Future<void> setupTests(List<String>? args) async {
-  _testArgs = parseTestArguments(args);
-  testName = _testArgs["name"];
-
+void setupTests() {
   setUpAll(() async {
-    baasHelper = await BaasHelper.setupBaas(_testArgs);
+    baasHelper = await BaasHelper.setupBaas();
   });
 
   setUp(() {
@@ -431,7 +428,7 @@ Future<void> setupTests(List<String>? args) async {
   });
 
   // Enable this to print platform info, including current PID
-  await _printPlatformInfo();
+  _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
@@ -568,13 +565,12 @@ Future<void> baasTest(
 
 dynamic shouldSkip(dynamic skip) {
   if (skip == null) {
-    skip = BaasHelper.shouldRunBaasTests(_testArgs) ? false : "BAAS URL not present";
+    skip = BaasHelper.shouldRunBaasTests ? false : "BAAS URL not present";
   } else if (skip is bool) {
-    if (!BaasHelper.shouldRunBaasTests(_testArgs)) {
+    if (!BaasHelper.shouldRunBaasTests) {
       skip = "BAAS URL not present";
     }
   }
-
   return skip;
 }
 
@@ -674,7 +670,7 @@ extension DateTimeTest on DateTime {
 
 void clearCachedApps() => realmCore.clearCachedApps();
 
-Future<void> _printPlatformInfo() async {
+void _printPlatformInfo() {
   final pointerSize = sizeOf<IntPtr>() * 8;
   final os = Platform.operatingSystem;
   String? cpu;
@@ -683,7 +679,7 @@ Future<void> _printPlatformInfo() async {
     if (Platform.isWindows) {
       cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
     } else {
-      final info = await Process.run('uname', ['-m']);
+      final info = Process.runSync('uname', ['-m']);
       cpu = info.stdout.toString().replaceAll('\n', '');
     }
   }

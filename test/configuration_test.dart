@@ -23,10 +23,9 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
 import '../lib/realm.dart';
 import 'test.dart';
-import '../flavor_helpers.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Configuration can be created', () {
     Configuration.local([Car.schema]);
@@ -637,4 +636,8 @@ Future<void> main([List<String>? args]) async {
     realm.write(() => realm.add(Dog("Foxi2")));
     expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (3) in the Realm exceeded the limit of 2"));
   });
+}
+
+Future<void> copyBundledFile(String fromPath, String toPath) async {
+  await File(path.join('test', fromPath)).copy(toPath);
 }

@@ -50,8 +50,8 @@ class _Target {
   _Source? source;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Backlinks empty', () {
     final config = Configuration.local([Target.schema, Source.schema]);

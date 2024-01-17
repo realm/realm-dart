@@ -64,8 +64,8 @@ void openARealm() {
   tryDeleteRealm(Configuration.defaultRealmName);
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   for (var level in logLevels) {
     test('Realm.logger supports log level $level', () async {

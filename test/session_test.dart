@@ -21,8 +21,8 @@ import 'package:test/test.dart' hide test, throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Realm.syncSession throws on wrong configuration', () {
     final config = Configuration.local([Task.schema]);

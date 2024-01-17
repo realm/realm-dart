@@ -23,8 +23,8 @@ import '../lib/realm.dart';
 
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   _assertSchemaExists(Realm realm, SchemaObject expected) {
     final foundSchema = realm.schema.singleWhere((e) => e.name == expected.name);

@@ -51,8 +51,8 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
   });
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Decimal128.nan', () {
     // Test that we mimic the behavior of Dart's double wrt. NaN and

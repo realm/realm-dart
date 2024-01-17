@@ -68,8 +68,8 @@ class _MyObjectWithoutValue {
   late String name;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Configuration.migrationCallback executed when schema version changes', () {
     final config1 = Configuration.local([PersonIntName.schema], schemaVersion: 1);

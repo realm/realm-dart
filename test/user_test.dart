@@ -24,8 +24,8 @@ import 'package:test/expect.dart' hide throws;
 import '../lib/realm.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   baasTest('User logout anon user is marked as removed', (configuration) async {
     final app = App(configuration);

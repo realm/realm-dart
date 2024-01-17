@@ -42,8 +42,8 @@ class _Stuff {
   int i = 42;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   group('RealmValue', () {
     final now = DateTime.now().toUtc();

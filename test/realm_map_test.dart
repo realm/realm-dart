@@ -806,8 +806,8 @@ final List<({String key, String errorFragment})> invalidKeys = [
   (key: 'foo.', errorFragment: "must not contain '.'")
 ];
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   group('key validation', () {
     for (final testData in invalidKeys) {
