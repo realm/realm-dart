@@ -15,33 +15,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  args: ^2.3.0
-  build_cli_annotations: ^2.0.0
-  collection: ^1.16.0
-  crypto: ^3.0.0
-  ffi: ^2.0.1
-  json_annotation: ^4.7.0
-  logging: ^1.2.0
-  meta: ^1.1.8
-  package_config: ^2.0.0
-  path: ^1.0.0
-  pubspec_parse: ^1.0.0
-  pub_semver: ^2.1.0
-  realm_common:
-    path: ../../common
-  realm_generator:
-    path: ../../generator
-  tar: ^1.0.1
-  build_runner: ^2.1.0
-  http: ^1.0.0
-  cancellation_token: ^2.0.0
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  build_cli: ^2.2.2
-  json_serializable: ^6.1.0
-  lints: ^2.0.0
+  realm_dart:
+    path: ../..
 
 flutter:
   plugin:
