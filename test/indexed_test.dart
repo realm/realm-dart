@@ -24,7 +24,7 @@ import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'test.dart';
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 part 'indexed_test.g.dart';
 

@@ -22,7 +22,7 @@ import 'dart:math';
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 part 'geospatial_test.g.dart';

@@ -20,11 +20,11 @@
 
 import 'dart:async';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
-import '../lib/src/results.dart';
-import '../lib/src/realm_object.dart';
-import '../lib/src/list.dart';
+import 'package:realm_dart/src/results.dart';
+import 'package:realm_dart/src/realm_object.dart';
+import 'package:realm_dart/src/list.dart';
 
 part 'migration_test.g.dart';
 

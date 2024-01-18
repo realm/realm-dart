@@ -19,7 +19,7 @@
 @TestOn('browser') // This file only contain manual tests
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 void main() {

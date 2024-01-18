@@ -20,8 +20,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
-import '../lib/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
 
 const defaultWaitTimeout = Duration(seconds: 300);

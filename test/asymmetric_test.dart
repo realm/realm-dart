@@ -18,7 +18,7 @@
 
 import 'package:test/expect.dart' hide throws;
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 void main() {

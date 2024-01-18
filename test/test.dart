@@ -27,9 +27,9 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
-import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart';
-import '../lib/src/configuration.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/configuration.dart';
 
 import 'baas_helper.dart';
 

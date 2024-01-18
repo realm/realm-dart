@@ -18,7 +18,7 @@
 
 import 'package:test/test.dart' hide test, throws;
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 part 'backlinks_test.g.dart';

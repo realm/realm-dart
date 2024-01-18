@@ -22,9 +22,9 @@ import 'dart:typed_data';
 
 import 'package:test/expect.dart' hide throws;
 
-import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart';
-import '../lib/src/subscription.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/subscription.dart';
 import 'test.dart';
 
 void main() {

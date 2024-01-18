@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:test/test.dart' as testing;
 
-import '../lib/realm.dart';
-import '../lib/src/cli/atlas_apps/baas_client.dart';
-import '../lib/src/native/realm_core.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/cli/atlas_apps/baas_client.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 
 const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR

@@ -19,7 +19,7 @@
 // ignore_for_file: avoid_relative_lib_imports
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
