@@ -45,28 +45,28 @@ Future<String> main() async {
   try {
     final List<String> failedTests = [];
 
-    app_test.main();
-    asymmetric_test.main();
-    backlinks_test.main();
-    client_reset_test.main();
-    configuration_test.main();
-    credentials_test.main();
-    decimal128_test.main();
-    dynamic_realm_test.main();
-    embedded_test.main();
-    geospatial_test.main();
-    indexed_test.main();
-    list_test.main();
-    migration_test.main();
-    realm_logger_test.main();
-    realm_object_test.main();
-    realm_set_test.main();
-    realm_test.main();
-    realm_value_test.main();
-    results_test.main();
-    session_test.main();
-    subscription_test.main();
-    user_test.main();
+    group('app_test.dart', app_test.main);
+    group('asymmetric_test.dart', asymmetric_test.main);
+    group('backlinks_test.dart', backlinks_test.main);
+    group('client_reset_test.dart', client_reset_test.main);
+    group('configuration_test.dart', configuration_test.main);
+    group('credentials_test.dart', credentials_test.main);
+    group('decimal128_test.dart', decimal128_test.main);
+    group('dynamic_realm_test.dart', dynamic_realm_test.main);
+    group('embedded_test.dart', embedded_test.main);
+    group('geospatial_test.dart', geospatial_test.main);
+    group('indexed_test.dart', indexed_test.main);
+    group('list_test.dart', list_test.main);
+    group('migration_test.dart', migration_test.main);
+    group('realm_logger_test.dart', realm_logger_test.main);
+    group('realm_object_test.dart', realm_object_test.main);
+    group('realm_set_test.dart', realm_set_test.main);
+    group('realm_test.dart', realm_test.main);
+    group('realm_value_test.dart', realm_value_test.main);
+    group('results_test.dart', results_test.main);
+    group('session_test.dart', session_test.main);
+    group('subscription_test.dart', subscription_test.main);
+    group('user_test.dart', user_test.main);
 
     tearDown(() {
       if (Invoker.current?.liveTest.state.result == test_api.Result.error || Invoker.current?.liveTest.state.result == test_api.Result.failure) {
