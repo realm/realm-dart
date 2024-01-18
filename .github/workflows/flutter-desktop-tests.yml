@@ -72,5 +72,15 @@ jobs:
         if: ${{ contains(inputs.os, 'macos') }}
 
       - name: Run tests
-        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"
+        run: |
+          ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} \
+          flutter drive -d ${{ inputs.os }} \
+            --target=test_driver/app.dart \
+            --suppress-analytics \
+            --dart-entrypoint-args="" \
+            --debug \
+            --dart-define BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
+            --dart-define BAAS_DIFFERENTIATO=$BAAS_DIFFERENTIATO \
+            # -a="Some test name"
+        shell: bash
         working-directory: ./flutter/realm_flutter/tests
