@@ -25,13 +25,13 @@ RLM_API realm_decimal128_t realm_dart_decimal128_from_string(const char* string)
     return to_decimal128(result);
 }
 
+// This buffer is reused between calls, hence it is thread local
+thread_local char _decimal128_to_string_buffer[34];
 RLM_API realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x) {
     auto x_bid = to_BID_UINT128(x);
-    // This buffer is reused between calls, hence the static keyword
-    static char buffer[34]; // 34 bytes is the maximum length of a string representation of a decimal128
     unsigned int flags = 0;
-    bid128_to_string(buffer, &x_bid, &flags);
-    return realm_string_t{ buffer, strlen(buffer) };
+    bid128_to_string(_decimal128_to_string_buffer, &x_bid, &flags);
+    return realm_string_t{ _decimal128_to_string_buffer, strlen(_decimal128_to_string_buffer) };
 }
 
 RLM_API realm_decimal128_t realm_dart_decimal128_nan() {
