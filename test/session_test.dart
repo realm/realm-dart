@@ -148,7 +148,7 @@ void main() {
     expect(() async => await waitForUploadFuture, throwsA(isA<CancelledException>()));
   });
 
-  baasTest('SyncSesison.waitForUpload with changes', (configuration) async {
+  baasTest('SyncSession.waitForUpload with changes', (configuration) async {
     final differentiator = ObjectId();
 
     final realmA = await getIntegrationRealm(differentiator: differentiator);
