@@ -16,20 +16,37 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 
-enum BuildEnv {
-  baasUrl(String.fromEnvironment('BAAS_URL', defaultValue: 'http://localhost:9090')),
-  baasCluster(String.fromEnvironment('BAAS_CLUSTER')),
-  baasApiKey(String.fromEnvironment('BAAS_API_KEY')),
-  baasPrivateApiKey(String.fromEnvironment('BAAS_PRIVATE_API_KEY')),
-  baasProjectId(String.fromEnvironment('BAAS_PROJECT_ID')),
-  baasAasApiKey(String.fromEnvironment('BAAS_BAASAAS_API_KEY')),
-  differentiator(String.fromEnvironment('BAAS_DIFFERENTIATOR', defaultValue: 'local')),
+enum Env {
+  baasUrl('BAAS_URL', String.fromEnvironment('BAAS_URL')),
+  baasCluster('BAAS_CLUSTER', String.fromEnvironment('BAAS_CLUSTER')),
+  baasApiKey('BAAS_API_KEY', String.fromEnvironment('BAAS_API_KEY')),
+  baasPrivateApiKey('BAAS_PRIVATE_API_KEY', String.fromEnvironment('BAAS_PRIVATE_API_KEY')),
+  baasProjectId('BAAS_PROJECT_ID', String.fromEnvironment('BAAS_PROJECT_ID')),
+  baasAasApiKey('BAAS_BAASAAS_API_KEY', String.fromEnvironment('BAAS_BAASAAS_API_KEY')),
+  differentiator('BAAS_DIFFERENTIATOR', String.fromEnvironment('BAAS_DIFFERENTIATOR')),
   ;
 
-  final String value;
-  const BuildEnv(this.value);
+  final String name;
+  final String _dartDefined;
 
-  bool get isDefined => value.isNotEmpty;
+  const Env(this.name, this._dartDefined);
+
+  String? get dartDefined => _dartDefined.emptyAsNull;
+  String? get shellDefined => Platform.environment[name];
+  String? get value => dartDefined ?? shellDefined;
+
+  bool get isDefined => value != null;
+  bool get isNotDefined => !isDefined;
+
+  String? call() => value;
+}
+
+extension on String? {
+  String? get emptyAsNull {
+    final self = this;
+    if (self == null || self.isEmpty) return null;
+    return self;
+  }
 }
 
 enum AppNames {
@@ -70,37 +87,40 @@ class BaasHelper {
   }
 
   static bool get shouldRunBaasTests {
-    return BuildEnv.baasUrl.isDefined || BuildEnv.baasAasApiKey.isDefined;
+    return Env.baasUrl.isDefined || Env.baasAasApiKey.isDefined;
   }
 
   BaasHelper._(this._baasClient);
 
   static Future<BaasClient?> _setupClient() async {
-    var baasUrl = BuildEnv.baasUrl.value;
-    final cluster = BuildEnv.baasCluster.value;
-    final apiKey = BuildEnv.baasApiKey.value;
-    final privateApiKey = BuildEnv.baasPrivateApiKey.value;
-    final projectId = BuildEnv.baasProjectId.value;
-    final differentiator = BuildEnv.differentiator.value;
+    var baasUrl = Env.baasUrl();
+    final cluster = Env.baasCluster();
+    final apiKey = Env.baasApiKey();
+    final privateApiKey = Env.baasPrivateApiKey();
+    final projectId = Env.baasProjectId();
+    final differentiator = Env.differentiator();
 
-    if (baasUrl.isEmpty) {
-      final baasAasApiKey = BuildEnv.baasAasApiKey.value;
-      if (baasAasApiKey.isNotEmpty) {
-        if (cluster.isNotEmpty) {
+    if (baasUrl == null) {
+      final baasAasApiKey = Env.baasAasApiKey();
+      if (baasAasApiKey != null) {
+        if (cluster != null) {
           throw "BAAS_BAASAAS_API_KEY can't be combined with BAAS_CLUSTER";
         }
 
-        (baasUrl, _) = await BaasClient.retry(() => BaasClient.getOrDeployContainer(baasAasApiKey, differentiator));
+        (baasUrl, _) = await BaasClient.retry(() => BaasClient.getOrDeployContainer(
+              baasAasApiKey,
+              differentiator!,
+            ));
       }
     }
 
-    if (baasUrl.isEmpty) {
+    if (baasUrl == null) {
       return null;
     }
 
-    final client = await BaasClient.retry(() => (cluster.isEmpty
-        ? BaasClient.docker(baasUrl, differentiator)
-        : BaasClient.atlas(baasUrl, cluster, apiKey!, privateApiKey!, projectId!, differentiator)));
+    final client = await BaasClient.retry(() => (cluster == null
+        ? BaasClient.docker(baasUrl!, differentiator!)
+        : BaasClient.atlas(baasUrl!, cluster, apiKey!, privateApiKey!, projectId!, differentiator!)));
 
     client.publicRSAKey = publicRSAKeyForJWTValidation;
     return client;
