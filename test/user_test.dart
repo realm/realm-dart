@@ -16,6 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:isolate';
+
 import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
@@ -133,6 +135,18 @@ Future<void> main([List<String>? args]) async {
     expect(apiKey.name, 'my-api-key');
     expect(apiKey.value, isNotNull);
     expect(apiKey.id, isNot(ObjectId.fromValues(0, 0, 0)));
+  });
+
+  baasTest('User.apiKeys.create on background isolate', (configuration) async {
+    // This test is to ensure that the API key creation works on a background isolate.
+    // It was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    await getIntegrationUser(App(configuration));
+    final appId = configuration.appId;
+    expect(Isolate.run(() async {
+      final app = App.getById(appId)!;
+      final user = app.currentUser!;
+      await createAndVerifyApiKey(user, 'my-api-key'); // <-- this would crash before the fix
+    }), completes);
   });
 
   baasTest('User.apiKeys.create with invalid name returns error', (configuration) async {
