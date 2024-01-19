@@ -293,3 +293,41 @@ RLM_API void realm_dart_void_completion_callback(realm_userdata_t userdata, cons
         (reinterpret_cast<realm_app_void_completion_func_t>(ud->dart_callback))(ud->handle, error.get());
     });
 }
+
+std::unique_ptr<realm_app_user_apikey> realm_apikey_copy(const realm_app_user_apikey_t* apikey)
+{
+    // we make a deep copy of error, so it is valid after callback returns
+    struct apikey_buf : realm_app_user_apikey
+    {
+        apikey_buf(const realm_app_user_apikey& apikey_input)
+            : key_buffer(apikey_input.key),
+              name_buffer(apikey_input.name)
+        {
+            id = apikey_input.id;
+            key = key_buffer.c_str();
+            name = name_buffer.c_str();
+            disabled = apikey_input.disabled;            
+        }
+
+        const std::string key_buffer;
+        const std::string name_buffer;
+    };
+
+    std::unique_ptr<realm_app_user_apikey> apikey_copy;
+    if (apikey != nullptr) {
+        apikey_copy = std::make_unique<realm_app_user_apikey>(*apikey);
+    }
+
+    return apikey_copy;
+}
+
+RLM_API void realm_dart_apikey_callback(realm_userdata_t userdata, realm_app_user_apikey_t* apikey, const realm_app_error_t* error) {
+    // we need to make a deep copies as the pointers point to stack memory
+    auto error_copy = realm_app_error_copy(error);
+    auto apikey_copy = realm_apikey_copy(apikey);
+
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, apikey = std::move(apikey_copy), error = std::move(error_copy)]() mutable { 
+        (reinterpret_cast<realm_return_apikey_func_t>(ud->dart_callback))(ud->handle, apikey.get(), error.get());
+    });
+}
