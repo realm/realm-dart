@@ -244,7 +244,7 @@ std::unique_ptr<realm_app_error> realm_app_error_copy(const realm_app_error_t* e
     {
         error_buf(const realm_app_error& error_input)
             : message_buffer(error_input.message),
-              link_to_server_logs_buffer(error_input.link_to_server_logs != nullptr ? error_input.link_to_server_logs : "")
+              link_to_server_logs_buffer(error_input.link_to_server_logs ? error_input.link_to_server_logs : "")
         {
             error = error_input.error;
             categories = error_input.categories;
@@ -300,8 +300,8 @@ std::unique_ptr<realm_app_user_apikey> realm_apikey_copy(const realm_app_user_ap
     struct apikey_buf : realm_app_user_apikey
     {
         apikey_buf(const realm_app_user_apikey& apikey_input)
-            : key_buffer(apikey_input.key),
-              name_buffer(apikey_input.name)
+            : key_buffer(apikey_input.key ? apikey_input.key : ""),
+              name_buffer(apikey_input.name ? apikey_input.name : "")
         {
             id = apikey_input.id;
             key = key_buffer.c_str();
@@ -315,7 +315,7 @@ std::unique_ptr<realm_app_user_apikey> realm_apikey_copy(const realm_app_user_ap
 
     std::unique_ptr<realm_app_user_apikey> apikey_copy;
     if (apikey != nullptr) {
-        apikey_copy = std::make_unique<realm_app_user_apikey>(*apikey);
+        apikey_copy = std::make_unique<apikey_buf>(*apikey);
     }
 
     return apikey_copy;

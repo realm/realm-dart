@@ -2069,7 +2069,7 @@ class _RealmCore {
   }
 
   static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final Completer<UserHandle> completer = userdata.toObject(isPersistent: true)!;
+    final Completer<UserHandle> completer = userdata.toObject(isPersistent: true);
 
     if (error != nullptr) {
       completer.completeWithAppError(error);
@@ -2119,7 +2119,7 @@ class _RealmCore {
     return await completer.future;
   }
 
-  static void void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+  static void _void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
     final Completer<void> completer = userdata.toObject(isPersistent: true);
 
     if (error != nullptr) {
@@ -2745,9 +2745,9 @@ class _RealmCore {
             user.app.handle._pointer,
             user.handle._pointer,
             namePtr,
-            Pointer.fromFunction(_app_api_key_completion_callback), // TODO
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_apikey_callback,
+            _createAsyncApikeyCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
       return completer.future;
@@ -2762,9 +2762,9 @@ class _RealmCore {
             user.app.handle._pointer,
             user.handle._pointer,
             native_id.ref,
-            Pointer.fromFunction(_app_api_key_completion_callback), // TODO
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_apikey_callback,
+            _createAsyncApikeyCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
       return completer.future;
@@ -2802,15 +2802,32 @@ class _RealmCore {
     });
   }
 
-  Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Object object) {
+  Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
     final callback = Pointer.fromFunction<
         Void Function(
           Pointer<Void>,
           Pointer<realm_app_error>,
-        )>(void_completion_callback);
+        )>(_void_completion_callback);
 
     final userdata = _realmLib.realm_dart_userdata_async_new(
-      object,
+      completer,
+      callback.cast(),
+      scheduler.handle._pointer,
+    );
+
+    return userdata.cast();
+  }
+
+  Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
+    final callback = Pointer.fromFunction<
+        Void Function(
+          Pointer<Void>,
+          Pointer<realm_app_user_apikey>,
+          Pointer<realm_app_error>,
+        )>(_app_api_key_completion_callback);
+
+    final userdata = _realmLib.realm_dart_userdata_async_new(
+      completer,
       callback.cast(),
       scheduler.handle._pointer,
     );
