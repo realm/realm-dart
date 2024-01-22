@@ -3192,6 +3192,36 @@ class RealmLibrary {
               ffi.Pointer<realm_app_user_apikey_t>,
               ffi.Pointer<realm_app_error_t>)>();
 
+  void realm_dart_apikey_list_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<realm_app_user_apikey_t> apikey_list,
+    int count,
+    ffi.Pointer<realm_app_error_t> error,
+  ) {
+    return _realm_dart_apikey_list_callback(
+      userdata,
+      apikey_list,
+      count,
+      error,
+    );
+  }
+
+  late final _realm_dart_apikey_list_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_app_user_apikey_t>,
+                  ffi.Size,
+                  ffi.Pointer<realm_app_error_t>)>>(
+      'realm_dart_apikey_list_callback');
+  late final _realm_dart_apikey_list_callback =
+      _realm_dart_apikey_list_callbackPtr.asFunction<
+          void Function(
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_app_user_apikey_t>,
+              int,
+              ffi.Pointer<realm_app_error_t>)>();
+
   void realm_dart_async_open_task_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_thread_safe_reference_t> realm,
@@ -11092,6 +11122,15 @@ class _SymbolAddresses {
                   ffi.Pointer<realm_app_user_apikey_t>,
                   ffi.Pointer<realm_app_error_t>)>>
       get realm_dart_apikey_callback => _library._realm_dart_apikey_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>,
+                  ffi.Pointer<realm_app_user_apikey_t>,
+                  ffi.Size,
+                  ffi.Pointer<realm_app_error_t>)>>
+      get realm_dart_apikey_list_callback =>
+          _library._realm_dart_apikey_list_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

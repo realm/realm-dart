@@ -51,3 +51,4 @@ RLM_API void realm_dart_void_completion_callback(realm_userdata_t userdata, cons
 
 RLM_API void realm_dart_apikey_callback(realm_userdata_t userdata, realm_app_user_apikey_t* apikey, const realm_app_error_t* error);
 
+RLM_API void realm_dart_apikey_list_callback(realm_userdata_t userdata, realm_app_user_apikey_t apikey_list[], size_t count, const realm_app_error_t* error);
