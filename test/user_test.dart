@@ -206,6 +206,18 @@ Future<void> main([List<String>? args]) async {
     expect(apiKeys.length, 0);
   });
 
+  baasTest('User.apiKeys.fetchAll from background isolate', (configuration) async {
+    // This test is to ensure that the API key creation works on a background isolate.
+    // It was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    await getIntegrationUser(App(configuration));
+    final appId = configuration.appId;
+    expect(Isolate.run(() async {
+      final app = App.getById(appId)!;
+      final user = app.currentUser!;
+      user.apiKeys.fetchAll(); // <-- this would crash before the fix
+    }), completes);
+  });
+
   baasTest('User.apiKeys.fetchAll with one key returns it', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
