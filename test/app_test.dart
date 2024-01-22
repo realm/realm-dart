@@ -211,6 +211,18 @@ Future<void> main([List<String>? args]) async {
     expect(response, isNotNull);
   });
 
+  baasTest('Call Atlas function on background isolate', (configuration) async {
+    final app = App(configuration);
+    final appId = app.id;
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId)!;
+        final user = await app.logIn(Credentials.anonymous());
+        await user.functions.call('userFuncNoArgs');
+      },
+    ), completes);
+  });
+
   baasTest('Call Atlas function with one argument', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
@@ -307,6 +319,30 @@ Future<void> main([List<String>? args]) async {
     clearCachedApps();
     final app = App.getById('abc');
     expect(app, null);
+  });
+
+  test('app.logIn unsuccessful logIn attempt on background isolate', () {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    const appId = 'fake-app-id';
+    App(AppConfiguration(appId, baseUrl: Uri.parse('https://this-is-a-fake-url.com')));
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        await app!.logIn(Credentials.anonymous()); // <-- this line used to crash
+      },
+    ), throwsA(isA<AppException>()));
+  });
+
+  baasTest('app.logIn successful logIn on background isolate', (configuration) {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    final appId = configuration.appId;
+    App(configuration);
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        await app!.logIn(Credentials.anonymous()); // <-- this line used to crash
+      },
+    ), completes);
   });
 
   baasTest('app.getById with different baseUrl returns null', (appConfig) {

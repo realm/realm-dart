@@ -5,6 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach",
+            "type": "lldb",
+            "request": "attach",
+            "pid": "${command:pickProcess}",
+        },
+        {
             "name": "Flutter: Attach to Device",
             "type": "dart",
             "request": "attach"

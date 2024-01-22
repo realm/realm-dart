@@ -277,7 +277,7 @@ class ApiKeyClient {
 /// A class representing an API key for a [User]. It can be used to represent the user when logging in
 /// instead of their regular credentials. These keys are created or fetched through [User.apiKeys].
 class ApiKey {
-  /// The unique idenitifer for this [ApiKey].
+  /// The unique identifier for this [ApiKey].
   final ObjectId id;
 
   /// The name of this [ApiKey].

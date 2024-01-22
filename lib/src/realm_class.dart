@@ -558,10 +558,10 @@ class Realm implements Finalizable {
     }
 
     _logger.clearListeners();
-    realmCore.realmLoggerLevelChangedSubscipiton.cancel();
+    realmCore.realmLoggerLevelChangedSubscription.cancel();
     _logger = value;
     realmCore.loggerSetLogLevel(_logger.level, scheduler.nativePort);
-    realmCore.realmLoggerLevelChangedSubscipiton =
+    realmCore.realmLoggerLevelChangedSubscription =
         _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
   }
 

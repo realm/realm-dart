@@ -7,6 +7,7 @@
   },
   "dart.lineLength": 160,
   "cSpell.words": [
+    "apikey",
     "apikeys",
     "backlinks",
     "BEGINSWITH",
@@ -153,6 +154,13 @@
     "__mutex_base": "cpp",
     "coroutine": "cpp",
     "ranges": "cpp",
-    "span": "cpp"
+    "span": "cpp",
+    "__bit_reference": "cpp",
+    "__bits": "cpp",
+    "__config": "cpp",
+    "__debug": "cpp",
+    "__split_buffer": "cpp",
+    "__tuple": "cpp",
+    "__verbose_abort": "cpp"
   }
 }

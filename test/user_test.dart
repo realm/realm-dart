@@ -16,6 +16,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:isolate';
+import 'dart:math';
+
 import 'package:test/expect.dart' hide throws;
 
 import '../lib/realm.dart';
@@ -135,6 +138,18 @@ Future<void> main([List<String>? args]) async {
     expect(apiKey.id, isNot(ObjectId.fromValues(0, 0, 0)));
   });
 
+  baasTest('User.apiKeys.create on background isolate', (configuration) async {
+    // This test is to ensure that the API key creation works on a background isolate.
+    // It was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    await getIntegrationUser(App(configuration));
+    final appId = configuration.appId;
+    expect(Isolate.run(() async {
+      final app = App.getById(appId)!;
+      final user = app.currentUser!;
+      await createAndVerifyApiKey(user, 'my-api-key'); // <-- this would crash before the fix
+    }), completes);
+  });
+
   baasTest('User.apiKeys.create with invalid name returns error', (configuration) async {
     final app = App(configuration);
     final user = await getIntegrationUser(app);
@@ -166,7 +181,7 @@ Future<void> main([List<String>? args]) async {
     expect(key, isNull);
   });
 
-  void expectApiKey(ApiKey? fetched, ApiKey expected) {
+  void expectApiKey(ApiKey? fetched, ApiKey expected, [bool created = false]) {
     expect(fetched, isNotNull);
     expect(fetched!.id, expected.id);
     expect(fetched.isEnabled, expected.isEnabled);
@@ -189,7 +204,19 @@ Future<void> main([List<String>? args]) async {
     final user = await getIntegrationUser(app);
     final apiKeys = await user.apiKeys.fetchAll();
 
-    expect(apiKeys.length, 0);
+    expect(apiKeys, isEmpty);
+  });
+
+  baasTest('User.apiKeys.fetchAll from background isolate', (configuration) async {
+    // This test is to ensure that the API key creation works on a background isolate.
+    // It was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    await getIntegrationUser(App(configuration));
+    final appId = configuration.appId;
+    expect(Isolate.run(() async {
+      final app = App.getById(appId)!;
+      final user = app.currentUser!;
+      user.apiKeys.fetchAll(); // <-- this would crash before the fix
+    }), completes);
   });
 
   baasTest('User.apiKeys.fetchAll with one key returns it', (configuration) async {
@@ -200,8 +227,8 @@ Future<void> main([List<String>? args]) async {
 
     final apiKeys = await user.apiKeys.fetchAll();
 
-    expect(apiKeys.length, 1);
-    expect(apiKeys.single, original);
+    expect(apiKeys, hasLength(1));
+    expectApiKey(apiKeys.single, original);
   });
 
   baasTest('User.apiKeys.fetchAll with multiple keys returns all', (configuration) async {
@@ -230,7 +257,7 @@ Future<void> main([List<String>? args]) async {
     await user.apiKeys.delete(ObjectId());
 
     final allKeys = await user.apiKeys.fetchAll();
-    expect(allKeys.length, 1);
+    expect(allKeys, hasLength(1));
     expectApiKey(allKeys.single, key);
   });
 
@@ -247,7 +274,7 @@ Future<void> main([List<String>? args]) async {
     expect(fetched, isNull);
 
     final allKeys = await user.apiKeys.fetchAll();
-    expect(allKeys.length, 1);
+    expect(allKeys, hasLength(1));
     expectApiKey(allKeys.single, toRemain);
   });
 
