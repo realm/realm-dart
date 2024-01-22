@@ -3749,12 +3749,12 @@ class RealmLibrary {
   void realm_dart_return_string_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<ffi.Char> serialized_ejson_response,
-    ffi.Pointer<realm_app_error_t> arg2,
+    ffi.Pointer<realm_app_error_t> error,
   ) {
     return _realm_dart_return_string_callback(
       userdata,
       serialized_ejson_response,
-      arg2,
+      error,
     );
   }
 
