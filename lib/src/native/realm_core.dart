@@ -21,6 +21,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -2041,11 +2042,17 @@ class _RealmCore {
     });
   }
 
+  // TODO:
+  // We need a pure Dart equivalent of:
+  // `ServiceBinding.rootIsolateToken != null`
+  // to get rid of this hack.
+  final bool _isRootIsolate = Isolate.current.debugName == 'main';
+
   static bool _firstTime = true;
   AppHandle createApp(AppConfiguration configuration) {
     // to avoid caching apps across hot restarts we clear the cache on the first
     // call to createApp in the root isolate.
-    if (_firstTime /* TODO: Pure Dart equivalent of: '&& ServiceBinding.rootIolateToken != null' */) {
+    if (_firstTime && _isRootIsolate) {
       _firstTime = false;
       _realmLib.realm_clear_cached_apps();
     }
