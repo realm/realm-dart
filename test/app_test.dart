@@ -211,6 +211,18 @@ Future<void> main([List<String>? args]) async {
     expect(response, isNotNull);
   });
 
+  baasTest('Call Atlas function on background isolate', (configuration) async {
+    final app = App(configuration);
+    final appId = app.id;
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId)!;
+        final user = await app.logIn(Credentials.anonymous());
+        await user.functions.call('userFuncNoArgs');
+      },
+    ), completes);
+  });
+
   baasTest('Call Atlas function with one argument', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
