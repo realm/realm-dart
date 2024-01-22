@@ -46,12 +46,14 @@
   (PR [#7161](https://github.com/realm/realm-core/pull/7161), Core 13.24.1).
 * If the very first open of a flexible sync Realm triggered a client reset, the configuration had an initial subscriptions callback, both before and after reset callbacks, and the initial subscription callback began a read transaction without ending it (which is normally going to be the case), opening the frozen Realm for the after reset callback would trigger a BadVersion exception (PR [#7161](https://github.com/realm/realm-core/pull/7161), Core 13.24.1).
 * Changesets have wrong timestamps if the local clock lags behind 2015-01-01T00:00:00Z. The sync client now throws an exception if that happens. (PR [#7180](https://github.com/realm/realm-core/pull/7180), Core 13.24.1)
+* Handle `EOPNOTSUPP` when using `posix_fallocate()` and fallback to manually consume space. This should enable android users to open a Realm on restrictive filesystems. (PR [#7251](https://github.com/realm/realm-core/pull/7251), Core v13.26.0)
+* Application may crash with `incoming_changesets.size() != 0` when a download message is mistaken for a bootstrap message. This can happen if the synchronization session is paused and resumed at a specific time. (PR [#7238](https://github.com/realm/realm-core/pull/7238), Core v13.26.0, since v11.8.0)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core 13.25.1.
+* Using Core v13.26.0.
 
 ## 1.6.1 (2023-11-30)
 
