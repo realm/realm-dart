@@ -373,3 +373,13 @@ RLM_API void realm_dart_apikey_list_callback(realm_userdata_t userdata, realm_ap
         (reinterpret_cast<realm_return_apikey_list_func_t>(ud->dart_callback))(ud->handle, apikey_list.data(), apikey_list.size(), error.get());
     });
 }
+
+RLM_API void realm_dart_return_string_callback(realm_userdata_t userdata, const char* serialized_ejson_response, const realm_app_error_t* error) {
+    auto error_copy = realm_app_error_copy(error);
+    std::string buf{serialized_ejson_response ? serialized_ejson_response : ""};
+
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, buf = std::move(buf), error = std::move(error_copy)]() mutable {
+        (reinterpret_cast<realm_return_string_func_t>(ud->dart_callback))(ud->handle, buf.data(), error.get());
+    });
+}

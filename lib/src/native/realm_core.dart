@@ -2888,6 +2888,23 @@ class _RealmCore {
     completer.complete(stringResponse);
   }
 
+  Pointer<Void> _createAsyncFunctionCallbackUserdata(Completer<String> completer) {
+    final callback = Pointer.fromFunction<
+        Void Function(
+          Pointer<Void>,
+          Pointer<Char>,
+          Pointer<realm_app_error>,
+        )>(_call_app_function_callback);
+
+    final userdata = _realmLib.realm_dart_userdata_async_new(
+      completer,
+      callback.cast(),
+      scheduler.handle._pointer,
+    );
+
+    return userdata.cast();
+  }
+
   Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
     return using((arena) {
       final completer = Completer<String>();
@@ -2897,9 +2914,9 @@ class _RealmCore {
             functionName.toCharPtr(arena),
             argsAsJSON?.toCharPtr(arena) ?? nullptr,
             nullptr,
-            Pointer.fromFunction(_call_app_function_callback), // TODO
-            completer.toPersistentHandle(),
-            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            _realmLib.addresses.realm_dart_return_string_callback,
+            _createAsyncFunctionCallbackUserdata(completer),
+            _realmLib.addresses.realm_dart_userdata_async_free,
           ));
       return completer.future;
     });
