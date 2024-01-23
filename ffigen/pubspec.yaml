@@ -8,4 +8,4 @@ environment:
   sdk: ^3.0.0
 
 dev_dependencies:
-  ffigen: ^11.0.0
+  ffigen: ^9.0.0

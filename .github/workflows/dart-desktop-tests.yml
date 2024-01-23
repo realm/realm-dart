@@ -49,7 +49,7 @@ jobs:
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
-          sdk: stable
+          sdk: 3.0.0
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Install dependencies
