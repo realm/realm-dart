@@ -58,7 +58,7 @@ jobs:
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       if: ${{ github.event.inputs.environment == 'Production' }}
       with:
-        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
         replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
         include: "**pubspec.yaml"
 
@@ -66,7 +66,7 @@ jobs:
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       if: ${{ github.event.inputs.environment != 'Production' }}
       with:
-        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
         replace: "  realm_$1:\n    path: ../$1"
         include: "**pubspec.yaml"
 
@@ -147,17 +147,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
         aws-region: us-east-1
 
-    - name: Upload release folder to S3
-      id: upload-to-s3
-      run: |
-        tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
-        rm -rf common generator realm_dart realm ExtractedChangelog.md
-
-        s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
-        aws s3 sync --acl public-read . "s3://$s3_folder"
-        echo "url=https://$s3_folder/packages.tar.gz" >> $GITHUB_OUTPUT
-      working-directory: release
-
   publish-packages:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Production' }}
@@ -189,9 +178,6 @@ jobs:
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
 
-        dart pub publish --directory common --force
-        dart pub publish --directory generator --force
-        dart pub publish --directory realm_dart --force
         dart pub publish --directory realm --force
       working-directory: release
 
