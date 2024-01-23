@@ -58,7 +58,7 @@ jobs:
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       if: ${{ github.event.inputs.environment == 'Production' }}
       with:
-        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
         replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
         include: "**pubspec.yaml"
 
@@ -66,7 +66,7 @@ jobs:
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       if: ${{ github.event.inputs.environment != 'Production' }}
       with:
-        find: "  realm_(common|generator):(\\n|\\r\\n)    path:.*"
+        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
         replace: "  realm_$1:\n    path: ../$1"
         include: "**pubspec.yaml"
 
