@@ -134,7 +134,9 @@ Future<void> main([List<String>? args]) async {
           isA<RealmResultsChanges<Source>>().having((ch) => ch.inserted, 'inserted', [0]),
           isA<RealmResultsChanges<Source>>().having((ch) => ch.inserted, 'inserted', [1]),
           isA<RealmResultsChanges<Source>>() //
-              .having((ch) => ch.inserted, 'inserted', [0, 2]) // is this surprising?
+              // Backlinks don't have a natural order - removing the element at 0, then adding a new one will
+              // appear like the new one was added at position 0.
+              .having((ch) => ch.inserted, 'inserted', [0, 2]) //
               .having((ch) => ch.deleted, 'deleted', [0]) //
               .having((ch) => ch.modified, 'modified', [1]),
         ]));
@@ -230,7 +232,9 @@ Future<void> main([List<String>? args]) async {
             isA<RealmResultsChanges<Source>>().having((ch) => ch.inserted, 'inserted', [0]),
             isA<RealmResultsChanges<Source>>().having((ch) => ch.inserted, 'inserted', [1]),
             isA<RealmResultsChanges<Source>>() //
-                .having((ch) => ch.inserted, 'inserted', [0, 2]) // is this surprising?
+                // Backlinks don't have a natural order - removing the element at 0, then adding a new one will
+                // appear like the new one was added at position 0.
+                .having((ch) => ch.inserted, 'inserted', [0, 2]) //
                 .having((ch) => ch.deleted, 'deleted', [0]) //
                 .having((ch) => ch.modified, 'modified', [1]),
           ]));
