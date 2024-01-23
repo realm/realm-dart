@@ -244,7 +244,7 @@ class RealmCoreAccessor implements RealmAccessor {
   void set(RealmObjectBase object, String name, Object? value, {bool isDefault = false, bool update = false}) {
     final propertyMeta = metadata[name];
     try {
-      if (value is RealmValue && value.isCollection) {
+      if (value is RealmValue && value.type.isCollection) {
         realmCore.objectSetCollection(object, propertyMeta.key, value);
         return;
       }

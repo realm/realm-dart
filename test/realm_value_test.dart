@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
@@ -250,6 +249,29 @@ Future<void> main([List<String>? args]) async {
 
     results = realm.query<AnythingGoes>("oneAny IN \$0", [values]);
     expect(results.first.oneAny, realmValues.last);
+  });
+
+  test('Set<RealmValue> with numeric values', () {
+    final realm = getMixedRealm();
+    final values = [RealmValue.int(0), RealmValue.double(0.0), RealmValue.bool(false), RealmValue.decimal128(Decimal128.zero), RealmValue.nullValue()];
+    final obj = realm.write(() => realm.add(AnythingGoes())..setOfAny.addAll(values));
+
+    expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
+  });
+
+  test('Set<RealmValue> removes duplicates', () {
+    final realm = getMixedRealm();
+    final values = [
+      RealmValue.int(1),
+      RealmValue.nullValue(),
+      RealmValue.double(2.0),
+      RealmValue.string('abc'),
+      RealmValue.nullValue(),
+      RealmValue.string('abc')
+    ];
+    final obj = realm.write(() => realm.add(AnythingGoes())..setOfAny.addAll(values));
+
+    expect(obj.setOfAny, unorderedMatches([RealmValue.int(1), RealmValue.double(2.0), RealmValue.nullValue(), RealmValue.string('abc')]));
   });
 
   group('Collections in RealmValue', () {
@@ -621,6 +643,60 @@ Future<void> main([List<String>? args]) async {
       expect(unmanagedValue == originalList, false);
     });
 
+    test('List<RealmValue>.indexOf for list', () {
+      final realm = getMixedRealm();
+      final originalList = [1];
+      final managedList = realm.write(() {
+        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalList)])).manyAny;
+      });
+
+      final unmanagedList = [RealmValue.from(originalList)];
+
+      expect(managedList.isManaged, true);
+
+      expect(managedList.indexOf(RealmValue.from(originalList)), -1);
+      expect(managedList.indexOf(managedList.first), -1);
+      expect(managedList.contains(RealmValue.from(originalList)), false);
+      expect(managedList.contains(managedList.first), false);
+
+      expect(managedList.asResults().indexOf(RealmValue.from(originalList)), -1);
+      expect(managedList.asResults().indexOf(managedList.first), -1);
+      expect(managedList.asResults().contains(RealmValue.from(originalList)), false);
+      expect(managedList.asResults().contains(managedList.first), false);
+
+      expect(unmanagedList.indexOf(RealmValue.from(originalList)), -1);
+      expect(unmanagedList.indexOf(unmanagedList.first), -1);
+      expect(unmanagedList.contains(RealmValue.from(originalList)), false);
+      expect(unmanagedList.contains(unmanagedList.first), false);
+    });
+
+    test('List<RealmValue>.indexOf for map', () {
+      final realm = getMixedRealm();
+      final originalMap = {'foo': 1};
+      final managedList = realm.write(() {
+        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalMap)])).manyAny;
+      });
+
+      final unmanagedList = [RealmValue.from(originalMap)];
+
+      expect(managedList.isManaged, true);
+
+      expect(managedList.indexOf(RealmValue.from(originalMap)), -1);
+      expect(managedList.indexOf(managedList.first), -1);
+      expect(managedList.contains(RealmValue.from(originalMap)), false);
+      expect(managedList.contains(managedList.first), false);
+
+      expect(managedList.asResults().indexOf(RealmValue.from(originalMap)), -1);
+      expect(managedList.asResults().indexOf(managedList.first), -1);
+      expect(managedList.asResults().contains(RealmValue.from(originalMap)), false);
+      expect(managedList.asResults().contains(managedList.first), false);
+
+      expect(unmanagedList.indexOf(RealmValue.from(originalMap)), -1);
+      expect(unmanagedList.indexOf(unmanagedList.first), -1);
+      expect(unmanagedList.contains(RealmValue.from(originalMap)), false);
+      expect(unmanagedList.contains(unmanagedList.first), false);
+    });
+
     test('Map inside RealmValue equality', () {
       final realm = getMixedRealm();
       final originalMap = {'foo': 'bar'};
@@ -646,6 +722,81 @@ Future<void> main([List<String>? args]) async {
 
       // ignore: unrelated_type_equality_checks
       expect(unmanagedValue == originalMap, false);
+    });
+
+    test('Map<String, RealmValue>.contains for list', () {
+      final realm = getMixedRealm();
+      final originalList = [1];
+      final managedMap = realm.write(() {
+        return realm.add(AnythingGoes(dictOfAny: {'foo': RealmValue.from(originalList)})).dictOfAny;
+      });
+
+      final unmanagedMap = {'foo': RealmValue.from(originalList)};
+
+      expect(managedMap.isManaged, true);
+
+      expect(managedMap.containsValue(RealmValue.from(originalList)), false);
+      expect(managedMap.containsValue(managedMap.values.first), false);
+
+      expect(managedMap.values.contains(RealmValue.from(originalList)), false);
+      expect(managedMap.values.contains(managedMap.values.first), false);
+
+      expect(unmanagedMap.containsValue(RealmValue.from(originalList)), false);
+      expect(unmanagedMap.containsValue(unmanagedMap.values.first), false);
+
+      expect(unmanagedMap.values.contains(RealmValue.from(originalList)), false);
+      expect(unmanagedMap.values.contains(managedMap.values.first), false);
+    });
+
+    test('Map<String, RealmValue>.contains for map', () {
+      final realm = getMixedRealm();
+      final originalMap = {'bar': 1};
+      final managedMap = realm.write(() {
+        return realm.add(AnythingGoes(dictOfAny: {'foo': RealmValue.from(originalMap)})).dictOfAny;
+      });
+
+      final unmanagedMap = {'foo': RealmValue.from(originalMap)};
+
+      expect(managedMap.isManaged, true);
+
+      expect(managedMap.containsValue(RealmValue.from(originalMap)), false);
+      expect(managedMap.containsValue(managedMap.values.first), false);
+
+      expect(managedMap.values.contains(RealmValue.from(originalMap)), false);
+      expect(managedMap.values.contains(managedMap.values.first), false);
+
+      expect(unmanagedMap.containsValue(RealmValue.from(originalMap)), false);
+      expect(unmanagedMap.containsValue(unmanagedMap.values.first), false);
+
+      expect(unmanagedMap.values.contains(RealmValue.from(originalMap)), false);
+      expect(unmanagedMap.values.contains(managedMap.values.first), false);
+    });
+
+    test('Map<RealmValue>.indexOf for map', () {
+      final realm = getMixedRealm();
+      final originalMap = {'foo': 1};
+      final managedList = realm.write(() {
+        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalMap)])).manyAny;
+      });
+
+      final unmanagedList = [RealmValue.from(originalMap)];
+
+      expect(managedList.isManaged, true);
+
+      expect(managedList.indexOf(RealmValue.from(originalMap)), -1);
+      expect(managedList.indexOf(managedList.first), -1);
+      expect(managedList.contains(RealmValue.from(originalMap)), false);
+      expect(managedList.contains(managedList.first), false);
+
+      expect(managedList.asResults().indexOf(RealmValue.from(originalMap)), -1);
+      expect(managedList.asResults().indexOf(managedList.first), -1);
+      expect(managedList.asResults().contains(RealmValue.from(originalMap)), false);
+      expect(managedList.asResults().contains(managedList.first), false);
+
+      expect(unmanagedList.indexOf(RealmValue.from(originalMap)), -1);
+      expect(unmanagedList.indexOf(unmanagedList.first), -1);
+      expect(unmanagedList.contains(RealmValue.from(originalMap)), false);
+      expect(unmanagedList.contains(unmanagedList.first), false);
     });
 
     test('List in RealmValue when unmanaged is equal to original list', () {

@@ -393,7 +393,8 @@ extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
 
 extension on RealmSet {
   void _throwOnRealmValueCollection(Object? value) {
-    if (value is RealmValue && value.isCollection) {
+    // There's no API in Core that would allow us to store a collection inside a Set.
+    if (value is RealmValue && value.type.isCollection) {
       throw RealmStateError('Storing collections inside Set<RealmValue> is not supported');
     }
   }

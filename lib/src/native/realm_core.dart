@@ -3278,7 +3278,7 @@ extension _RealmLibraryEx on RealmLibrary {
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   final realm_value = allocator<realm_value_t>();
-  if (value is RealmValue && value.isCollection) {
+  if (value is RealmValue && value.type.isCollection) {
     throw RealmError(
         "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
   }

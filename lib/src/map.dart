@@ -186,8 +186,14 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
       return false;
     }
 
-    if (value is RealmValue && value.value is RealmObjectBase && !(value.value as RealmObjectBase).isManaged) {
-      return false;
+    if (value is RealmValue) {
+      if (value.value is RealmObjectBase && !(value.value as RealmObjectBase).isManaged) {
+        return false;
+      }
+
+      if (value.type.isCollection) {
+        return false;
+      }
     }
 
     return realmCore.mapContainsValue(this, value);
@@ -277,7 +283,7 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
         return;
       }
 
-      if (value is RealmValue && value.isCollection) {
+      if (value is RealmValue && value.type.isCollection) {
         realmCore.mapInsertCollection(handle, realm, key, value);
         return;
       }

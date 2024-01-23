@@ -1065,11 +1065,9 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
 
 /// @nodoc
 extension RealmValueInternal on RealmValue {
-  bool get isCollection => collectionType != null;
-
   RealmCollectionType? get collectionType {
-    if (value is List && value is! Uint8List) return RealmCollectionType.list;
-    if (value is Map) return RealmCollectionType.map;
+    if (type == RealmValueType.list) return RealmCollectionType.list;
+    if (type == RealmValueType.map) return RealmCollectionType.map;
     return null;
   }
 }

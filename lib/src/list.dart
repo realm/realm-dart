@@ -97,6 +97,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call remove on a managed list with an element that is an unmanaged object');
     }
+
     final index = indexOf(element);
     if (index < 0) {
       return false;
@@ -173,6 +174,17 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
     }
+
+    if (element is RealmValue) {
+      if (element.type.isCollection) {
+        return -1;
+      }
+
+      if (element.value is RealmObjectBase && !(element.value as RealmObjectBase).isManaged) {
+        return -1;
+      }
+    }
+
     if (start < 0) start = 0;
     final index = realmCore.listFind(this, element);
     return index < start ? -1 : index; // to align with dart list semantics
@@ -306,7 +318,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
         return;
       }
 
-      if (value is RealmValue && value.isCollection) {
+      if (value is RealmValue && value.type.isCollection) {
         realmCore.listAddCollectionAt(handle, realm, index, value, insert || index >= length);
         return;
       }
