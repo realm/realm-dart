@@ -790,5 +790,64 @@ Future<void> main([List<String>? args]) async {
       expect(listChanges, hasLength(2));
       expect(mapChanges, hasLength(2));
     });
+
+    test('Queries', () {
+      final realm = getMixedRealm();
+
+      late AnythingGoes first;
+      late AnythingGoes second;
+      late AnythingGoes third;
+
+      realm.write(() {
+        first = realm.add(AnythingGoes(
+            oneAny: RealmValue.from([
+          1,
+          'a',
+          {'foo': 'bar'}
+        ])));
+
+        second = realm.add(AnythingGoes(
+            oneAny: RealmValue.from([
+          2,
+          {'foo': 'baz'}
+        ])));
+
+        third = realm.add(AnythingGoes(
+            oneAny: RealmValue.from([
+          3,
+          'c',
+          {
+            'foo': {'child': 5},
+            'bar': 10
+          },
+          3.4
+        ])));
+      });
+
+      final listElementQuery = realm.query<AnythingGoes>('oneAny[0] < 3');
+      expect(listElementQuery, unorderedMatches([first, second]));
+
+      // TODO: reenable when https://github.com/realm/realm-core/issues/7280 is fixed
+      // final listLengthQuery = realm.query<AnythingGoes>('oneAny.@size > 3');
+      // expect(listLengthQuery, unorderedMatches([third]));
+
+      final listStarQuery = realm.query<AnythingGoes>('oneAny[*] == 3.4');
+      expect(listStarQuery, unorderedMatches([third]));
+
+      // TODO: reenable when https://github.com/realm/realm-core/issues/7281 is fixed
+      // final typeQuery = realm.query<AnythingGoes>("oneAny[2].@type == 'dictionary'");
+      // expect(typeQuery, unorderedMatches([first, third]));
+
+      // TODO: reenable when https://github.com/realm/realm-core/issues/7282 is fixed
+      // final dictionaryInListQuery = realm.query<AnythingGoes>("oneAny[*].foo BEGINSWITH 'ba'");
+      // expect(dictionaryInListQuery, unorderedMatches([first, second]));
+
+      // TODO: reenable when https://github.com/realm/realm-core/issues/7283 is fixed
+      // final dictionaryKeysQuery = realm.query<AnythingGoes>("ANY oneAny[*].foo.@keys == 'child'");
+      // expect(dictionaryKeysQuery, unorderedMatches([third]));
+
+      final noMatchesQuery = realm.query<AnythingGoes>("oneAny[*].bar == 9");
+      expect(noMatchesQuery, isEmpty);
+    });
   });
 }
