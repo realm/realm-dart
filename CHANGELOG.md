@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.7.0 (2024-01-23)
 
 ### Enhancements
 * Reworked how creating an `App` instance works across isolates:

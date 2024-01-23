@@ -1,6 +1,6 @@
 name: realm
 description: The official Realm SDK for Flutter. Realm is a mobile database - an alternative to SQLite and key-value stores.
-version: 1.6.1
+version: 1.7.0
 
 homepage: https://www.realm.io
 repository: https://github.com/realm/realm-dart
