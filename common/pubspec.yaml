@@ -12,9 +12,10 @@ issue_tracker: https://github.com/realm/realm-dart/issues
 publish_to: none
 
 environment:
-  sdk: ^3.1.0
+  sdk: ^3.0.0
 
 dependencies:
+  collection: ^1.18.0
   objectid: ^3.0.0
   sane_uuid: ^1.0.0-alpha.4
 

@@ -25,6 +25,7 @@
 
   The map keys may not contain `.` or start with `$`. (Issue [#685](https://github.com/realm/realm-dart/issues/685))
 * Added a new exception - `MigrationRequiredException` that will be thrown when a local Realm is opened with a schema that differs from the schema on disk and no migration callback is supplied. Additionally, a `helpLink` property has been added to `RealmException` and its subclasses to provide a link to the documentation for the error. (Issue [#1448](https://github.com/realm/realm-dart/issues/1448))
+* Downgrade minimum dependencies to Dart 3.0.0 and Flutter 3.10.0. (PR [#1457](https://github.com/realm/realm-dart/pull/1457))
 * Added `RealmObject.getBacklinks<SourceType>('sourceProperty')` which is a method allowing you to look up all objects of type `SourceType` which link to the current object via their `sourceProperty` property. (Issue [#1480](https://github.com/realm/realm-dart/issues/1480))
 
 ### Fixed
@@ -52,6 +53,8 @@
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
+* Flutter: ^3.10.0
+* Dart: ^3.0.0
 
 ### Internal
 * Using Core v13.26.0.
