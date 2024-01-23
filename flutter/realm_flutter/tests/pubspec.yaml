@@ -21,17 +21,14 @@ dependencies:
     path: ../
 
 dev_dependencies:
-  flutter_driver:
-    sdk: flutter
   flutter_test:
     sdk: flutter  
   flutter_lints: ^3.0.1
-  build_runner: ^2.1.2
-  test_api: ^0.6.1
   test: any
   timezone: ^0.9.0
+  integration_test:
+    sdk: flutter
 
 flutter:
-  uses-material-design: true
   assets:
     - test/data/realm_files/old-format.realm

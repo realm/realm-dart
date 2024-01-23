@@ -74,13 +74,11 @@ jobs:
       - name: Run tests
         run: |
           ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} \
-          flutter drive -d ${{ inputs.os }} \
-            --target=test_driver/app.dart \
-            --suppress-analytics \
-            --dart-entrypoint-args="" \
-            --debug \
-            --dart-define BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
-            --dart-define BAAS_DIFFERENTIATO=$BAAS_DIFFERENTIATO \
-            # -a="Some test name"
+          flutter test integration_test/all_tests.dart \
+            --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
+            --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
+            --device-id=${{ inputs.os }} \
+            --file-reporter=json:test-results.json \
+            --suppress-analytics
         shell: bash
         working-directory: ./flutter/realm_flutter/tests

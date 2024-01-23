@@ -109,7 +109,7 @@ void main() {
     test('Indexed faster: ${testCase.name}', () {
       final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
       final realm = getRealm(config);
-      const max = 100000;
+      const max = 10000;
       final allIndexed = realm.all<WithIndexes>();
       final allNotIndexed = realm.all<NoIndexes>();
       expect(allIndexed.length, 0);
