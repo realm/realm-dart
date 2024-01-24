@@ -368,6 +368,9 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v2
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
