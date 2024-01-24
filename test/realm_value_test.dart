@@ -53,14 +53,12 @@ Future<void> main([List<String>? args]) async {
   }
 
   group('RealmValue', () {
-    final values = <Object?>[
+    final primitiveValues = <Object?>[
       null,
       true,
       'text',
       42,
       3.14,
-      AnythingGoes(),
-      Stuff(),
       DateTime.utc(2024, 5, 3, 23, 11, 54),
       ObjectId.fromHexString('64c13ab08edf48a008793cac'),
       Uuid.fromString('7a459a5e-5eb6-45f6-9b72-8f794e324105'),
@@ -68,7 +66,7 @@ Future<void> main([List<String>? args]) async {
       Uint8List.fromList([1, 2, 0])
     ];
 
-    for (final x in values) {
+    for (final x in primitiveValues) {
       test('Roundtrip ${x.runtimeType} $x', () {
         final realm = getMixedRealm();
         final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
@@ -76,7 +74,51 @@ Future<void> main([List<String>? args]) async {
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
       });
+
+      // TODO: reenable when https://github.com/realm/realm-core/pull/7288 is addressed
+      final queryArg = RealmValue.from(x);
+      test('Query @type == ${queryArg.type} $x', () {
+        final realm = getMixedRealm();
+        realm.write(() {
+          // Add all values, we're going to query for just one of them.
+          for (final v in primitiveValues) {
+            realm.add(AnythingGoes(oneAny: RealmValue.from(v)));
+          }
+          realm.add(AnythingGoes(oneAny: RealmValue.from(Stuff())));
+        });
+
+        final matches = realm.query<AnythingGoes>(r'oneAny.@type == $0', [queryArg.type]);
+        expect(matches.length, 1);
+        expect(matches.single.oneAny.value, x);
+        expect(matches.single.oneAny.type, queryArg.type);
+        expect(matches.single.oneAny, queryArg);
+      }, skip: 'Depends on https://github.com/realm/realm-core/pull/7288');
     }
+
+    test('Roundtrip object', () {
+      final stuff = Stuff(i: 123);
+      final realm = getMixedRealm();
+      final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(stuff))));
+      expect(something.oneAny.value.runtimeType, Stuff);
+      expect(something.oneAny.as<Stuff>().i, 123);
+    });
+
+    // TODO: reenable when https://github.com/realm/realm-core/pull/7288 is addressed
+    test('Query @type == object', () {
+      final realm = getMixedRealm();
+      realm.write(() {
+        for (final v in primitiveValues) {
+          realm.add(AnythingGoes(oneAny: RealmValue.from(v)));
+        }
+
+        realm.add(AnythingGoes(oneAny: RealmValue.from(Stuff(i: 123))));
+      });
+
+      final matches = realm.query<AnythingGoes>(r'oneAny.@type == $0', [RealmValueType.object]);
+      expect(matches.length, 1);
+      expect(matches.single.oneAny.as<Stuff>().i, 123);
+      expect(matches.single.oneAny.type, RealmValueType.object);
+    }, skip: 'Depends on https://github.com/realm/realm-core/pull/7288');
 
     test('Illegal value', () {
       final realm = getMixedRealm();
@@ -88,7 +130,7 @@ Future<void> main([List<String>? args]) async {
       expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
     });
 
-    for (final x in values) {
+    for (final x in primitiveValues) {
       test('Switch $x', () {
         final something = AnythingGoes(oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
@@ -134,7 +176,7 @@ Future<void> main([List<String>? args]) async {
       });
     }
 
-    for (final x in values) {
+    for (final x in primitiveValues) {
       test('If-is $x', () {
         final something = AnythingGoes(oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
@@ -827,6 +869,7 @@ Future<void> main([List<String>? args]) async {
       expect(identical(obj.oneAny.asMap(), map), false);
     });
 
+    // TODO: reenable when https://github.com/realm/realm-core/issues/7270 is addressed
     test('Notifications', () async {
       final realm = getMixedRealm();
       final obj = AnythingGoes(
@@ -891,14 +934,12 @@ Future<void> main([List<String>? args]) async {
       expect(parentChanges, hasLength(2));
       expect(parentChanges[1].properties, ['oneAny']);
 
-      // Collection changes are only emitted if the collection is directly modified
-      // but won't be emitted if an item inside the collection changes. In this case,
-      // we're modifying the dictionary inside the list, but not reassigning any list
-      // elements, so we shouldn't get a notification
-
-      // TODO: this is inconsistent with how lists behave today - talk to Claus/Ferdinando
-      // about the expectations
-      expect(listChanges, hasLength(1));
+      expect(listChanges, hasLength(2));
+      expect(listChanges[1].inserted, isEmpty);
+      expect(listChanges[1].deleted, isEmpty);
+      expect(listChanges[1].modified, [1]);
+      expect(listChanges[1].isCleared, false);
+      expect(listChanges[1].isCollectionDeleted, false);
 
       expect(mapChanges, hasLength(1));
       expect(mapChanges[0].modified, ['list']);
@@ -916,12 +957,12 @@ Future<void> main([List<String>? args]) async {
       expect(parentChanges, hasLength(3));
       expect(parentChanges[2].properties, ['oneAny']);
 
-      expect(listChanges, hasLength(2));
-      expect(listChanges[1].inserted, isEmpty);
-      expect(listChanges[1].deleted, [1]);
-      expect(listChanges[1].modified, isEmpty);
-      expect(listChanges[1].isCleared, false);
-      expect(listChanges[1].isCollectionDeleted, false);
+      expect(listChanges, hasLength(3));
+      expect(listChanges[2].inserted, isEmpty);
+      expect(listChanges[2].deleted, [1]);
+      expect(listChanges[2].modified, isEmpty);
+      expect(listChanges[2].isCleared, false);
+      expect(listChanges[2].isCollectionDeleted, false);
 
       expect(mapChanges, hasLength(2));
       expect(mapChanges[1].isCollectionDeleted, true);
@@ -938,9 +979,9 @@ Future<void> main([List<String>? args]) async {
 
       // Subscriptions have been canceled - shouldn't get more notifications
       expect(parentChanges, hasLength(3));
-      expect(listChanges, hasLength(2));
+      expect(listChanges, hasLength(3));
       expect(mapChanges, hasLength(2));
-    });
+    }, skip: 'Depends on https://github.com/realm/realm-core/issues/7270');
 
     test('Queries', () {
       final realm = getMixedRealm();

@@ -3310,6 +3310,8 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
 void _intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
   if (value is GeoShape) {
     _intoRealmValue(value.toString(), realm_value, allocator);
+  } else if (value is RealmValueType) {
+    _intoRealmValue(value.toQueryArgString(), realm_value, allocator);
   } else {
     _intoRealmValue(value, realm_value, allocator);
   }
@@ -3774,5 +3776,25 @@ extension on realm_error {
   LastError toLastError() {
     final message = this.message.cast<Utf8>().toRealmDartString();
     return LastError(error, message, user_code_error.toUserCodeError());
+  }
+}
+
+extension on RealmValueType {
+  String toQueryArgString() {
+    return switch (this) {
+      RealmValueType.nullValue => 'null',
+      RealmValueType.boolean => 'bool',
+      RealmValueType.string => 'string',
+      RealmValueType.int => 'int',
+      RealmValueType.double => 'double',
+      RealmValueType.object => 'link',
+      RealmValueType.objectId => 'objectid',
+      RealmValueType.dateTime => 'date',
+      RealmValueType.decimal => 'decimal',
+      RealmValueType.uuid => 'uuid',
+      RealmValueType.binary => 'binary',
+      RealmValueType.list => 'array',
+      RealmValueType.map => 'object',
+    };
   }
 }
