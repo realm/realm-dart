@@ -82,3 +82,13 @@ jobs:
             --suppress-analytics
         shell: bash
         working-directory: ./flutter/realm_flutter/tests
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: Test Results Flutter ${{ inputs.os }} ${{ inputs.architecture }}
+          path: test-results.json
+          reporter: dart-json
+          only-summary: true
+          working-directory: ./flutter/realm_flutter/tests
