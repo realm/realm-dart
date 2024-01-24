@@ -57,9 +57,7 @@ void main() {
   group('manual_test.dart', manual_test.main);
   group('migration_test.dart', migration_test.main);
   group('realm_logger_test.dart', realm_logger_test.main);
-  // Something sinister is going on with the realm_map_test on Android,
-  // when run as integration test. It works fine when run as a unit test.
-  if (!Platform.isAndroid) group('realm_map_test.dart', realm_map_test.main);
+  group('realm_map_test.dart', realm_map_test.main);
   group('realm_object_test.dart', realm_object_test.main);
   group('realm_set_test.dart', realm_set_test.main);
   group('realm_test.dart', realm_test.main);

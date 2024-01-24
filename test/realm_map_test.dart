@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
@@ -945,8 +946,11 @@ void main() {
   runTests(doubleTestValues, (e) => e.doubleMap);
   runTests(nullableDoubleTestValues, (e) => e.nullableDoubleMap);
 
-  runTests(decimal128TestValues, (e) => e.decimalMap);
-  runTests(nullableDecimal128TestValues, (e) => e.nullableDecimalMap);
+  // Something sinister is going on when setting up these tests on Android,
+  if (!Platform.isAndroid) {
+    runTests(decimal128TestValues, (e) => e.decimalMap);
+    runTests(nullableDecimal128TestValues, (e) => e.nullableDecimalMap);
+  }
 
   runTests(dateTimeTestValues, (e) => e.dateTimeMap);
   runTests(nullableDateTimeTestValues, (e) => e.nullableDateTimeMap);
