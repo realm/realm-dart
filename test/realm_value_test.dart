@@ -75,7 +75,7 @@ Future<void> main([List<String>? args]) async {
         expect(something.oneAny, RealmValue.from(x));
       });
 
-      // TODO: reenable when https://github.com/realm/realm-core/pull/7288 is addressed
+      // TODO: reenable when https://github.com/realm/realm-core/issues/7289 is addressed
       final queryArg = RealmValue.from(x);
       test('Query @type == ${queryArg.type} $x', () {
         final realm = getMixedRealm();
@@ -92,7 +92,7 @@ Future<void> main([List<String>? args]) async {
         expect(matches.single.oneAny.value, x);
         expect(matches.single.oneAny.type, queryArg.type);
         expect(matches.single.oneAny, queryArg);
-      }, skip: 'Depends on https://github.com/realm/realm-core/pull/7288');
+      }, skip: 'Depends on https://github.com/realm/realm-core/issues/7289');
     }
 
     test('Roundtrip object', () {
@@ -103,7 +103,7 @@ Future<void> main([List<String>? args]) async {
       expect(something.oneAny.as<Stuff>().i, 123);
     });
 
-    // TODO: reenable when https://github.com/realm/realm-core/pull/7288 is addressed
+    // TODO: reenable when https://github.com/realm/realm-core/issues/7289 is addressed
     test('Query @type == object', () {
       final realm = getMixedRealm();
       realm.write(() {
@@ -118,7 +118,7 @@ Future<void> main([List<String>? args]) async {
       expect(matches.length, 1);
       expect(matches.single.oneAny.as<Stuff>().i, 123);
       expect(matches.single.oneAny.type, RealmValueType.object);
-    }, skip: 'Depends on https://github.com/realm/realm-core/pull/7288');
+    }, skip: 'Depends on https://github.com/realm/realm-core/issues/7289');
 
     test('Illegal value', () {
       final realm = getMixedRealm();
