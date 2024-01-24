@@ -616,7 +616,7 @@ void testManaged<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<T
 }
 
 @isTest
-testNotifications<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<T> testData) {
+void testNotifications<T>(RealmMap<T> Function(TestRealmMaps) accessor, TestCaseData<T> testData) {
   test('$T notifications', () async {
     final testObject = TestRealmMaps(0);
     final map = accessor(testObject);
