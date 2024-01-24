@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 
@@ -109,14 +110,33 @@ abstract class Configuration implements Finalizable {
   static String defaultRealmPath = _path.join(defaultStoragePath, 'default.realm');
 
   Configuration._(
-    this.schemaObjects, {
+    Iterable<SchemaObject> schemaObjects, {
     String? path,
     this.fifoFilesFallbackPath,
     this.encryptionKey,
     this.maxNumberOfActiveVersions,
-  }) {
+  }) : schemaObjects = _getRelatedSchemas(schemaObjects) {
     _validateEncryptionKey(encryptionKey);
     this.path = path ?? _path.join(_path.dirname(_defaultPath), _path.basename(defaultRealmName));
+  }
+
+  static HashSet<SchemaObject> _getRelatedSchemas(Iterable<SchemaObject> objects) {
+    final result = HashSet<SchemaObject>();
+
+    void addItemAndChildren(SchemaObject obj) {
+      if (result.add(obj)) {
+        final linkSchemas = obj.properties.map((e) => e.linkTargetSchema).where((e) => e != null).map((e) => e!);
+        for (final linkSchema in linkSchemas) {
+          addItemAndChildren(linkSchema());
+        }
+      }
+    }
+
+    for (final obj in objects) {
+      addItemAndChildren(obj);
+    }
+
+    return result;
   }
 
   // allow inheritors to override the _defaultPath value
@@ -254,7 +274,7 @@ abstract class Configuration implements Finalizable {
 /// {@category Configuration}
 class LocalConfiguration extends Configuration {
   LocalConfiguration._(
-    super.schemaObjects, {
+    Iterable<SchemaObject> schemaObjects, {
     this.initialDataCallback,
     this.schemaVersion = 0,
     super.fifoFilesFallbackPath,
@@ -266,7 +286,7 @@ class LocalConfiguration extends Configuration {
     this.migrationCallback,
     super.maxNumberOfActiveVersions,
     this.shouldDeleteIfMigrationNeeded = false,
-  }) : super._();
+  }) : super._(schemaObjects);
 
   /// The schema version used to open the `Realm`. If omitted, the default value is `0`.
   ///
@@ -356,7 +376,7 @@ class FlexibleSyncConfiguration extends Configuration {
 
   FlexibleSyncConfiguration._(
     this.user,
-    super.schemaObjects, {
+    Iterable<SchemaObject> schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
     super.encryptionKey,
@@ -364,7 +384,7 @@ class FlexibleSyncConfiguration extends Configuration {
     this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
     super.maxNumberOfActiveVersions,
     this.shouldCompactCallback,
-  }) : super._();
+  }) : super._(schemaObjects);
 
   @override
   String get _defaultPath => realmCore.getPathForUser(user);
@@ -387,12 +407,12 @@ extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
 /// {@category Configuration}
 class DisconnectedSyncConfiguration extends Configuration {
   DisconnectedSyncConfiguration._(
-    super.schemaObjects, {
+    Iterable<SchemaObject> schemaObjects, {
     required super.path,
     super.fifoFilesFallbackPath,
     super.encryptionKey,
     super.maxNumberOfActiveVersions,
-  }) : super._();
+  }) : super._(schemaObjects);
 
   @override
   String get _defaultPath => _path.dirname(path);
@@ -403,11 +423,11 @@ class DisconnectedSyncConfiguration extends Configuration {
 /// {@category Configuration}
 class InMemoryConfiguration extends Configuration {
   InMemoryConfiguration._(
-    super.schemaObjects, {
+    Iterable<SchemaObject> schemaObjects, {
     super.fifoFilesFallbackPath,
     super.path,
     super.maxNumberOfActiveVersions,
-  }) : super._();
+  }) : super._(schemaObjects);
 }
 
 /// A collection of properties describing the underlying schema of a [RealmObjectBase].
@@ -428,6 +448,12 @@ class SchemaObject {
 
   /// Creates schema instance with object type and collection of object's properties.
   const SchemaObject(this.baseType, this.type, this.name, this.properties);
+
+  @override
+  bool operator ==(Object other) => other is SchemaObject && other.type == type;
+
+  @override
+  int get hashCode => type.hashCode;
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
@@ -455,7 +481,7 @@ class RealmSchema extends Iterable<SchemaObject> {
 
 /// @nodoc
 extension SchemaObjectInternal on SchemaObject {
-  bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase;
+  bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase || type == AsymmetricObject;
 }
 
 /// [ClientResetHandler] is triggered if the device and server cannot agree
