@@ -1,10 +1,11 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Added `RealmObject.getBacklinks<SourceType>('sourceProperty')` which is a method allowing you to look up all objects of type `SourceType` which link to the current object via their `sourceProperty` property. (Issue [#1480](https://github.com/realm/realm-dart/issues/1480))
 
 ### Fixed
 * Fix a possible hang (or in rare cases crash) during notification handling. (Issue [#1492](https://github.com/realm/realm-dart/issues/1492))
+* Fix Flutter app build on Linux. A contribution from [thiagokisaki](https://github.com/thiagokisaki). (PR [#1488](https://github.com/realm/realm-dart/pull/1488))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
@@ -40,7 +41,6 @@
   The map keys may not contain `.` or start with `$`. (Issue [#685](https://github.com/realm/realm-dart/issues/685))
 * Added a new exception - `MigrationRequiredException` that will be thrown when a local Realm is opened with a schema that differs from the schema on disk and no migration callback is supplied. Additionally, a `helpLink` property has been added to `RealmException` and its subclasses to provide a link to the documentation for the error. (Issue [#1448](https://github.com/realm/realm-dart/issues/1448))
 * Downgrade minimum dependencies to Dart 3.0.0 and Flutter 3.10.0. (PR [#1457](https://github.com/realm/realm-dart/pull/1457))
-* Added `RealmObject.getBacklinks<SourceType>('sourceProperty')` which is a method allowing you to look up all objects of type `SourceType` which link to the current object via their `sourceProperty` property. (Issue [#1480](https://github.com/realm/realm-dart/issues/1480))
 
 ### Fixed
 * Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))
