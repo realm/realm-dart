@@ -13,7 +13,9 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   Source({
     String name = 'source',
     Target? oneTarget,
+    Target? dynamicTarget,
     Iterable<Target> manyTargets = const [],
+    Iterable<Target> dynamicManyTargets = const [],
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Source>({
@@ -22,8 +24,11 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'et mål', oneTarget);
+    RealmObjectBase.set(this, 'dynamisk mål', dynamicTarget);
     RealmObjectBase.set<RealmList<Target>>(
         this, 'manyTargets', RealmList<Target>(manyTargets));
+    RealmObjectBase.set<RealmList<Target>>(
+        this, 'dynamicManyTargets', RealmList<Target>(dynamicManyTargets));
   }
 
   Source._();
@@ -48,6 +53,21 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
       throw RealmUnsupportedSetError();
 
   @override
+  Target? get dynamicTarget =>
+      RealmObjectBase.get<Target>(this, 'dynamisk mål') as Target?;
+  @override
+  set dynamicTarget(covariant Target? value) =>
+      RealmObjectBase.set(this, 'dynamisk mål', value);
+
+  @override
+  RealmList<Target> get dynamicManyTargets =>
+      RealmObjectBase.get<Target>(this, 'dynamicManyTargets')
+          as RealmList<Target>;
+  @override
+  set dynamicManyTargets(covariant RealmList<Target> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<Source>> get changes =>
       RealmObjectBase.getChanges<Source>(this);
 
@@ -64,6 +84,10 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
           mapTo: 'et mål', optional: true, linkTarget: 'Target'),
       SchemaProperty('manyTargets', RealmPropertyType.object,
           linkTarget: 'Target', collectionType: RealmCollectionType.list),
+      SchemaProperty('dynamicTarget', RealmPropertyType.object,
+          mapTo: 'dynamisk mål', optional: true, linkTarget: 'Target'),
+      SchemaProperty('dynamicManyTargets', RealmPropertyType.object,
+          linkTarget: 'Target', collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -73,6 +97,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
 
   Target({
     String name = 'target',
+    Source? source,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Target>({
@@ -80,6 +105,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
       });
     }
     RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set(this, 'source', source);
   }
 
   Target._();
@@ -88,6 +114,12 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   String get name => RealmObjectBase.get<String>(this, 'name') as String;
   @override
   set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  Source? get source => RealmObjectBase.get<Source>(this, 'source') as Source?;
+  @override
+  set source(covariant Source? value) =>
+      RealmObjectBase.set(this, 'source', value);
 
   @override
   RealmResults<Source> get oneToMany {
@@ -128,6 +160,8 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Target._);
     return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
+      SchemaProperty('source', RealmPropertyType.object,
+          optional: true, linkTarget: 'Source'),
       SchemaProperty('oneToMany', RealmPropertyType.linkingObjects,
           linkOriginProperty: 'et mål',
           collectionType: RealmCollectionType.list,
