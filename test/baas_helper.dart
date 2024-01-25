@@ -98,7 +98,7 @@ class BaasHelper {
     final apiKey = Env.baasApiKey();
     final privateApiKey = Env.baasPrivateApiKey();
     final projectId = Env.baasProjectId();
-    final differentiator = Env.differentiator();
+    final differentiator = Env.differentiator() ?? 'local';
 
     if (baasUrl == null) {
       final baasAasApiKey = Env.baasAasApiKey();
@@ -109,7 +109,7 @@ class BaasHelper {
 
         (baasUrl, _) = await BaasClient.retry(() => BaasClient.getOrDeployContainer(
               baasAasApiKey,
-              differentiator!,
+              differentiator,
             ));
       }
     }
@@ -119,8 +119,8 @@ class BaasHelper {
     }
 
     final client = await BaasClient.retry(() => (cluster == null
-        ? BaasClient.docker(baasUrl!, differentiator!)
-        : BaasClient.atlas(baasUrl!, cluster, apiKey!, privateApiKey!, projectId!, differentiator!)));
+        ? BaasClient.docker(baasUrl!, differentiator)
+        : BaasClient.atlas(baasUrl!, cluster, apiKey!, privateApiKey!, projectId!, differentiator)));
 
     client.publicRSAKey = publicRSAKeyForJWTValidation;
     return client;
