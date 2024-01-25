@@ -869,7 +869,6 @@ Future<void> main([List<String>? args]) async {
       expect(identical(obj.oneAny.asMap(), map), false);
     });
 
-    // TODO: reenable when https://github.com/realm/realm-core/issues/7270 is addressed
     test('Notifications', () async {
       final realm = getMixedRealm();
       final obj = AnythingGoes(
@@ -981,7 +980,7 @@ Future<void> main([List<String>? args]) async {
       expect(parentChanges, hasLength(3));
       expect(listChanges, hasLength(3));
       expect(mapChanges, hasLength(2));
-    }, skip: 'Depends on https://github.com/realm/realm-core/issues/7270');
+    });
 
     test('Queries', () {
       final realm = getMixedRealm();
