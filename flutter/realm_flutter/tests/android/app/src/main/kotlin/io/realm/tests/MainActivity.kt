@@ -1,4 +1,4 @@
-package com.example.tests
+package io.realm.tests
 
 import io.flutter.embedding.android.FlutterActivity
 
