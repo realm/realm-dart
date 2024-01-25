@@ -4,6 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:integration_test/integration_test.dart';
 import 'package:test/test.dart';
 
+import '../../../../test/test.dart' as test;
 import '../../../../test/app_test.dart' as app_test;
 import '../../../../test/asymmetric_test.dart' as asymmetric_test;
 import '../../../../test/backlinks_test.dart' as backlinks_test;
@@ -40,7 +41,7 @@ void main() {
 
   // To support both dart test and flutter integration test we pass an alternative
   // copyFile function. Remember to add any needed files as assets in pubspec.yaml.
-  configuration_test.copyFile = _copyBundledFile;
+  test.copyFile = _copyBundledFile;
 
   group('app_test.dart', app_test.main);
   group('asymmetric_test.dart', asymmetric_test.main);

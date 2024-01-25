@@ -735,3 +735,9 @@ Future<bool> runWithRetries(bool Function() tester, {int retryDelay = 100, int a
 
   return success;
 }
+
+Future<void> _copyFile(String fromPath, String toPath) async {
+  await File(fromPath).copy(toPath);
+}
+
+var copyFile = _copyFile; // default, but allow integration_test to override

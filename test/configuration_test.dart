@@ -636,9 +636,3 @@ void main() {
     expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (3) in the Realm exceeded the limit of 2"));
   });
 }
-
-Future<void> _copyFile(String fromPath, String toPath) async {
-  await File(fromPath).copy(toPath);
-}
-
-var copyFile = _copyFile; // default, but allow integration_test to override
