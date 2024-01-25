@@ -100,10 +100,11 @@ class RealmValuesAccessor implements RealmAccessor {
   }
 }
 
+/// @nodoc
 class RealmObjectMetadata {
   final int classKey;
   final SchemaObject schema;
-  late final String? primaryKey = schema.properties.firstWhereOrNull((element) => element.primaryKey)?.mapTo;
+  late final String? primaryKey = schema.firstWhereOrNull((element) => element.primaryKey)?.mapTo;
 
   final Map<String, RealmPropertyMetadata> _propertyKeys;
 
@@ -114,11 +115,11 @@ class RealmObjectMetadata {
   RealmPropertyMetadata operator [](String propertyName) {
     var meta = _propertyKeys[propertyName];
     if (meta == null) {
-      // We couldn't find a proeprty by the name supplied by the user - this may be because the _propertyKeys
+      // We couldn't find a property by the name supplied by the user - this may be because the _propertyKeys
       // map is keyed on the property names as they exist in the database while the user supplied the public
       // name (i.e. the name of the property in the model). Try and look up the property by the public name and
       // then try to re-fetch the property meta using the database name.
-      final publicName = schema.properties.firstWhereOrNull((e) => e.name == propertyName)?.mapTo;
+      final publicName = schema.firstWhereOrNull((e) => e.name == propertyName)?.mapTo;
       if (publicName != null && publicName != propertyName) {
         meta = _propertyKeys[publicName];
       }
@@ -126,9 +127,10 @@ class RealmObjectMetadata {
 
     return meta ?? (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
   }
-  // _propertyKeys[propertyName] ??
-  // schema.properties.firstWhereOrNull((p) => p.name == propertyName) ??
-  // (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
+
+  void operator []=(String propertyName, RealmPropertyMetadata value) {
+    _propertyKeys[propertyName] = value;
+  }
 
   String? getPropertyName(int propertyKey) {
     for (final entry in _propertyKeys.entries) {
@@ -140,6 +142,7 @@ class RealmObjectMetadata {
   }
 }
 
+/// @nodoc
 class RealmPropertyMetadata {
   final int key;
   final RealmCollectionType collectionType;
@@ -380,6 +383,16 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   }
 
   /// @nodoc
+  static SchemaObject? getSchema(RealmObjectBase object) {
+    final accessor = object.accessor;
+    if (accessor is RealmCoreAccessor) {
+      return accessor.metadata.schema;
+    }
+
+    return null;
+  }
+
+  /// @nodoc
   static void registerFactory<T extends RealmObjectBase>(T Function() factory) {
     // We register a factory for both the type itself, but also the nullable
     // version of the type.
@@ -554,6 +567,9 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
     final handle = realmCore.getBacklinks(this, sourceMeta.classKey, sourceProperty.key);
     return RealmResultsInternal.create<T>(handle, realm, sourceMeta);
   }
+
+  /// Returns the schema for this object.
+  SchemaObject get objectSchema;
 }
 
 /// @nodoc
@@ -731,10 +747,16 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 }
 
 /// @nodoc
-class _ConcreteRealmObject with RealmEntity, RealmObjectBase, RealmObject {}
+class _ConcreteRealmObject with RealmEntity, RealmObjectBase, RealmObject {
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this)!; // _ConcreteRealmObject should only ever be created for managed objects
+}
 
 /// @nodoc
-class _ConcreteEmbeddedObject with RealmEntity, RealmObjectBase, EmbeddedObject {}
+class _ConcreteEmbeddedObject with RealmEntity, RealmObjectBase, EmbeddedObject {
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this)!; // _ConcreteEmbeddedObject should only ever be created for managed objects
+}
 
 // This is necessary whenever we need to pass T? as the type.
 Type _typeOf<T>() => T;

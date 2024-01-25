@@ -40,10 +40,13 @@ class TuckedIn extends _TuckedIn
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(TuckedIn._);
-    return const SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
+    return SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class AnythingGoes extends _AnythingGoes
@@ -83,14 +86,16 @@ class AnythingGoes extends _AnythingGoes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(AnythingGoes._);
-    return const SchemaObject(
-        ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
+    return SchemaObject(ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
       SchemaProperty('oneAny', RealmPropertyType.mixed,
           optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
@@ -125,8 +130,11 @@ class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Stuff._);
-    return const SchemaObject(ObjectType.realmObject, Stuff, 'Stuff', [
+    return SchemaObject(ObjectType.realmObject, Stuff, 'Stuff', [
       SchemaProperty('i', RealmPropertyType.int),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

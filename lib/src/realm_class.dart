@@ -158,6 +158,7 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
+  late final RealmCallbackTokenHandle? _schemaCallbackHandle;
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -179,6 +180,15 @@ class Realm implements Finalizable {
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+    // The schema of a Realm file may change due to sync adding new properties/classes. We subscribe for notifications
+    // in order to update the managed schema instance in case this happens. The same is true for dynamic Realms. For
+    // local Realms with user-supplied schema, the schema on disk may still change, but Core doesn't report the updated
+    // schema, so even if we subscribe, we wouldn't be able to see the updates.
+    if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
+      _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+    } else {
+      _schemaCallbackHandle = null;
+    }
   }
 
   /// A method for asynchronously opening a [Realm].
@@ -436,6 +446,7 @@ class Realm implements Finalizable {
       return;
     }
 
+    _schemaCallbackHandle?.release();
     realmCore.closeRealm(this);
     handle.release();
   }
@@ -645,6 +656,29 @@ class Realm implements Finalizable {
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
   }
+
+  void _updateSchema() {
+    final newSchema = realmCore.readSchema(this);
+
+    for (final schemaObject in newSchema) {
+      final existing = schema.firstWhereOrNull((s) => s.name == schemaObject.name);
+      if (existing == null) {
+        schema.add(schemaObject);
+        final meta = realmCore.getObjectMetadata(this, schemaObject);
+        metadata._add(meta);
+      } else if (schemaObject.length > existing.length) {
+        final existingMeta = metadata.getByName(schemaObject.name);
+        final propertyMeta = realmCore.getPropertiesMetadata(this, existingMeta.classKey, existingMeta.primaryKey);
+        for (final property in schemaObject) {
+          final existingProp = existing.firstWhereOrNull((e) => e.mapTo == property.mapTo);
+          if (existingProp == null) {
+            existing.add(property);
+            existingMeta[property.name] = propertyMeta[property.name]!;
+          }
+        }
+      }
+    }
+  }
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
@@ -839,6 +873,10 @@ extension RealmInternal on Realm {
   static void logMessageForTesting(Level logLevel, String message) {
     realmCore.logMessageForTesting(logLevel, message);
   }
+
+  void updateSchema() {
+    _updateSchema();
+  }
 }
 
 /// @nodoc
@@ -930,13 +968,19 @@ class RealmMetadata {
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
-      if (!metadata.schema.isGenericRealmObject) {
-        _typeMap[metadata.schema.type] = metadata;
-      } else {
-        _stringMap[metadata.schema.name] = metadata;
-      }
-      _classKeyMap[metadata.classKey] = metadata;
+      _add(metadata);
     }
+  }
+
+  /// This is used when constructing the metadata, but also when the Realm schema
+  /// changes.
+  void _add(RealmObjectMetadata metadata) {
+    if (!metadata.schema.isGenericRealmObject) {
+      _typeMap[metadata.schema.type] = metadata;
+    } else {
+      _stringMap[metadata.schema.name] = metadata;
+    }
+    _classKeyMap[metadata.classKey] = metadata;
   }
 
   RealmObjectMetadata getByType(Type type) {
