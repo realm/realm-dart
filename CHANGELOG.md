@@ -4,13 +4,13 @@
 * None
 
 ### Fixed
-* None
+* Fix a possible hang (or in rare cases crash) during notification handling. (Issue [#1492](https://github.com/realm/realm-dart/issues/1492))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 13.26.0
 
 ## 1.7.0 (2024-01-23)
 
