@@ -3770,21 +3770,6 @@ class RealmLibrary {
       _realm_dart_object_to_persistent_handlePtr
           .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
 
-  ffi.Pointer<ffi.Void> realm_dart_object_to_weak_handle(
-    Object handle,
-  ) {
-    return _realm_dart_object_to_weak_handle(
-      handle,
-    );
-  }
-
-  late final _realm_dart_object_to_weak_handlePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'realm_dart_object_to_weak_handle');
-  late final _realm_dart_object_to_weak_handle =
-      _realm_dart_object_to_weak_handlePtr
-          .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
-
   Object realm_dart_persistent_handle_to_object(
     ffi.Pointer<ffi.Void> handle,
   ) {
@@ -4112,21 +4097,6 @@ class RealmLibrary {
       _realm_dart_void_completion_callbackPtr.asFunction<
           void Function(
               ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>();
-
-  Object realm_dart_weak_handle_to_object(
-    ffi.Pointer<ffi.Void> handle,
-  ) {
-    return _realm_dart_weak_handle_to_object(
-      handle,
-    );
-  }
-
-  late final _realm_dart_weak_handle_to_objectPtr =
-      _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_weak_handle_to_object');
-  late final _realm_dart_weak_handle_to_object =
-      _realm_dart_weak_handle_to_objectPtr
-          .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
 
   /// Deletes the following files for the given `realm_file_path` if they exist:
   /// - the Realm file itself
@@ -11343,9 +11313,6 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
       get realm_dart_object_to_persistent_handle =>
           _library._realm_dart_object_to_persistent_handlePtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
-      get realm_dart_object_to_weak_handle =>
-          _library._realm_dart_object_to_weak_handlePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_persistent_handle_to_object =>
           _library._realm_dart_persistent_handle_to_objectPtr;
@@ -11431,9 +11398,6 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>>
       get realm_dart_void_completion_callback =>
           _library._realm_dart_void_completion_callbackPtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
-      get realm_dart_weak_handle_to_object =>
-          _library._realm_dart_weak_handle_to_objectPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_release => _library._realm_releasePtr;
 }
