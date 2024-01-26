@@ -449,7 +449,8 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-
+          working-directory: packages/realm/tests
+          
 
   cleanup-cluster-flutter-android:
     name: Cleanup Cluster for Flutter Android
