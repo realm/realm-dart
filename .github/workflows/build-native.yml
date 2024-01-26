@@ -19,6 +19,9 @@ on:
 jobs:
   build-native:
     runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        working-directory: packages/realm_dart
     name: Build native
     timeout-minutes: 60
     strategy:
