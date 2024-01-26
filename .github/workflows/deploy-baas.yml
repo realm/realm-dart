@@ -14,6 +14,9 @@ env:
 jobs:
   deploy-baas:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/realm_dart # TODO: Move baas tooling somewhere else
     name: Deploy BaaS
     timeout-minutes: 15
     steps:
