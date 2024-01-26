@@ -19,12 +19,12 @@
 // ignore_for_file: avoid_relative_lib_imports
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   _assertSchemaExists(Realm realm, SchemaObject expected) {
     final foundSchema = realm.schema.singleWhere((e) => e.name == expected.name);

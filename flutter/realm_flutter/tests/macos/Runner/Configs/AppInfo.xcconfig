@@ -11,4 +11,4 @@ PRODUCT_NAME = tests
 PRODUCT_BUNDLE_IDENTIFIER = io.realm.tests
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2022 io.realm. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 io.realm. All rights reserved.

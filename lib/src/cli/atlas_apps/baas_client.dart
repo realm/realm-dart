@@ -135,7 +135,7 @@ class BaasClient {
     await result._authenticate('local-userpass', '{ "username": "unique_user@domain.com", "password": "password" }');
 
     dynamic groupDoc = await result._get('auth/profile');
-    result._groupId = (groupDoc['roles'] as List<dynamic>)[0]['group_id'] as String;
+    result._groupId = groupDoc['roles'][0]['group_id'] as String;
 
     print('Current GroupID ${result._groupId}');
 

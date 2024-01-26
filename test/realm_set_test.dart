@@ -20,7 +20,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
@@ -183,8 +183,8 @@ class Sets {
   Sets(this.set, this.values, [this.getRealmObject]);
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   for (var type in supportedTypes) {
     test('RealmSet<$type> unmanaged set add', () {

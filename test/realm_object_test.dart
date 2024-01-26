@@ -20,7 +20,7 @@
 
 import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
@@ -89,8 +89,8 @@ class _BoolValue {
   late bool value;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('RealmObject get property', () {
     var config = Configuration.local([Car.schema]);

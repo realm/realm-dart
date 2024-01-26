@@ -16,17 +16,15 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// ignore_for_file: unused_local_variable
 import 'dart:io';
 import 'dart:math';
 import 'package:test/test.dart' hide test, throws;
 import 'package:path/path.dart' as path;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
-import '../flavor_helpers.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Configuration can be created', () {
     Configuration.local([Car.schema]);
@@ -213,7 +211,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
-    await copyBundledFile('data/realm_files/old-format.realm', config.path);
+    await copyFile('test/data/realm_files/old-format.realm', config.path);
     expect(() {
       getRealm(config);
     }, throws<RealmException>("Database upgrade required but prohibited."));
@@ -221,7 +219,7 @@ Future<void> main([List<String>? args]) async {
 
   test('Configuration - disableFormatUpgrade=false', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
-    await copyBundledFile('data/realm_files/old-format.realm', config.path);
+    await copyFile('test/data/realm_files/old-format.realm', config.path);
     final realm = getRealm(config);
   });
 
@@ -384,8 +382,8 @@ Future<void> main([List<String>? args]) async {
     expect(() => george.name, throws<RealmClosedError>());
     expect(people.realm.isClosed, true);
 
-    final peopleAagain = realm.all<Person>();
-    expect(peopleAagain.length, 1);
+    final peopleAgain = realm.all<Person>();
+    expect(peopleAgain.length, 1);
   });
 
   test('Configuration.shouldCompact can return false', () {

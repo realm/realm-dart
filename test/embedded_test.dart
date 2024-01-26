@@ -18,15 +18,15 @@
 
 import 'package:test/test.dart' hide test, throws;
 
-import '../lib/realm.dart';
-import '../lib/src/realm_object.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/realm_object.dart';
 import 'test.dart';
 
 // This is required to be able to use the API for querying embedded objects.
-import '../lib/src/realm_class.dart' show RealmInternal;
+import 'package:realm_dart/src/realm_class.dart' show RealmInternal;
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   Realm getLocalRealm() {
     final config = Configuration.local(

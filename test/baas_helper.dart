@@ -1,19 +1,10 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:test/test.dart' as testing;
 
-import '../lib/realm.dart';
-import '../lib/src/cli/atlas_apps/baas_client.dart';
-import '../lib/src/native/realm_core.dart';
-
-const String argBaasUrl = "BAAS_URL";
-const String argBaasCluster = "BAAS_CLUSTER";
-const String argBaasApiKey = "BAAS_API_KEY";
-const String argBaasPrivateApiKey = "BAAS_PRIVATE_API_KEY";
-const String argBaasProjectId = "BAAS_PROJECT_ID";
-const String argDifferentiator = "BAAS_DIFFERENTIATOR";
-const String argBaasaasApiKey = "BAAS_BAASAAS_API_KEY";
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/cli/atlas_apps/baas_client.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 
 const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
@@ -25,38 +16,36 @@ O8BM8KOSx9wGyoGs4+OusvRkJizhPaIwa3FInLs4r+xZW9Bp6RndsmVECtvXRv5d
 RwIDAQAB
 -----END PUBLIC KEY-----''';
 
-Map<String, String?> parseTestArguments(List<String>? arguments) {
-  Map<String, String?> testArgs = {};
-  final parser = ArgParser()
-    ..addOption("name")
-    ..addOption(argBaasUrl)
-    ..addOption(argBaasCluster)
-    ..addOption(argBaasApiKey)
-    ..addOption(argBaasPrivateApiKey)
-    ..addOption(argBaasProjectId)
-    ..addOption(argDifferentiator)
-    ..addOption(argBaasaasApiKey);
+enum Env {
+  baasUrl('BAAS_URL', String.fromEnvironment('BAAS_URL')),
+  baasCluster('BAAS_CLUSTER', String.fromEnvironment('BAAS_CLUSTER')),
+  baasApiKey('BAAS_API_KEY', String.fromEnvironment('BAAS_API_KEY')),
+  baasPrivateApiKey('BAAS_PRIVATE_API_KEY', String.fromEnvironment('BAAS_PRIVATE_API_KEY')),
+  baasProjectId('BAAS_PROJECT_ID', String.fromEnvironment('BAAS_PROJECT_ID')),
+  baasAasApiKey('BAAS_BAASAAS_API_KEY', String.fromEnvironment('BAAS_BAASAAS_API_KEY')),
+  differentiator('BAAS_DIFFERENTIATOR', String.fromEnvironment('BAAS_DIFFERENTIATOR')),
+  ;
 
-  final result = parser.parse(arguments ?? []);
-  testArgs
-    ..addArgument(result, "name")
-    ..addArgument(result, argBaasUrl)
-    ..addArgument(result, argBaasCluster)
-    ..addArgument(result, argBaasApiKey)
-    ..addArgument(result, argBaasPrivateApiKey)
-    ..addArgument(result, argBaasProjectId)
-    ..addArgument(result, argDifferentiator)
-    ..addArgument(result, argBaasaasApiKey);
+  final String name;
+  final String _dartDefined;
 
-  return testArgs;
+  const Env(this.name, this._dartDefined);
+
+  String? get dartDefined => _dartDefined.emptyAsNull;
+  String? get shellDefined => Platform.environment[name];
+  String? get value => dartDefined ?? shellDefined;
+
+  bool get isDefined => value != null;
+  bool get isNotDefined => !isDefined;
+
+  String? call() => value;
 }
 
-extension on Map<String, String?> {
-  void addArgument(ArgResults parsedResult, String argName) {
-    final value = parsedResult.wasParsed(argName) ? parsedResult[argName]?.toString() : Platform.environment[argName];
-    if (value != null && value.isNotEmpty) {
-      this[argName] = value;
-    }
+extension on String? {
+  String? get emptyAsNull {
+    final self = this;
+    if (self == null || self.isEmpty) return null;
+    return self;
   }
 }
 
@@ -78,9 +67,9 @@ class BaasHelper {
 
   static Object? _error;
 
-  static Future<BaasHelper?> setupBaas(Map<String, String?> args) async {
+  static Future<BaasHelper?> setupBaas() async {
     try {
-      final client = await _setupClient(args);
+      final client = await _setupClient();
       if (client == null) {
         return null;
       }
@@ -97,34 +86,37 @@ class BaasHelper {
     }
   }
 
-  static bool shouldRunBaasTests(Map<String, String?> args) {
-    return args[argBaasaasApiKey] != null || args[argBaasUrl] != null;
+  static bool get shouldRunBaasTests {
+    return Env.baasUrl.isDefined || Env.baasAasApiKey.isDefined;
   }
 
   BaasHelper._(this._baasClient);
 
-  static Future<BaasClient?> _setupClient(Map<String, String?> args) async {
-    var baasUrl = args[argBaasUrl];
-    final differentiator = args[argDifferentiator] ?? 'local';
+  static Future<BaasClient?> _setupClient() async {
+    var baasUrl = Env.baasUrl();
+    final cluster = Env.baasCluster();
+    final apiKey = Env.baasApiKey();
+    final privateApiKey = Env.baasPrivateApiKey();
+    final projectId = Env.baasProjectId();
+    final differentiator = Env.differentiator() ?? 'local';
+
     if (baasUrl == null) {
-      final baasaasApiKey = args[argBaasaasApiKey];
-      if (baasaasApiKey != null) {
-        if (args[argBaasCluster] != null) {
-          throw "$argBaasaasApiKey can't be combined with $argBaasCluster";
+      final baasAasApiKey = Env.baasAasApiKey();
+      if (baasAasApiKey != null) {
+        if (cluster != null) {
+          throw "BAAS_BAASAAS_API_KEY can't be combined with BAAS_CLUSTER";
         }
 
-        (baasUrl, _) = await BaasClient.retry(() => BaasClient.getOrDeployContainer(baasaasApiKey, differentiator));
+        (baasUrl, _) = await BaasClient.retry(() => BaasClient.getOrDeployContainer(
+              baasAasApiKey,
+              differentiator,
+            ));
       }
     }
 
     if (baasUrl == null) {
       return null;
     }
-
-    final cluster = args[argBaasCluster];
-    final apiKey = args[argBaasApiKey];
-    final privateApiKey = args[argBaasPrivateApiKey];
-    final projectId = args[argBaasProjectId];
 
     final client = await BaasClient.retry(() => (cluster == null
         ? BaasClient.docker(baasUrl!, differentiator)
