@@ -31,4 +31,7 @@ dev_dependencies:
 
 flutter:
   assets:
-    - test/data/realm_files/old-format.realm
+    # test/data is a symlink to the test/data directory in
+    # the realm_dart package.
+    - test/data/ 
+    - test/data/realm_files/
