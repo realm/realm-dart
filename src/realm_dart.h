@@ -24,9 +24,6 @@
 
 RLM_API void realm_dart_initializeDartApiDL(void* data);
 
-RLM_API void* realm_dart_object_to_weak_handle(Dart_Handle handle);
-RLM_API Dart_Handle realm_dart_weak_handle_to_object(void* handle);
-
 RLM_API void* realm_dart_object_to_persistent_handle(Dart_Handle handle);
 RLM_API Dart_Handle realm_dart_persistent_handle_to_object(void* handle);
 RLM_API void realm_dart_delete_persistent_handle(void* handle);
