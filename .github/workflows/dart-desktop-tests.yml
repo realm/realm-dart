@@ -30,6 +30,9 @@ jobs:
     runs-on: ${{ inputs.runner }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: packages/realm_dart
 
     steps:
       - name: Checkout
