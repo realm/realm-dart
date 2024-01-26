@@ -288,6 +288,9 @@ jobs:
     env:
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+    defaults:
+      run:
+        working-directory: packages/realm/tests
 
     steps:
       - name: Checkout
@@ -326,7 +329,6 @@ jobs:
             --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
             --file-reporter=json:test-results.json \
             --suppress-analytics
-        working-directory: packages/realm/tests
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -365,6 +367,9 @@ jobs:
     env:
       BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+    defaults:
+      run:
+        working-directory: packages/realm/tests  
 
     steps:
       - name: Checkout
@@ -435,7 +440,6 @@ jobs:
           arch: x86
           cmake: 3.10.2.4988404
           script: flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
-          working-directory: packages/realm/tests
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -445,7 +449,6 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: packages/realm/tests
 
   cleanup-cluster-flutter-android:
     name: Cleanup Cluster for Flutter Android

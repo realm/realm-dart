@@ -96,7 +96,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: ./coverage/pruned-lcov.info
+          path-to-lcov: packages/realm_dart/coverage/pruned-lcov.info
           parallel: true
 
       - name: Output Coveralls response
