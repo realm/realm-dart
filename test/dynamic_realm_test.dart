@@ -20,7 +20,7 @@
 
 import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
@@ -36,8 +36,8 @@ class _Taskv2 {
   late String description;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   void assertSchemaMatches(SchemaObject actual, SchemaObject expected) {
     expect(actual.name, expected.name);

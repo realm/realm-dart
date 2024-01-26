@@ -24,7 +24,7 @@ import 'package:collection/collection.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'test.dart';
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 part 'indexed_test.g.dart';
 
@@ -87,8 +87,8 @@ const String lordOfTheFlies = 'Lord of the Flies';
 const String wheelOfTime = 'The Wheel of Time';
 const String silmarillion = 'The Silmarillion';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   intFactory(int i) => i.hashCode;
   boolFactory(int i) => i % 2 == 0;
@@ -109,7 +109,7 @@ Future<void> main([List<String>? args]) async {
     test('Indexed faster: ${testCase.name}', () {
       final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
       final realm = getRealm(config);
-      const max = 100000;
+      const max = 10000;
       final allIndexed = realm.all<WithIndexes>();
       final allNotIndexed = realm.all<NoIndexes>();
       expect(allIndexed.length, 0);

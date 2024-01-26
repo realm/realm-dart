@@ -18,7 +18,7 @@
 
 import 'package:test/test.dart' hide test, throws;
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 part 'backlinks_test.g.dart';
@@ -50,8 +50,8 @@ class _Target {
   _Source? source;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Backlinks empty', () {
     final config = Configuration.local([Target.schema, Source.schema]);

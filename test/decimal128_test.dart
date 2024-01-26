@@ -21,7 +21,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:test/expect.dart' hide throws;
 
-import '../lib/src/native/realm_core.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'test.dart';
 
 const int defaultTimes = 100;
@@ -51,8 +51,8 @@ void repeatTest(String description, dynamic Function(Decimal128 x, int xInt, Dec
   });
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Decimal128.nan', () {
     // Test that we mimic the behavior of Dart's double wrt. NaN and

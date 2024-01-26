@@ -321,8 +321,22 @@ jobs:
 
       - name: Run tests on iOS Simulator
         run: |
-          flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+          flutter test integration_test/all_tests.dart \
+            --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
+            --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
+            --file-reporter=json:test-results.json \
+            --suppress-analytics
         working-directory: ./flutter/realm_flutter/tests
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: Test Results Flutter iOS
+          path: test-results.json
+          reporter: dart-json
+          only-summary: true
+          working-directory: ./flutter/realm_flutter/tests
 
   cleanup-cluster-flutter-ios:
     name: Cleanup Cluster for Flutter iOS
@@ -342,7 +356,7 @@ jobs:
       differentiator: fa${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-android:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     name: Flutter Tests Android
     timeout-minutes: 45
     needs:
@@ -357,6 +371,15 @@ jobs:
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
         with:
           submodules: 'recursive'
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Gradle cache
+        uses: gradle/gradle-build-action@v2
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -411,7 +434,17 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: flutter build apk --debug --target=test_driver/app.dart && flutter install --debug && flutter drive --target=test_driver/app.dart --dart-define=testName="" --suppress-analytics --debug
+          script: flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
+          working-directory: ./flutter/realm_flutter/tests
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: Test Results Flutter Android
+          path: test-results.json
+          reporter: dart-json
+          only-summary: true
           working-directory: ./flutter/realm_flutter/tests
 
   cleanup-cluster-flutter-android:

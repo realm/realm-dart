@@ -19,7 +19,7 @@
 import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
@@ -42,8 +42,8 @@ class _Stuff {
   int i = 42;
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   group('RealmValue', () {
     final now = DateTime.now().toUtc();

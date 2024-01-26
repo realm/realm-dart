@@ -17,13 +17,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
+void main() {
   const String strongPassword = "SWV23R#@T#VFQDV";
 
-  await setupTests(args);
+  setupTests();
 
   test('Credentials anonymous', () {
     final credentials = Credentials.anonymous();

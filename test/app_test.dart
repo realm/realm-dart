@@ -24,12 +24,12 @@ import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 import 'package:crypto/crypto.dart';
 
-import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('AppConfiguration can be initialized', () {
     Configuration.defaultRealmPath = path.join(Configuration.defaultStoragePath, Configuration.defaultRealmName);

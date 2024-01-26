@@ -22,8 +22,8 @@ import 'dart:async';
 import 'dart:isolate';
 import 'package:logging/logging.dart';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/src/realm_class.dart' show RealmInternal;
-import '../lib/realm.dart';
+import 'package:realm_dart/src/realm_class.dart' show RealmInternal;
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 const logLevels = [
@@ -64,8 +64,8 @@ void openARealm() {
   tryDeleteRealm(Configuration.defaultRealmName);
 }
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   for (var level in logLevels) {
     test('Realm.logger supports log level $level', () async {
