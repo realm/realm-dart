@@ -16,7 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   realm_dart:
-    path: ../..
+    path: ../realm_dart
 
 flutter:
   plugin:

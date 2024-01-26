@@ -7,3 +7,6 @@ class _Person {
   int x = 0;
   late _Person? parent = Person();
 }
+
+// dummy
+class Person extends _Person {}

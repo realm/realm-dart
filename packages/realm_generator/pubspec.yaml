@@ -20,7 +20,7 @@ dependencies:
   build: ^2.0.0
   dart_style: ^2.2.0
   realm_common:
-    path: ../common
+    path: ../realm_common
   source_gen: ^1.1.0
   source_span: ^1.8.0
 
