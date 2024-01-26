@@ -31,6 +31,9 @@ jobs:
     env:
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
       BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
+    defaults:
+      run:
+        working-directory: packages/realm/tests  
 
     steps:
 
@@ -81,7 +84,7 @@ jobs:
             --file-reporter=json:test-results.json \
             --suppress-analytics
         shell: bash
-        working-directory: ./flutter/realm_flutter/tests
+        working-directory: packages/realm/tests
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -91,4 +94,4 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: ./flutter/realm_flutter/tests
+          working-directory: packages/realm/tests
