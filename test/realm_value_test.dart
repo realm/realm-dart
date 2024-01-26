@@ -75,7 +75,6 @@ Future<void> main([List<String>? args]) async {
         expect(something.oneAny, RealmValue.from(x));
       });
 
-      // TODO: reenable when https://github.com/realm/realm-core/issues/7289 is addressed
       final queryArg = RealmValue.from(x);
       test('Query @type == ${queryArg.type} $x', () {
         final realm = getMixedRealm();
@@ -92,7 +91,7 @@ Future<void> main([List<String>? args]) async {
         expect(matches.single.oneAny.value, x);
         expect(matches.single.oneAny.type, queryArg.type);
         expect(matches.single.oneAny, queryArg);
-      }, skip: 'Depends on https://github.com/realm/realm-core/issues/7289');
+      });
     }
 
     test('Roundtrip object', () {
@@ -103,7 +102,6 @@ Future<void> main([List<String>? args]) async {
       expect(something.oneAny.as<Stuff>().i, 123);
     });
 
-    // TODO: reenable when https://github.com/realm/realm-core/issues/7289 is addressed
     test('Query @type == object', () {
       final realm = getMixedRealm();
       realm.write(() {
@@ -118,7 +116,7 @@ Future<void> main([List<String>? args]) async {
       expect(matches.length, 1);
       expect(matches.single.oneAny.as<Stuff>().i, 123);
       expect(matches.single.oneAny.type, RealmValueType.object);
-    }, skip: 'Depends on https://github.com/realm/realm-core/issues/7289');
+    });
 
     test('Illegal value', () {
       final realm = getMixedRealm();
@@ -1018,16 +1016,14 @@ Future<void> main([List<String>? args]) async {
       final listElementQuery = realm.query<AnythingGoes>('oneAny[0] < 3');
       expect(listElementQuery, unorderedMatches([first, second]));
 
-      // TODO: reenable when https://github.com/realm/realm-core/issues/7280 is fixed
-      // final listLengthQuery = realm.query<AnythingGoes>('oneAny.@size > 3');
-      // expect(listLengthQuery, unorderedMatches([third]));
+      final listLengthQuery = realm.query<AnythingGoes>('oneAny.@size > 3');
+      expect(listLengthQuery, unorderedMatches([third]));
 
       final listStarQuery = realm.query<AnythingGoes>('oneAny[*] == 3.4');
       expect(listStarQuery, unorderedMatches([third]));
 
-      // TODO: reenable when https://github.com/realm/realm-core/issues/7281 is fixed
-      // final typeQuery = realm.query<AnythingGoes>("oneAny[2].@type == 'dictionary'");
-      // expect(typeQuery, unorderedMatches([first, third]));
+      final typeQuery = realm.query<AnythingGoes>("oneAny[2].@type == 'dictionary'");
+      expect(typeQuery, unorderedMatches([first, third]));
 
       // TODO: reenable when https://github.com/realm/realm-core/issues/7282 is fixed
       // final dictionaryInListQuery = realm.query<AnythingGoes>("oneAny[*].foo BEGINSWITH 'ba'");
