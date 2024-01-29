@@ -3,7 +3,7 @@
 # Run `pod lib lint realm.podspec` to validate before publishing.
 #
 realmPackageDir = File.expand_path(__dir__)
-# puts "realmPackageDir: #{realmPackageDir}"
+puts "realmPackageDir: #{realmPackageDir}"
 
 realmLibName = "librealm_dart.dylib"
 
@@ -11,8 +11,8 @@ realmLibName = "librealm_dart.dylib"
 # We need to create an absolute symlink to librealm_dart.dylib otherwises
 # Cocoapods and Xcode build look for different files from different base directories while handling `vendored_libraries`
 realmLibraryPath = "#{realmPackageDir}/#{realmLibName}";
-if realmLibraryPath.include?("flutter/realm_flutter") && !File.exist?(realmLibraryPath)
-  absoluteRealRealmLibPath = File.realpath("#{realmPackageDir}/../../../binary/macos/#{realmLibName}")
+if realmLibraryPath.include?("realm/") && !File.exist?(realmLibraryPath)
+  absoluteRealRealmLibPath = File.realpath("#{realmPackageDir}/../../realm_dart/binary/macos/#{realmLibName}")
 
   if !File.exist?(absoluteRealRealmLibPath)
     raise "Realm macos library does not exists in realm-dart repo at path #{absoluteRealRealmLibPath}"
@@ -23,7 +23,7 @@ if realmLibraryPath.include?("flutter/realm_flutter") && !File.exist?(realmLibra
 end
 
 # This works cause realm plugin is always accessed through the .symlinks directory.
-# For example the tests app refers to the realm plugin using this path .../realm-dart/flutter/realm_flutter/tests/macos/Flutter/ephemeral/.symlinks/plugins/realm/macos
+# For example the tests app refers to the realm plugin using this path .../realm-dart/pacakges/realm/tests/macos/Flutter/ephemeral/.symlinks/plugins/realm/macos
 project_dir = File.expand_path("../../../../../../", realmPackageDir)
 puts "project dir is #{project_dir}"
 app_dir = File.expand_path("../", project_dir)
