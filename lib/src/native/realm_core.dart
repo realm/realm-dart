@@ -2340,6 +2340,27 @@ class _RealmCore {
     );
   }
 
+  String? getBaseUrl(App app) {
+    final customDataPtr = _realmLib.realm_app_get_base_url(app.handle._pointer);
+    return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true);
+  }
+
+  Future<void> updateBaseUrl(App app, Uri baseUrl) {
+    final completer = Completer<void>();
+    using((arena) {
+      _realmLib.invokeGetBool(
+          () => _realmLib.realm_app_update_base_url(
+                app.handle._pointer,
+                baseUrl.toString().toCharPtr(arena),
+                _realmLib.addresses.realm_dart_void_completion_callback,
+                _createAsyncCallbackUserdata(completer),
+                _realmLib.addresses.realm_dart_userdata_async_free,
+              ),
+          "Update base URL failed");
+    });
+    return completer.future;
+  }
+
   String? userGetCustomData(User user) {
     final customDataPtr = _realmLib.realm_user_get_custom_data(user.handle._pointer);
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);

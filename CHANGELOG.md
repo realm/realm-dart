@@ -2,10 +2,13 @@
 
 ### Enhancements
 * Added `RealmObject.getBacklinks<SourceType>('sourceProperty')` which is a method allowing you to look up all objects of type `SourceType` which link to the current object via their `sourceProperty` property. (Issue [#1480](https://github.com/realm/realm-dart/issues/1480))
+* Added `App.updateBaseUrl` method for updating the App's base URL for switching between cloud and edge servers. The current Sync Session(s) must be paused before calling this method and the user must log in again afterwards before the Sync Session can be resumed. (PR [#1454](https://github.com/realm/realm-dart/pull/1454))
 
 ### Fixed
 * Fix a possible hang (or in rare cases crash) during notification handling. (Issue [#1492](https://github.com/realm/realm-dart/issues/1492))
 * Fix Flutter app build on Linux. A contribution from [thiagokisaki](https://github.com/thiagokisaki). (PR [#1488](https://github.com/realm/realm-dart/pull/1488))
+* App was not using the current baseUrl value from AppConfiguration when it is created and always used the cached value stored upon the first contact with the server. (Core XX.XX.X)
+
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

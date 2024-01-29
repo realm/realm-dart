@@ -308,6 +308,28 @@ void main() {
     );
   });
 
+  baasTest('App get Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.baseUrl;
+    expect(baseUrl, isNotNull);
+    expect(baseUrl, configuration.baseUrl);
+  });
+
+  baasTest('App update Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.baseUrl;
+    expect(baseUrl, isNotNull);
+    // Set it to the same thing to confirm the function works, it's not actually going to update the location
+    await app.updateBaseUrl(baseUrl!);
+    final newBaseUrl = app.baseUrl;
+    expect(newBaseUrl, isNotNull);
+    expect(newBaseUrl, baseUrl);
+  });
+
   test('bundleId is salted, hashed and encoded', () {
     final text = isFlutterPlatform ? "realm_tests" : "realm_dart";
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
