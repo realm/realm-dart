@@ -90,7 +90,7 @@ final _pluginLib = () {
 }();
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '1.7.0';
+const libraryVersion = '1.8.0';
 
 _RealmCore realmCore = _RealmCore();
 

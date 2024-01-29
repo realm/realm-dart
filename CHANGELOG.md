@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.8.0 (2024-01-29)
 
 ### Enhancements
 * Added `RealmObject.getBacklinks<SourceType>('sourceProperty')` which is a method allowing you to look up all objects of type `SourceType` which link to the current object via their `sourceProperty` property. (Issue [#1480](https://github.com/realm/realm-dart/issues/1480))
