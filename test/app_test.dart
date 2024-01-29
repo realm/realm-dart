@@ -312,7 +312,7 @@ void main() {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     await app.logIn(credentials);
-    final baseUrl = app.getBaseUrl();
+    final baseUrl = app.baseUrl;
     expect(baseUrl, isNotNull);
     expect(baseUrl, configuration.baseUrl);
   });
@@ -321,11 +321,11 @@ void main() {
     final app = App(configuration);
     final credentials = Credentials.anonymous();
     await app.logIn(credentials);
-    final baseUrl = app.getBaseUrl();
+    final baseUrl = app.baseUrl;
     expect(baseUrl, isNotNull);
     // Set it to the same thing to confirm the function works, it's not actually going to update the location
     await app.updateBaseUrl(baseUrl!);
-    final newBaseUrl = app.getBaseUrl();
+    final newBaseUrl = app.baseUrl;
     expect(newBaseUrl, isNotNull);
     expect(newBaseUrl, baseUrl);
   });

@@ -245,13 +245,13 @@ class App implements Finalizable {
   }
 
   /// Returns the current value of the base URL used to communicate with the server.
-  Uri? getBaseUrl() {
+  Uri? get baseUrl {
     return Uri.tryParse(realmCore.getBaseUrl(this) ?? '');
   }
 
   /// Temporarily overrides the [baseUrl] value from [AppConfiguration] with a new [baseUrl] value
   /// used for communicating with the server.
-  /// 
+  ///
   /// The App will revert to using the value in [AppConfiguration] when it is restarted.
   Future<void> updateBaseUrl(Uri baseUrl) async {
     return await realmCore.updateBaseUrl(this, baseUrl);
