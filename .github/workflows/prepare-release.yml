@@ -90,7 +90,7 @@ jobs:
 
       - name: Make sure we updated realmCoreVersion in metrics
         run: |
-          if [ ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }} -le 1 ]; then
+          if [ ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }} -gt 1 ]; then
             echo 'At most one modified file expected, got ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }}'
             exit 1
           fi
