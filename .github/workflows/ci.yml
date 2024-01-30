@@ -305,7 +305,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios
-          path: binary/ios
+          path: packages/realm_dart/binary/ios
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -396,7 +396,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-android
-          path: binary/android
+          path: packages/realm_dart/binary/android
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
