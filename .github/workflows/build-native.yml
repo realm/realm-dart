@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./binary/**
-          key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}-tmp
+          key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./src/**')}}-tmp-2
 
       - name: Setup Ninja
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
@@ -64,5 +64,5 @@ jobs:
         uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:
           name: librealm-${{ matrix.build }}
-          path: binary/${{ inputs.binary }}/**
+          path: packages/realm_dart/binary/${{ inputs.binary }}/**
           retention-days: 1
