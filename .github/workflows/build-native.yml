@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./binary/**
-          key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}
+          key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}-tmp
 
       - name: Setup Ninja
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
