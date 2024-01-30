@@ -64,13 +64,13 @@ if(ANDROID)
 
     # Add a custom target to strip the binary
     add_custom_target(strip ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
+
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
     target_sources(realm_dart PRIVATE
         ios/platform.mm
     )
     set_target_properties(realm_dart PROPERTIES
         FRAMEWORK TRUE
-        PUBLIC_HEADER "${HEADERS}"
         MACOSX_FRAMEWORK_IDENTIFIER io.realm.dart
         MACOSX_FRAMEWORK_SHORT_VERSION_STRING "1.0.0"
         MACOSX_FRAMEWORK_BUNDLE_VERSION "1.0.0"
