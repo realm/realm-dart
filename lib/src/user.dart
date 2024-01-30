@@ -16,11 +16,23 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import './app.dart';
+
+/// Describes the changes to a [User] instance - for example when the access token is updated or the user state changes.
+/// Right now, this only conveys information that the user has changed, but in the future it will be enhanced by adding
+/// details about the exact properties that have been updated.
+class UserChanges {
+  /// The user that has changed.
+  final User user;
+
+  const UserChanges._(this.user);
+}
 
 /// This class represents a `user` in an [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
 /// A user can log in to the server and, if access is granted, it is possible to synchronize the local Realm to MongoDB Atlas.
@@ -160,6 +172,55 @@ class User {
     if (state != UserState.loggedIn) {
       throw RealmError('User must be logged in to $clarification');
     }
+  }
+
+  /// Gets a [Stream] of [UserChanges] that can be used to track user change notifications.
+  Stream<UserChanges> get changes {
+    final controller = UserNotificationsController(this);
+    return controller.createStream();
+  }
+}
+
+/// @nodoc
+class UserNotificationsController implements Finalizable {
+  UserNotificationTokenHandle? handle;
+
+  void start() {
+    if (handle != null) {
+      throw RealmStateError("User notifications subscription already started");
+    }
+
+    handle = realmCore.subscribeUserNotifications(this);
+  }
+
+  void stop() {
+    // If handle is null or released, no-op
+    if (handle?.released != false) {
+      return;
+    }
+
+    handle!.release();
+    handle = null;
+  }
+
+  User user;
+
+  late final StreamController<UserChanges> streamController;
+
+  UserNotificationsController(this.user);
+
+  Stream<UserChanges> createStream() {
+    streamController = StreamController<UserChanges>(onListen: start, onCancel: stop);
+    return streamController.stream;
+  }
+
+  void onUserChanged() {
+    final changes = UserChanges._(user);
+    streamController.add(changes);
+  }
+
+  void onError(RealmError error) {
+    streamController.addError(error);
   }
 }
 

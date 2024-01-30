@@ -4019,6 +4019,24 @@ class RealmLibrary {
       _realm_dart_sync_wait_for_completion_callbackPtr.asFunction<
           void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>();
 
+  void realm_dart_user_change_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    int state,
+  ) {
+    return _realm_dart_user_change_callback(
+      userdata,
+      state,
+    );
+  }
+
+  late final _realm_dart_user_change_callbackPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>(
+      'realm_dart_user_change_callback');
+  late final _realm_dart_user_change_callback =
+      _realm_dart_user_change_callbackPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int)>();
+
   void realm_dart_user_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_user_t> user,
@@ -11169,6 +11187,37 @@ class RealmLibrary {
   late final _realm_user_log_out = _realm_user_log_outPtr
       .asFunction<bool Function(ffi.Pointer<realm_user_t>)>();
 
+  ffi.Pointer<realm_user_subscription_token_t>
+      realm_user_state_change_register_callback(
+    ffi.Pointer<realm_user_t> arg0,
+    realm_user_changed_callback_t arg1,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_user_state_change_register_callback(
+      arg0,
+      arg1,
+      userdata,
+      userdata_free,
+    );
+  }
+
+  late final _realm_user_state_change_register_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_user_subscription_token_t> Function(
+                  ffi.Pointer<realm_user_t>,
+                  realm_user_changed_callback_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
+      'realm_user_state_change_register_callback');
+  late final _realm_user_state_change_register_callback =
+      _realm_user_state_change_register_callbackPtr.asFunction<
+          ffi.Pointer<realm_user_subscription_token_t> Function(
+              ffi.Pointer<realm_user_t>,
+              realm_user_changed_callback_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
+
   late final addresses = _SymbolAddresses(this);
 }
 
@@ -11377,6 +11426,11 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>
       get realm_dart_sync_wait_for_completion_callback =>
           _library._realm_dart_sync_wait_for_completion_callbackPtr;
+  ffi.Pointer<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
+      get realm_dart_user_change_callback =>
+          _library._realm_dart_user_change_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<ffi.Void>,
@@ -12666,6 +12720,13 @@ typedef realm_timestamp_t = realm_timestamp;
 
 final class realm_user extends ffi.Opaque {}
 
+typedef realm_user_changed_callback_t
+    = ffi.Pointer<ffi.NativeFunction<realm_user_changed_callback_tFunction>>;
+typedef realm_user_changed_callback_tFunction = ffi.Void Function(
+    ffi.Pointer<ffi.Void> userdata, ffi.Int32 s);
+typedef Dartrealm_user_changed_callback_tFunction = void Function(
+    ffi.Pointer<ffi.Void> userdata, int s);
+
 final class realm_user_identity extends ffi.Struct {
   /// Ptr to null terminated string representing user identity (memory has to be freed by SDK)
   external ffi.Pointer<ffi.Char> id;
@@ -12683,6 +12744,9 @@ abstract class realm_user_state {
   static const int RLM_USER_STATE_REMOVED = 2;
 }
 
+final class realm_user_subscription_token extends ffi.Opaque {}
+
+typedef realm_user_subscription_token_t = realm_user_subscription_token;
 typedef realm_user_t = realm_user;
 
 final class realm_uuid extends ffi.Struct {

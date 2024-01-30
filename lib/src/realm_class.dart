@@ -148,7 +148,7 @@ export 'session.dart'
         // ignore: deprecated_member_use_from_same_package
         SyncSessionErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient;
+export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
 export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.

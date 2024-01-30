@@ -173,6 +173,15 @@ RLM_API void realm_dart_sync_connection_state_changed_callback(realm_userdata_t 
     });
 }
 
+
+RLM_API void realm_dart_user_change_callback(realm_userdata_t userdata, realm_user_state_e state)
+{
+    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
+    ud->scheduler->invoke([ud, state]() {
+        (reinterpret_cast<realm_user_changed_callback_t>(ud->dart_callback))(ud->handle, state);
+    });
+}
+
 RLM_API void realm_dart_sync_on_subscription_state_changed_callback(realm_userdata_t userdata, realm_flx_sync_subscription_set_state_e state)
 {
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
@@ -297,7 +306,7 @@ RLM_API void realm_dart_void_completion_callback(realm_userdata_t userdata, cons
 struct apikey_buf : realm_app_user_apikey
 {
     apikey_buf(const realm_app_user_apikey& apikey_input)
-        : key_buffer(apikey_input.key ? apikey_input.key : ""), 
+        : key_buffer(apikey_input.key ? apikey_input.key : ""),
         name_buffer(apikey_input.name ? apikey_input.name : "")
     {
         id = apikey_input.id;
@@ -341,8 +350,8 @@ std::vector<apikey_buf> realm_apikey_list_copy(const realm_app_user_apikey_t api
             apikey_list + count,
             std::back_inserter(apikey_list_copy),
             [](const realm_app_user_apikey_t& apikey) {
-                return apikey_buf(apikey);
-            }
+            return apikey_buf(apikey);
+        }
         );
     }
     return apikey_list_copy;
@@ -362,13 +371,13 @@ RLM_API void realm_dart_apikey_list_callback(realm_userdata_t userdata, realm_ap
             apikey_list_buf.end(),
             std::back_inserter(apikey_list),
             [](const apikey_buf& apikey) {
-                return realm_app_user_apikey{
-                    apikey.id,
-                    apikey.key_buffer.c_str(),
-                    apikey.name_buffer.c_str(),
-                    apikey.disabled
-                };
-            }
+            return realm_app_user_apikey{
+                apikey.id,
+                apikey.key_buffer.c_str(),
+                apikey.name_buffer.c_str(),
+                apikey.disabled
+            };
+        }
         );
         (reinterpret_cast<realm_return_apikey_list_func_t>(ud->dart_callback))(ud->handle, apikey_list.data(), apikey_list.size(), error.get());
     });
@@ -376,7 +385,7 @@ RLM_API void realm_dart_apikey_list_callback(realm_userdata_t userdata, realm_ap
 
 RLM_API void realm_dart_return_string_callback(realm_userdata_t userdata, const char* serialized_ejson_response, const realm_app_error_t* error) {
     auto error_copy = realm_app_error_copy(error);
-    std::string buf{serialized_ejson_response ? serialized_ejson_response : ""};
+    std::string buf{ serialized_ejson_response ? serialized_ejson_response : "" };
 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, buf = std::move(buf), error = std::move(error_copy)]() mutable {
