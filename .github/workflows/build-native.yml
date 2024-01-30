@@ -66,3 +66,4 @@ jobs:
           name: librealm-${{ matrix.build }}
           path: packages/realm_dart/binary/${{ inputs.binary }}/**
           retention-days: 1
+          if-no-files-found: error
