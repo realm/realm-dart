@@ -174,7 +174,7 @@ class User {
     }
   }
 
-  /// Gets a [Stream] of [UserChanges] that can be used to track user change notifications.
+  /// Gets a [Stream] of [UserChanges] that can be used to receive notifications when the user changes.
   Stream<UserChanges> get changes {
     final controller = UserNotificationsController(this);
     return controller.createStream();
@@ -183,24 +183,24 @@ class User {
 
 /// @nodoc
 class UserNotificationsController implements Finalizable {
-  UserNotificationTokenHandle? handle;
+  UserNotificationTokenHandle? tokenHandle;
 
   void start() {
-    if (handle != null) {
+    if (tokenHandle != null) {
       throw RealmStateError("User notifications subscription already started");
     }
 
-    handle = realmCore.subscribeUserNotifications(this);
+    tokenHandle = realmCore.subscribeUserNotifications(this);
   }
 
   void stop() {
     // If handle is null or released, no-op
-    if (handle?.released != false) {
+    if (tokenHandle?.released != false) {
       return;
     }
 
-    handle!.release();
-    handle = null;
+    tokenHandle!.release();
+    tokenHandle = null;
   }
 
   User user;
