@@ -1,105 +1,178 @@
-name: ejson
+name: realm-dart
+
+repository: https://github.com/realm/realm-dart
+
+ide:
+  intellij: # no one uses android studio right?
+    enabled: false
 
 packages:
   - packages/*
   - packages/*/example
-
-
-ide:
-  intellij: false
+  - packages/*/tests
 
 command:
   bootstrap:
+    environment:
+      sdk: ^3.0.0
+      flutter: ^3.10.0
     hooks:
-      post: melos run setup
+      pre: >-
+        git submodule update --init --recursive &&
+        dart pub global activate combine_coverage &&
+        dart pub global activate coverage &&
+        dart pub global activate coverde &&
+        dart pub global activate dependency_validator &&
+        dart pub global activate ffigen &&
+        dart pub global activate melos &&
+        dart pub global activate pana
+  clean:
+    hooks:
+      pre: melos exec --flutter -- flutter clean
 
 scripts:
-  setup:
+  build:
     run: >-
-      dart pub global activate coverage &&
-      dart pub global activate coverde &&
-      dart pub global activate dependency_validator &&
-      dart pub global activate pana
+      melos run build:native &&
+      melos run build:binding &&
+      melos run build:dart
+      
+  build:native: # TODO: mac specific and too simple
+    exec: >-
+      cmake --preset $PLATFORM &&
+      cmake --build --preset $PLATFORM --config MinSizeRel -- -destination "generic/platform=macOS"
+    packageFilters:
+      dirExists: src # by convention
 
-  qa:
-    description: Run QA scripts.
-    run: >-
-      melos run format:check &&
-      melos run analyze &&
-      melos run analyze:deps &&
-      melos run test:lints &&
-      melos run coverage
+  build:dart:
+    run: dart run build_runner build --delete-conflicting-outputs
+    exec:
+      orderDependents: true
+    packageFilters:
+      dependsOn: build_runner
 
-  qa:full:
-    description: Run all QA scripts (including expensive ones).
-    run: >-
-      melos run qa &&
-      melos run pana &&
-      melos publish --dry-run
-
-  format:
-    description: Format Dart code.
-    run: dart format .
-
-  format:check:
-    description: Check formatting of Dart code.
-    run: dart format --output none --set-exit-if-changed .
-
-  analyze:
-    description: Analyze Dart code.
-    run: dart analyze . --fatal-infos
-    
-  analyze:deps:
-    description: Analyze dependencies.
-    exec: dart pub global run dependency_validator
+  build:binding:
+    exec: dart pub global run ffigen --config ffigen.yaml
+    packageFilters:
+      fileExists: ffigen.yaml # by convention
 
   test:
-    description: Run tests.
-    run: dart test -j1 --chain-stack-traces
+    description: Run all tests.
+    run: >-
+      melos run test:unit &&
+      melos run test:widget &&
+      melos run test:lints &&
+      melos run test:integration
+
+  test:unit:
+    run: >-
+      dart test --concurrency=1 --coverage=coverage/ &&
+      dart pub global run coverage:format_coverage
+      --in=coverage/test/
+      --out=coverage/lcov.info
+      --lcov
     exec:
-      concurrency: 1
+      concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
-      dirExists:
-        - test
+      dependsOn: test
+      dirExists: test/
+      flutter: false
+
+  test:widget:
+    run: flutter test --concurrency=1 --coverage
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: flutter_test
+      noDependsOn: integration_test # integration tests are run separately
+      dirExists: test/
+      flutter: true
 
   test:lints:
-    description: Test that custom lints are working.
-    run: melos exec --depends-on=custom_lint -c1 -- dart run custom_lint
+    run: dart run custom_lint
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: custom_lint
+
+  test:integration:
+    run: >-
+      flutter test integration_test/all_tests.dart
+      --coverage
+      --dart-define=BAAS_URL='$BAAS_URL'
+      --dart-define=BAAS_DIFFERENTIATOR='$BAAS_DIFFERENTIATOR'
+      --device-id='$DEVICE_ID'
+      --file-reporter=json:test-results.json
+      --suppress-analytics
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: integration_test
+      fileExists: integration_test/all_tests.dart
+      flutter: true
+
+  doc:
+    description: Generate documentation.
+    exec: dart doc --validate-links
+    packageFilters:
+      published: true
+
+  format:
+    description: Format code.
+    run: dart format --fix --line-length 160 . 
+
+  lint:
+    description: Run all lints.
+    run: >-
+      melos run lint:format &&
+      melos run lint:pana &&
+      melos publish --dry-run
+
+  lint:format:
+    run: dart format --fix --line-length 160 --output none --set-exit-if-changed .
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane$
+
+  lint:pana:
+    run: dart pub global run pana --no-warning --exit-code-threshold 40 .
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane$
+    packageFilters:
+      published: true
+
+  analyze:
+    description: Analyze code and dependencies.
+    run: >-
+      melos run analyze:code &&
+      melos run analyze:deps
+
+  analyze:code:
+    exec: dart analyze . --fatal-infos
+    
+  analyze:deps:
+    exec: dart pub global run dependency_validator
 
   coverage:
-    description: Generate, format, and check coverage.
+    description: Generate, check and render coverage.
     run: >-
-      melos run coverage:generate &&
-      melos run coverage:format &&
-      melos run coverage:check
-
-  coverage:generate:
-    description: Generate coverage.
-    run: dart test -j1 --chain-stack-traces --coverage=coverage
-    # The following command is not working with coverage:format
-    # run: dart pub global run coverage:test_with_coverage --branch-coverage
-    exec:
-      concurrency: 1
-    packageFilters:
-      dirExists:
-        - test
-
-  coverage:format:
-    description: Format coverage.
-    run: >-
-      dart pub global run coverage:format_coverage
-      --in=.
-      --report-on=$MELOS_ROOT_PATH
-      --lcov --out=lcov.info
+      melos run test && 
+      melos run coverage:check &&
+      melos run coverage:report
 
   coverage:check:
-    description: Check coverage.
-    run: dart pub global run coverde check 90 --input=lcov.info
-  
-  pana:
-    description: Run pana on all packages.
-    run: dart pub global run pana --no-warning --exit-code-threshold 40 --source path .
+    run: dart pub global run coverde check 90
     exec:
-      concurrency: 1
-      packageFilters:
-        public: true
+      fileExists: coverage/lcov.info # by convention
+
+  coverage:report:
+    run: dart pub global run coverde report
+
+  ci:
+    run: >-
+      melos clean &&
+      melos bootstrap &&
+      melos run build &&
+      melos run test &&
+      melos run lint &&
+      melos run analyze &&
+      melos run coverage
