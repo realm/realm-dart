@@ -1,40 +1,21 @@
-out
-.vs
 # Ingore build file
 .dart_tool/
 
-# Ignore realm files
-lib/default.realm
-lib/default.realm.lock
-mongodb-realm/
-
 # Dart packages and Flutter plugins should not commit these files
-pubspec.lock
+**/pubspec.lock
 .packages
+.flutter-plugins
+.flutter-plugins-dependencies
+**/build/
 
-# Ignore other packages files
-flutter/realm_flutter/.idea/
-flutter/realm_flutter/android/.idea/
-flutter/realm_flutter/android/.cxx/
-flutter/realm_flutter/pubspec.lock
-flutter/realm_flutter/.gradle/
-flutter/realm_flutter/macos/librealm_dart.dylib
-/default.realm*
-/test/default.realm
-/test/default.realm.lock
-/doc/
+# melos
+.idea/
+pubspec_overrides.yaml
+melos**.iml
 
-# Ignore native binaries output directory
-/binary/
+# test
+test-results.json
+**/coverage/
 
-# Ignore native binaries build directories
-/build-native/
-/build/
-/build-linux/
-/build-macos/
-/build-windows/
-
-# Ignore example pubspec.lock since the example always reference the local package
-example/pubspec.lock
-/generator/coverage/
-release/
+# dos
+**/doc/

@@ -1,9 +1,0 @@
-.DS_Store
-.dart_tool/
-
-# Dart packages and Flutter plugins should not commit these files
-.packages
-.pub/
-doc/
-build/
-pubspec.lock
