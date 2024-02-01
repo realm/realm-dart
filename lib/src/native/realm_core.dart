@@ -1792,7 +1792,7 @@ class _RealmCore {
   UserNotificationTokenHandle subscribeUserNotifications(UserNotificationsController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(user_change_callback);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
-    final notification_token = _realmLib.realm_user_state_change_register_callback(
+    final notification_token = _realmLib.realm_sync_user_on_state_change_register_callback(
       controller.user.handle._pointer,
       _realmLib.addresses.realm_dart_user_change_callback,
       userdata.cast(),
@@ -3202,8 +3202,8 @@ class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_t
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
-class UserNotificationTokenHandle extends HandleBase<realm_user_subscription_token> {
-  UserNotificationTokenHandle._(Pointer<realm_user_subscription_token> pointer) : super(pointer, 32);
+class UserNotificationTokenHandle extends HandleBase<realm_sync_user_subscription_token> {
+  UserNotificationTokenHandle._(Pointer<realm_sync_user_subscription_token> pointer) : super(pointer, 32);
 }
 
 class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {

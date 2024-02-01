@@ -178,7 +178,7 @@ RLM_API void realm_dart_user_change_callback(realm_userdata_t userdata, realm_us
 {
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, state]() {
-        (reinterpret_cast<realm_user_changed_callback_t>(ud->dart_callback))(ud->handle, state);
+        (reinterpret_cast<realm_sync_on_user_state_changed_t>(ud->dart_callback))(ud->handle, state);
     });
 }
 
