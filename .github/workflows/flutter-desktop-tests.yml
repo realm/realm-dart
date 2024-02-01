@@ -72,5 +72,23 @@ jobs:
         if: ${{ contains(inputs.os, 'macos') }}
 
       - name: Run tests
-        run: ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} flutter drive -d ${{ inputs.os }} --target=test_driver/app.dart --suppress-analytics --dart-entrypoint-args="" --debug # -a="Some test name"
+        run: |
+          ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} \
+          flutter test integration_test/all_tests.dart \
+            --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
+            --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
+            --device-id=${{ inputs.os }} \
+            --file-reporter=json:test-results.json \
+            --suppress-analytics
+        shell: bash
         working-directory: ./flutter/realm_flutter/tests
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1.7.0
+        if: success() || failure()
+        with:
+          name: Test Results Flutter ${{ inputs.os }} ${{ inputs.architecture }}
+          path: test-results.json
+          reporter: dart-json
+          only-summary: true
+          working-directory: ./flutter/realm_flutter/tests

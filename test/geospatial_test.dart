@@ -22,7 +22,7 @@ import 'dart:math';
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 part 'geospatial_test.g.dart';
@@ -82,8 +82,8 @@ extension on (num, num) {
 
 GeoRing ring(Iterable<(num, num)> coords, {bool close = true}) => GeoRing.from(coords.followedBy(close ? [coords.first] : []).map((c) => c.toGeoPoint()));
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   final noma = Restaurant('Noma', location: (12.610534422524335, 55.682837071136916).toLocation());
   final theFatDuck = Restaurant('The Fat Duck', location: (-0.7017480029998424, 51.508054146883474).toLocation());

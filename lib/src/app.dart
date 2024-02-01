@@ -157,7 +157,11 @@ class AppConfiguration {
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
-        httpClient = httpClient ?? _defaultClient;
+        httpClient = httpClient ?? _defaultClient {
+    if (appId == '') {
+      throw RealmException('Supplied appId must be a non-empty value');
+    }
+  }
 }
 
 /// An [App] is the main client-side entry point for interacting with an [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
@@ -190,7 +194,7 @@ class App implements Finalizable {
   /// on the main isolate. If an App hasn't been already constructed with the same id, will return null. This method is safe to call
   /// on a background isolate.
   static App? getById(String id, {Uri? baseUrl}) {
-    final handle = realmCore.getApp(id, baseUrl.toString());
+    final handle = realmCore.getApp(id, baseUrl?.toString());
     return handle == null ? null : App._(handle);
   }
 
@@ -242,6 +246,21 @@ class App implements Finalizable {
   /// The sync client will always attempt to reconnect eventually, this is just a hint.
   void reconnect() {
     realmCore.reconnect(this);
+  }
+
+  /// Returns the current value of the base URL used to communicate with the server.
+  @experimental
+  Uri? get baseUrl {
+    return Uri.tryParse(realmCore.getBaseUrl(this) ?? '');
+  }
+
+  /// Temporarily overrides the [baseUrl] value from [AppConfiguration] with a new [baseUrl] value
+  /// used for communicating with the server.
+  ///
+  /// The App will revert to using the value in [AppConfiguration] when it is restarted.
+  @experimental
+  Future<void> updateBaseUrl(Uri baseUrl) async {
+    return await realmCore.updateBaseUrl(this, baseUrl);
   }
 
   /// Returns an instance of [EmailPasswordAuthProvider]

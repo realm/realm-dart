@@ -26,12 +26,12 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:path/path.dart' as p;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
-import '../lib/src/native/realm_core.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Realm can be created', () {
     var config = Configuration.local([Car.schema]);

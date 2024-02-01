@@ -19,13 +19,13 @@
 @TestOn('browser') // This file only contain manual tests
 
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
+void main() {
   const String strongPassword = "SWV23R#@T#VFQDV";
 
-  await setupTests(args);
+  setupTests();
 
   // The tests in this group are for manual testing, since they require interaction with mail box.
   group('Manual tests', () {

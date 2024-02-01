@@ -66,6 +66,38 @@
 ## vNext (TBD)
 
 ### Enhancements
+* None
+
+### Fixed
+* Creating an `AppConfiguration` with an empty appId will now throw an exception rather than crashing the app. (Issue [#1487](https://github.com/realm/realm-dart/issues/1487))
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
+## 1.8.0 (2024-01-29)
+
+### Enhancements
+* Added `RealmObject.getBacklinks<SourceType>('sourceProperty')` which is a method allowing you to look up all objects of type `SourceType` which link to the current object via their `sourceProperty` property. (Issue [#1480](https://github.com/realm/realm-dart/issues/1480))
+* Added `App.updateBaseUrl` method for updating the App's base URL for switching between cloud and edge servers. The current Sync Session(s) must be paused before calling this method and the user must log in again afterwards before the Sync Session can be resumed. (PR [#1454](https://github.com/realm/realm-dart/pull/1454))
+
+### Fixed
+* Fix a possible hang (or in rare cases crash) during notification handling. (Issue [#1492](https://github.com/realm/realm-dart/issues/1492))
+* Fix Flutter app build on Linux. A contribution from [thiagokisaki](https://github.com/thiagokisaki). (PR [#1488](https://github.com/realm/realm-dart/pull/1488))
+* App was not using the current baseUrl value from AppConfiguration when it is created and always used the cached value stored upon the first contact with the server. (Core XX.XX.X)
+
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core 13.26.0
+
+## 1.7.0 (2024-01-23)
+
+### Enhancements
 * Reworked how creating an `App` instance works across isolates:
   * The `App(AppConfiguration)` constructor should only be used on the main isolate. Ideally, it should be called once as soon as your app launches. If you attempt to use it on a background isolate (as indicated by `Isolate.debugName` being different from `main`), a warning will be logged.
   * Added a new method - `App.getById` that allows you to obtain an already constructed app on a background isolate.
@@ -90,18 +122,38 @@
 
   The map keys may not contain `.` or start with `$`. (Issue [#685](https://github.com/realm/realm-dart/issues/685))
 * Added a new exception - `MigrationRequiredException` that will be thrown when a local Realm is opened with a schema that differs from the schema on disk and no migration callback is supplied. Additionally, a `helpLink` property has been added to `RealmException` and its subclasses to provide a link to the documentation for the error. (Issue [#1448](https://github.com/realm/realm-dart/issues/1448))
+* Downgrade minimum dependencies to Dart 3.0.0 and Flutter 3.10.0. (PR [#1457](https://github.com/realm/realm-dart/pull/1457))
 
 ### Fixed
 * Fixed warnings being emitted by the realm generator requesting that `xyz.g.dart` be included with `part 'xyz.g.dart';` for `xyz.dart` files that import `realm` but don't have realm models defined. Those should not need generated parts and including the part file would have resulted in an empty file with `// ignore_for_file: type=lint` being generated. (PR [#1443](https://github.com/realm/realm-dart/pull/1443))
 * Updated the minimum required CMake version for Flutter on Linux to 3.19. (Issue [#1381](https://github.com/realm/realm-dart/issues/1381))
 * Errors in user-provided client reset callbacks, such as `RecoverOrDiscardUnsyncedChangesHandler.onBeforeReset/onAfterDiscard` would not be correctly propagated and the client reset exception would contain a message like `A fatal error occurred during client reset: 'User-provided callback failed'` but no details about the actual error. Now `SyncError` has an `innerError` field which contains the original error thrown in the callback. (PR [#1447](https://github.com/realm/realm-dart/pull/1447))
 * Fixed a bug where the generator would not emit errors for invalid default values for collection properties. Default values for collection properties are not supported unless the default value is an empty collection. (PR [#1406](https://github.com/realm/realm-dart/pull/1406))
+* Bad performance of initial Sync download involving many backlinks (Issue [#7217](https://github.com/realm/realm-core/issues/7217), Core 13.25.1)
+* Exceptions thrown during bootstrap application will now be surfaced to the user via the sync error handler rather than terminating the program with an unhandled exception. (PR [#7197](https://github.com/realm/realm-core/pull/7197), Core 13.25.0).
+* Exceptions thrown during bootstrap application could crash the sync client with an `!m_sess` assertion if the bootstrap was being applied during sync::Session activation. (Issue [#7196](https://github.com/realm/realm-core/issues/7196), Core 13.25.0).
+* If a SyncSession was explicitly resumed via `App.reconnect()` while it was waiting to auto-resume after a non-fatal error and then another non-fatal error was received, the sync client could crash with a `!m_try_again_activation_timer` assertion. (Issue [#6961](https://github.com/realm/realm-core/issues/6961), Core 13.25.0)
+* Fixed several causes of "decryption failed" exceptions that could happen when opening multiple encrypted Realm files in the same process while using Apple/linux and storing the Realms on an exFAT file system. (Issue [#7156](https://github.com/realm/realm-core/issues/7156), Core 13.24.1)
+* Fixed deadlock which occurred when accessing the current user from the `App` from within a callback from the `User` listener (Issue [#7183](https://github.com/realm/realm-core/issues/7183), Core 13.24.1)
+* Having a class name of length 57 would make client reset crash as a limit of 56 was wrongly enforced (57 is the correct limit) (Issue [#7176](https://github.com/realm/realm-core/issues/7176), Core 13.24.1)
+* Automatic client reset recovery on flexible sync Realms would apply recovered changes in multiple write transactions, releasing the write lock in between. This had several observable negative effects:
+  - Other threads reading from the Realm while a client reset was in progress could observe invalid mid-reset state.
+  - Other threads could potentially write in the middle of a client reset, resulting in history diverging from the server.
+  - The change notifications produced by client resets were not minimal and would report that some things changed which actually didn't.
+  - All pending subscriptions were marked as Superseded and then recreating, resulting in anything waiting for subscriptions to complete firing early.
+  (PR [#7161](https://github.com/realm/realm-core/pull/7161), Core 13.24.1).
+* If the very first open of a flexible sync Realm triggered a client reset, the configuration had an initial subscriptions callback, both before and after reset callbacks, and the initial subscription callback began a read transaction without ending it (which is normally going to be the case), opening the frozen Realm for the after reset callback would trigger a BadVersion exception (PR [#7161](https://github.com/realm/realm-core/pull/7161), Core 13.24.1).
+* Changesets have wrong timestamps if the local clock lags behind 2015-01-01T00:00:00Z. The sync client now throws an exception if that happens. (PR [#7180](https://github.com/realm/realm-core/pull/7180), Core 13.24.1)
+* Handle `EOPNOTSUPP` when using `posix_fallocate()` and fallback to manually consume space. This should enable android users to open a Realm on restrictive filesystems. (PR [#7251](https://github.com/realm/realm-core/pull/7251), Core v13.26.0)
+* Application may crash with `incoming_changesets.size() != 0` when a download message is mistaken for a bootstrap message. This can happen if the synchronization session is paused and resumed at a specific time. (PR [#7238](https://github.com/realm/realm-core/pull/7238), Core v13.26.0, since v11.8.0)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
+* Flutter: ^3.10.0
+* Dart: ^3.0.0
 
 ### Internal
-* Using Core 13.24.0.
+* Using Core v13.26.0.
 
 ## 1.6.1 (2023-11-30)
 

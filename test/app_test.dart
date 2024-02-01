@@ -24,12 +24,12 @@ import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 import 'package:crypto/crypto.dart';
 
-import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('AppConfiguration can be initialized', () {
     Configuration.defaultRealmPath = path.join(Configuration.defaultStoragePath, Configuration.defaultRealmName);
@@ -211,6 +211,18 @@ Future<void> main([List<String>? args]) async {
     expect(response, isNotNull);
   });
 
+  baasTest('Call Atlas function on background isolate', (configuration) async {
+    final app = App(configuration);
+    final appId = app.id;
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId)!;
+        final user = await app.logIn(Credentials.anonymous());
+        await user.functions.call('userFuncNoArgs');
+      },
+    ), completes);
+  });
+
   baasTest('Call Atlas function with one argument', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
@@ -296,6 +308,28 @@ Future<void> main([List<String>? args]) async {
     );
   });
 
+  baasTest('App get Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.baseUrl;
+    expect(baseUrl, isNotNull);
+    expect(baseUrl, configuration.baseUrl);
+  });
+
+  baasTest('App update Base URL', (configuration) async {
+    final app = App(configuration);
+    final credentials = Credentials.anonymous();
+    await app.logIn(credentials);
+    final baseUrl = app.baseUrl;
+    expect(baseUrl, isNotNull);
+    // Set it to the same thing to confirm the function works, it's not actually going to update the location
+    await app.updateBaseUrl(baseUrl!);
+    final newBaseUrl = app.baseUrl;
+    expect(newBaseUrl, isNotNull);
+    expect(newBaseUrl, baseUrl);
+  });
+
   test('bundleId is salted, hashed and encoded', () {
     final text = isFlutterPlatform ? "realm_tests" : "realm_dart";
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
@@ -307,6 +341,30 @@ Future<void> main([List<String>? args]) async {
     clearCachedApps();
     final app = App.getById('abc');
     expect(app, null);
+  });
+
+  test('app.logIn unsuccessful logIn attempt on background isolate', () {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    const appId = 'fake-app-id';
+    App(AppConfiguration(appId, baseUrl: Uri.parse('https://this-is-a-fake-url.com')));
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        await app!.logIn(Credentials.anonymous()); // <-- this line used to crash
+      },
+    ), throwsA(isA<AppException>()));
+  });
+
+  baasTest('app.logIn successful logIn on background isolate', (configuration) {
+    // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
+    final appId = configuration.appId;
+    App(configuration);
+    expect(Isolate.run(
+      () async {
+        final app = App.getById(appId);
+        await app!.logIn(Credentials.anonymous()); // <-- this line used to crash
+      },
+    ), completes);
   });
 
   baasTest('app.getById with different baseUrl returns null', (appConfig) {
@@ -334,6 +392,10 @@ Future<void> main([List<String>? args]) async {
     final log = await receivePort.first as String;
 
     expect(log, contains('App constructor called on Isolate'));
+  });
+
+  test('AppConfiguration(empty-id) throws', () {
+    expect(() => AppConfiguration(''), throwsA(isA<RealmException>()));
   });
 }
 

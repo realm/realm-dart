@@ -18,11 +18,11 @@
 
 import 'dart:async';
 import 'package:test/test.dart' hide test, throws;
-import '../lib/realm.dart';
+import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-Future<void> main([List<String>? args]) async {
-  await setupTests(args);
+void main() {
+  setupTests();
 
   test('Realm.syncSession throws on wrong configuration', () {
     final config = Configuration.local([Task.schema]);
@@ -148,7 +148,7 @@ Future<void> main([List<String>? args]) async {
     expect(() async => await waitForUploadFuture, throwsA(isA<CancelledException>()));
   });
 
-  baasTest('SyncSesison.waitForUpload with changes', (configuration) async {
+  baasTest('SyncSession.waitForUpload with changes', (configuration) async {
     final differentiator = ObjectId();
 
     final realmA = await getIntegrationRealm(differentiator: differentiator);

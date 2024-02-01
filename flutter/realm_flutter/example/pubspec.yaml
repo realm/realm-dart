@@ -1,14 +1,14 @@
 name: realm_example
 description: Demonstrates how to use the Realm SDK for Flutter.
-version: 1.6.1
+version: 1.8.0
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: "none"
 
 environment:
-  sdk: ^3.1.0
-  flutter: ^3.13.0
+  sdk: ^3.0.0
+  flutter: ^3.10.0
 
 dependencies:
   flutter:
@@ -28,7 +28,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.1
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true

@@ -27,9 +27,9 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
-import '../lib/realm.dart';
-import '../lib/src/native/realm_core.dart';
-import '../lib/src/configuration.dart';
+import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/configuration.dart';
 
 import 'baas_helper.dart';
 
@@ -388,27 +388,22 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
 }
 
 BaasHelper? baasHelper;
-Map<String, String?> _testArgs = {};
 
-Future<void> setupTests(List<String>? args) async {
-  _testArgs = parseTestArguments(args);
-  testName = _testArgs["name"];
-
+void setupTests() {
   setUpAll(() async {
-    baasHelper = await BaasHelper.setupBaas(_testArgs);
-  });
+    baasHelper = await BaasHelper.setupBaas();
 
-  setUp(() {
     Realm.logger = Logger.detached('test run')
       ..level = Level.ALL
       ..onRecord.listen((record) {
-        if (record.level.value >= RealmLogLevel.warn.value) {
-          print('${record.time} ${record.level.name}: ${record.message}');
-        }
-
         testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
       });
 
+    // Enable this to print platform info, including current PID
+    _printPlatformInfo();
+  });
+
+  setUp(() {
     final path = generateRandomRealmPath();
     Configuration.defaultRealmPath = path;
 
@@ -429,9 +424,6 @@ Future<void> setupTests(List<String>? args) async {
       }
     });
   });
-
-  // Enable this to print platform info, including current PID
-  await _printPlatformInfo();
 }
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
@@ -509,9 +501,9 @@ RealmSet<T> freezeSet<T>(RealmSet<T> set) {
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
 /// time the test ends.
 T freezeObject<T extends RealmObjectBase>(T object) {
-  final frozen = object.freeze();
+  final frozen = object.freeze() as T;
   _openRealms.add(frozen.realm);
-  return frozen as T;
+  return frozen;
 }
 
 /// This is needed to make sure the frozen Realm gets forcefully closed by the
@@ -568,13 +560,12 @@ Future<void> baasTest(
 
 dynamic shouldSkip(dynamic skip) {
   if (skip == null) {
-    skip = BaasHelper.shouldRunBaasTests(_testArgs) ? false : "BAAS URL not present";
+    skip = BaasHelper.shouldRunBaasTests ? false : "BAAS URL not present";
   } else if (skip is bool) {
-    if (!BaasHelper.shouldRunBaasTests(_testArgs)) {
+    if (!BaasHelper.shouldRunBaasTests) {
       skip = "BAAS URL not present";
     }
   }
-
   return skip;
 }
 
@@ -674,7 +665,7 @@ extension DateTimeTest on DateTime {
 
 void clearCachedApps() => realmCore.clearCachedApps();
 
-Future<void> _printPlatformInfo() async {
+void _printPlatformInfo() {
   final pointerSize = sizeOf<IntPtr>() * 8;
   final os = Platform.operatingSystem;
   String? cpu;
@@ -683,7 +674,7 @@ Future<void> _printPlatformInfo() async {
     if (Platform.isWindows) {
       cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
     } else {
-      final info = await Process.run('uname', ['-m']);
+      final info = Process.runSync('uname', ['-m']);
       cpu = info.stdout.toString().replaceAll('\n', '');
     }
   }
@@ -744,3 +735,9 @@ Future<bool> runWithRetries(bool Function() tester, {int retryDelay = 100, int a
 
   return success;
 }
+
+Future<void> _copyFile(String fromPath, String toPath) async {
+  await File(fromPath).copy(toPath);
+}
+
+var copyFile = _copyFile; // default, but allow integration_test to override

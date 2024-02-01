@@ -53,38 +53,6 @@ RLM_API void realm_dart_initializeDartApiDL(void* data) {
     Dart_InitializeApiDL(data);
 }
 
-class WeakHandle {
-public:
-    WeakHandle(Dart_Handle handle) : m_weakHandle(Dart_NewWeakPersistentHandle_DL(handle, this, 1, finalize_handle)) {
-    }
-
-    Dart_Handle value() {
-        return Dart_HandleFromWeakPersistent_DL(m_weakHandle);
-    }
-
-private:
-    ~WeakHandle() {
-        if (m_weakHandle) {
-            Dart_DeleteWeakPersistentHandle_DL(m_weakHandle);
-            m_weakHandle = nullptr;
-        }
-    }
-
-    static void finalize_handle(void* isolate_callback_data, void* peer) {
-        delete reinterpret_cast<WeakHandle*>(peer);
-    }
-
-    Dart_WeakPersistentHandle m_weakHandle;
-};
-
-RLM_API void* realm_dart_object_to_weak_handle(Dart_Handle handle) {
-    return new WeakHandle(handle);
-}
-
-RLM_API Dart_Handle realm_dart_weak_handle_to_object(void* handle) {
-    return reinterpret_cast<WeakHandle*>(handle)->value();
-}
-
 RLM_API void* realm_dart_object_to_persistent_handle(Dart_Handle handle) {
     return reinterpret_cast<void*>(Dart_NewPersistentHandle_DL(handle));
 }
@@ -118,7 +86,7 @@ RLM_API void realm_dart_invoke_unlock_callback(realm_userdata_t error, void* unl
 // Stamped into the library by the build system (see prepare-release.yml)
 // Keep this method as it is written and do not format it.
 // We have a github workflow that looks for and replaces this string as it is written here.
-RLM_API const char* realm_dart_library_version() { return "1.6.1"; }
+RLM_API const char* realm_dart_library_version() { return "1.8.0"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() {

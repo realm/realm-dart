@@ -44,3 +44,13 @@ RLM_API bool realm_dart_sync_before_reset_handler_callback(realm_userdata_t user
 RLM_API bool realm_dart_sync_after_reset_handler_callback(realm_userdata_t userdata, realm_t* before_realm, realm_thread_safe_reference_t* after_realm, bool did_recover);
 
 RLM_API void realm_dart_async_open_task_callback(realm_userdata_t userdata, realm_thread_safe_reference_t* realm, const realm_async_error_t* error);
+
+RLM_API void realm_dart_user_completion_callback(realm_userdata_t userdata, realm_user_t* user, const realm_app_error_t* error);
+
+RLM_API void realm_dart_void_completion_callback(realm_userdata_t userdata, const realm_app_error_t* error);
+
+RLM_API void realm_dart_apikey_callback(realm_userdata_t userdata, realm_app_user_apikey_t* apikey, const realm_app_error_t* error);
+
+RLM_API void realm_dart_apikey_list_callback(realm_userdata_t userdata, realm_app_user_apikey_t apikey_list[], size_t count, const realm_app_error_t* error);
+
+RLM_API void realm_dart_return_string_callback(realm_userdata_t userdata, const char* serialized_ejson_response, const realm_app_error_t* error);

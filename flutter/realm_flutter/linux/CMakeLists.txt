@@ -33,6 +33,9 @@ include(${EPHEMERAL_DIR}/generated_config.cmake)
 
 set(APP_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..")
 
+file(REAL_PATH ${APP_DIR} ABSOLUTE_PATH_APP_DIR)
+# message ("ABSOLUTE_PATH_APP_DIR is ${ABSOLUTE_PATH_APP_DIR}")
+
 # message ("APP_DIR is ${APP_DIR}")
 set(APP_PUBSPEC_FILE "${APP_DIR}/pubspec.yaml")
 
@@ -53,6 +56,7 @@ add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
 execute_process(COMMAND "${FLUTTER_ROOT}/bin/dart" "run" "realm" "install" "--target-os-type" "linux" "--flavor" "flutter" # "--debug"
+  WORKING_DIRECTORY ${ABSOLUTE_PATH_APP_DIR}
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
 
@@ -64,7 +68,7 @@ message(STATUS "cmd result: ${result}")
 # message("CMAKE_HOST_SYSTEM_VERSION ${CMAKE_HOST_SYSTEM_VERSION}")
 execute_process(
   COMMAND "${FLUTTER_ROOT}/bin/dart" "run" "realm" "metrics" "--verbose" "--flutter-root" "${FLUTTER_ROOT}/bin" "--target-os-type" "linux" "--target-os-version" "${CMAKE_HOST_SYSTEM_VERSION}" # "--pause-isolates-on-start" "--enable-vm-service"
-
+  WORKING_DIRECTORY ${ABSOLUTE_PATH_APP_DIR}
   # COMMAND ${CMAKE_COMMAND} -E true
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result

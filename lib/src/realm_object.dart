@@ -111,8 +111,24 @@ class RealmObjectMetadata {
 
   RealmObjectMetadata(this.schema, this.classKey, this._propertyKeys);
 
-  RealmPropertyMetadata operator [](String propertyName) =>
-      _propertyKeys[propertyName] ?? (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
+  RealmPropertyMetadata operator [](String propertyName) {
+    var meta = _propertyKeys[propertyName];
+    if (meta == null) {
+      // We couldn't find a proeprty by the name supplied by the user - this may be because the _propertyKeys
+      // map is keyed on the property names as they exist in the database while the user supplied the public
+      // name (i.e. the name of the property in the model). Try and look up the property by the public name and
+      // then try to re-fetch the property meta using the database name.
+      final publicName = schema.properties.firstWhereOrNull((e) => e.name == propertyName)?.mapTo;
+      if (publicName != null && publicName != propertyName) {
+        meta = _propertyKeys[publicName];
+      }
+    }
+
+    return meta ?? (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
+  }
+  // _propertyKeys[propertyName] ??
+  // schema.properties.firstWhereOrNull((p) => p.name == propertyName) ??
+  // (throw RealmException("Property $propertyName does not exist on class $_realmObjectTypeName"));
 
   String? getPropertyName(int propertyKey) {
     for (final entry in _propertyKeys.entries) {
@@ -506,6 +522,43 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
 
   /// Creates a frozen snapshot of this [RealmObject].
   RealmObjectBase freeze() => freezeObject(this);
+
+  /// Returns all the objects of type [T] that link to this object via [propertyName].
+  /// Example:
+  /// ```dart
+  /// @RealmModel()
+  /// class School {
+  ///   late String name;
+  /// }
+  ///
+  /// @RealmModel()
+  /// class Student {
+  ///   School? school;
+  /// }
+  ///
+  /// // Find all students in a school
+  /// final school = realm.all<School>().first;
+  /// final allStudents = school.getBacklinks<Student>('school');
+  /// ```
+  RealmResults<T> getBacklinks<T>(String propertyName) {
+    if (!isManaged) {
+      throw RealmStateError("Can't look up backlinks of unmanaged objects.");
+    }
+
+    final sourceMeta = realm.metadata.getByType(T);
+    final sourceProperty = sourceMeta[propertyName];
+
+    if (sourceProperty.objectType == null) {
+      throw RealmError("Property $T.$propertyName is not a link property - it is a property of type ${sourceProperty.propertyType}");
+    }
+
+    if (sourceProperty.objectType != realm.metadata.getByType(runtimeType).schema.name) {
+      throw RealmError(
+          "Property $T.$propertyName is a link property that links to ${sourceProperty.objectType} which is different from the type of the current object, which is $runtimeType.");
+    }
+    final handle = realmCore.getBacklinks(this, sourceMeta.classKey, sourceProperty.key);
+    return RealmResultsInternal.create<T>(handle, realm, sourceMeta);
+  }
 }
 
 /// @nodoc
