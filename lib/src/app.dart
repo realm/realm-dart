@@ -157,7 +157,11 @@ class AppConfiguration {
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
         baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
-        httpClient = httpClient ?? _defaultClient;
+        httpClient = httpClient ?? _defaultClient {
+    if (appId == '') {
+      throw RealmException('Supplied appId must be a non-empty value');
+    }
+  }
 }
 
 /// An [App] is the main client-side entry point for interacting with an [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
