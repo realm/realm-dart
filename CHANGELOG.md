@@ -5,6 +5,7 @@
 * Allow the query builder to construct >, >=, <, <= queries for string constants. This is a case sensitive lexicographical comparison. Improved performance of RQL queries on a non-linked string property using: >, >=, <, <=, operators and fixed behaviour that a null string should be evaulated as less than everything, previously nulls were not matched. (Core 13.27.0)
 
 ### Fixed
+* Creating an `AppConfiguration` with an empty appId will now throw an exception rather than crashing the app. (Issue [#1487](https://github.com/realm/realm-dart/issues/1487))
 * Uploading the changesets recovered during an automatic client reset recovery may lead to 'Bad server version' errors and a new client reset. (Core 13.27.0)
 
 ### Compatibility
