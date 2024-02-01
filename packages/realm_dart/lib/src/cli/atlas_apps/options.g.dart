@@ -31,23 +31,19 @@ ArgParser _$populateOptionsParser(ArgParser parser) => parser
   )
   ..addOption(
     'api-key',
-    help:
-        'Atlas API key to use for the import. Only used if atlas-cluster is specified.',
+    help: 'Atlas API key to use for the import. Only used if atlas-cluster is specified.',
   )
   ..addOption(
     'private-api-key',
-    help:
-        'The private Atlas API key to use for the import. Only used if atlas-cluster is specified.',
+    help: 'The private Atlas API key to use for the import. Only used if atlas-cluster is specified.',
   )
   ..addOption(
     'project-id',
-    help:
-        'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
+    help: 'The Atlas project id to use for the import. Only used if atlas-cluster is specified.',
   )
   ..addOption(
     'baasaas-api-key',
-    help:
-        'API key to use with BaaSaaS to spawn a new container and create apps in it.',
+    help: 'API key to use with BaaSaaS to spawn a new container and create apps in it.',
   );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());

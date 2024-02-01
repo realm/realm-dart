@@ -6,16 +6,15 @@ part of 'options.dart';
 // CliGenerator
 // **************************************************************************
 
-T _$enumValueHelper<T>(Map<T, String> enumValues, String source) =>
-    enumValues.entries
-        .singleWhere(
-          (e) => e.value == source,
-          orElse: () => throw ArgumentError(
-            '`$source` is not one of the supported values: '
-            '${enumValues.values.join(', ')}',
-          ),
-        )
-        .key;
+T _$enumValueHelper<T>(Map<T, String> enumValues, String source) => enumValues.entries
+    .singleWhere(
+      (e) => e.value == source,
+      orElse: () => throw ArgumentError(
+        '`$source` is not one of the supported values: '
+        '${enumValues.values.join(', ')}',
+      ),
+    )
+    .key;
 
 T? _$nullableEnumValueHelperNullable<T>(
   Map<T, String> enumValues,

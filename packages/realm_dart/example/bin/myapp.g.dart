@@ -47,12 +47,10 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person? get owner => RealmObjectBase.get<Person>(this, 'owner') as Person?;
   @override
-  set owner(covariant Person? value) =>
-      RealmObjectBase.set(this, 'owner', value);
+  set owner(covariant Person? value) => RealmObjectBase.set(this, 'owner', value);
 
   @override
-  Stream<RealmObjectChanges<Car>> get changes =>
-      RealmObjectBase.getChanges<Car>(this);
+  Stream<RealmObjectChanges<Car>> get changes => RealmObjectBase.getChanges<Car>(this);
 
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
@@ -65,8 +63,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('make', RealmPropertyType.string),
       SchemaProperty('model', RealmPropertyType.string, optional: true),
       SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
+      SchemaProperty('owner', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
     ]);
   }
 }
@@ -100,8 +97,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   set age(int value) => RealmObjectBase.set(this, 'age', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes =>
-      RealmObjectBase.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes => RealmObjectBase.getChanges<Person>(this);
 
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);

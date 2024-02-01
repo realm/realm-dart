@@ -13,8 +13,7 @@ Options _$parseOptionsResult(ArgResults result) => Options()
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addFlag(
     'clean',
-    help:
-        "Optional. Cleans generator caches. Same as running 'dart run build_runner clean'",
+    help: "Optional. Cleans generator caches. Same as running 'dart run build_runner clean'",
   )
   ..addFlag(
     'watch',

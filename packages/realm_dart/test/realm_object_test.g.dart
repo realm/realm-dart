@@ -7,8 +7,7 @@ part of 'realm_object_test.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
-class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   ObjectIdPrimaryKey(
     ObjectId id,
   ) {
@@ -23,26 +22,22 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<ObjectIdPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<ObjectIdPrimaryKey>(this);
+  Stream<RealmObjectChanges<ObjectIdPrimaryKey>> get changes => RealmObjectBase.getChanges<ObjectIdPrimaryKey>(this);
 
   @override
-  ObjectIdPrimaryKey freeze() =>
-      RealmObjectBase.freezeObject<ObjectIdPrimaryKey>(this);
+  ObjectIdPrimaryKey freeze() => RealmObjectBase.freezeObject<ObjectIdPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectIdPrimaryKey._);
-    return const SchemaObject(
-        ObjectType.realmObject, ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
+    return const SchemaObject(ObjectType.realmObject, ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }
 }
 
-class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   NullableObjectIdPrimaryKey(
     ObjectId? id,
   ) {
@@ -57,27 +52,22 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   set id(ObjectId? value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<NullableObjectIdPrimaryKey>(this);
+  Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes => RealmObjectBase.getChanges<NullableObjectIdPrimaryKey>(this);
 
   @override
-  NullableObjectIdPrimaryKey freeze() =>
-      RealmObjectBase.freezeObject<NullableObjectIdPrimaryKey>(this);
+  NullableObjectIdPrimaryKey freeze() => RealmObjectBase.freezeObject<NullableObjectIdPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableObjectIdPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject,
-        NullableObjectIdPrimaryKey, 'NullableObjectIdPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.objectid,
-          optional: true, primaryKey: true),
+    return const SchemaObject(ObjectType.realmObject, NullableObjectIdPrimaryKey, 'NullableObjectIdPrimaryKey', [
+      SchemaProperty('id', RealmPropertyType.objectid, optional: true, primaryKey: true),
     ]);
   }
 }
 
-class IntPrimaryKey extends _IntPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class IntPrimaryKey extends _IntPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   IntPrimaryKey(
     int id,
   ) {
@@ -92,8 +82,7 @@ class IntPrimaryKey extends _IntPrimaryKey
   set id(int value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<IntPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<IntPrimaryKey>(this);
+  Stream<RealmObjectChanges<IntPrimaryKey>> get changes => RealmObjectBase.getChanges<IntPrimaryKey>(this);
 
   @override
   IntPrimaryKey freeze() => RealmObjectBase.freezeObject<IntPrimaryKey>(this);
@@ -102,15 +91,13 @@ class IntPrimaryKey extends _IntPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(IntPrimaryKey._);
-    return const SchemaObject(
-        ObjectType.realmObject, IntPrimaryKey, 'IntPrimaryKey', [
+    return const SchemaObject(ObjectType.realmObject, IntPrimaryKey, 'IntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }
 }
 
-class NullableIntPrimaryKey extends _NullableIntPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class NullableIntPrimaryKey extends _NullableIntPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   NullableIntPrimaryKey(
     int? id,
   ) {
@@ -125,27 +112,22 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   set id(int? value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<NullableIntPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<NullableIntPrimaryKey>(this);
+  Stream<RealmObjectChanges<NullableIntPrimaryKey>> get changes => RealmObjectBase.getChanges<NullableIntPrimaryKey>(this);
 
   @override
-  NullableIntPrimaryKey freeze() =>
-      RealmObjectBase.freezeObject<NullableIntPrimaryKey>(this);
+  NullableIntPrimaryKey freeze() => RealmObjectBase.freezeObject<NullableIntPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableIntPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey,
-        'NullableIntPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.int,
-          optional: true, primaryKey: true),
+    return const SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey, 'NullableIntPrimaryKey', [
+      SchemaProperty('id', RealmPropertyType.int, optional: true, primaryKey: true),
     ]);
   }
 }
 
-class StringPrimaryKey extends _StringPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class StringPrimaryKey extends _StringPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   StringPrimaryKey(
     String id,
   ) {
@@ -160,26 +142,22 @@ class StringPrimaryKey extends _StringPrimaryKey
   set id(String value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<StringPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<StringPrimaryKey>(this);
+  Stream<RealmObjectChanges<StringPrimaryKey>> get changes => RealmObjectBase.getChanges<StringPrimaryKey>(this);
 
   @override
-  StringPrimaryKey freeze() =>
-      RealmObjectBase.freezeObject<StringPrimaryKey>(this);
+  StringPrimaryKey freeze() => RealmObjectBase.freezeObject<StringPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(StringPrimaryKey._);
-    return const SchemaObject(
-        ObjectType.realmObject, StringPrimaryKey, 'StringPrimaryKey', [
+    return const SchemaObject(ObjectType.realmObject, StringPrimaryKey, 'StringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }
 }
 
-class NullableStringPrimaryKey extends _NullableStringPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class NullableStringPrimaryKey extends _NullableStringPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   NullableStringPrimaryKey(
     String? id,
   ) {
@@ -194,27 +172,22 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   set id(String? value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<NullableStringPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<NullableStringPrimaryKey>(this);
+  Stream<RealmObjectChanges<NullableStringPrimaryKey>> get changes => RealmObjectBase.getChanges<NullableStringPrimaryKey>(this);
 
   @override
-  NullableStringPrimaryKey freeze() =>
-      RealmObjectBase.freezeObject<NullableStringPrimaryKey>(this);
+  NullableStringPrimaryKey freeze() => RealmObjectBase.freezeObject<NullableStringPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableStringPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey,
-        'NullableStringPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
+    return const SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey, 'NullableStringPrimaryKey', [
+      SchemaProperty('id', RealmPropertyType.string, optional: true, primaryKey: true),
     ]);
   }
 }
 
-class UuidPrimaryKey extends _UuidPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class UuidPrimaryKey extends _UuidPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   UuidPrimaryKey(
     Uuid id,
   ) {
@@ -229,8 +202,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey
   set id(Uuid value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<UuidPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<UuidPrimaryKey>(this);
+  Stream<RealmObjectChanges<UuidPrimaryKey>> get changes => RealmObjectBase.getChanges<UuidPrimaryKey>(this);
 
   @override
   UuidPrimaryKey freeze() => RealmObjectBase.freezeObject<UuidPrimaryKey>(this);
@@ -239,15 +211,13 @@ class UuidPrimaryKey extends _UuidPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(UuidPrimaryKey._);
-    return const SchemaObject(
-        ObjectType.realmObject, UuidPrimaryKey, 'UuidPrimaryKey', [
+    return const SchemaObject(ObjectType.realmObject, UuidPrimaryKey, 'UuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
   }
 }
 
-class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
-    with RealmEntity, RealmObjectBase, RealmObject {
+class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey with RealmEntity, RealmObjectBase, RealmObject {
   NullableUuidPrimaryKey(
     Uuid? id,
   ) {
@@ -262,27 +232,22 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   set id(Uuid? value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  Stream<RealmObjectChanges<NullableUuidPrimaryKey>> get changes =>
-      RealmObjectBase.getChanges<NullableUuidPrimaryKey>(this);
+  Stream<RealmObjectChanges<NullableUuidPrimaryKey>> get changes => RealmObjectBase.getChanges<NullableUuidPrimaryKey>(this);
 
   @override
-  NullableUuidPrimaryKey freeze() =>
-      RealmObjectBase.freezeObject<NullableUuidPrimaryKey>(this);
+  NullableUuidPrimaryKey freeze() => RealmObjectBase.freezeObject<NullableUuidPrimaryKey>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableUuidPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey,
-        'NullableUuidPrimaryKey', [
-      SchemaProperty('id', RealmPropertyType.uuid,
-          optional: true, primaryKey: true),
+    return const SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey, 'NullableUuidPrimaryKey', [
+      SchemaProperty('id', RealmPropertyType.uuid, optional: true, primaryKey: true),
     ]);
   }
 }
 
-class RemappedFromAnotherFile extends _RemappedFromAnotherFile
-    with RealmEntity, RealmObjectBase, RealmObject {
+class RemappedFromAnotherFile extends _RemappedFromAnotherFile with RealmEntity, RealmObjectBase, RealmObject {
   RemappedFromAnotherFile({
     RemappedClass? linkToAnotherClass,
   }) {
@@ -292,37 +257,27 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   RemappedFromAnotherFile._();
 
   @override
-  RemappedClass? get linkToAnotherClass =>
-      RealmObjectBase.get<RemappedClass>(this, 'property with spaces')
-          as RemappedClass?;
+  RemappedClass? get linkToAnotherClass => RealmObjectBase.get<RemappedClass>(this, 'property with spaces') as RemappedClass?;
   @override
-  set linkToAnotherClass(covariant RemappedClass? value) =>
-      RealmObjectBase.set(this, 'property with spaces', value);
+  set linkToAnotherClass(covariant RemappedClass? value) => RealmObjectBase.set(this, 'property with spaces', value);
 
   @override
-  Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
-      RealmObjectBase.getChanges<RemappedFromAnotherFile>(this);
+  Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes => RealmObjectBase.getChanges<RemappedFromAnotherFile>(this);
 
   @override
-  RemappedFromAnotherFile freeze() =>
-      RealmObjectBase.freezeObject<RemappedFromAnotherFile>(this);
+  RemappedFromAnotherFile freeze() => RealmObjectBase.freezeObject<RemappedFromAnotherFile>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RemappedFromAnotherFile._);
-    return const SchemaObject(
-        ObjectType.realmObject, RemappedFromAnotherFile, 'class with spaces', [
-      SchemaProperty('linkToAnotherClass', RealmPropertyType.object,
-          mapTo: 'property with spaces',
-          optional: true,
-          linkTarget: 'myRemappedClass'),
+    return const SchemaObject(ObjectType.realmObject, RemappedFromAnotherFile, 'class with spaces', [
+      SchemaProperty('linkToAnotherClass', RealmPropertyType.object, mapTo: 'property with spaces', optional: true, linkTarget: 'myRemappedClass'),
     ]);
   }
 }
 
-class BoolValue extends _BoolValue
-    with RealmEntity, RealmObjectBase, RealmObject {
+class BoolValue extends _BoolValue with RealmEntity, RealmObjectBase, RealmObject {
   BoolValue(
     int key,
     bool value,
@@ -344,8 +299,7 @@ class BoolValue extends _BoolValue
   set value(bool value) => RealmObjectBase.set(this, 'value', value);
 
   @override
-  Stream<RealmObjectChanges<BoolValue>> get changes =>
-      RealmObjectBase.getChanges<BoolValue>(this);
+  Stream<RealmObjectChanges<BoolValue>> get changes => RealmObjectBase.getChanges<BoolValue>(this);
 
   @override
   BoolValue freeze() => RealmObjectBase.freezeObject<BoolValue>(this);

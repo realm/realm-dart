@@ -7,8 +7,7 @@ part of 'geospatial_test.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
-class Location extends _Location
-    with RealmEntity, RealmObjectBase, EmbeddedObject {
+class Location extends _Location with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
   Location({
@@ -21,8 +20,7 @@ class Location extends _Location
       });
     }
     RealmObjectBase.set(this, 'type', type);
-    RealmObjectBase.set<RealmList<double>>(
-        this, 'coordinates', RealmList<double>(coordinates));
+    RealmObjectBase.set<RealmList<double>>(this, 'coordinates', RealmList<double>(coordinates));
   }
 
   Location._();
@@ -31,15 +29,12 @@ class Location extends _Location
   String get type => RealmObjectBase.get<String>(this, 'type') as String;
 
   @override
-  RealmList<double> get coordinates =>
-      RealmObjectBase.get<double>(this, 'coordinates') as RealmList<double>;
+  RealmList<double> get coordinates => RealmObjectBase.get<double>(this, 'coordinates') as RealmList<double>;
   @override
-  set coordinates(covariant RealmList<double> value) =>
-      throw RealmUnsupportedSetError();
+  set coordinates(covariant RealmList<double> value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Location>> get changes =>
-      RealmObjectBase.getChanges<Location>(this);
+  Stream<RealmObjectChanges<Location>> get changes => RealmObjectBase.getChanges<Location>(this);
 
   @override
   Location freeze() => RealmObjectBase.freezeObject<Location>(this);
@@ -50,14 +45,12 @@ class Location extends _Location
     RealmObjectBase.registerFactory(Location._);
     return const SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
       SchemaProperty('type', RealmPropertyType.string),
-      SchemaProperty('coordinates', RealmPropertyType.double,
-          collectionType: RealmCollectionType.list),
+      SchemaProperty('coordinates', RealmPropertyType.double, collectionType: RealmCollectionType.list),
     ]);
   }
 }
 
-class Restaurant extends _Restaurant
-    with RealmEntity, RealmObjectBase, RealmObject {
+class Restaurant extends _Restaurant with RealmEntity, RealmObjectBase, RealmObject {
   Restaurant(
     String name, {
     Location? location,
@@ -74,15 +67,12 @@ class Restaurant extends _Restaurant
   set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  Location? get location =>
-      RealmObjectBase.get<Location>(this, 'location') as Location?;
+  Location? get location => RealmObjectBase.get<Location>(this, 'location') as Location?;
   @override
-  set location(covariant Location? value) =>
-      RealmObjectBase.set(this, 'location', value);
+  set location(covariant Location? value) => RealmObjectBase.set(this, 'location', value);
 
   @override
-  Stream<RealmObjectChanges<Restaurant>> get changes =>
-      RealmObjectBase.getChanges<Restaurant>(this);
+  Stream<RealmObjectChanges<Restaurant>> get changes => RealmObjectBase.getChanges<Restaurant>(this);
 
   @override
   Restaurant freeze() => RealmObjectBase.freezeObject<Restaurant>(this);
@@ -91,36 +81,29 @@ class Restaurant extends _Restaurant
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Restaurant._);
-    return const SchemaObject(
-        ObjectType.realmObject, Restaurant, 'Restaurant', [
+    return const SchemaObject(ObjectType.realmObject, Restaurant, 'Restaurant', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('location', RealmPropertyType.object,
-          optional: true, linkTarget: 'Location'),
+      SchemaProperty('location', RealmPropertyType.object, optional: true, linkTarget: 'Location'),
     ]);
   }
 }
 
-class LocationList extends _LocationList
-    with RealmEntity, RealmObjectBase, RealmObject {
+class LocationList extends _LocationList with RealmEntity, RealmObjectBase, RealmObject {
   LocationList({
     Iterable<Location> locations = const [],
   }) {
-    RealmObjectBase.set<RealmList<Location>>(
-        this, 'locations', RealmList<Location>(locations));
+    RealmObjectBase.set<RealmList<Location>>(this, 'locations', RealmList<Location>(locations));
   }
 
   LocationList._();
 
   @override
-  RealmList<Location> get locations =>
-      RealmObjectBase.get<Location>(this, 'locations') as RealmList<Location>;
+  RealmList<Location> get locations => RealmObjectBase.get<Location>(this, 'locations') as RealmList<Location>;
   @override
-  set locations(covariant RealmList<Location> value) =>
-      throw RealmUnsupportedSetError();
+  set locations(covariant RealmList<Location> value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LocationList>> get changes =>
-      RealmObjectBase.getChanges<LocationList>(this);
+  Stream<RealmObjectChanges<LocationList>> get changes => RealmObjectBase.getChanges<LocationList>(this);
 
   @override
   LocationList freeze() => RealmObjectBase.freezeObject<LocationList>(this);
@@ -129,10 +112,8 @@ class LocationList extends _LocationList
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(LocationList._);
-    return const SchemaObject(
-        ObjectType.realmObject, LocationList, 'LocationList', [
-      SchemaProperty('locations', RealmPropertyType.object,
-          linkTarget: 'Location', collectionType: RealmCollectionType.list),
+    return const SchemaObject(ObjectType.realmObject, LocationList, 'LocationList', [
+      SchemaProperty('locations', RealmPropertyType.object, linkTarget: 'Location', collectionType: RealmCollectionType.list),
     ]);
   }
 }

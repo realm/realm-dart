@@ -7,8 +7,7 @@ part of 'indexed_test.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
-class WithIndexes extends _WithIndexes
-    with RealmEntity, RealmObjectBase, RealmObject {
+class WithIndexes extends _WithIndexes with RealmEntity, RealmObjectBase, RealmObject {
   WithIndexes(
     int anInt,
     bool aBool,
@@ -43,15 +42,12 @@ class WithIndexes extends _WithIndexes
   set string(String value) => RealmObjectBase.set(this, 'string', value);
 
   @override
-  DateTime get timestamp =>
-      RealmObjectBase.get<DateTime>(this, 'timestamp') as DateTime;
+  DateTime get timestamp => RealmObjectBase.get<DateTime>(this, 'timestamp') as DateTime;
   @override
-  set timestamp(DateTime value) =>
-      RealmObjectBase.set(this, 'timestamp', value);
+  set timestamp(DateTime value) => RealmObjectBase.set(this, 'timestamp', value);
 
   @override
-  ObjectId get objectId =>
-      RealmObjectBase.get<ObjectId>(this, 'objectId') as ObjectId;
+  ObjectId get objectId => RealmObjectBase.get<ObjectId>(this, 'objectId') as ObjectId;
   @override
   set objectId(ObjectId value) => RealmObjectBase.set(this, 'objectId', value);
 
@@ -61,8 +57,7 @@ class WithIndexes extends _WithIndexes
   set uuid(Uuid value) => RealmObjectBase.set(this, 'uuid', value);
 
   @override
-  Stream<RealmObjectChanges<WithIndexes>> get changes =>
-      RealmObjectBase.getChanges<WithIndexes>(this);
+  Stream<RealmObjectChanges<WithIndexes>> get changes => RealmObjectBase.getChanges<WithIndexes>(this);
 
   @override
   WithIndexes freeze() => RealmObjectBase.freezeObject<WithIndexes>(this);
@@ -71,26 +66,18 @@ class WithIndexes extends _WithIndexes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(WithIndexes._);
-    return const SchemaObject(
-        ObjectType.realmObject, WithIndexes, 'WithIndexes', [
-      SchemaProperty('anInt', RealmPropertyType.int,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aBool', RealmPropertyType.bool,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('string', RealmPropertyType.string,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('timestamp', RealmPropertyType.timestamp,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('objectId', RealmPropertyType.objectid,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('uuid', RealmPropertyType.uuid,
-          indexType: RealmIndexType.regular),
+    return const SchemaObject(ObjectType.realmObject, WithIndexes, 'WithIndexes', [
+      SchemaProperty('anInt', RealmPropertyType.int, indexType: RealmIndexType.regular),
+      SchemaProperty('aBool', RealmPropertyType.bool, indexType: RealmIndexType.regular),
+      SchemaProperty('string', RealmPropertyType.string, indexType: RealmIndexType.regular),
+      SchemaProperty('timestamp', RealmPropertyType.timestamp, indexType: RealmIndexType.regular),
+      SchemaProperty('objectId', RealmPropertyType.objectid, indexType: RealmIndexType.regular),
+      SchemaProperty('uuid', RealmPropertyType.uuid, indexType: RealmIndexType.regular),
     ]);
   }
 }
 
-class NoIndexes extends _NoIndexes
-    with RealmEntity, RealmObjectBase, RealmObject {
+class NoIndexes extends _NoIndexes with RealmEntity, RealmObjectBase, RealmObject {
   NoIndexes(
     int anInt,
     bool aBool,
@@ -125,15 +112,12 @@ class NoIndexes extends _NoIndexes
   set string(String value) => RealmObjectBase.set(this, 'string', value);
 
   @override
-  DateTime get timestamp =>
-      RealmObjectBase.get<DateTime>(this, 'timestamp') as DateTime;
+  DateTime get timestamp => RealmObjectBase.get<DateTime>(this, 'timestamp') as DateTime;
   @override
-  set timestamp(DateTime value) =>
-      RealmObjectBase.set(this, 'timestamp', value);
+  set timestamp(DateTime value) => RealmObjectBase.set(this, 'timestamp', value);
 
   @override
-  ObjectId get objectId =>
-      RealmObjectBase.get<ObjectId>(this, 'objectId') as ObjectId;
+  ObjectId get objectId => RealmObjectBase.get<ObjectId>(this, 'objectId') as ObjectId;
   @override
   set objectId(ObjectId value) => RealmObjectBase.set(this, 'objectId', value);
 
@@ -143,8 +127,7 @@ class NoIndexes extends _NoIndexes
   set uuid(Uuid value) => RealmObjectBase.set(this, 'uuid', value);
 
   @override
-  Stream<RealmObjectChanges<NoIndexes>> get changes =>
-      RealmObjectBase.getChanges<NoIndexes>(this);
+  Stream<RealmObjectChanges<NoIndexes>> get changes => RealmObjectBase.getChanges<NoIndexes>(this);
 
   @override
   NoIndexes freeze() => RealmObjectBase.freezeObject<NoIndexes>(this);
@@ -164,8 +147,7 @@ class NoIndexes extends _NoIndexes
   }
 }
 
-class ObjectWithFTSIndex extends _ObjectWithFTSIndex
-    with RealmEntity, RealmObjectBase, RealmObject {
+class ObjectWithFTSIndex extends _ObjectWithFTSIndex with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithFTSIndex(
     String title,
     String summary, {
@@ -189,31 +171,24 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   set summary(String value) => RealmObjectBase.set(this, 'summary', value);
 
   @override
-  String? get nullableSummary =>
-      RealmObjectBase.get<String>(this, 'nullableSummary') as String?;
+  String? get nullableSummary => RealmObjectBase.get<String>(this, 'nullableSummary') as String?;
   @override
-  set nullableSummary(String? value) =>
-      RealmObjectBase.set(this, 'nullableSummary', value);
+  set nullableSummary(String? value) => RealmObjectBase.set(this, 'nullableSummary', value);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithFTSIndex>> get changes =>
-      RealmObjectBase.getChanges<ObjectWithFTSIndex>(this);
+  Stream<RealmObjectChanges<ObjectWithFTSIndex>> get changes => RealmObjectBase.getChanges<ObjectWithFTSIndex>(this);
 
   @override
-  ObjectWithFTSIndex freeze() =>
-      RealmObjectBase.freezeObject<ObjectWithFTSIndex>(this);
+  ObjectWithFTSIndex freeze() => RealmObjectBase.freezeObject<ObjectWithFTSIndex>(this);
 
   static SchemaObject get schema => _schema ??= _initSchema();
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
-    return const SchemaObject(
-        ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
+    return const SchemaObject(ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
       SchemaProperty('title', RealmPropertyType.string),
-      SchemaProperty('summary', RealmPropertyType.string,
-          indexType: RealmIndexType.fullText),
-      SchemaProperty('nullableSummary', RealmPropertyType.string,
-          optional: true, indexType: RealmIndexType.fullText),
+      SchemaProperty('summary', RealmPropertyType.string, indexType: RealmIndexType.fullText),
+      SchemaProperty('nullableSummary', RealmPropertyType.string, optional: true, indexType: RealmIndexType.fullText),
     ]);
   }
 }

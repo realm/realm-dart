@@ -8,8 +8,7 @@ part of 'metrics.dart';
 
 Metrics _$MetricsFromJson(Map<String, dynamic> json) => Metrics(
       event: json['event'] as String,
-      properties:
-          Properties.fromJson(json['properties'] as Map<String, dynamic>),
+      properties: Properties.fromJson(json['properties'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MetricsToJson(Metrics instance) => <String, dynamic>{
@@ -28,13 +27,10 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       hostOsVersion: json['Host OS Version'] as String,
       language: json['Language'] as String,
       realmVersion: json['Realm Version'] as String,
-      anonymizedBundleId: const DigestConverter()
-          .fromJson(json['Anonymized Bundle ID'] as String?),
-      anonymizedMacAddress: const DigestConverter()
-          .fromJson(json['Anonymized MAC Address'] as String?),
+      anonymizedBundleId: const DigestConverter().fromJson(json['Anonymized Bundle ID'] as String?),
+      anonymizedMacAddress: const DigestConverter().fromJson(json['Anonymized MAC Address'] as String?),
       syncEnabled: json['Sync Enabled'] as String?,
-      targetOsType:
-          $enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
+      targetOsType: $enumDecodeNullable(_$TargetOsTypeEnumMap, json['Target OS Type']),
       targetOsVersion: json['Target OS Version'] as String?,
       realmCoreVersion: json['Core Version'] as String?,
     );
@@ -52,10 +48,8 @@ Map<String, dynamic> _$PropertiesToJson(Properties instance) {
     }
   }
 
-  writeNotNull('Anonymized MAC Address',
-      const DigestConverter().toJson(instance.anonymizedMacAddress));
-  writeNotNull('Anonymized Bundle ID',
-      const DigestConverter().toJson(instance.anonymizedBundleId));
+  writeNotNull('Anonymized MAC Address', const DigestConverter().toJson(instance.anonymizedMacAddress));
+  writeNotNull('Anonymized Bundle ID', const DigestConverter().toJson(instance.anonymizedBundleId));
   val['Binding'] = instance.binding;
   val['Language'] = instance.language;
   val['Framework'] = instance.framework;

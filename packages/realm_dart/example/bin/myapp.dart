@@ -57,12 +57,12 @@ void main(List<String> arguments) async {
   print("Getting all Tesla cars from the Realm.");
   var filteredCars = realm.all<Car>().query("make == 'Tesla'");
   print('Found ${filteredCars.length} Tesla cars');
-  
+
   //allow changes event to fire
   await Future<void>.delayed(Duration(milliseconds: 1));
 
   realm.close();
-  
+
   //This is only needed in Dart apps as a workaround for https://github.com/dart-lang/sdk/issues/49083
   Realm.shutdown();
   print("Done");

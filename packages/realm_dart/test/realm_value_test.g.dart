@@ -7,8 +7,7 @@ part of 'realm_value_test.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
-class TuckedIn extends _TuckedIn
-    with RealmEntity, RealmObjectBase, EmbeddedObject {
+class TuckedIn extends _TuckedIn with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
   TuckedIn({
@@ -30,8 +29,7 @@ class TuckedIn extends _TuckedIn
   set x(int value) => RealmObjectBase.set(this, 'x', value);
 
   @override
-  Stream<RealmObjectChanges<TuckedIn>> get changes =>
-      RealmObjectBase.getChanges<TuckedIn>(this);
+  Stream<RealmObjectChanges<TuckedIn>> get changes => RealmObjectBase.getChanges<TuckedIn>(this);
 
   @override
   TuckedIn freeze() => RealmObjectBase.freezeObject<TuckedIn>(this);
@@ -46,35 +44,29 @@ class TuckedIn extends _TuckedIn
   }
 }
 
-class AnythingGoes extends _AnythingGoes
-    with RealmEntity, RealmObjectBase, RealmObject {
+class AnythingGoes extends _AnythingGoes with RealmEntity, RealmObjectBase, RealmObject {
   AnythingGoes({
     RealmValue oneAny = const RealmValue.nullValue(),
     Iterable<RealmValue> manyAny = const [],
   }) {
     RealmObjectBase.set(this, 'oneAny', oneAny);
-    RealmObjectBase.set<RealmList<RealmValue>>(
-        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmList<RealmValue>>(this, 'manyAny', RealmList<RealmValue>(manyAny));
   }
 
   AnythingGoes._();
 
   @override
-  RealmValue get oneAny =>
-      RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
+  RealmValue get oneAny => RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
   @override
   set oneAny(RealmValue value) => RealmObjectBase.set(this, 'oneAny', value);
 
   @override
-  RealmList<RealmValue> get manyAny =>
-      RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
+  RealmList<RealmValue> get manyAny => RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
   @override
-  set manyAny(covariant RealmList<RealmValue> value) =>
-      throw RealmUnsupportedSetError();
+  set manyAny(covariant RealmList<RealmValue> value) => throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<AnythingGoes>> get changes =>
-      RealmObjectBase.getChanges<AnythingGoes>(this);
+  Stream<RealmObjectChanges<AnythingGoes>> get changes => RealmObjectBase.getChanges<AnythingGoes>(this);
 
   @override
   AnythingGoes freeze() => RealmObjectBase.freezeObject<AnythingGoes>(this);
@@ -83,12 +75,9 @@ class AnythingGoes extends _AnythingGoes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(AnythingGoes._);
-    return const SchemaObject(
-        ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
-      SchemaProperty('oneAny', RealmPropertyType.mixed,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('manyAny', RealmPropertyType.mixed,
-          optional: true, collectionType: RealmCollectionType.list),
+    return const SchemaObject(ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
+      SchemaProperty('oneAny', RealmPropertyType.mixed, optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('manyAny', RealmPropertyType.mixed, optional: true, collectionType: RealmCollectionType.list),
     ]);
   }
 }
@@ -115,8 +104,7 @@ class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
   set i(int value) => RealmObjectBase.set(this, 'i', value);
 
   @override
-  Stream<RealmObjectChanges<Stuff>> get changes =>
-      RealmObjectBase.getChanges<Stuff>(this);
+  Stream<RealmObjectChanges<Stuff>> get changes => RealmObjectBase.getChanges<Stuff>(this);
 
   @override
   Stuff freeze() => RealmObjectBase.freezeObject<Stuff>(this);

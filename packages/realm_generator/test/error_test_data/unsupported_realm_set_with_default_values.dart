@@ -7,5 +7,5 @@ class _Bad {
   @PrimaryKey()
   late int id;
 
-  late Set<bool> wrong1 = {true, false };
+  late Set<bool> wrong1 = {true, false};
 }

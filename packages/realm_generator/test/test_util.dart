@@ -65,8 +65,10 @@ class LinesEqualsMatcher extends Matcher {
     final result = _matches(actualLines, matchState);
     if (!result) {
       print("\nGenerator Failed\n");
-      print("Expected ======================================================================================================\n$expected\n======================================================================================================\n");
-      print("Actual ======================================================================================================\n$actualValue\n======================================================================================================\n");
+      print(
+          "Expected ======================================================================================================\n$expected\n======================================================================================================\n");
+      print(
+          "Actual ======================================================================================================\n$actualValue\n======================================================================================================\n");
     }
 
     return result;
@@ -76,21 +78,21 @@ class LinesEqualsMatcher extends Matcher {
     for (var i = 0; i < expectedLines.length - 1; i++) {
       if (i >= actualLines.length) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
-        
+
         return false;
       }
-    
+
       if (expectedLines[i] != actualLines[i]) {
         matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
         return false;
       }
     }
-    
+
     if (actualLines.length != expectedLines.length) {
       matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
       return false;
     }
-    
+
     return true;
   }
 

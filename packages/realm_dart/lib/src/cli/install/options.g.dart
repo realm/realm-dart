@@ -6,16 +6,15 @@ part of 'options.dart';
 // CliGenerator
 // **************************************************************************
 
-T _$enumValueHelper<T>(Map<T, String> enumValues, String source) =>
-    enumValues.entries
-        .singleWhere(
-          (e) => e.value == source,
-          orElse: () => throw ArgumentError(
-            '`$source` is not one of the supported values: '
-            '${enumValues.values.join(', ')}',
-          ),
-        )
-        .key;
+T _$enumValueHelper<T>(Map<T, String> enumValues, String source) => enumValues.entries
+    .singleWhere(
+      (e) => e.value == source,
+      orElse: () => throw ArgumentError(
+        '`$source` is not one of the supported values: '
+        '${enumValues.values.join(', ')}',
+      ),
+    )
+    .key;
 
 T? _$nullableEnumValueHelperNullable<T>(
   Map<T, String> enumValues,
@@ -44,10 +43,7 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.windows: 'windows'
 };
 
-const _$FlavorEnumMapBuildCli = <Flavor, String>{
-  Flavor.flutter: 'flutter',
-  Flavor.dart: 'dart'
-};
+const _$FlavorEnumMapBuildCli = <Flavor, String>{Flavor.flutter: 'flutter', Flavor.dart: 'dart'};
 
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
