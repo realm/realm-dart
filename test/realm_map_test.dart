@@ -534,7 +534,7 @@ List<TestCaseData<RealmValue>> realmValueTestValues() => [
         ('intKey', RealmValue.int(10)),
         ('boolKey', RealmValue.bool(true)),
         ('stringKey', RealmValue.string('abc')),
-        ('dataKey', RealmValue.uint8List(Uint8List.fromList([0, 1, 2]))),
+        ('dataKey', RealmValue.binary(Uint8List.fromList([0, 1, 2]))),
         ('dateKey', RealmValue.dateTime(DateTime.fromMillisecondsSinceEpoch(1616137641000).toUtc())),
         ('doubleKey', RealmValue.double(2.5)),
         ('decimalKey', RealmValue.decimal128(Decimal128.fromDouble(5.0))),

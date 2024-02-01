@@ -81,6 +81,17 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
     if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call $methodName on a results with an element that is an unmanaged object');
     }
+
+    if (element is RealmValue) {
+      if (element.type.isCollection) {
+        return -1;
+      }
+
+      if (element.value is RealmObjectBase && !(element.value as RealmObjectBase).isManaged) {
+        return -1;
+      }
+    }
+
     if (start < 0) start = 0;
     start += _skipOffset;
     final index = realmCore.resultsFind(this, element);

@@ -19,6 +19,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
@@ -62,6 +63,7 @@ export 'package:realm_common/realm_common.dart'
         RealmStateError,
         RealmUnsupportedSetError,
         RealmValue,
+        RealmValueType,
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
@@ -1058,5 +1060,35 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
   void _stop() {
     _tokenHandle?.release();
     _tokenHandle = null;
+  }
+}
+
+/// @nodoc
+extension RealmValueInternal on RealmValue {
+  RealmCollectionType? get collectionType {
+    if (type == RealmValueType.list) return RealmCollectionType.list;
+    if (type == RealmValueType.map) return RealmCollectionType.map;
+    return null;
+  }
+}
+
+/// Extensions on RealmValue providing convenience conversion operators
+extension RealmValueConvenience on RealmValue {
+  /// Casts [value] to a List<RealmValue>. It will throw an exception if [value] is not a list.
+  RealmList<RealmValue> asList() {
+    if (value is RealmList<RealmValue>) {
+      return as<RealmList<RealmValue>>();
+    }
+
+    return RealmListInternal.createFromList(as<List<RealmValue>>());
+  }
+
+  /// Casts [value] to a Map<String, RealmValue>. It will throw an exception if [value] is not a map.
+  RealmMap<RealmValue> asMap() {
+    if (value is RealmMap<RealmValue>) {
+      return as<RealmMap<RealmValue>>();
+    }
+
+    return RealmMapInternal.createFromMap(as<Map<String, RealmValue>>());
   }
 }

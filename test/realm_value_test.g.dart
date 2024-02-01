@@ -51,10 +51,16 @@ class AnythingGoes extends _AnythingGoes
   AnythingGoes({
     RealmValue oneAny = const RealmValue.nullValue(),
     Iterable<RealmValue> manyAny = const [],
+    Set<RealmValue> setOfAny = const {},
+    Map<String, RealmValue> dictOfAny = const {},
   }) {
     RealmObjectBase.set(this, 'oneAny', oneAny);
     RealmObjectBase.set<RealmList<RealmValue>>(
         this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
   }
 
   AnythingGoes._();
@@ -70,6 +76,21 @@ class AnythingGoes extends _AnythingGoes
       RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
   @override
   set manyAny(covariant RealmList<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<RealmValue> get dictOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'dictOfAny')
+          as RealmMap<RealmValue>;
+  @override
+  set dictOfAny(covariant RealmMap<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<RealmValue> get setOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'setOfAny') as RealmSet<RealmValue>;
+  @override
+  set setOfAny(covariant RealmSet<RealmValue> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -89,6 +110,10 @@ class AnythingGoes extends _AnythingGoes
           optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('dictOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('setOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
     ]);
   }
 }

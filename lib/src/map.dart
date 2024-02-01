@@ -49,7 +49,13 @@ abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<S
 }
 
 class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<String, T> with RealmEntity implements RealmMap<T> {
-  UnmanagedRealmMap([Map<String, T>? items]) : super(Map<String, T>.from(items ?? <String, T>{}));
+  final Map<String, T> _base;
+
+  UnmanagedRealmMap([Map<String, T>? items]) : this._(Map<String, T>.from(items ?? <String, T>{}));
+
+  UnmanagedRealmMap._(Map<String, T> items)
+      : _base = items,
+        super(items);
 
   @override
   bool get isValid => true;
@@ -59,6 +65,14 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 
   @override
   Stream<RealmMapChanges<T>> get changes => throw RealmStateError("Unmanaged maps don't support changes");
+
+  @override
+  bool operator ==(Object? other) {
+    return _base == other;
+  }
+
+  @override
+  int get hashCode => _base.hashCode;
 }
 
 class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> implements RealmMap<T> {
@@ -172,8 +186,14 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
       return false;
     }
 
-    if (value is RealmValue && value.value is RealmObjectBase && !(value.value as RealmObjectBase).isManaged) {
-      return false;
+    if (value is RealmValue) {
+      if (value.value is RealmObjectBase && !(value.value as RealmObjectBase).isManaged) {
+        return false;
+      }
+
+      if (value.type.isCollection) {
+        return false;
+      }
     }
 
     return realmCore.mapContainsValue(this, value);
@@ -246,6 +266,8 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 
   RealmObjectMetadata? get metadata => asManaged()._metadata;
 
+  static RealmMap<T> createFromMap<T>(Map<String, T> map) => UnmanagedRealmMap._(map);
+
   static RealmMap<T> create<T extends Object?>(RealmMapHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
       ManagedRealmMap<T>._(handle, realm, metadata);
 
@@ -261,13 +283,12 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
         return;
       }
 
-      if (value is RealmValue) {
-        value = value.value;
+      if (value is RealmValue && value.type.isCollection) {
+        realmCore.mapInsertCollection(handle, realm, key, value);
+        return;
       }
 
-      if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value, update: update);
-      }
+      realm.addUnmanagedRealmObjectFromValue(value, update);
 
       realmCore.mapInsertValue(handle, key, value);
     } on Exception catch (e) {

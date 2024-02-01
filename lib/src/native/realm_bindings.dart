@@ -1014,6 +1014,30 @@ class RealmLibrary {
   late final _realm_app_get_app_id = _realm_app_get_app_idPtr
       .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
 
+  /// Return the current base URL value used by the app. If the realm_app_update_base_url() is called, this
+  /// value will match the base_url value provided to that function when the update is complete. The value
+  /// provided by this function is undefined if the realm_app_update_base_url() operation is in progress,
+  /// since it will likely be the base_url value prior to realm_app_update_base_url() being called.
+  ///
+  /// @param app ptr to realm_app
+  /// @return The current base URL string used by the app
+  ///
+  /// Return value must be manually released with realm_free().
+  ffi.Pointer<ffi.Char> realm_app_get_base_url(
+    ffi.Pointer<realm_app_t> app,
+  ) {
+    return _realm_app_get_base_url(
+      app,
+    );
+  }
+
+  late final _realm_app_get_base_urlPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+              ffi.Pointer<realm_app_t>)>>('realm_app_get_base_url');
+  late final _realm_app_get_base_url = _realm_app_get_base_urlPtr
+      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_app_t>)>();
+
   /// Get a cached realm_app_t* instance given an app id. out_app may be null if the app with this id hasn't been
   /// previously cached by calling realm_app_create_cached.
   ///
@@ -1481,6 +1505,50 @@ class RealmLibrary {
   late final _realm_app_sync_client_wait_for_sessions_to_terminate =
       _realm_app_sync_client_wait_for_sessions_to_terminatePtr
           .asFunction<void Function(ffi.Pointer<realm_app_t>)>();
+
+  /// Update the URL used to communicate with the Realm server. This function will update the location
+  /// information used for http and websocket requests to the server. Once this operation has completed,
+  /// the new base_url value returned by realm_app_get_base_url() will match the base_url value provided
+  /// to this function. Any App requests performed while the base URl update is currently in progress
+  /// will continue to use the original base URL value.
+  ///
+  /// @param app ptr to realm_app
+  /// @param base_url The new base URL value to set as the Realm server URL - a null or empty string will
+  /// use the default base URL value
+  /// @param callback invoked once operation has completed
+  /// @return True if no error has been recorded, False otherwise
+  bool realm_app_update_base_url(
+    ffi.Pointer<realm_app_t> app,
+    ffi.Pointer<ffi.Char> base_url,
+    realm_app_void_completion_func_t callback,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_app_update_base_url(
+      app,
+      base_url,
+      callback,
+      userdata,
+      userdata_free,
+    );
+  }
+
+  late final _realm_app_update_base_urlPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Bool Function(
+              ffi.Pointer<realm_app_t>,
+              ffi.Pointer<ffi.Char>,
+              realm_app_void_completion_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>>('realm_app_update_base_url');
+  late final _realm_app_update_base_url =
+      _realm_app_update_base_urlPtr.asFunction<
+          bool Function(
+              ffi.Pointer<realm_app_t>,
+              ffi.Pointer<ffi.Char>,
+              realm_app_void_completion_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
 
   /// Creates a user API key that can be used to authenticate as the current user.
   /// @return True if no error was recorded. False otherwise
@@ -8608,7 +8676,7 @@ class RealmLibrary {
   late final _realm_set_clear =
       _realm_set_clearPtr.asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
 
-  bool realm_set_dictionary(
+  ffi.Pointer<realm_dictionary_t> realm_set_dictionary(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
@@ -8620,10 +8688,11 @@ class RealmLibrary {
 
   late final _realm_set_dictionaryPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>,
+          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_object_t>,
               realm_property_key_t)>>('realm_set_dictionary');
-  late final _realm_set_dictionary = _realm_set_dictionaryPtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>, int)>();
+  late final _realm_set_dictionary = _realm_set_dictionaryPtr.asFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+          ffi.Pointer<realm_object_t>, int)>();
 
   /// Create an embedded object in a given property.
   ///
@@ -8855,7 +8924,7 @@ class RealmLibrary {
       bool Function(ffi.Pointer<realm_object_t>, int, ffi.Pointer<ffi.Char>)>();
 
   /// Create a collection in a given Mixed property.
-  bool realm_set_list(
+  ffi.Pointer<realm_list_t> realm_set_list(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
@@ -8867,10 +8936,10 @@ class RealmLibrary {
 
   late final _realm_set_listPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>,
+          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>,
               realm_property_key_t)>>('realm_set_list');
-  late final _realm_set_list = _realm_set_listPtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>, int)>();
+  late final _realm_set_list = _realm_set_listPtr.asFunction<
+      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
 
   /// Install the default logger
   void realm_set_log_callback(
@@ -11864,6 +11933,7 @@ abstract class realm_errno {
   static const int RLM_ERR_WRONG_SYNC_TYPE = 1043;
   static const int RLM_ERR_SYNC_WRITE_NOT_ALLOWED = 1044;
   static const int RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH = 1045;
+  static const int RLM_ERR_SYNC_SCHEMA_MIGRATION_ERROR = 1046;
   static const int RLM_ERR_SYSTEM_ERROR = 1999;
   static const int RLM_ERR_LOGIC = 2000;
   static const int RLM_ERR_NOT_SUPPORTED = 2001;
@@ -12714,8 +12784,7 @@ abstract class realm_value_type {
   static const int RLM_TYPE_LINK = 10;
   static const int RLM_TYPE_UUID = 11;
   static const int RLM_TYPE_LIST = 12;
-  static const int RLM_TYPE_SET = 13;
-  static const int RLM_TYPE_DICTIONARY = 14;
+  static const int RLM_TYPE_DICTIONARY = 13;
 }
 
 final class realm_version_id extends ffi.Struct {

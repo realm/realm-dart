@@ -250,7 +250,7 @@ Future<void> main([List<String>? args]) async {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Car("Audi")));
-    expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Unsupported comparison between type"));
+    expect(() => realm.all<Car>().query(r'make == $0', [1]), throws<RealmException>("Cannot compare argument"));
   });
 
   test('Results query with wrong argument types (bool for int) throws ', () {

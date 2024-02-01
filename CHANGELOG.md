@@ -1,5 +1,9 @@
 ## vNext-next (TBD)
 
+### Breaking Changes
+* `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
+* Renamed `RealmValue.uint8List` constructor to `RealmValue.binary`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
+
 ### Enhancements
 * Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)
 * Added `isCleared` to `RealmMapChanges` which will be `true` if the map has been cleared. (Core 14.0.0)
@@ -14,6 +18,39 @@
   realm.query<Owner>('dogs[LAST].age = 5'); // Query all owners whose last dog is 5 years old
   realm.query<Owner>('dogs[SIZE] = 10'); // Query all owners who have 10 dogs
   ```
+* Added support for storing lists and maps inside a `RealmValue` property. (Issue [#1504](https://github.com/realm/realm-dart/issues/1504))
+  ```dart
+  class _Container {
+    late RealmValue anything;
+  }
+
+  realm.write(() {
+    realm.add(Container(anything: RealmValue.from([1, 'foo', 3.14])));
+  });
+
+  final container = realm.all<Container>().first;
+
+  final list = container.anything.asList(); // will throw if cast is invalid
+  for (final item in containerValue) {
+    switch (item.type) {
+      case RealmValueType.int:
+        print('Integer: ${item.value as int}');
+        break;
+      case RealmValueType.string:
+        print('String: ${item.value as String}');
+        break;
+      case RealmValueType.double:
+        print('Double: ${item.value as double}');
+        break;
+    }
+  }
+
+  final subscription = list.changes.listen((event) {
+    // The list changed
+  });
+  ```
+* Added `RealmValueType` enum that contains all the possible types that can be wrapped by a `RealmValue`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
+
 
 ### Fixed
 * If you have more than 8388606 links pointing to one specific object, the program will crash. (Core 14.0.0)
