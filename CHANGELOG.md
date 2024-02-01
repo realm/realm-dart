@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Creating an `AppConfiguration` with an empty appId will now throw an exception rather than crashing the app. (Issue [#1487](https://github.com/realm/realm-dart/issues/1487))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

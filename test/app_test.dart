@@ -393,6 +393,10 @@ void main() {
 
     expect(log, contains('App constructor called on Isolate'));
   });
+
+  test('AppConfiguration(empty-id) throws', () {
+    expect(() => AppConfiguration(''), throwsA(isA<RealmException>()));
+  });
 }
 
 extension PersonExt on Person {
