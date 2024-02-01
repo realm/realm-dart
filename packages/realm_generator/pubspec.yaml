@@ -9,8 +9,6 @@ homepage: https://www.realm.io
 repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
-publish_to: none
-
 environment:
   sdk: ^3.0.0
 
@@ -19,8 +17,7 @@ dependencies:
   build_resolvers: ^2.0.9
   build: ^2.0.0
   dart_style: ^2.2.0
-  realm_common:
-    path: ../realm_common
+  realm_common: ^1.8.0
   source_gen: ^1.1.0
   source_span: ^1.8.0
 
