@@ -502,8 +502,8 @@ class Realm implements Finalizable {
 
   /// The active [SubscriptionSet] for this [Realm]
   SubscriptionSet get subscriptions {
-    if (config is! FlexibleSyncConfiguration) {
-      throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
+    if (config is! FlexibleSyncConfiguration && config is! DisconnectedSyncConfiguration) {
+      throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration or DisconnectedSyncConfiguration');
     }
 
     var result = _subscriptions?.target;

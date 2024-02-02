@@ -25,6 +25,7 @@ import 'package:test/expect.dart' hide throws;
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:realm_dart/src/subscription.dart';
+import 'package:realm_dart/src/configuration.dart';
 import 'test.dart';
 
 void main() {
@@ -755,6 +756,43 @@ void main() {
       () async => await subFuture,
       throwsA(isA<CancelledException>()),
     );
+  });
+
+  baasTest('Realm opened with DisconnectedsyncConfig can update subscriptions', (appConfig) async {
+    final differentiator = ObjectId();
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+    var realm = getRealm(config);
+
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
+    });
+
+    realm.write(() {
+      for (var i = 0; i < 20; i++) {
+        realm.add(NullableTypes(ObjectId(), differentiator, intProp: i));
+      }
+    });
+    await realm.syncSession.waitForUpload();
+
+    realm.close();
+
+    // Open as disconnected
+    final path = config.path;
+    realm = getRealm(Configuration.disconnectedSync([], path: path));
+    expect(realm.subscriptions, hasLength(1));
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<NullableTypes>('intProp > 10'), name: 'from disconnected');
+    });
+    realm.close();
+
+    // Re-open normally
+    realm = getRealm(config);
+    expect(realm.subscriptions, hasLength(2));
+    expect(realm.subscriptions[1].name, 'from disconnected');
+    expect(realm.subscriptions.version, 2);
   });
 }
 

@@ -636,6 +636,12 @@ Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<
   }
 }
 
+void assertOnIsolate(bool condition, String message) {
+  if (!condition) {
+    throw message;
+  }
+}
+
 extension RealmObjectTest on RealmObjectBase {
   String toJson() => realmCore.objectToString(this);
 }
