@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 1.9.0 (2024-02-02)
 
 ### Enhancements
 * Added `User.changes` stream that allows subscribers to receive notifications when the User changes - for example when the user's custom data changes or when their authentication state changes. (PR [#1500](https://github.com/realm/realm-dart/pull/1500))
