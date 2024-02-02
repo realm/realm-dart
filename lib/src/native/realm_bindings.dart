@@ -4019,6 +4019,24 @@ class RealmLibrary {
       _realm_dart_sync_wait_for_completion_callbackPtr.asFunction<
           void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>();
 
+  void realm_dart_user_change_callback(
+    ffi.Pointer<ffi.Void> userdata,
+    int state,
+  ) {
+    return _realm_dart_user_change_callback(
+      userdata,
+      state,
+    );
+  }
+
+  late final _realm_dart_user_change_callbackPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>(
+      'realm_dart_user_change_callback');
+  late final _realm_dart_user_change_callback =
+      _realm_dart_user_change_callbackPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int)>();
+
   void realm_dart_user_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_user_t> user,
@@ -10872,6 +10890,38 @@ class RealmLibrary {
           realm_timestamp_t Function(
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
+  /// @return a notification token object. Dispose it to stop receiving notifications.
+  ffi.Pointer<realm_sync_user_subscription_token_t>
+      realm_sync_user_on_state_change_register_callback(
+    ffi.Pointer<realm_user_t> arg0,
+    realm_sync_on_user_state_changed_t arg1,
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+  ) {
+    return _realm_sync_user_on_state_change_register_callback(
+      arg0,
+      arg1,
+      userdata,
+      userdata_free,
+    );
+  }
+
+  late final _realm_sync_user_on_state_change_register_callbackPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_sync_user_subscription_token_t> Function(
+                  ffi.Pointer<realm_user_t>,
+                  realm_sync_on_user_state_changed_t,
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t)>>(
+      'realm_sync_user_on_state_change_register_callback');
+  late final _realm_sync_user_on_state_change_register_callback =
+      _realm_sync_user_on_state_change_register_callbackPtr.asFunction<
+          ffi.Pointer<realm_sync_user_subscription_token_t> Function(
+              ffi.Pointer<realm_user_t>,
+              realm_sync_on_user_state_changed_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t)>();
+
   /// Update the schema of an open realm.
   ///
   /// This is equivalent to calling `realm_update_schema_advanced(realm, schema, 0,
@@ -11377,6 +11427,11 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>
       get realm_dart_sync_wait_for_completion_callback =>
           _library._realm_dart_sync_wait_for_completion_callbackPtr;
+  ffi.Pointer<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
+      get realm_dart_user_change_callback =>
+          _library._realm_dart_user_change_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<ffi.Void>,
@@ -12488,6 +12543,12 @@ typedef realm_sync_on_subscription_state_changed_tFunction = ffi.Void Function(
     ffi.Pointer<ffi.Void> userdata, ffi.Int32 state);
 typedef Dartrealm_sync_on_subscription_state_changed_tFunction = void Function(
     ffi.Pointer<ffi.Void> userdata, int state);
+typedef realm_sync_on_user_state_changed_t = ffi
+    .Pointer<ffi.NativeFunction<realm_sync_on_user_state_changed_tFunction>>;
+typedef realm_sync_on_user_state_changed_tFunction = ffi.Void Function(
+    ffi.Pointer<ffi.Void> userdata, ffi.Int32 s);
+typedef Dartrealm_sync_on_user_state_changed_tFunction = void Function(
+    ffi.Pointer<ffi.Void> userdata, int s);
 
 abstract class realm_sync_progress_direction {
   static const int RLM_SYNC_PROGRESS_DIRECTION_UPLOAD = 0;
@@ -12634,6 +12695,11 @@ typedef Dartrealm_sync_ssl_verify_func_tFunction = bool Function(
     int pem_size,
     int preverify_ok,
     int depth);
+
+final class realm_sync_user_subscription_token extends ffi.Opaque {}
+
+typedef realm_sync_user_subscription_token_t
+    = realm_sync_user_subscription_token;
 
 /// Callback function invoked by the sync session once it has uploaded or download
 /// all available changesets. See @a realm_sync_session_wait_for_upload and

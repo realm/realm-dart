@@ -16,8 +16,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'dart:async';
 import 'dart:isolate';
-import 'dart:math';
 
 import 'package:test/expect.dart' hide throws;
 
@@ -488,5 +488,27 @@ void main() {
             .having((e) => e.message, 'message', 'invalid API key')
             .having((e) => e.statusCode, 'statusCode', 401)
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
+  });
+
+  baasTest('User.logOut raises changes', (appConfig) async {
+    final app = App(appConfig);
+    final user = await getIntegrationUser(app);
+
+    expect(user.state, UserState.loggedIn);
+
+    final completer = Completer<UserChanges>();
+    final subscription = user.changes.listen((event) {
+      completer.complete(event);
+    });
+
+    await user.logOut();
+
+    expect(user.state, UserState.loggedOut);
+
+    final changeEvent = await completer.future.timeout(Duration(seconds: 15));
+    expect(changeEvent.user, user);
+    expect(changeEvent.user.state, UserState.loggedOut);
+
+    await subscription.cancel();
   });
 }

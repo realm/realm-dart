@@ -1735,6 +1735,12 @@ class _RealmCore {
     }
   }
 
+  static void user_change_callback(Pointer<Void> userdata, int data) {
+    final controller = userdata as UserNotificationsController;
+
+    controller.onUserChanged();
+  }
+
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           results.handle._pointer,
@@ -1781,6 +1787,18 @@ class _RealmCore {
         ));
 
     return RealmNotificationTokenHandle._(pointer, map.realm.handle);
+  }
+
+  UserNotificationTokenHandle subscribeUserNotifications(UserNotificationsController controller) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(user_change_callback);
+    final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
+    final notification_token = _realmLib.realm_sync_user_on_state_change_register_callback(
+      controller.user.handle._pointer,
+      _realmLib.addresses.realm_dart_user_change_callback,
+      userdata.cast(),
+      _realmLib.addresses.realm_dart_userdata_async_free,
+    );
+    return UserNotificationTokenHandle._(notification_token);
   }
 
   bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
@@ -3182,6 +3200,10 @@ class _RealmQueryHandle extends RootedHandleBase<realm_query> {
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
+}
+
+class UserNotificationTokenHandle extends HandleBase<realm_sync_user_subscription_token> {
+  UserNotificationTokenHandle._(Pointer<realm_sync_user_subscription_token> pointer) : super(pointer, 32);
 }
 
 class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {
