@@ -87,6 +87,21 @@ const String lordOfTheFlies = 'Lord of the Flies';
 const String wheelOfTime = 'The Wheel of Time';
 const String silmarillion = 'The Silmarillion';
 
+@RealmModel()
+class _ParentWithFts {
+  @Indexed(RealmIndexType.fullText)
+  late String name;
+  List<_EmbeddedWithFts> embedded = [];
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _EmbeddedWithFts {
+  @Indexed(RealmIndexType.fullText)
+  late String nameSingular;
+  @Indexed(RealmIndexType.fullText)
+  late String namePlural;
+}
+
 void main() {
   setupTests();
 
@@ -239,5 +254,38 @@ void main() {
     final realm = setupFtsTest();
 
     expect(() => realm.query<ObjectWithFTSIndex>('title TEXT \$0', ["lord"]), throws<RealmException>('Column has no fulltext index'));
+  });
+
+  group('FTS with prefix search on embedded objects', () {
+    late Realm realm;
+    setUpAll(() {
+      final config = Configuration.local([ParentWithFts.schema, EmbeddedWithFts.schema]);
+      realm = Realm(config);
+
+      realm.write(() {
+        realm.addAll([
+          ParentWithFts('Object 1', embedded: [
+            EmbeddedWithFts('salt', 'salt'),
+            EmbeddedWithFts('pepper', 'pepper'),
+          ]),
+          ParentWithFts('Object 2', embedded: [
+            EmbeddedWithFts('basil', 'basil'),
+            EmbeddedWithFts('oregano', 'oregano'),
+          ])
+        ]);
+      });
+    });
+
+    for (final searchTerm in [
+      'sal*',
+      'Object 2*',
+      'basil*',
+      'Object*',
+      'doesnotexist*',
+    ]) {
+      test('search term: $searchTerm', () {
+        expect(realm.query<ParentWithFts>(r"name TEXT $0 OR embedded.nameSingular TEXT $0 OR embedded.namePlural TEXT $0", [searchTerm]), isNotNull);
+      });
+    }
   });
 }
