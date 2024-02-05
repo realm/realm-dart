@@ -217,3 +217,99 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
     ]);
   }
 }
+
+class ParentWithFts extends _ParentWithFts
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ParentWithFts(
+    String name, {
+    Iterable<EmbeddedWithFts> embedded = const [],
+  }) {
+    RealmObjectBase.set(this, 'name', name);
+    RealmObjectBase.set<RealmList<EmbeddedWithFts>>(
+        this, 'embedded', RealmList<EmbeddedWithFts>(embedded));
+  }
+
+  ParentWithFts._();
+
+  @override
+  String get name => RealmObjectBase.get<String>(this, 'name') as String;
+  @override
+  set name(String value) => RealmObjectBase.set(this, 'name', value);
+
+  @override
+  RealmList<EmbeddedWithFts> get embedded =>
+      RealmObjectBase.get<EmbeddedWithFts>(this, 'embedded')
+          as RealmList<EmbeddedWithFts>;
+  @override
+  set embedded(covariant RealmList<EmbeddedWithFts> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ParentWithFts>> get changes =>
+      RealmObjectBase.getChanges<ParentWithFts>(this);
+
+  @override
+  ParentWithFts freeze() => RealmObjectBase.freezeObject<ParentWithFts>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(ParentWithFts._);
+    return const SchemaObject(
+        ObjectType.realmObject, ParentWithFts, 'ParentWithFts', [
+      SchemaProperty('name', RealmPropertyType.string,
+          indexType: RealmIndexType.fullText),
+      SchemaProperty('embedded', RealmPropertyType.object,
+          linkTarget: 'EmbeddedWithFts',
+          collectionType: RealmCollectionType.list),
+    ]);
+  }
+}
+
+class EmbeddedWithFts extends _EmbeddedWithFts
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  EmbeddedWithFts(
+    String nameSingular,
+    String namePlural,
+  ) {
+    RealmObjectBase.set(this, 'nameSingular', nameSingular);
+    RealmObjectBase.set(this, 'namePlural', namePlural);
+  }
+
+  EmbeddedWithFts._();
+
+  @override
+  String get nameSingular =>
+      RealmObjectBase.get<String>(this, 'nameSingular') as String;
+  @override
+  set nameSingular(String value) =>
+      RealmObjectBase.set(this, 'nameSingular', value);
+
+  @override
+  String get namePlural =>
+      RealmObjectBase.get<String>(this, 'namePlural') as String;
+  @override
+  set namePlural(String value) =>
+      RealmObjectBase.set(this, 'namePlural', value);
+
+  @override
+  Stream<RealmObjectChanges<EmbeddedWithFts>> get changes =>
+      RealmObjectBase.getChanges<EmbeddedWithFts>(this);
+
+  @override
+  EmbeddedWithFts freeze() =>
+      RealmObjectBase.freezeObject<EmbeddedWithFts>(this);
+
+  static SchemaObject get schema => _schema ??= _initSchema();
+  static SchemaObject? _schema;
+  static SchemaObject _initSchema() {
+    RealmObjectBase.registerFactory(EmbeddedWithFts._);
+    return const SchemaObject(
+        ObjectType.embeddedObject, EmbeddedWithFts, 'EmbeddedWithFts', [
+      SchemaProperty('nameSingular', RealmPropertyType.string,
+          indexType: RealmIndexType.fullText),
+      SchemaProperty('namePlural', RealmPropertyType.string,
+          indexType: RealmIndexType.fullText),
+    ]);
+  }
+}
