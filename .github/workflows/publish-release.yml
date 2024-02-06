@@ -55,52 +55,18 @@ jobs:
         done
       working-directory: packages/realm_dart
 
-    - name: Update realm_* path dependencies (Production)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      if: ${{ github.event.inputs.environment == 'Production' }}
-      with:
-        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
-        replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
-        include: "**pubspec.yaml"
-
-    - name: Update realm_* path dependencies (Staging)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+    - name: Update pubspec.yaml versions (Staging)
       if: ${{ github.event.inputs.environment != 'Production' }}
-      with:
-        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
-        replace: "  realm_$1:\n    path: ../realm_$1"
-        include: "**pubspec.yaml"
-
-    - name: Update pubspec.yaml version (Staging)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      if: ${{ github.event.inputs.environment != 'Production' }}
-      with:
-        find: 'version: .*'
-        replace: 'version: ${{ steps.get-version.outputs.version }}'
-        include: '**pubspec.yaml'
-
-    - name: Remove pubspec.yaml/publish_to:none
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      with:
-        find: "publish_to: none(\\n|\\r\\n)"
-        replace: " "
-        include: "**pubspec.yaml"
-
-    - name: Package realm_common
-      run: |
-        cp -Lr ../package/realm_common .
-        cd realm_common
-        dart pub publish --dry-run || true
-      working-directory: release
-
-    - name: Package realm_generator
-      run: |
-        cp -Lr ../packages/realm_generator .
-        cd realm_generator
-        dart pub publish --dry-run || true
-      working-directory: release
+      # This can be done smarter, if we let melos control the versioning more
+      run: >-
+        dart run melos version
+        -V realm:${{ steps.get-version.outputs.version }}
+        -V realm_common:${{ steps.get-version.outputs.version }}
+        -V realm_dart:${{ steps.get-version.outputs.version }}
+        -V realm_generator:${{ steps.get-version.outputs.version }}
 
     # realm_flutter has symlinks to native binaries which should not be packaged
+    # TODO: This will be removed once we migrate to native-assets
     - name: Cleanup binary symlinks
       run: |
         rm packages/realm/android/src/main/cpp/lib
@@ -111,21 +77,16 @@ jobs:
         rm packages/realm/macos/librealm_dart.dylib
         rm packages/realm/example/binary
 
-    - name: Package realm (flutter)
+    - name: Copy packages to release
       run: |
-        cp -Lr ../packages/realm realm
-        cd realm
-        flutter pub publish --dry-run || true
+        cp -Lr ../packages/realm_common .
+        cp -Lr ../packages/realm_generator .
+        cp -Lr ../packages/realm .
+        cp -Lr ../packages/realm_dart .
       working-directory: release
 
-    - name: Package realm_dart
-      run: |
-        mkdir realm_dart
-        cp -Lr ../package/realm_dart/bin ../package/realm_dart/example ../package/realm_dart/lib ../package/realm_dart/test realm_dart
-        rsync -vt ../* realm_dart/
-        cd realm_dart
-        dart pub publish --dry-run || true
-      working-directory: release
+    - name: Publish dry-run
+      run: dart run melos publish --dry-run || true # there are warnings that we don't want to fail the build for
 
     - name: Extract Changelog
       run: |

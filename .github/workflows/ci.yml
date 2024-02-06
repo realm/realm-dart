@@ -312,6 +312,11 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap
+
       - name: Install dependencies
         run: dart pub get
 
@@ -402,6 +407,11 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap
 
       - name: Install dependencies
         run: dart pub get
