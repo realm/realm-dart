@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:native_assets_cli/native_assets_cli.dart';
 
 void main(List<String> args) async {
@@ -9,16 +11,14 @@ void main(List<String> args) async {
   print(buildConfig.targetOs);
   buildOutput.assets.add(
     Asset(
-      id: 'package:realm_dart/realm_dart.dart',
+      id: 'package:realm_dart/src/native/realm_bindings.dart',
       linkMode: LinkMode.dynamic,
       target: buildConfig.target,
-      path: AssetAbsolutePath(
-        buildConfig.packageRoot.resolve('binary/macos/librealm_dart.dylib'),
-      ),
+      path: AssetAbsolutePath(buildConfig.packageRoot.resolve('binary/macos/librealm_dart.dylib')),
     ),
   );
-
   print(buildOutput);
 
   await buildOutput.writeToFile(outDir: buildConfig.outDir);
+  //exit(1);
 }
