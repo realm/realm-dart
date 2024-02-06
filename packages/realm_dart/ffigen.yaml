@@ -29,15 +29,16 @@ compiler-opts:
   - '-DFFI_GEN'
   - '-I src/realm-core/src'
   - '-I src/dart-dl'
+ffi-native:  
 sort: true
 functions:
   exclude:
     - '_.*' # exclude all starting with _
     - 'Dart_.*' # exclude all starting with Dart_
-  symbol-address:
-    include:
-      - 'realm_dart_.*'
-      - 'realm_release'
+#  symbol-address:
+#    include:
+#      - 'realm_dart_.*'
+#      - 'realm_release'
 structs:
   exclude:
     - '_.*'
