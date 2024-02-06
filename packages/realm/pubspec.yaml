@@ -7,25 +7,10 @@ repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
 environment:
-  sdk: ^3.0.0
-  flutter: ^3.10.0
+  sdk: ^3.3.0
+  flutter: ^3.13.0
 
 dependencies:
   flutter:
     sdk: flutter
   realm_dart: ^1.8.0
-
-flutter:
-  plugin:
-    platforms:
-      android:
-        package: io.realm
-        pluginClass: RealmPlugin
-      ios:
-        pluginClass: RealmPlugin
-      linux:
-        pluginClass: RealmPlugin
-      macos:
-        pluginClass: RealmPlugin
-      windows:
-        pluginClass: RealmPlugin
