@@ -1025,13 +1025,11 @@ void main() {
       final typeQuery = realm.query<AnythingGoes>("oneAny[2].@type == 'dictionary'");
       expect(typeQuery, unorderedMatches([first, third]));
 
-      // TODO: reenable when https://github.com/realm/realm-core/issues/7282 is fixed
-      // final dictionaryInListQuery = realm.query<AnythingGoes>("oneAny[*].foo BEGINSWITH 'ba'");
-      // expect(dictionaryInListQuery, unorderedMatches([first, second]));
+      final dictionaryInListQuery = realm.query<AnythingGoes>("oneAny[*].foo BEGINSWITH 'ba'");
+      expect(dictionaryInListQuery, unorderedMatches([first, second]));
 
-      // TODO: reenable when https://github.com/realm/realm-core/issues/7283 is fixed
-      // final dictionaryKeysQuery = realm.query<AnythingGoes>("ANY oneAny[*].foo.@keys == 'child'");
-      // expect(dictionaryKeysQuery, unorderedMatches([third]));
+      final dictionaryKeysQuery = realm.query<AnythingGoes>("oneAny[*].foo.@keys == 'child'");
+      expect(dictionaryKeysQuery, unorderedMatches([third]));
 
       final noMatchesQuery = realm.query<AnythingGoes>("oneAny[*].bar == 9");
       expect(noMatchesQuery, isEmpty);
