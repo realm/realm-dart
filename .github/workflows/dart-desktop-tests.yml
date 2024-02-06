@@ -55,6 +55,11 @@ jobs:
           sdk: stable
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap --no-flutter
+
       - name: Install dependencies
         run: dart pub get
 

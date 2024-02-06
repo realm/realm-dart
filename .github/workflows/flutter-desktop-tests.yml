@@ -67,6 +67,11 @@ jobs:
       - name: Enable Flutter Desktop support
         run: flutter config --enable-${{ inputs.os }}-desktop
 
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap
+
       - name: Install dependencies
         run: dart pub get
 
