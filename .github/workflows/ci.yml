@@ -511,8 +511,10 @@ jobs:
         if: ${{ matrix.os == 'ubuntu' }}
 
       - name: Run ffigen
-        run: dart run ffigen --config config.yaml
-        working-directory: packages/realm_dart/ffigen
+        run: >-
+          dart pub global activate ffigen &&
+          dart pub global run ffigen --config ffigen.yaml
+        working-directory: packages/realm_dart/
 
       - name: Validate there are no uncommitted changes
         run: |
