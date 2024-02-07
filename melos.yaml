@@ -18,21 +18,23 @@ command:
       flutter: ^3.10.0
     dev_dependencies:
       lints: ^3.0.0
-    hooks:
-      pre: >-
-        git submodule update --init --recursive &&
-        dart pub global activate combine_coverage &&
-        dart pub global activate coverage &&
-        dart pub global activate coverde &&
-        dart pub global activate dependency_validator &&
-        dart pub global activate ffigen &&
-        dart pub global activate melos &&
-        dart pub global activate pana
+
   clean:
     hooks:
       pre: melos exec --flutter -- flutter clean
 
 scripts:
+  setup:
+    run: >-
+      git submodule update --init --recursive &&
+      dart pub global activate combine_coverage &&
+      dart pub global activate coverage &&
+      dart pub global activate coverde &&
+      dart pub global activate dependency_validator &&
+      dart pub global activate ffigen &&
+      dart pub global activate melos &&
+      dart pub global activate pana
+
   build:
     run: >-
       melos run build:native &&
