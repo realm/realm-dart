@@ -31,6 +31,9 @@ jobs:
     env:
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
       BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
+    defaults:
+      run:
+        working-directory: packages/realm/tests  
 
     steps:
 
@@ -53,7 +56,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-${{ inputs.os }}
-          path: binary/${{ inputs.os }}
+          path: packages/realm_dart/binary/${{ inputs.os }}
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -81,7 +84,7 @@ jobs:
             --file-reporter=json:test-results.json \
             --suppress-analytics
         shell: bash
-        working-directory: ./flutter/realm_flutter/tests
+        working-directory: packages/realm/tests
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -91,4 +94,4 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: ./flutter/realm_flutter/tests
+          working-directory: packages/realm/tests

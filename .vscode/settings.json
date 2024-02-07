@@ -12,6 +12,8 @@
     "backlinks",
     "BEGINSWITH",
     "bson",
+    "dartdoc",
+    "dcli",
     "deallocated",
     "deleter",
     "dnum",

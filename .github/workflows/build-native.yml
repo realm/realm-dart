@@ -19,6 +19,9 @@ on:
 jobs:
   build-native:
     runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        working-directory: packages/realm_dart
     name: Build native
     timeout-minutes: 60
     strategy:
@@ -36,8 +39,9 @@ jobs:
         if: ${{ !contains(github.head_ref, 'release/') }}
         uses: actions/cache@v3
         with:
-          path: ./binary/**
-          key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}
+          path: ./packages/realm_dart/binary/**
+          key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}
+
 
       - name: Setup Ninja
         if: contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true'
@@ -61,5 +65,6 @@ jobs:
         uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
         with:
           name: librealm-${{ matrix.build }}
-          path: binary/${{ inputs.binary }}/**
+          path: packages/realm_dart/binary/${{ inputs.binary }}/**
           retention-days: 1
+          if-no-files-found: error
