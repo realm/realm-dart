@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: packages/realm_dart
+        working-directory: realm/packages/realm_dart
     name: Deploy BaaS
     timeout-minutes: 15
     steps:

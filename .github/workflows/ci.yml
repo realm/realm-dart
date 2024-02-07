@@ -290,7 +290,7 @@ jobs:
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
     defaults:
       run:
-        working-directory: packages/realm/tests
+        working-directory: realm/packages/realm/tests
 
     steps:
       - name: Checkout
@@ -305,7 +305,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios
-          path: packages/realm_dart/binary/ios
+          path: realm/packages/realm_dart/binary/ios
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -338,7 +338,7 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: packages/realm/tests
+          working-directory: realm/packages/realm/tests
 
   cleanup-cluster-flutter-ios:
     name: Cleanup Cluster for Flutter iOS
@@ -370,7 +370,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: packages/realm/tests
+        working-directory: realm/packages/realm/tests
 
     steps:
       - name: Checkout
@@ -397,7 +397,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-android
-          path: packages/realm_dart/binary/android
+          path: realm/packages/realm_dart/binary/android
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -440,7 +440,7 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
+          script: cd realm/packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -450,7 +450,7 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: packages/realm/tests
+          working-directory: realm/packages/realm/tests
           
 
   cleanup-cluster-flutter-android:
@@ -473,7 +473,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: packages/realm_generator
+        working-directory: realm/packages/realm_generator
 
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
@@ -491,25 +491,25 @@ jobs:
 
       - name: Delete generated files in realm_dart
         run: find . -name "*.realm.dart"
-        working-directory: packages/realm_dart
+        working-directory: realm/packages/realm_dart
 
       - name: Run generator in realm_dart
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-        working-directory: packages/realm_dart
+        working-directory: realm/packages/realm_dart
 
       - name: Run generator in realm_dart/example
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-        working-directory: packages/realm_dart/example
+        working-directory: realm/packages/realm_dart/example
 
       - name: Run generator in realm/example
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-        working-directory: packages/realm/example
+        working-directory: realm/packages/realm/example
 
       - name: Install LLVM
         run: sudo apt update && sudo apt-get install -y libclang-dev
@@ -519,7 +519,7 @@ jobs:
         run: >-
           dart pub global activate ffigen &&
           dart pub global run ffigen --config ffigen.yaml
-        working-directory: packages/realm_dart/
+        working-directory: realm/packages/realm_dart/
 
       - name: Validate there are no uncommitted changes
         run: |
@@ -552,7 +552,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: generator
-          path-to-lcov: packages/realm_generator/coverage/lcov.info
+          path-to-lcov: realm/packages/realm_generator/coverage/lcov.info
           parallel: true
 
       - name: Output Coveralls response

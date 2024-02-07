@@ -40,7 +40,7 @@ jobs:
       with:
         workflow: ci.yml
         commit: ${{ github.sha }}
-        path: ${{ github.workspace }}/packages/realm_dart/binary/
+        path: ${{ github.workspace }}/realm/packages/realm_dart/binary/
         workflow_conclusion: completed
 
     # The rename is necessary because action-download-artifact will put things in a folder named the same
@@ -53,7 +53,7 @@ jobs:
           targetFile="release/${directory#*-}.tar.gz"
           dart run realm_dart archive --source-dir "$directory" --output-file "${{ github.workspace }}/$targetFile"
         done
-      working-directory: packages/realm_dart
+      working-directory: realm/packages/realm_dart
 
     - name: Update realm_* path dependencies (Production)
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
@@ -95,7 +95,7 @@ jobs:
 
     - name: Package realm_generator
       run: |
-        cp -Lr ../packages/realm_generator .
+        cp -Lr ../realm/packages/realm_generator .
         cd realm_generator
         dart pub publish --dry-run || true
       working-directory: release
@@ -103,17 +103,17 @@ jobs:
     # realm_flutter has symlinks to native binaries which should not be packaged
     - name: Cleanup binary symlinks
       run: |
-        rm packages/realm/android/src/main/cpp/lib
-        rm packages/realm/ios/src
-        rm packages/realm/ios/realm_dart.xcframework
-        rm packages/realm/linux/binary
-        rm packages/realm/windows/binary
-        rm packages/realm/macos/librealm_dart.dylib
-        rm packages/realm/example/binary
+        rm realm/packages/realm/android/src/main/cpp/lib
+        rm realm/packages/realm/ios/src
+        rm realm/packages/realm/ios/realm_dart.xcframework
+        rm realm/packages/realm/linux/binary
+        rm realm/packages/realm/windows/binary
+        rm realm/packages/realm/macos/librealm_dart.dylib
+        rm realm/packages/realm/example/binary
 
     - name: Package realm (flutter)
       run: |
-        cp -Lr ../packages/realm realm
+        cp -Lr ../realm/packages/realm realm
         cd realm
         flutter pub publish --dry-run || true
       working-directory: release
@@ -165,7 +165,7 @@ jobs:
     if: ${{ github.event.inputs.environment == 'Production' }}
     environment:
       name: 'Production'
-      url: https://pub.dev/packages/realm/versions/${{ needs.prepare-packages.outputs.version }}
+      url: https://pub.dev/realm/packages/realm/versions/${{ needs.prepare-packages.outputs.version }}
     name: Publish release
     needs:
     - prepare-packages
