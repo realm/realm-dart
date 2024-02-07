@@ -47,10 +47,6 @@ Pod::Spec.new do |s|
                                   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
                                   'HEADER_SEARCH_PATHS' => [
                                     '"$(PODS_TARGET_SRCROOT)/Classes"',
-                                    '"$(PODS_TARGET_SRCROOT)/src"',
-                                    '"$(PODS_TARGET_SRCROOT)/src/ios"',
-                                    '"$(PODS_TARGET_SRCROOT)/src/dart-include"',
-                                    '"$(PODS_TARGET_SRCROOT)/src/realm-core/src"',
                                   ],
                                   'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
                                 }
