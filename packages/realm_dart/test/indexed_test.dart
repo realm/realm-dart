@@ -16,21 +16,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:ejson_annotation/ejson_annotation.dart';
-import 'package:ejson/ejson.dart';
-
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-
+import 'package:ejson/ejson.dart';
 import 'package:test/test.dart' hide test, throws;
-import 'test.dart';
 
 import 'package:realm_dart/realm.dart';
 
-part 'indexed_test.realm.dart';
 part 'indexed_test.g.dart';
+part 'indexed_test.realm.dart';
 
 // Don't import our own test.dart here. It will break AOT compilation.
 // We may use AOT compilation locally to manually run the performance

@@ -20,6 +20,7 @@
 
 import 'dart:async';
 import 'dart:isolate';
+
 import 'package:logging/logging.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/src/realm_class.dart' show RealmInternal;

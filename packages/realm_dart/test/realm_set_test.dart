@@ -16,16 +16,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:ejson/ejson.dart';
-
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
-part 'realm_set_test.realm.dart';
 part 'realm_set_test.g.dart';
+part 'realm_set_test.realm.dart';
 
 class _NullableBool {}
 

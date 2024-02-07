@@ -15,7 +15,8 @@
 // limitations under the License.
 //
 ////////////////////////////////////////////////////////////////////////////////
-library;
 
-export 'package:ejson_annotation/ejson_annotation.dart';
-export 'package:ejson_core/ejson_core.dart';
+export 'src/configuration.dart';
+export 'src/decoding.dart';
+export 'src/encoding.dart';
+export 'src/types.dart';

@@ -35,7 +35,7 @@ scripts:
     run: >-
       melos run qa &&
       melos run pana &&
-      melos publish --dry-run
+      melos publish --dry-run --yes
 
   format:
     description: Format Dart code.

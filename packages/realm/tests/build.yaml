@@ -3,3 +3,5 @@ targets:
     builders:
       realm_generator:
         enabled: true
+      ejson_generator:
+        enabled: true  
