@@ -30,6 +30,9 @@ jobs:
     runs-on: ${{ inputs.runner }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: packages/realm_dart
 
     steps:
       - name: Checkout
@@ -44,7 +47,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-${{ inputs.os }}
-          path: binary/${{ inputs.os }}
+          path: packages/realm_dart/binary/${{ inputs.os }}
 
       - name : Setup Dart SDK
         uses: dart-lang/setup-dart@main
@@ -70,6 +73,7 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
+          working-directory: packages/realm_dart
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
@@ -92,7 +96,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: ./coverage/pruned-lcov.info
+          path-to-lcov: packages/realm_dart/coverage/pruned-lcov.info
           parallel: true
 
       - name: Output Coveralls response

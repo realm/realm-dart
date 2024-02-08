@@ -288,6 +288,9 @@ jobs:
     env:
       BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+    defaults:
+      run:
+        working-directory: packages/realm/tests
 
     steps:
       - name: Checkout
@@ -302,7 +305,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-ios
-          path: binary/ios
+          path: packages/realm_dart/binary/ios
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -326,7 +329,6 @@ jobs:
             --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
             --file-reporter=json:test-results.json \
             --suppress-analytics
-        working-directory: ./flutter/realm_flutter/tests
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -336,7 +338,7 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: ./flutter/realm_flutter/tests
+          working-directory: packages/realm/tests
 
   cleanup-cluster-flutter-ios:
     name: Cleanup Cluster for Flutter iOS
@@ -365,6 +367,9 @@ jobs:
     env:
       BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
+    defaults:
+      run:
+        working-directory: packages/realm/tests  
 
     steps:
       - name: Checkout
@@ -391,7 +396,7 @@ jobs:
         uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
         with:
           name: librealm-android
-          path: binary/android
+          path: packages/realm_dart/binary/android
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -434,8 +439,7 @@ jobs:
           ndk: 21.0.6113669
           arch: x86
           cmake: 3.10.2.4988404
-          script: flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
-          working-directory: ./flutter/realm_flutter/tests
+          script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
@@ -445,7 +449,8 @@ jobs:
           path: test-results.json
           reporter: dart-json
           only-summary: true
-          working-directory: ./flutter/realm_flutter/tests
+          working-directory: packages/realm/tests
+          
 
   cleanup-cluster-flutter-android:
     name: Cleanup Cluster for Flutter Android
@@ -480,33 +485,36 @@ jobs:
           channel: 'stable'
 
       - name: Delete generated files
-        run: find . -name "*.g.dart" -not -path "./generator/*" -delete
+        run: find . -name "*.g.dart" -delete
         shell: bash
 
-      - name: Run generator in realm-dart repo
+      - name: Run generator in realm_dart
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
+        working-directory: packages/realm_dart
 
-      - name: Run generator in realm-dart/example
+      - name: Run generator in realm_dart/example
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-        working-directory: ./example/
+        working-directory: packages/realm_dart/example
 
-      - name: Run generator in realm_flutter/example
+      - name: Run generator in realm/example
         run: |
           dart pub get
           dart run build_runner build --delete-conflicting-outputs
-        working-directory: ./flutter/realm_flutter/example/
+        working-directory: packages/realm/example
 
       - name: Install LLVM
         run: sudo apt update && sudo apt-get install -y libclang-dev
         if: ${{ matrix.os == 'ubuntu' }}
 
       - name: Run ffigen
-        run: dart run ffigen --config config.yaml
-        working-directory: ./ffigen
+        run: >-
+          dart pub global activate ffigen &&
+          dart pub global run ffigen --config ffigen.yaml
+        working-directory: packages/realm_dart/
 
       - name: Validate there are no uncommitted changes
         run: |
@@ -521,7 +529,7 @@ jobs:
         run: |
           dart pub get
           dart test -r expanded --coverage ./coverage/ --test-randomize-ordering-seed random
-        working-directory: ./generator/
+        working-directory: packages/realm_generator
 
       - name: Generate generator coverage report
         if: matrix.os == 'ubuntu'
@@ -533,7 +541,7 @@ jobs:
             --lcov \
             --packages .dart_tool/package_config.json \
             --report-on lib
-        working-directory: ./generator/
+        working-directory: packages/realm_generator
 
       - name: Publish Generator Coverage
         if: matrix.os == 'ubuntu'
@@ -542,7 +550,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: generator
-          path-to-lcov: ./generator/coverage/lcov.info
+          path-to-lcov: packages/realm_generator/coverage/lcov.info
           parallel: true
 
       - name: Output Coveralls response
