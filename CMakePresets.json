@@ -8,7 +8,7 @@
   "configurePresets": [
     {
       "name": "default",
-      "binaryDir": "${sourceDir}/build-native/${presetName}",
+      "binaryDir": "${sourceDir}/packages/realm_dart/build-native/${presetName}",
       "generator": "Ninja Multi-Config",
       "cacheVariables": {
         "CMAKE_CONFIGURATION_TYPES": "Debug;Release;RelWithDebInfo;MinSizeRel"
@@ -40,9 +40,9 @@
       "displayName": "macOS",
       "inherits": "default",
       "generator": "Xcode",
-      "toolchainFile": "${sourceDir}/src/realm-core/tools/cmake/xcode.toolchain.cmake",
+      "toolchainFile": "${sourceDir}/packages/realm_dart/src/realm-core/tools/cmake/xcode.toolchain.cmake",
       "cacheVariables": {
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/scripts/cmake-build-xcode.sh",
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/packages/realm_dart/scripts/cmake-build-xcode.sh",
         "CMAKE_SYSTEM_NAME": "Darwin",
         "CMAKE_OSX_ARCHITECTURES": "x86_64;arm64",
         "CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH": "YES"
@@ -63,10 +63,10 @@
         "rhs": "Darwin"
       },
       "generator": "Xcode",
-      "toolchainFile": "${sourceDir}/src/realm-core/tools/cmake/xcode.toolchain.cmake",
+      "toolchainFile": "${sourceDir}/packages/realm_dart/src/realm-core/tools/cmake/xcode.toolchain.cmake",
       "cacheVariables": {
-        "CMAKE_MAKE_PROGRAM": "${sourceDir}/scripts/cmake-build-xcode.sh",
-        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/binary/ios/$<CONFIG>$(EFFECTIVE_PLATFORM_NAME)",
+        "CMAKE_MAKE_PROGRAM": "${sourceDir}/packages/realm_dart/scripts/cmake-build-xcode.sh",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/packages/realm_dart/binary/ios/$<CONFIG>$(EFFECTIVE_PLATFORM_NAME)",
         "CMAKE_XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH": "YES"
       }
     },
