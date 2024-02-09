@@ -34,7 +34,7 @@ jobs:
       - name: Check cache
         id: check-cache
         if: ${{ !contains(github.head_ref, 'release/') }}
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./binary/**
           key: binaries-${{ matrix.build }}-{{ inputs.runner }}-${{hashFiles('./src/**')}}
@@ -50,7 +50,7 @@ jobs:
       - name: Downgrade XCode for MacOS
         if: ${{ matrix.build == 'macos' }}
         run: sudo xcode-select -s /Applications/Xcode_14.0.1.app
-         
+
       - name: Build
         if: ${{ contains(github.head_ref, 'release/') || steps.check-cache.outputs.cache-hit != 'true' }}
         run: |
