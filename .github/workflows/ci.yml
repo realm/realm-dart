@@ -139,7 +139,7 @@ jobs:
     secrets: inherit
     with:
       os: macos
-      runner: macos-arm
+      runner: macos-14
       architecture: arm
       differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
@@ -369,7 +369,7 @@ jobs:
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
     defaults:
       run:
-        working-directory: packages/realm/tests  
+        working-directory: packages/realm/tests
 
     steps:
       - name: Checkout
@@ -408,23 +408,23 @@ jobs:
 
       # TODO: Move CI run tests on Android Emulator into device farm https://github.com/realm/realm-dart/issues/691
       - name: Setup Android Emulator cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: avd-cache
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-29
+          key: avd-29_x64
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          arch: x86
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          api-level: 29
+          arch: x86_64
           ndk: 21.0.6113669
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
@@ -436,8 +436,8 @@ jobs:
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           api-level: 29
+          arch: x86_64
           ndk: 21.0.6113669
-          arch: x86
           cmake: 3.10.2.4988404
           script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
@@ -450,7 +450,7 @@ jobs:
           reporter: dart-json
           only-summary: true
           working-directory: packages/realm/tests
-          
+
 
   cleanup-cluster-flutter-android:
     name: Cleanup Cluster for Flutter Android
