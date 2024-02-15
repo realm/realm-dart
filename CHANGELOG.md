@@ -3,6 +3,20 @@
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
 * Renamed `RealmValue.uint8List` constructor to `RealmValue.binary`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
+* Removed the following deprecated classes and members:
+  * `AppConfiguration.localAppName` - was unused and had no effect
+  * `AppConfiguration.localAppVersion` - was unused and had no effect
+  * `ClientResetError.isFatal` - it was always `true`
+  * `ClientResetError.sessionErrorCode`
+  * `SyncError.codeValue` - can be accessed through `SyncError.code.code`
+  * `SyncError.category` - categories were deprecated in `1.6.0`
+  * `SyncError.detailedMessage` - was always empty
+  * `SyncError` constructor and `SyncError.create` factory - sync errors are created internally by the SDK and are not supposed to be constructed by users
+  * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncResolveError`, `SyncWebSocketError`, `GeneralSyncError` - consolidated into `SyncError` as part of the error simplification in `1.6.0`
+  * `RealmProperty.indexed` - replaced by `RealmProperty.indexType`
+  * `SyncErrorCategory`, `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncResolveErrorCode`, `SyncWebsocketErrorCode`, `GeneralSyncErrorCode` - consolidated into `SyncErrorCode` as part of the error simplification in `1.6.0`
+  * `User.provider` - the provider is associated with each identity, so the value was incorrect for users who had more than one identity
+
 
 ### Enhancements
 * Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)

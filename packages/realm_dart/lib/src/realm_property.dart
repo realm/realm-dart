@@ -34,10 +34,6 @@ class SchemaProperty {
   /// `true` if the property is a primary key
   final bool primaryKey;
 
-  /// `true` if the property is indexed
-  @Deprecated("Use indexType instead")
-  bool get indexed => indexType == RealmIndexType.regular;
-
   /// Returns the index type for this property
   final RealmIndexType? indexType;
 
