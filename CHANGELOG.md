@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Use realm_flutter as module_name in .podspec (Issue [#1195](https://github.com/realm/realm-dart/issues/1195)).
 
 ### Fixed
 * None

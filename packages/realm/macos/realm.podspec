@@ -36,6 +36,7 @@ puts "bundleId is #{bundleId}"
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
+  s.module_name               = 'realm_flutter'
   s.version                   = '1.9.0'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
