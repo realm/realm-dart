@@ -135,12 +135,12 @@ scripts:
   lint:format:
     run: dart format --fix --line-length 160 --output none --set-exit-if-changed .
     exec:
-      concurrency: 1 # only one project at a time to keep output sane$
+      concurrency: 1 # only one project at a time to keep output sane
 
   lint:pana:
     run: dart pub global run pana --no-warning --exit-code-threshold 40 .
     exec:
-      concurrency: 1 # only one project at a time to keep output sane$
+      concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       published: true
 
