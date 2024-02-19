@@ -19,3 +19,6 @@ test-results.json
 
 # dos
 **/doc/api/
+
+# custom lint
+**/custom_lint.log
