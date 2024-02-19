@@ -17,15 +17,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // ignore_for_file: avoid_print
-import 'package:ejson_annotation/ejson_annotation.dart';
-import 'package:ejson/ejson.dart';
 
 import 'dart:io';
+
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 
-part 'main.realm.dart';
 part 'main.g.dart';
+part 'main.realm.dart';
 
 @RealmModel()
 class _Car {
