@@ -70,6 +70,15 @@ jobs:
       - name: Run tests
         run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random --file-reporter="json:test-results.json" || true
 
+      # TODO: Run all test via melos
+      - name: Run ejson QA
+        run: >-
+          dart pub global activate melos &&
+          melos setup &&
+          melos bootstrap --no-flutter &&
+          melos exec --scope='ejson*' --depends-on=test -- dart test --concurrency=1 --coverage=coverage/ &&
+          melos exec --scope='ejson*' --depends-on=test -- dart pub global run coverage:format_coverage --in=coverage/test/ --out=coverage/lcov.info --lcov
+
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.7.0
         if: success() || failure()
@@ -79,15 +88,6 @@ jobs:
           reporter: dart-json
           only-summary: true
           working-directory: packages/realm_dart
-
-      - name: Run ejson QA
-        run: >-
-          dart pub global activate melos &&
-          melos setup &&
-          melos bootstrap --no-flutter &&
-          melos exec --scope=ejson* --depends-on=test --
-          melos exec --scope='ejson*' --depends-on=test -- dart test --concurrency=1 --coverage=coverage/ &&
-          melos exec --scope='ejson*' --depends-on=test -- dart pub global run coverage:format_coverage --in=coverage/test/ --out=coverage/lcov.info --lcov
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report
