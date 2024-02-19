@@ -506,13 +506,12 @@ jobs:
       - name: Setup Melos
         run: |
           dart pub global activate melos
-          dart pub global run melos bootstrap --no-flutter
+          dart pub global run melos bootstrap
 
       - name: Delete generated files in realm_dart
         run: |
           find . -name "*.g.dart" -delete
           find . -name "*.realm.dart" -delete
-
         working-directory: packages/realm_dart
 
       - name: Run generator in realm_dart
