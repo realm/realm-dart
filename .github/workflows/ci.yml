@@ -406,6 +406,11 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
+      # Hack to free up space on the runner to ensure we have enough diskspace to run the emulator
+      - name: Remove unnecessary files (dotnet, etc.) 
+        run: |
+          sudo rm -rf /usr/share/dotnet
+
       # TODO: Move CI run tests on Android Emulator into device farm https://github.com/realm/realm-dart/issues/691
       - name: Setup Android Emulator cache
         uses: actions/cache@v4
