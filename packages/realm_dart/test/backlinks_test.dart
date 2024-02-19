@@ -16,11 +16,14 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+import 'package:ejson/ejson.dart';
+import 'package:ejson_annotation/ejson_annotation.dart';
+import 'package:realm_dart/realm.dart';
 import 'package:test/test.dart' hide test, throws;
 
-import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+part 'backlinks_test.g.dart';
 part 'backlinks_test.realm.dart';
 
 @RealmModel()

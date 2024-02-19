@@ -10,7 +10,9 @@ EJsonValue encodeSource(Source value) {
   return {
     'name': value.name.toEJson(),
     'oneTarget': value.oneTarget.toEJson(),
-    'manyTargets': value.manyTargets.toEJson()
+    'dynamicTarget': value.dynamicTarget.toEJson(),
+    'manyTargets': value.manyTargets.toEJson(),
+    'dynamicManyTargets': value.dynamicManyTargets.toEJson()
   };
 }
 
@@ -19,12 +21,16 @@ Source decodeSource(EJsonValue ejson) {
     {
       'name': EJsonValue name,
       'oneTarget': EJsonValue oneTarget,
-      'manyTargets': EJsonValue manyTargets
+      'dynamicTarget': EJsonValue dynamicTarget,
+      'manyTargets': EJsonValue manyTargets,
+      'dynamicManyTargets': EJsonValue dynamicManyTargets
     } =>
       Source(
           name: name.to<String>(),
           oneTarget: oneTarget.to<Target?>(),
-          manyTargets: manyTargets.to<Iterable<Target>>()),
+          dynamicTarget: dynamicTarget.to<Target?>(),
+          manyTargets: manyTargets.to<Iterable<Target>>(),
+          dynamicManyTargets: dynamicManyTargets.to<Iterable<Target>>()),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -35,12 +41,13 @@ extension SourceEJsonEncoderExtension on Source {
 }
 
 EJsonValue encodeTarget(Target value) {
-  return {'name': value.name.toEJson()};
+  return {'name': value.name.toEJson(), 'source': value.source.toEJson()};
 }
 
 Target decodeTarget(EJsonValue ejson) {
   return switch (ejson) {
-    {'name': EJsonValue name} => Target(name: name.to<String>()),
+    {'name': EJsonValue name, 'source': EJsonValue source} =>
+      Target(name: name.to<String>(), source: source.to<Source?>()),
     _ => raiseInvalidEJson(ejson),
   };
 }
