@@ -5,7 +5,7 @@ version: 0.1.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_analyzer
 
 environment:
-  sdk: ^3.0.2
+  sdk: ^3.0.0
 
 dependencies:
   analyzer: ^6.0.0
