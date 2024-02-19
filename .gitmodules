@@ -2,3 +2,7 @@
 	path = packages/realm_dart/src/realm-core
 	url = https://github.com/realm/realm-core.git
 	branch = master
+[submodule "tools/flutter/master"]
+	path = tool/flutter/master
+	url = https://github.com/flutter/flutter.git
+	branch = master
