@@ -1,3 +1,7 @@
-# https://dart.dev/guides/libraries/private-files
-# Created by `dart pub`
-.dart_tool/
+# Don't commit platform specific files for examples
+# Use flutter create . --platforms=<platforms> to generate them
+android/
+ios/
+linux/
+macos/
+windows/
