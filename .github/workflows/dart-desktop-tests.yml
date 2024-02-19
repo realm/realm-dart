@@ -81,11 +81,13 @@ jobs:
           working-directory: packages/realm_dart
 
       - name: Run ejson QA
-        run: |
-          dart pub global activate melos
-          melos bootstrap
-          melos qa
-        working-directory: ejson
+        run: >-
+          dart pub global activate melos &&
+          melos setup &&
+          melos bootstrap --no-flutter &&
+          melos exec --scope=ejson* --depends-on=test --
+          melos exec --scope='ejson*' --depends-on=test -- dart test --concurrency=1 --coverage=coverage/ &&
+          melos exec --scope='ejson*' --depends-on=test -- dart pub global run coverage:format_coverage --in=coverage/test/ --out=coverage/lcov.info --lcov
 
       # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
       - name: Generate realm_dart coverage report

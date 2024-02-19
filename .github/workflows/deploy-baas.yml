@@ -25,11 +25,16 @@ jobs:
         with:
           submodules: false
 
-      - name : Setup Dart SDK
+      - name: Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
           architecture: 'x64'
+
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap --no-flutter
 
       - name: Install dependencies
         run: dart pub get
