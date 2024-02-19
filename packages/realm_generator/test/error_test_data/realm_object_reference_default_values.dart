@@ -1,6 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:realm_common/realm_common.dart';
+
+part 'realm_object_reference_default_values.realm.dart';
 
 @RealmModel()
 class _Person {
@@ -8,5 +8,4 @@ class _Person {
   late _Person? parent = Person();
 }
 
-// dummy
-class Person extends _Person {}
+class Person extends _Person {} // mock class for testing

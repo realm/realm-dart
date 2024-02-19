@@ -1735,7 +1735,7 @@ class _RealmCore {
     }
   }
 
-  static void user_change_callback(Pointer<Void> userdata, int data) {
+  static void user_change_callback(Object userdata, int data) {
     final controller = userdata as UserNotificationsController;
 
     controller.onUserChanged();

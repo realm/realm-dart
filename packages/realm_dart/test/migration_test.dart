@@ -26,7 +26,7 @@ import 'package:realm_dart/src/results.dart';
 import 'package:realm_dart/src/realm_object.dart';
 import 'package:realm_dart/src/list.dart';
 
-part 'migration_test.g.dart';
+part 'migration_test.realm.dart';
 
 @RealmModel()
 @MapTo("Person")
