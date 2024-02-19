@@ -419,7 +419,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-29_x64
+          key: avd-33-x86_64
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
@@ -428,9 +428,9 @@ jobs:
           force-avd-creation: false
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          api-level: 29
+          api-level: 31
           arch: x86_64
-          ndk: 21.0.6113669
+          ndk: 25.2.9519653
           cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
 
@@ -440,9 +440,9 @@ jobs:
           force-avd-creation: false
           disable-animations: true
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          api-level: 29
+          api-level: 31
           arch: x86_64
-          ndk: 21.0.6113669
+          ndk: 25.2.9519653
           cmake: 3.10.2.4988404
           script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
