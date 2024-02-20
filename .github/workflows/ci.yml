@@ -294,7 +294,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -378,7 +378,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -495,7 +495,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -556,7 +556,6 @@ jobs:
       - dart-tests-linux
     runs-on: ubuntu-latest
     steps:
-
       - name: Coveralls Finished
         id: publish-coverage
         uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
