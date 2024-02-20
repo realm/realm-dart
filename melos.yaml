@@ -26,7 +26,6 @@ command:
 scripts:
   setup:
     run: >-
-      git submodule update --init --recursive &&
       dart pub global activate combine_coverage &&
       dart pub global activate coverage &&
       dart pub global activate coverde &&
