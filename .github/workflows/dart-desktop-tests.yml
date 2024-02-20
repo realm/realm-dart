@@ -77,6 +77,8 @@ jobs:
         if: inputs.runner == 'ubuntu-latest'
         run: |
           dart pub global run combine_coverage --repo-path=$(pwd)
+          sudo apt-get install lcov
+          lcov --remove ./coverage/lcov.info '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
 
       - name: Publish coverage
         if: inputs.runner == 'ubuntu-latest'
@@ -85,7 +87,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: ./coverage/lcov.info
+          path-to-lcov: ./coverage/pruned-lcov.info
           parallel: true
 
       - name: Output Coveralls response
