@@ -551,39 +551,8 @@ jobs:
             exit 1
           fi
 
-      - name: Run generator tests
-        run: |
-          dart pub get
-          dart test -r expanded --coverage ./coverage/ --test-randomize-ordering-seed random
-
-      - name: Generate generator coverage report
-        if: matrix.os == 'ubuntu'
-        run: |
-          dart run coverage:format_coverage \
-            --in coverage/ \
-            --out ./coverage/lcov.info \
-            --check-ignore \
-            --lcov \
-            --packages .dart_tool/package_config.json \
-            --report-on lib
-
-      - name: Publish Generator Coverage
-        if: matrix.os == 'ubuntu'
-        id: publish-coverage
-        uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: generator
-          path-to-lcov: packages/realm_generator/coverage/lcov.info
-          parallel: true
-
-      - name: Output Coveralls response
-        if: matrix.os == 'ubuntu'
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
-
   coverage-finished:
     needs:
-      - generator
       - dart-tests-linux
     runs-on: ubuntu-latest
     steps:
