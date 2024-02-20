@@ -53,7 +53,7 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@v4
         with:
           name: librealm-${{ inputs.os }}
           path: packages/realm_dart/binary/${{ inputs.os }}
