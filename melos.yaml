@@ -43,8 +43,8 @@ scripts:
       
   build:native: # TODO: mac specific and too simple
     exec: >-
-      cmake --preset $PLATFORM &&
-      cmake --build --preset $PLATFORM --config MinSizeRel -- -destination "generic/platform=macOS"
+      cmake --preset $CMAKE_PLATFORM &&
+      cmake --build --preset $CMAKE_PLATFORM --config $CMAKE_CONFIG -- -destination "generic/platform=macOS"
     packageFilters:
       dirExists: src # by convention
 
@@ -70,7 +70,10 @@ scripts:
 
   test:unit:
     run: >-
-      dart test --concurrency=1 --coverage=coverage/ &&
+      dart test
+      --concurrency=1
+      --coverage=coverage/
+      --file-reporter=json:test-results.json &&
       dart pub global run coverage:format_coverage
       --in=coverage/test/
       --out=coverage/lcov.info
@@ -179,4 +182,4 @@ scripts:
       melos run test &&
       melos run lint &&
       melos run analyze &&
-      melos run coverage
+      melos run coverage:check
