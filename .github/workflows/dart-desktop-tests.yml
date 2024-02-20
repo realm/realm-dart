@@ -76,10 +76,7 @@ jobs:
       - name: Gather coverage report
         if: inputs.runner == 'ubuntu-latest'
         run: |
-          sudo apt-get install -y lcov
-          mkdir coverage
-          touch coverage/merged_lcov.info
-          find . -name lcov.info | xargs -I % lcov --ignore-errors empty -a % -a coverage/merged_lcov.info -o coverage/merged_lcov.info
+          dart pub global run combine_coverage --repo-path=$(pwd)
 
       - name: Publish coverage
         if: inputs.runner == 'ubuntu-latest'
@@ -88,7 +85,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: ./coverage/merged-lcov.info
+          path-to-lcov: ./coverage/lcov.info
           parallel: true
 
       - name: Output Coveralls response
