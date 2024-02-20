@@ -89,7 +89,3 @@ jobs:
           flag-name: realm_dart
           path-to-lcov: ./coverage/pruned-lcov.info
           parallel: true
-
-      - name: Output Coveralls response
-        if: inputs.runner == 'ubuntu-latest'
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
