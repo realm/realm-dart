@@ -302,7 +302,7 @@ jobs:
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@v4
         with:
           name: librealm-ios
           path: packages/realm_dart/binary/ios
@@ -398,7 +398,7 @@ jobs:
           java-version: 11
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@v4
         with:
           name: librealm-android
           path: packages/realm_dart/binary/android
