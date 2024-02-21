@@ -11,7 +11,7 @@ dependencies:
   ejson_annotation: ^0.1.0
 
 dev_dependencies:
-  custom_lint: ^0.5.7
+  custom_lint: ^0.6.2
   ejson_lint: ^0.1.0
   lints: ^3.0.0
 
