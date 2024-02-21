@@ -321,7 +321,7 @@ jobs:
         run: dart pub get
 
       - name: Launch Simulator
-        uses: futureware-tech/simulator-action@v2
+        uses: futureware-tech/simulator-action@v3
         with:
           model: 'iPhone 8'
           os: 'iOS'
