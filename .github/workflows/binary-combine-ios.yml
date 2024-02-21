@@ -43,9 +43,10 @@ jobs:
           retention-days: 1
 
       - name: Delete individual framework artifacts
-        uses: geekyeggo/delete-artifact@54ab544f12cdb7b71613a16a2b5a37a9ade990af
+        uses: geekyeggo/delete-artifact@v4
         with:
           name: |
             librealm-ios-device
             librealm-ios-simulator
             librealm-ios-catalyst
+          failOnError: false
