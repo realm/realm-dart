@@ -563,9 +563,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
 
-      - name: Output Coveralls response
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
-
   slack-on-failure:
     name: Report failure in main branch
     needs:
