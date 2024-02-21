@@ -64,7 +64,7 @@ jobs:
 
       # TODO: Publish all reports
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Dart ${{ inputs.os }} ${{ inputs.architecture }}
