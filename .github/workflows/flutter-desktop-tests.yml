@@ -42,15 +42,11 @@ jobs:
         with:
           submodules: false
 
-      - name: Setup GTK
+      - name: Setup GTK & Ninja on Linux
         if: ${{ inputs.os == 'linux' }}
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y libgtk-3-dev xvfb
-
-      - name: Setup Ninja
-        if: ${{ inputs.os == 'linux' }}
-        uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
+          sudo apt-get install -y libgtk-3-dev xvfb ninja-build
 
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
