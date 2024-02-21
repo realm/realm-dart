@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   analyzer: ^6.0.0
-  custom_lint_builder: ^0.5.7
+  custom_lint_builder: ^0.6.2
   ejson_analyzer: ^0.1.0
 
 dev_dependencies:
