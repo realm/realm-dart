@@ -2,8 +2,10 @@
 include: package:lints/recommended.yaml
 
 analyzer:
-  language:
-    strict-raw-types: true
+  language: 
+    strict-casts: true # see https://github.com/dart-lang/language/blob/main/resources/type-system/strict-casts.md
+    strict-inference: true  # see https://github.com/dart-lang/language/blob/main/resources/type-system/strict-inference.md
+    strict-raw-types: true # see https://github.com/dart-lang/language/blob/main/resources/type-system/strict-raw-types.md
 
   strong-mode:
     implicit-casts: false
