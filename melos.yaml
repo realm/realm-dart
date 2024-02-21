@@ -126,7 +126,11 @@ scripts:
 
   format:
     description: Format code.
-    run: dart format --fix --line-length 160 . 
+    run: dart format --fix --line-length 160 .
+
+  upgrade:
+    description: Upgrade all dependencies.
+    exec: dart pub upgrade --major-versions
 
   lint:
     description: Run all lints.
