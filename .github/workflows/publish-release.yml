@@ -65,7 +65,7 @@ jobs:
       # This can be done smarter, if we let melos control the versioning more.
       # For now we simply give all packages the same version.
       run: >-
-        dart run melos version --no-changelog --no-git-commit-version --yes
+        melos version --no-changelog --no-git-commit-version --yes
         -V ejson:${{ steps.get-version.outputs.version }}
         -V ejson_analyzer:${{ steps.get-version.outputs.version }}
         -V ejson_annotation:${{ steps.get-version.outputs.version }}
@@ -158,16 +158,16 @@ jobs:
       with:
         channel: 'stable'
 
+    - name: Setup Melos
+      run: |
+        dart pub global activate melos
+        dart pub global run melos bootstrap
+
     - name: Publish packages to pub.dev
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-
-        dart pub publish --directory realm_common --force
-        dart pub publish --directory realm_generator --force
-        dart pub publish --directory realm_dart --force
-        dart pub publish --directory realm --force
-      working-directory: release
+        melos publish --no-dry-run --yes
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
@@ -185,7 +185,6 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
       with:
-        artifacts: release/*.tar.gz
         bodyFile: release/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
         commit: main
@@ -193,7 +192,7 @@ jobs:
         token: ${{ secrets.REALM_CI_PAT }}
         draft: false
 
-    - name: 'Post to #realm-releases'
+    - name: 'Post to #appx-releases'
       uses: realm/ci-actions/release-to-slack@338bf3e7575015a28faec8b67614385d122aece7
       continue-on-error: true
       with:
