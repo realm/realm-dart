@@ -62,9 +62,15 @@ jobs:
 
     - name: Update pubspec.yaml versions (Staging)
       if: ${{ github.event.inputs.environment != 'Production' }}
-      # This can be done smarter, if we let melos control the versioning more
+      # This can be done smarter, if we let melos control the versioning more.
+      # For now we simply give all packages the same version.
       run: >-
-        dart run melos version
+        dart run melos version --no-changelog --no-git-commit-version --yes
+        -V ejson:${{ steps.get-version.outputs.version }}
+        -V ejson_analyzer:${{ steps.get-version.outputs.version }}
+        -V ejson_annotation:${{ steps.get-version.outputs.version }}
+        -V ejson_generator:${{ steps.get-version.outputs.version }}
+        -V ejson_lint:${{ steps.get-version.outputs.version }}
         -V realm:${{ steps.get-version.outputs.version }}
         -V realm_common:${{ steps.get-version.outputs.version }}
         -V realm_dart:${{ steps.get-version.outputs.version }}
