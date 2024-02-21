@@ -336,7 +336,7 @@ jobs:
             --suppress-analytics
 
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Flutter iOS
@@ -457,7 +457,7 @@ jobs:
           script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Flutter Android

@@ -92,7 +92,7 @@ jobs:
         working-directory: packages/realm/tests
 
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Flutter ${{ inputs.os }} ${{ inputs.architecture }}
