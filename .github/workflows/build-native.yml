@@ -41,10 +41,11 @@ jobs:
           path: ./packages/realm_dart/binary/**
           key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}
 
-
       - name: Setup Ninja
         if: steps.check-cache.outputs.cache-hit != 'true'
-        uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build
 
       - name: Setup Android NDK
         if: startsWith(matrix.build, 'android-')
