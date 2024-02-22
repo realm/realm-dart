@@ -200,7 +200,7 @@ class BaasClient {
   }
 
   static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper, {String? differentiator}) async {
-    var result = (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull();
+    var result = (await helper.callEndpoint('listContainers', isPost: false) as List<Map<String, dynamic>>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull();
     if (differentiator != null) {
       final userId = await helper.getUserId();
       result = result.where((c) => c.creatorId == userId && c.tags['DIFFERENTIATOR'] == differentiator);
@@ -282,7 +282,7 @@ class BaasClient {
     try {
       final response = await _get('groups/$_groupId/apps/$appId/sync/progress');
 
-      Map<String, dynamic> progressInfo = response['progress'];
+      final progressInfo = response['progress'] as Map<String, dynamic>;
       for (final key in progressInfo.keys) {
         final namespaceComplete = progressInfo[key]['complete'] as bool;
 
@@ -736,7 +736,7 @@ class _ContainerInfo {
     }
 
     final id = json['id'] as String;
-    final lastStatus = json['lastStatus'];
+    final lastStatus = json['lastStatus'] as String;
     final tags = {for (var v in json['tags'] as List<dynamic>) v['key'] as String: v['value'] as String};
     final creatorId = json['creatorId'] as String;
 

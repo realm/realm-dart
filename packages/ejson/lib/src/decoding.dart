@@ -74,9 +74,9 @@ T fromEJson<T>(EJsonValue ejson) {
   }
   final args = nullable ? [type.nonNull] : type.args;
   if (args.isEmpty) {
-    return decoder(ejson); // minor optimization
+    return decoder(ejson) as T; // minor optimization
   }
-  return decoder.callWith(typeArguments: args, parameters: [ejson]);
+  return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
 }
 
 // Important to return `T` as opposed to [Never] for type inference to work

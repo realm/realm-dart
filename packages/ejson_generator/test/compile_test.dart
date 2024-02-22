@@ -31,7 +31,7 @@ void testCompile(String description, dynamic source, dynamic matcher,
       final writer = InMemoryAssetWriter();
       await testBuilder(
         getEJsonGenerator(),
-        {'pkg|source.dart': source},
+        {'pkg|source.dart': source as Object},
         writer: writer,
         reader: await PackageAssetReader.currentIsolate(),
       );
