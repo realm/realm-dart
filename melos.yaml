@@ -72,7 +72,8 @@ scripts:
       dart test
       --concurrency=1
       --coverage=coverage/
-      --file-reporter=json:test-results.json &&
+      --file-reporter=json:test-results.json
+      --reporter=github &&
       dart pub global run coverage:format_coverage
       --report-on=lib/
       --in=coverage/test/
@@ -86,7 +87,7 @@ scripts:
       flutter: false
 
   test:widget:
-    run: flutter test --concurrency=1 --coverage
+    run: flutter test --concurrency=1 --coverage --reporter=github
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
@@ -110,6 +111,7 @@ scripts:
       --dart-define=BAAS_DIFFERENTIATOR='$BAAS_DIFFERENTIATOR'
       --device-id='$DEVICE_ID'
       --file-reporter=json:test-results.json
+      --reporter=github
       --suppress-analytics
     exec:
       concurrency: 1 # only one project at a time to keep output sane
@@ -128,7 +130,7 @@ scripts:
     description: Format code.
     # while we wait for https://github.com/dart-lang/dart_style/issues/864
     run: >-
-      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 
+      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
       | xargs dart format --fix --line-length 160
     exec: 
       concurrency: 1 # only one project at a time to keep output sane
@@ -147,7 +149,7 @@ scripts:
   lint:format:
     # while we wait for https://github.com/dart-lang/dart_style/issues/864
     run: >-
-      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 
+      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
       | xargs dart format --fix --line-length 160 --output none --set-exit-if-changed
     exec: 
       concurrency: 1 # only one project at a time to keep output sane
@@ -174,24 +176,35 @@ scripts:
   coverage:
     description: Generate, check and render coverage.
     run: >-
-      melos run test && 
-      melos run coverage:check &&
-      melos run coverage:report
+      melos run coverage:groom &&
+      melos run coverage:report &&
+      melos run coverage:check
 
   coverage:check:
     run: dart pub global run coverde check 90
     exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
       fileExists: coverage/lcov.info # by convention
+
+  coverage:groom:
+    run: |
+      rm -rf $MELOS_ROOT_PATH/coverage
+      dart pub global run combine_coverage --repo-path=$MELOS_ROOT_PATH
+      lcov --remove coverage/lcov.info '*/lib/src/cli/*' -o coverage/lcov.info
+      lcov --remove coverage/lcov.info '*/realm_bindings.dart' -o coverage/lcov.info
 
   coverage:report:
     run: dart pub global run coverde report
 
+  # TODO: This is actually stricter than on CI, but we should aim for this
   ci:
     run: >-
       melos clean &&
       melos bootstrap &&
       melos run build &&
       melos run test &&
-      melos run lint &&
+      melos run coverage &&
       melos run analyze &&
-      melos run coverage:check
+      melos run lint
+  
