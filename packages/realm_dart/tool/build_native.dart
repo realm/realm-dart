@@ -80,8 +80,8 @@ void main(List<String> arguments) {
   final argResults = parser.parse(arguments);
 
   final hostOS = OS.from(io.Platform.operatingSystem);
-  final targetOs = OS.from(argResults['target']);
-  final buildMode = BuildMode.from(argResults['mode']);
+  final targetOs = OS.from(argResults['target'] as String);
+  final buildMode = BuildMode.from(argResults['mode'] as String);
 
   print(io.Platform.operatingSystem);
 }
