@@ -22,9 +22,9 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help:  "This option is required")
+  @CliOption(help: "This option is required")
   final String? sourceDir;
-  @CliOption(help:  "This option is required")
+  @CliOption(help: "This option is required")
   final String? outputFile;
 
   Options({this.sourceDir, this.outputFile});

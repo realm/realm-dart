@@ -127,8 +127,7 @@ void main() {
       'i': {'\$numberLong': 42}
     });
     _testCase(Named.nameIt('foobar'), {'namedCtor': 'foobar'});
-    _testCase(const RequiredNamedParameters(requiredNamed: 'foobar'),
-        {'requiredNamed': 'foobar'});
+    _testCase(const RequiredNamedParameters(requiredNamed: 'foobar'), {'requiredNamed': 'foobar'});
     _testCase(OptionalNamedParameters(), {'optionalNamed': 'rabbit'});
     _testCase(OptionalParameters(), {'optional': 'racoon'});
     _testCase(const PrivateMembers(42), {

@@ -4,5 +4,4 @@ import 'package:source_gen/source_gen.dart';
 
 TypeChecker get typeChecker => TypeChecker.fromRuntime(EJson);
 
-bool isEJsonAnnotated(Element element) =>
-    typeChecker.hasAnnotationOfExact(element);
+bool isEJsonAnnotated(Element element) => typeChecker.hasAnnotationOfExact(element);

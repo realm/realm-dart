@@ -21,11 +21,10 @@ import 'package:source_span/source_span.dart';
 class ExpandedContextSpan with SourceSpanMixin implements FileSpan {
   final FileSpan _span, _contextSpan;
 
-  ExpandedContextSpan(this._span, Iterable<FileSpan> contextSpans) :
-    _contextSpan = contextSpans.fold<FileSpan>(_span, (acc, c) => acc.expand(c));
+  ExpandedContextSpan(this._span, Iterable<FileSpan> contextSpans) : _contextSpan = contextSpans.fold<FileSpan>(_span, (acc, c) => acc.expand(c));
 
   @override
-  String get context =>  _contextSpan.context;
+  String get context => _contextSpan.context;
 
   @override
   FileLocation get end => _span.end;
@@ -46,5 +45,5 @@ class ExpandedContextSpan with SourceSpanMixin implements FileSpan {
   FileLocation get start => _span.start;
 
   @override
-  String get text => _span.text;  
+  String get text => _span.text;
 }

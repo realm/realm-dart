@@ -9,8 +9,7 @@ class MismatchedGetterType extends DartLintRule {
       : super(
           code: const LintCode(
             name: 'mismatched_getter_type',
-            problemMessage:
-                'Type of getter does not match type of constructor parameter',
+            problemMessage: 'Type of getter does not match type of constructor parameter',
             errorSeverity: ErrorSeverity.ERROR,
           ),
         );

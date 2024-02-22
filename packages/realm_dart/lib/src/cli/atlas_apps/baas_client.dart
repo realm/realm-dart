@@ -200,7 +200,8 @@ class BaasClient {
   }
 
   static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper, {String? differentiator}) async {
-    var result = (await helper.callEndpoint('listContainers', isPost: false) as List<Map<String, dynamic>>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull();
+    var result =
+        (await helper.callEndpoint('listContainers', isPost: false) as List<Map<String, dynamic>>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull();
     if (differentiator != null) {
       final userId = await helper.getUserId();
       result = result.where((c) => c.creatorId == userId && c.tags['DIFFERENTIATOR'] == differentiator);

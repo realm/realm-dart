@@ -73,8 +73,7 @@ final class Defined<T> extends UndefinedOr<T> {
   int get hashCode => value.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is Defined<T> && value == other.value;
+  bool operator ==(Object other) => identical(this, other) || other is Defined<T> && value == other.value;
 
   @override
   String toString() => 'Defined<$T>($value)';

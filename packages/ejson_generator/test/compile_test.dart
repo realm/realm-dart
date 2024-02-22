@@ -11,16 +11,14 @@ final _formatter = DartFormatter(lineEnding: '\n');
 final _tag = RegExp(r'// \*.*\n// EJsonGenerator\n// \*.*');
 
 @isTest
-void testCompile(String description, dynamic source, dynamic matcher,
-    {dynamic skip}) {
+void testCompile(String description, dynamic source, dynamic matcher, {dynamic skip}) {
   source = source is File ? source.readAsStringSync() : source;
   if (source is! String) throw ArgumentError.value(source, 'source');
 
   matcher = matcher is File ? matcher.readAsStringSync() : matcher;
   if (matcher is String) {
     final source = _formatter.format(matcher);
-    matcher = completion(
-        equals(source.substring(_tag.firstMatch(source)?.start ?? 0)));
+    matcher = completion(equals(source.substring(_tag.firstMatch(source)?.start ?? 0)));
   }
   matcher ??= completes; // fallback
 
@@ -35,8 +33,7 @@ void testCompile(String description, dynamic source, dynamic matcher,
         writer: writer,
         reader: await PackageAssetReader.currentIsolate(),
       );
-      return _formatter
-          .format(String.fromCharCodes(writer.assets.entries.single.value));
+      return _formatter.format(String.fromCharCodes(writer.assets.entries.single.value));
     }
 
     expect(generate(), matcher);
@@ -167,11 +164,8 @@ extension EmptyEJsonEncoderExtension on Empty {
     );
   });
 
-  await for (final generatedFile in Directory.current
-      .list(recursive: true)
-      .where((f) => f is File && f.path.endsWith('.g.dart'))) {
-    final sourceFile =
-        File(generatedFile.path.replaceFirst('.g.dart', '.dart'));
+  await for (final generatedFile in Directory.current.list(recursive: true).where((f) => f is File && f.path.endsWith('.g.dart'))) {
+    final sourceFile = File(generatedFile.path.replaceFirst('.g.dart', '.dart'));
     testCompile('$sourceFile', sourceFile, generatedFile);
   }
 }
