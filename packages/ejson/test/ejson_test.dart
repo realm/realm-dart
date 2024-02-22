@@ -151,14 +151,10 @@ void main() {
         _testCase(const Defined<int?>(null), null);
         _testCase(Defined<int?>(42), {'\$numberLong': 42}, 42);
         _testCase(Defined<int?>(null), null);
-        _testCase(ObjectId.fromValues(1, 2, 3),
-            {'\$oid': '000000000000000002000003'});
+        _testCase(ObjectId.fromValues(1, 2, 3), {'\$oid': '000000000000000002000003'});
         final uuid = Uuid.v4();
         _testCase(uuid, {
-          '\$binary': {
-            'base64': base64.encode(uuid.bytes.asUint8List()),
-            'subType': '04'
-          }
+          '\$binary': {'base64': base64.encode(uuid.bytes.asUint8List()), 'subType': '04'}
         });
         // a complex nested generic type
         _testCase<Map<String, Map<String, List<num?>?>>>(

@@ -27,8 +27,7 @@ import 'package:source_gen/source_gen.dart';
 
 extension on EJsonError {
   String get message => switch (this) {
-        EJsonError.tooManyAnnotatedConstructors =>
-          'Too many annotated constructors',
+        EJsonError.tooManyAnnotatedConstructors => 'Too many annotated constructors',
         EJsonError.missingGetter => 'Missing getter',
         EJsonError.mismatchedGetterType => 'Mismatched getter type',
       };
@@ -50,10 +49,7 @@ class EJsonGenerator extends Generator {
   @override
   FutureOr<String> generate(LibraryReader library, BuildStep buildStep) async {
     // find all classes with annotated constructors or classes directly annotated
-    final annotated = library.classes
-        .map((cls) =>
-            (cls, cls.constructors.where((ctor) => isEJsonAnnotated(ctor))))
-        .where((element) {
+    final annotated = library.classes.map((cls) => (cls, cls.constructors.where((ctor) => isEJsonAnnotated(ctor)))).where((element) {
       final (cls, ctors) = element;
       return ctors.isNotEmpty || isEJsonAnnotated(cls);
     });
@@ -77,8 +73,7 @@ class EJsonGenerator extends Generator {
         if (getter == null) {
           EJsonError.missingGetter.raise();
         }
-        if (!TypeChecker.fromStatic(p.type)
-            .isAssignableFromType(getter.returnType)) {
+        if (!TypeChecker.fromStatic(p.type).isAssignableFromType(getter.returnType)) {
           EJsonError.mismatchedGetterType.raise();
         }
       }

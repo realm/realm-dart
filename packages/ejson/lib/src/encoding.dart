@@ -57,8 +57,7 @@ EJsonValue _encodeAny(Object? value) {
   };
 }
 
-EJsonValue _encodeArray(Iterable items) =>
-    items.map((e) => toEJson(e)).toList();
+EJsonValue _encodeArray(Iterable items) => items.map((e) => toEJson(e)).toList();
 
 EJsonValue _encodeBool(bool value) => value;
 
@@ -81,8 +80,7 @@ EJsonValue _encodeDate(DateTime value) {
 
 EJsonValue _encodeDefined(Defined defined) => toEJson(defined.value);
 
-EJsonValue _encodeDocument(Map map) =>
-    map.map((k, v) => MapEntry(k, toEJson(v)));
+EJsonValue _encodeDocument(Map map) => map.map((k, v) => MapEntry(k, toEJson(v)));
 
 EJsonValue _encodeDouble(double value) {
   if (value.isNaN) {
@@ -117,10 +115,7 @@ EJsonValue _encodeUndefined(Undefined undefined) => {'\$undefined': 1};
 EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes, "04");
 
 EJsonValue _encodeBinary(ByteBuffer buffer, String subtype) => {
-      '\$binary': {
-        'base64': base64.encode(buffer.asUint8List()),
-        'subType': subtype
-      },
+      '\$binary': {'base64': base64.encode(buffer.asUint8List()), 'subType': subtype},
     };
 
 EJsonValue _encodeObjectId(ObjectId objectId) => {'\$oid': objectId.hexString};

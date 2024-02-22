@@ -19,16 +19,10 @@ class Person {
 
   @override
   operator ==(other) =>
-      identical(this, other) ||
-      (other is Person &&
-          other.name == name &&
-          other.birthDate == birthDate &&
-          other.income == income &&
-          other.spouse == spouse);
+      identical(this, other) || (other is Person && other.name == name && other.birthDate == birthDate && other.income == income && other.spouse == spouse);
 
   @override
-  String toString() =>
-      'Person{name: $name, birthDate: $birthDate, income: $income, spouse: $spouse}';
+  String toString() => 'Person{name: $name, birthDate: $birthDate, income: $income, spouse: $spouse}';
 
   @override
   int get hashCode => Object.hashAll([name, birthDate, income, spouse]);

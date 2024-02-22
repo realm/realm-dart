@@ -23,15 +23,27 @@ extension TuckedInEJsonEncoderExtension on TuckedIn {
 }
 
 EJsonValue encodeAnythingGoes(AnythingGoes value) {
-  return {'oneAny': value.oneAny.toEJson(), 'manyAny': value.manyAny.toEJson()};
+  return {
+    'oneAny': value.oneAny.toEJson(),
+    'manyAny': value.manyAny.toEJson(),
+    'setOfAny': value.setOfAny.toEJson(),
+    'dictOfAny': value.dictOfAny.toEJson()
+  };
 }
 
 AnythingGoes decodeAnythingGoes(EJsonValue ejson) {
   return switch (ejson) {
-    {'oneAny': EJsonValue oneAny, 'manyAny': EJsonValue manyAny} =>
+    {
+      'oneAny': EJsonValue oneAny,
+      'manyAny': EJsonValue manyAny,
+      'setOfAny': EJsonValue setOfAny,
+      'dictOfAny': EJsonValue dictOfAny
+    } =>
       AnythingGoes(
           oneAny: oneAny.to<RealmValue>(),
-          manyAny: manyAny.to<Iterable<RealmValue>>()),
+          manyAny: manyAny.to<Iterable<RealmValue>>(),
+          setOfAny: setOfAny.to<Set<RealmValue>>(),
+          dictOfAny: dictOfAny.to<Map<String, RealmValue>>()),
     _ => raiseInvalidEJson(ejson),
   };
 }

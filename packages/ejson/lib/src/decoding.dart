@@ -101,8 +101,7 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$oid': _} => _decodeObjectId(ejson),
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
     List _ => _decodeArray(ejson),
-    Map _ => _tryDecodeCustom(ejson) ??
-        _decodeDocument(ejson), // other maps goes last!!
+    Map _ => _tryDecodeCustom(ejson) ?? _decodeDocument(ejson), // other maps goes last!!
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -135,8 +134,7 @@ bool _decodeBool(EJsonValue ejson) {
 DateTime _decodeDate(EJsonValue ejson) {
   return switch (ejson) {
     {'\$date': String s} => DateTime.parse(s), // relaxed mode
-    {'\$date': {'\$numberLong': int i}} =>
-      DateTime.fromMillisecondsSinceEpoch(i),
+    {'\$date': {'\$numberLong': int i}} => DateTime.fromMillisecondsSinceEpoch(i),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -172,7 +170,7 @@ int _decodeInt(EJsonValue ejson) {
     int i => i, // relaxed mode
     {'\$numberInt': int i} => i,
     {'\$numberLong': int i} => i,
-    _ => raiseInvalidEJson(ejson)
+    _ => raiseInvalidEJson(ejson),
   };
 }
 
@@ -244,13 +242,11 @@ UndefinedOr<T> _decodeUndefinedOr<T>(EJsonValue ejson) {
   };
 }
 
-Uuid _decodeUuid(EJsonValue ejson) =>
-    Uuid.fromBytes(_decodeBinary(ejson, "04"));
+Uuid _decodeUuid(EJsonValue ejson) => Uuid.fromBytes(_decodeBinary(ejson, "04"));
 
 ByteBuffer _decodeBinary(EJsonValue ejson, String subType) {
   return switch (ejson) {
-    {'\$binary': {'base64': String s, 'subType': String t}} when t == subType =>
-      base64.decode(s).buffer,
+    {'\$binary': {'base64': String s, 'subType': String t}} when t == subType => base64.decode(s).buffer,
     _ => raiseInvalidEJson(ejson),
   };
 }
