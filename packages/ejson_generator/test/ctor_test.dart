@@ -96,7 +96,7 @@ void _testCase<T>(T value, EJsonValue expected) {
   EJsonValue badInput = {'bad': 'input'};
   badInput = value is Map ? [badInput] : badInput; // wrap in list for maps
   test('decode $badInput to $T fails', () {
-    expect(() => fromEJson<T>(badInput), throwsA(isA<InvalidEJson<T>>()));
+    expect(() => fromEJson<T>(badInput), throwsA(isA<InvalidEJson>()));
   });
 
   test('roundtrip $expected as $T', () {
@@ -105,7 +105,7 @@ void _testCase<T>(T value, EJsonValue expected) {
 
   test('roundtrip $expected of type $T as dynamic', () {
     // no <T> here, so dynamic
-    final decoded = fromEJson(expected);
+    final decoded = fromEJson<dynamic>(expected);
     expect(decoded, isA<T>());
     expect(toEJson(decoded), expected);
   });
