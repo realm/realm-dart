@@ -7,8 +7,12 @@ analyzer:
     strict-inference: true  # see https://github.com/dart-lang/language/blob/main/resources/type-system/strict-inference.md
     strict-raw-types: true # see https://github.com/dart-lang/language/blob/main/resources/type-system/strict-raw-types.md
 
+  plugins:
+    - custom_lint
+
   exclude:
     - lib/**/*.g.dart
+    - lib/**/*.realm.dart
     - lib/**/realm_bindings.dart
 
 linter:
