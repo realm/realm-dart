@@ -126,7 +126,12 @@ scripts:
 
   format:
     description: Format code.
-    run: dart format --fix --line-length 160 .
+    # while we wait for https://github.com/dart-lang/dart_style/issues/864
+    run: >-
+      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 
+      | xargs dart format --fix --line-length 160
+    exec: 
+      concurrency: 1 # only one project at a time to keep output sane
 
   upgrade:
     description: Upgrade all dependencies.
@@ -140,8 +145,11 @@ scripts:
       melos publish --dry-run
 
   lint:format:
-    run: dart format --fix --line-length 160 --output none --set-exit-if-changed .
-    exec:
+    # while we wait for https://github.com/dart-lang/dart_style/issues/864
+    run: >-
+      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 
+      | xargs dart format --fix --line-length 160 --output none --set-exit-if-changed
+    exec: 
       concurrency: 1 # only one project at a time to keep output sane
 
   lint:pana:
