@@ -54,10 +54,10 @@ var customDecoders = <Type, Function>{};
 // if registerSerializableTypes not called
 final decoders = () {
   // register extra common types on first access
-  undefinedOr<T>(f) => f<UndefinedOr<T>>();
+  undefinedOr<T>(dynamic f) => f<UndefinedOr<T>>();
   TypePlus.addFactory(undefinedOr);
-  TypePlus.addFactory(<T>(f) => f<Defined<T>>(), superTypes: [undefinedOr]);
-  TypePlus.addFactory(<T>(f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
+  TypePlus.addFactory(<T>(dynamic f) => f<Defined<T>>(), superTypes: [undefinedOr]);
+  TypePlus.addFactory(<T>(dynamic f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
   TypePlus.add<Key>();
   TypePlus.add<ObjectId>();
   TypePlus.add<Uuid>();
@@ -80,7 +80,7 @@ T fromEJson<T>(EJsonValue ejson) {
 }
 
 // Important to return `T` as opposed to [Never] for type inference to work
-T raiseInvalidEJson<T>(Object? value) => throw InvalidEJson<T>(value);
+T raiseInvalidEJson<T>(Object? value) => throw InvalidEJson(value, T);
 
 dynamic _decodeAny(EJsonValue ejson) {
   return switch (ejson) {
@@ -97,19 +97,19 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$numberLong': _} => _decodeInt(ejson),
     {'\$regex': _} => _decodeString(ejson),
     {'\$symbol': _} => _decodeSymbol(ejson),
-    {'\$undefined': _} => _decodeUndefined(ejson),
+    {'\$undefined': _} => _decodeUndefined<dynamic>(ejson),
     {'\$oid': _} => _decodeObjectId(ejson),
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
-    List _ => _decodeArray(ejson),
-    Map _ => _tryDecodeCustom(ejson) ?? _decodeDocument(ejson), // other maps goes last!!
-    _ => raiseInvalidEJson(ejson),
+    List<dynamic> _ => _decodeArray<dynamic>(ejson),
+    Map<dynamic, dynamic> _ => _tryDecodeCustom(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
+    _ => raiseInvalidEJson<dynamic>(ejson),
   };
 }
 
-dynamic _tryDecodeCustom(json) {
+dynamic _tryDecodeCustom(EJsonValue ejson) {
   for (final decoder in customDecoders.values) {
     try {
-      return decoder(json);
+      return decoder(ejson);
     } catch (_) {
       // ignore
     }
@@ -119,7 +119,7 @@ dynamic _tryDecodeCustom(json) {
 
 List<T> _decodeArray<T>(EJsonValue ejson) {
   return switch (ejson) {
-    Iterable i => i.map((ejson) => fromEJson<T>(ejson)).toList(),
+    Iterable<dynamic> i => i.map((ejson) => fromEJson<T>(ejson)).toList(),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -140,13 +140,13 @@ DateTime _decodeDate(EJsonValue ejson) {
 }
 
 Defined<T> _decodeDefined<T>(EJsonValue ejson) {
-  if (ejson case {'\$undefined': 1}) raiseInvalidEJson(ejson);
+  if (ejson case {'\$undefined': 1}) return raiseInvalidEJson(ejson);
   return Defined<T>(fromEJson<T>(ejson));
 }
 
 Map<K, V> _decodeDocument<K, V>(EJsonValue ejson) {
   return switch (ejson) {
-    Map m => m.map((key, value) => MapEntry(key as K, fromEJson<V>(value))),
+    Map<dynamic, dynamic> m => m.map((key, value) => MapEntry(key as K, fromEJson<V>(value))),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -242,7 +242,13 @@ UndefinedOr<T> _decodeUndefinedOr<T>(EJsonValue ejson) {
   };
 }
 
-Uuid _decodeUuid(EJsonValue ejson) => Uuid.fromBytes(_decodeBinary(ejson, "04"));
+Uuid _decodeUuid(EJsonValue ejson) {
+  try {
+    return Uuid.fromBytes(_decodeBinary(ejson, "04"));
+  } on InvalidEJson {
+    return raiseInvalidEJson(ejson); // get the type right
+  }
+}
 
 ByteBuffer _decodeBinary(EJsonValue ejson, String subType) {
   return switch (ejson) {
@@ -251,13 +257,14 @@ ByteBuffer _decodeBinary(EJsonValue ejson, String subType) {
   };
 }
 
-class InvalidEJson<T> implements Exception {
+class InvalidEJson implements Exception {
   final Object? value;
+  final Type type;
 
-  InvalidEJson(this.value);
+  InvalidEJson(this.value, this.type);
 
   @override
-  String toString() => 'Invalid EJson for $T: $value';
+  String toString() => 'Invalid EJson for $type: $value';
 }
 
 class MissingDecoder implements Exception {

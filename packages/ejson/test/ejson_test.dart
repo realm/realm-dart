@@ -84,7 +84,38 @@ void _testCase<T>(
   }
 }
 
+class Dummy {}
+
+void _invalidTestCase<T>([EJsonValue ejson = const {}]) {
+  test('decode $T from invalid ejson: $ejson', () {
+    expect(() => fromEJson<T>(ejson), throwsA(isA<InvalidEJson>().having((e) => e.toString(), 'toString', 'Invalid EJson for $T: $ejson')));
+  });
+}
+
 void main() {
+  group('invalid', () {
+    _invalidTestCase<bool>();
+    _invalidTestCase<DateTime>();
+    _invalidTestCase<double>({'\$numberDouble': 'foobar'});
+    _invalidTestCase<double>();
+    _invalidTestCase<int>();
+    _invalidTestCase<Key>();
+    _invalidTestCase<List<int>>();
+    _invalidTestCase<Map<int, int>>([]);
+    _invalidTestCase<Null>();
+    _invalidTestCase<num>();
+    _invalidTestCase<ObjectId>();
+    _invalidTestCase<Person>();
+    _invalidTestCase<String>();
+    _invalidTestCase<Symbol>();
+    _invalidTestCase<Undefined<int>>();
+    _invalidTestCase<Uuid>();
+
+    test('missing decoder', () {
+      expect(() => fromEJson<Dummy>({}), throwsA(isA<MissingDecoder>().having((e) => e.toString(), 'toString', 'Missing decoder for Dummy')));
+    });
+  });
+
   for (final useRelaxed in [false, true]) {
     group(useRelaxed ? 'relaxed' : 'canonical', () {
       relaxed = useRelaxed;
