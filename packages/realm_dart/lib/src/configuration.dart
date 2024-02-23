@@ -601,37 +601,12 @@ enum ClientResyncModeInternal {
 class ClientResetError extends SyncError {
   final App? _app;
 
-  /// If true the received error is fatal.
-  @Deprecated("This will be removed in the future.")
-  final bool isFatal = true;
-
   /// The path to the original copy of the realm when the client reset was triggered.
   /// This realm may contain unsynced changes.
   final String? originalFilePath;
 
   /// The path where the backup copy of the realm will be placed once the client reset process is complete.
   final String? backupFilePath;
-
-  /// The [SyncSessionErrorCode] value indicating the type of the sync error.
-  /// This property will be [SyncSessionErrorCode.unknown] if `onManualResetFallback` occurs on client reset.
-  @Deprecated("This will be removed in the future.")
-  SyncSessionErrorCode get sessionErrorCode => SyncSessionErrorCode.unknown;
-
-  @Deprecated("ClientResetError constructor is deprecated and will be removed in the future")
-  ClientResetError(
-    String message,
-    this._app, {
-    SyncErrorCategory category = SyncErrorCategory.client,
-    int? errorCodeValue,
-    this.backupFilePath,
-    this.originalFilePath,
-    String? detailedMessage,
-  }) : super(
-          message,
-          category,
-          errorCodeValue ?? SyncClientErrorCode.autoClientResetFailure.code,
-          detailedMessage: detailedMessage,
-        );
 
   ClientResetError._(
     String message,
@@ -672,31 +647,6 @@ class SyncError extends RealmError {
   final SyncErrorCode code;
 
   SyncError._(String message, this.code, this.innerError) : super(message);
-
-  /// The numeric code value indicating the type of the sync error.
-  @Deprecated("Errors of SyncError subclasses will be created base on the error code. Error codes won't be returned anymore.")
-  int get codeValue => code.code;
-
-  /// The category of the sync error
-  @Deprecated("SyncErrorCategory enum is deprecated.")
-  late SyncErrorCategory category = SyncErrorCategory.system;
-
-  /// Detailed error message.
-  /// In case of server error, it contains the link to the server log.
-  @Deprecated("Detailed message is empty. Use `message` property.")
-  late String? detailedMessage;
-
-  @Deprecated("SyncError constructor is deprecated and will be removed in the future")
-  SyncError(String message, this.category, int codeValue, {this.detailedMessage})
-      : code = SyncErrorCode.fromInt(codeValue),
-        innerError = null,
-        super(message);
-
-  /// Creates a specific type of [SyncError] instance based on the [category] and the [code] supplied.
-  @Deprecated("This method is deprecated and will be removed in the future")
-  static SyncError create(String message, SyncErrorCategory category, int code, {bool isFatal = false}) {
-    return SyncError._(message, SyncErrorCode.fromInt(code), null);
-  }
 
   final Object? innerError;
 
@@ -771,140 +721,4 @@ extension SyncErrorInternal on SyncError {
       _ => SyncError._(error.message, errorCode, error.userError),
     };
   }
-}
-
-// Deprecated errors - to be removed in 2.0
-
-/// An error type that describes a session-level error condition.
-/// {@category Sync}
-@Deprecated("Use SyncError.")
-class SyncClientError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  @Deprecated("SyncClientError constructor is deprecated and will be removed in the future")
-  SyncClientError(
-    String message,
-    SyncErrorCategory category,
-    SyncClientErrorCode errorCode, {
-    String? detailedMessage,
-    this.isFatal = false,
-  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
-
-  @override
-  String toString() {
-    return "SyncClientError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// An error type that describes a connection-level error condition.
-/// {@category Sync}
-@Deprecated("Use SyncError.")
-class SyncConnectionError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  @Deprecated("SyncConnectionError constructor is deprecated and will be removed in the future")
-  SyncConnectionError(
-    String message,
-    SyncErrorCategory category,
-    SyncConnectionErrorCode errorCode, {
-    String? detailedMessage,
-    this.isFatal = false,
-  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
-
-  @override
-  String toString() {
-    return "SyncConnectionError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// An error type that describes a session-level error condition.
-/// {@category Sync}
-@Deprecated("Use SyncError.")
-class SyncSessionError extends SyncError {
-  /// If true the received error is fatal.
-  final bool isFatal;
-
-  @Deprecated("SyncSessionError constructor is deprecated and will be removed in the future")
-  SyncSessionError(
-    String message,
-    SyncErrorCategory category,
-    SyncSessionErrorCode errorCode, {
-    String? detailedMessage,
-    this.isFatal = false,
-  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
-
-  @override
-  String toString() {
-    return "SyncSessionError message: $message category: $category code: $code isFatal: $isFatal";
-  }
-}
-
-/// Network resolution error
-///
-/// This class is deprecated and it will be removed. The sync errors caused by network resolution problems
-/// will be received as [SyncWebSocketError].
-@Deprecated("Use SyncError.")
-class SyncResolveError extends SyncError {
-  SyncResolveError(
-    String message,
-    SyncErrorCategory category,
-    SyncResolveErrorCode errorCode,
-  ) : super(message, category, errorCode.index);
-
-  @override
-  String toString() {
-    return "SyncResolveError message: $message category: $category code: $code";
-  }
-}
-
-/// Web socket error
-@Deprecated("Use SyncError.")
-class SyncWebSocketError extends SyncError {
-  @Deprecated("SyncWebSocketError constructor is deprecated and will be removed in the future")
-  SyncWebSocketError(
-    String message,
-    SyncErrorCategory category,
-    SyncWebSocketErrorCode errorCode, {
-    String? detailedMessage,
-  }) : super(message, category, errorCode.code, detailedMessage: detailedMessage);
-
-  @override
-  String toString() {
-    return "SyncWebSocketError message: $message category: $category code: $code";
-  }
-}
-
-/// A general or unknown sync error
-@Deprecated("Use SyncError.")
-class GeneralSyncError extends SyncError {
-  @Deprecated("GeneralSyncError constructor is deprecated and will be removed in the future")
-  GeneralSyncError(
-    String message,
-    SyncErrorCategory category,
-    int code, {
-    String? detailedMessage,
-  }) : super(message, category, code, detailedMessage: detailedMessage);
-
-  @override
-  String toString() {
-    return "GeneralSyncError message: $message category: $category code: $code";
-  }
-}
-
-/// General sync error codes
-@Deprecated("Use SyncError.")
-enum GeneralSyncErrorCode {
-  /// Unknown Sync error code
-  unknown(9999);
-
-  static final Map<int, GeneralSyncErrorCode> _valuesMap = {for (var value in GeneralSyncErrorCode.values) value.code: value};
-
-  static GeneralSyncErrorCode fromInt(int code) {
-    return GeneralSyncErrorCode._valuesMap[code] ?? GeneralSyncErrorCode.unknown;
-  }
-
-  final int code;
-  const GeneralSyncErrorCode(this.code);
 }

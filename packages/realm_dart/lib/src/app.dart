@@ -109,22 +109,6 @@ class AppConfiguration {
   /// the WebSocket handshake. Defaults to 2 minutes.
   final Duration maxConnectionTimeout;
 
-  /// The [localAppName] is the friendly name identifying the current client application.
-  ///
-  /// This is typically used to differentiate between client applications that use the same
-  /// [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) application.
-  ///
-  /// These can be the same conceptual app developed for different platforms, or
-  /// significantly different client side applications that operate on the same data - e.g. an event managing
-  /// service that has different clients apps for organizers and attendees.
-  @Deprecated("localAppName is not used.")
-  final String? localAppName;
-
-  /// The [localAppVersion] can be specified, if you wish to distinguish different client versions of the
-  /// same application.
-  @Deprecated("localAppVersion is not used.")
-  final String? localAppVersion;
-
   /// Enumeration that specifies how and if logged-in User objects are persisted across application launches.
   final MetadataPersistenceMode metadataPersistenceMode;
 
@@ -149,8 +133,6 @@ class AppConfiguration {
     Uri? baseUrl,
     Directory? baseFilePath,
     this.defaultRequestTimeout = const Duration(seconds: 60),
-    this.localAppName,
-    this.localAppVersion,
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.maxConnectionTimeout = const Duration(minutes: 2),
