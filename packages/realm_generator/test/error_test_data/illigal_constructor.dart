@@ -1,6 +1,6 @@
 import 'package:realm_common/realm_common.dart';
 
-//part 'illigal_constructor.g.dart';
+part 'illigal_constructor.realm.dart';
 
 @RealmModel()
 class _Bad {

@@ -1,3 +1,7 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'mapto.dart';
+
 // **************************************************************************
 // RealmObjectGenerator
 // **************************************************************************
@@ -58,7 +62,8 @@ class Original extends $Original
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Original._);
-    return const SchemaObject(ObjectType.realmObject, Original, 'another type', [
+    return const SchemaObject(
+        ObjectType.realmObject, Original, 'another type', [
       SchemaProperty('primitiveProperty', RealmPropertyType.int,
           mapTo: 'remapped primitive'),
       SchemaProperty('objectProperty', RealmPropertyType.object,

@@ -17,12 +17,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // ignore_for_file: avoid_print
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 
-part 'main.g.dart';
+part 'main.realm.dart';
 
 @RealmModel()
 class _Car {

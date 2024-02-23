@@ -35,7 +35,7 @@ import 'baas_helper.dart';
 
 export 'baas_helper.dart' show AppNames;
 
-part 'test.g.dart';
+part 'test.realm.dart';
 
 @RealmModel()
 class _Car {

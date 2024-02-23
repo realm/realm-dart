@@ -8,5 +8,3 @@ in: asset:pkg/test/info_test_data/primary_key_always_indexed.dart:9:12
   │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   ╵
 Remove either the @Indexed or @PrimaryKey annotation from 'primaryKeysAreAlwaysIndexed'.
-
-

@@ -8,7 +8,7 @@ targets:
         generate_for:
           - lib/src/cli/metrics/flutter_info.dart
           - lib/src/cli/metrics/metrics.dart
-      realm_generator|realm_object_builder:
+      realm_generator:
         generate_for:
           include:
             - test/**.dart
@@ -18,7 +18,6 @@ builders:
   realm_generator:
     import: "package:realm_generator/realm_generator.dart"
     builder_factories: ["generateRealmObjects"]
-    build_extensions: { ".dart": ["realm_objects.g.part"] }
+    build_extensions: { ".dart": [".realm.dart"] }
     auto_apply: dependents
-    build_to: cache
-    applies_builders: ["source_gen|combining_builder"]
+    build_to: source

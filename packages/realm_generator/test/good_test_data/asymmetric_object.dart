@@ -1,5 +1,7 @@
 import 'package:realm_common/realm_common.dart';
 
+part 'asymmetric_object.realm.dart';
+
 @RealmModel()
 class _Asymmetric {
   @PrimaryKey()
