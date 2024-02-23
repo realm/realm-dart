@@ -2614,6 +2614,22 @@ class RealmLibrary {
       _realm_config_get_schema_versionPtr
           .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
 
+  /// True if you can open the file without a file_format_upgrade
+  bool realm_config_needs_file_format_upgrade(
+    ffi.Pointer<realm_config_t> arg0,
+  ) {
+    return _realm_config_needs_file_format_upgrade(
+      arg0,
+    );
+  }
+
+  late final _realm_config_needs_file_format_upgradePtr = _lookup<
+          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>>(
+      'realm_config_needs_file_format_upgrade');
+  late final _realm_config_needs_file_format_upgrade =
+      _realm_config_needs_file_format_upgradePtr
+          .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
+
   /// Allocate a new configuration with default options.
   ffi.Pointer<realm_config_t> realm_config_new() {
     return _realm_config_new();
@@ -10176,6 +10192,28 @@ class RealmLibrary {
       _realm_sync_session_get_connection_statePtr
           .asFunction<int Function(ffi.Pointer<realm_sync_session_t>)>();
 
+  /// Gets the file ident/salt currently assigned to the realm by sync. Callers should supply a pointer token
+  /// a realm_salted_file_ident_t for this function to fill out.
+  void realm_sync_session_get_file_ident(
+    ffi.Pointer<realm_sync_session_t> arg0,
+    ffi.Pointer<realm_salted_file_ident_t> out,
+  ) {
+    return _realm_sync_session_get_file_ident(
+      arg0,
+      out,
+    );
+  }
+
+  late final _realm_sync_session_get_file_identPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<realm_sync_session_t>,
+                  ffi.Pointer<realm_salted_file_ident_t>)>>(
+      'realm_sync_session_get_file_ident');
+  late final _realm_sync_session_get_file_ident =
+      _realm_sync_session_get_file_identPtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_session_t>,
+              ffi.Pointer<realm_salted_file_ident_t>)>();
+
   /// Get the filesystem path of the realm file backing this session.
   ffi.Pointer<ffi.Char> realm_sync_session_get_file_path(
     ffi.Pointer<realm_sync_session_t> arg0,
@@ -12687,6 +12725,16 @@ typedef Dartrealm_return_string_func_tFunction = void Function(
     ffi.Pointer<ffi.Void>,
     ffi.Pointer<ffi.Char>,
     ffi.Pointer<realm_app_error_t>);
+
+final class realm_salted_file_ident extends ffi.Struct {
+  @ffi.Uint64()
+  external int ident;
+
+  @ffi.Int64()
+  external int salt;
+}
+
+typedef realm_salted_file_ident_t = realm_salted_file_ident;
 
 final class realm_scheduler extends ffi.Opaque {}
 
