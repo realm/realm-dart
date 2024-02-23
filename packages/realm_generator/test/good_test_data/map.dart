@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:realm_common/realm_common.dart';
 
-//part 'map.g.dart';
+part 'map.realm.dart';
 
 @RealmModel()
 class _LotsOfMaps {

@@ -1,141 +1,94 @@
 import 'dart:io';
-import 'dart:async';
-import 'dart:convert';
-import 'package:path/path.dart' as _path;
-import 'package:dart_style/dart_style.dart';
+
 import 'package:build_test/build_test.dart';
-import 'package:test/test.dart';
+import 'package:dart_style/dart_style.dart';
+import 'package:logging/logging.dart';
+import 'package:meta/meta.dart';
 import 'package:realm_generator/realm_generator.dart';
+import 'package:test/test.dart';
 
-Function executeTest = test;
+final _formatter = DartFormatter(lineEnding: '\n');
 
-Map<String, String> getListOfTestFiles(String directory) {
-  Map<String, String> result = {};
-  var files = Directory(_path.join(Directory.current.path, directory)).listSync();
-  for (var file in files) {
-    if (_path.extension(file.path) == '.dart' && !file.path.endsWith('g.dart')) {
-      var expectedFileName = _path.setExtension(file.path, '.expected');
-      if (!files.any((f) => f.path == expectedFileName)) {
-        throw "Expected file not found. $expectedFileName";
-      }
-      result.addAll({_path.basename(file.path): _path.basename(expectedFileName)});
-    }
-  }
-  return result;
-}
-
-Future<dynamic> generatorTestBuilder(String directoryName, String inputFileName, [String? expectedFileName]) async {
-  return testBuilder(generateRealmObjects(), await getInputFileAsset('$directoryName/$inputFileName'),
-      outputs: expectedFileName != null ? await getExpectedFileAsset('$directoryName/$inputFileName', '$directoryName/$expectedFileName') : null,
-      reader: await PackageAssetReader.currentIsolate());
-}
-
-Future<Map<String, Object>> getInputFileAsset(String inputFilePath) async {
-  var key = 'pkg|$inputFilePath';
-  String inputContent = await readFileAsDartFormattedString(inputFilePath);
-  return {key: inputContent};
-}
-
-/// A special equality matcher for strings.
-class LinesEqualsMatcher extends Matcher {
-  String expected;
-  late final List<String> expectedLines;
-
-  LinesEqualsMatcher(this.expected) {
-    expectedLines = expected.split("\n");
+/// Used to test both correct an erroneous compilation.
+/// [source] can be a [File] or a [String].
+/// [matcher] can be a [File], [String] or a [Matcher].
+/// Both expected and actual output will be formatted with [DartFormatter].
+@isTest
+void testCompile(String description, dynamic source, dynamic matcher, {dynamic skip, void Function(LogRecord)? onLog}) {
+  if (source is Iterable) {
+    testCompileMany(description, source, matcher);
+    return;
   }
 
-  @override
-  Description describe(Description description) => description.add("LinesEqualsMatcher");
+  final assetName = source is File ? source.path : 'source.dart';
+  source = source is File ? source.readAsStringSync() : source;
+  if (source is! String) throw ArgumentError.value(source, 'source');
 
-  @override
-  // ignore: strict_raw_type
-  bool matches(dynamic actual, Map matchState) {
-    var actualValue = "";
-    if (actual is List<int>) {
-      actualValue = utf8.decode(actual);
-    } else if (actual is String) {
-      actualValue = actual;
-    } else {
-      actualValue = actual.toString();
-    }
-
-    final actualLines = actualValue.split("\n");
-
-    final result = _matches(actualLines, matchState);
-    if (!result) {
-      print("\nGenerator Failed\n");
-      print("Expected ======================================================================================================\n$expected\n======================================================================================================\n");
-      print("Actual ======================================================================================================\n$actualValue\n======================================================================================================\n");
-    }
-
-    return result;
+  matcher = matcher is File ? matcher.readAsStringSync() : matcher;
+  if (matcher is String) {
+    final source = _formatter.format(matcher);
+    matcher = completion(equals(source));
   }
+  if (matcher is! Matcher) throw ArgumentError.value(matcher, 'matcher');
 
-  bool _matches(List<String> actualLines, Map<dynamic, dynamic> matchState) {
-    for (var i = 0; i < expectedLines.length - 1; i++) {
-      if (i >= actualLines.length) {
-        matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: empty";
-        
-        return false;
-      }
-    
-      if (expectedLines[i] != actualLines[i]) {
-        matchState["Error"] = "Difference at line ${i + 1}. \nExpected: ${expectedLines[i]}.\n  Actual: ${actualLines[i]}";
-        return false;
-      }
-    }
-    
-    if (actualLines.length != expectedLines.length) {
-      matchState["Error"] = "Different number of lines. \nExpected: ${expectedLines.length}\nActual: ${actualLines.length}";
-      return false;
-    }
-    
-    return true;
-  }
-
-  @override
-  Description describeMismatch(dynamic item, Description mismatchDescription, Map matchState, bool verbose) {
-    if (matchState["Error"] != null) {
-      mismatchDescription.add(matchState["Error"] as String);
+  test(description, () async {
+    generate() async {
+      final writer = InMemoryAssetWriter();
+      await testBuilder(
+        generateRealmObjects(),
+        {'pkg|$assetName': '$source'},
+        writer: writer,
+        reader: await PackageAssetReader.currentIsolate(),
+        onLog: onLog,
+      );
+      return _formatter.format(String.fromCharCodes(writer.assets.entries.single.value));
     }
 
-    return mismatchDescription;
-  }
+    expect(generate(), matcher);
+  }, skip: skip);
 }
 
-Future<Map<String, Object>> getExpectedFileAsset(String inputFilePath, String expectedFilePath) async {
-  var key = 'pkg|${_path.setExtension(inputFilePath, '.realm_objects.g.part')}';
-  String expectedContent = await readFileAsDartFormattedString(expectedFilePath);
+@isTest
+void testCompileMany(String description, Iterable<dynamic> sources, dynamic matcher) async {
+  final inputs = switch (sources) {
+    Iterable<File> files => files.map((file) {
+        return ('pkg|${file.path}', _formatter.format(file.readAsStringSync()));
+      }),
+    Iterable<String> strings => strings.indexed.map((x) {
+        final (index, text) = x;
+        return ('pkg|source_$index.dart', _formatter.format(text));
+      }),
+    _ => throw ArgumentError.value(sources, 'sources'),
+  };
 
-  return {key: LinesEqualsMatcher(expectedContent)};
+  matcher = switch (matcher) {
+    Matcher m => m,
+    Iterable<String> strings => completion(equals(strings.map((e) => _formatter.format(e)))),
+    Iterable<File> files => completion(files.map((x) => _formatter.format(x.readAsStringSync()))),
+    _ => throw ArgumentError.value(matcher, 'matcher'),
+  };
+
+  test(description, () {
+    generate() async {
+      final writer = InMemoryAssetWriter();
+      await testBuilder(
+        generateRealmObjects(),
+        Map<String, Object>.fromEntries(inputs.map((x) {
+          final (id, source) = x;
+          return MapEntry(id, source);
+        })),
+        writer: writer,
+        reader: await PackageAssetReader.currentIsolate(),
+      );
+      return writer.assets.values.map((charCodes) => String.fromCharCodes(charCodes));
+    }
+
+    expect(generate(), matcher);
+  });
 }
 
-Future<String> readFileAsDartFormattedString(String path) async {
-  var file = File(_path.join(Directory.current.path, path));
-  String content = await file.readAsString(encoding: utf8);
-  return _stringReplacements(content);
-}
+final _endOfLine = RegExp(r'\r\n?|\n');
 
-Future<String> readFileAsErrorFormattedString(String directoryName, String outputFilePath) async {
-  var file = File(_path.join(Directory.current.path, '$directoryName/$outputFilePath'));
-  String content = await file.readAsString(encoding: utf8);
-  if (Platform.isWindows) {
-    final macToWinSymbols = {'╷': ',', '━': '=', '╵': '\'', '│': '|', '─': '-', '┌': ',', '└': '\''};
-    macToWinSymbols.forEach((key, value) {
-      content = content.replaceAll(key, value);
-    });
-  }
-  return LineSplitter.split(content).join('\n');
-}
-
-String _stringReplacements(String content) {
-  final formatter = DartFormatter();
-  var lines = LineSplitter.split(content);
-  String formattedContent = lines.where((element) => !element.startsWith("part of")).join('\n');
-  return formatter.format(formattedContent);
-}
-
-String getTestName(String file) {
-  return _path.basename(file);
+extension StringX on String {
+  String normalizeLineEndings() => replaceAll(_endOfLine, '\n');
 }

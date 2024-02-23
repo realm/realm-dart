@@ -32,8 +32,8 @@ export 'src/error.dart';
 
 /// @nodoc
 Builder generateRealmObjects([BuilderOptions? options]) {
-  return SharedPartBuilder(
+  return PartBuilder(
     [RealmObjectGenerator()],
-    'realm_objects',
+    '.realm.dart',
   );
 }

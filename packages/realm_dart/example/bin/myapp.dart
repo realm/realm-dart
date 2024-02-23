@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:realm_dart/realm.dart';
 
-part 'myapp.g.dart';
+part 'myapp.realm.dart';
 
 @RealmModel()
 class _Car {
@@ -57,7 +57,7 @@ void main(List<String> arguments) async {
   print("Getting all Tesla cars from the Realm.");
   var filteredCars = realm.all<Car>().query("make == 'Tesla'");
   print('Found ${filteredCars.length} Tesla cars');
-  
+
   //allow changes event to fire
   await Future<void>.delayed(Duration(milliseconds: 1));
 
