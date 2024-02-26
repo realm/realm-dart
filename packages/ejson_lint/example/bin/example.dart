@@ -1,9 +1,7 @@
 import 'package:ejson_annotation/ejson_annotation.dart';
 
 // This file is used to test lint rules using
-//  dart run custom_lint
-// or
-//  melos test:lint
+// dart run custom_lint
 class Person {
   final String name;
   // expect_lint: mismatched_getter_type
