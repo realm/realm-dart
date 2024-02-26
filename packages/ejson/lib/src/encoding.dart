@@ -73,7 +73,7 @@ EJsonValue _encodeDate(DateTime value) {
   return switch (relaxed) {
     true => {'\$date': value.toIso8601String()},
     false => {
-        '\$date': {'\$numberLong': value.millisecondsSinceEpoch}
+        '\$date': {'\$numberLong': value.millisecondsSinceEpoch.toString()},
       },
   };
 }

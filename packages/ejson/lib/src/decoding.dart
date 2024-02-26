@@ -135,7 +135,7 @@ bool _decodeBool(EJsonValue ejson) {
 DateTime _decodeDate(EJsonValue ejson) {
   return switch (ejson) {
     {'\$date': String s} => DateTime.parse(s), // relaxed mode
-    {'\$date': {'\$numberLong': int i}} => DateTime.fromMillisecondsSinceEpoch(i),
+    {'\$date': {'\$numberLong': String i}} => DateTime.fromMillisecondsSinceEpoch(int.tryParse(i) ?? raiseInvalidEJson(ejson)),
     _ => raiseInvalidEJson(ejson),
   };
 }
