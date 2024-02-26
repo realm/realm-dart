@@ -124,23 +124,23 @@ void main() {
 
     _testCase(const Empty(), {});
     _testCase(const Simple(42), {
-      'i': {'\$numberLong': 42}
+      'i': {'\$numberLong': '42'}
     });
     _testCase(Named.nameIt('foobar'), {'namedCtor': 'foobar'});
     _testCase(const RequiredNamedParameters(requiredNamed: 'foobar'), {'requiredNamed': 'foobar'});
     _testCase(OptionalNamedParameters(), {'optionalNamed': 'rabbit'});
     _testCase(OptionalParameters(), {'optional': 'racoon'});
     _testCase(const PrivateMembers(42), {
-      'id': {'\$numberLong': 42}
+      'id': {'\$numberLong': '42'}
     });
 
     final birthDate = DateTime.utc(1973);
     _testCase(Person('Eva', DateTime.utc(1973), 90000.0), {
       'name': 'Eva',
       'birthDate': {
-        '\$date': {'\$numberLong': birthDate.millisecondsSinceEpoch}
+        '\$date': {'\$numberLong': birthDate.millisecondsSinceEpoch.toString()}
       },
-      'income': {'\$numberDouble': 90000.0},
+      'income': {'\$numberDouble': '90000.0'},
       'spouse': null,
       'cprNumber': null,
     });
