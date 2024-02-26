@@ -42,7 +42,7 @@ jobs:
           key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}
 
       - name: Setup Ninja
-        if: steps.check-cache.outputs.cache-hit != 'true'
+        if: inputs.runner == 'ubuntu-latest'
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build
