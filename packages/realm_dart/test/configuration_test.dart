@@ -212,15 +212,13 @@ void main() {
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
     await copyFile('test/data/realm_files/old-format.realm', config.path);
-    expect(() {
-      getRealm(config);
-    }, throws<RealmException>("Database upgrade required but prohibited."));
+    expect(() => getRealm(config), throws<RealmException>("Database upgrade required but prohibited."));
   });
 
   test('Configuration - disableFormatUpgrade=false', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
     await copyFile('test/data/realm_files/old-format.realm', config.path);
-    final realm = getRealm(config);
+    expect(() => getRealm(config), isNot(throwsException));
   });
 
   test('Configuration.initialDataCallback invoked', () {
