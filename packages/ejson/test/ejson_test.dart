@@ -229,7 +229,7 @@ void main() {
           );
 
           expect(
-            fromEJson<UndefinedOr<int?>>({'\$numberLong': 42}),
+            fromEJson<UndefinedOr<int?>>({'\$numberLong': '42'}),
             Defined<int?>(42),
           );
 

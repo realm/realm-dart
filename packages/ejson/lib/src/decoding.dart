@@ -154,12 +154,12 @@ Map<K, V> _decodeDocument<K, V>(EJsonValue ejson) {
 double _decodeDouble(EJsonValue ejson) {
   return switch (ejson) {
     double d => d, // relaxed mode
-    {'\$numberDouble': double d} => d,
+    //{'\$numberDouble': double d} => d,
     {'\$numberDouble': String s} => switch (s) {
         'NaN' => double.nan,
         'Infinity' => double.infinity,
         '-Infinity' => double.negativeInfinity,
-        _ => raiseInvalidEJson(ejson),
+        _ => double.tryParse(s) ?? raiseInvalidEJson(ejson),
       },
     _ => raiseInvalidEJson(ejson),
   };
@@ -168,8 +168,8 @@ double _decodeDouble(EJsonValue ejson) {
 int _decodeInt(EJsonValue ejson) {
   return switch (ejson) {
     int i => i, // relaxed mode
-    {'\$numberInt': int i} => i,
-    {'\$numberLong': int i} => i,
+    {'\$numberInt': String i} => int.tryParse(i) ?? raiseInvalidEJson(ejson),
+    {'\$numberLong': String i} => int.tryParse(i) ?? raiseInvalidEJson(ejson),
     _ => raiseInvalidEJson(ejson),
   };
 }

@@ -42,22 +42,22 @@ EJsonValue _encodeAny(Object? value) {
     null => null,
     bool b => _encodeBool(b),
     DateTime d => _encodeDate(d),
-    Defined d => _encodeDefined(d),
+    Defined<dynamic> d => _encodeDefined(d),
     double d => _encodeDouble(d),
     int i => _encodeInt(i),
     Key k => _encodeKey(k),
-    List l => _encodeArray(l),
-    Map m => _encodeDocument(m),
+    List<dynamic> l => _encodeArray(l),
+    Map<dynamic, dynamic> m => _encodeDocument(m),
     ObjectId o => _encodeObjectId(o),
     String s => _encodeString(s),
     Symbol s => _encodeSymbol(s),
-    Undefined u => _encodeUndefined(u),
+    Undefined<dynamic> u => _encodeUndefined(u),
     Uuid u => _encodeUuid(u),
     _ => _encodeCustom(value),
   };
 }
 
-EJsonValue _encodeArray(Iterable items) => items.map((e) => toEJson(e)).toList();
+EJsonValue _encodeArray(Iterable<dynamic> items) => items.map((e) => toEJson(e)).toList();
 
 EJsonValue _encodeBool(bool value) => value;
 
@@ -78,9 +78,9 @@ EJsonValue _encodeDate(DateTime value) {
   };
 }
 
-EJsonValue _encodeDefined(Defined defined) => toEJson(defined.value);
+EJsonValue _encodeDefined(Defined<dynamic> defined) => toEJson(defined.value);
 
-EJsonValue _encodeDocument(Map map) => map.map((k, v) => MapEntry(k, toEJson(v)));
+EJsonValue _encodeDocument(Map<dynamic, dynamic> map) => map.map((k, v) => MapEntry(k, toEJson(v)));
 
 EJsonValue _encodeDouble(double value) {
   if (value.isNaN) {
@@ -91,7 +91,7 @@ EJsonValue _encodeDouble(double value) {
     double.negativeInfinity => {'\$numberDouble': '-Infinity'},
     _ => switch (relaxed) {
         true => value,
-        false => {'\$numberDouble': value},
+        false => {'\$numberDouble': '$value'},
       }
   };
 }
@@ -99,7 +99,7 @@ EJsonValue _encodeDouble(double value) {
 EJsonValue _encodeInt(int value, {bool long = true}) {
   return switch (relaxed) {
     true => value,
-    false => {'\$number${long ? 'Long' : 'Int'}': value},
+    false => {'\$number${long ? 'Long' : 'Int'}': '$value'},
   };
 }
 
@@ -110,7 +110,7 @@ EJsonValue _encodeString(String value) => value;
 
 EJsonValue _encodeSymbol(Symbol value) => {'\$symbol': value.name};
 
-EJsonValue _encodeUndefined(Undefined undefined) => {'\$undefined': 1};
+EJsonValue _encodeUndefined(Undefined<dynamic> undefined) => {'\$undefined': 1};
 
 EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes, "04");
 
@@ -139,7 +139,7 @@ extension DateTimeEJsonEncoderExtension on DateTime {
   EJsonValue toEJson() => _encodeDate(this);
 }
 
-extension DefinedEJsonEncoderExtension on Defined {
+extension DefinedEJsonEncoderExtension on Defined<dynamic> {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDefined(this);
 }
@@ -194,7 +194,7 @@ extension SymbolEJsonEncoderExtension on Symbol {
   EJsonValue toEJson() => _encodeSymbol(this);
 }
 
-extension UndefinedEJsonEncoderExtension on Undefined {
+extension UndefinedEJsonEncoderExtension on Undefined<dynamic> {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeUndefined(this);
 }
