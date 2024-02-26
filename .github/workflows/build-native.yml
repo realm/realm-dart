@@ -42,7 +42,7 @@ jobs:
           key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}-kick
 
       - name: Setup Ninja
-        if: inputs.runner == 'ubuntu-latest'
+        if: startsWith(matrix.build, 'android-') || startsWith(matrix.build, 'linux-')
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build
