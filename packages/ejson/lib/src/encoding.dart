@@ -46,7 +46,7 @@ EJsonValue _encodeAny(Object? value) {
     double d => _encodeDouble(d),
     int i => _encodeInt(i),
     Key k => _encodeKey(k),
-    List<dynamic> l => _encodeArray(l),
+    Iterable<dynamic> l => _encodeArray(l),
     Map<dynamic, dynamic> m => _encodeDocument(m),
     ObjectId o => _encodeObjectId(o),
     String s => _encodeString(s),

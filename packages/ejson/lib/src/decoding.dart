@@ -32,6 +32,7 @@ const commonDecoders = {
   dynamic: _decodeAny,
   Null: _decodeNull,
   Object: _decodeAny,
+  Iterable: _decodeArray,
   List: _decodeArray,
   bool: _decodeBool,
   DateTime: _decodeDate,
