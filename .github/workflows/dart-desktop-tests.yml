@@ -77,6 +77,8 @@ jobs:
         if: inputs.runner == 'ubuntu-latest'
         run: |
           sudo apt-get install lcov
+          melos coverage:convert
+          melos coverage:gather
           melos coverage:groom
 
       - name: Publish coverage

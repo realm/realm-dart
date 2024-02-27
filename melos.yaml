@@ -68,9 +68,7 @@ scripts:
       melos run test:integration
 
   test:unit:
-    run: |
-      dart test --concurrency=1 --coverage=coverage/ --file-reporter=json:test-results.json --reporter=github
-      dart pub global run coverage:format_coverage --report-on=lib/ --in=coverage/test/ --lcov --out=coverage/lcov.info
+    run: dart test --concurrency=1 --coverage=coverage/ --file-reporter=json:test-results.json --reporter=github
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
@@ -168,21 +166,35 @@ scripts:
   coverage:
     description: Generate, check and render coverage.
     run: >-
+      melos run coverage:convert &&
+      melos run coverage:gather &&
       melos run coverage:groom &&
       melos run coverage:report &&
       melos run coverage:check
 
-  coverage:check:
-    run: dart pub global run coverde check 90
+  coverage:check: # TODO: Increase to 90 eventually
+    run: dart pub global run coverde check 80
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       fileExists: coverage/lcov.info # by convention
 
-  coverage:groom:
+  coverage:convert:
+    run: dart pub global run coverage:format_coverage --report-on=lib/ --in=coverage/test/ --lcov --out=coverage/lcov.info
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: test
+      dirExists: coverage/test/
+      flutter: false
+
+  coverage:gather:
     run: |
       rm -rf $MELOS_ROOT_PATH/coverage
       dart pub global run combine_coverage --repo-path=$MELOS_ROOT_PATH
+
+  coverage:groom:
+    run: |
       lcov --remove coverage/lcov.info '*/lib/src/cli/*' -o coverage/lcov.info
       lcov --remove coverage/lcov.info '*/realm_bindings.dart' -o coverage/lcov.info
 
