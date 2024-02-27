@@ -47,7 +47,7 @@ jobs:
         with:
           find: "const libraryVersion = '[^']*';"
           replace: "const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
-          include: 'package/realm_dart/lib/src/native/realm_core.dart'
+          include: 'packages/realm_dart/lib/src/native/realm_core.dart'
 
       - name: Make sure we updated libraryVersion in realm_core.dart
         run: |
@@ -62,7 +62,7 @@ jobs:
         with:
           find: 'RLM_API const char\* realm_dart_library_version\(\) \{ return "[^"]*"; \}'
           replace: 'RLM_API const char* realm_dart_library_version() { return "${{ steps.update-changelog.outputs.new-version }}"; }'
-          include: 'package/realm_dart/src/realm_dart.cpp'
+          include: 'packages/realm_dart/src/realm_dart.cpp'
 
       - name: Make sure we updated realm_dart_library_version in realm_dart.cpp
         run: |
@@ -78,7 +78,7 @@ jobs:
           echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
           echo "Realm Core version: $pkgVersion"
         shell: bash
-        working-directory: package/realm_dart/src/realm-core
+        working-directory: packages/realm_dart/src/realm-core
 
       - name: Update realmCoreVersion in metrics_command.dart
         id: update-realmCoreVersion
@@ -86,7 +86,7 @@ jobs:
         with:
           find: "const realmCoreVersion = '[^']*';"
           replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
-          include: 'package/realm_dart/lib/src/cli/metrics/metrics_command.dart'
+          include: 'packages/realm_dart/lib/src/cli/metrics/metrics_command.dart'
 
       - name: Make sure we updated realmCoreVersion in metrics
         run: |
