@@ -50,10 +50,12 @@ jobs:
         mkdir -p ${{ github.workspace }}/release
 
         for directory in ${{ github.workspace }}/binary/*; do
-          targetFile="${{ github.workspace }}/release/${$(basename $directory)#*-}.tar.gz"
+          artifactFolder=$(basename $directory)
+          targetFile="${{ github.workspace }}/release/${artifactFolder#*-}.tar.gz"
           dart run realm_dart archive --source-dir "$directory" --output-file "$targetFile"
         done
       working-directory: packages/realm_dart
+      shell: bash
 
     - name: Update realm_* path dependencies (Production)
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
