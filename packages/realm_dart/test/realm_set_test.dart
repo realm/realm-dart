@@ -558,10 +558,20 @@ void main() {
       expectLater(
           set.changes,
           emitsInOrder(<Matcher>[
-            isA<RealmSetChanges<Object?>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-            isA<RealmSetChanges<Object?>>().having((changes) => changes.isCleared, 'isCleared', true),
+            isA<RealmSetChanges<Object?>>()
+                .having((changes) => changes.inserted, 'inserted', <int>[])
+                .having((changes) => changes.isCleared, 'isCleared', false)
+                .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', false), // always an empty event on subscription
+            isA<RealmSetChanges<Object?>>()
+                .having((changes) => changes.isCleared, 'isCleared', true)
+                .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', false),
+            isA<RealmSetChanges<Object?>>()
+                .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', true)
+                .having((changes) => changes.isCleared, 'isCleared', false),
           ]));
       realm.write(() => set.clear());
+      realm.refresh();
+      realm.write(() => realm.delete(testSet));
     });
 
     test('RealmSet<$type> basic operations on unmanaged sets', () {

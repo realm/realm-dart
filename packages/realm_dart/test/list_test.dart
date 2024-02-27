@@ -1189,10 +1189,20 @@ void main() {
     expectLater(
         team.players.changes,
         emitsInOrder(<Matcher>[
-          isA<RealmListChanges<Person>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-          isA<RealmListChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
+          isA<RealmListChanges<Person>>()
+              .having((changes) => changes.inserted, 'inserted', <int>[])
+              .having((changes) => changes.isCleared, 'isCleared', false)
+              .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', false), // always an empty event on subscription
+          isA<RealmListChanges<Person>>()
+              .having((changes) => changes.isCleared, 'isCleared', true)
+              .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', false),
+          isA<RealmListChanges<Person>>()
+              .having((changes) => changes.isCleared, 'isCleared', false)
+              .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', true),
         ]));
     realm.write(() => team.players.clear());
+    realm.refresh();
+    realm.write(() => realm.delete(team));
   });
 
   test('RealmList.changes - await for with yield', () async {
@@ -1238,6 +1248,7 @@ void main() {
         ]));
     realm.write(() => team.players.clear());
     expect(playersAsResults.length, 0);
+    realm.refresh();
   });
 
   test('Query on RealmList with IN-operator', () {

@@ -1,10 +1,6 @@
 {
   "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-  "search.exclude": {
-    "flutter/realm_flutter/ios/src/**": true,
-    "flutter/realm_flutter/lib/**": true,
-    "flutter/realm_flutter/test/**": true
-  },
+  "search.exclude": {},
   "dart.lineLength": 160,
   "cSpell.words": [
     "apikey",
@@ -164,5 +160,6 @@
     "__split_buffer": "cpp",
     "__tuple": "cpp",
     "__verbose_abort": "cpp"
-  }
+  },
+  "cmake.sourceDirectory": "${workspaceFolder}/packages/realm_dart"
 }

@@ -44,8 +44,9 @@ class CollectionChanges {
   final List<int> modificationsAfter;
   final List<Move> moves;
   final bool isCleared;
+  final bool isDeleted;
 
-  const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves, this.isCleared);
+  const CollectionChanges(this.deletions, this.insertions, this.modifications, this.modificationsAfter, this.moves, this.isCleared, this.isDeleted);
 }
 
 /// @nodoc
@@ -53,8 +54,10 @@ class MapChanges {
   final List<String> deletions;
   final List<String> insertions;
   final List<String> modifications;
+  final bool isCleared;
+  final bool isDeleted;
 
-  const MapChanges(this.deletions, this.insertions, this.modifications);
+  const MapChanges(this.deletions, this.insertions, this.modifications, this.isCleared, this.isDeleted);
 }
 
 /// Describes the changes in a Realm collection since the last time the notification callback was invoked.
@@ -91,4 +94,6 @@ extension RealmCollectionChangesInternal on RealmCollectionChanges {
   void keepAlive() {
     _handle.keepAlive();
   }
+
+  CollectionChanges get changes => _changes;
 }

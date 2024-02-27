@@ -1046,15 +1046,21 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_get_value(object.handle._pointer, propertyKey, realm_value));
-      return realm_value.toDartValue(object.realm);
+      return realm_value.toDartValue(object.realm, () => _realmLib.realm_get_list(object.handle._pointer, propertyKey),
+          () => _realmLib.realm_get_dictionary(object.handle._pointer, propertyKey));
     });
   }
 
   void setProperty(RealmObjectBase object, int propertyKey, Object? value, bool isDefault) {
-    return using((Arena arena) {
+    using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(() => _realmLib.realm_set_value(object.handle._pointer, propertyKey, realm_value.ref, isDefault));
     });
+  }
+
+  void objectSetCollection(RealmObjectBase object, int propertyKey, RealmValue value) {
+    _createCollection(object.realm, value, () => _realmLib.realm_set_list(object.handle._pointer, propertyKey),
+        () => _realmLib.realm_set_dictionary(object.handle._pointer, propertyKey));
   }
 
   String objectToString(RealmObjectBase object) {
@@ -1238,7 +1244,8 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_results_get(results.handle._pointer, index, realm_value));
-      return realm_value.toDartValue(results.realm);
+      return realm_value.toDartValue(results.realm, () => _realmLib.realm_results_get_list(results.handle._pointer, index),
+          () => _realmLib.realm_results_get_dictionary(results.handle._pointer, index));
     });
   }
 
@@ -1246,6 +1253,8 @@ class _RealmCore {
     return using((Arena arena) {
       final out_index = arena<Size>();
       final out_found = arena<Bool>();
+
+      // TODO: how should this behave for collections
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(
         () => _realmLib.realm_results_find(
@@ -1287,6 +1296,7 @@ class _RealmCore {
       final out_num_modifications = arena<Size>();
       final out_num_moves = arena<Size>();
       final out_collection_cleared = arena<Bool>();
+      final out_collection_was_deleted = arena<Bool>();
       _realmLib.realm_collection_changes_get_num_changes(
         changes._pointer,
         out_num_deletions,
@@ -1294,6 +1304,7 @@ class _RealmCore {
         out_num_modifications,
         out_num_moves,
         out_collection_cleared,
+        out_collection_was_deleted,
       );
 
       final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
@@ -1335,6 +1346,7 @@ class _RealmCore {
         out_modification_indexes_after.toIntList(modificationCount),
         moves,
         out_collection_cleared.value,
+        out_collection_was_deleted.value,
       );
     });
   }
@@ -1344,11 +1356,13 @@ class _RealmCore {
       final out_num_deletions = arena<Size>();
       final out_num_insertions = arena<Size>();
       final out_num_modifications = arena<Size>();
+      final out_collection_was_deleted = arena<Bool>();
       _realmLib.realm_dictionary_get_changes(
         changes._pointer,
         out_num_deletions,
         out_num_insertions,
         out_num_modifications,
+        out_collection_was_deleted,
       );
 
       final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
@@ -1358,6 +1372,7 @@ class _RealmCore {
       final out_deletion_indexes = arena<realm_value>(deletionsCount);
       final out_insertion_indexes = arena<realm_value>(insertionCount);
       final out_modification_indexes = arena<realm_value>(modificationCount);
+      final out_collection_was_cleared = arena<Bool>();
 
       _realmLib.realm_dictionary_get_changed_keys(
         changes._pointer,
@@ -1367,10 +1382,11 @@ class _RealmCore {
         out_num_insertions,
         out_modification_indexes,
         out_num_modifications,
+        out_collection_was_cleared,
       );
 
       return MapChanges(out_deletion_indexes.toStringList(deletionsCount), out_insertion_indexes.toStringList(insertionCount),
-          out_modification_indexes.toStringList(modificationCount));
+          out_modification_indexes.toStringList(modificationCount), out_collection_was_cleared.value, out_collection_was_deleted.value);
     });
   }
 
@@ -1406,22 +1422,21 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_list_get(list.handle._pointer, index, realm_value));
-      return realm_value.toDartValue(list.realm);
+      return realm_value.toDartValue(
+          list.realm, () => _realmLib.realm_list_get_list(list.handle._pointer, index), () => _realmLib.realm_list_get_dictionary(list.handle._pointer, index));
     });
   }
 
-  void listSetElementAt(RealmListHandle handle, int index, Object? value) {
+  void listAddElementAt(RealmListHandle handle, int index, Object? value, bool insert) {
     using((Arena arena) {
       final realm_value = _toRealmValue(value, arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_set(handle._pointer, index, realm_value.ref));
+      _realmLib.invokeGetBool(() => (insert ? _realmLib.realm_list_insert : _realmLib.realm_list_set)(handle._pointer, index, realm_value.ref));
     });
   }
 
-  void listInsertElementAt(RealmListHandle handle, int index, Object? value) {
-    using((Arena arena) {
-      final realm_value = _toRealmValue(value, arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_list_insert(handle._pointer, index, realm_value.ref));
-    });
+  void listAddCollectionAt(RealmListHandle handle, Realm realm, int index, RealmValue value, bool insert) {
+    _createCollection(realm, value, () => (insert ? _realmLib.realm_list_insert_list : _realmLib.realm_list_set_list)(handle._pointer, index),
+        () => (insert ? _realmLib.realm_list_insert_dictionary : _realmLib.realm_list_set_dictionary)(handle._pointer, index));
   }
 
   RealmObjectHandle listSetEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
@@ -1450,6 +1465,8 @@ class _RealmCore {
     return using((Arena arena) {
       final out_index = arena<Size>();
       final out_found = arena<Bool>();
+
+      // TODO: how should this behave for collections
       final realm_value = _toRealmValue(value, arena);
       _realmLib.invokeGetBool(
         () => _realmLib.realm_list_find(
@@ -1490,13 +1507,15 @@ class _RealmCore {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
       _realmLib.invokeGetBool(() => _realmLib.realm_set_get(realmSet.handle._pointer, index, realm_value));
-      final result = realm_value.toDartValue(realmSet.realm);
+      final result = realm_value.toDartValue(
+          realmSet.realm, () => throw RealmException('Sets cannot contain collections'), () => throw RealmException('Sets cannot contain collections'));
       return result;
     });
   }
 
   bool realmSetFind(RealmSet realmSet, Object? value) {
     return using((Arena arena) {
+      // TODO: how should this behave for collections
       final realm_value = _toRealmValue(value, arena);
       final out_index = arena<Size>();
       final out_found = arena<Bool>();
@@ -1507,6 +1526,7 @@ class _RealmCore {
 
   bool realmSetErase(RealmSet realmSet, Object? value) {
     return using((Arena arena) {
+      // TODO: do we support sets containing mixed collections
       final realm_value = _toRealmValue(value, arena);
       final out_erased = arena<Bool>();
       _realmLib.invokeGetBool(() => _realmLib.realm_set_erase(realmSet.handle._pointer, realm_value.ref, out_erased));
@@ -1570,7 +1590,8 @@ class _RealmCore {
       final out_found = arena<Bool>();
       _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_find(map.handle._pointer, key_value.ref, realm_value, out_found));
       if (out_found.value) {
-        return realm_value.toDartValue(map.realm);
+        return realm_value.toDartValue(map.realm, () => _realmLib.realm_dictionary_get_list(map.handle._pointer, key_value.ref),
+            () => _realmLib.realm_dictionary_get_dictionary(map.handle._pointer, key_value.ref));
       }
 
       return null;
@@ -1610,9 +1631,10 @@ class _RealmCore {
 
   bool mapContainsValue(ManagedRealmMap map, Object? value) {
     return using((Arena arena) {
-      final key_value = _toRealmValue(value, arena);
+      // TODO: how should this behave for collections
+      final value_value = _toRealmValue(value, arena);
       final out_index = arena<Size>();
-      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_contains_value(map.handle._pointer, key_value.ref, out_index));
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_contains_value(map.handle._pointer, value_value.ref, out_index));
       return out_index.value > -1;
     });
   }
@@ -1628,8 +1650,16 @@ class _RealmCore {
   void mapInsertValue(RealmMapHandle handle, String key, Object? value) {
     using((Arena arena) {
       final key_value = _toRealmValue(key, arena);
-      final realm_value = _toRealmValue(value, arena);
-      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_insert(handle._pointer, key_value.ref, realm_value.ref, nullptr, nullptr));
+      final value_value = _toRealmValue(value, arena);
+      _realmLib.invokeGetBool(() => _realmLib.realm_dictionary_insert(handle._pointer, key_value.ref, value_value.ref, nullptr, nullptr));
+    });
+  }
+
+  void mapInsertCollection(RealmMapHandle handle, Realm realm, String key, RealmValue value) {
+    using((Arena arena) {
+      final key_value = _toRealmValue(key, arena);
+      _createCollection(realm, value, () => _realmLib.realm_dictionary_insert_list(handle._pointer, key_value.ref),
+          () => _realmLib.realm_dictionary_insert_dictionary(handle._pointer, key_value.ref));
     });
   }
 
@@ -2994,6 +3024,36 @@ class _RealmCore {
     final configHandle = _createConfig(config);
     _realmLib.invokeGetBool(() => _realmLib.realm_convert_with_config(realm.handle._pointer, configHandle._pointer, false));
   }
+
+  void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
+    CollectionHandleBase? collectionHandle;
+    try {
+      switch (value.collectionType) {
+        case RealmCollectionType.list:
+          final listPointer = _realmLib.invokeGetPointer(createList);
+          final listHandle = RealmListHandle._(listPointer, realm.handle);
+          collectionHandle = listHandle;
+
+          final list = realm.createList<RealmValue>(listHandle, null);
+          for (final item in value.value as List<RealmValue>) {
+            list.add(item);
+          }
+        case RealmCollectionType.map:
+          final mapPointer = _realmLib.invokeGetPointer(createMap);
+          final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
+          collectionHandle = mapHandle;
+
+          final map = realm.createMap<RealmValue>(mapHandle, null);
+          for (final kvp in (value.value as Map<String, RealmValue>).entries) {
+            map[kvp.key] = kvp.value;
+          }
+        default:
+          throw RealmStateError('_createCollection invoked with type that is not list or map.');
+      }
+    } finally {
+      collectionHandle?.release();
+    }
+  }
 }
 
 class LastError {
@@ -3116,6 +3176,10 @@ abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
   }
 }
 
+abstract class CollectionHandleBase<T extends NativeType> extends RootedHandleBase<T> {
+  CollectionHandleBase(RealmHandle root, Pointer<T> pointer, int size) : super(root, pointer, size);
+}
+
 class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 
@@ -3182,7 +3246,7 @@ class RealmResultsHandle extends RootedHandleBase<realm_results> {
   RealmResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(root, pointer, 872);
 }
 
-class RealmListHandle extends RootedHandleBase<realm_list> {
+class RealmListHandle extends CollectionHandleBase<realm_list> {
   RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
 }
 
@@ -3190,7 +3254,7 @@ class RealmSetHandle extends RootedHandleBase<realm_set> {
   RealmSetHandle._(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 }
 
-class RealmMapHandle extends RootedHandleBase<realm_dictionary> {
+class RealmMapHandle extends CollectionHandleBase<realm_dictionary> {
   RealmMapHandle._(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
 }
 
@@ -3327,6 +3391,10 @@ extension _RealmLibraryEx on RealmLibrary {
 
 Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
   final realm_value = allocator<realm_value_t>();
+  if (value is RealmValue && value.type.isCollection) {
+    throw RealmError(
+        "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
+  }
   _intoRealmValue(value, realm_value.ref, allocator);
   return realm_value;
 }
@@ -3355,6 +3423,8 @@ void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_ar
 void _intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
   if (value is GeoShape) {
     _intoRealmValue(value.toString(), realm_value, allocator);
+  } else if (value is RealmValueType) {
+    _intoRealmValue(value.toQueryArgString(), realm_value, allocator);
   } else {
     _intoRealmValue(value, realm_value, allocator);
   }
@@ -3409,8 +3479,6 @@ void _intoRealmValue(Object? value, realm_value realm_value, Allocator allocator
     realm_value.values.timestamp.seconds = seconds;
     realm_value.values.timestamp.nanoseconds = nanoseconds;
     realm_value.type = realm_value_type.RLM_TYPE_TIMESTAMP;
-  } else if (value is RealmValue) {
-    return _intoRealmValue(value.value, realm_value, allocator);
   } else if (value is Decimal128) {
     realm_value.values.decimal128 = value.value;
     realm_value.type = realm_value_type.RLM_TYPE_DECIMAL128;
@@ -3419,22 +3487,32 @@ void _intoRealmValue(Object? value, realm_value realm_value, Allocator allocator
     realm_value.values.binary.size = value.length;
     realm_value.values.binary.data = allocator<Uint8>(value.length);
     realm_value.values.binary.data.asTypedList(value.length).setAll(0, value);
+  } else if (value is RealmValue) {
+    if (value.type == List<RealmValue>) {
+      realm_value.type = realm_value_type.RLM_TYPE_LIST;
+    } else if (value.type == Map<String, RealmValue>) {
+      realm_value.type = realm_value_type.RLM_TYPE_DICTIONARY;
+    } else {
+      return _intoRealmValue(value.value, realm_value, allocator);
+    }
   } else {
     throw RealmException("Property type ${value.runtimeType} not supported");
   }
 }
 
 extension on Pointer<realm_value_t> {
-  Object? toDartValue([Realm? realm]) {
+  Object? toDartValue(Realm realm, Pointer<realm_list_t> Function()? getList, Pointer<realm_dictionary_t> Function()? getMap) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
-    return ref.toDartValue(realm);
+    return ref.toDartValue(realm: realm, getList: getList, getMap: getMap);
   }
 }
 
 extension on realm_value_t {
-  Object? toDartValue([Realm? realm]) {
+  Object? toPrimitiveValue() => toDartValue(realm: null, getList: null, getMap: null);
+
+  Object? toDartValue({required Realm? realm, required Pointer<realm_list_t> Function()? getList, required Pointer<realm_dictionary_t> Function()? getMap}) {
     switch (type) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
@@ -3471,6 +3549,22 @@ extension on realm_value_t {
       case realm_value_type.RLM_TYPE_UUID:
         final listInt = values.uuid.bytes.toList(16);
         return Uuid.fromBytes(Uint8List.fromList(listInt).buffer);
+      case realm_value_type.RLM_TYPE_LIST:
+        if (getList == null || realm == null) {
+          throw RealmException('toDartValue called with a list argument but without a list getter');
+        }
+
+        final listPointer = _realmLib.invokeGetPointer(() => getList());
+        final listHandle = RealmListHandle._(listPointer, realm.handle);
+        return realm.createList<RealmValue>(listHandle, null);
+      case realm_value_type.RLM_TYPE_DICTIONARY:
+        if (getMap == null || realm == null) {
+          throw RealmException('toDartValue called with a list argument but without a list getter');
+        }
+
+        final mapPointer = _realmLib.invokeGetPointer(() => getMap());
+        final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
+        return realm.createMap<RealmValue>(mapHandle, null);
       default:
         throw RealmException("realm_value_type $type not supported");
     }
@@ -3597,7 +3691,7 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
       final compensatingWrite = this[i];
       final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
       final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
-      final primary_key = compensatingWrite.primary_key.toDartValue();
+      final primary_key = compensatingWrite.primary_key.toPrimitiveValue();
       compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
     }
     return compensatingWrites;
@@ -3796,5 +3890,25 @@ extension on realm_error {
   LastError toLastError() {
     final message = this.message.cast<Utf8>().toRealmDartString();
     return LastError(error, message, user_code_error.toUserCodeError());
+  }
+}
+
+extension on RealmValueType {
+  String toQueryArgString() {
+    return switch (this) {
+      RealmValueType.nullValue => 'null',
+      RealmValueType.boolean => 'bool',
+      RealmValueType.string => 'string',
+      RealmValueType.int => 'int',
+      RealmValueType.double => 'double',
+      RealmValueType.object => 'link',
+      RealmValueType.objectId => 'objectid',
+      RealmValueType.dateTime => 'date',
+      RealmValueType.decimal => 'decimal',
+      RealmValueType.uuid => 'uuid',
+      RealmValueType.binary => 'binary',
+      RealmValueType.list => 'array',
+      RealmValueType.map => 'object',
+    };
   }
 }
