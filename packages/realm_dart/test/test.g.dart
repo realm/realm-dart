@@ -12,7 +12,7 @@ EJsonValue encodeCar(Car value) {
 
 Car decodeCar(EJsonValue ejson) {
   return switch (ejson) {
-    {'make': EJsonValue make} => Car(make.to<String>()),
+    {'make': EJsonValue make} => Car(fromEJson(make)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -28,7 +28,7 @@ EJsonValue encodePerson(Person value) {
 
 Person decodePerson(EJsonValue ejson) {
   return switch (ejson) {
-    {'name': EJsonValue name} => Person(name.to<String>()),
+    {'name': EJsonValue name} => Person(fromEJson(name)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -53,7 +53,7 @@ Dog decodeDog(EJsonValue ejson) {
       'age': EJsonValue age,
       'owner': EJsonValue owner
     } =>
-      Dog(name.to<String>(), age: age.to<int?>(), owner: owner.to<Person?>()),
+      Dog(fromEJson(name), age: fromEJson(age), owner: fromEJson(owner)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -78,9 +78,8 @@ Team decodeTeam(EJsonValue ejson) {
       'players': EJsonValue players,
       'scores': EJsonValue scores
     } =>
-      Team(name.to<String>(),
-          players: players.to<Iterable<Person>>(),
-          scores: scores.to<Iterable<int>>()),
+      Team(fromEJson(name),
+          players: fromEJson(players), scores: fromEJson(scores)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -107,10 +106,10 @@ Student decodeStudent(EJsonValue ejson) {
       'yearOfBirth': EJsonValue yearOfBirth,
       'school': EJsonValue school
     } =>
-      Student(number.to<int>(),
-          name: name.to<String?>(),
-          yearOfBirth: yearOfBirth.to<int?>(),
-          school: school.to<School?>()),
+      Student(fromEJson(number),
+          name: fromEJson(name),
+          yearOfBirth: fromEJson(yearOfBirth),
+          school: fromEJson(school)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -139,11 +138,11 @@ School decodeSchool(EJsonValue ejson) {
       'students': EJsonValue students,
       'branches': EJsonValue branches
     } =>
-      School(name.to<String>(),
-          city: city.to<String?>(),
-          branchOfSchool: branchOfSchool.to<School?>(),
-          students: students.to<Iterable<Student>>(),
-          branches: branches.to<Iterable<School>>()),
+      School(fromEJson(name),
+          city: fromEJson(city),
+          branchOfSchool: fromEJson(branchOfSchool),
+          students: fromEJson(students),
+          branches: fromEJson(branches)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -166,8 +165,8 @@ RemappedClass decodeRemappedClass(EJsonValue ejson) {
       'remappedProperty': EJsonValue remappedProperty,
       'listProperty': EJsonValue listProperty
     } =>
-      RemappedClass(remappedProperty.to<String>(),
-          listProperty: listProperty.to<Iterable<RemappedClass>>()),
+      RemappedClass(fromEJson(remappedProperty),
+          listProperty: fromEJson(listProperty)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -183,7 +182,7 @@ EJsonValue encodeTask(Task value) {
 
 Task decodeTask(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => Task(id.to<ObjectId>()),
+    {'id': EJsonValue id} => Task(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -200,7 +199,7 @@ EJsonValue encodeProduct(Product value) {
 Product decodeProduct(EJsonValue ejson) {
   return switch (ejson) {
     {'id': EJsonValue id, 'name': EJsonValue name} =>
-      Product(id.to<ObjectId>(), name.to<String>()),
+      Product(fromEJson(id), fromEJson(name)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -217,7 +216,7 @@ EJsonValue encodeSchedule(Schedule value) {
 Schedule decodeSchedule(EJsonValue ejson) {
   return switch (ejson) {
     {'id': EJsonValue id, 'tasks': EJsonValue tasks} =>
-      Schedule(id.to<ObjectId>(), tasks: tasks.to<Iterable<Task>>()),
+      Schedule(fromEJson(id), tasks: fromEJson(tasks)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -242,9 +241,9 @@ Foo decodeFoo(EJsonValue ejson) {
       'defaultValueBinaryProp': EJsonValue defaultValueBinaryProp,
       'nullableBinaryProp': EJsonValue nullableBinaryProp
     } =>
-      Foo(requiredBinaryProp.to<Uint8List>(),
-          defaultValueBinaryProp: defaultValueBinaryProp.to<Uint8List?>(),
-          nullableBinaryProp: nullableBinaryProp.to<Uint8List?>()),
+      Foo(fromEJson(requiredBinaryProp),
+          defaultValueBinaryProp: fromEJson(defaultValueBinaryProp),
+          nullableBinaryProp: fromEJson(nullableBinaryProp)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -300,24 +299,24 @@ AllTypes decodeAllTypes(EJsonValue ejson) {
       'nullableBinaryProp': EJsonValue nullableBinaryProp
     } =>
       AllTypes(
-          stringProp.to<String>(),
-          boolProp.to<bool>(),
-          dateProp.to<DateTime>(),
-          doubleProp.to<double>(),
-          objectIdProp.to<ObjectId>(),
-          uuidProp.to<Uuid>(),
-          intProp.to<int>(),
-          decimalProp.to<Decimal128>(),
-          binaryProp: binaryProp.to<Uint8List?>(),
-          nullableStringProp: nullableStringProp.to<String?>(),
-          nullableBoolProp: nullableBoolProp.to<bool?>(),
-          nullableDateProp: nullableDateProp.to<DateTime?>(),
-          nullableDoubleProp: nullableDoubleProp.to<double?>(),
-          nullableObjectIdProp: nullableObjectIdProp.to<ObjectId?>(),
-          nullableUuidProp: nullableUuidProp.to<Uuid?>(),
-          nullableIntProp: nullableIntProp.to<int?>(),
-          nullableDecimalProp: nullableDecimalProp.to<Decimal128?>(),
-          nullableBinaryProp: nullableBinaryProp.to<Uint8List?>()),
+          fromEJson(stringProp),
+          fromEJson(boolProp),
+          fromEJson(dateProp),
+          fromEJson(doubleProp),
+          fromEJson(objectIdProp),
+          fromEJson(uuidProp),
+          fromEJson(intProp),
+          fromEJson(decimalProp),
+          binaryProp: fromEJson(binaryProp),
+          nullableStringProp: fromEJson(nullableStringProp),
+          nullableBoolProp: fromEJson(nullableBoolProp),
+          nullableDateProp: fromEJson(nullableDateProp),
+          nullableDoubleProp: fromEJson(nullableDoubleProp),
+          nullableObjectIdProp: fromEJson(nullableObjectIdProp),
+          nullableUuidProp: fromEJson(nullableUuidProp),
+          nullableIntProp: fromEJson(nullableIntProp),
+          nullableDecimalProp: fromEJson(nullableDecimalProp),
+          nullableBinaryProp: fromEJson(nullableBinaryProp)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -338,8 +337,7 @@ EJsonValue encodeLinksClass(LinksClass value) {
 LinksClass decodeLinksClass(EJsonValue ejson) {
   return switch (ejson) {
     {'id': EJsonValue id, 'link': EJsonValue link, 'list': EJsonValue list} =>
-      LinksClass(id.to<Uuid>(),
-          link: link.to<LinksClass?>(), list: list.to<Iterable<LinksClass>>()),
+      LinksClass(fromEJson(id), link: fromEJson(link), list: fromEJson(list)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -391,22 +389,22 @@ AllCollections decodeAllCollections(EJsonValue ejson) {
       'nullableDecimals': EJsonValue nullableDecimals
     } =>
       AllCollections(
-          strings: strings.to<Iterable<String>>(),
-          bools: bools.to<Iterable<bool>>(),
-          dates: dates.to<Iterable<DateTime>>(),
-          doubles: doubles.to<Iterable<double>>(),
-          objectIds: objectIds.to<Iterable<ObjectId>>(),
-          uuids: uuids.to<Iterable<Uuid>>(),
-          ints: ints.to<Iterable<int>>(),
-          decimals: decimals.to<Iterable<Decimal128>>(),
-          nullableStrings: nullableStrings.to<Iterable<String?>>(),
-          nullableBools: nullableBools.to<Iterable<bool?>>(),
-          nullableDates: nullableDates.to<Iterable<DateTime?>>(),
-          nullableDoubles: nullableDoubles.to<Iterable<double?>>(),
-          nullableObjectIds: nullableObjectIds.to<Iterable<ObjectId?>>(),
-          nullableUuids: nullableUuids.to<Iterable<Uuid?>>(),
-          nullableInts: nullableInts.to<Iterable<int?>>(),
-          nullableDecimals: nullableDecimals.to<Iterable<Decimal128?>>()),
+          strings: fromEJson(strings),
+          bools: fromEJson(bools),
+          dates: fromEJson(dates),
+          doubles: fromEJson(doubles),
+          objectIds: fromEJson(objectIds),
+          uuids: fromEJson(uuids),
+          ints: fromEJson(ints),
+          decimals: fromEJson(decimals),
+          nullableStrings: fromEJson(nullableStrings),
+          nullableBools: fromEJson(nullableBools),
+          nullableDates: fromEJson(nullableDates),
+          nullableDoubles: fromEJson(nullableDoubles),
+          nullableObjectIds: fromEJson(nullableObjectIds),
+          nullableUuids: fromEJson(nullableUuids),
+          nullableInts: fromEJson(nullableInts),
+          nullableDecimals: fromEJson(nullableDecimals)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -445,15 +443,15 @@ NullableTypes decodeNullableTypes(EJsonValue ejson) {
       'intProp': EJsonValue intProp,
       'decimalProp': EJsonValue decimalProp
     } =>
-      NullableTypes(id.to<ObjectId>(), differentiator.to<ObjectId>(),
-          stringProp: stringProp.to<String?>(),
-          boolProp: boolProp.to<bool?>(),
-          dateProp: dateProp.to<DateTime?>(),
-          doubleProp: doubleProp.to<double?>(),
-          objectIdProp: objectIdProp.to<ObjectId?>(),
-          uuidProp: uuidProp.to<Uuid?>(),
-          intProp: intProp.to<int?>(),
-          decimalProp: decimalProp.to<Decimal128?>()),
+      NullableTypes(fromEJson(id), fromEJson(differentiator),
+          stringProp: fromEJson(stringProp),
+          boolProp: fromEJson(boolProp),
+          dateProp: fromEJson(dateProp),
+          doubleProp: fromEJson(doubleProp),
+          objectIdProp: fromEJson(objectIdProp),
+          uuidProp: fromEJson(uuidProp),
+          intProp: fromEJson(intProp),
+          decimalProp: fromEJson(decimalProp)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -482,11 +480,11 @@ Event decodeEvent(EJsonValue ejson) {
       'durationInMinutes': EJsonValue durationInMinutes,
       'assignedTo': EJsonValue assignedTo
     } =>
-      Event(id.to<ObjectId>(),
-          name: name.to<String?>(),
-          isCompleted: isCompleted.to<bool?>(),
-          durationInMinutes: durationInMinutes.to<int?>(),
-          assignedTo: assignedTo.to<String?>()),
+      Event(fromEJson(id),
+          name: fromEJson(name),
+          isCompleted: fromEJson(isCompleted),
+          durationInMinutes: fromEJson(durationInMinutes),
+          assignedTo: fromEJson(assignedTo)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -513,10 +511,10 @@ Party decodeParty(EJsonValue ejson) {
       'previous': EJsonValue previous,
       'guests': EJsonValue guests
     } =>
-      Party(year.to<int>(),
-          host: host.to<Friend?>(),
-          previous: previous.to<Party?>(),
-          guests: guests.to<Iterable<Friend>>()),
+      Party(fromEJson(year),
+          host: fromEJson(host),
+          previous: fromEJson(previous),
+          guests: fromEJson(guests)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -543,10 +541,10 @@ Friend decodeFriend(EJsonValue ejson) {
       'bestFriend': EJsonValue bestFriend,
       'friends': EJsonValue friends
     } =>
-      Friend(name.to<String>(),
-          age: age.to<int>(),
-          bestFriend: bestFriend.to<Friend?>(),
-          friends: friends.to<Iterable<Friend>>()),
+      Friend(fromEJson(name),
+          age: fromEJson(age),
+          bestFriend: fromEJson(bestFriend),
+          friends: fromEJson(friends)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -569,7 +567,7 @@ When decodeWhen(EJsonValue ejson) {
       'dateTimeUtc': EJsonValue dateTimeUtc,
       'locationName': EJsonValue locationName
     } =>
-      When(dateTimeUtc.to<DateTime>(), locationName.to<String>()),
+      When(fromEJson(dateTimeUtc), fromEJson(locationName)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -594,9 +592,8 @@ Player decodePlayer(EJsonValue ejson) {
       'game': EJsonValue game,
       'scoresByRound': EJsonValue scoresByRound
     } =>
-      Player(name.to<String>(),
-          game: game.to<Game?>(),
-          scoresByRound: scoresByRound.to<Iterable<int?>>()),
+      Player(fromEJson(name),
+          game: fromEJson(game), scoresByRound: fromEJson(scoresByRound)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -613,7 +610,7 @@ EJsonValue encodeGame(Game value) {
 Game decodeGame(EJsonValue ejson) {
   return switch (ejson) {
     {'winnerByRound': EJsonValue winnerByRound} =>
-      Game(winnerByRound: winnerByRound.to<Iterable<Player>>()),
+      Game(winnerByRound: fromEJson(winnerByRound)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -681,30 +678,30 @@ AllTypesEmbedded decodeAllTypesEmbedded(EJsonValue ejson) {
       'decimals': EJsonValue decimals
     } =>
       AllTypesEmbedded(
-          stringProp.to<String>(),
-          boolProp.to<bool>(),
-          dateProp.to<DateTime>(),
-          doubleProp.to<double>(),
-          objectIdProp.to<ObjectId>(),
-          uuidProp.to<Uuid>(),
-          intProp.to<int>(),
-          decimalProp.to<Decimal128>(),
-          nullableStringProp: nullableStringProp.to<String?>(),
-          nullableBoolProp: nullableBoolProp.to<bool?>(),
-          nullableDateProp: nullableDateProp.to<DateTime?>(),
-          nullableDoubleProp: nullableDoubleProp.to<double?>(),
-          nullableObjectIdProp: nullableObjectIdProp.to<ObjectId?>(),
-          nullableUuidProp: nullableUuidProp.to<Uuid?>(),
-          nullableIntProp: nullableIntProp.to<int?>(),
-          nullableDecimalProp: nullableDecimalProp.to<Decimal128?>(),
-          strings: strings.to<Iterable<String>>(),
-          bools: bools.to<Iterable<bool>>(),
-          dates: dates.to<Iterable<DateTime>>(),
-          doubles: doubles.to<Iterable<double>>(),
-          objectIds: objectIds.to<Iterable<ObjectId>>(),
-          uuids: uuids.to<Iterable<Uuid>>(),
-          ints: ints.to<Iterable<int>>(),
-          decimals: decimals.to<Iterable<Decimal128>>()),
+          fromEJson(stringProp),
+          fromEJson(boolProp),
+          fromEJson(dateProp),
+          fromEJson(doubleProp),
+          fromEJson(objectIdProp),
+          fromEJson(uuidProp),
+          fromEJson(intProp),
+          fromEJson(decimalProp),
+          nullableStringProp: fromEJson(nullableStringProp),
+          nullableBoolProp: fromEJson(nullableBoolProp),
+          nullableDateProp: fromEJson(nullableDateProp),
+          nullableDoubleProp: fromEJson(nullableDoubleProp),
+          nullableObjectIdProp: fromEJson(nullableObjectIdProp),
+          nullableUuidProp: fromEJson(nullableUuidProp),
+          nullableIntProp: fromEJson(nullableIntProp),
+          nullableDecimalProp: fromEJson(nullableDecimalProp),
+          strings: fromEJson(strings),
+          bools: fromEJson(bools),
+          dates: fromEJson(dates),
+          doubles: fromEJson(doubles),
+          objectIds: fromEJson(objectIds),
+          uuids: fromEJson(uuids),
+          ints: fromEJson(ints),
+          decimals: fromEJson(decimals)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -735,12 +732,12 @@ ObjectWithEmbedded decodeObjectWithEmbedded(EJsonValue ejson) {
       'list': EJsonValue list,
       'recursiveList': EJsonValue recursiveList
     } =>
-      ObjectWithEmbedded(id.to<String>(),
-          differentiator: differentiator.to<Uuid?>(),
-          singleObject: singleObject.to<AllTypesEmbedded?>(),
-          recursiveObject: recursiveObject.to<RecursiveEmbedded1?>(),
-          list: list.to<Iterable<AllTypesEmbedded>>(),
-          recursiveList: recursiveList.to<Iterable<RecursiveEmbedded1>>()),
+      ObjectWithEmbedded(fromEJson(id),
+          differentiator: fromEJson(differentiator),
+          singleObject: fromEJson(singleObject),
+          recursiveObject: fromEJson(recursiveObject),
+          list: fromEJson(list),
+          recursiveList: fromEJson(recursiveList)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -767,10 +764,10 @@ RecursiveEmbedded1 decodeRecursiveEmbedded1(EJsonValue ejson) {
       'realmObject': EJsonValue realmObject,
       'children': EJsonValue children
     } =>
-      RecursiveEmbedded1(value.to<String>(),
-          child: child.to<RecursiveEmbedded2?>(),
-          realmObject: realmObject.to<ObjectWithEmbedded?>(),
-          children: children.to<Iterable<RecursiveEmbedded2>>()),
+      RecursiveEmbedded1(fromEJson(value),
+          child: fromEJson(child),
+          realmObject: fromEJson(realmObject),
+          children: fromEJson(children)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -797,10 +794,10 @@ RecursiveEmbedded2 decodeRecursiveEmbedded2(EJsonValue ejson) {
       'realmObject': EJsonValue realmObject,
       'children': EJsonValue children
     } =>
-      RecursiveEmbedded2(value.to<String>(),
-          child: child.to<RecursiveEmbedded3?>(),
-          realmObject: realmObject.to<ObjectWithEmbedded?>(),
-          children: children.to<Iterable<RecursiveEmbedded3>>()),
+      RecursiveEmbedded2(fromEJson(value),
+          child: fromEJson(child),
+          realmObject: fromEJson(realmObject),
+          children: fromEJson(children)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -816,7 +813,7 @@ EJsonValue encodeRecursiveEmbedded3(RecursiveEmbedded3 value) {
 
 RecursiveEmbedded3 decodeRecursiveEmbedded3(EJsonValue ejson) {
   return switch (ejson) {
-    {'value': EJsonValue value} => RecursiveEmbedded3(value.to<String>()),
+    {'value': EJsonValue value} => RecursiveEmbedded3(fromEJson(value)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -839,8 +836,8 @@ ObjectWithDecimal decodeObjectWithDecimal(EJsonValue ejson) {
       'decimal': EJsonValue decimal,
       'nullableDecimal': EJsonValue nullableDecimal
     } =>
-      ObjectWithDecimal(decimal.to<Decimal128>(),
-          nullableDecimal: nullableDecimal.to<Decimal128?>()),
+      ObjectWithDecimal(fromEJson(decimal),
+          nullableDecimal: fromEJson(nullableDecimal)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -865,9 +862,9 @@ Asymmetric decodeAsymmetric(EJsonValue ejson) {
       'symmetric': EJsonValue symmetric,
       'embeddedObjects': EJsonValue embeddedObjects
     } =>
-      Asymmetric(id.to<ObjectId>(),
-          symmetric: symmetric.to<Symmetric?>(),
-          embeddedObjects: embeddedObjects.to<Iterable<Embedded>>()),
+      Asymmetric(fromEJson(id),
+          symmetric: fromEJson(symmetric),
+          embeddedObjects: fromEJson(embeddedObjects)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -892,8 +889,8 @@ Embedded decodeEmbedded(EJsonValue ejson) {
       'any': EJsonValue any,
       'symmetric': EJsonValue symmetric
     } =>
-      Embedded(value.to<int>(),
-          any: any.to<RealmValue>(), symmetric: symmetric.to<Symmetric?>()),
+      Embedded(fromEJson(value),
+          any: fromEJson(any), symmetric: fromEJson(symmetric)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -909,7 +906,7 @@ EJsonValue encodeSymmetric(Symmetric value) {
 
 Symmetric decodeSymmetric(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => Symmetric(id.to<ObjectId>()),
+    {'id': EJsonValue id} => Symmetric(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }

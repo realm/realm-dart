@@ -26,11 +26,11 @@ Source decodeSource(EJsonValue ejson) {
       'dynamicManyTargets': EJsonValue dynamicManyTargets
     } =>
       Source(
-          name: name.to<String>(),
-          oneTarget: oneTarget.to<Target?>(),
-          dynamicTarget: dynamicTarget.to<Target?>(),
-          manyTargets: manyTargets.to<Iterable<Target>>(),
-          dynamicManyTargets: dynamicManyTargets.to<Iterable<Target>>()),
+          name: fromEJson(name),
+          oneTarget: fromEJson(oneTarget),
+          dynamicTarget: fromEJson(dynamicTarget),
+          manyTargets: fromEJson(manyTargets),
+          dynamicManyTargets: fromEJson(dynamicManyTargets)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -47,7 +47,7 @@ EJsonValue encodeTarget(Target value) {
 Target decodeTarget(EJsonValue ejson) {
   return switch (ejson) {
     {'name': EJsonValue name, 'source': EJsonValue source} =>
-      Target(name: name.to<String>(), source: source.to<Source?>()),
+      Target(name: fromEJson(name), source: fromEJson(source)),
     _ => raiseInvalidEJson(ejson),
   };
 }

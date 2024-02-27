@@ -23,10 +23,10 @@ Car decodeCar(EJsonValue ejson) {
       'kilometers': EJsonValue kilometers,
       'owner': EJsonValue owner
     } =>
-      Car(make.to<String>(),
-          model: model.to<String?>(),
-          kilometers: kilometers.to<int?>(),
-          owner: owner.to<Person?>()),
+      Car(fromEJson(make),
+          model: fromEJson(model),
+          kilometers: fromEJson(kilometers),
+          owner: fromEJson(owner)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -43,7 +43,7 @@ EJsonValue encodePerson(Person value) {
 Person decodePerson(EJsonValue ejson) {
   return switch (ejson) {
     {'name': EJsonValue name, 'age': EJsonValue age} =>
-      Person(name.to<String>(), age: age.to<int>()),
+      Person(fromEJson(name), age: fromEJson(age)),
     _ => raiseInvalidEJson(ejson),
   };
 }

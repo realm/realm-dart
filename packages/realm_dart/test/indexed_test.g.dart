@@ -27,8 +27,8 @@ WithIndexes decodeWithIndexes(EJsonValue ejson) {
       'objectId': EJsonValue objectId,
       'uuid': EJsonValue uuid
     } =>
-      WithIndexes(anInt.to<int>(), aBool.to<bool>(), string.to<String>(),
-          timestamp.to<DateTime>(), objectId.to<ObjectId>(), uuid.to<Uuid>()),
+      WithIndexes(fromEJson(anInt), fromEJson(aBool), fromEJson(string),
+          fromEJson(timestamp), fromEJson(objectId), fromEJson(uuid)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -59,8 +59,8 @@ NoIndexes decodeNoIndexes(EJsonValue ejson) {
       'objectId': EJsonValue objectId,
       'uuid': EJsonValue uuid
     } =>
-      NoIndexes(anInt.to<int>(), aBool.to<bool>(), string.to<String>(),
-          timestamp.to<DateTime>(), objectId.to<ObjectId>(), uuid.to<Uuid>()),
+      NoIndexes(fromEJson(anInt), fromEJson(aBool), fromEJson(string),
+          fromEJson(timestamp), fromEJson(objectId), fromEJson(uuid)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -85,8 +85,8 @@ ObjectWithFTSIndex decodeObjectWithFTSIndex(EJsonValue ejson) {
       'summary': EJsonValue summary,
       'nullableSummary': EJsonValue nullableSummary
     } =>
-      ObjectWithFTSIndex(title.to<String>(), summary.to<String>(),
-          nullableSummary: nullableSummary.to<String?>()),
+      ObjectWithFTSIndex(fromEJson(title), fromEJson(summary),
+          nullableSummary: fromEJson(nullableSummary)),
     _ => raiseInvalidEJson(ejson),
   };
 }

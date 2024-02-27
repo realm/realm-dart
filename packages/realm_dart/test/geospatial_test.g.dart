@@ -16,9 +16,7 @@ EJsonValue encodeLocation(Location value) {
 Location decodeLocation(EJsonValue ejson) {
   return switch (ejson) {
     {'type': EJsonValue type, 'coordinates': EJsonValue coordinates} =>
-      Location(
-          type: type.to<String>(),
-          coordinates: coordinates.to<Iterable<double>>()),
+      Location(type: fromEJson(type), coordinates: fromEJson(coordinates)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -35,7 +33,7 @@ EJsonValue encodeRestaurant(Restaurant value) {
 Restaurant decodeRestaurant(EJsonValue ejson) {
   return switch (ejson) {
     {'name': EJsonValue name, 'location': EJsonValue location} =>
-      Restaurant(name.to<String>(), location: location.to<Location?>()),
+      Restaurant(fromEJson(name), location: fromEJson(location)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -52,7 +50,7 @@ EJsonValue encodeLocationList(LocationList value) {
 LocationList decodeLocationList(EJsonValue ejson) {
   return switch (ejson) {
     {'locations': EJsonValue locations} =>
-      LocationList(locations: locations.to<Iterable<Location>>()),
+      LocationList(locations: fromEJson(locations)),
     _ => raiseInvalidEJson(ejson),
   };
 }

@@ -12,7 +12,7 @@ EJsonValue encodePersonIntName(PersonIntName value) {
 
 PersonIntName decodePersonIntName(EJsonValue ejson) {
   return switch (ejson) {
-    {'name': EJsonValue name} => PersonIntName(name.to<int>()),
+    {'name': EJsonValue name} => PersonIntName(fromEJson(name)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -32,7 +32,7 @@ EJsonValue encodeStudentV1(StudentV1 value) {
 StudentV1 decodeStudentV1(EJsonValue ejson) {
   return switch (ejson) {
     {'name': EJsonValue name, 'yearOfBirth': EJsonValue yearOfBirth} =>
-      StudentV1(name.to<String>(), yearOfBirth: yearOfBirth.to<int?>()),
+      StudentV1(fromEJson(name), yearOfBirth: fromEJson(yearOfBirth)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -49,7 +49,7 @@ EJsonValue encodeMyObjectWithTypo(MyObjectWithTypo value) {
 MyObjectWithTypo decodeMyObjectWithTypo(EJsonValue ejson) {
   return switch (ejson) {
     {'nmae': EJsonValue nmae, 'vlaue': EJsonValue vlaue} =>
-      MyObjectWithTypo(nmae.to<String>(), vlaue.to<int>()),
+      MyObjectWithTypo(fromEJson(nmae), fromEJson(vlaue)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -66,7 +66,7 @@ EJsonValue encodeMyObjectWithoutTypo(MyObjectWithoutTypo value) {
 MyObjectWithoutTypo decodeMyObjectWithoutTypo(EJsonValue ejson) {
   return switch (ejson) {
     {'name': EJsonValue name, 'value': EJsonValue value} =>
-      MyObjectWithoutTypo(name.to<String>(), value.to<int>()),
+      MyObjectWithoutTypo(fromEJson(name), fromEJson(value)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -82,7 +82,7 @@ EJsonValue encodeMyObjectWithoutValue(MyObjectWithoutValue value) {
 
 MyObjectWithoutValue decodeMyObjectWithoutValue(EJsonValue ejson) {
   return switch (ejson) {
-    {'name': EJsonValue name} => MyObjectWithoutValue(name.to<String>()),
+    {'name': EJsonValue name} => MyObjectWithoutValue(fromEJson(name)),
     _ => raiseInvalidEJson(ejson),
   };
 }

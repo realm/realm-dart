@@ -12,7 +12,7 @@ EJsonValue encodeObjectIdPrimaryKey(ObjectIdPrimaryKey value) {
 
 ObjectIdPrimaryKey decodeObjectIdPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => ObjectIdPrimaryKey(id.to<ObjectId>()),
+    {'id': EJsonValue id} => ObjectIdPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -28,7 +28,7 @@ EJsonValue encodeNullableObjectIdPrimaryKey(NullableObjectIdPrimaryKey value) {
 
 NullableObjectIdPrimaryKey decodeNullableObjectIdPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => NullableObjectIdPrimaryKey(id.to<ObjectId?>()),
+    {'id': EJsonValue id} => NullableObjectIdPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -45,7 +45,7 @@ EJsonValue encodeIntPrimaryKey(IntPrimaryKey value) {
 
 IntPrimaryKey decodeIntPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => IntPrimaryKey(id.to<int>()),
+    {'id': EJsonValue id} => IntPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -61,7 +61,7 @@ EJsonValue encodeNullableIntPrimaryKey(NullableIntPrimaryKey value) {
 
 NullableIntPrimaryKey decodeNullableIntPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => NullableIntPrimaryKey(id.to<int?>()),
+    {'id': EJsonValue id} => NullableIntPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -77,7 +77,7 @@ EJsonValue encodeStringPrimaryKey(StringPrimaryKey value) {
 
 StringPrimaryKey decodeStringPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => StringPrimaryKey(id.to<String>()),
+    {'id': EJsonValue id} => StringPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -93,7 +93,7 @@ EJsonValue encodeNullableStringPrimaryKey(NullableStringPrimaryKey value) {
 
 NullableStringPrimaryKey decodeNullableStringPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => NullableStringPrimaryKey(id.to<String?>()),
+    {'id': EJsonValue id} => NullableStringPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -110,7 +110,7 @@ EJsonValue encodeUuidPrimaryKey(UuidPrimaryKey value) {
 
 UuidPrimaryKey decodeUuidPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => UuidPrimaryKey(id.to<Uuid>()),
+    {'id': EJsonValue id} => UuidPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -126,7 +126,7 @@ EJsonValue encodeNullableUuidPrimaryKey(NullableUuidPrimaryKey value) {
 
 NullableUuidPrimaryKey decodeNullableUuidPrimaryKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => NullableUuidPrimaryKey(id.to<Uuid?>()),
+    {'id': EJsonValue id} => NullableUuidPrimaryKey(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -145,7 +145,7 @@ RemappedFromAnotherFile decodeRemappedFromAnotherFile(EJsonValue ejson) {
   return switch (ejson) {
     {'linkToAnotherClass': EJsonValue linkToAnotherClass} =>
       RemappedFromAnotherFile(
-          linkToAnotherClass: linkToAnotherClass.to<RemappedClass?>()),
+          linkToAnotherClass: fromEJson(linkToAnotherClass)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -163,7 +163,7 @@ EJsonValue encodeBoolValue(BoolValue value) {
 BoolValue decodeBoolValue(EJsonValue ejson) {
   return switch (ejson) {
     {'key': EJsonValue key, 'value': EJsonValue value} =>
-      BoolValue(key.to<int>(), value.to<bool>()),
+      BoolValue(fromEJson(key), fromEJson(value)),
     _ => raiseInvalidEJson(ejson),
   };
 }

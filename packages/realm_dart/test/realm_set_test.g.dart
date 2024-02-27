@@ -13,7 +13,7 @@ EJsonValue encodeCar(Car value) {
 Car decodeCar(EJsonValue ejson) {
   return switch (ejson) {
     {'make': EJsonValue make, 'color': EJsonValue color} =>
-      Car(make.to<String>(), color: color.to<String?>()),
+      Car(fromEJson(make), color: fromEJson(color)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -70,25 +70,25 @@ TestRealmSets decodeTestRealmSets(EJsonValue ejson) {
       'nullableUuidSet': EJsonValue nullableUuidSet,
       'nullableBinarySet': EJsonValue nullableBinarySet
     } =>
-      TestRealmSets(key.to<int>(),
-          boolSet: boolSet.to<Set<bool>>(),
-          intSet: intSet.to<Set<int>>(),
-          stringSet: stringSet.to<Set<String>>(),
-          doubleSet: doubleSet.to<Set<double>>(),
-          dateTimeSet: dateTimeSet.to<Set<DateTime>>(),
-          objectIdSet: objectIdSet.to<Set<ObjectId>>(),
-          uuidSet: uuidSet.to<Set<Uuid>>(),
-          mixedSet: mixedSet.to<Set<RealmValue>>(),
-          objectsSet: objectsSet.to<Set<Car>>(),
-          binarySet: binarySet.to<Set<Uint8List>>(),
-          nullableBoolSet: nullableBoolSet.to<Set<bool?>>(),
-          nullableIntSet: nullableIntSet.to<Set<int?>>(),
-          nullableStringSet: nullableStringSet.to<Set<String?>>(),
-          nullableDoubleSet: nullableDoubleSet.to<Set<double?>>(),
-          nullableDateTimeSet: nullableDateTimeSet.to<Set<DateTime?>>(),
-          nullableObjectIdSet: nullableObjectIdSet.to<Set<ObjectId?>>(),
-          nullableUuidSet: nullableUuidSet.to<Set<Uuid?>>(),
-          nullableBinarySet: nullableBinarySet.to<Set<Uint8List?>>()),
+      TestRealmSets(fromEJson(key),
+          boolSet: fromEJson(boolSet),
+          intSet: fromEJson(intSet),
+          stringSet: fromEJson(stringSet),
+          doubleSet: fromEJson(doubleSet),
+          dateTimeSet: fromEJson(dateTimeSet),
+          objectIdSet: fromEJson(objectIdSet),
+          uuidSet: fromEJson(uuidSet),
+          mixedSet: fromEJson(mixedSet),
+          objectsSet: fromEJson(objectsSet),
+          binarySet: fromEJson(binarySet),
+          nullableBoolSet: fromEJson(nullableBoolSet),
+          nullableIntSet: fromEJson(nullableIntSet),
+          nullableStringSet: fromEJson(nullableStringSet),
+          nullableDoubleSet: fromEJson(nullableDoubleSet),
+          nullableDateTimeSet: fromEJson(nullableDateTimeSet),
+          nullableObjectIdSet: fromEJson(nullableObjectIdSet),
+          nullableUuidSet: fromEJson(nullableUuidSet),
+          nullableBinarySet: fromEJson(nullableBinarySet)),
     _ => raiseInvalidEJson(ejson),
   };
 }

@@ -12,7 +12,7 @@ EJsonValue encodeTuckedIn(TuckedIn value) {
 
 TuckedIn decodeTuckedIn(EJsonValue ejson) {
   return switch (ejson) {
-    {'x': EJsonValue x} => TuckedIn(x: x.to<int>()),
+    {'x': EJsonValue x} => TuckedIn(x: fromEJson(x)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -40,10 +40,10 @@ AnythingGoes decodeAnythingGoes(EJsonValue ejson) {
       'dictOfAny': EJsonValue dictOfAny
     } =>
       AnythingGoes(
-          oneAny: oneAny.to<RealmValue>(),
-          manyAny: manyAny.to<Iterable<RealmValue>>(),
-          setOfAny: setOfAny.to<Set<RealmValue>>(),
-          dictOfAny: dictOfAny.to<Map<String, RealmValue>>()),
+          oneAny: fromEJson(oneAny),
+          manyAny: fromEJson(manyAny),
+          setOfAny: fromEJson(setOfAny),
+          dictOfAny: fromEJson(dictOfAny)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -59,7 +59,7 @@ EJsonValue encodeStuff(Stuff value) {
 
 Stuff decodeStuff(EJsonValue ejson) {
   return switch (ejson) {
-    {'i': EJsonValue i} => Stuff(i: i.to<int>()),
+    {'i': EJsonValue i} => Stuff(i: fromEJson(i)),
     _ => raiseInvalidEJson(ejson),
   };
 }

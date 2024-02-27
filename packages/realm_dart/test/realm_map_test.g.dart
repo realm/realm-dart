@@ -13,7 +13,7 @@ EJsonValue encodeCar(Car value) {
 Car decodeCar(EJsonValue ejson) {
   return switch (ejson) {
     {'make': EJsonValue make, 'color': EJsonValue color} =>
-      Car(make.to<String>(), color: color.to<String?>()),
+      Car(fromEJson(make), color: fromEJson(color)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -29,7 +29,7 @@ EJsonValue encodeEmbeddedValue(EmbeddedValue value) {
 
 EmbeddedValue decodeEmbeddedValue(EJsonValue ejson) {
   return switch (ejson) {
-    {'intValue': EJsonValue intValue} => EmbeddedValue(intValue.to<int>()),
+    {'intValue': EJsonValue intValue} => EmbeddedValue(fromEJson(intValue)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -92,28 +92,28 @@ TestRealmMaps decodeTestRealmMaps(EJsonValue ejson) {
       'embeddedMap': EJsonValue embeddedMap,
       'mixedMap': EJsonValue mixedMap
     } =>
-      TestRealmMaps(key.to<int>(),
-          boolMap: boolMap.to<Map<String, bool>>(),
-          intMap: intMap.to<Map<String, int>>(),
-          stringMap: stringMap.to<Map<String, String>>(),
-          doubleMap: doubleMap.to<Map<String, double>>(),
-          dateTimeMap: dateTimeMap.to<Map<String, DateTime>>(),
-          objectIdMap: objectIdMap.to<Map<String, ObjectId>>(),
-          uuidMap: uuidMap.to<Map<String, Uuid>>(),
-          binaryMap: binaryMap.to<Map<String, Uint8List>>(),
-          decimalMap: decimalMap.to<Map<String, Decimal128>>(),
-          nullableBoolMap: nullableBoolMap.to<Map<String, bool?>>(),
-          nullableIntMap: nullableIntMap.to<Map<String, int?>>(),
-          nullableStringMap: nullableStringMap.to<Map<String, String?>>(),
-          nullableDoubleMap: nullableDoubleMap.to<Map<String, double?>>(),
-          nullableDateTimeMap: nullableDateTimeMap.to<Map<String, DateTime?>>(),
-          nullableObjectIdMap: nullableObjectIdMap.to<Map<String, ObjectId?>>(),
-          nullableUuidMap: nullableUuidMap.to<Map<String, Uuid?>>(),
-          nullableBinaryMap: nullableBinaryMap.to<Map<String, Uint8List?>>(),
-          nullableDecimalMap: nullableDecimalMap.to<Map<String, Decimal128?>>(),
-          objectsMap: objectsMap.to<Map<String, Car?>>(),
-          embeddedMap: embeddedMap.to<Map<String, EmbeddedValue?>>(),
-          mixedMap: mixedMap.to<Map<String, RealmValue>>()),
+      TestRealmMaps(fromEJson(key),
+          boolMap: fromEJson(boolMap),
+          intMap: fromEJson(intMap),
+          stringMap: fromEJson(stringMap),
+          doubleMap: fromEJson(doubleMap),
+          dateTimeMap: fromEJson(dateTimeMap),
+          objectIdMap: fromEJson(objectIdMap),
+          uuidMap: fromEJson(uuidMap),
+          binaryMap: fromEJson(binaryMap),
+          decimalMap: fromEJson(decimalMap),
+          nullableBoolMap: fromEJson(nullableBoolMap),
+          nullableIntMap: fromEJson(nullableIntMap),
+          nullableStringMap: fromEJson(nullableStringMap),
+          nullableDoubleMap: fromEJson(nullableDoubleMap),
+          nullableDateTimeMap: fromEJson(nullableDateTimeMap),
+          nullableObjectIdMap: fromEJson(nullableObjectIdMap),
+          nullableUuidMap: fromEJson(nullableUuidMap),
+          nullableBinaryMap: fromEJson(nullableBinaryMap),
+          nullableDecimalMap: fromEJson(nullableDecimalMap),
+          objectsMap: fromEJson(objectsMap),
+          embeddedMap: fromEJson(embeddedMap),
+          mixedMap: fromEJson(mixedMap)),
     _ => raiseInvalidEJson(ejson),
   };
 }

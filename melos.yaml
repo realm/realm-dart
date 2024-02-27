@@ -50,7 +50,7 @@ scripts:
   build:dart:
     run: dart run build_runner build --delete-conflicting-outputs
     exec:
-      orderDependents: true
+      concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       dependsOn: build_runner
 
