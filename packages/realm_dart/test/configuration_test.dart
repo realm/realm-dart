@@ -439,7 +439,7 @@ void main() {
   });
 
   const dummyDataSize = 100;
-  _addDummyData(Realm realm) {
+  addDummyData(Realm realm) {
     for (var i = 0; i < dummyDataSize; i++) {
       realm.write(() {
         realm.add(Person(generateRandomString(1000)));
@@ -461,7 +461,7 @@ void main() {
       var config = Configuration.local([Person.schema]);
 
       final populateRealm = Realm(config);
-      _addDummyData(populateRealm);
+      addDummyData(populateRealm);
       populateRealm.close();
 
       final oldSize = File(config.path).lengthSync();
