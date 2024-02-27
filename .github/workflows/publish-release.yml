@@ -25,7 +25,7 @@ jobs:
     - name: Read version
       id: get-version
       run: |
-        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
+        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" packages/realm_dart/pubspec.yaml)
         pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
         echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
