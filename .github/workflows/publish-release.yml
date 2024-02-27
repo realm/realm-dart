@@ -151,7 +151,7 @@ jobs:
     - name: Upload release folder to S3
       id: upload-to-s3
       run: |
-        tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
+        tar -zcvf packages.tar.gz realm_common realm_generator realm_dart realm ExtractedChangelog.md
         rm -rf common generator realm_dart realm ExtractedChangelog.md
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"
