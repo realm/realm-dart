@@ -76,9 +76,11 @@ class InstallCommand extends Command<void> {
   }
 
   Future<bool> shouldSkipInstall(Pubspec realmPubspec) async {
+    return true; // testing hypothesis
     final pubspecFile = await File("pubspec.yaml").readAsString();
+    print(pubspecFile);
     final projectPubspec = Pubspec.parse(pubspecFile);
-
+    print(projectPubspec.name);
     if (Flavor.values.map((f) => f.packageName).contains(projectPubspec.name)) {
       print(//
           'Running install command inside ${projectPubspec.name} package which is the development package for Realm.\n'
@@ -188,6 +190,7 @@ class InstallCommand extends Command<void> {
     }
 
     final binaryPath = Directory(getBinaryPath(path.dirname(realmPackagePath)));
+    print(binaryPath);
     final archiveName = "${options.targetOsType!.name}.tar.gz";
     await downloadAndExtractBinaries(binaryPath, realmPubspec, archiveName);
 
