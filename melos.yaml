@@ -68,17 +68,9 @@ scripts:
       melos run test:integration
 
   test:unit:
-    run: >-
-      dart test
-      --concurrency=1
-      --coverage=coverage/
-      --file-reporter=json:test-results.json
-      --reporter=github;
-      dart pub global run coverage:format_coverage
-      --report-on=lib/
-      --in=coverage/test/
-      --lcov
-      --out=coverage/lcov.info
+    run: |
+      dart test --concurrency=1 --coverage=coverage/ --file-reporter=json:test-results.json --reporter=github
+      dart pub global run coverage:format_coverage --report-on=lib/ --in=coverage/test/ --lcov --out=coverage/lcov.info
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
