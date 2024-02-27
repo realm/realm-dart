@@ -21,7 +21,6 @@
 import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:ejson/ejson.dart';
 
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';

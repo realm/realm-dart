@@ -19,7 +19,6 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';

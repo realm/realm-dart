@@ -22,7 +22,6 @@ import 'package:ejson/ejson.dart';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:collection/collection.dart';
 
 import 'package:test/test.dart' hide test, throws;
 import 'test.dart';

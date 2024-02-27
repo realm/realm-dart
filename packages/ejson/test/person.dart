@@ -1,5 +1,4 @@
 import 'package:ejson/ejson.dart';
-import 'package:ejson/src/decoding.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
 
 part 'person.g.dart';
