@@ -127,7 +127,7 @@ class RealmError extends Error {
 /// An error throw when operating on an object that has been closed.
 /// {@category Realm}
 class RealmClosedError extends RealmError {
-  RealmClosedError(String message) : super(message);
+  RealmClosedError(super.message);
 }
 
 /// Thrown if the operation is not supported.

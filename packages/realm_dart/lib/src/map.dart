@@ -53,9 +53,8 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 
   UnmanagedRealmMap([Map<String, T>? items]) : this._(Map<String, T>.from(items ?? <String, T>{}));
 
-  UnmanagedRealmMap._(Map<String, T> items)
-      : _base = items,
-        super(items);
+  UnmanagedRealmMap._(super.items)
+      : _base = items;
 
   @override
   bool get isValid => true;

@@ -1021,7 +1021,7 @@ class MigrationRealm extends DynamicRealm {
   /// the schema will be read from the file.
   RealmSchema get schema => _realm.schema;
 
-  MigrationRealm._(Realm realm) : super._(realm);
+  MigrationRealm._(super.realm) : super._();
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].

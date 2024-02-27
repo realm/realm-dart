@@ -646,7 +646,7 @@ class SyncError extends RealmError {
   /// The code that describes this error.
   final SyncErrorCode code;
 
-  SyncError._(String message, this.code, this.innerError) : super(message);
+  SyncError._(super.message, this.code, this.innerError);
 
   final Object? innerError;
 

@@ -31,8 +31,8 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   bool color;
 
   RealmInvalidGenerationSourceError(
-    String message, {
-    required String todo,
+    super.message, {
+    required super.todo,
     required Element element,
     FileSpan? primarySpan,
     bool? color,
@@ -41,7 +41,7 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   })  : primarySpan = primarySpan ?? element.span,
         secondarySpans = {...secondarySpans},
         color = color ?? session.color,
-        super(message, todo: todo, element: element) {
+        super(element: element) {
     if (element is FieldElement || element is ConstructorElement) {
       final classElement = element.enclosingElement!;
       this.secondarySpans.addAll({

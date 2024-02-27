@@ -3177,13 +3177,13 @@ abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
 }
 
 abstract class CollectionHandleBase<T extends NativeType> extends RootedHandleBase<T> {
-  CollectionHandleBase(RealmHandle root, Pointer<T> pointer, int size) : super(root, pointer, size);
+  CollectionHandleBase(super.root, super.pointer, super.size);
 }
 
 class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 
-  SchemaHandle.unowned(Pointer<realm_schema> pointer) : super.unowned(pointer);
+  SchemaHandle.unowned(super.pointer) : super.unowned();
 }
 
 class ConfigHandle extends HandleBase<realm_config> {
@@ -3197,7 +3197,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
-  RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
+  RealmHandle._unowned(super.pointer) : super.unowned();
 
   int addChild(RootedHandleBase child) {
     final id = _counter++;

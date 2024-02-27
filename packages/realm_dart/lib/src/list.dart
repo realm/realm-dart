@@ -221,9 +221,8 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   UnmanagedRealmList([Iterable<T>? items]) : this._(List<T>.from(items ?? <T>[]));
 
-  UnmanagedRealmList._(List<T> items)
-      : _base = items,
-        super(items);
+  UnmanagedRealmList._(super.items)
+      : _base = items;
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");

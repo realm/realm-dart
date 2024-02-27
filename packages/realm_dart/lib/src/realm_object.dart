@@ -667,9 +667,8 @@ class RealmException implements Exception {
 /// An exception thrown when a Realm is opened with a different schema and a migration is required.
 /// See [LocalConfiguration.migrationCallback] for more details.
 class MigrationRequiredException extends RealmException {
-  MigrationRequiredException(String message)
-      : super(message,
-            helpLink: "https://www.mongodb.com/docs/realm/sdk/flutter/realm-database/model-data/update-realm-object-schema/#manually-migrate-schema");
+  MigrationRequiredException(super.message)
+      : super(helpLink: "https://www.mongodb.com/docs/realm/sdk/flutter/realm-database/model-data/update-realm-object-schema/#manually-migrate-schema");
 
   @override
   String toString() {
