@@ -23,6 +23,7 @@ import 'package:type_plus/type_plus.dart';
 import 'decoding.dart';
 import 'encoding.dart';
 
+/// Register custom EJSON [encoder] and [decoder] for a [T].
 void register<T>(EJsonEncoder<T> encoder, EJsonDecoder<T> decoder) {
   TypePlus.add<T>();
   customEncoders[T] = encoder;

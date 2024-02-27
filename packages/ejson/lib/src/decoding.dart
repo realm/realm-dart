@@ -50,9 +50,8 @@ const commonDecoders = {
   UndefinedOr: _decodeUndefinedOr,
 };
 
-var customDecoders = <Type, Function>{};
+final customDecoders = <Type, Function>{};
 
-// if registerSerializableTypes not called
 final decoders = () {
   // register extra common types on first access
   undefinedOr<T>(dynamic f) => f<UndefinedOr<T>>();

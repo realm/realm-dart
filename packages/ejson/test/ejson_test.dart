@@ -25,7 +25,6 @@ import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 import 'package:test/test.dart';
 
-import 'ejson_serialization_setup.g.dart';
 import 'person.dart';
 
 void _testCase<T>(
@@ -243,7 +242,7 @@ void main() {
       });
 
       group('custom types', () {
-        registerSerializableTypes();
+        register(encodePerson, decodePerson);
 
         final person = Person(
           'John',
