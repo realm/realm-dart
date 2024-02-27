@@ -165,7 +165,7 @@ class InstallCommand extends Command<void> {
   }
 
   void validateOptions(Flavor flavor) {
-    final targetOs = flavor == Flavor.dart? getTargetOS() : options.targetOsType;
+    final targetOs = flavor == Flavor.dart ? getTargetOS() : options.targetOsType;
     if (targetOs == null) {
       abort('Target OS not specified');
     }
