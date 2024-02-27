@@ -40,18 +40,18 @@ jobs:
       with:
         workflow: ci.yml
         commit: ${{ github.sha }}
-        path: ${{ github.workspace }}/packages/realm_dart/binary/
+        path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
     # The rename is necessary because action-download-artifact will put things in a folder named the same
     # as the artifact name - i.e. librealm-linux, etc.
     - name: Archive binaries
       run: |
-        mkdir -p release
+        mkdir -p ${{ github.workspace }}/release
 
-        for directory in binary/*; do
-          targetFile="release/${directory#*-}.tar.gz"
-          dart run realm_dart archive --source-dir "$directory" --output-file "${{ github.workspace }}/$targetFile"
+        for directory in ${{ github.workspace }}/binary/*; do
+          targetFile="${{ github.workspace }}/release/${$(basename $directory)#*-}.tar.gz"
+          dart run realm_dart archive --source-dir "$directory" --output-file "$targetFile"
         done
       working-directory: packages/realm_dart
 
