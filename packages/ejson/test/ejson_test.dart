@@ -256,15 +256,15 @@ void main() {
           {
             'name': 'John',
             'birthDate': {
-              '\$date': {'\$numberLong': 126226800000}
+              '\$date': {'\$numberLong': '126226800000'}
             },
-            'income': {'\$numberDouble': 80000.0},
+            'income': {'\$numberDouble': '80000.0'},
             'spouse': {
               'name': 'Jane',
               'birthDate': {
-                '\$date': {'\$numberLong': 94690800000}
+                '\$date': {'\$numberLong': '94690800000'}
               },
-              'income': {'\$numberDouble': 90000.0},
+              'income': {'\$numberDouble': '90000.0'},
               'spouse': null
             }
           },
@@ -286,15 +286,15 @@ void main() {
             'a': {
               'name': 'John',
               'birthDate': {
-                '\$date': {'\$numberLong': 126226800000}
+                '\$date': {'\$numberLong': '126226800000'}
               },
-              'income': {'\$numberDouble': 80000.0},
+              'income': {'\$numberDouble': '80000.0'},
               'spouse': {
                 'name': 'Jane',
                 'birthDate': {
-                  '\$date': {'\$numberLong': 94690800000}
+                  '\$date': {'\$numberLong': '94690800000'}
                 },
-                'income': {'\$numberDouble': 90000.0},
+                'income': {'\$numberDouble': '90000.0'},
                 'spouse': null
               }
             }

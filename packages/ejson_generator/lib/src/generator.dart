@@ -89,7 +89,7 @@ class EJsonGenerator extends Generator {
         $className decode$className(EJsonValue ejson) {
           return switch (ejson) {
               ${decodePattern(ctor.parameters)} => $className${ctor.name.isEmpty ? '' : '.${ctor.name}'}(
-              ${ctor.parameters.map((p) => "${p.isNamed ? '${p.name} : ' : ''}${p.name}.to<${p.type}>()").join(',\n')}
+              ${ctor.parameters.map((p) => "${p.isNamed ? '${p.name} : ' : ''}fromEJson(${p.name})").join(',\n')}
             ),
             _ => raiseInvalidEJson(ejson),
           };

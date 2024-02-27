@@ -277,7 +277,3 @@ class MissingDecoder implements Exception {
   @override
   String toString() => 'Missing decoder for $type';
 }
-
-extension EJsonValueDecoderExtension on EJsonValue {
-  T to<T>() => fromEJson<T>(this);
-}

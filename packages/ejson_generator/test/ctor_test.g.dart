@@ -28,7 +28,7 @@ EJsonValue encodeSimple(Simple value) {
 
 Simple decodeSimple(EJsonValue ejson) {
   return switch (ejson) {
-    {'i': EJsonValue i} => Simple(i.to<int>()),
+    {'i': EJsonValue i} => Simple(fromEJson(i)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -44,7 +44,7 @@ EJsonValue encodeNamed(Named value) {
 
 Named decodeNamed(EJsonValue ejson) {
   return switch (ejson) {
-    {'namedCtor': EJsonValue namedCtor} => Named.nameIt(namedCtor.to<String>()),
+    {'namedCtor': EJsonValue namedCtor} => Named.nameIt(fromEJson(namedCtor)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -61,7 +61,7 @@ EJsonValue encodeRequiredNamedParameters(RequiredNamedParameters value) {
 RequiredNamedParameters decodeRequiredNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
     {'requiredNamed': EJsonValue requiredNamed} =>
-      RequiredNamedParameters(requiredNamed: requiredNamed.to<String>()),
+      RequiredNamedParameters(requiredNamed: fromEJson(requiredNamed)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -79,7 +79,7 @@ EJsonValue encodeOptionalNamedParameters(OptionalNamedParameters value) {
 OptionalNamedParameters decodeOptionalNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
     {'optionalNamed': EJsonValue optionalNamed} =>
-      OptionalNamedParameters(optionalNamed: optionalNamed.to<String>()),
+      OptionalNamedParameters(optionalNamed: fromEJson(optionalNamed)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -97,7 +97,7 @@ EJsonValue encodeOptionalParameters(OptionalParameters value) {
 OptionalParameters decodeOptionalParameters(EJsonValue ejson) {
   return switch (ejson) {
     {'optional': EJsonValue optional} =>
-      OptionalParameters(optional.to<String>()),
+      OptionalParameters(fromEJson(optional)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -113,7 +113,7 @@ EJsonValue encodePrivateMembers(PrivateMembers value) {
 
 PrivateMembers decodePrivateMembers(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => PrivateMembers(id.to<int>()),
+    {'id': EJsonValue id} => PrivateMembers(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -142,8 +142,8 @@ Person decodePerson(EJsonValue ejson) {
       'spouse': EJsonValue spouse,
       'cprNumber': EJsonValue cprNumber
     } =>
-      Person(name.to<String>(), birthDate.to<DateTime>(), income.to<double>(),
-          spouse: spouse.to<Person?>(), cprNumber: cprNumber.to<int?>()),
+      Person(fromEJson(name), fromEJson(birthDate), fromEJson(income),
+          spouse: fromEJson(spouse), cprNumber: fromEJson(cprNumber)),
     _ => raiseInvalidEJson(ejson),
   };
 }

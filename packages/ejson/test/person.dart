@@ -1,4 +1,5 @@
 import 'package:ejson/ejson.dart';
+import 'package:ejson/src/decoding.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
 
 part 'person.g.dart';
@@ -8,14 +9,13 @@ class Person {
   final DateTime birthDate;
   Duration get age => DateTime.now().difference(birthDate);
 
-  final int? cprNumber;
   final double income;
   final Person? spouse;
 
   final children = <Person>[];
 
   @ejson // annotate constructor to generate decoder and encoder
-  Person(this.name, this.birthDate, this.income, {this.spouse, this.cprNumber});
+  Person(this.name, this.birthDate, this.income, {this.spouse});
 
   @override
   operator ==(other) =>
