@@ -32,8 +32,6 @@ var customEncoders = <Type, Function>{};
 
 var relaxed = false;
 
-Type typeOfExpression<T>(T value) => T;
-
 @pragma('vm:prefer-inline')
 EJsonValue toEJson(Object? value) => _encodeAny(value);
 
@@ -171,6 +169,11 @@ extension ListEJsonEncoderExtension on List<Object?> {
 extension MapEJsonEncoderExtension on Map<dynamic, dynamic> {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDocument(this);
+}
+
+extension NullEJsonEncoderExtension on Null {
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => null;
 }
 
 extension NullableObjectEJsonEncoderExtension on Object? {

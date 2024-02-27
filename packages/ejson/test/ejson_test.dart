@@ -40,6 +40,11 @@ void _testCase<T>(
     expect(toEJson(value), expected);
   });
 
+  test('encode fluent from $value of type $T', () {
+    final expected = relaxed ? relaxedExpected : canonicalExpected;
+    expect(value.toEJson(), expected);
+  });
+
   test('decode to $value of type $T', () {
     final expected = relaxed ? relaxedExpected : canonicalExpected;
     expect(fromEJson<T>(expected), value);
@@ -92,6 +97,37 @@ void _invalidTestCase<T>([EJsonValue ejson = const {}]) {
 }
 
 void main() {
+  test('fluent encoding', () {
+    // NOTE: These cannot be handled generically, as we want to hit the correct
+    // extension method, ie. not the fallback on Object?.
+    expect(null.toEJson(), toEJson(null));
+    expect(1.toEJson(), toEJson(1));
+    expect(1.0.toEJson(), toEJson(1.0));
+    expect('a'.toEJson(), toEJson('a'));
+    expect(true.toEJson(), toEJson(true));
+    expect(false.toEJson(), toEJson(false));
+    expect([1, 2, 3].toEJson(), toEJson([1, 2, 3]));
+    expect({'a': 1, 'b': 2}.toEJson(), toEJson({'a': 1, 'b': 2}));
+    expect(DateTime(1974, 4, 10, 2, 42, 12, 202).toEJson(), toEJson(DateTime(1974, 4, 10, 2, 42, 12, 202)));
+    expect((#sym).toEJson(), toEJson(#sym));
+    expect(Key.max.toEJson(), toEJson(Key.max));
+    expect(Key.min.toEJson(), toEJson(Key.min));
+    expect(undefined.toEJson(), toEJson(undefined));
+    expect(const Undefined<int?>().toEJson(), toEJson(const Undefined<int?>()));
+    expect(Undefined<int?>().toEJson(), toEJson(Undefined<int?>()));
+    expect(const Defined<int?>(42).toEJson(), toEJson(const Defined<int?>(42)));
+    expect(const Defined<int?>(null).toEJson(), toEJson(const Defined<int?>(null)));
+    expect(ObjectId.fromValues(1, 2, 3).toEJson(), toEJson(ObjectId.fromValues(1, 2, 3)));
+    final uuid = Uuid.v4();
+    expect(uuid.toEJson(), toEJson(uuid));
+    final bytes = uuid.bytes.asUint8List();
+    expect(bytes.toEJson(), toEJson(bytes));
+  });
+
+  test('missing encoder', () {
+    expect(() => toEJson(Dummy()), throwsA(isA<MissingEncoder>().having((e) => e.toString(), 'toString', "Missing encoder for type Dummy (Instance of 'Dummy')")));
+  });
+
   group('invalid', () {
     _invalidTestCase<bool>();
     _invalidTestCase<DateTime>();
