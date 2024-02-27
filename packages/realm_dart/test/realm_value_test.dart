@@ -335,7 +335,7 @@ void main() {
         case RealmCollectionType.map:
           expect(expected, isMap);
           final actualMap = actual.asMap();
-          final expectedMap = expected as Map;
+          final expectedMap = expected as Map<String, dynamic>;
           expect(actualMap, hasLength(expectedMap.length));
           for (String key in expectedMap.keys) {
             expect(actualMap.containsKey(key), true, reason: "Didn't find $key in the actual map");
