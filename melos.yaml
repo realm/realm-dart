@@ -73,7 +73,7 @@ scripts:
       --concurrency=1
       --coverage=coverage/
       --file-reporter=json:test-results.json
-      --reporter=github &&
+      --reporter=github;
       dart pub global run coverage:format_coverage
       --report-on=lib/
       --in=coverage/test/
