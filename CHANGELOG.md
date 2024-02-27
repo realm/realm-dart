@@ -16,7 +16,33 @@
   * `RealmProperty.indexed` - replaced by `RealmProperty.indexType`
   * `SyncErrorCategory`, `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncResolveErrorCode`, `SyncWebsocketErrorCode`, `GeneralSyncErrorCode` - consolidated into `SyncErrorCode` as part of the error simplification in `1.6.0`
   * `User.provider` - the provider is associated with each identity, so the value was incorrect for users who had more than one identity
+* The generated parts are now named `.realm.dart` instead of `.g.dart`. This is because the builder is now a `PartBuilder`, instead of a `SharedPartBuilder`. To migrate to this version you need to update all the part declarations to match, ie. `part 'x.g.dart` becomes `part x.realm.dart` and rerun the generator.
 
+  This makes it easier to combine builders. Here is an example of combining with `dart_mappable`:
+  ```dart
+  import 'package:dart_mappable/dart_mappable.dart';
+  import 'package:realm_dart/realm.dart';
+
+  part 'part_builder.realm.dart';
+  part 'part_builder.mapper.dart';
+
+  @MappableClass()
+  @RealmModel()
+  class $Stuff with $StuffMappable {
+    @MappableField()
+    late int id;
+
+    @override
+    String toString() => 'Stuff{id: $id}';
+  }
+
+  final realm = Realm(Configuration.local([Stuff.schema]));
+  void main(List<String> arguments) {
+    final s = realm.write(() => realm.add(Stuff(1), update: true));
+    print(s.toJson()); // <-- realm object as json
+    Realm.shutdown();
+  }
+  ```
 
 ### Enhancements
 * Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)
@@ -76,49 +102,6 @@
 
 ### Internal
 * Using Core 14.0.0
-
-## vNext (TBD)
-
-### Breaking changes
-* The generated parts are now named `.realm.dart` instead of `.g.dart`. This is because the builder is now a `PartBuilder`, instead of a `SharedPartBuilder`. To migrate to this version you need to update all the part declarations to match, ie. `part 'x.g.dart` becomes `part x.realm.dart` and rerun the generator.
-
-  This makes it easier to combine builders. Here is an example of combining with `dart_mappable`:
-  ```dart
-  import 'package:dart_mappable/dart_mappable.dart';
-  import 'package:realm_dart/realm.dart';
-
-  part 'part_builder.realm.dart';
-  part 'part_builder.mapper.dart';
-
-  @MappableClass()
-  @RealmModel()
-  class $Stuff with $StuffMappable {
-    @MappableField()
-    late int id;
-
-    @override
-    String toString() => 'Stuff{id: $id}';
-  }
-
-  final realm = Realm(Configuration.local([Stuff.schema]));
-  void main(List<String> arguments) {
-    final s = realm.write(() => realm.add(Stuff(1), update: true));
-    print(s.toJson()); // <-- realm object as json
-    Realm.shutdown();
-  }
-  ```
-
-### Enhancements
-* None
-
-### Fixed
-* None
-
-### Compatibility
-* Realm Studio: 13.0.0 or later.
-
-### Internal
-* Using Core x.y.z.
 
 ## 1.9.0 (2024-02-02)
 
