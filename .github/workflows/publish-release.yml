@@ -25,7 +25,7 @@ jobs:
     - name: Read version
       id: get-version
       run: |
-        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" pubspec.yaml)
+        pkgVersion=$(sed -ne "s/^version: \(.*\)/\1/p" packages/realm_dart/pubspec.yaml)
         pkgSuffix="${{ github.event.inputs.environment != 'Production' && format('-{0}', github.sha) || '' }}"
         echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
@@ -40,20 +40,22 @@ jobs:
       with:
         workflow: ci.yml
         commit: ${{ github.sha }}
-        path: ${{ github.workspace }}/packages/realm_dart/binary/
+        path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
 
     # The rename is necessary because action-download-artifact will put things in a folder named the same
     # as the artifact name - i.e. librealm-linux, etc.
     - name: Archive binaries
       run: |
-        mkdir -p release
+        mkdir -p ${{ github.workspace }}/release
 
-        for directory in binary/*; do
-          targetFile="release/${directory#*-}.tar.gz"
-          dart run realm_dart archive --source-dir "$directory" --output-file "${{ github.workspace }}/$targetFile"
+        for directory in ${{ github.workspace }}/binary/*; do
+          artifactFolder=$(basename $directory)
+          targetFile="${{ github.workspace }}/release/${artifactFolder#*-}.tar.gz"
+          dart run realm_dart archive --source-dir "$directory" --output-file "$targetFile"
         done
       working-directory: packages/realm_dart
+      shell: bash
 
     - name: Update realm_* path dependencies (Production)
       uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
@@ -88,7 +90,7 @@ jobs:
 
     - name: Package realm_common
       run: |
-        cp -Lr ../package/realm_common .
+        cp -Lr ../packages/realm_common .
         cd realm_common
         dart pub publish --dry-run || true
       working-directory: release
@@ -104,12 +106,9 @@ jobs:
     - name: Cleanup binary symlinks
       run: |
         rm packages/realm/android/src/main/cpp/lib
-        rm packages/realm/ios/src
         rm packages/realm/ios/realm_dart.xcframework
         rm packages/realm/linux/binary
         rm packages/realm/windows/binary
-        rm packages/realm/macos/librealm_dart.dylib
-        rm packages/realm/example/binary
 
     - name: Package realm (flutter)
       run: |
@@ -121,7 +120,7 @@ jobs:
     - name: Package realm_dart
       run: |
         mkdir realm_dart
-        cp -Lr ../package/realm_dart/bin ../package/realm_dart/example ../package/realm_dart/lib ../package/realm_dart/test realm_dart
+        cp -Lr ../packages/realm_dart/bin ../packages/realm_dart/example ../packages/realm_dart/lib ../packages/realm_dart/test realm_dart
         rsync -vt ../* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
@@ -152,7 +151,7 @@ jobs:
     - name: Upload release folder to S3
       id: upload-to-s3
       run: |
-        tar -zcvf packages.tar.gz common generator realm_dart realm ExtractedChangelog.md
+        tar -zcvf packages.tar.gz realm_common realm_generator realm_dart realm ExtractedChangelog.md
         rm -rf common generator realm_dart realm ExtractedChangelog.md
 
         s3_folder="static.realm.io/downloads/dart/${{ steps.get-version.outputs.version }}"

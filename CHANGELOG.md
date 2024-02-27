@@ -1,4 +1,4 @@
-## vNext-next (TBD)
+## 2.0.0-alpha.1 (2024-02-27)
 
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
