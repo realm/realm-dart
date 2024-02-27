@@ -121,7 +121,7 @@ jobs:
       run: |
         mkdir realm_dart
         cp -Lr ../packages/realm_dart/bin ../packages/realm_dart/example ../packages/realm_dart/lib ../packages/realm_dart/test realm_dart
-        rsync -vt ../* realm_dart/
+        rsync -vt ../packages/realm_dart/* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
       working-directory: release
