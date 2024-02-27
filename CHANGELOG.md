@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 2.0.0-alpha.1 (2024-02-27)
 
 ### Breaking changes
 * The generated parts are now named `.realm.dart` instead of `.g.dart`. This is because the builder is now a `PartBuilder`, instead of a `SharedPartBuilder`. To migrate to this version you need to update all the part declarations to match, ie. `part 'x.g.dart` becomes `part x.realm.dart` and rerun the generator.
