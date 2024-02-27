@@ -88,7 +88,7 @@ jobs:
 
     - name: Package realm_common
       run: |
-        cp -Lr ../package/realm_common .
+        cp -Lr ../packages/realm_common .
         cd realm_common
         dart pub publish --dry-run || true
       working-directory: release
@@ -121,7 +121,7 @@ jobs:
     - name: Package realm_dart
       run: |
         mkdir realm_dart
-        cp -Lr ../package/realm_dart/bin ../package/realm_dart/example ../package/realm_dart/lib ../package/realm_dart/test realm_dart
+        cp -Lr ../packages/realm_dart/bin ../packages/realm_dart/example ../packages/realm_dart/lib ../packages/realm_dart/test realm_dart
         rsync -vt ../* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
