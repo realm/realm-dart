@@ -26,9 +26,6 @@ class Options {
   @CliOption(help: 'The target OS to install binaries for.', abbr: 't')
   TargetOsType? targetOsType;
 
-  @CliOption(help: 'The flavor to install binaries for.', abbr: 'f', defaultsTo: Flavor.dart)
-  Flavor flavor;
-
   // use to debug install command
   @CliOption(hide: true, help: 'Download binary from http://localhost:8000/.', defaultsTo: false)
   bool debug;
@@ -36,7 +33,7 @@ class Options {
   @CliOption(hide: true, help: 'Force install, even if we would normally skip it.', defaultsTo: false)
   bool force;
 
-  Options({this.targetOsType, this.flavor = Flavor.dart, this.force = false, this.debug = false});
+  Options({this.targetOsType, this.force = false, this.debug = false});
 }
 
 String get usage => _$parserForOptions.usage;

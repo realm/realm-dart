@@ -28,10 +28,6 @@ Options _$parseOptionsResult(ArgResults result) => Options(
         _$TargetOsTypeEnumMapBuildCli,
         result['target-os-type'] as String?,
       ),
-      flavor: _$enumValueHelper(
-        _$FlavorEnumMapBuildCli,
-        result['flavor'] as String,
-      ),
       force: result['force'] as bool,
       debug: result['debug'] as bool,
     );
@@ -44,24 +40,12 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.windows: 'windows'
 };
 
-const _$FlavorEnumMapBuildCli = <Flavor, String>{
-  Flavor.flutter: 'flutter',
-  Flavor.dart: 'dart'
-};
-
 ArgParser _$populateOptionsParser(ArgParser parser) => parser
   ..addOption(
     'target-os-type',
     abbr: 't',
     help: 'The target OS to install binaries for.',
     allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
-  )
-  ..addOption(
-    'flavor',
-    abbr: 'f',
-    help: 'The flavor to install binaries for.',
-    defaultsTo: 'dart',
-    allowed: ['flutter', 'dart'],
   )
   ..addFlag(
     'debug',
