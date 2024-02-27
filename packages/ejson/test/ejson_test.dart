@@ -27,26 +27,16 @@ import 'package:test/test.dart';
 
 import 'person.dart';
 
-void _testCase<T>(
-  T value,
-  EJsonValue canonicalExpected, [
-  EJsonValue? relaxedExpected,
-]) {
-  // relaxed same as canonical, unless otherwise specified
-  relaxedExpected ??= canonicalExpected;
-
+void _testCase<T>(T value, EJsonValue expected) {
   test('encode from $value of type $T', () {
-    final expected = relaxed ? relaxedExpected : canonicalExpected;
     expect(toEJson(value), expected);
   });
 
   test('encode fluent from $value of type $T', () {
-    final expected = relaxed ? relaxedExpected : canonicalExpected;
     expect(value.toEJson(), expected);
   });
 
   test('decode to $value of type $T', () {
-    final expected = relaxed ? relaxedExpected : canonicalExpected;
     expect(fromEJson<T>(expected), value);
   });
 
@@ -55,7 +45,6 @@ void _testCase<T>(
   });
 
   test('reverse roundtrip $value of type $T', () {
-    final expected = relaxed ? relaxedExpected : canonicalExpected;
     expect(toEJson(fromEJson<T>(expected)), expected);
   });
 
@@ -69,7 +58,6 @@ void _testCase<T>(
   });
 
   test('decode to dynamic', () {
-    final expected = relaxed ? relaxedExpected : canonicalExpected;
     // no <T> here, so dynamic
     expect(() => fromEJson(expected), returnsNormally);
   });
@@ -81,7 +69,6 @@ void _testCase<T>(
     });
 
     test('reverse roundtrip $value of type $T as dynamic', () {
-      final expected = relaxed ? relaxedExpected : canonicalExpected;
       // no <T> here, so dynamic
       expect(toEJson(fromEJson(expected)), expected);
     });
@@ -125,7 +112,8 @@ void main() {
   });
 
   test('missing encoder', () {
-    expect(() => toEJson(Dummy()), throwsA(isA<MissingEncoder>().having((e) => e.toString(), 'toString', "Missing encoder for type Dummy (Instance of 'Dummy')")));
+    expect(
+        () => toEJson(Dummy()), throwsA(isA<MissingEncoder>().having((e) => e.toString(), 'toString', "Missing encoder for type Dummy (Instance of 'Dummy')")));
   });
 
   group('invalid', () {
@@ -151,16 +139,16 @@ void main() {
     });
   });
 
-  for (final useRelaxed in [false, true]) {
-    group(useRelaxed ? 'relaxed' : 'canonical', () {
-      relaxed = useRelaxed;
+  for (final canonical in [true, false]) {
+    group(canonical ? 'canonical' : 'relaxed', () {
+      setUp(() => relaxed = !canonical);
 
       group('common types', () {
         final time = DateTime(1974, 4, 10, 2, 42, 12, 202); // no microseconds!
 
         _testCase(null, null);
-        _testCase(1, {'\$numberLong': 1}, 1);
-        _testCase(1.0, {'\$numberDouble': 1.0}, 1.0);
+        _testCase(1, canonical ? {'\$numberLong': '1'} : 1);
+        _testCase(1.0, canonical ? {'\$numberDouble': '1.0'} : 1.0);
         _testCase(double.infinity, {'\$numberDouble': 'Infinity'});
         _testCase(double.negativeInfinity, {'\$numberDouble': '-Infinity'});
         _testCase('a', 'a');
@@ -168,44 +156,49 @@ void main() {
         _testCase(false, false);
         _testCase(
           [1, 2, 3],
-          [
-            {'\$numberLong': 1},
-            {'\$numberLong': 2},
-            {'\$numberLong': 3},
-          ],
-          [1, 2, 3],
+          canonical
+              ? [
+                  {'\$numberLong': '1'},
+                  {'\$numberLong': '2'},
+                  {'\$numberLong': '3'},
+                ]
+              : [1, 2, 3],
         );
         _testCase(
           [1, 1.1],
-          [
-            {'\$numberLong': 1},
-            {'\$numberDouble': 1.1},
-          ],
-          [1, 1.1],
+          canonical
+              ? [
+                  {'\$numberLong': '1'},
+                  {'\$numberDouble': '1.1'},
+                ]
+              : [1, 1.1],
         );
         _testCase(
           [1, null, 3],
-          [
-            {'\$numberLong': 1},
-            null,
-            {'\$numberLong': 3},
-          ],
-          [1, null, 3],
+          canonical
+              ? [
+                  {'\$numberLong': '1'},
+                  null,
+                  {'\$numberLong': '3'},
+                ]
+              : [1, null, 3],
         );
         _testCase(
           {'a': 'abe', 'b': 1},
-          {
-            'a': 'abe',
-            'b': {'\$numberLong': 1},
-          },
-          {'a': 'abe', 'b': 1},
+          canonical
+              ? {
+                  'a': 'abe',
+                  'b': {'\$numberLong': '1'},
+                }
+              : {'a': 'abe', 'b': 1},
         );
         _testCase(
           time,
-          {
-            '\$date': {'\$numberLong': time.millisecondsSinceEpoch}
-          },
-          {'\$date': time.toIso8601String()},
+          canonical
+              ? {
+                  '\$date': {'\$numberLong': time.millisecondsSinceEpoch.toString()}
+                }
+              : {'\$date': time.toIso8601String()},
         );
         _testCase(#sym, {'\$symbol': 'sym'});
         _testCase(Key.max, {'\$maxKey': 1});
@@ -213,9 +206,9 @@ void main() {
         _testCase(undefined, {'\$undefined': 1});
         _testCase(const Undefined<int?>(), {'\$undefined': 1});
         _testCase(Undefined<int?>(), {'\$undefined': 1});
-        _testCase(const Defined<int?>(42), {'\$numberLong': 42}, 42);
+        _testCase(const Defined<int?>(42), canonical ? {'\$numberLong': '42'} : 42);
         _testCase(const Defined<int?>(null), null);
-        _testCase(Defined<int?>(42), {'\$numberLong': 42}, 42);
+        _testCase(Defined<int?>(42), canonical ? {'\$numberLong': '42'} : 42);
         _testCase(Defined<int?>(null), null);
         _testCase(ObjectId.fromValues(1, 2, 3), {'\$oid': '000000000000000002000003'});
         final uuid = Uuid.v4();
@@ -230,22 +223,23 @@ void main() {
               'c': [1, 1.1, null]
             }
           },
-          {
-            'a': {
-              'b': null,
-              'c': [
-                {'\$numberLong': 1},
-                {'\$numberDouble': 1.1},
-                null
-              ]
-            }
-          },
-          {
-            'a': {
-              'b': null,
-              'c': [1, 1.1, null]
-            }
-          },
+          canonical
+              ? {
+                  'a': {
+                    'b': null,
+                    'c': [
+                      {'\$numberLong': '1'},
+                      {'\$numberDouble': '1.1'},
+                      null
+                    ]
+                  }
+                }
+              : {
+                  'a': {
+                    'b': null,
+                    'c': [1, 1.1, null]
+                  }
+                },
         );
 
         test('UndefinedOr', () {
@@ -253,7 +247,7 @@ void main() {
           expect(x.toEJson(), {'\$undefined': 1});
 
           x = Defined(42);
-          expect(x.toEJson(), relaxed ? 42 : {'\$numberLong': 42});
+          expect(x.toEJson(), relaxed ? 42 : {'\$numberLong': '42'});
 
           x = Defined(null);
           expect(x.toEJson(), isNull);
@@ -289,65 +283,67 @@ void main() {
 
         _testCase(
           person,
-          {
-            'name': 'John',
-            'birthDate': {
-              '\$date': {'\$numberLong': '126226800000'}
-            },
-            'income': {'\$numberDouble': '80000.0'},
-            'spouse': {
-              'name': 'Jane',
-              'birthDate': {
-                '\$date': {'\$numberLong': '94690800000'}
-              },
-              'income': {'\$numberDouble': '90000.0'},
-              'spouse': null
-            }
-          },
-          {
-            'name': 'John',
-            'birthDate': {'\$date': '1974-01-01T00:00:00.000'},
-            'income': 80000.0,
-            'spouse': {
-              'name': 'Jane',
-              'birthDate': {'\$date': '1973-01-01T00:00:00.000'},
-              'income': 90000.0,
-              'spouse': null
-            }
-          },
+          canonical
+              ? {
+                  'name': 'John',
+                  'birthDate': {
+                    '\$date': {'\$numberLong': '126226800000'}
+                  },
+                  'income': {'\$numberDouble': '80000.0'},
+                  'spouse': {
+                    'name': 'Jane',
+                    'birthDate': {
+                      '\$date': {'\$numberLong': '94690800000'}
+                    },
+                    'income': {'\$numberDouble': '90000.0'},
+                    'spouse': null
+                  }
+                }
+              : {
+                  'name': 'John',
+                  'birthDate': {'\$date': '1974-01-01T00:00:00.000'},
+                  'income': 80000.0,
+                  'spouse': {
+                    'name': 'Jane',
+                    'birthDate': {'\$date': '1973-01-01T00:00:00.000'},
+                    'income': 90000.0,
+                    'spouse': null
+                  }
+                },
         );
         _testCase<Map<String, Person>>(
           {'a': person},
-          {
-            'a': {
-              'name': 'John',
-              'birthDate': {
-                '\$date': {'\$numberLong': '126226800000'}
-              },
-              'income': {'\$numberDouble': '80000.0'},
-              'spouse': {
-                'name': 'Jane',
-                'birthDate': {
-                  '\$date': {'\$numberLong': '94690800000'}
+          canonical
+              ? {
+                  'a': {
+                    'name': 'John',
+                    'birthDate': {
+                      '\$date': {'\$numberLong': '126226800000'}
+                    },
+                    'income': {'\$numberDouble': '80000.0'},
+                    'spouse': {
+                      'name': 'Jane',
+                      'birthDate': {
+                        '\$date': {'\$numberLong': '94690800000'}
+                      },
+                      'income': {'\$numberDouble': '90000.0'},
+                      'spouse': null
+                    }
+                  }
+                }
+              : {
+                  'a': {
+                    'name': 'John',
+                    'birthDate': {'\$date': '1974-01-01T00:00:00.000'},
+                    'income': 80000.0,
+                    'spouse': {
+                      'name': 'Jane',
+                      'birthDate': {'\$date': '1973-01-01T00:00:00.000'},
+                      'income': 90000.0,
+                      'spouse': null
+                    }
+                  }
                 },
-                'income': {'\$numberDouble': '90000.0'},
-                'spouse': null
-              }
-            }
-          },
-          {
-            'a': {
-              'name': 'John',
-              'birthDate': {'\$date': '1974-01-01T00:00:00.000'},
-              'income': 80000.0,
-              'spouse': {
-                'name': 'Jane',
-                'birthDate': {'\$date': '1973-01-01T00:00:00.000'},
-                'income': 90000.0,
-                'spouse': null
-              }
-            }
-          },
         );
       });
     });
