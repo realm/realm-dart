@@ -45,6 +45,7 @@ const commonDecoders = {
   ObjectId: _decodeObjectId,
   String: _decodeString,
   Symbol: _decodeSymbol,
+  Uint8List: _decodeBinary,
   Uuid: _decodeUuid,
   Undefined: _decodeUndefined,
   UndefinedOr: _decodeUndefinedOr,
@@ -100,6 +101,7 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$undefined': _} => _decodeUndefined<dynamic>(ejson),
     {'\$oid': _} => _decodeObjectId(ejson),
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
+    {'\$binary': _} => _decodeBinary(ejson),
     List<dynamic> _ => _decodeArray<dynamic>(ejson),
     Map<dynamic, dynamic> _ => _tryDecodeCustom(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
     _ => raiseInvalidEJson<dynamic>(ejson),
@@ -243,16 +245,15 @@ UndefinedOr<T> _decodeUndefinedOr<T>(EJsonValue ejson) {
 }
 
 Uuid _decodeUuid(EJsonValue ejson) {
-  try {
-    return Uuid.fromBytes(_decodeBinary(ejson, "04"));
-  } on InvalidEJson {
-    return raiseInvalidEJson(ejson); // get the type right
-  }
+  return switch (ejson) {
+    {'\$binary': {'base64': String s, 'subType': '04'}} => Uuid.fromBytes(base64.decode(s).buffer),
+    _ => raiseInvalidEJson(ejson),
+  };
 }
 
-ByteBuffer _decodeBinary(EJsonValue ejson, String subType) {
+Uint8List _decodeBinary(EJsonValue ejson) {
   return switch (ejson) {
-    {'\$binary': {'base64': String s, 'subType': String t}} when t == subType => base64.decode(s).buffer,
+    {'\$binary': {'base64': String s, 'subType': _}} => base64.decode(s),
     _ => raiseInvalidEJson(ejson),
   };
 }
