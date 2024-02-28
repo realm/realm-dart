@@ -77,21 +77,7 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncError,
-        SyncErrorHandler,
-        // ignore: deprecated_member_use_from_same_package
-        SyncClientError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncConnectionError,
-        // ignore: deprecated_member_use_from_same_package
-        GeneralSyncError,
-        // ignore: deprecated_member_use_from_same_package
-        GeneralSyncErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncResolveError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncWebSocketError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncSessionError;
+        SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
@@ -120,19 +106,7 @@ export 'session.dart'
         ConnectionState,
         Session,
         SessionState,
-        SyncErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncClientErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncConnectionErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncErrorCategory,
-        // ignore: deprecated_member_use_from_same_package
-        SyncResolveErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncWebSocketErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncSessionErrorCode;
+        SyncErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
 export 'native/realm_core.dart' show Decimal128;
