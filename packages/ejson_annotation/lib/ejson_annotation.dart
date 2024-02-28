@@ -1,8 +1,6 @@
 // Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-library;
-
 /// Annotation to mark a class for extended json (ejson) serialization
 const ejson = EJson();
 

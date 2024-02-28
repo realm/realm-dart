@@ -1,8 +1,6 @@
 // Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-library;
-
 import 'package:ejson/ejson.dart';
 import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:meta/meta.dart';
