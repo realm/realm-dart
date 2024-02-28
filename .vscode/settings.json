@@ -35,6 +35,7 @@
     "sublists",
     "TRUEPREDICATE",
     "unmanaged",
+    "unsynced",
     "upsert",
     "usercode",
     "userdata",
