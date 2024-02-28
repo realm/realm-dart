@@ -1,8 +1,6 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'package:ejson/ejson.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:realm_dart/realm.dart';
 import 'package:test/test.dart' hide test, throws;
 

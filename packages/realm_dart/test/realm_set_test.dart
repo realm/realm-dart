@@ -4,8 +4,6 @@
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:ejson/ejson.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:realm_dart/realm.dart';
 import 'package:test/test.dart' hide test, throws;
 

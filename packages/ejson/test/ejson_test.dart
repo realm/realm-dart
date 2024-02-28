@@ -4,7 +4,6 @@
 import 'dart:convert';
 
 import 'package:ejson/ejson.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 import 'package:test/test.dart';

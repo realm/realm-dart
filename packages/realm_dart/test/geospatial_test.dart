@@ -4,8 +4,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:ejson/ejson.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:realm_common/realm_common.dart';
 import 'package:test/test.dart' hide test, throws;
 

@@ -6,8 +6,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:ejson/ejson.dart';
-import 'package:ejson_annotation/ejson_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
