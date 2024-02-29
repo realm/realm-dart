@@ -8,7 +8,6 @@ part of 'realm_set_test.dart';
 
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Car(
     String make, {
     String? color,
@@ -36,20 +35,39 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeCar(Car value) {
+    return <String, dynamic>{
+      'make': toEJson(value.make),
+      'color': toEJson(value.color),
+    };
+  }
+
+  static Car _decodeCar(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'make': EJsonValue make,
+        'color': EJsonValue color,
+      } =>
+        Car(
+          fromEJson(make),
+          color: fromEJson(color),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Car._);
+    register(_encodeCar, _decodeCar);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
     ]);
-  }
+  }();
 }
 
 class TestRealmSets extends _TestRealmSets
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   TestRealmSets(
     int key, {
     Set<bool> boolSet = const {},
@@ -253,10 +271,63 @@ class TestRealmSets extends _TestRealmSets
   @override
   TestRealmSets freeze() => RealmObjectBase.freezeObject<TestRealmSets>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeTestRealmSets(TestRealmSets value) {
+    return <String, dynamic>{
+      'key': toEJson(value.key),
+      'boolSet': toEJson(value.boolSet),
+      'intSet': toEJson(value.intSet),
+      'stringSet': toEJson(value.stringSet),
+      'doubleSet': toEJson(value.doubleSet),
+      'dateTimeSet': toEJson(value.dateTimeSet),
+      'objectIdSet': toEJson(value.objectIdSet),
+      'uuidSet': toEJson(value.uuidSet),
+      'mixedSet': toEJson(value.mixedSet),
+      'objectsSet': toEJson(value.objectsSet),
+      'binarySet': toEJson(value.binarySet),
+      'nullableBoolSet': toEJson(value.nullableBoolSet),
+      'nullableIntSet': toEJson(value.nullableIntSet),
+      'nullableStringSet': toEJson(value.nullableStringSet),
+      'nullableDoubleSet': toEJson(value.nullableDoubleSet),
+      'nullableDateTimeSet': toEJson(value.nullableDateTimeSet),
+      'nullableObjectIdSet': toEJson(value.nullableObjectIdSet),
+      'nullableUuidSet': toEJson(value.nullableUuidSet),
+      'nullableBinarySet': toEJson(value.nullableBinarySet),
+    };
+  }
+
+  static TestRealmSets _decodeTestRealmSets(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'key': EJsonValue key,
+        'boolSet': EJsonValue boolSet,
+        'intSet': EJsonValue intSet,
+        'stringSet': EJsonValue stringSet,
+        'doubleSet': EJsonValue doubleSet,
+        'dateTimeSet': EJsonValue dateTimeSet,
+        'objectIdSet': EJsonValue objectIdSet,
+        'uuidSet': EJsonValue uuidSet,
+        'mixedSet': EJsonValue mixedSet,
+        'objectsSet': EJsonValue objectsSet,
+        'binarySet': EJsonValue binarySet,
+        'nullableBoolSet': EJsonValue nullableBoolSet,
+        'nullableIntSet': EJsonValue nullableIntSet,
+        'nullableStringSet': EJsonValue nullableStringSet,
+        'nullableDoubleSet': EJsonValue nullableDoubleSet,
+        'nullableDateTimeSet': EJsonValue nullableDateTimeSet,
+        'nullableObjectIdSet': EJsonValue nullableObjectIdSet,
+        'nullableUuidSet': EJsonValue nullableUuidSet,
+        'nullableBinarySet': EJsonValue nullableBinarySet,
+      } =>
+        TestRealmSets(
+          fromEJson(key),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(TestRealmSets._);
+    register(_encodeTestRealmSets, _decodeTestRealmSets);
     return const SchemaObject(
         ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
@@ -297,5 +368,5 @@ class TestRealmSets extends _TestRealmSets
       SchemaProperty('nullableBinarySet', RealmPropertyType.binary,
           optional: true, collectionType: RealmCollectionType.set),
     ]);
-  }
+  }();
 }

@@ -11,7 +11,6 @@ class Location extends _Location
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
-  @ejson
   Location({
     String type = 'Point',
     Iterable<double> coordinates = const [],
@@ -45,21 +44,39 @@ class Location extends _Location
   @override
   Location freeze() => RealmObjectBase.freezeObject<Location>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeLocation(Location value) {
+    return <String, dynamic>{
+      'type': toEJson(value.type),
+      'coordinates': toEJson(value.coordinates),
+    };
+  }
+
+  static Location _decodeLocation(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'type': EJsonValue type,
+        'coordinates': EJsonValue coordinates,
+      } =>
+        Location(
+          type: fromEJson(type),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Location._);
+    register(_encodeLocation, _decodeLocation);
     return const SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
       SchemaProperty('type', RealmPropertyType.string),
       SchemaProperty('coordinates', RealmPropertyType.double,
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 }
 
 class Restaurant extends _Restaurant
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Restaurant(
     String name, {
     Location? location,
@@ -89,22 +106,41 @@ class Restaurant extends _Restaurant
   @override
   Restaurant freeze() => RealmObjectBase.freezeObject<Restaurant>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeRestaurant(Restaurant value) {
+    return <String, dynamic>{
+      'name': toEJson(value.name),
+      'location': toEJson(value.location),
+    };
+  }
+
+  static Restaurant _decodeRestaurant(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'location': EJsonValue location,
+      } =>
+        Restaurant(
+          fromEJson(name),
+          location: fromEJson(location),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Restaurant._);
+    register(_encodeRestaurant, _decodeRestaurant);
     return const SchemaObject(
         ObjectType.realmObject, Restaurant, 'Restaurant', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('location', RealmPropertyType.object,
           optional: true, linkTarget: 'Location'),
     ]);
-  }
+  }();
 }
 
 class LocationList extends _LocationList
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   LocationList({
     Iterable<Location> locations = const [],
   }) {
@@ -128,14 +164,29 @@ class LocationList extends _LocationList
   @override
   LocationList freeze() => RealmObjectBase.freezeObject<LocationList>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeLocationList(LocationList value) {
+    return <String, dynamic>{
+      'locations': toEJson(value.locations),
+    };
+  }
+
+  static LocationList _decodeLocationList(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'locations': EJsonValue locations,
+      } =>
+        LocationList(),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(LocationList._);
+    register(_encodeLocationList, _decodeLocationList);
     return const SchemaObject(
         ObjectType.realmObject, LocationList, 'LocationList', [
       SchemaProperty('locations', RealmPropertyType.object,
           linkTarget: 'Location', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 }

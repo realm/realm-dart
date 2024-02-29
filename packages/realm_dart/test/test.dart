@@ -22,7 +22,7 @@ import 'baas_helper.dart';
 export 'baas_helper.dart' show AppNames;
 
 part 'test.realm.dart';
-part 'test.g.dart';
+
 
 @RealmModel()
 class _Car {

@@ -12,7 +12,7 @@ import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
-part 'realm_map_test.g.dart';
+
 part 'realm_map_test.realm.dart';
 
 @RealmModel()

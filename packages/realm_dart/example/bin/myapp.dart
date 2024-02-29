@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:realm_dart/realm.dart';
 
 part 'myapp.realm.dart';
-part 'myapp.g.dart';
+
 
 @RealmModel()
 class _Car {

@@ -9,7 +9,7 @@ import 'package:test/test.dart' hide test, throws;
 
 import 'test.dart';
 
-part 'realm_set_test.g.dart';
+
 part 'realm_set_test.realm.dart';
 
 class _NullableBool {}

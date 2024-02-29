@@ -10,7 +10,6 @@ part of 'myapp.dart';
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  @ejson
   Car(
     String make, {
     String? model,
@@ -58,10 +57,36 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeCar(Car value) {
+    return <String, dynamic>{
+      'make': toEJson(value.make),
+      'model': toEJson(value.model),
+      'kilometers': toEJson(value.kilometers),
+      'owner': toEJson(value.owner),
+    };
+  }
+
+  static Car _decodeCar(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'make': EJsonValue make,
+        'model': EJsonValue model,
+        'kilometers': EJsonValue kilometers,
+        'owner': EJsonValue owner,
+      } =>
+        Car(
+          fromEJson(make),
+          model: fromEJson(model),
+          kilometers: fromEJson(kilometers),
+          owner: fromEJson(owner),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Car._);
+    register(_encodeCar, _decodeCar);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string),
       SchemaProperty('model', RealmPropertyType.string, optional: true),
@@ -69,13 +94,12 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('owner', RealmPropertyType.object,
           optional: true, linkTarget: 'Person'),
     ]);
-  }
+  }();
 }
 
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  @ejson
   Person(
     String name, {
     int age = 1,
@@ -108,13 +132,33 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodePerson(Person value) {
+    return <String, dynamic>{
+      'name': toEJson(value.name),
+      'age': toEJson(value.age),
+    };
+  }
+
+  static Person _decodePerson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'age': EJsonValue age,
+      } =>
+        Person(
+          fromEJson(name),
+          age: fromEJson(age),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Person._);
+    register(_encodePerson, _decodePerson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
     ]);
-  }
+  }();
 }

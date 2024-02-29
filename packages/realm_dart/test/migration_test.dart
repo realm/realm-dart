@@ -13,7 +13,7 @@ import 'package:realm_dart/src/realm_object.dart';
 import 'package:realm_dart/src/list.dart';
 
 part 'migration_test.realm.dart';
-part 'migration_test.g.dart';
+
 
 @RealmModel()
 @MapTo("Person")
