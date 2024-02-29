@@ -1,7 +1,6 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-
 import 'dart:async';
 import 'dart:collection';
 import 'dart:ffi';
@@ -22,7 +21,6 @@ import 'baas_helper.dart';
 export 'baas_helper.dart' show AppNames;
 
 part 'test.realm.dart';
-
 
 @RealmModel()
 class _Car {

@@ -6,7 +6,6 @@ import 'package:test/test.dart' hide test, throws;
 
 import 'test.dart';
 
-
 part 'backlinks_test.realm.dart';
 
 @RealmModel()

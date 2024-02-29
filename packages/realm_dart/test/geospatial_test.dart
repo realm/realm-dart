@@ -10,7 +10,6 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-
 part 'geospatial_test.realm.dart';
 
 @RealmModel(ObjectType.embeddedObject)

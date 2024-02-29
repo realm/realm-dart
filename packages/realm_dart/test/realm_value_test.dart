@@ -1,7 +1,6 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-
 import 'dart:typed_data';
 
 import 'package:test/test.dart' hide test, throws;
@@ -10,7 +9,6 @@ import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
 part 'realm_value_test.realm.dart';
-
 
 @RealmModel(ObjectType.embeddedObject)
 class _TuckedIn {

@@ -1,7 +1,6 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -11,7 +10,6 @@ import 'test.dart';
 import 'package:realm_dart/realm.dart';
 
 part 'indexed_test.realm.dart';
-
 
 // Don't import our own test.dart here. It will break AOT compilation.
 // We may use AOT compilation locally to manually run the performance

@@ -97,16 +97,7 @@ export 'realm_object.dart'
         UserCallbackException;
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
-export 'session.dart'
-    show
-        ConnectionStateChange,
-        SyncProgress,
-        ProgressDirection,
-        ProgressMode,
-        ConnectionState,
-        Session,
-        SessionState,
-        SyncErrorCode;
+export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState, SyncErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
 export 'native/realm_core.dart' show Decimal128;
