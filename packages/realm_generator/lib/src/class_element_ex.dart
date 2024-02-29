@@ -18,6 +18,7 @@
 
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/element/element.dart';
+import "package:collection/collection.dart";
 import 'package:realm_common/realm_common.dart';
 import 'package:realm_generator/src/dart_type_ex.dart';
 import 'package:source_gen/source_gen.dart';
@@ -153,8 +154,11 @@ extension ClassElementEx on ClassElement {
 
       final objectType = thisType.realmObjectType!;
 
-      // Realm Core requires computed properties at the end so we sort them at generation time versus doing it at runtime every time.
-      final mappedFields = fields.realmInfo.toList()..sort((a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : -1);
+      // Realm Core requires computed properties, such as backlinks, at the end.
+      // So we sort them using a stable sort at generation time, versus doing it
+      // at runtime every time.
+      final mappedFields = fields.realmInfo.toList();
+      mergeSort(mappedFields, compare: (a, b) => a.isComputed ^ b.isComputed ? (a.isComputed ? 1 : -1) : 0);
 
       if (objectType == ObjectType.embeddedObject && mappedFields.any((field) => field.isPrimaryKey)) {
         final pkSpan = fields.firstWhere((field) => field.realmInfo?.isPrimaryKey == true).span;
