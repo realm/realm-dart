@@ -1,36 +1,4 @@
-## vNext (TBD)
-
-### Breaking changes
-* The generated parts are now named `.realm.dart` instead of `.g.dart`. This is because the builder is now a `PartBuilder`, instead of a `SharedPartBuilder`. To migrate to this version you need to update all the part declarations to match, ie. `part 'x.g.dart` becomes `part x.realm.dart` and rerun the generator.
-
-  This makes it easier to combine builders. Here is an example of combining with `dart_mappable`:
-  ```dart
-  import 'package:dart_mappable/dart_mappable.dart';
-  import 'package:realm_dart/realm.dart';
-
-  part 'part_builder.realm.dart';
-  part 'part_builder.mapper.dart';
-
-  @MappableClass()
-  @RealmModel()
-  class $Stuff with $StuffMappable {
-    @MappableField()
-    late int id;
-
-    @override
-    String toString() => 'Stuff{id: $id}';
-  }
-
-  final realm = Realm(Configuration.local([Stuff.schema]));
-  void main(List<String> arguments) {
-    final s = realm.write(() => realm.add(Stuff(1), update: true));
-    print(s.toJson()); // <-- realm object as json
-    Realm.shutdown();
-  }
-  ```
-
-### Enhancements
-* None
+## 1.9.1 (2024-02-29)
 
 ### Fixed
 * Ctor arguments appear in random order on generated classes, if the realm model contains many properties. (PR [#1531](https://github.com/realm/realm-dart/pull/1531))
