@@ -75,7 +75,7 @@ jobs:
         id: get-core-version
         run: |
           cd src/realm-core
-          pkgVersion=$(git describe --abbrev=5)
+          pkgVersion=$(grep "\bVERSION=" dependencies.list | cut -d= -f2)
           echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
           echo "Realm Core version: $pkgVersion"
         shell: bash
@@ -94,15 +94,6 @@ jobs:
             echo 'At most one modified file expected, got ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }}'
             exit 1
           fi
-
-      - name: Update realmCoreVersion in changelog
-        id: update-realmCoreVersion-changelog
-        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-        with:
-          find: "* Using Core x.y.z."
-          regex: false
-          replace: "* Using Core ${{ steps.get-core-version.outputs.core-version }}."
-          include: 'CHANGELOG.md'
 
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
