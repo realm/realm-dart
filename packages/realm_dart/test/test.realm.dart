@@ -742,11 +742,17 @@ class LinksClass extends _LinksClass
     Uuid id, {
     LinksClass? link,
     Iterable<LinksClass> list = const [],
+    Set<LinksClass> set = const {},
+    Map<String, LinksClass?> map = const {},
   }) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'link', link);
     RealmObjectBase.set<RealmList<LinksClass>>(
         this, 'list', RealmList<LinksClass>(list));
+    RealmObjectBase.set<RealmSet<LinksClass>>(
+        this, 'set', RealmSet<LinksClass>(set));
+    RealmObjectBase.set<RealmMap<LinksClass?>>(
+        this, 'map', RealmMap<LinksClass?>(map));
   }
 
   LinksClass._();
@@ -771,6 +777,20 @@ class LinksClass extends _LinksClass
       throw RealmUnsupportedSetError();
 
   @override
+  RealmSet<LinksClass> get set =>
+      RealmObjectBase.get<LinksClass>(this, 'set') as RealmSet<LinksClass>;
+  @override
+  set set(covariant RealmSet<LinksClass> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<LinksClass?> get map =>
+      RealmObjectBase.get<LinksClass?>(this, 'map') as RealmMap<LinksClass?>;
+  @override
+  set map(covariant RealmMap<LinksClass?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
   Stream<RealmObjectChanges<LinksClass>> get changes =>
       RealmObjectBase.getChanges<LinksClass>(this);
 
@@ -788,6 +808,12 @@ class LinksClass extends _LinksClass
           optional: true, linkTarget: 'LinksClass'),
       SchemaProperty('list', RealmPropertyType.object,
           linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
+      SchemaProperty('set', RealmPropertyType.object,
+          linkTarget: 'LinksClass', collectionType: RealmCollectionType.set),
+      SchemaProperty('map', RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'LinksClass',
+          collectionType: RealmCollectionType.map),
     ]);
   }
 }
@@ -795,171 +821,504 @@ class LinksClass extends _LinksClass
 class AllCollections extends _AllCollections
     with RealmEntity, RealmObjectBase, RealmObject {
   AllCollections({
-    Iterable<String> strings = const [],
-    Iterable<bool> bools = const [],
-    Iterable<DateTime> dates = const [],
-    Iterable<double> doubles = const [],
-    Iterable<ObjectId> objectIds = const [],
-    Iterable<Uuid> uuids = const [],
-    Iterable<int> ints = const [],
-    Iterable<Decimal128> decimals = const [],
-    Iterable<String?> nullableStrings = const [],
-    Iterable<bool?> nullableBools = const [],
-    Iterable<DateTime?> nullableDates = const [],
-    Iterable<double?> nullableDoubles = const [],
-    Iterable<ObjectId?> nullableObjectIds = const [],
-    Iterable<Uuid?> nullableUuids = const [],
-    Iterable<int?> nullableInts = const [],
-    Iterable<Decimal128?> nullableDecimals = const [],
+    Iterable<bool> boolList = const [],
+    Iterable<DateTime> dateList = const [],
+    Iterable<double> doubleList = const [],
+    Iterable<ObjectId> objectIdList = const [],
+    Iterable<Uuid> uuidList = const [],
+    Iterable<int> intList = const [],
+    Iterable<Decimal128> decimalList = const [],
+    Iterable<String?> nullableStringList = const [],
+    Iterable<bool?> nullableBoolList = const [],
+    Iterable<DateTime?> nullableDateList = const [],
+    Iterable<double?> nullableDoubleList = const [],
+    Iterable<ObjectId?> nullableObjectIdList = const [],
+    Iterable<Uuid?> nullableUuidList = const [],
+    Iterable<int?> nullableIntList = const [],
+    Iterable<String> stringList = const [],
+    Iterable<Decimal128?> nullableDecimalList = const [],
+    Set<String> stringSet = const {},
+    Set<bool> boolSet = const {},
+    Set<DateTime> dateSet = const {},
+    Set<double> doubleSet = const {},
+    Set<ObjectId> objectIdSet = const {},
+    Set<int> intSet = const {},
+    Set<DateTime?> nullableDateSet = const {},
+    Set<int?> nullableIntSet = const {},
+    Set<Uuid> uuidSet = const {},
+    Set<Decimal128> decimalSet = const {},
+    Set<String?> nullableStringSet = const {},
+    Set<bool?> nullableBoolSet = const {},
+    Set<double?> nullableDoubleSet = const {},
+    Set<ObjectId?> nullableObjectIdSet = const {},
+    Set<Uuid?> nullableUuidSet = const {},
+    Set<Decimal128?> nullableDecimalSet = const {},
+    Map<String, String> stringMap = const {},
+    Map<String, DateTime> dateMap = const {},
+    Map<String, int> intMap = const {},
+    Map<String, String?> nullableStringMap = const {},
+    Map<String, ObjectId?> nullableObjectIdMap = const {},
+    Map<String, int?> nullableIntMap = const {},
+    Map<String, bool> boolMap = const {},
+    Map<String, double> doubleMap = const {},
+    Map<String, Uuid> uuidMap = const {},
+    Map<String, Decimal128> decimalMap = const {},
+    Map<String, bool?> nullableBoolMap = const {},
+    Map<String, double?> nullableDoubleMap = const {},
+    Map<String, Uuid?> nullableUuidMap = const {},
+    Map<String, Decimal128?> nullableDecimalMap = const {},
+    Map<String, ObjectId> objectIdMap = const {},
+    Map<String, DateTime?> nullableDateMap = const {},
   }) {
-    RealmObjectBase.set<RealmList<String>>(
-        this, 'strings', RealmList<String>(strings));
-    RealmObjectBase.set<RealmList<bool>>(this, 'bools', RealmList<bool>(bools));
+    RealmObjectBase.set<RealmList<bool>>(
+        this, 'boolList', RealmList<bool>(boolList));
     RealmObjectBase.set<RealmList<DateTime>>(
-        this, 'dates', RealmList<DateTime>(dates));
+        this, 'dateList', RealmList<DateTime>(dateList));
     RealmObjectBase.set<RealmList<double>>(
-        this, 'doubles', RealmList<double>(doubles));
+        this, 'doubleList', RealmList<double>(doubleList));
     RealmObjectBase.set<RealmList<ObjectId>>(
-        this, 'objectIds', RealmList<ObjectId>(objectIds));
-    RealmObjectBase.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
-    RealmObjectBase.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
+        this, 'objectIdList', RealmList<ObjectId>(objectIdList));
+    RealmObjectBase.set<RealmList<Uuid>>(
+        this, 'uuidList', RealmList<Uuid>(uuidList));
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'intList', RealmList<int>(intList));
     RealmObjectBase.set<RealmList<Decimal128>>(
-        this, 'decimals', RealmList<Decimal128>(decimals));
+        this, 'decimalList', RealmList<Decimal128>(decimalList));
     RealmObjectBase.set<RealmList<String?>>(
-        this, 'nullableStrings', RealmList<String?>(nullableStrings));
+        this, 'nullableStringList', RealmList<String?>(nullableStringList));
     RealmObjectBase.set<RealmList<bool?>>(
-        this, 'nullableBools', RealmList<bool?>(nullableBools));
+        this, 'nullableBoolList', RealmList<bool?>(nullableBoolList));
     RealmObjectBase.set<RealmList<DateTime?>>(
-        this, 'nullableDates', RealmList<DateTime?>(nullableDates));
+        this, 'nullableDateList', RealmList<DateTime?>(nullableDateList));
     RealmObjectBase.set<RealmList<double?>>(
-        this, 'nullableDoubles', RealmList<double?>(nullableDoubles));
-    RealmObjectBase.set<RealmList<ObjectId?>>(
-        this, 'nullableObjectIds', RealmList<ObjectId?>(nullableObjectIds));
+        this, 'nullableDoubleList', RealmList<double?>(nullableDoubleList));
+    RealmObjectBase.set<RealmList<ObjectId?>>(this, 'nullableObjectIdList',
+        RealmList<ObjectId?>(nullableObjectIdList));
     RealmObjectBase.set<RealmList<Uuid?>>(
-        this, 'nullableUuids', RealmList<Uuid?>(nullableUuids));
+        this, 'nullableUuidList', RealmList<Uuid?>(nullableUuidList));
     RealmObjectBase.set<RealmList<int?>>(
-        this, 'nullableInts', RealmList<int?>(nullableInts));
-    RealmObjectBase.set<RealmList<Decimal128?>>(
-        this, 'nullableDecimals', RealmList<Decimal128?>(nullableDecimals));
+        this, 'nullableIntList', RealmList<int?>(nullableIntList));
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'stringList', RealmList<String>(stringList));
+    RealmObjectBase.set<RealmList<Decimal128?>>(this, 'nullableDecimalList',
+        RealmList<Decimal128?>(nullableDecimalList));
+    RealmObjectBase.set<RealmSet<String>>(
+        this, 'stringSet', RealmSet<String>(stringSet));
+    RealmObjectBase.set<RealmSet<bool>>(
+        this, 'boolSet', RealmSet<bool>(boolSet));
+    RealmObjectBase.set<RealmSet<DateTime>>(
+        this, 'dateSet', RealmSet<DateTime>(dateSet));
+    RealmObjectBase.set<RealmSet<double>>(
+        this, 'doubleSet', RealmSet<double>(doubleSet));
+    RealmObjectBase.set<RealmSet<ObjectId>>(
+        this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
+    RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>(intSet));
+    RealmObjectBase.set<RealmSet<DateTime?>>(
+        this, 'nullableDateSet', RealmSet<DateTime?>(nullableDateSet));
+    RealmObjectBase.set<RealmSet<int?>>(
+        this, 'nullableIntSet', RealmSet<int?>(nullableIntSet));
+    RealmObjectBase.set<RealmSet<Uuid>>(
+        this, 'uuidSet', RealmSet<Uuid>(uuidSet));
+    RealmObjectBase.set<RealmSet<Decimal128>>(
+        this, 'decimalSet', RealmSet<Decimal128>(decimalSet));
+    RealmObjectBase.set<RealmSet<String?>>(
+        this, 'nullableStringSet', RealmSet<String?>(nullableStringSet));
+    RealmObjectBase.set<RealmSet<bool?>>(
+        this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
+    RealmObjectBase.set<RealmSet<double?>>(
+        this, 'nullableDoubleSet', RealmSet<double?>(nullableDoubleSet));
+    RealmObjectBase.set<RealmSet<ObjectId?>>(
+        this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
+    RealmObjectBase.set<RealmSet<Uuid?>>(
+        this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
+    RealmObjectBase.set<RealmSet<Decimal128?>>(
+        this, 'nullableDecimalSet', RealmSet<Decimal128?>(nullableDecimalSet));
+    RealmObjectBase.set<RealmMap<String>>(
+        this, 'stringMap', RealmMap<String>(stringMap));
+    RealmObjectBase.set<RealmMap<DateTime>>(
+        this, 'dateMap', RealmMap<DateTime>(dateMap));
+    RealmObjectBase.set<RealmMap<int>>(this, 'intMap', RealmMap<int>(intMap));
+    RealmObjectBase.set<RealmMap<String?>>(
+        this, 'nullableStringMap', RealmMap<String?>(nullableStringMap));
+    RealmObjectBase.set<RealmMap<ObjectId?>>(
+        this, 'nullableObjectIdMap', RealmMap<ObjectId?>(nullableObjectIdMap));
+    RealmObjectBase.set<RealmMap<int?>>(
+        this, 'nullableIntMap', RealmMap<int?>(nullableIntMap));
+    RealmObjectBase.set<RealmMap<bool>>(
+        this, 'boolMap', RealmMap<bool>(boolMap));
+    RealmObjectBase.set<RealmMap<double>>(
+        this, 'doubleMap', RealmMap<double>(doubleMap));
+    RealmObjectBase.set<RealmMap<Uuid>>(
+        this, 'uuidMap', RealmMap<Uuid>(uuidMap));
+    RealmObjectBase.set<RealmMap<Decimal128>>(
+        this, 'decimalMap', RealmMap<Decimal128>(decimalMap));
+    RealmObjectBase.set<RealmMap<bool?>>(
+        this, 'nullableBoolMap', RealmMap<bool?>(nullableBoolMap));
+    RealmObjectBase.set<RealmMap<double?>>(
+        this, 'nullableDoubleMap', RealmMap<double?>(nullableDoubleMap));
+    RealmObjectBase.set<RealmMap<Uuid?>>(
+        this, 'nullableUuidMap', RealmMap<Uuid?>(nullableUuidMap));
+    RealmObjectBase.set<RealmMap<Decimal128?>>(
+        this, 'nullableDecimalMap', RealmMap<Decimal128?>(nullableDecimalMap));
+    RealmObjectBase.set<RealmMap<ObjectId>>(
+        this, 'objectIdMap', RealmMap<ObjectId>(objectIdMap));
+    RealmObjectBase.set<RealmMap<DateTime?>>(
+        this, 'nullableDateMap', RealmMap<DateTime?>(nullableDateMap));
   }
 
   AllCollections._();
 
   @override
-  RealmList<String> get strings =>
-      RealmObjectBase.get<String>(this, 'strings') as RealmList<String>;
+  RealmMap<String> get stringMap =>
+      RealmObjectBase.get<String>(this, 'stringMap') as RealmMap<String>;
   @override
-  set strings(covariant RealmList<String> value) =>
+  set stringMap(covariant RealmMap<String> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<bool> get bools =>
-      RealmObjectBase.get<bool>(this, 'bools') as RealmList<bool>;
+  RealmList<bool> get boolList =>
+      RealmObjectBase.get<bool>(this, 'boolList') as RealmList<bool>;
   @override
-  set bools(covariant RealmList<bool> value) =>
+  set boolList(covariant RealmList<bool> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<DateTime> get dates =>
-      RealmObjectBase.get<DateTime>(this, 'dates') as RealmList<DateTime>;
+  RealmList<DateTime> get dateList =>
+      RealmObjectBase.get<DateTime>(this, 'dateList') as RealmList<DateTime>;
   @override
-  set dates(covariant RealmList<DateTime> value) =>
+  set dateList(covariant RealmList<DateTime> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<double> get doubles =>
-      RealmObjectBase.get<double>(this, 'doubles') as RealmList<double>;
+  RealmList<double> get doubleList =>
+      RealmObjectBase.get<double>(this, 'doubleList') as RealmList<double>;
   @override
-  set doubles(covariant RealmList<double> value) =>
+  set doubleList(covariant RealmList<double> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<ObjectId> get objectIds =>
-      RealmObjectBase.get<ObjectId>(this, 'objectIds') as RealmList<ObjectId>;
+  RealmList<ObjectId> get objectIdList =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdList')
+          as RealmList<ObjectId>;
   @override
-  set objectIds(covariant RealmList<ObjectId> value) =>
+  set objectIdList(covariant RealmList<ObjectId> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Uuid> get uuids =>
-      RealmObjectBase.get<Uuid>(this, 'uuids') as RealmList<Uuid>;
+  RealmList<Uuid> get uuidList =>
+      RealmObjectBase.get<Uuid>(this, 'uuidList') as RealmList<Uuid>;
   @override
-  set uuids(covariant RealmList<Uuid> value) =>
+  set uuidList(covariant RealmList<Uuid> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<int> get ints =>
-      RealmObjectBase.get<int>(this, 'ints') as RealmList<int>;
+  RealmList<int> get intList =>
+      RealmObjectBase.get<int>(this, 'intList') as RealmList<int>;
   @override
-  set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+  set intList(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Decimal128> get decimals =>
-      RealmObjectBase.get<Decimal128>(this, 'decimals')
+  RealmList<Decimal128> get decimalList =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalList')
           as RealmList<Decimal128>;
   @override
-  set decimals(covariant RealmList<Decimal128> value) =>
+  set decimalList(covariant RealmList<Decimal128> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<String?> get nullableStrings =>
-      RealmObjectBase.get<String?>(this, 'nullableStrings')
+  RealmList<String?> get nullableStringList =>
+      RealmObjectBase.get<String?>(this, 'nullableStringList')
           as RealmList<String?>;
   @override
-  set nullableStrings(covariant RealmList<String?> value) =>
+  set nullableStringList(covariant RealmList<String?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<bool?> get nullableBools =>
-      RealmObjectBase.get<bool?>(this, 'nullableBools') as RealmList<bool?>;
+  RealmList<bool?> get nullableBoolList =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolList') as RealmList<bool?>;
   @override
-  set nullableBools(covariant RealmList<bool?> value) =>
+  set nullableBoolList(covariant RealmList<bool?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<DateTime?> get nullableDates =>
-      RealmObjectBase.get<DateTime?>(this, 'nullableDates')
+  RealmList<DateTime?> get nullableDateList =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateList')
           as RealmList<DateTime?>;
   @override
-  set nullableDates(covariant RealmList<DateTime?> value) =>
+  set nullableDateList(covariant RealmList<DateTime?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<double?> get nullableDoubles =>
-      RealmObjectBase.get<double?>(this, 'nullableDoubles')
+  RealmMap<DateTime> get dateMap =>
+      RealmObjectBase.get<DateTime>(this, 'dateMap') as RealmMap<DateTime>;
+  @override
+  set dateMap(covariant RealmMap<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get intMap =>
+      RealmObjectBase.get<int>(this, 'intMap') as RealmMap<int>;
+  @override
+  set intMap(covariant RealmMap<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<String?> get nullableStringMap =>
+      RealmObjectBase.get<String?>(this, 'nullableStringMap')
+          as RealmMap<String?>;
+  @override
+  set nullableStringMap(covariant RealmMap<String?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<ObjectId?> get nullableObjectIdMap =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdMap')
+          as RealmMap<ObjectId?>;
+  @override
+  set nullableObjectIdMap(covariant RealmMap<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int?> get nullableIntMap =>
+      RealmObjectBase.get<int?>(this, 'nullableIntMap') as RealmMap<int?>;
+  @override
+  set nullableIntMap(covariant RealmMap<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<String> get stringSet =>
+      RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
+  @override
+  set stringSet(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<bool> get boolSet =>
+      RealmObjectBase.get<bool>(this, 'boolSet') as RealmSet<bool>;
+  @override
+  set boolSet(covariant RealmSet<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime> get dateSet =>
+      RealmObjectBase.get<DateTime>(this, 'dateSet') as RealmSet<DateTime>;
+  @override
+  set dateSet(covariant RealmSet<DateTime> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double> get doubleSet =>
+      RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
+  @override
+  set doubleSet(covariant RealmSet<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId> get objectIdSet =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
+  @override
+  set objectIdSet(covariant RealmSet<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<bool> get boolMap =>
+      RealmObjectBase.get<bool>(this, 'boolMap') as RealmMap<bool>;
+  @override
+  set boolMap(covariant RealmMap<bool> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get intSet =>
+      RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
+  @override
+  set intSet(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<double> get doubleMap =>
+      RealmObjectBase.get<double>(this, 'doubleMap') as RealmMap<double>;
+  @override
+  set doubleMap(covariant RealmMap<double> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<Uuid> get uuidMap =>
+      RealmObjectBase.get<Uuid>(this, 'uuidMap') as RealmMap<Uuid>;
+  @override
+  set uuidMap(covariant RealmMap<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<Decimal128> get decimalMap =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalMap')
+          as RealmMap<Decimal128>;
+  @override
+  set decimalMap(covariant RealmMap<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<DateTime?> get nullableDateSet =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateSet')
+          as RealmSet<DateTime?>;
+  @override
+  set nullableDateSet(covariant RealmSet<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<bool?> get nullableBoolMap =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolMap') as RealmMap<bool?>;
+  @override
+  set nullableBoolMap(covariant RealmMap<bool?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<double?> get nullableDoubleMap =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleMap')
+          as RealmMap<double?>;
+  @override
+  set nullableDoubleMap(covariant RealmMap<double?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<Uuid?> get nullableUuidMap =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidMap') as RealmMap<Uuid?>;
+  @override
+  set nullableUuidMap(covariant RealmMap<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int?> get nullableIntSet =>
+      RealmObjectBase.get<int?>(this, 'nullableIntSet') as RealmSet<int?>;
+  @override
+  set nullableIntSet(covariant RealmSet<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<Decimal128?> get nullableDecimalMap =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalMap')
+          as RealmMap<Decimal128?>;
+  @override
+  set nullableDecimalMap(covariant RealmMap<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<ObjectId> get objectIdMap =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdMap') as RealmMap<ObjectId>;
+  @override
+  set objectIdMap(covariant RealmMap<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid> get uuidSet =>
+      RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
+  @override
+  set uuidSet(covariant RealmSet<Uuid> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<double?> get nullableDoubleList =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleList')
           as RealmList<double?>;
   @override
-  set nullableDoubles(covariant RealmList<double?> value) =>
+  set nullableDoubleList(covariant RealmList<double?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<ObjectId?> get nullableObjectIds =>
-      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIds')
+  RealmSet<Decimal128> get decimalSet =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalSet')
+          as RealmSet<Decimal128>;
+  @override
+  set decimalSet(covariant RealmSet<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<ObjectId?> get nullableObjectIdList =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdList')
           as RealmList<ObjectId?>;
   @override
-  set nullableObjectIds(covariant RealmList<ObjectId?> value) =>
+  set nullableObjectIdList(covariant RealmList<ObjectId?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Uuid?> get nullableUuids =>
-      RealmObjectBase.get<Uuid?>(this, 'nullableUuids') as RealmList<Uuid?>;
+  RealmSet<String?> get nullableStringSet =>
+      RealmObjectBase.get<String?>(this, 'nullableStringSet')
+          as RealmSet<String?>;
   @override
-  set nullableUuids(covariant RealmList<Uuid?> value) =>
+  set nullableStringSet(covariant RealmSet<String?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<int?> get nullableInts =>
-      RealmObjectBase.get<int?>(this, 'nullableInts') as RealmList<int?>;
+  RealmMap<DateTime?> get nullableDateMap =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateMap')
+          as RealmMap<DateTime?>;
   @override
-  set nullableInts(covariant RealmList<int?> value) =>
+  set nullableDateMap(covariant RealmMap<DateTime?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Decimal128?> get nullableDecimals =>
-      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimals')
+  RealmSet<bool?> get nullableBoolSet =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
+  @override
+  set nullableBoolSet(covariant RealmSet<bool?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Uuid?> get nullableUuidList =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidList') as RealmList<Uuid?>;
+  @override
+  set nullableUuidList(covariant RealmList<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<double?> get nullableDoubleSet =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleSet')
+          as RealmSet<double?>;
+  @override
+  set nullableDoubleSet(covariant RealmSet<double?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int?> get nullableIntList =>
+      RealmObjectBase.get<int?>(this, 'nullableIntList') as RealmList<int?>;
+  @override
+  set nullableIntList(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<ObjectId?> get nullableObjectIdSet =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdSet')
+          as RealmSet<ObjectId?>;
+  @override
+  set nullableObjectIdSet(covariant RealmSet<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<String> get stringList =>
+      RealmObjectBase.get<String>(this, 'stringList') as RealmList<String>;
+  @override
+  set stringList(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Uuid?> get nullableUuidSet =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidSet') as RealmSet<Uuid?>;
+  @override
+  set nullableUuidSet(covariant RealmSet<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<Decimal128?> get nullableDecimalList =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalList')
           as RealmList<Decimal128?>;
   @override
-  set nullableDecimals(covariant RealmList<Decimal128?> value) =>
+  set nullableDecimalList(covariant RealmList<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<Decimal128?> get nullableDecimalSet =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalSet')
+          as RealmSet<Decimal128?>;
+  @override
+  set nullableDecimalSet(covariant RealmSet<Decimal128?> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -975,38 +1334,102 @@ class AllCollections extends _AllCollections
     RealmObjectBase.registerFactory(AllCollections._);
     return const SchemaObject(
         ObjectType.realmObject, AllCollections, 'AllCollections', [
-      SchemaProperty('strings', RealmPropertyType.string,
+      SchemaProperty('stringMap', RealmPropertyType.string,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('boolList', RealmPropertyType.bool,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('bools', RealmPropertyType.bool,
+      SchemaProperty('dateList', RealmPropertyType.timestamp,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('dates', RealmPropertyType.timestamp,
+      SchemaProperty('doubleList', RealmPropertyType.double,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('doubles', RealmPropertyType.double,
+      SchemaProperty('objectIdList', RealmPropertyType.objectid,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('objectIds', RealmPropertyType.objectid,
+      SchemaProperty('uuidList', RealmPropertyType.uuid,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('uuids', RealmPropertyType.uuid,
+      SchemaProperty('intList', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('ints', RealmPropertyType.int,
+      SchemaProperty('decimalList', RealmPropertyType.decimal128,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('decimals', RealmPropertyType.decimal128,
+      SchemaProperty('nullableStringList', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableBoolList', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDateList', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('dateMap', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('intMap', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableStringMap', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableObjectIdMap', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableIntMap', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('stringSet', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('boolSet', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('dateSet', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSet', RealmPropertyType.double,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSet', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('boolMap', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('intSet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleMap', RealmPropertyType.double,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('uuidMap', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('decimalMap', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableDateSet', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableBoolMap', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableDoubleMap', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableUuidMap', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableIntSet', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDecimalMap', RealmPropertyType.decimal128,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('objectIdMap', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('uuidSet', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDoubleList', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('decimalSet', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableObjectIdList', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableStringSet', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDateMap', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableUuidList', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDoubleSet', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableIntList', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('stringList', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableStrings', RealmPropertyType.string,
+      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDecimalList', RealmPropertyType.decimal128,
           optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableBools', RealmPropertyType.bool,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDates', RealmPropertyType.timestamp,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDoubles', RealmPropertyType.double,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableObjectIds', RealmPropertyType.objectid,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableUuids', RealmPropertyType.uuid,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableInts', RealmPropertyType.int,
-          optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDecimals', RealmPropertyType.decimal128,
-          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDecimalSet', RealmPropertyType.decimal128,
+          optional: true, collectionType: RealmCollectionType.set),
     ]);
   }
 }

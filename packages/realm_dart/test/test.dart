@@ -158,27 +158,65 @@ class _LinksClass {
 
   late _LinksClass? link;
   late List<_LinksClass> list;
+  late Set<_LinksClass> set;
+  late Map<String, _LinksClass?> map;
 }
 
 @RealmModel()
 class _AllCollections {
-  late List<String> strings;
-  late List<bool> bools;
-  late List<DateTime> dates;
-  late List<double> doubles;
-  late List<ObjectId> objectIds;
-  late List<Uuid> uuids;
-  late List<int> ints;
-  late List<Decimal128> decimals;
+  late List<String> stringList;
+  late List<bool> boolList;
+  late List<DateTime> dateList;
+  late List<double> doubleList;
+  late List<ObjectId> objectIdList;
+  late List<Uuid> uuidList;
+  late List<int> intList;
+  late List<Decimal128> decimalList;
 
-  late List<String?> nullableStrings;
-  late List<bool?> nullableBools;
-  late List<DateTime?> nullableDates;
-  late List<double?> nullableDoubles;
-  late List<ObjectId?> nullableObjectIds;
-  late List<Uuid?> nullableUuids;
-  late List<int?> nullableInts;
-  late List<Decimal128?> nullableDecimals;
+  late List<String?> nullableStringList;
+  late List<bool?> nullableBoolList;
+  late List<DateTime?> nullableDateList;
+  late List<double?> nullableDoubleList;
+  late List<ObjectId?> nullableObjectIdList;
+  late List<Uuid?> nullableUuidList;
+  late List<int?> nullableIntList;
+  late List<Decimal128?> nullableDecimalList;
+
+  late Set<String> stringSet;
+  late Set<bool> boolSet;
+  late Set<DateTime> dateSet;
+  late Set<double> doubleSet;
+  late Set<ObjectId> objectIdSet;
+  late Set<Uuid> uuidSet;
+  late Set<int> intSet;
+  late Set<Decimal128> decimalSet;
+
+  late Set<String?> nullableStringSet;
+  late Set<bool?> nullableBoolSet;
+  late Set<DateTime?> nullableDateSet;
+  late Set<double?> nullableDoubleSet;
+  late Set<ObjectId?> nullableObjectIdSet;
+  late Set<Uuid?> nullableUuidSet;
+  late Set<int?> nullableIntSet;
+  late Set<Decimal128?> nullableDecimalSet;
+
+  late Map<String, String> stringMap;
+  late Map<String, bool> boolMap;
+  late Map<String, DateTime> dateMap;
+  late Map<String, double> doubleMap;
+  late Map<String, ObjectId> objectIdMap;
+  late Map<String, Uuid> uuidMap;
+  late Map<String, int> intMap;
+  late Map<String, Decimal128> decimalMap;
+
+  late Map<String, String?> nullableStringMap;
+  late Map<String, bool?> nullableBoolMap;
+  late Map<String, DateTime?> nullableDateMap;
+  late Map<String, double?> nullableDoubleMap;
+  late Map<String, ObjectId?> nullableObjectIdMap;
+  late Map<String, Uuid?> nullableUuidMap;
+  late Map<String, int?> nullableIntMap;
+  late Map<String, Decimal128?> nullableDecimalMap;
 }
 
 @RealmModel()
