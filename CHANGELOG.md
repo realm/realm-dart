@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Ctor arguments appear in random order on generated classes, if the realm model contains many properties. (PR [#1531](https://github.com/realm/realm-dart/pull/1531))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
@@ -16,7 +16,7 @@
 
 ### Enhancements
 * Added `User.changes` stream that allows subscribers to receive notifications when the User changes - for example when the user's custom data changes or when their authentication state changes. (PR [#1500](https://github.com/realm/realm-dart/pull/1500))
-* Allow the query builder to construct >, >=, <, <= queries for string constants. This is a case sensitive lexicographical comparison. Improved performance of RQL queries on a non-linked string property using: >, >=, <, <=, operators and fixed behaviour that a null string should be evaulated as less than everything, previously nulls were not matched. (Core 13.26.0-13-gd12c3)
+* Allow the query builder to construct >, >=, <, <= queries for string constants. This is a case sensitive lexicographical comparison. Improved performance of RQL queries on a non-linked string property using: >, >=, <, <=, operators and fixed behavior that a null string should be evaluated as less than everything, previously nulls were not matched. (Core 13.26.0-13-gd12c3)
 
 ### Fixed
 * Creating an `AppConfiguration` with an empty appId will now throw an exception rather than crashing the app. (Issue [#1487](https://github.com/realm/realm-dart/issues/1487))
