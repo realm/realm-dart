@@ -9,7 +9,6 @@ part of 'asymmetric_object.dart';
 // ignore_for_file: type=lint
 class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Asymmetric(
     ObjectId id, {
     Embedded? father,
@@ -58,10 +57,35 @@ class Asymmetric extends _Asymmetric
   @override
   Asymmetric freeze() => RealmObjectBase.freezeObject<Asymmetric>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeAsymmetric(Asymmetric value) {
+    return <String, dynamic>{
+      '_id': toEJson(value.id),
+      'children': toEJson(value.children),
+      'father': toEJson(value.father),
+      'mother': toEJson(value.mother),
+    };
+  }
+
+  static Asymmetric _decodeAsymmetric(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'children': EJsonValue children,
+        'father': EJsonValue father,
+        'mother': EJsonValue mother,
+      } =>
+        Asymmetric(
+          fromEJson(id),
+          father: fromEJson(father),
+          mother: fromEJson(mother),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
+    register(_encodeAsymmetric, _decodeAsymmetric);
     return const SchemaObject(
         ObjectType.realmObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
@@ -73,12 +97,11 @@ class Asymmetric extends _Asymmetric
       SchemaProperty('mother', RealmPropertyType.object,
           optional: true, linkTarget: 'Embedded'),
     ]);
-  }
+  }();
 }
 
 class Embedded extends _Embedded
     with RealmEntity, RealmObjectBase, EmbeddedObject {
-  @ejson    
   Embedded(
     String name,
     int age,
@@ -106,14 +129,33 @@ class Embedded extends _Embedded
   @override
   Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeEmbedded(Embedded value) {
+    return <String, dynamic>{
+      'name': toEJson(value.name),
+      'age': toEJson(value.age),
+    };
+  }
+
+  static Embedded _decodeEmbedded(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'age': EJsonValue age,
+      } =>
+        Embedded(
+          fromEJson(name),
+          fromEJson(age),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Embedded._);
+    register(_encodeEmbedded, _decodeEmbedded);
     return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
-

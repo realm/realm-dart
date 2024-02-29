@@ -10,7 +10,6 @@ part of 'pinhole.dart';
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  @ejson
   Foo({
     int x = 0,
   }) {
@@ -36,13 +35,29 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeFoo(Foo value) {
+    return <String, dynamic>{
+      'x': toEJson(value.x),
+    };
+  }
+
+  static Foo _decodeFoo(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'x': EJsonValue x,
+      } =>
+        Foo(
+          x: fromEJson(x),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
+    register(_encodeFoo, _decodeFoo);
     return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
-

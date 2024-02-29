@@ -8,7 +8,6 @@ part of 'primary_key.dart';
 
 // ignore_for_file: type=lint
 class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   IntPK(
     int id,
   ) {
@@ -29,19 +28,35 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   @override
   IntPK freeze() => RealmObjectBase.freezeObject<IntPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeIntPK(IntPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static IntPK _decodeIntPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        IntPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(IntPK._);
+    register(_encodeIntPK, _decodeIntPK);
     return const SchemaObject(ObjectType.realmObject, IntPK, 'IntPK', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableIntPK extends _NullableIntPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   NullableIntPK(
     int? id,
   ) {
@@ -62,22 +77,37 @@ class NullableIntPK extends _NullableIntPK
   @override
   NullableIntPK freeze() => RealmObjectBase.freezeObject<NullableIntPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeNullableIntPK(NullableIntPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static NullableIntPK _decodeNullableIntPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableIntPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableIntPK._);
+    register(_encodeNullableIntPK, _decodeNullableIntPK);
     return const SchemaObject(
         ObjectType.realmObject, NullableIntPK, 'NullableIntPK', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
-
 
 class StringPK extends _StringPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   StringPK(
     String id,
   ) {
@@ -98,19 +128,35 @@ class StringPK extends _StringPK
   @override
   StringPK freeze() => RealmObjectBase.freezeObject<StringPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeStringPK(StringPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static StringPK _decodeStringPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        StringPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(StringPK._);
+    register(_encodeStringPK, _decodeStringPK);
     return const SchemaObject(ObjectType.realmObject, StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableStringPK extends _NullableStringPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   NullableStringPK(
     String? id,
   ) {
@@ -132,21 +178,37 @@ class NullableStringPK extends _NullableStringPK
   NullableStringPK freeze() =>
       RealmObjectBase.freezeObject<NullableStringPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeNullableStringPK(NullableStringPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static NullableStringPK _decodeNullableStringPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableStringPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableStringPK._);
+    register(_encodeNullableStringPK, _decodeNullableStringPK);
     return const SchemaObject(
         ObjectType.realmObject, NullableStringPK, 'NullableStringPK', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class ObjectIdPK extends _ObjectIdPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   ObjectIdPK(
     ObjectId id,
   ) {
@@ -167,19 +229,36 @@ class ObjectIdPK extends _ObjectIdPK
   @override
   ObjectIdPK freeze() => RealmObjectBase.freezeObject<ObjectIdPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeObjectIdPK(ObjectIdPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static ObjectIdPK _decodeObjectIdPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        ObjectIdPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(ObjectIdPK._);
-    return const SchemaObject(ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
+    register(_encodeObjectIdPK, _decodeObjectIdPK);
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   NullableObjectIdPK(
     ObjectId? id,
   ) {
@@ -201,20 +280,36 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   NullableObjectIdPK freeze() =>
       RealmObjectBase.freezeObject<NullableObjectIdPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeNullableObjectIdPK(NullableObjectIdPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static NullableObjectIdPK _decodeNullableObjectIdPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableObjectIdPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableObjectIdPK._);
+    register(_encodeNullableObjectIdPK, _decodeNullableObjectIdPK);
     return const SchemaObject(
         ObjectType.realmObject, NullableObjectIdPK, 'NullableObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   UuidPK(
     Uuid id,
   ) {
@@ -235,19 +330,35 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
   @override
   UuidPK freeze() => RealmObjectBase.freezeObject<UuidPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeUuidPK(UuidPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static UuidPK _decodeUuidPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        UuidPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(UuidPK._);
+    register(_encodeUuidPK, _decodeUuidPK);
     return const SchemaObject(ObjectType.realmObject, UuidPK, 'UuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableUuidPK extends _NullableUuidPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   NullableUuidPK(
     Uuid? id,
   ) {
@@ -268,15 +379,31 @@ class NullableUuidPK extends _NullableUuidPK
   @override
   NullableUuidPK freeze() => RealmObjectBase.freezeObject<NullableUuidPK>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeNullableUuidPK(NullableUuidPK value) {
+    return <String, dynamic>{
+      'id': toEJson(value.id),
+    };
+  }
+
+  static NullableUuidPK _decodeNullableUuidPK(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableUuidPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableUuidPK._);
+    register(_encodeNullableUuidPK, _decodeNullableUuidPK);
     return const SchemaObject(
         ObjectType.realmObject, NullableUuidPK, 'NullableUuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
-

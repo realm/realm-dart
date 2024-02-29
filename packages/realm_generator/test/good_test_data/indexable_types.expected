@@ -9,7 +9,6 @@ part of 'indexable_types.dart';
 // ignore_for_file: type=lint
 class Indexable extends _Indexable
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Indexable(
     bool aBool,
     int anInt,
@@ -159,10 +158,72 @@ class Indexable extends _Indexable
   @override
   Indexable freeze() => RealmObjectBase.freezeObject<Indexable>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeIndexable(Indexable value) {
+    return <String, dynamic>{
+      'aBool': toEJson(value.aBool),
+      'aNullableBool': toEJson(value.aNullableBool),
+      'anInt': toEJson(value.anInt),
+      'aNullableInt': toEJson(value.aNullableInt),
+      'aString': toEJson(value.aString),
+      'aNullableString': toEJson(value.aNullableString),
+      'anObjectId': toEJson(value.anObjectId),
+      'aNullableObjectId': toEJson(value.aNullableObjectId),
+      'anUuid': toEJson(value.anUuid),
+      'aNullableUuid': toEJson(value.aNullableUuid),
+      'aDateTime': toEJson(value.aDateTime),
+      'aNullableDateTime': toEJson(value.aNullableDateTime),
+      'aRealmValue': toEJson(value.aRealmValue),
+      'generalStringIndex': toEJson(value.generalStringIndex),
+      'ftsStringValue': toEJson(value.ftsStringValue),
+      'nullableFtsStringValue': toEJson(value.nullableFtsStringValue),
+    };
+  }
+
+  static Indexable _decodeIndexable(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'aBool': EJsonValue aBool,
+        'aNullableBool': EJsonValue aNullableBool,
+        'anInt': EJsonValue anInt,
+        'aNullableInt': EJsonValue aNullableInt,
+        'aString': EJsonValue aString,
+        'aNullableString': EJsonValue aNullableString,
+        'anObjectId': EJsonValue anObjectId,
+        'aNullableObjectId': EJsonValue aNullableObjectId,
+        'anUuid': EJsonValue anUuid,
+        'aNullableUuid': EJsonValue aNullableUuid,
+        'aDateTime': EJsonValue aDateTime,
+        'aNullableDateTime': EJsonValue aNullableDateTime,
+        'aRealmValue': EJsonValue aRealmValue,
+        'generalStringIndex': EJsonValue generalStringIndex,
+        'ftsStringValue': EJsonValue ftsStringValue,
+        'nullableFtsStringValue': EJsonValue nullableFtsStringValue,
+      } =>
+        Indexable(
+          fromEJson(aBool),
+          fromEJson(anInt),
+          fromEJson(aString),
+          fromEJson(anObjectId),
+          fromEJson(anUuid),
+          fromEJson(aDateTime),
+          fromEJson(generalStringIndex),
+          fromEJson(ftsStringValue),
+          aNullableBool: fromEJson(aNullableBool),
+          aNullableInt: fromEJson(aNullableInt),
+          aNullableString: fromEJson(aNullableString),
+          aNullableObjectId: fromEJson(aNullableObjectId),
+          aNullableUuid: fromEJson(aNullableUuid),
+          aNullableDateTime: fromEJson(aNullableDateTime),
+          aRealmValue: fromEJson(aRealmValue),
+          nullableFtsStringValue: fromEJson(nullableFtsStringValue),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Indexable._);
+    register(_encodeIndexable, _decodeIndexable);
     return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
       SchemaProperty('aBool', RealmPropertyType.bool,
           indexType: RealmIndexType.regular),
@@ -197,5 +258,5 @@ class Indexable extends _Indexable
       SchemaProperty('nullableFtsStringValue', RealmPropertyType.string,
           optional: true, indexType: RealmIndexType.fullText),
     ]);
-  }
+  }();
 }

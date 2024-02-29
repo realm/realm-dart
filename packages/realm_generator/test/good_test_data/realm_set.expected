@@ -8,7 +8,6 @@ part of 'realm_set.dart';
 
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Car(
     String make,
   ) {
@@ -29,19 +28,35 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeCar(Car value) {
+    return <String, dynamic>{
+      'make': toEJson(value.make),
+    };
+  }
+
+  static Car _decodeCar(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'make': EJsonValue make,
+      } =>
+        Car(
+          fromEJson(make),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Car._);
+    register(_encodeCar, _decodeCar);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class RealmSets extends _RealmSets
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   RealmSets(
     int key, {
     Set<bool> boolSet = const {},
@@ -225,10 +240,59 @@ class RealmSets extends _RealmSets
   @override
   RealmSets freeze() => RealmObjectBase.freezeObject<RealmSets>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeRealmSets(RealmSets value) {
+    return <String, dynamic>{
+      'key': toEJson(value.key),
+      'boolSet': toEJson(value.boolSet),
+      'nullableBoolSet': toEJson(value.nullableBoolSet),
+      'intSet': toEJson(value.intSet),
+      'nullableintSet': toEJson(value.nullableintSet),
+      'stringSet': toEJson(value.stringSet),
+      'nullablestringSet': toEJson(value.nullablestringSet),
+      'doubleSet': toEJson(value.doubleSet),
+      'nullabledoubleSet': toEJson(value.nullabledoubleSet),
+      'dateTimeSet': toEJson(value.dateTimeSet),
+      'nullabledateTimeSet': toEJson(value.nullabledateTimeSet),
+      'objectIdSet': toEJson(value.objectIdSet),
+      'nullableobjectIdSet': toEJson(value.nullableobjectIdSet),
+      'uuidSet': toEJson(value.uuidSet),
+      'nullableuuidSet': toEJson(value.nullableuuidSet),
+      'realmValueSet': toEJson(value.realmValueSet),
+      'realmObjectsSet': toEJson(value.realmObjectsSet),
+    };
+  }
+
+  static RealmSets _decodeRealmSets(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'key': EJsonValue key,
+        'boolSet': EJsonValue boolSet,
+        'nullableBoolSet': EJsonValue nullableBoolSet,
+        'intSet': EJsonValue intSet,
+        'nullableintSet': EJsonValue nullableintSet,
+        'stringSet': EJsonValue stringSet,
+        'nullablestringSet': EJsonValue nullablestringSet,
+        'doubleSet': EJsonValue doubleSet,
+        'nullabledoubleSet': EJsonValue nullabledoubleSet,
+        'dateTimeSet': EJsonValue dateTimeSet,
+        'nullabledateTimeSet': EJsonValue nullabledateTimeSet,
+        'objectIdSet': EJsonValue objectIdSet,
+        'nullableobjectIdSet': EJsonValue nullableobjectIdSet,
+        'uuidSet': EJsonValue uuidSet,
+        'nullableuuidSet': EJsonValue nullableuuidSet,
+        'realmValueSet': EJsonValue realmValueSet,
+        'realmObjectsSet': EJsonValue realmObjectsSet,
+      } =>
+        RealmSets(
+          fromEJson(key),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(RealmSets._);
+    register(_encodeRealmSets, _decodeRealmSets);
     return const SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolSet', RealmPropertyType.bool,
@@ -264,5 +328,5 @@ class RealmSets extends _RealmSets
       SchemaProperty('realmObjectsSet', RealmPropertyType.object,
           linkTarget: 'Car', collectionType: RealmCollectionType.set),
     ]);
-  }
+  }();
 }

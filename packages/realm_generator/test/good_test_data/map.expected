@@ -9,7 +9,6 @@ part of 'map.dart';
 // ignore_for_file: type=lint
 class LotsOfMaps extends _LotsOfMaps
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   LotsOfMaps({
     Map<String, Person?> persons = const {},
     Map<String, bool> bools = const {},
@@ -25,16 +24,14 @@ class LotsOfMaps extends _LotsOfMaps
   }) {
     RealmObjectBase.set<RealmMap<Person?>>(
         this, 'persons', RealmMap<Person?>(persons));
-    RealmObjectBase.set<RealmMap<bool>>(
-        this, 'bools', RealmMap<bool>(bools));
+    RealmObjectBase.set<RealmMap<bool>>(this, 'bools', RealmMap<bool>(bools));
     RealmObjectBase.set<RealmMap<DateTime>>(
         this, 'dateTimes', RealmMap<DateTime>(dateTimes));
     RealmObjectBase.set<RealmMap<Decimal128>>(
         this, 'decimals', RealmMap<Decimal128>(decimals));
     RealmObjectBase.set<RealmMap<double>>(
         this, 'doubles', RealmMap<double>(doubles));
-    RealmObjectBase.set<RealmMap<int>>(
-        this, 'ints', RealmMap<int>(ints));
+    RealmObjectBase.set<RealmMap<int>>(this, 'ints', RealmMap<int>(ints));
     RealmObjectBase.set<RealmMap<ObjectId>>(
         this, 'objectIds', RealmMap<ObjectId>(objectIds));
     RealmObjectBase.set<RealmMap<RealmValue>>(
@@ -43,8 +40,7 @@ class LotsOfMaps extends _LotsOfMaps
         this, 'strings', RealmMap<String>(strings));
     RealmObjectBase.set<RealmMap<Uint8List>>(
         this, 'binary', RealmMap<Uint8List>(binary));
-    RealmObjectBase.set<RealmMap<Uuid>>(
-        this, 'uuids', RealmMap<Uuid>(uuids));
+    RealmObjectBase.set<RealmMap<Uuid>>(this, 'uuids', RealmMap<Uuid>(uuids));
   }
 
   LotsOfMaps._();
@@ -60,21 +56,18 @@ class LotsOfMaps extends _LotsOfMaps
   RealmMap<bool> get bools =>
       RealmObjectBase.get<bool>(this, 'bools') as RealmMap<bool>;
   @override
-  set bools(covariant RealmMap<bool> value) =>
-      throw RealmUnsupportedSetError();
+  set bools(covariant RealmMap<bool> value) => throw RealmUnsupportedSetError();
 
   @override
   RealmMap<DateTime> get dateTimes =>
-      RealmObjectBase.get<DateTime>(this, 'dateTimes')
-          as RealmMap<DateTime>;
+      RealmObjectBase.get<DateTime>(this, 'dateTimes') as RealmMap<DateTime>;
   @override
   set dateTimes(covariant RealmMap<DateTime> value) =>
       throw RealmUnsupportedSetError();
 
   @override
   RealmMap<Decimal128> get decimals =>
-      RealmObjectBase.get<Decimal128>(this, 'decimals')
-          as RealmMap<Decimal128>;
+      RealmObjectBase.get<Decimal128>(this, 'decimals') as RealmMap<Decimal128>;
   @override
   set decimals(covariant RealmMap<Decimal128> value) =>
       throw RealmUnsupportedSetError();
@@ -90,21 +83,18 @@ class LotsOfMaps extends _LotsOfMaps
   RealmMap<int> get ints =>
       RealmObjectBase.get<int>(this, 'ints') as RealmMap<int>;
   @override
-  set ints(covariant RealmMap<int> value) =>
-      throw RealmUnsupportedSetError();
+  set ints(covariant RealmMap<int> value) => throw RealmUnsupportedSetError();
 
   @override
   RealmMap<ObjectId> get objectIds =>
-      RealmObjectBase.get<ObjectId>(this, 'objectIds')
-          as RealmMap<ObjectId>;
+      RealmObjectBase.get<ObjectId>(this, 'objectIds') as RealmMap<ObjectId>;
   @override
   set objectIds(covariant RealmMap<ObjectId> value) =>
       throw RealmUnsupportedSetError();
 
   @override
   RealmMap<RealmValue> get any =>
-      RealmObjectBase.get<RealmValue>(this, 'any')
-          as RealmMap<RealmValue>;
+      RealmObjectBase.get<RealmValue>(this, 'any') as RealmMap<RealmValue>;
   @override
   set any(covariant RealmMap<RealmValue> value) =>
       throw RealmUnsupportedSetError();
@@ -118,8 +108,7 @@ class LotsOfMaps extends _LotsOfMaps
 
   @override
   RealmMap<Uint8List> get binary =>
-      RealmObjectBase.get<Uint8List>(this, 'binary')
-          as RealmMap<Uint8List>;
+      RealmObjectBase.get<Uint8List>(this, 'binary') as RealmMap<Uint8List>;
   @override
   set binary(covariant RealmMap<Uint8List> value) =>
       throw RealmUnsupportedSetError();
@@ -128,8 +117,7 @@ class LotsOfMaps extends _LotsOfMaps
   RealmMap<Uuid> get uuids =>
       RealmObjectBase.get<Uuid>(this, 'uuids') as RealmMap<Uuid>;
   @override
-  set uuids(covariant RealmMap<Uuid> value) =>
-      throw RealmUnsupportedSetError();
+  set uuids(covariant RealmMap<Uuid> value) => throw RealmUnsupportedSetError();
 
   @override
   Stream<RealmObjectChanges<LotsOfMaps>> get changes =>
@@ -138,14 +126,51 @@ class LotsOfMaps extends _LotsOfMaps
   @override
   LotsOfMaps freeze() => RealmObjectBase.freezeObject<LotsOfMaps>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeLotsOfMaps(LotsOfMaps value) {
+    return <String, dynamic>{
+      'persons': toEJson(value.persons),
+      'bools': toEJson(value.bools),
+      'dateTimes': toEJson(value.dateTimes),
+      'decimals': toEJson(value.decimals),
+      'doubles': toEJson(value.doubles),
+      'ints': toEJson(value.ints),
+      'objectIds': toEJson(value.objectIds),
+      'any': toEJson(value.any),
+      'strings': toEJson(value.strings),
+      'binary': toEJson(value.binary),
+      'uuids': toEJson(value.uuids),
+    };
+  }
+
+  static LotsOfMaps _decodeLotsOfMaps(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'persons': EJsonValue persons,
+        'bools': EJsonValue bools,
+        'dateTimes': EJsonValue dateTimes,
+        'decimals': EJsonValue decimals,
+        'doubles': EJsonValue doubles,
+        'ints': EJsonValue ints,
+        'objectIds': EJsonValue objectIds,
+        'any': EJsonValue any,
+        'strings': EJsonValue strings,
+        'binary': EJsonValue binary,
+        'uuids': EJsonValue uuids,
+      } =>
+        LotsOfMaps(),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(LotsOfMaps._);
+    register(_encodeLotsOfMaps, _decodeLotsOfMaps);
     return const SchemaObject(
         ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person', collectionType: RealmCollectionType.map),
+          optional: true,
+          linkTarget: 'Person',
+          collectionType: RealmCollectionType.map),
       SchemaProperty('bools', RealmPropertyType.bool,
           collectionType: RealmCollectionType.map),
       SchemaProperty('dateTimes', RealmPropertyType.timestamp,
@@ -167,11 +192,10 @@ class LotsOfMaps extends _LotsOfMaps
       SchemaProperty('uuids', RealmPropertyType.uuid,
           collectionType: RealmCollectionType.map),
     ]);
-  }
+  }();
 }
 
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Person(
     String name,
   ) {
@@ -192,12 +216,29 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodePerson(Person value) {
+    return <String, dynamic>{
+      'name': toEJson(value.name),
+    };
+  }
+
+  static Person _decodePerson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+      } =>
+        Person(
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Person._);
+    register(_encodePerson, _decodePerson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
-  }
+  }();
 }

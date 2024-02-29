@@ -11,7 +11,6 @@ class Original extends $Original
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  @ejson
   Original({
     int primitiveProperty = 0,
     Original? objectProperty,
@@ -59,10 +58,32 @@ class Original extends $Original
   @override
   Original freeze() => RealmObjectBase.freezeObject<Original>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeOriginal(Original value) {
+    return <String, dynamic>{
+      'remapped primitive': toEJson(value.primitiveProperty),
+      'remapped object': toEJson(value.objectProperty),
+      'remapped list': toEJson(value.listProperty),
+    };
+  }
+
+  static Original _decodeOriginal(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'remapped primitive': EJsonValue primitiveProperty,
+        'remapped object': EJsonValue objectProperty,
+        'remapped list': EJsonValue listProperty,
+      } =>
+        Original(
+          primitiveProperty: fromEJson(primitiveProperty),
+          objectProperty: fromEJson(objectProperty),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Original._);
+    register(_encodeOriginal, _decodeOriginal);
     return const SchemaObject(
         ObjectType.realmObject, Original, 'another type', [
       SchemaProperty('primitiveProperty', RealmPropertyType.int,
@@ -74,6 +95,5 @@ class Original extends $Original
           linkTarget: 'another type',
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 }
-

@@ -8,14 +8,14 @@ part of 'binary_type.dart';
 
 // ignore_for_file: type=lint
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Foo(
     Uint8List requiredBinaryProp, {
     Uint8List? defaultValueBinaryProp,
     Uint8List? nullableBinaryProp,
   }) {
     RealmObjectBase.set(this, 'requiredBinaryProp', requiredBinaryProp);
-    RealmObjectBase.set(this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
+    RealmObjectBase.set(
+        this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
   }
 
@@ -50,15 +50,38 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeFoo(Foo value) {
+    return <String, dynamic>{
+      'requiredBinaryProp': toEJson(value.requiredBinaryProp),
+      'defaultValueBinaryProp': toEJson(value.defaultValueBinaryProp),
+      'nullableBinaryProp': toEJson(value.nullableBinaryProp),
+    };
+  }
+
+  static Foo _decodeFoo(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'requiredBinaryProp': EJsonValue requiredBinaryProp,
+        'defaultValueBinaryProp': EJsonValue defaultValueBinaryProp,
+        'nullableBinaryProp': EJsonValue nullableBinaryProp,
+      } =>
+        Foo(
+          fromEJson(requiredBinaryProp),
+          defaultValueBinaryProp: fromEJson(defaultValueBinaryProp),
+          nullableBinaryProp: fromEJson(nullableBinaryProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
+    register(_encodeFoo, _decodeFoo);
     return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
       SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);
-  }
+  }();
 }

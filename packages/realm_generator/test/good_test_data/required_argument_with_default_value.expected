@@ -10,7 +10,6 @@ part of 'required_argument_with_default_value.dart';
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  @ejson
   Person({
     int age = 47,
   }) {
@@ -36,13 +35,29 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodePerson(Person value) {
+    return <String, dynamic>{
+      'age': toEJson(value.age),
+    };
+  }
+
+  static Person _decodePerson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'age': EJsonValue age,
+      } =>
+        Person(
+          age: fromEJson(age),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Person._);
+    register(_encodePerson, _decodePerson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('age', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
-

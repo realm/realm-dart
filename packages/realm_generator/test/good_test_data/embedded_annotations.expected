@@ -8,7 +8,6 @@ part of 'embedded_annotations.dart';
 
 // ignore_for_file: type=lint
 class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   Parent({
     Child1? child,
     Iterable<Child1> children = const [],
@@ -41,10 +40,29 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeParent(Parent value) {
+    return <String, dynamic>{
+      'single child': toEJson(value.child),
+      'CHILDREN': toEJson(value.children),
+    };
+  }
+
+  static Parent _decodeParent(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'single child': EJsonValue child,
+        'CHILDREN': EJsonValue children,
+      } =>
+        Parent(
+          child: fromEJson(child),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
+    register(_encodeParent, _decodeParent);
     return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
@@ -53,11 +71,10 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'MySuperChild',
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 }
 
 class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
-  @ejson
   Child1(
     String value,
     String indexedString, {
@@ -96,16 +113,40 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeChild1(Child1 value) {
+    return <String, dynamic>{
+      '_value': toEJson(value.value),
+      '_parent': toEJson(value.linkToParent),
+      'indexedString': toEJson(value.indexedString),
+    };
+  }
+
+  static Child1 _decodeChild1(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_value': EJsonValue value,
+        '_parent': EJsonValue linkToParent,
+        'indexedString': EJsonValue indexedString,
+      } =>
+        Child1(
+          fromEJson(value),
+          fromEJson(indexedString),
+          linkToParent: fromEJson(linkToParent),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
-    return const SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
+    register(_encodeChild1, _decodeChild1);
+    return const SchemaObject(
+        ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),
-      SchemaProperty('indexedString', RealmPropertyType.string, indexType: RealmIndexType.regular),
+      SchemaProperty('indexedString', RealmPropertyType.string,
+          indexType: RealmIndexType.regular),
     ]);
-  }
+  }();
 }
-

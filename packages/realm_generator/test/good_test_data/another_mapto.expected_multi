@@ -9,7 +9,6 @@ part of 'another_mapto.dart';
 // ignore_for_file: type=lint
 class MappedToo extends _MappedToo
     with RealmEntity, RealmObjectBase, RealmObject {
-  @ejson
   MappedToo({
     Original? singleLink,
     Iterable<Original> listLink = const [],
@@ -42,10 +41,29 @@ class MappedToo extends _MappedToo
   @override
   MappedToo freeze() => RealmObjectBase.freezeObject<MappedToo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  static EJsonValue _encodeMappedToo(MappedToo value) {
+    return <String, dynamic>{
+      'singleLink': toEJson(value.singleLink),
+      'listLink': toEJson(value.listLink),
+    };
+  }
+
+  static MappedToo _decodeMappedToo(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'singleLink': EJsonValue singleLink,
+        'listLink': EJsonValue listLink,
+      } =>
+        MappedToo(
+          singleLink: fromEJson(singleLink),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(MappedToo._);
+    register(_encodeMappedToo, _decodeMappedToo);
     return const SchemaObject(
         ObjectType.realmObject, MappedToo, 'this is also mapped', [
       SchemaProperty('singleLink', RealmPropertyType.object,
@@ -53,5 +71,5 @@ class MappedToo extends _MappedToo
       SchemaProperty('listLink', RealmPropertyType.object,
           linkTarget: 'another type', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 }
