@@ -28,17 +28,16 @@ class RealmModelInfo {
         yield '';
       }
 
+      final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
+      final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
+      final lists = fields.where((f) => f.isDartCoreList).toList();
+      final sets = fields.where((f) => f.isDartCoreSet).toList();
+      final maps = fields.where((f) => f.isDartCoreMap).toList();
+
       // Constructor
-      yield '@ejson';
       yield '$name(';
       {
-        final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
-
-        final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
-        final lists = fields.where((f) => f.isDartCoreList).toList();
-        final sets = fields.where((f) => f.isDartCoreSet).toList();
-        final maps = fields.where((f) => f.isDartCoreMap).toList();
         if (notRequired.isNotEmpty || lists.isNotEmpty || sets.isNotEmpty || maps.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) {
@@ -104,12 +103,47 @@ class RealmModelInfo {
       yield '$name freeze() => RealmObjectBase.freezeObject<$name>(this);';
       yield '';
 
+      // Encode
+      yield 'static EJsonValue _encode$name($name value) {';
+      {
+        yield 'return <String, dynamic>{';
+        {
+          yield* fields.map((f) {
+            return "'${f.realmName}': toEJson(value.${f.name}),";
+          });
+        }
+        yield '};';
+      }
+      yield '}';
+
+      // Decode
+      yield 'static $name _decode$name(EJsonValue ejson) {';
+      {
+        yield 'return switch (ejson) {';
+        {
+          yield '{';
+          {
+            yield* fields.map((f) {
+              return "'${f.realmName}': EJsonValue ${f.name},";
+            });
+          }
+          yield '} => $name(';
+          {
+            yield* required.map((f) => 'fromEJson(${f.name}),');
+            yield* notRequired.map((f) => '${f.name}: fromEJson(${f.name}),');
+          }
+          yield '),';
+          yield '_ => raiseInvalidEJson(ejson),';
+        }
+        yield '};';
+      }
+      yield '}';
+
       // Schema
-      yield 'static SchemaObject get schema => _schema ??= _initSchema();';
-      yield 'static SchemaObject? _schema;';
-      yield 'static SchemaObject _initSchema() {';
+      yield 'static final schema = () {';
       {
         yield 'RealmObjectBase.registerFactory($name._);';
+        yield 'register(_encode$name, _decode$name);';
         yield "return const SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
         {
           yield* fields.map((f) {
@@ -131,7 +165,7 @@ class RealmModelInfo {
         }
         yield ']);';
       }
-      yield '}';
+      yield '}();';
     }
     yield '}';
   }
