@@ -1,4 +1,4 @@
-## 2.0.0-alpha.2 (2024-02-27)
+## vNext
 
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
@@ -95,6 +95,7 @@
 ### Fixed
 * If you have more than 8388606 links pointing to one specific object, the program will crash. (Core 14.0.0)
 * A Realm generated on a non-apple ARM 64 device and copied to another platform (and vice-versa) were non-portable due to a sorting order difference. This impacts strings or binaries that have their first difference at a non-ascii character. These items may not be found in a set, or in an indexed column if the strings had a long common prefix (> 200 characters). (Core 14.0.0)
+* Ctor arguments appear in random order on generated classes, if the realm model contains many properties. (PR [#1531](https://github.com/realm/realm-dart/pull/1531))
 
 ### Compatibility
 * Realm Studio: 14.0.0 or later.
@@ -107,7 +108,7 @@
 
 ### Enhancements
 * Added `User.changes` stream that allows subscribers to receive notifications when the User changes - for example when the user's custom data changes or when their authentication state changes. (PR [#1500](https://github.com/realm/realm-dart/pull/1500))
-* Allow the query builder to construct >, >=, <, <= queries for string constants. This is a case sensitive lexicographical comparison. Improved performance of RQL queries on a non-linked string property using: >, >=, <, <=, operators and fixed behaviour that a null string should be evaulated as less than everything, previously nulls were not matched. (Core 13.26.0-13-gd12c3)
+* Allow the query builder to construct >, >=, <, <= queries for string constants. This is a case sensitive lexicographical comparison. Improved performance of RQL queries on a non-linked string property using: >, >=, <, <=, operators and fixed behavior that a null string should be evaluated as less than everything, previously nulls were not matched. (Core 13.26.0-13-gd12c3)
 
 ### Fixed
 * Creating an `AppConfiguration` with an empty appId will now throw an exception rather than crashing the app. (Issue [#1487](https://github.com/realm/realm-dart/issues/1487))
