@@ -158,7 +158,7 @@ class _LinksClass {
 
   late _LinksClass? link;
   late List<_LinksClass> list;
-  late Set<_LinksClass> set;
+  late Set<_LinksClass> linksSet;
   late Map<String, _LinksClass?> map;
 }
 

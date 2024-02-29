@@ -742,7 +742,7 @@ class LinksClass extends _LinksClass
     Uuid id, {
     LinksClass? link,
     Iterable<LinksClass> list = const [],
-    Set<LinksClass> set = const {},
+    Set<LinksClass> linksSet = const {},
     Map<String, LinksClass?> map = const {},
   }) {
     RealmObjectBase.set(this, 'id', id);
@@ -750,7 +750,7 @@ class LinksClass extends _LinksClass
     RealmObjectBase.set<RealmList<LinksClass>>(
         this, 'list', RealmList<LinksClass>(list));
     RealmObjectBase.set<RealmSet<LinksClass>>(
-        this, 'set', RealmSet<LinksClass>(set));
+        this, 'linksSet', RealmSet<LinksClass>(linksSet));
     RealmObjectBase.set<RealmMap<LinksClass?>>(
         this, 'map', RealmMap<LinksClass?>(map));
   }
@@ -777,10 +777,10 @@ class LinksClass extends _LinksClass
       throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<LinksClass> get set =>
-      RealmObjectBase.get<LinksClass>(this, 'set') as RealmSet<LinksClass>;
+  RealmSet<LinksClass> get linksSet =>
+      RealmObjectBase.get<LinksClass>(this, 'linksSet') as RealmSet<LinksClass>;
   @override
-  set set(covariant RealmSet<LinksClass> value) =>
+  set linksSet(covariant RealmSet<LinksClass> value) =>
       throw RealmUnsupportedSetError();
 
   @override
@@ -808,7 +808,7 @@ class LinksClass extends _LinksClass
           optional: true, linkTarget: 'LinksClass'),
       SchemaProperty('list', RealmPropertyType.object,
           linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
-      SchemaProperty('set', RealmPropertyType.object,
+      SchemaProperty('linksSet', RealmPropertyType.object,
           linkTarget: 'LinksClass', collectionType: RealmCollectionType.set),
       SchemaProperty('map', RealmPropertyType.object,
           optional: true,

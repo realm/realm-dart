@@ -689,7 +689,7 @@ void main() {
 
         staticRealm.write(() {
           final obj1 = staticRealm.add(LinksClass(uuid1));
-          staticRealm.add(LinksClass(uuid2, list: [obj1, obj1], set: {obj1}, map: {'a': obj1, 'b': obj1}));
+          staticRealm.add(LinksClass(uuid2, list: [obj1, obj1], linksSet: {obj1}, map: {'a': obj1, 'b': obj1}));
         });
 
         final dynamicRealm = _getDynamicRealm(staticRealm);
@@ -699,8 +699,8 @@ void main() {
 
         expect(obj1.dynamic.getList<RealmObject>('list'), isEmpty);
         expect(obj1.dynamic.getList('list'), isEmpty);
-        expect(obj1.dynamic.getSet<RealmObject>('set'), isEmpty);
-        expect(obj1.dynamic.getSet('set'), isEmpty);
+        expect(obj1.dynamic.getSet<RealmObject>('linksSet'), isEmpty);
+        expect(obj1.dynamic.getSet('linksSet'), isEmpty);
         expect(obj1.dynamic.getMap<RealmObject?>('map'), isEmpty);
         expect(obj1.dynamic.getMap('map'), isEmpty);
 
@@ -708,9 +708,9 @@ void main() {
         expect(obj2.dynamic.getList('list'), [obj1, obj1]);
         expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
 
-        expect(obj2.dynamic.getSet<RealmObject>('set'), [obj1]);
-        expect(obj2.dynamic.getSet('set'), [obj1]);
-        expect(obj2.dynamic.getSet<RealmObject>('set').first.dynamic.get<Uuid>('id'), uuid1);
+        expect(obj2.dynamic.getSet<RealmObject>('linksSet'), [obj1]);
+        expect(obj2.dynamic.getSet('linksSet'), [obj1]);
+        expect(obj2.dynamic.getSet<RealmObject>('linksSet').first.dynamic.get<Uuid>('id'), uuid1);
 
         expect(obj2.dynamic.getMap<RealmObject?>('map'), {'a': obj1, 'b': obj1});
         expect(obj2.dynamic.getMap('map'), {'a': obj1, 'b': obj1});
@@ -721,13 +721,13 @@ void main() {
         dynamic dynamicObj2 = obj2;
 
         expect(dynamicObj1.list, isEmpty);
-        expect(dynamicObj1.set, isEmpty);
+        expect(dynamicObj1.linksSet, isEmpty);
         expect(dynamicObj1.map, isEmpty);
 
         expect(dynamicObj2.list, [obj1, obj1]);
         expect(dynamicObj2.list[0].id, uuid1);
-        expect(dynamicObj2.set, [obj1]);
-        expect(dynamicObj2.set.first.id, uuid1);
+        expect(dynamicObj2.linksSet, [obj1]);
+        expect(dynamicObj2.linksSet.first.id, uuid1);
         expect(dynamicObj2.map, {'a': obj1, 'b': obj1});
         expect(dynamicObj2.map['a']!.id, uuid1);
         expect(dynamicObj2.map['non-existent'], null);
