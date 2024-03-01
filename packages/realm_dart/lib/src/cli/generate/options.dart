@@ -1,3 +1,6 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 import 'package:build_cli_annotations/build_cli_annotations.dart';
 
 part 'options.g.dart';

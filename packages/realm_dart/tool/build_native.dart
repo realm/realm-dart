@@ -1,3 +1,6 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 import 'dart:io' as io;
 import 'package:args/args.dart';
 import 'package:collection/collection.dart';
