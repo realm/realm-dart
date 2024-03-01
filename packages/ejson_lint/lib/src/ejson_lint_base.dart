@@ -1,3 +1,6 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 
 import 'lints/mismatched_getter_type.dart';
