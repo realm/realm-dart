@@ -7,7 +7,8 @@ import 'package:type_plus/type_plus.dart';
 import 'decoding.dart';
 import 'encoding.dart';
 
-/// Register custom EJSON [encoder] and [decoder] for a [T].
+/// Register custom EJSON [encoder] and [decoder] for a type [T].
+/// The last registered codec pair for a given type [T] will be used.
 void register<T>(EJsonEncoder<T> encoder, EJsonDecoder<T> decoder) {
   TypePlus.add<T>();
   customEncoders[T] = encoder;

@@ -12,6 +12,7 @@ import 'package:type_plus/type_plus.dart';
 
 import 'types.dart';
 
+/// Predefined decoders for common types
 const commonDecoders = {
   dynamic: _decodeAny,
   Null: _decodeNull,
@@ -35,6 +36,7 @@ const commonDecoders = {
   UndefinedOr: _decodeUndefinedOr,
 };
 
+/// Custom decoders for specific types. Use `register` to add a custom decoder.
 final customDecoders = <Type, Function>{};
 
 final decoders = () {
@@ -50,6 +52,10 @@ final decoders = () {
   return CombinedMapView([customDecoders, commonDecoders]);
 }();
 
+/// Converts [ejson] to type [T].
+/// 
+/// Throws [InvalidEJson] if [ejson] is not valid for [T].
+/// Throws [MissingDecoder] if no decoder is registered for [T].
 T fromEJson<T>(EJsonValue ejson) {
   final type = T;
   final nullable = type.isNullable;
@@ -65,6 +71,7 @@ T fromEJson<T>(EJsonValue ejson) {
 }
 
 // Important to return `T` as opposed to [Never] for type inference to work
+/// @nodoc
 T raiseInvalidEJson<T>(Object? value) => throw InvalidEJson(value, T);
 
 dynamic _decodeAny(EJsonValue ejson) {
@@ -242,16 +249,18 @@ Uint8List _decodeBinary(EJsonValue ejson) {
   };
 }
 
+/// Thrown when a value cannot be decoded from [ejson].
 class InvalidEJson implements Exception {
-  final Object? value;
+  final EJsonValue ejson;
   final Type type;
 
-  InvalidEJson(this.value, this.type);
+  InvalidEJson(this.ejson, this.type);
 
   @override
-  String toString() => 'Invalid EJson for $type: $value';
+  String toString() => 'Invalid EJson for $type: $ejson';
 }
 
+/// Thrown when no decoder is registered for a [type].
 class MissingDecoder implements Exception {
   final EJsonValue ejson;
   final Type type;

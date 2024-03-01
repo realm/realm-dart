@@ -24,9 +24,11 @@ enum EJsonType {
   // databasePointer,
   // databaseRef,
   // regularExpression,
-  // timestamp, // Why? Isn't this just a date?
+  // timestamp, // This is not what you think, see https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-Timestamp
 }
 
+/// See [MaxKey](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-MaxKey)
+/// and [MinKey](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-MinKey)
 enum Key { min, max }
 
 sealed class UndefinedOr<T> {

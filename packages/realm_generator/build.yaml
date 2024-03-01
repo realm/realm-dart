@@ -1,3 +1,12 @@
+targets:
+  $default:
+    builders:
+      realm_generator:
+        enabled: true
+        generate_for:
+          include:
+            - test/good_test_data/**.dart
+
 builders:
   realm_generator:
     import: "package:realm_generator/realm_generator.dart"

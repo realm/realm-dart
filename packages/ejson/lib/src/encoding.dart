@@ -11,12 +11,16 @@ import 'package:type_plus/type_plus.dart';
 
 import 'types.dart';
 
-// No custom encoders, if registerSerializableTypes not called
+/// Custom encoders for specific types. Use `register` to add a custom encoder.
 var customEncoders = <Type, Function>{};
 
+/// Whether to use relaxed encoding or not, default is false
 var relaxed = false;
 
 @pragma('vm:prefer-inline')
+/// Converts [value] to EJson 
+/// 
+/// Throws [MissingEncoder] if no encoder is registered for [value]'s type.
 EJsonValue toEJson(Object? value) => _encodeAny(value);
 
 EJsonValue _encodeAny(Object? value) {
@@ -106,6 +110,7 @@ EJsonValue _encodeBinary(Uint8List buffer, String subtype) => {
 
 EJsonValue _encodeObjectId(ObjectId objectId) => {'\$oid': objectId.hexString};
 
+/// Exception thrown when no encoder is registered for the type of a [value].
 class MissingEncoder implements Exception {
   final Object value;
 
@@ -116,86 +121,103 @@ class MissingEncoder implements Exception {
 }
 
 extension BoolEJsonEncoderExtension on bool {
+  /// Converts this [bool] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeBool(this);
 }
 
 extension DateTimeEJsonEncoderExtension on DateTime {
+  /// Converts this [DateTime] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDate(this);
 }
 
 extension DefinedEJsonEncoderExtension on Defined<dynamic> {
+  /// Converts this [Defined] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDefined(this);
 }
 
 extension DoubleEJsonEncoderExtension on double {
+  /// Converts this [double] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDouble(this);
 }
 
 extension IntEJsonEncoderExtension on int {
+  /// Converts this [int] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson({bool long = true}) => _encodeInt(this, long: long);
 }
 
 extension KeyEJsonEncoderExtension on Key {
+  /// Converts this [Key] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeKey(this);
 }
 
 extension ListEJsonEncoderExtension on List<Object?> {
+  /// Converts this [List] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeArray(this);
 }
 
 extension MapEJsonEncoderExtension on Map<dynamic, dynamic> {
+  /// Converts this [Map] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDocument(this);
 }
 
 extension NullEJsonEncoderExtension on Null {
+  /// Converts this [Null] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => null;
 }
 
 extension NullableObjectEJsonEncoderExtension on Object? {
+  /// Converts this [Object] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeAny(this);
 }
 
 extension ObjectIdEJsonEncoderExtension on ObjectId {
+  /// Converts this [ObjectId] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeObjectId(this);
 }
 
 extension StringEJsonEncoderExtension on String {
+  /// Converts this [String] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeString(this);
 }
 
 extension SymbolEJsonEncoderExtension on Symbol {
+  /// Extract the name of this [Symbol]
   String get name {
     final full = toString();
     return full.substring(8, full.length - 2);
   }
 
+  /// Converts this [Symbol] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeSymbol(this);
 }
 
 extension Uint8ListEJsonEncoderExtension on Uint8List {
+  /// Converts this [Uint8List] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeBinary(this, '00');
 }
 
 extension UndefinedEJsonEncoderExtension on Undefined<dynamic> {
+  /// Converts this [Undefined] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeUndefined(this);
 }
 
 extension UuidEJsonEncoderExtension on Uuid {
+  /// Converts this [Uuid] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeUuid(this);
 }
