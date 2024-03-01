@@ -1,12 +1,9 @@
-import 'package:ejson_annotation/ejson_annotation.dart';
-import 'package:ejson/ejson.dart';
-
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:realm_dart/realm.dart';
 
 part 'myapp.realm.dart';
-
 
 @RealmModel()
 class _Car {
@@ -19,7 +16,7 @@ class _Car {
 @RealmModel()
 class _Person {
   late String name;
-  int age = 1;
+  int age = 42;
 }
 
 void main(List<String> arguments) async {
@@ -55,6 +52,15 @@ void main(List<String> arguments) async {
   var cars = realm.all<Car>();
   print("There are ${cars.length} cars in the Realm.");
 
+  print('Serializing the cars to EJSON.');
+  final ejson = toEJson(cars);
+  final jsonString = JsonEncoder.withIndent('  ').convert(ejson); // ejson is still json
+  print(jsonString);
+  print('Deserializing the EJSON back to objects.');
+  final decoded = fromEJson<List<Car>>(jsonDecode(jsonString)); // decode objects are always unmanaged
+  print('Adding the deserialized cars back to the Realm, creating duplicates.');
+  realm.write(() => realm.addAll(decoded)); // add duplicates back
+
   var indexedCar = cars[0];
   print('The first car is ${indexedCar.make} ${indexedCar.model}');
 
@@ -66,7 +72,7 @@ void main(List<String> arguments) async {
   await Future<void>.delayed(Duration(milliseconds: 1));
 
   realm.close();
-  
+
   //This is only needed in Dart apps as a workaround for https://github.com/dart-lang/sdk/issues/49083
   Realm.shutdown();
   print("Done");

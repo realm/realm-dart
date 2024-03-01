@@ -102,11 +102,11 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   Person(
     String name, {
-    int age = 1,
+    int age = 42,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Person>({
-        'age': 1,
+        'age': 42,
       });
     }
     RealmObjectBase.set(this, 'name', name);
