@@ -323,7 +323,7 @@ jobs:
       - name: Launch Simulator
         uses: futureware-tech/simulator-action@v3
         with:
-          model: 'iPhone 8'
+          model: 'iPhone SE (3rd generation)'
           os: 'iOS'
           os_version: '>= 14.0'
 
