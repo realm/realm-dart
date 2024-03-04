@@ -207,7 +207,7 @@ class RealmCoreAccessor implements RealmAccessor {
               case ObjectType.asymmetricObject:
                 return object.realm.createSet<AsymmetricObject>(handle, setMetadata);
               default:
-                throw RealmError('List of ${setMetadata.schema.baseType} is not supported yet');
+                throw RealmError('Set of ${setMetadata.schema.baseType} is not supported yet');
             }
           }
 
@@ -785,7 +785,7 @@ class DynamicRealmObject {
   }
 
   /// Gets a set by the property name. If a generic type is specified, the property
-  /// type will be validated against the type. Otherwise, a `Set<Object>` will be
+  /// type will be validated against the type. Otherwise, a `RealmSet<Object?>` will be
   /// returned.
   RealmSet<T> getSet<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.set);
@@ -793,7 +793,7 @@ class DynamicRealmObject {
   }
 
   /// Gets a map by the property name. If a generic type is specified, the property
-  /// type will be validated against the type. Otherwise, a `Map<String, Object>` will be
+  /// type will be validated against the type. Otherwise, a `RealmMap<Object?>` will be
   /// returned.
   RealmMap<T> getMap<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.map);
