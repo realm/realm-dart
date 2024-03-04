@@ -206,7 +206,7 @@ jobs:
     - name: Merge Pull Request
       uses: juliangruber/merge-pull-request-action@8a13f2645ad8b6ada32f829b2fae9c0955a5265d
       with:
-        github-token: ${{ secrets.REALM_CI_PAT }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         number: ${{ steps.find-pull-request.outputs.number }}
         method: squash
 
@@ -218,7 +218,7 @@ jobs:
         name: ${{ needs.prepare-packages.outputs.version }}
         commit: main
         tag: ${{ needs.prepare-packages.outputs.version }}
-        token: ${{ secrets.REALM_CI_PAT }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         draft: false
 
     - name: 'Post to #realm-releases'
