@@ -198,7 +198,20 @@ class RealmCoreAccessor implements RealmAccessor {
         case RealmCollectionType.set:
           final handle = realmCore.getSetProperty(object, propertyMeta.key);
           final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
-          return RealmSetInternal.create<T>(handle, object.realm, setMetadata);
+          if (setMetadata != null && _isTypeGenericObject<T>()) {
+            switch (setMetadata.schema.baseType) {
+              case ObjectType.realmObject:
+                return object.realm.createSet<RealmObject>(handle, setMetadata);
+              case ObjectType.embeddedObject:
+                return object.realm.createSet<EmbeddedObject>(handle, setMetadata);
+              case ObjectType.asymmetricObject:
+                return object.realm.createSet<AsymmetricObject>(handle, setMetadata);
+              default:
+                throw RealmError('Set of ${setMetadata.schema.baseType} is not supported yet');
+            }
+          }
+
+          return object.realm.createSet<T>(handle, setMetadata);
         case RealmCollectionType.map:
           final handle = realmCore.getMapProperty(object, propertyMeta.key);
           final mapMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
@@ -771,6 +784,22 @@ class DynamicRealmObject {
     return RealmObjectBase.get<T>(_obj, name) as RealmList<T>;
   }
 
+  /// Gets a set by the property name. If a generic type is specified, the property
+  /// type will be validated against the type. Otherwise, a `RealmSet<Object?>` will be
+  /// returned.
+  RealmSet<T> getSet<T extends Object?>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.set);
+    return RealmObjectBase.get<T>(_obj, name) as RealmSet<T>;
+  }
+
+  /// Gets a map by the property name. If a generic type is specified, the property
+  /// type will be validated against the type. Otherwise, a `RealmMap<Object?>` will be
+  /// returned.
+  RealmMap<T> getMap<T extends Object?>(String name) {
+    _validatePropertyType<T>(name, RealmCollectionType.map);
+    return RealmObjectBase.get<T>(_obj, name) as RealmMap<T>;
+  }
+
   RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
@@ -786,7 +815,7 @@ class DynamicRealmObject {
 
       // If the user passed in a type argument, we should validate its nullability; if they invoked
       // the method without a type arg, we don't
-      if (T != _typeOf<Object?>() && prop.isNullable != null is T) {
+      if (T != _typeOf<RealmValue>() && T != _typeOf<Object?>() && prop.isNullable != null is T) {
         throw RealmException(
             "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
       }

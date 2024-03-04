@@ -457,14 +457,14 @@ void main() {
       final config = Configuration.local([AllCollections.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllCollections(dates: list));
+        return realm.add(AllCollections(dateList: list));
       });
 
       final json = obj.toJson();
       for (var i = 0; i < list.length; i++) {
         final expectedDate = list.elementAt(i).toUtc();
         expect(json, contains('"${expectedDate.toCoreTimestampString()}"'));
-        expect(obj.dates[i], equals(expectedDate));
+        expect(obj.dateList[i], equals(expectedDate));
       }
     });
   }

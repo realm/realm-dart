@@ -90,6 +90,7 @@
   });
   ```
 * Added `RealmValueType` enum that contains all the possible types that can be wrapped by a `RealmValue`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
+* Added support for accessing `Set` and `Map` types using the dynamic object API - `obj.dynamic.getSet/getMap`. (PR [#1533](https://github.com/realm/realm-dart/pull/1533))
 
 
 ### Fixed
