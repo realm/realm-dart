@@ -70,6 +70,12 @@ T fromEJson<T>(EJsonValue ejson) {
   return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
 }
 
+/// Parses [source] to [EJsonValue] and convert to type [T].
+///
+/// Throws [InvalidEJson] if [source] is not valid for [T].
+/// Throws [MissingDecoder] if no decoder is registered for [T].
+T fromEJsonString<T>(String source) => fromEJson(jsonDecode(source));
+
 // Important to return `T` as opposed to [Never] for type inference to work
 /// @nodoc
 T raiseInvalidEJson<T>(Object? value) => throw InvalidEJson._(value, T);

@@ -1,6 +1,8 @@
 // Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+// ignore_for_file: inference_failure_on_function_invocation
+
 import 'dart:convert';
 
 import 'package:ejson/ejson.dart';
@@ -33,9 +35,7 @@ void _testCase<T>(T value, EJsonValue expected) {
 
   test('roundtrip $value of type $T as String', () {
     expect(
-      fromEJson<T>(
-        jsonDecode(jsonEncode(toEJson(value))), // roundtrip as String
-      ),
+      fromEJsonString<T>(toEJsonString(value)), // roundtrip as String
       value,
     );
   });

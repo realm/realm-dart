@@ -24,6 +24,11 @@ var relaxed = false;
 /// Throws [MissingEncoder] if no encoder is registered for [value]'s type.
 EJsonValue toEJson(Object? value) => _encodeAny(value);
 
+/// Converts [value] to EJson string
+///
+/// Throws [MissingEncoder] if no encoder is registered for [value]'s type.
+String toEJsonString(Object? value) => jsonEncode(toEJson(value));
+
 EJsonValue _encodeAny(Object? value) {
   return switch (value) {
     null => null,

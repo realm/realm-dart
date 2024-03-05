@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// Annotation to mark a class for extended json (ejson) serialization
-const ejson = EJson();
+const ejson = EJson<dynamic>();
 
 /// Annotation to mark a class for extended json (ejson) serialization
 class EJson<T> {
   final EJsonEncoder<T>? encoder;
   final EJsonDecoder<T>? decoder;
-  const EJson()
-      : encoder = null,
-        decoder = null;
+
+  const EJson._(this.encoder, this.decoder);
+  const EJson() : this._(null, null);
   const EJson.custom({required EJsonEncoder<T> this.encoder, required EJsonDecoder<T> this.decoder});
 }
 
