@@ -47,6 +47,7 @@ final _decoders = () {
   TypePlus.addFactory(<T>(dynamic f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
   TypePlus.add<Key>();
   TypePlus.add<ObjectId>();
+  TypePlus.add<Uint8List>();
   TypePlus.add<Uuid>();
 
   return CombinedMapView([customDecoders, _commonDecoders]);
