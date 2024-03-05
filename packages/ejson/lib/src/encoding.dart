@@ -84,11 +84,23 @@ EJsonValue _encodeDouble(double value) {
   };
 }
 
-EJsonValue _encodeInt(int value, {bool long = true}) {
-  return switch (relaxed) {
-    true => value,
-    false => {'\$number${long ? 'Long' : 'Int'}': '$value'},
-  };
+enum IntFormat { int32, int64 }
+
+EJsonValue _encodeInt(int value, {IntFormat? forcedFormat}) {
+  switch (relaxed) {
+    case true:
+      return value;
+    case false:
+      bool fitsInInt32 = value >= -0x80000000 && value < 0x80000000;
+      final format = forcedFormat ?? (fitsInInt32 ? IntFormat.int32 : IntFormat.int64);
+      if (!fitsInInt32 && format == IntFormat.int32) {
+        throw ArgumentError.value(value, 'value', 'Value does not fit in int32');
+      }
+      return switch (format) {
+        IntFormat.int32 => {'\$numberInt': '$value'},
+        IntFormat.int64 => {'\$numberLong': '$value'},
+      };
+  }
 }
 
 EJsonValue _encodeKey(Key key) => {'\$${key.name}Key': 1};
@@ -148,7 +160,7 @@ extension DoubleEJsonEncoderExtension on double {
 extension IntEJsonEncoderExtension on int {
   /// Converts this [int] to EJson
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson({bool long = true}) => _encodeInt(this, long: long);
+  EJsonValue toEJson({IntFormat? forcedFormat}) => _encodeInt(this, forcedFormat: forcedFormat);
 }
 
 extension KeyEJsonEncoderExtension on Key {

@@ -72,6 +72,8 @@ void main() {
     // extension method, ie. not the fallback on Object?.
     expect(null.toEJson(), toEJson(null));
     expect(1.toEJson(), toEJson(1));
+    expect(1.toEJson(forcedFormat: IntFormat.int64), {'\$numberLong': '1'});
+    expect(() => (1 << 33).toEJson(forcedFormat: IntFormat.int32), throwsArgumentError);
     expect(1.0.toEJson(), toEJson(1.0));
     expect('a'.toEJson(), toEJson('a'));
     expect(true.toEJson(), toEJson(true));
@@ -130,7 +132,7 @@ void main() {
         final time = DateTime(1974, 4, 10, 2, 42, 12, 202); // no microseconds!
 
         _testCase(null, null);
-        _testCase(1, canonical ? {'\$numberLong': '1'} : 1);
+        _testCase(1, canonical ? {'\$numberInt': '1'} : 1);
         _testCase(1.0, canonical ? {'\$numberDouble': '1.0'} : 1.0);
         _testCase(double.infinity, {'\$numberDouble': 'Infinity'});
         _testCase(double.negativeInfinity, {'\$numberDouble': '-Infinity'});
@@ -141,9 +143,9 @@ void main() {
           [1, 2, 3],
           canonical
               ? [
-                  {'\$numberLong': '1'},
-                  {'\$numberLong': '2'},
-                  {'\$numberLong': '3'},
+                  {'\$numberInt': '1'},
+                  {'\$numberInt': '2'},
+                  {'\$numberInt': '3'},
                 ]
               : [1, 2, 3],
         );
@@ -151,7 +153,7 @@ void main() {
           [1, 1.1],
           canonical
               ? [
-                  {'\$numberLong': '1'},
+                  {'\$numberInt': '1'},
                   {'\$numberDouble': '1.1'},
                 ]
               : [1, 1.1],
@@ -160,9 +162,9 @@ void main() {
           [1, null, 3],
           canonical
               ? [
-                  {'\$numberLong': '1'},
+                  {'\$numberInt': '1'},
                   null,
-                  {'\$numberLong': '3'},
+                  {'\$numberInt': '3'},
                 ]
               : [1, null, 3],
         );
@@ -171,7 +173,7 @@ void main() {
           canonical
               ? {
                   'a': 'abe',
-                  'b': {'\$numberLong': '1'},
+                  'b': {'\$numberInt': '1'},
                 }
               : {'a': 'abe', 'b': 1},
         );
@@ -189,9 +191,9 @@ void main() {
         _testCase(undefined, {'\$undefined': 1});
         _testCase(const Undefined<int?>(), {'\$undefined': 1});
         _testCase(Undefined<int?>(), {'\$undefined': 1});
-        _testCase(const Defined<int?>(42), canonical ? {'\$numberLong': '42'} : 42);
+        _testCase(const Defined<int?>(42), canonical ? {'\$numberInt': '42'} : 42);
         _testCase(const Defined<int?>(null), null);
-        _testCase(Defined<int?>(42), canonical ? {'\$numberLong': '42'} : 42);
+        _testCase(Defined<int?>(42), canonical ? {'\$numberInt': '42'} : 42);
         _testCase(Defined<int?>(null), null);
         _testCase(ObjectId.fromValues(1, 2, 3), {'\$oid': '000000000000000002000003'});
         final uuid = Uuid.v4();
@@ -211,7 +213,7 @@ void main() {
                   'a': {
                     'b': null,
                     'c': [
-                      {'\$numberLong': '1'},
+                      {'\$numberInt': '1'},
                       {'\$numberDouble': '1.1'},
                       null
                     ]
@@ -230,7 +232,7 @@ void main() {
           expect(x.toEJson(), {'\$undefined': 1});
 
           x = Defined(42);
-          expect(x.toEJson(), relaxed ? 42 : {'\$numberLong': '42'});
+          expect(x.toEJson(), relaxed ? 42 : {'\$numberInt': '42'});
 
           x = Defined(null);
           expect(x.toEJson(), isNull);
@@ -241,7 +243,7 @@ void main() {
           );
 
           expect(
-            fromEJson<UndefinedOr<int?>>({'\$numberLong': '42'}),
+            fromEJson<UndefinedOr<int?>>({'\$numberInt': '42'}),
             Defined<int?>(42),
           );
 
