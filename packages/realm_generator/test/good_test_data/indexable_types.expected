@@ -158,28 +158,29 @@ class Indexable extends _Indexable
   @override
   Indexable freeze() => RealmObjectBase.freezeObject<Indexable>(this);
 
-  static EJsonValue _encodeIndexable(Indexable value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'aBool': toEJson(value.aBool),
-      'aNullableBool': toEJson(value.aNullableBool),
-      'anInt': toEJson(value.anInt),
-      'aNullableInt': toEJson(value.aNullableInt),
-      'aString': toEJson(value.aString),
-      'aNullableString': toEJson(value.aNullableString),
-      'anObjectId': toEJson(value.anObjectId),
-      'aNullableObjectId': toEJson(value.aNullableObjectId),
-      'anUuid': toEJson(value.anUuid),
-      'aNullableUuid': toEJson(value.aNullableUuid),
-      'aDateTime': toEJson(value.aDateTime),
-      'aNullableDateTime': toEJson(value.aNullableDateTime),
-      'aRealmValue': toEJson(value.aRealmValue),
-      'generalStringIndex': toEJson(value.generalStringIndex),
-      'ftsStringValue': toEJson(value.ftsStringValue),
-      'nullableFtsStringValue': toEJson(value.nullableFtsStringValue),
+      'aBool': aBool.toEJson(),
+      'aNullableBool': aNullableBool.toEJson(),
+      'anInt': anInt.toEJson(),
+      'aNullableInt': aNullableInt.toEJson(),
+      'aString': aString.toEJson(),
+      'aNullableString': aNullableString.toEJson(),
+      'anObjectId': anObjectId.toEJson(),
+      'aNullableObjectId': aNullableObjectId.toEJson(),
+      'anUuid': anUuid.toEJson(),
+      'aNullableUuid': aNullableUuid.toEJson(),
+      'aDateTime': aDateTime.toEJson(),
+      'aNullableDateTime': aNullableDateTime.toEJson(),
+      'aRealmValue': aRealmValue.toEJson(),
+      'generalStringIndex': generalStringIndex.toEJson(),
+      'ftsStringValue': ftsStringValue.toEJson(),
+      'nullableFtsStringValue': nullableFtsStringValue.toEJson(),
     };
   }
 
-  static Indexable _decodeIndexable(EJsonValue ejson) {
+  static EJsonValue _toEJson(Indexable value) => value.toEJson();
+  static Indexable _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'aBool': EJsonValue aBool,
@@ -223,7 +224,7 @@ class Indexable extends _Indexable
 
   static final schema = () {
     RealmObjectBase.registerFactory(Indexable._);
-    register(_encodeIndexable, _decodeIndexable);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
       SchemaProperty('aBool', RealmPropertyType.bool,
           indexType: RealmIndexType.regular),

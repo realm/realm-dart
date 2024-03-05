@@ -104,20 +104,22 @@ class RealmModelInfo {
       yield '';
 
       // Encode
-      yield 'static EJsonValue _encode$name($name value) {';
+      yield 'EJsonValue toEJson() {';
       {
         yield 'return <String, dynamic>{';
         {
           yield* fields.map((f) {
-            return "'${f.realmName}': toEJson(value.${f.name}),";
+            return "'${f.realmName}': ${f.name}.toEJson(),";
           });
         }
         yield '};';
       }
       yield '}';
 
+      yield 'static EJsonValue _toEJson($name value) => value.toEJson();';
+
       // Decode
-      yield 'static $name _decode$name(EJsonValue ejson) {';
+      yield 'static $name _fromEJson(EJsonValue ejson) {';
       {
         yield 'return switch (ejson) {';
         {
@@ -143,7 +145,7 @@ class RealmModelInfo {
       yield 'static final schema = () {';
       {
         yield 'RealmObjectBase.registerFactory($name._);';
-        yield 'register(_encode$name, _decode$name);';
+        yield 'register(_toEJson, _fromEJson);';
         yield "return const SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
         {
           yield* fields.map((f) {

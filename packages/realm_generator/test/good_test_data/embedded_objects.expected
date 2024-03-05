@@ -39,14 +39,15 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
 
-  static EJsonValue _encodeParent(Parent value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'child': toEJson(value.child),
-      'children': toEJson(value.children),
+      'child': child.toEJson(),
+      'children': children.toEJson(),
     };
   }
 
-  static Parent _decodeParent(EJsonValue ejson) {
+  static EJsonValue _toEJson(Parent value) => value.toEJson();
+  static Parent _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'child': EJsonValue child,
@@ -61,7 +62,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
-    register(_encodeParent, _decodeParent);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           optional: true, linkTarget: 'Child1'),
@@ -119,16 +120,17 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);
 
-  static EJsonValue _encodeChild1(Child1 value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'value': toEJson(value.value),
-      'child': toEJson(value.child),
-      'children': toEJson(value.children),
-      'linkToParent': toEJson(value.linkToParent),
+      'value': value.toEJson(),
+      'child': child.toEJson(),
+      'children': children.toEJson(),
+      'linkToParent': linkToParent.toEJson(),
     };
   }
 
-  static Child1 _decodeChild1(EJsonValue ejson) {
+  static EJsonValue _toEJson(Child1 value) => value.toEJson();
+  static Child1 _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'value': EJsonValue value,
@@ -147,7 +149,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
-    register(_encodeChild1, _decodeChild1);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.embeddedObject, Child1, 'Child1', [
       SchemaProperty('value', RealmPropertyType.string),
       SchemaProperty('child', RealmPropertyType.object,
@@ -293,26 +295,27 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   Child2 freeze() => RealmObjectBase.freezeObject<Child2>(this);
 
-  static EJsonValue _encodeChild2(Child2 value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'boolProp': toEJson(value.boolProp),
-      'intProp': toEJson(value.intProp),
-      'doubleProp': toEJson(value.doubleProp),
-      'stringProp': toEJson(value.stringProp),
-      'dateProp': toEJson(value.dateProp),
-      'objectIdProp': toEJson(value.objectIdProp),
-      'uuidProp': toEJson(value.uuidProp),
-      'nullableBoolProp': toEJson(value.nullableBoolProp),
-      'nullableIntProp': toEJson(value.nullableIntProp),
-      'nullableDoubleProp': toEJson(value.nullableDoubleProp),
-      'nullableStringProp': toEJson(value.nullableStringProp),
-      'nullableDateProp': toEJson(value.nullableDateProp),
-      'nullableObjectIdProp': toEJson(value.nullableObjectIdProp),
-      'nullableUuidProp': toEJson(value.nullableUuidProp),
+      'boolProp': boolProp.toEJson(),
+      'intProp': intProp.toEJson(),
+      'doubleProp': doubleProp.toEJson(),
+      'stringProp': stringProp.toEJson(),
+      'dateProp': dateProp.toEJson(),
+      'objectIdProp': objectIdProp.toEJson(),
+      'uuidProp': uuidProp.toEJson(),
+      'nullableBoolProp': nullableBoolProp.toEJson(),
+      'nullableIntProp': nullableIntProp.toEJson(),
+      'nullableDoubleProp': nullableDoubleProp.toEJson(),
+      'nullableStringProp': nullableStringProp.toEJson(),
+      'nullableDateProp': nullableDateProp.toEJson(),
+      'nullableObjectIdProp': nullableObjectIdProp.toEJson(),
+      'nullableUuidProp': nullableUuidProp.toEJson(),
     };
   }
 
-  static Child2 _decodeChild2(EJsonValue ejson) {
+  static EJsonValue _toEJson(Child2 value) => value.toEJson();
+  static Child2 _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'boolProp': EJsonValue boolProp,
@@ -352,7 +355,7 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Child2._);
-    register(_encodeChild2, _decodeChild2);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.embeddedObject, Child2, 'Child2', [
       SchemaProperty('boolProp', RealmPropertyType.bool),
       SchemaProperty('intProp', RealmPropertyType.int),

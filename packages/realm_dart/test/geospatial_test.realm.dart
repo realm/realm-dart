@@ -44,14 +44,15 @@ class Location extends _Location
   @override
   Location freeze() => RealmObjectBase.freezeObject<Location>(this);
 
-  static EJsonValue _encodeLocation(Location value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'type': toEJson(value.type),
-      'coordinates': toEJson(value.coordinates),
+      'type': type.toEJson(),
+      'coordinates': coordinates.toEJson(),
     };
   }
 
-  static Location _decodeLocation(EJsonValue ejson) {
+  static EJsonValue _toEJson(Location value) => value.toEJson();
+  static Location _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'type': EJsonValue type,
@@ -66,7 +67,7 @@ class Location extends _Location
 
   static final schema = () {
     RealmObjectBase.registerFactory(Location._);
-    register(_encodeLocation, _decodeLocation);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
       SchemaProperty('type', RealmPropertyType.string),
       SchemaProperty('coordinates', RealmPropertyType.double,
@@ -106,14 +107,15 @@ class Restaurant extends _Restaurant
   @override
   Restaurant freeze() => RealmObjectBase.freezeObject<Restaurant>(this);
 
-  static EJsonValue _encodeRestaurant(Restaurant value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
-      'location': toEJson(value.location),
+      'name': name.toEJson(),
+      'location': location.toEJson(),
     };
   }
 
-  static Restaurant _decodeRestaurant(EJsonValue ejson) {
+  static EJsonValue _toEJson(Restaurant value) => value.toEJson();
+  static Restaurant _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -129,7 +131,7 @@ class Restaurant extends _Restaurant
 
   static final schema = () {
     RealmObjectBase.registerFactory(Restaurant._);
-    register(_encodeRestaurant, _decodeRestaurant);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, Restaurant, 'Restaurant', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
@@ -164,13 +166,14 @@ class LocationList extends _LocationList
   @override
   LocationList freeze() => RealmObjectBase.freezeObject<LocationList>(this);
 
-  static EJsonValue _encodeLocationList(LocationList value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'locations': toEJson(value.locations),
+      'locations': locations.toEJson(),
     };
   }
 
-  static LocationList _decodeLocationList(EJsonValue ejson) {
+  static EJsonValue _toEJson(LocationList value) => value.toEJson();
+  static LocationList _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'locations': EJsonValue locations,
@@ -182,7 +185,7 @@ class LocationList extends _LocationList
 
   static final schema = () {
     RealmObjectBase.registerFactory(LocationList._);
-    register(_encodeLocationList, _decodeLocationList);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, LocationList, 'LocationList', [
       SchemaProperty('locations', RealmPropertyType.object,

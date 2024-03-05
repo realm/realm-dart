@@ -74,17 +74,18 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Source freeze() => RealmObjectBase.freezeObject<Source>(this);
 
-  static EJsonValue _encodeSource(Source value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
-      'et mål': toEJson(value.oneTarget),
-      'manyTargets': toEJson(value.manyTargets),
-      'dynamisk mål': toEJson(value.dynamicTarget),
-      'dynamicManyTargets': toEJson(value.dynamicManyTargets),
+      'name': name.toEJson(),
+      'et mål': oneTarget.toEJson(),
+      'manyTargets': manyTargets.toEJson(),
+      'dynamisk mål': dynamicTarget.toEJson(),
+      'dynamicManyTargets': dynamicManyTargets.toEJson(),
     };
   }
 
-  static Source _decodeSource(EJsonValue ejson) {
+  static EJsonValue _toEJson(Source value) => value.toEJson();
+  static Source _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -104,7 +105,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Source._);
-    register(_encodeSource, _decodeSource);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneTarget', RealmPropertyType.object,
@@ -181,16 +182,17 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Target freeze() => RealmObjectBase.freezeObject<Target>(this);
 
-  static EJsonValue _encodeTarget(Target value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
-      'source': toEJson(value.source),
-      'oneToMany': toEJson(value.oneToMany),
-      'manyToMany': toEJson(value.manyToMany),
+      'name': name.toEJson(),
+      'source': source.toEJson(),
+      'oneToMany': oneToMany.toEJson(),
+      'manyToMany': manyToMany.toEJson(),
     };
   }
 
-  static Target _decodeTarget(EJsonValue ejson) {
+  static EJsonValue _toEJson(Target value) => value.toEJson();
+  static Target _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -208,7 +210,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Target._);
-    register(_encodeTarget, _decodeTarget);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('source', RealmPropertyType.object,

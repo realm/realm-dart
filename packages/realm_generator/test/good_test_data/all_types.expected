@@ -42,14 +42,15 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
-  static EJsonValue _encodeFoo(Foo value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'x': toEJson(value.x),
-      'bar': toEJson(value.bar),
+      'x': x.toEJson(),
+      'bar': bar.toEJson(),
     };
   }
 
-  static Foo _decodeFoo(EJsonValue ejson) {
+  static EJsonValue _toEJson(Foo value) => value.toEJson();
+  static Foo _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'x': EJsonValue x,
@@ -65,7 +66,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
-    register(_encodeFoo, _decodeFoo);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Foo, 'MyFoo', [
       SchemaProperty('x', RealmPropertyType.int,
           indexType: RealmIndexType.regular),
@@ -235,29 +236,30 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Bar freeze() => RealmObjectBase.freezeObject<Bar>(this);
 
-  static EJsonValue _encodeBar(Bar value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
-      'aBool': toEJson(value.aBool),
-      'another': toEJson(value.another),
-      'data': toEJson(value.data),
-      'tidspunkt': toEJson(value.timestamp),
-      'aDouble': toEJson(value.aDouble),
-      'foo': toEJson(value.foo),
-      'objectId': toEJson(value.objectId),
-      'uuid': toEJson(value.uuid),
-      'list': toEJson(value.list),
-      'set': toEJson(value.set),
-      'map': toEJson(value.map),
-      'anOptionalString': toEJson(value.anOptionalString),
-      'any': toEJson(value.any),
-      'manyAny': toEJson(value.manyAny),
-      'decimal': toEJson(value.decimal),
-      'foos': toEJson(value.foos),
+      'name': name.toEJson(),
+      'aBool': aBool.toEJson(),
+      'another': another.toEJson(),
+      'data': data.toEJson(),
+      'tidspunkt': timestamp.toEJson(),
+      'aDouble': aDouble.toEJson(),
+      'foo': foo.toEJson(),
+      'objectId': objectId.toEJson(),
+      'uuid': uuid.toEJson(),
+      'list': list.toEJson(),
+      'set': set.toEJson(),
+      'map': map.toEJson(),
+      'anOptionalString': anOptionalString.toEJson(),
+      'any': any.toEJson(),
+      'manyAny': manyAny.toEJson(),
+      'decimal': decimal.toEJson(),
+      'foos': foos.toEJson(),
     };
   }
 
-  static Bar _decodeBar(EJsonValue ejson) {
+  static EJsonValue _toEJson(Bar value) => value.toEJson();
+  static Bar _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -298,7 +300,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Bar._);
-    register(_encodeBar, _decodeBar);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Bar, 'Bar', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('aBool', RealmPropertyType.bool,
@@ -392,17 +394,18 @@ class PrimitiveTypes extends _PrimitiveTypes
   @override
   PrimitiveTypes freeze() => RealmObjectBase.freezeObject<PrimitiveTypes>(this);
 
-  static EJsonValue _encodePrimitiveTypes(PrimitiveTypes value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'stringProp': toEJson(value.stringProp),
-      'boolProp': toEJson(value.boolProp),
-      'dateProp': toEJson(value.dateProp),
-      'doubleProp': toEJson(value.doubleProp),
-      'objectIdProp': toEJson(value.objectIdProp),
+      'stringProp': stringProp.toEJson(),
+      'boolProp': boolProp.toEJson(),
+      'dateProp': dateProp.toEJson(),
+      'doubleProp': doubleProp.toEJson(),
+      'objectIdProp': objectIdProp.toEJson(),
     };
   }
 
-  static PrimitiveTypes _decodePrimitiveTypes(EJsonValue ejson) {
+  static EJsonValue _toEJson(PrimitiveTypes value) => value.toEJson();
+  static PrimitiveTypes _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'stringProp': EJsonValue stringProp,
@@ -424,7 +427,7 @@ class PrimitiveTypes extends _PrimitiveTypes
 
   static final schema = () {
     RealmObjectBase.registerFactory(PrimitiveTypes._);
-    register(_encodePrimitiveTypes, _decodePrimitiveTypes);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, PrimitiveTypes, 'PrimitiveTypes', [
       SchemaProperty('stringProp', RealmPropertyType.string),

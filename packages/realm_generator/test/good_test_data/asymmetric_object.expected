@@ -57,16 +57,17 @@ class Asymmetric extends _Asymmetric
   @override
   Asymmetric freeze() => RealmObjectBase.freezeObject<Asymmetric>(this);
 
-  static EJsonValue _encodeAsymmetric(Asymmetric value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      '_id': toEJson(value.id),
-      'children': toEJson(value.children),
-      'father': toEJson(value.father),
-      'mother': toEJson(value.mother),
+      '_id': id.toEJson(),
+      'children': children.toEJson(),
+      'father': father.toEJson(),
+      'mother': mother.toEJson(),
     };
   }
 
-  static Asymmetric _decodeAsymmetric(EJsonValue ejson) {
+  static EJsonValue _toEJson(Asymmetric value) => value.toEJson();
+  static Asymmetric _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         '_id': EJsonValue id,
@@ -85,7 +86,7 @@ class Asymmetric extends _Asymmetric
 
   static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
-    register(_encodeAsymmetric, _decodeAsymmetric);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
@@ -129,14 +130,15 @@ class Embedded extends _Embedded
   @override
   Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);
 
-  static EJsonValue _encodeEmbedded(Embedded value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
-      'age': toEJson(value.age),
+      'name': name.toEJson(),
+      'age': age.toEJson(),
     };
   }
 
-  static Embedded _decodeEmbedded(EJsonValue ejson) {
+  static EJsonValue _toEJson(Embedded value) => value.toEJson();
+  static Embedded _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -152,7 +154,7 @@ class Embedded extends _Embedded
 
   static final schema = () {
     RealmObjectBase.registerFactory(Embedded._);
-    register(_encodeEmbedded, _decodeEmbedded);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),

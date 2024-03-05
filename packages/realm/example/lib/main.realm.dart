@@ -57,16 +57,17 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static EJsonValue _encodeCar(Car value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'make': toEJson(value.make),
-      'model': toEJson(value.model),
-      'kilometers': toEJson(value.kilometers),
-      'owner': toEJson(value.owner),
+      'make': make.toEJson(),
+      'model': model.toEJson(),
+      'kilometers': kilometers.toEJson(),
+      'owner': owner.toEJson(),
     };
   }
 
-  static Car _decodeCar(EJsonValue ejson) {
+  static EJsonValue _toEJson(Car value) => value.toEJson();
+  static Car _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'make': EJsonValue make,
@@ -86,7 +87,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Car._);
-    register(_encodeCar, _decodeCar);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string),
       SchemaProperty('model', RealmPropertyType.string, optional: true),
@@ -132,14 +133,15 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static EJsonValue _encodePerson(Person value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
-      'age': toEJson(value.age),
+      'name': name.toEJson(),
+      'age': age.toEJson(),
     };
   }
 
-  static Person _decodePerson(EJsonValue ejson) {
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -155,7 +157,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
-    register(_encodePerson, _decodePerson);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),

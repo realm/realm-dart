@@ -67,18 +67,19 @@ class WithIndexes extends _WithIndexes
   @override
   WithIndexes freeze() => RealmObjectBase.freezeObject<WithIndexes>(this);
 
-  static EJsonValue _encodeWithIndexes(WithIndexes value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'anInt': toEJson(value.anInt),
-      'aBool': toEJson(value.aBool),
-      'string': toEJson(value.string),
-      'timestamp': toEJson(value.timestamp),
-      'objectId': toEJson(value.objectId),
-      'uuid': toEJson(value.uuid),
+      'anInt': anInt.toEJson(),
+      'aBool': aBool.toEJson(),
+      'string': string.toEJson(),
+      'timestamp': timestamp.toEJson(),
+      'objectId': objectId.toEJson(),
+      'uuid': uuid.toEJson(),
     };
   }
 
-  static WithIndexes _decodeWithIndexes(EJsonValue ejson) {
+  static EJsonValue _toEJson(WithIndexes value) => value.toEJson();
+  static WithIndexes _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'anInt': EJsonValue anInt,
@@ -102,7 +103,7 @@ class WithIndexes extends _WithIndexes
 
   static final schema = () {
     RealmObjectBase.registerFactory(WithIndexes._);
-    register(_encodeWithIndexes, _decodeWithIndexes);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, WithIndexes, 'WithIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int,
@@ -181,18 +182,19 @@ class NoIndexes extends _NoIndexes
   @override
   NoIndexes freeze() => RealmObjectBase.freezeObject<NoIndexes>(this);
 
-  static EJsonValue _encodeNoIndexes(NoIndexes value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'anInt': toEJson(value.anInt),
-      'aBool': toEJson(value.aBool),
-      'string': toEJson(value.string),
-      'timestamp': toEJson(value.timestamp),
-      'objectId': toEJson(value.objectId),
-      'uuid': toEJson(value.uuid),
+      'anInt': anInt.toEJson(),
+      'aBool': aBool.toEJson(),
+      'string': string.toEJson(),
+      'timestamp': timestamp.toEJson(),
+      'objectId': objectId.toEJson(),
+      'uuid': uuid.toEJson(),
     };
   }
 
-  static NoIndexes _decodeNoIndexes(EJsonValue ejson) {
+  static EJsonValue _toEJson(NoIndexes value) => value.toEJson();
+  static NoIndexes _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'anInt': EJsonValue anInt,
@@ -216,7 +218,7 @@ class NoIndexes extends _NoIndexes
 
   static final schema = () {
     RealmObjectBase.registerFactory(NoIndexes._);
-    register(_encodeNoIndexes, _decodeNoIndexes);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int),
       SchemaProperty('aBool', RealmPropertyType.bool),
@@ -267,15 +269,16 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   ObjectWithFTSIndex freeze() =>
       RealmObjectBase.freezeObject<ObjectWithFTSIndex>(this);
 
-  static EJsonValue _encodeObjectWithFTSIndex(ObjectWithFTSIndex value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'title': toEJson(value.title),
-      'summary': toEJson(value.summary),
-      'nullableSummary': toEJson(value.nullableSummary),
+      'title': title.toEJson(),
+      'summary': summary.toEJson(),
+      'nullableSummary': nullableSummary.toEJson(),
     };
   }
 
-  static ObjectWithFTSIndex _decodeObjectWithFTSIndex(EJsonValue ejson) {
+  static EJsonValue _toEJson(ObjectWithFTSIndex value) => value.toEJson();
+  static ObjectWithFTSIndex _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'title': EJsonValue title,
@@ -293,7 +296,7 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
 
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
-    register(_encodeObjectWithFTSIndex, _decodeObjectWithFTSIndex);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
       SchemaProperty('title', RealmPropertyType.string),

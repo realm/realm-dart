@@ -40,14 +40,15 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
 
-  static EJsonValue _encodeParent(Parent value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'single child': toEJson(value.child),
-      'CHILDREN': toEJson(value.children),
+      'single child': child.toEJson(),
+      'CHILDREN': children.toEJson(),
     };
   }
 
-  static Parent _decodeParent(EJsonValue ejson) {
+  static EJsonValue _toEJson(Parent value) => value.toEJson();
+  static Parent _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'single child': EJsonValue child,
@@ -62,7 +63,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
-    register(_encodeParent, _decodeParent);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
@@ -113,15 +114,16 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);
 
-  static EJsonValue _encodeChild1(Child1 value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      '_value': toEJson(value.value),
-      '_parent': toEJson(value.linkToParent),
-      'indexedString': toEJson(value.indexedString),
+      '_value': value.toEJson(),
+      '_parent': linkToParent.toEJson(),
+      'indexedString': indexedString.toEJson(),
     };
   }
 
-  static Child1 _decodeChild1(EJsonValue ejson) {
+  static EJsonValue _toEJson(Child1 value) => value.toEJson();
+  static Child1 _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         '_value': EJsonValue value,
@@ -139,7 +141,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
-    register(_encodeChild1, _decodeChild1);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),

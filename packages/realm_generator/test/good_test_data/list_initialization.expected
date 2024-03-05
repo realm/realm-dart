@@ -119,22 +119,23 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static EJsonValue _encodePerson(Person value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'children': toEJson(value.children),
-      'initList': toEJson(value.initList),
-      'initListWithType': toEJson(value.initListWithType),
-      'initListConst': toEJson(value.initListConst),
-      'initSet': toEJson(value.initSet),
-      'initSetWithType': toEJson(value.initSetWithType),
-      'initSetConst': toEJson(value.initSetConst),
-      'initMap': toEJson(value.initMap),
-      'initMapWithType': toEJson(value.initMapWithType),
-      'initMapConst': toEJson(value.initMapConst),
+      'children': children.toEJson(),
+      'initList': initList.toEJson(),
+      'initListWithType': initListWithType.toEJson(),
+      'initListConst': initListConst.toEJson(),
+      'initSet': initSet.toEJson(),
+      'initSetWithType': initSetWithType.toEJson(),
+      'initSetConst': initSetConst.toEJson(),
+      'initMap': initMap.toEJson(),
+      'initMapWithType': initMapWithType.toEJson(),
+      'initMapConst': initMapConst.toEJson(),
     };
   }
 
-  static Person _decodePerson(EJsonValue ejson) {
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'children': EJsonValue children,
@@ -155,7 +156,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
-    register(_encodePerson, _decodePerson);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'Person', collectionType: RealmCollectionType.list),

@@ -50,15 +50,16 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
-  static EJsonValue _encodeFoo(Foo value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'requiredBinaryProp': toEJson(value.requiredBinaryProp),
-      'defaultValueBinaryProp': toEJson(value.defaultValueBinaryProp),
-      'nullableBinaryProp': toEJson(value.nullableBinaryProp),
+      'requiredBinaryProp': requiredBinaryProp.toEJson(),
+      'defaultValueBinaryProp': defaultValueBinaryProp.toEJson(),
+      'nullableBinaryProp': nullableBinaryProp.toEJson(),
     };
   }
 
-  static Foo _decodeFoo(EJsonValue ejson) {
+  static EJsonValue _toEJson(Foo value) => value.toEJson();
+  static Foo _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'requiredBinaryProp': EJsonValue requiredBinaryProp,
@@ -76,7 +77,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
-    register(_encodeFoo, _decodeFoo);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
       SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),

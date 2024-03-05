@@ -126,23 +126,24 @@ class LotsOfMaps extends _LotsOfMaps
   @override
   LotsOfMaps freeze() => RealmObjectBase.freezeObject<LotsOfMaps>(this);
 
-  static EJsonValue _encodeLotsOfMaps(LotsOfMaps value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'persons': toEJson(value.persons),
-      'bools': toEJson(value.bools),
-      'dateTimes': toEJson(value.dateTimes),
-      'decimals': toEJson(value.decimals),
-      'doubles': toEJson(value.doubles),
-      'ints': toEJson(value.ints),
-      'objectIds': toEJson(value.objectIds),
-      'any': toEJson(value.any),
-      'strings': toEJson(value.strings),
-      'binary': toEJson(value.binary),
-      'uuids': toEJson(value.uuids),
+      'persons': persons.toEJson(),
+      'bools': bools.toEJson(),
+      'dateTimes': dateTimes.toEJson(),
+      'decimals': decimals.toEJson(),
+      'doubles': doubles.toEJson(),
+      'ints': ints.toEJson(),
+      'objectIds': objectIds.toEJson(),
+      'any': any.toEJson(),
+      'strings': strings.toEJson(),
+      'binary': binary.toEJson(),
+      'uuids': uuids.toEJson(),
     };
   }
 
-  static LotsOfMaps _decodeLotsOfMaps(EJsonValue ejson) {
+  static EJsonValue _toEJson(LotsOfMaps value) => value.toEJson();
+  static LotsOfMaps _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'persons': EJsonValue persons,
@@ -164,7 +165,7 @@ class LotsOfMaps extends _LotsOfMaps
 
   static final schema = () {
     RealmObjectBase.registerFactory(LotsOfMaps._);
-    register(_encodeLotsOfMaps, _decodeLotsOfMaps);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
@@ -216,13 +217,14 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static EJsonValue _encodePerson(Person value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'name': toEJson(value.name),
+      'name': name.toEJson(),
     };
   }
 
-  static Person _decodePerson(EJsonValue ejson) {
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -236,7 +238,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
-    register(_encodePerson, _decodePerson);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);

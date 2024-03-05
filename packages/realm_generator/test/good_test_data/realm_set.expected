@@ -28,13 +28,14 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static EJsonValue _encodeCar(Car value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'make': toEJson(value.make),
+      'make': make.toEJson(),
     };
   }
 
-  static Car _decodeCar(EJsonValue ejson) {
+  static EJsonValue _toEJson(Car value) => value.toEJson();
+  static Car _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'make': EJsonValue make,
@@ -48,7 +49,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
   static final schema = () {
     RealmObjectBase.registerFactory(Car._);
-    register(_encodeCar, _decodeCar);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
@@ -240,29 +241,30 @@ class RealmSets extends _RealmSets
   @override
   RealmSets freeze() => RealmObjectBase.freezeObject<RealmSets>(this);
 
-  static EJsonValue _encodeRealmSets(RealmSets value) {
+  EJsonValue toEJson() {
     return <String, dynamic>{
-      'key': toEJson(value.key),
-      'boolSet': toEJson(value.boolSet),
-      'nullableBoolSet': toEJson(value.nullableBoolSet),
-      'intSet': toEJson(value.intSet),
-      'nullableintSet': toEJson(value.nullableintSet),
-      'stringSet': toEJson(value.stringSet),
-      'nullablestringSet': toEJson(value.nullablestringSet),
-      'doubleSet': toEJson(value.doubleSet),
-      'nullabledoubleSet': toEJson(value.nullabledoubleSet),
-      'dateTimeSet': toEJson(value.dateTimeSet),
-      'nullabledateTimeSet': toEJson(value.nullabledateTimeSet),
-      'objectIdSet': toEJson(value.objectIdSet),
-      'nullableobjectIdSet': toEJson(value.nullableobjectIdSet),
-      'uuidSet': toEJson(value.uuidSet),
-      'nullableuuidSet': toEJson(value.nullableuuidSet),
-      'realmValueSet': toEJson(value.realmValueSet),
-      'realmObjectsSet': toEJson(value.realmObjectsSet),
+      'key': key.toEJson(),
+      'boolSet': boolSet.toEJson(),
+      'nullableBoolSet': nullableBoolSet.toEJson(),
+      'intSet': intSet.toEJson(),
+      'nullableintSet': nullableintSet.toEJson(),
+      'stringSet': stringSet.toEJson(),
+      'nullablestringSet': nullablestringSet.toEJson(),
+      'doubleSet': doubleSet.toEJson(),
+      'nullabledoubleSet': nullabledoubleSet.toEJson(),
+      'dateTimeSet': dateTimeSet.toEJson(),
+      'nullabledateTimeSet': nullabledateTimeSet.toEJson(),
+      'objectIdSet': objectIdSet.toEJson(),
+      'nullableobjectIdSet': nullableobjectIdSet.toEJson(),
+      'uuidSet': uuidSet.toEJson(),
+      'nullableuuidSet': nullableuuidSet.toEJson(),
+      'realmValueSet': realmValueSet.toEJson(),
+      'realmObjectsSet': realmObjectsSet.toEJson(),
     };
   }
 
-  static RealmSets _decodeRealmSets(EJsonValue ejson) {
+  static EJsonValue _toEJson(RealmSets value) => value.toEJson();
+  static RealmSets _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         'key': EJsonValue key,
@@ -292,7 +294,7 @@ class RealmSets extends _RealmSets
 
   static final schema = () {
     RealmObjectBase.registerFactory(RealmSets._);
-    register(_encodeRealmSets, _decodeRealmSets);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolSet', RealmPropertyType.bool,
