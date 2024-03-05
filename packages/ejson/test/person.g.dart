@@ -6,7 +6,7 @@ part of 'person.dart';
 // EJsonGenerator
 // **************************************************************************
 
-EJsonValue encodePerson(Person value) {
+EJsonValue _encodePerson(Person value) {
   return {
     'name': value.name.toEJson(),
     'birthDate': value.birthDate.toEJson(),
@@ -15,7 +15,7 @@ EJsonValue encodePerson(Person value) {
   };
 }
 
-Person decodePerson(EJsonValue ejson) {
+Person _decodePerson(EJsonValue ejson) {
   return switch (ejson) {
     {
       'name': EJsonValue name,
@@ -31,5 +31,7 @@ Person decodePerson(EJsonValue ejson) {
 
 extension PersonEJsonEncoderExtension on Person {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodePerson(this);
+  EJsonValue toEJson() => _encodePerson(this);
 }
+
+void registerPerson() => register(_encodePerson, _decodePerson);

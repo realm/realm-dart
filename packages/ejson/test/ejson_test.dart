@@ -263,7 +263,7 @@ void main() {
       });
 
       group('custom types', () {
-        register(encodePerson, decodePerson);
+        registerPerson();
 
         final person = Person(
           'John',

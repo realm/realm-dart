@@ -6,11 +6,11 @@ part of 'ctor_test.dart';
 // EJsonGenerator
 // **************************************************************************
 
-EJsonValue encodeEmpty(Empty value) {
+EJsonValue _encodeEmpty(Empty value) {
   return {};
 }
 
-Empty decodeEmpty(EJsonValue ejson) {
+Empty _decodeEmpty(EJsonValue ejson) {
   return switch (ejson) {
     Map m when m.isEmpty => Empty(),
     _ => raiseInvalidEJson(ejson),
@@ -19,14 +19,16 @@ Empty decodeEmpty(EJsonValue ejson) {
 
 extension EmptyEJsonEncoderExtension on Empty {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeEmpty(this);
+  EJsonValue toEJson() => _encodeEmpty(this);
 }
 
-EJsonValue encodeSimple(Simple value) {
+void registerEmpty() => register(_encodeEmpty, _decodeEmpty);
+
+EJsonValue _encodeSimple(Simple value) {
   return {'i': value.i.toEJson()};
 }
 
-Simple decodeSimple(EJsonValue ejson) {
+Simple _decodeSimple(EJsonValue ejson) {
   return switch (ejson) {
     {'i': EJsonValue i} => Simple(fromEJson(i)),
     _ => raiseInvalidEJson(ejson),
@@ -35,14 +37,16 @@ Simple decodeSimple(EJsonValue ejson) {
 
 extension SimpleEJsonEncoderExtension on Simple {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeSimple(this);
+  EJsonValue toEJson() => _encodeSimple(this);
 }
 
-EJsonValue encodeNamed(Named value) {
+void registerSimple() => register(_encodeSimple, _decodeSimple);
+
+EJsonValue _encodeNamed(Named value) {
   return {'namedCtor': value.namedCtor.toEJson()};
 }
 
-Named decodeNamed(EJsonValue ejson) {
+Named _decodeNamed(EJsonValue ejson) {
   return switch (ejson) {
     {'namedCtor': EJsonValue namedCtor} => Named.nameIt(fromEJson(namedCtor)),
     _ => raiseInvalidEJson(ejson),
@@ -51,14 +55,16 @@ Named decodeNamed(EJsonValue ejson) {
 
 extension NamedEJsonEncoderExtension on Named {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeNamed(this);
+  EJsonValue toEJson() => _encodeNamed(this);
 }
 
-EJsonValue encodeRequiredNamedParameters(RequiredNamedParameters value) {
+void registerNamed() => register(_encodeNamed, _decodeNamed);
+
+EJsonValue _encodeRequiredNamedParameters(RequiredNamedParameters value) {
   return {'requiredNamed': value.requiredNamed.toEJson()};
 }
 
-RequiredNamedParameters decodeRequiredNamedParameters(EJsonValue ejson) {
+RequiredNamedParameters _decodeRequiredNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
     {'requiredNamed': EJsonValue requiredNamed} =>
       RequiredNamedParameters(requiredNamed: fromEJson(requiredNamed)),
@@ -69,14 +75,17 @@ RequiredNamedParameters decodeRequiredNamedParameters(EJsonValue ejson) {
 extension RequiredNamedParametersEJsonEncoderExtension
     on RequiredNamedParameters {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeRequiredNamedParameters(this);
+  EJsonValue toEJson() => _encodeRequiredNamedParameters(this);
 }
 
-EJsonValue encodeOptionalNamedParameters(OptionalNamedParameters value) {
+void registerRequiredNamedParameters() =>
+    register(_encodeRequiredNamedParameters, _decodeRequiredNamedParameters);
+
+EJsonValue _encodeOptionalNamedParameters(OptionalNamedParameters value) {
   return {'optionalNamed': value.optionalNamed.toEJson()};
 }
 
-OptionalNamedParameters decodeOptionalNamedParameters(EJsonValue ejson) {
+OptionalNamedParameters _decodeOptionalNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
     {'optionalNamed': EJsonValue optionalNamed} =>
       OptionalNamedParameters(optionalNamed: fromEJson(optionalNamed)),
@@ -87,14 +96,17 @@ OptionalNamedParameters decodeOptionalNamedParameters(EJsonValue ejson) {
 extension OptionalNamedParametersEJsonEncoderExtension
     on OptionalNamedParameters {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeOptionalNamedParameters(this);
+  EJsonValue toEJson() => _encodeOptionalNamedParameters(this);
 }
 
-EJsonValue encodeOptionalParameters(OptionalParameters value) {
+void registerOptionalNamedParameters() =>
+    register(_encodeOptionalNamedParameters, _decodeOptionalNamedParameters);
+
+EJsonValue _encodeOptionalParameters(OptionalParameters value) {
   return {'optional': value.optional.toEJson()};
 }
 
-OptionalParameters decodeOptionalParameters(EJsonValue ejson) {
+OptionalParameters _decodeOptionalParameters(EJsonValue ejson) {
   return switch (ejson) {
     {'optional': EJsonValue optional} =>
       OptionalParameters(fromEJson(optional)),
@@ -104,14 +116,17 @@ OptionalParameters decodeOptionalParameters(EJsonValue ejson) {
 
 extension OptionalParametersEJsonEncoderExtension on OptionalParameters {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeOptionalParameters(this);
+  EJsonValue toEJson() => _encodeOptionalParameters(this);
 }
 
-EJsonValue encodePrivateMembers(PrivateMembers value) {
+void registerOptionalParameters() =>
+    register(_encodeOptionalParameters, _decodeOptionalParameters);
+
+EJsonValue _encodePrivateMembers(PrivateMembers value) {
   return {'id': value.id.toEJson()};
 }
 
-PrivateMembers decodePrivateMembers(EJsonValue ejson) {
+PrivateMembers _decodePrivateMembers(EJsonValue ejson) {
   return switch (ejson) {
     {'id': EJsonValue id} => PrivateMembers(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
@@ -120,10 +135,13 @@ PrivateMembers decodePrivateMembers(EJsonValue ejson) {
 
 extension PrivateMembersEJsonEncoderExtension on PrivateMembers {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodePrivateMembers(this);
+  EJsonValue toEJson() => _encodePrivateMembers(this);
 }
 
-EJsonValue encodePerson(Person value) {
+void registerPrivateMembers() =>
+    register(_encodePrivateMembers, _decodePrivateMembers);
+
+EJsonValue _encodePerson(Person value) {
   return {
     'name': value.name.toEJson(),
     'birthDate': value.birthDate.toEJson(),
@@ -133,7 +151,7 @@ EJsonValue encodePerson(Person value) {
   };
 }
 
-Person decodePerson(EJsonValue ejson) {
+Person _decodePerson(EJsonValue ejson) {
   return switch (ejson) {
     {
       'name': EJsonValue name,
@@ -150,5 +168,7 @@ Person decodePerson(EJsonValue ejson) {
 
 extension PersonEJsonEncoderExtension on Person {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodePerson(this);
+  EJsonValue toEJson() => _encodePerson(this);
 }
+
+void registerPerson() => register(_encodePerson, _decodePerson);

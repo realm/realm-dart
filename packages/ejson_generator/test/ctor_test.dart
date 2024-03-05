@@ -96,14 +96,14 @@ void _testCase<T>(T value, EJsonValue expected) {
 
 void main() {
   group('ctors', () {
-    register(encodeEmpty, decodeEmpty);
-    register(encodeSimple, decodeSimple);
-    register(encodeNamed, decodeNamed);
-    register(encodeRequiredNamedParameters, decodeRequiredNamedParameters);
-    register(encodeOptionalNamedParameters, decodeOptionalNamedParameters);
-    register(encodeOptionalParameters, decodeOptionalParameters);
-    register(encodePrivateMembers, decodePrivateMembers);
-    register(encodePerson, decodePerson);
+    registerEmpty();
+    registerSimple();
+    registerNamed();
+    registerRequiredNamedParameters();
+    registerOptionalNamedParameters();
+    registerOptionalParameters();
+    registerPrivateMembers();
+    registerPerson();
 
     _testCase(const Empty(), {});
     _testCase(const Simple(42), {

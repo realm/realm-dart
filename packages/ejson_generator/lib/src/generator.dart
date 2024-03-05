@@ -6,17 +6,18 @@ import 'dart:async';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:ejson_analyzer/ejson_analyzer.dart';
-import 'package:ejson_generator/ejson_generator.dart';
 import 'package:source_gen/source_gen.dart';
 
-extension on EJsonError {
-  String get message => switch (this) {
-        EJsonError.tooManyAnnotatedConstructors => 'Too many annotated constructors',
-        EJsonError.missingGetter => 'Missing getter',
-        EJsonError.mismatchedGetterType => 'Mismatched getter type',
-        EJsonError.tooManyConstructorsOnAnnotatedClass => 'Too many constructors on annotated class',
-        EJsonError.noExplicitConstructor => 'No explicit constructor',
-      };
+enum EJsonError {
+  tooManyAnnotatedConstructors('Too many annotated constructors'),
+  tooManyConstructorsOnAnnotatedClass('Too many constructors on annotated class'),
+  noExplicitConstructor('No explicit constructor'),
+  missingGetter('Missing getter'),
+  mismatchedGetterType('Mismatched getter type');
+
+  final String message;
+
+  const EJsonError(this.message);
 
   Never raise() {
     throw EJsonSourceError._(this);
@@ -79,13 +80,13 @@ class EJsonGenerator extends Generator {
       // generate the codec pair
       log.info('Generating EJson for $className');
       return '''
-        EJsonValue encode$className($className value) {
+        EJsonValue _encode$className($className value) {
           return {
             ${ctor.parameters.map((p) => "'${p.name}': value.${p.name}.toEJson()").join(',\n')}
           };
         }
 
-        $className decode$className(EJsonValue ejson) {
+        $className _decode$className(EJsonValue ejson) {
           return switch (ejson) {
               ${decodePattern(ctor.parameters)} => $className${ctor.name.isEmpty ? '' : '.${ctor.name}'}(
               ${ctor.parameters.map((p) => "${p.isNamed ? '${p.name} : ' : ''}fromEJson(${p.name})").join(',\n')}
@@ -96,8 +97,10 @@ class EJsonGenerator extends Generator {
 
         extension ${className}EJsonEncoderExtension on $className {
           @pragma('vm:prefer-inline')
-          EJsonValue toEJson() => encode$className(this);
+          EJsonValue toEJson() => _encode$className(this);
         }
+
+        void register$className() => register(_encode$className, _decode$className);
       ''';
     }).join('\n\n');
   }

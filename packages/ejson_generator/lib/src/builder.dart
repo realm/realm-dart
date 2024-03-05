@@ -6,14 +6,6 @@ import 'package:source_gen/source_gen.dart';
 
 import 'generator.dart';
 
-enum EJsonError {
-  tooManyAnnotatedConstructors,
-  tooManyConstructorsOnAnnotatedClass,
-  noExplicitConstructor,
-  missingGetter,
-  mismatchedGetterType,
-}
-
 Builder getEJsonGenerator([BuilderOptions? options]) {
   return SharedPartBuilder([EJsonGenerator()], 'ejson');
 }

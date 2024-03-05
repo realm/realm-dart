@@ -145,11 +145,11 @@ class Empty {
 // EJsonGenerator
 // **************************************************************************
 
-EJsonValue encodeEmpty(Empty value) {
+EJsonValue _encodeEmpty(Empty value) {
   return {};
 }
 
-Empty decodeEmpty(EJsonValue ejson) {
+Empty _decodeEmpty(EJsonValue ejson) {
   return switch (ejson) {
     Map m when m.isEmpty => Empty(),
     _ => raiseInvalidEJson(ejson),
@@ -158,8 +158,10 @@ Empty decodeEmpty(EJsonValue ejson) {
 
 extension EmptyEJsonEncoderExtension on Empty {
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => encodeEmpty(this);
+  EJsonValue toEJson() => _encodeEmpty(this);
 }
+
+void registerEmpty() => register(_encodeEmpty, _decodeEmpty);
 ''',
     );
   });
