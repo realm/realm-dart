@@ -8,6 +8,8 @@ import 'generator.dart';
 
 enum EJsonError {
   tooManyAnnotatedConstructors,
+  tooManyConstructorsOnAnnotatedClass,
+  noExplicitConstructor,
   missingGetter,
   mismatchedGetterType,
 }

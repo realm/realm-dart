@@ -7,4 +7,5 @@ import 'package:source_gen/source_gen.dart';
 
 TypeChecker get typeChecker => TypeChecker.fromRuntime(EJson);
 
+EJson getEJsonAnnotation(Element element) => typeChecker.firstAnnotationOfExact(element) as EJson;
 bool isEJsonAnnotated(Element element) => typeChecker.hasAnnotationOfExact(element);

@@ -36,14 +36,13 @@ jobs:
 
       - name: Check cache
         id: check-cache
-        if: contains(github.head_ref, 'release/') != true
         uses: actions/cache@v4
         with:
           path: ./packages/realm_dart/binary/**
-          key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}-kick
+          key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}
 
       - name: Setup Ninja
-        if: startsWith(matrix.build, 'android') || startsWith(matrix.build, 'linux')
+        if: steps.check-cache.outputs.cache-hit != 'true' && (startsWith(matrix.build, 'android') || startsWith(matrix.build, 'linux'))
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build

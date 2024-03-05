@@ -14,16 +14,18 @@ extension on EJsonError {
         EJsonError.tooManyAnnotatedConstructors => 'Too many annotated constructors',
         EJsonError.missingGetter => 'Missing getter',
         EJsonError.mismatchedGetterType => 'Mismatched getter type',
+        EJsonError.tooManyConstructorsOnAnnotatedClass => 'Too many constructors on annotated class',
+        EJsonError.noExplicitConstructor => 'No explicit constructor',
       };
 
   Never raise() {
-    throw EJsonSourceError(this);
+    throw EJsonSourceError._(this);
   }
 }
 
 class EJsonSourceError extends InvalidGenerationSourceError {
   final EJsonError error;
-  EJsonSourceError(this.error) : super(error.message);
+  EJsonSourceError._(this.error) : super(error.message);
 }
 
 /// @nodoc
@@ -39,20 +41,32 @@ class EJsonGenerator extends Generator {
     });
 
     return annotated.map((x) {
-      final (cls, ctors) = x;
+      final (cls, annotatedCtors) = x;
       final className = cls.name;
 
-      if (ctors.length > 1) {
+      if (annotatedCtors.length > 1) {
         EJsonError.tooManyAnnotatedConstructors.raise();
       }
 
-      if (ctors.isEmpty) {
-        // TODO!
+      if (annotatedCtors.isEmpty) {
+        // class is directly annotated, and no constructors are annotated.
+        final annotation = getEJsonAnnotation(cls);
+        if (annotation.decoder != null && annotation.encoder != null) {
+          return ''; // class has custom defined encoder and decoder
+        }
+        if (cls.constructors.length > 1) {
+          EJsonError.tooManyConstructorsOnAnnotatedClass.raise();
+        }
       }
 
-      final ctor = ctors.single;
+      final ctor = annotatedCtors.singleOrNull ?? cls.constructors.singleOrNull;
+      if (ctor == null) {
+        // class is annotated, but has no explicit constructors
+        EJsonError.noExplicitConstructor.raise();
+      }
 
       for (final p in ctor.parameters) {
+        // check that all ctor parameters have a getter with the same name and type
         final getter = cls.getGetter(p.name);
         if (getter == null) {
           EJsonError.missingGetter.raise();
@@ -62,6 +76,7 @@ class EJsonGenerator extends Generator {
         }
       }
 
+      // generate the codec pair
       log.info('Generating EJson for $className');
       return '''
         EJsonValue encode$className($className value) {

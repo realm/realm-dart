@@ -40,7 +40,7 @@ scripts:
       melos run build:binding &&
       melos run build:dart
       
-  build:native: # TODO: mac specific and too simple
+  build:native: # make sure to set the CMAKE_PLATFORM and CMAKE_CONFIG environment variables 
     exec: >-
       cmake --preset $CMAKE_PLATFORM &&
       cmake --build --preset $CMAKE_PLATFORM --config $CMAKE_CONFIG -- -destination "generic/platform=macOS"

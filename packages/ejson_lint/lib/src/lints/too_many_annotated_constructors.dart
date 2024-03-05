@@ -20,7 +20,7 @@ class TooManyAnnotatedConstructors extends DartLintRule {
       : super(
           code: const LintCode(
             name: 'too_many_annotated_constructors',
-            problemMessage: 'Only one constructor can be annotated with @EJson()',
+            problemMessage: 'Only one constructor can be annotated',
             errorSeverity: ErrorSeverity.ERROR,
           ),
         );

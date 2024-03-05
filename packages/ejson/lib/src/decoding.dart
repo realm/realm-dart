@@ -13,7 +13,7 @@ import 'package:type_plus/type_plus.dart';
 import 'types.dart';
 
 /// Predefined decoders for common types
-const commonDecoders = {
+const _commonDecoders = {
   dynamic: _decodeAny,
   Null: _decodeNull,
   Object: _decodeAny,
@@ -39,7 +39,7 @@ const commonDecoders = {
 /// Custom decoders for specific types. Use `register` to add a custom decoder.
 final customDecoders = <Type, Function>{};
 
-final decoders = () {
+final _decoders = () {
   // register extra common types on first access
   undefinedOr<T>(dynamic f) => f<UndefinedOr<T>>();
   TypePlus.addFactory(undefinedOr);
@@ -49,19 +49,19 @@ final decoders = () {
   TypePlus.add<ObjectId>();
   TypePlus.add<Uuid>();
 
-  return CombinedMapView([customDecoders, commonDecoders]);
+  return CombinedMapView([customDecoders, _commonDecoders]);
 }();
 
 /// Converts [ejson] to type [T].
-/// 
+///
 /// Throws [InvalidEJson] if [ejson] is not valid for [T].
 /// Throws [MissingDecoder] if no decoder is registered for [T].
 T fromEJson<T>(EJsonValue ejson) {
   final type = T;
   final nullable = type.isNullable;
-  final decoder = nullable ? _decodeNullable : decoders[type.base];
+  final decoder = nullable ? _decodeNullable : _decoders[type.base];
   if (decoder == null) {
-    throw MissingDecoder(ejson, type);
+    throw MissingDecoder._(ejson, type);
   }
   final args = nullable ? [type.nonNull] : type.args;
   if (args.isEmpty) {
@@ -72,7 +72,7 @@ T fromEJson<T>(EJsonValue ejson) {
 
 // Important to return `T` as opposed to [Never] for type inference to work
 /// @nodoc
-T raiseInvalidEJson<T>(Object? value) => throw InvalidEJson(value, T);
+T raiseInvalidEJson<T>(Object? value) => throw InvalidEJson._(value, T);
 
 dynamic _decodeAny(EJsonValue ejson) {
   return switch (ejson) {
@@ -147,7 +147,6 @@ Map<K, V> _decodeDocument<K, V>(EJsonValue ejson) {
 double _decodeDouble(EJsonValue ejson) {
   return switch (ejson) {
     double d => d, // relaxed mode
-    //{'\$numberDouble': double d} => d,
     {'\$numberDouble': String s} => switch (s) {
         'NaN' => double.nan,
         'Infinity' => double.infinity,
@@ -254,7 +253,7 @@ class InvalidEJson implements Exception {
   final EJsonValue ejson;
   final Type type;
 
-  InvalidEJson(this.ejson, this.type);
+  InvalidEJson._(this.ejson, this.type);
 
   @override
   String toString() => 'Invalid EJson for $type: $ejson';
@@ -265,7 +264,7 @@ class MissingDecoder implements Exception {
   final EJsonValue ejson;
   final Type type;
 
-  MissingDecoder(this.ejson, this.type);
+  MissingDecoder._(this.ejson, this.type);
 
   @override
   String toString() => 'Missing decoder for $type';

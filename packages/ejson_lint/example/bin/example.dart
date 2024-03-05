@@ -22,3 +22,8 @@ class Person {
   // expect_lint: too_many_annotated_constructors, missing_getter
   Person.third(String navn, int alder) : this(navn, age: alder);
 }
+
+@ejson
+class Dog {
+  late final Person owner;
+}

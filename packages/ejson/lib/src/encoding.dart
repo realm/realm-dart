@@ -18,8 +18,9 @@ var customEncoders = <Type, Function>{};
 var relaxed = false;
 
 @pragma('vm:prefer-inline')
-/// Converts [value] to EJson 
-/// 
+
+/// Converts [value] to EJson
+///
 /// Throws [MissingEncoder] if no encoder is registered for [value]'s type.
 EJsonValue toEJson(Object? value) => _encodeAny(value);
 
@@ -32,7 +33,7 @@ EJsonValue _encodeAny(Object? value) {
     double d => _encodeDouble(d),
     int i => _encodeInt(i),
     Key k => _encodeKey(k),
-    Uint8List b => _encodeBinary(b, '00'),
+    Uint8List b => _encodeBinary(b, subtype: '00'),
     Iterable<dynamic> l => _encodeArray(l),
     Map<dynamic, dynamic> m => _encodeDocument(m),
     ObjectId o => _encodeObjectId(o),
@@ -99,9 +100,9 @@ EJsonValue _encodeSymbol(Symbol value) => {'\$symbol': value.name};
 
 EJsonValue _encodeUndefined(Undefined<dynamic> undefined) => {'\$undefined': 1};
 
-EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes.asUint8List(), "04");
+EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes.asUint8List(), subtype: '04');
 
-EJsonValue _encodeBinary(Uint8List buffer, String subtype) => {
+EJsonValue _encodeBinary(Uint8List buffer, {required String subtype}) => {
       '\$binary': {
         'base64': base64.encode(buffer),
         'subType': subtype,
@@ -196,6 +197,7 @@ extension SymbolEJsonEncoderExtension on Symbol {
   /// Extract the name of this [Symbol]
   String get name {
     final full = toString();
+    // remove leading 'Symbol("' and trailing '")'
     return full.substring(8, full.length - 2);
   }
 
@@ -207,7 +209,7 @@ extension SymbolEJsonEncoderExtension on Symbol {
 extension Uint8ListEJsonEncoderExtension on Uint8List {
   /// Converts this [Uint8List] to EJson
   @pragma('vm:prefer-inline')
-  EJsonValue toEJson() => _encodeBinary(this, '00');
+  EJsonValue toEJson() => _encodeBinary(this, subtype: '00');
 }
 
 extension UndefinedEJsonEncoderExtension on Undefined<dynamic> {

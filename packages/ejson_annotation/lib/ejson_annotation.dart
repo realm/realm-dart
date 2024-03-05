@@ -8,7 +8,10 @@ const ejson = EJson();
 class EJson<T> {
   final EJsonEncoder<T>? encoder;
   final EJsonDecoder<T>? decoder;
-  const EJson({this.encoder, this.decoder});
+  const EJson()
+      : encoder = null,
+        decoder = null;
+  const EJson.custom({required EJsonEncoder<T> this.encoder, required EJsonDecoder<T> this.decoder});
 }
 
 typedef EJsonDecoder<T> = T Function(EJsonValue ejson);
