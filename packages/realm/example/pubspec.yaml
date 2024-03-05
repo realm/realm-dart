@@ -11,14 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  ejson: ^0.1.0
-  ejson_annotation: ^0.1.0
   realm: ^1.8.0
   characters: ^1.1.0
 
 dev_dependencies:
   flutter_lints: ^3.0.1
-  ejson_generator: ^0.1.0
 
 flutter:
   uses-material-design: true
