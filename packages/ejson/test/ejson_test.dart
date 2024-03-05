@@ -4,6 +4,7 @@
 // ignore_for_file: inference_failure_on_function_invocation
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:ejson/ejson.dart';
 import 'package:objectid/objectid.dart';
@@ -116,6 +117,7 @@ void main() {
     _invalidTestCase<Person>();
     _invalidTestCase<String>();
     _invalidTestCase<Symbol>();
+    _invalidTestCase<Uint8List>();
     _invalidTestCase<Undefined<int>>();
     _invalidTestCase<Uuid>();
 
@@ -199,6 +201,10 @@ void main() {
         final uuid = Uuid.v4();
         _testCase(uuid, {
           '\$binary': {'base64': base64.encode(uuid.bytes.asUint8List()), 'subType': '04'}
+        });
+        final uint8list = Uint8List.fromList(List.generate(32, (i) => i));
+        _testCase(uint8list, {
+          '\$binary': {'base64': base64.encode(uint8list), 'subType': '00'}
         });
         // a complex nested generic type
         _testCase<Map<String, Map<String, List<num?>?>>>(
