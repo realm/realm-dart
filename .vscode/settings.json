@@ -26,6 +26,7 @@
     "HRESULT",
     "keepalive",
     "loggable",
+    "maccatalyst",
     "mugaritz",
     "nodoc",
     "nullptr",
@@ -39,7 +40,9 @@
     "upsert",
     "usercode",
     "userdata",
-    "writeln"
+    "writeln",
+    "xcframework",
+    "xcodebuild"
   ],
   "cmake.statusbar.advanced": {
     "ctest": {
