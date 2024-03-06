@@ -61,7 +61,7 @@ class Asymmetric extends _Asymmetric
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Asymmetric._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
@@ -73,6 +73,9 @@ class Asymmetric extends _Asymmetric
           optional: true, linkTarget: 'Embedded'),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Embedded extends _Embedded
@@ -108,10 +111,13 @@ class Embedded extends _Embedded
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Embedded._);
-    return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
+    return SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 

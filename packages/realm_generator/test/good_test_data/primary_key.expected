@@ -32,10 +32,13 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(IntPK._);
-    return const SchemaObject(ObjectType.realmObject, IntPK, 'IntPK', [
+    return SchemaObject(ObjectType.realmObject, IntPK, 'IntPK', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableIntPK extends _NullableIntPK
@@ -64,12 +67,15 @@ class NullableIntPK extends _NullableIntPK
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableIntPK._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableIntPK, 'NullableIntPK', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 
@@ -99,10 +105,13 @@ class StringPK extends _StringPK
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(StringPK._);
-    return const SchemaObject(ObjectType.realmObject, StringPK, 'StringPK', [
+    return SchemaObject(ObjectType.realmObject, StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableStringPK extends _NullableStringPK
@@ -132,12 +141,15 @@ class NullableStringPK extends _NullableStringPK
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableStringPK._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableStringPK, 'NullableStringPK', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class ObjectIdPK extends _ObjectIdPK
@@ -166,10 +178,13 @@ class ObjectIdPK extends _ObjectIdPK
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectIdPK._);
-    return const SchemaObject(ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
+    return SchemaObject(ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
@@ -199,12 +214,15 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableObjectIdPK._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableObjectIdPK, 'NullableObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
@@ -232,10 +250,13 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(UuidPK._);
-    return const SchemaObject(ObjectType.realmObject, UuidPK, 'UuidPK', [
+    return SchemaObject(ObjectType.realmObject, UuidPK, 'UuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableUuidPK extends _NullableUuidPK
@@ -264,11 +285,14 @@ class NullableUuidPK extends _NullableUuidPK
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableUuidPK._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableUuidPK, 'NullableUuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 

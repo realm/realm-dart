@@ -32,10 +32,13 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Car._);
-    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class RealmSets extends _RealmSets
@@ -227,7 +230,7 @@ class RealmSets extends _RealmSets
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RealmSets._);
-    return const SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
+    return SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolSet', RealmPropertyType.bool,
           collectionType: RealmCollectionType.set),
@@ -263,4 +266,7 @@ class RealmSets extends _RealmSets
           linkTarget: 'Car', collectionType: RealmCollectionType.set),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

@@ -43,6 +43,7 @@
     Realm.shutdown();
   }
   ```
+* Removed `SchemaObject.properties` - instead, `SchemaObject` is now an iterable collection of `Property`. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 
 ### Enhancements
 * Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)
@@ -91,6 +92,8 @@
   ```
 * Added `RealmValueType` enum that contains all the possible types that can be wrapped by a `RealmValue`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
 * Added support for accessing `Set` and `Map` types using the dynamic object API - `obj.dynamic.getSet/getMap`. (PR [#1533](https://github.com/realm/realm-dart/pull/1533))
+* Added `RealmObjectBase.objectSchema` that returns the schema for this object. In most cases, this would be the schema defined in the model, but in case the Realm is opened as dynamic (by providing an empty collection for schemaObjects in the config) or using `FlexibleSyncConfiguration`, it may change as the schema on disk changes. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
+* Added `Realm.schemaChanges` that returns a stream of schema changes that can be listened to. Only dynamic and synchronized Realms will emit schema changes. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 
 
 ### Fixed

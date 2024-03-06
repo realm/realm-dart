@@ -78,7 +78,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Source._);
-    return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
+    return SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneTarget', RealmPropertyType.object,
           mapTo: 'et mål', optional: true, linkTarget: 'Target'),
@@ -90,6 +90,9 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'Target', collectionType: RealmCollectionType.list),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
@@ -158,7 +161,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Target._);
-    return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
+    return SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('source', RealmPropertyType.object,
           optional: true, linkTarget: 'Source'),
@@ -172,4 +175,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'Source'),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

@@ -162,7 +162,7 @@ class Indexable extends _Indexable
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Indexable._);
-    return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
+    return SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
       SchemaProperty('aBool', RealmPropertyType.bool,
           indexType: RealmIndexType.regular),
       SchemaProperty('aNullableBool', RealmPropertyType.bool,
@@ -197,4 +197,7 @@ class Indexable extends _Indexable
           optional: true, indexType: RealmIndexType.fullText),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

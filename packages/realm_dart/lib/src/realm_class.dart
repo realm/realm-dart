@@ -19,7 +19,6 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
@@ -93,21 +92,7 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncError,
-        SyncErrorHandler,
-        // ignore: deprecated_member_use_from_same_package
-        SyncClientError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncConnectionError,
-        // ignore: deprecated_member_use_from_same_package
-        GeneralSyncError,
-        // ignore: deprecated_member_use_from_same_package
-        GeneralSyncErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncResolveError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncWebSocketError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncSessionError;
+        SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
@@ -127,28 +112,7 @@ export 'realm_object.dart'
         UserCallbackException;
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
-export 'session.dart'
-    show
-        ConnectionStateChange,
-        SyncProgress,
-        ProgressDirection,
-        ProgressMode,
-        ConnectionState,
-        Session,
-        SessionState,
-        SyncErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncClientErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncConnectionErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncErrorCategory,
-        // ignore: deprecated_member_use_from_same_package
-        SyncResolveErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncWebSocketErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncSessionErrorCode;
+export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState, SyncErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
 export 'native/realm_core.dart' show Decimal128;
@@ -160,6 +124,8 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
+  late final RealmCallbackTokenHandle? _schemaCallbackHandle;
+  final List<StreamController<RealmSchemaChanges>> _schemaChangeListeners = [];
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -181,6 +147,16 @@ class Realm implements Finalizable {
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+
+    // The schema of a Realm file may change due to sync adding new properties/classes. We subscribe for notifications
+    // in order to update the managed schema instance in case this happens. The same is true for dynamic Realms. For
+    // local Realms with user-supplied schema, the schema on disk may still change, but Core doesn't report the updated
+    // schema, so even if we subscribe, we wouldn't be able to see the updates.
+    if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
+      _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+    } else {
+      _schemaCallbackHandle = null;
+    }
   }
 
   /// A method for asynchronously opening a [Realm].
@@ -438,6 +414,7 @@ class Realm implements Finalizable {
       return;
     }
 
+    _schemaCallbackHandle?.release();
     realmCore.closeRealm(this);
     handle.release();
   }
@@ -647,6 +624,58 @@ class Realm implements Finalizable {
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
   }
+
+  /// Allows listening for schema changes on this Realm. Only dynamic and synchronized
+  /// Realms will emit schema change notifications.
+  ///
+  /// Returns a [Stream] of [RealmSchemaChanges] that can be listened to.
+  Stream<RealmSchemaChanges> get schemaChanges {
+    late StreamController<RealmSchemaChanges> controller;
+    controller = StreamController<RealmSchemaChanges>(
+        onListen: () => _schemaChangeListeners.add(controller),
+        onPause: () => _schemaChangeListeners.remove(controller),
+        onResume: () => _schemaChangeListeners.add(controller),
+        onCancel: () => _schemaChangeListeners.remove(controller),
+        sync: true);
+    return controller.stream;
+  }
+
+  void _updateSchema() {
+    final newSchema = realmCore.readSchema(this);
+    for (final listener in _schemaChangeListeners) {
+      listener.add(RealmSchemaChanges._(schema, newSchema));
+    }
+
+    for (final schemaObject in newSchema) {
+      final existing = schema.firstWhereOrNull((s) => s.name == schemaObject.name);
+      if (existing == null) {
+        schema.add(schemaObject);
+        final meta = realmCore.getObjectMetadata(this, schemaObject);
+        metadata._add(meta);
+      } else if (schemaObject.length > existing.length) {
+        final existingMeta = metadata.getByName(schemaObject.name);
+        final propertyMeta = realmCore.getPropertiesMetadata(this, existingMeta.classKey, existingMeta.primaryKey);
+        for (final property in schemaObject) {
+          final existingProp = existing.firstWhereOrNull((e) => e.mapTo == property.mapTo);
+          if (existingProp == null) {
+            existing.add(property);
+            existingMeta[property.name] = propertyMeta[property.name]!;
+          }
+        }
+      }
+    }
+  }
+}
+
+/// Describes the schema changes that occurred on a Realm
+class RealmSchemaChanges {
+  /// The current schema, as returned by [Realm.schema].
+  final RealmSchema currentSchema;
+
+  /// The new schema that will be applied to the Realm as soon as the event handler completes.
+  final RealmSchema newSchema;
+
+  RealmSchemaChanges._(this.currentSchema, this.newSchema);
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
@@ -841,6 +870,10 @@ extension RealmInternal on Realm {
   static void logMessageForTesting(Level logLevel, String message) {
     realmCore.logMessageForTesting(logLevel, message);
   }
+
+  void updateSchema() {
+    _updateSchema();
+  }
 }
 
 /// @nodoc
@@ -932,13 +965,19 @@ class RealmMetadata {
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
-      if (!metadata.schema.isGenericRealmObject) {
-        _typeMap[metadata.schema.type] = metadata;
-      } else {
-        _stringMap[metadata.schema.name] = metadata;
-      }
-      _classKeyMap[metadata.classKey] = metadata;
+      _add(metadata);
     }
+  }
+
+  /// This is used when constructing the metadata, but also when the Realm schema
+  /// changes.
+  void _add(RealmObjectMetadata metadata) {
+    if (!metadata.schema.isGenericRealmObject) {
+      _typeMap[metadata.schema.type] = metadata;
+    } else {
+      _stringMap[metadata.schema.name] = metadata;
+    }
+    _classKeyMap[metadata.classKey] = metadata;
   }
 
   RealmObjectMetadata getByType(Type type) {

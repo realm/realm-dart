@@ -71,8 +71,7 @@ class WithIndexes extends _WithIndexes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(WithIndexes._);
-    return const SchemaObject(
-        ObjectType.realmObject, WithIndexes, 'WithIndexes', [
+    return SchemaObject(ObjectType.realmObject, WithIndexes, 'WithIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int,
           indexType: RealmIndexType.regular),
       SchemaProperty('aBool', RealmPropertyType.bool,
@@ -87,6 +86,9 @@ class WithIndexes extends _WithIndexes
           indexType: RealmIndexType.regular),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NoIndexes extends _NoIndexes
@@ -153,7 +155,7 @@ class NoIndexes extends _NoIndexes
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NoIndexes._);
-    return const SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
+    return SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int),
       SchemaProperty('aBool', RealmPropertyType.bool),
       SchemaProperty('string', RealmPropertyType.string),
@@ -162,6 +164,9 @@ class NoIndexes extends _NoIndexes
       SchemaProperty('uuid', RealmPropertyType.uuid),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class ObjectWithFTSIndex extends _ObjectWithFTSIndex
@@ -207,7 +212,7 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
       SchemaProperty('title', RealmPropertyType.string),
       SchemaProperty('summary', RealmPropertyType.string,
@@ -216,4 +221,7 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
           optional: true, indexType: RealmIndexType.fullText),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

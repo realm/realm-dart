@@ -48,12 +48,15 @@ class Location extends _Location
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Location._);
-    return const SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
+    return SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
       SchemaProperty('type', RealmPropertyType.string),
       SchemaProperty('coordinates', RealmPropertyType.double,
           collectionType: RealmCollectionType.list),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Restaurant extends _Restaurant
@@ -91,13 +94,15 @@ class Restaurant extends _Restaurant
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Restaurant._);
-    return const SchemaObject(
-        ObjectType.realmObject, Restaurant, 'Restaurant', [
+    return SchemaObject(ObjectType.realmObject, Restaurant, 'Restaurant', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('location', RealmPropertyType.object,
           optional: true, linkTarget: 'Location'),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class LocationList extends _LocationList
@@ -129,10 +134,12 @@ class LocationList extends _LocationList
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(LocationList._);
-    return const SchemaObject(
-        ObjectType.realmObject, LocationList, 'LocationList', [
+    return SchemaObject(ObjectType.realmObject, LocationList, 'LocationList', [
       SchemaProperty('locations', RealmPropertyType.object,
           linkTarget: 'Location', collectionType: RealmCollectionType.list),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

@@ -34,11 +34,14 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(ObjectIdPrimaryKey._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
@@ -68,12 +71,15 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableObjectIdPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject,
-        NullableObjectIdPrimaryKey, 'NullableObjectIdPrimaryKey', [
+    return SchemaObject(ObjectType.realmObject, NullableObjectIdPrimaryKey,
+        'NullableObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class IntPrimaryKey extends _IntPrimaryKey
@@ -102,11 +108,14 @@ class IntPrimaryKey extends _IntPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(IntPrimaryKey._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, IntPrimaryKey, 'IntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableIntPrimaryKey extends _NullableIntPrimaryKey
@@ -136,12 +145,15 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableIntPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey,
+    return SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey,
         'NullableIntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class StringPrimaryKey extends _StringPrimaryKey
@@ -171,11 +183,14 @@ class StringPrimaryKey extends _StringPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(StringPrimaryKey._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, StringPrimaryKey, 'StringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableStringPrimaryKey extends _NullableStringPrimaryKey
@@ -205,12 +220,15 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableStringPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey,
+    return SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey,
         'NullableStringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class UuidPrimaryKey extends _UuidPrimaryKey
@@ -239,11 +257,14 @@ class UuidPrimaryKey extends _UuidPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(UuidPrimaryKey._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, UuidPrimaryKey, 'UuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
@@ -273,12 +294,15 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(NullableUuidPrimaryKey._);
-    return const SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey,
+    return SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey,
         'NullableUuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class RemappedFromAnotherFile extends _RemappedFromAnotherFile
@@ -311,7 +335,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(RemappedFromAnotherFile._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, RemappedFromAnotherFile, 'class with spaces', [
       SchemaProperty('linkToAnotherClass', RealmPropertyType.object,
           mapTo: 'property with spaces',
@@ -319,6 +343,9 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
           linkTarget: 'myRemappedClass'),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class BoolValue extends _BoolValue
@@ -354,9 +381,12 @@ class BoolValue extends _BoolValue
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(BoolValue._);
-    return const SchemaObject(ObjectType.realmObject, BoolValue, 'BoolValue', [
+    return SchemaObject(ObjectType.realmObject, BoolValue, 'BoolValue', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('value', RealmPropertyType.bool),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

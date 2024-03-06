@@ -45,7 +45,7 @@ class MappedToo extends _MappedToo
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(MappedToo._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, MappedToo, 'this is also mapped', [
       SchemaProperty('singleLink', RealmPropertyType.object,
           optional: true, linkTarget: 'another type'),
@@ -53,4 +53,7 @@ class MappedToo extends _MappedToo
           linkTarget: 'another type', collectionType: RealmCollectionType.list),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

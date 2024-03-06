@@ -39,9 +39,12 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Person._);
-    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('age', RealmPropertyType.int),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 

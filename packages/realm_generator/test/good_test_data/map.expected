@@ -141,7 +141,7 @@ class LotsOfMaps extends _LotsOfMaps
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(LotsOfMaps._);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
           optional: true, linkTarget: 'Person', collectionType: RealmCollectionType.map),
@@ -167,6 +167,9 @@ class LotsOfMaps extends _LotsOfMaps
           collectionType: RealmCollectionType.map),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
@@ -194,8 +197,11 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static SchemaObject? _schema;
   static SchemaObject _initSchema() {
     RealmObjectBase.registerFactory(Person._);
-    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
