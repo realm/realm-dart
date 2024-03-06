@@ -163,7 +163,7 @@ class _BuildNativeCommand extends _BaseCommand {
       await io.stdout.addStream(p.stdout);
     } else {
       message ??= args.join(' ');
-      final width = io.stdout.terminalColumns - 12;
+      final width = io.stdout.hasTerminal ? io.stdout.terminalColumns - 12 : 80;
       message = message.padRight(width).substring(0, width);
       progress = logger.progress(message);
       await for (final _ in p.stdout) {
@@ -205,13 +205,13 @@ class _BuildNativeCommand extends _BaseCommand {
         case OS.iOS:
           for (final sdk in iosSdks) {
             exitCode ??= await runProc(['cmake', '--preset=ios'], logger: logger);
-            exitCode ??= await runProc(['cmake', '--build', '--preset=ios-${sdk.name.toLowerCase()}', '--config=${buildMode.cmakeName}'], logger: logger);
+            exitCode ??= await runProc(['cmake', '--build', '--preset=ios-${sdk.cmakeName}', '--config=${buildMode.cmakeName}'], logger: logger);
           }
           exitCode ??= await runProc(
             [
               'xcodebuild',
               '-create-xcframework',
-              for (final s in iosSdks) '-framework ./binary/ios/${buildMode.cmakeName}-${s.name}/realm_dart.framework',
+              for (final s in iosSdks) '-framework ./binary/ios/${buildMode.cmakeName}-${s.name.toLowerCase()}/realm_dart.framework',
               '-output ./binary/ios/realm_dart.xcframework',
             ],
             logger: logger,
