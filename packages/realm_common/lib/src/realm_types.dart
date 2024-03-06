@@ -16,7 +16,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-import 'dart:ffi';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
@@ -157,6 +156,51 @@ abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
 /// @nodoc
 abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 
+/// An enum describing the possible types that can be wrapped inside [RealmValue]
+enum RealmValueType {
+  /// The [RealmValue] represents `null`
+  nullValue,
+
+  /// The [RealmValue] represents a [boolean] value
+  boolean,
+
+  /// The [RealmValue] represents a [String] value
+  string,
+
+  /// The [RealmValue] represents an [int] value
+  int,
+
+  /// The [RealmValue] represents a [double] value
+  double,
+
+  /// The [RealmValue] represents a `RealmObject` instance value
+  object,
+
+  /// The [RealmValue] represents an [ObjectId] value
+  objectId,
+
+  /// The [RealmValue] represents a [DateTime] value
+  dateTime,
+
+  /// The [RealmValue] represents a [Decimal128] value
+  decimal,
+
+  /// The [RealmValue] represents an [Uuid] value
+  uuid,
+
+  /// The [RealmValue] represents a binary ([Uint8List]) value
+  binary,
+
+  /// The [RealmValue] represents a `List<RealmValue>`
+  list,
+
+  /// The [RealmValue] represents a `Map<String, RealmValue>`
+  map;
+
+  /// Returns `true` if the enum value represents a collection - i.e. it's [list] or [map].
+  bool get isCollection => this == RealmValueType.list || this == RealmValueType.map;
+}
+
 /// A type that can represent any valid realm data type, except collections and embedded objects.
 ///
 /// You can use [RealmValue] to declare fields on realm models, in which case it must be non-nullable,
@@ -188,60 +232,77 @@ abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
 /// ```
 class RealmValue {
   final Object? value;
-  Type get type => value.runtimeType;
+
+  final RealmValueType type;
+
+  /// Casts [value] to [T]. An exception will be thrown if the value is not convertible to [T].
   T as<T>() => value as T; // better for code completion
 
   // This is private, so user cannot accidentally construct an invalid instance
-  const RealmValue._(this.value);
+  const RealmValue._(this.value, this.type);
 
-  const RealmValue.nullValue() : this._(null);
-  const RealmValue.bool(bool b) : this._(b);
-  const RealmValue.string(String text) : this._(text);
-  const RealmValue.int(int i) : this._(i);
-  const RealmValue.double(double d) : this._(d);
+  const RealmValue.nullValue() : this._(null, RealmValueType.nullValue);
+  const RealmValue.bool(bool b) : this._(b, RealmValueType.boolean);
+  const RealmValue.string(String text) : this._(text, RealmValueType.string);
+  const RealmValue.int(int i) : this._(i, RealmValueType.int);
+  const RealmValue.double(double d) : this._(d, RealmValueType.double);
   // TODO: RealmObjectMarker introduced to avoid dependency inversion. It would be better if we could use RealmObject directly. https://github.com/realm/realm-dart/issues/701
-  const RealmValue.realmObject(RealmObjectMarker o) : this._(o);
-  const RealmValue.dateTime(DateTime timestamp) : this._(timestamp);
-  const RealmValue.objectId(ObjectId id) : this._(id);
-  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal);
-  const RealmValue.uuid(Uuid uuid) : this._(uuid);
-  const RealmValue.uint8List(Uint8List binary) : this._(binary);
+  const RealmValue.realmObject(RealmObjectMarker o) : this._(o, RealmValueType.object);
+  const RealmValue.dateTime(DateTime timestamp) : this._(timestamp, RealmValueType.dateTime);
+  const RealmValue.objectId(ObjectId id) : this._(id, RealmValueType.objectId);
+  const RealmValue.decimal128(Decimal128 decimal) : this._(decimal, RealmValueType.decimal);
+  const RealmValue.uuid(Uuid uuid) : this._(uuid, RealmValueType.uuid);
+  const RealmValue.binary(Uint8List binary) : this._(binary, RealmValueType.binary);
+  const RealmValue.list(List<RealmValue> list) : this._(list, RealmValueType.list);
+  const RealmValue.map(Map<String, RealmValue> map) : this._(map, RealmValueType.map);
 
-  /// Will throw [ArgumentError]
+  /// Constructs a RealmValue from an arbitrary object. Collections will be converted recursively as long
+  /// as all their values are compatible.
+  ///
+  /// Throws [ArgumentError] if any of the values inside the graph cannot be stored in a [RealmValue].
   factory RealmValue.from(Object? object) {
-    if (object == null ||
-        object is bool ||
-        object is String ||
-        object is int ||
-        object is Float ||
-        object is double ||
-        object is RealmObjectMarker ||
-        object is DateTime ||
-        object is ObjectId ||
-        object is Decimal128 ||
-        object is Uuid ||
-        object is Uint8List) {
-      return RealmValue._(object);
-    } else {
-      throw ArgumentError.value(object, 'object', 'Unsupported type');
-    }
+    return switch (object) {
+      null => RealmValue.nullValue(),
+      bool b => RealmValue.bool(b),
+      String text => RealmValue.string(text),
+      int i => RealmValue.int(i),
+      double d => RealmValue.double(d),
+      RealmObjectMarker o => RealmValue.realmObject(o),
+      DateTime d => RealmValue.dateTime(d),
+      ObjectId id => RealmValue.objectId(id),
+      Decimal128 decimal => RealmValue.decimal128(decimal),
+      Uuid uuid => RealmValue.uuid(uuid),
+      Uint8List binary => RealmValue.binary(binary),
+      Map<String, RealmValue> d => RealmValue.map(d),
+      Map<String, dynamic> d => RealmValue.map(d.map((key, value) => MapEntry(key, RealmValue.from(value)))),
+      List<RealmValue> l => RealmValue.list(l),
+      List<dynamic> l => RealmValue.list(l.map((o) => RealmValue.from(o)).toList()),
+      Iterable<RealmValue> i => RealmValue.list(i.toList()),
+      Iterable<dynamic> i => RealmValue.list(i.map((o) => RealmValue.from(o)).toList()),
+      _ => throw ArgumentError.value(object.runtimeType, 'object', 'Unsupported type'),
+    };
   }
 
   @override
   operator ==(Object? other) {
+    // We always return false when comparing two RealmValue collections.
+    if (type.isCollection) {
+      return false;
+    }
+
     if (other is RealmValue) {
       if (value is Uint8List && other.value is Uint8List) {
         return ListEquality().equals(value as Uint8List, other.value as Uint8List);
       }
 
-      return value == other.value;
+      return type == other.type && value == other.value;
     }
 
     return value == other;
   }
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode => Object.hash(type, value);
 
   @override
   String toString() => 'RealmValue($value)';

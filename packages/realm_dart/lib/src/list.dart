@@ -97,6 +97,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call remove on a managed list with an element that is an unmanaged object');
     }
+
     final index = indexOf(element);
     if (index < 0) {
       return false;
@@ -173,6 +174,17 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     if (element is RealmObjectBase && !element.isManaged) {
       throw RealmStateError('Cannot call indexOf on a managed list with an element that is an unmanaged object');
     }
+
+    if (element is RealmValue) {
+      if (element.type.isCollection) {
+        return -1;
+      }
+
+      if (element.value is RealmObjectBase && !(element.value as RealmObjectBase).isManaged) {
+        return -1;
+      }
+    }
+
     if (start < 0) start = 0;
     final index = realmCore.listFind(this, element);
     return index < start ? -1 : index; // to align with dart list semantics
@@ -205,7 +217,13 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 }
 
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
-  UnmanagedRealmList([Iterable<T>? items]) : super(List<T>.from(items ?? <T>[]));
+  final List<T> _base;
+
+  UnmanagedRealmList([Iterable<T>? items]) : this._(List<T>.from(items ?? <T>[]));
+
+  UnmanagedRealmList._(List<T> items)
+      : _base = items,
+        super(items);
 
   @override
   RealmObjectMetadata? get _metadata => throw RealmException("Unmanaged lists don't have metadata associated with them.");
@@ -224,6 +242,14 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   @override
   Stream<RealmListChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
+
+  @override
+  bool operator ==(Object? other) {
+    return _base == other;
+  }
+
+  @override
+  int get hashCode => _base.hashCode;
 }
 
 // The query operations on lists, only work for list of objects (core restriction),
@@ -264,6 +290,10 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   RealmObjectMetadata? get metadata => asManaged()._metadata;
 
+  static RealmList<T> createFromList<T>(List<T> items) {
+    return UnmanagedRealmList._(items);
+  }
+
   static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
   static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false, bool insert = false}) {
@@ -288,19 +318,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
         return;
       }
 
-      if (value is RealmValue) {
-        value = value.value;
+      if (value is RealmValue && value.type.isCollection) {
+        realmCore.listAddCollectionAt(handle, realm, index, value, insert || index >= length);
+        return;
       }
 
-      if (value is RealmObject && !value.isManaged) {
-        realm.add<RealmObject>(value, update: update);
-      }
+      realm.addUnmanagedRealmObjectFromValue(value, update);
 
-      if (insert || index >= length) {
-        realmCore.listInsertElementAt(handle, index, value);
-      } else {
-        realmCore.listSetElementAt(handle, index, value);
-      }
+      realmCore.listAddElementAt(handle, index, value, insert || index >= length);
     } on Exception catch (e) {
       throw RealmException("Error setting value at index $index. Error: $e");
     }
@@ -313,6 +338,9 @@ class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
   final RealmList<T> list;
 
   RealmListChanges._(super.handle, this.list);
+
+  /// `true` if the underlying list was deleted.
+  bool get isCollectionDeleted => changes.isDeleted;
 }
 
 /// @nodoc

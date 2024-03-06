@@ -1,6 +1,21 @@
-## vNext (TBD)
+## vNext
 
-### Breaking changes
+### Breaking Changes
+* `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
+* Renamed `RealmValue.uint8List` constructor to `RealmValue.binary`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
+* Removed the following deprecated classes and members:
+  * `AppConfiguration.localAppName` - was unused and had no effect
+  * `AppConfiguration.localAppVersion` - was unused and had no effect
+  * `ClientResetError.isFatal` - it was always `true`
+  * `ClientResetError.sessionErrorCode`
+  * `SyncError.codeValue` - can be accessed through `SyncError.code.code`
+  * `SyncError.category` - categories were deprecated in `1.6.0`
+  * `SyncError.detailedMessage` - was always empty
+  * `SyncError` constructor and `SyncError.create` factory - sync errors are created internally by the SDK and are not supposed to be constructed by users
+  * `SyncClientError`, `SyncConnectionError`, `SyncSessionError`, `SyncResolveError`, `SyncWebSocketError`, `GeneralSyncError` - consolidated into `SyncError` as part of the error simplification in `1.6.0`
+  * `RealmProperty.indexed` - replaced by `RealmProperty.indexType`
+  * `SyncErrorCategory`, `SyncClientErrorCode`, `SyncConnectionErrorCode`, `SyncSessionErrorCode`, `SyncResolveErrorCode`, `SyncWebsocketErrorCode`, `GeneralSyncErrorCode` - consolidated into `SyncErrorCode` as part of the error simplification in `1.6.0`
+  * `User.provider` - the provider is associated with each identity, so the value was incorrect for users who had more than one identity
 * The generated parts are now named `.realm.dart` instead of `.g.dart`. This is because the builder is now a `PartBuilder`, instead of a `SharedPartBuilder`. To migrate to this version you need to update all the part declarations to match, ie. `part 'x.g.dart` becomes `part x.realm.dart` and rerun the generator.
 
   This makes it easier to combine builders. Here is an example of combining with `dart_mappable`:
@@ -30,16 +45,65 @@
   ```
 
 ### Enhancements
-* None
+* Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)
+* Added `isCleared` to `RealmMapChanges` which will be `true` if the map has been cleared. (Core 14.0.0)
+* Querying a specific entry in a collection (in particular 'first and 'last') is supported. (Core 14.0.0)
+  ```dart
+  class _Owner {
+    late List<_Dog> dogs;
+  }
+
+  realm.query<Owner>('dogs[1].age = 5'); // Query all owners whose second dog element is 5 years old
+  realm.query<Owner>('dogs[FIRST].age = 5'); // Query all owners whose first dog is 5 years old
+  realm.query<Owner>('dogs[LAST].age = 5'); // Query all owners whose last dog is 5 years old
+  realm.query<Owner>('dogs[SIZE] = 10'); // Query all owners who have 10 dogs
+  ```
+* Added support for storing lists and maps inside a `RealmValue` property. (Issue [#1504](https://github.com/realm/realm-dart/issues/1504))
+  ```dart
+  class _Container {
+    late RealmValue anything;
+  }
+
+  realm.write(() {
+    realm.add(Container(anything: RealmValue.from([1, 'foo', 3.14])));
+  });
+
+  final container = realm.all<Container>().first;
+
+  final list = container.anything.asList(); // will throw if cast is invalid
+  for (final item in containerValue) {
+    switch (item.type) {
+      case RealmValueType.int:
+        print('Integer: ${item.value as int}');
+        break;
+      case RealmValueType.string:
+        print('String: ${item.value as String}');
+        break;
+      case RealmValueType.double:
+        print('Double: ${item.value as double}');
+        break;
+    }
+  }
+
+  final subscription = list.changes.listen((event) {
+    // The list changed
+  });
+  ```
+* Added `RealmValueType` enum that contains all the possible types that can be wrapped by a `RealmValue`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
+* Added support for accessing `Set` and `Map` types using the dynamic object API - `obj.dynamic.getSet/getMap`. (PR [#1533](https://github.com/realm/realm-dart/pull/1533))
+
 
 ### Fixed
+* If you have more than 8388606 links pointing to one specific object, the program will crash. (Core 14.0.0)
+* A Realm generated on a non-apple ARM 64 device and copied to another platform (and vice-versa) were non-portable due to a sorting order difference. This impacts strings or binaries that have their first difference at a non-ascii character. These items may not be found in a set, or in an indexed column if the strings had a long common prefix (> 200 characters). (Core 14.0.0)
 * Ctor arguments appear in random order on generated classes, if the realm model contains many properties. (PR [#1531](https://github.com/realm/realm-dart/pull/1531))
 
 ### Compatibility
-* Realm Studio: 13.0.0 or later.
+* Realm Studio: 14.0.0 or later.
+* Fileformat: Generates files with format v24. Reads and automatically upgrade from fileformat v10. If you want to upgrade from an earlier file format version you will have to use RealmCore v13.x.y or earlier.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.0.0
 
 ## 1.9.0 (2024-02-02)
 

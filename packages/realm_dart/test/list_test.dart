@@ -375,20 +375,20 @@ void main() {
     testListNotificationsHelper<T>('insert', getList, (ch) => ch.inserted, op, inserts);
   }
 
-  testListInsertNotifications<bool?>((c) => c.nullableBools, (c, i) => c.insert(i, null));
-  testListInsertNotifications<bool>((c) => c.bools, (c, i) => c.insert(i, i % 2 == 0));
-  testListInsertNotifications<DateTime?>((c) => c.nullableDates, (c, i) => c.insert(i, null));
-  testListInsertNotifications<DateTime>((c) => c.dates, (c, i) => c.insert(i, DateTime(i)));
-  testListInsertNotifications<double?>((c) => c.nullableDoubles, (c, i) => c.insert(i, null));
-  testListInsertNotifications<double>((c) => c.doubles, (c, i) => c.insert(i, i.toDouble()));
-  testListInsertNotifications<int?>((c) => c.nullableInts, (c, i) => c.insert(i, null));
-  testListInsertNotifications<int>((c) => c.ints, (c, i) => c.insert(i, i));
-  testListInsertNotifications<ObjectId?>((c) => c.nullableObjectIds, (c, i) => c.insert(i, null));
-  testListInsertNotifications<ObjectId>((c) => c.objectIds, (c, i) => c.insert(i, ObjectId()));
-  testListInsertNotifications<String?>((c) => c.nullableStrings, (c, i) => c.insert(i, null));
-  testListInsertNotifications<String>((c) => c.strings, (c, i) => c.insert(i, '$i'));
-  testListInsertNotifications<Uuid?>((c) => c.nullableUuids, (c, i) => c.insert(i, null));
-  testListInsertNotifications<Uuid>((c) => c.uuids, (c, i) => c.insert(i, Uuid.v4()));
+  testListInsertNotifications<bool?>((c) => c.nullableBoolList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<bool>((c) => c.boolList, (c, i) => c.insert(i, i % 2 == 0));
+  testListInsertNotifications<DateTime?>((c) => c.nullableDateList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<DateTime>((c) => c.dateList, (c, i) => c.insert(i, DateTime(i)));
+  testListInsertNotifications<double?>((c) => c.nullableDoubleList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<double>((c) => c.doubleList, (c, i) => c.insert(i, i.toDouble()));
+  testListInsertNotifications<int?>((c) => c.nullableIntList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<int>((c) => c.intList, (c, i) => c.insert(i, i));
+  testListInsertNotifications<ObjectId?>((c) => c.nullableObjectIdList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<ObjectId>((c) => c.objectIdList, (c, i) => c.insert(i, ObjectId()));
+  testListInsertNotifications<String?>((c) => c.nullableStringList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<String>((c) => c.stringList, (c, i) => c.insert(i, '$i'));
+  testListInsertNotifications<Uuid?>((c) => c.nullableUuidList, (c, i) => c.insert(i, null));
+  testListInsertNotifications<Uuid>((c) => c.uuidList, (c, i) => c.insert(i, Uuid.v4()));
 
   final deletes = [
     [0],
@@ -414,20 +414,20 @@ void main() {
             ));
   }
 
-  testListDeleteNotifications<bool?>((c) => c.nullableBools, (i) => null);
-  testListDeleteNotifications<bool>((c) => c.bools, (i) => i % 2 == 0);
-  testListDeleteNotifications<DateTime?>((c) => c.nullableDates, (i) => null);
-  testListDeleteNotifications<DateTime>((c) => c.dates, (i) => DateTime(i));
-  testListDeleteNotifications<double?>((c) => c.nullableDoubles, (i) => null);
-  testListDeleteNotifications<double>((c) => c.doubles, (i) => i.toDouble());
-  testListDeleteNotifications<int?>((c) => c.nullableInts, (i) => null);
-  testListDeleteNotifications<int>((c) => c.ints, (i) => i);
-  testListDeleteNotifications<ObjectId?>((c) => c.nullableObjectIds, (i) => null);
-  testListDeleteNotifications<ObjectId>((c) => c.objectIds, (i) => ObjectId());
-  testListDeleteNotifications<String?>((c) => c.nullableStrings, (i) => null);
-  testListDeleteNotifications<String>((c) => c.strings, (i) => '$i');
-  testListDeleteNotifications<Uuid?>((c) => c.nullableUuids, (i) => null);
-  testListDeleteNotifications<Uuid>((c) => c.uuids, (i) => Uuid.v4());
+  testListDeleteNotifications<bool?>((c) => c.nullableBoolList, (i) => null);
+  testListDeleteNotifications<bool>((c) => c.boolList, (i) => i % 2 == 0);
+  testListDeleteNotifications<DateTime?>((c) => c.nullableDateList, (i) => null);
+  testListDeleteNotifications<DateTime>((c) => c.dateList, (i) => DateTime(i));
+  testListDeleteNotifications<double?>((c) => c.nullableDoubleList, (i) => null);
+  testListDeleteNotifications<double>((c) => c.doubleList, (i) => i.toDouble());
+  testListDeleteNotifications<int?>((c) => c.nullableIntList, (i) => null);
+  testListDeleteNotifications<int>((c) => c.intList, (i) => i);
+  testListDeleteNotifications<ObjectId?>((c) => c.nullableObjectIdList, (i) => null);
+  testListDeleteNotifications<ObjectId>((c) => c.objectIdList, (i) => ObjectId());
+  testListDeleteNotifications<String?>((c) => c.nullableStringList, (i) => null);
+  testListDeleteNotifications<String>((c) => c.stringList, (i) => '$i');
+  testListDeleteNotifications<Uuid?>((c) => c.nullableUuidList, (i) => null);
+  testListDeleteNotifications<Uuid>((c) => c.uuidList, (i) => Uuid.v4());
 
   final modifications = [
     [0],
@@ -453,20 +453,20 @@ void main() {
             ));
   }
 
-  testListModificationNotifications<bool?>((c) => c.nullableBools, (i) => null);
-  testListModificationNotifications<bool>((c) => c.bools, (i) => i % 2 == 0);
-  testListModificationNotifications<DateTime?>((c) => c.nullableDates, (i) => null);
-  testListModificationNotifications<DateTime>((c) => c.dates, (i) => DateTime(i));
-  testListModificationNotifications<double?>((c) => c.nullableDoubles, (i) => null);
-  testListModificationNotifications<double>((c) => c.doubles, (i) => i.toDouble());
-  testListModificationNotifications<int?>((c) => c.nullableInts, (i) => null);
-  testListModificationNotifications<int>((c) => c.ints, (i) => i);
-  testListModificationNotifications<ObjectId?>((c) => c.nullableObjectIds, (i) => null);
-  testListModificationNotifications<ObjectId>((c) => c.objectIds, (i) => ObjectId());
-  testListModificationNotifications<String?>((c) => c.nullableStrings, (i) => null);
-  testListDeleteNotifications<String>((c) => c.strings, (i) => '$i');
-  testListDeleteNotifications<Uuid?>((c) => c.nullableUuids, (i) => null);
-  testListDeleteNotifications<Uuid>((c) => c.uuids, (i) => Uuid.v4());
+  testListModificationNotifications<bool?>((c) => c.nullableBoolList, (i) => null);
+  testListModificationNotifications<bool>((c) => c.boolList, (i) => i % 2 == 0);
+  testListModificationNotifications<DateTime?>((c) => c.nullableDateList, (i) => null);
+  testListModificationNotifications<DateTime>((c) => c.dateList, (i) => DateTime(i));
+  testListModificationNotifications<double?>((c) => c.nullableDoubleList, (i) => null);
+  testListModificationNotifications<double>((c) => c.doubleList, (i) => i.toDouble());
+  testListModificationNotifications<int?>((c) => c.nullableIntList, (i) => null);
+  testListModificationNotifications<int>((c) => c.intList, (i) => i);
+  testListModificationNotifications<ObjectId?>((c) => c.nullableObjectIdList, (i) => null);
+  testListModificationNotifications<ObjectId>((c) => c.objectIdList, (i) => ObjectId());
+  testListModificationNotifications<String?>((c) => c.nullableStringList, (i) => null);
+  testListDeleteNotifications<String>((c) => c.stringList, (i) => '$i');
+  testListDeleteNotifications<Uuid?>((c) => c.nullableUuidList, (i) => null);
+  testListDeleteNotifications<Uuid>((c) => c.uuidList, (i) => Uuid.v4());
 
   test('List query', () {
     final config = Configuration.local([Team.schema, Person.schema]);
@@ -1189,10 +1189,20 @@ void main() {
     expectLater(
         team.players.changes,
         emitsInOrder(<Matcher>[
-          isA<RealmListChanges<Person>>().having((changes) => changes.inserted, 'inserted', <int>[]), // always an empty event on subscription
-          isA<RealmListChanges<Person>>().having((changes) => changes.isCleared, 'isCleared', true),
+          isA<RealmListChanges<Person>>()
+              .having((changes) => changes.inserted, 'inserted', <int>[])
+              .having((changes) => changes.isCleared, 'isCleared', false)
+              .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', false), // always an empty event on subscription
+          isA<RealmListChanges<Person>>()
+              .having((changes) => changes.isCleared, 'isCleared', true)
+              .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', false),
+          isA<RealmListChanges<Person>>()
+              .having((changes) => changes.isCleared, 'isCleared', false)
+              .having((changes) => changes.isCollectionDeleted, 'isCollectionDeleted', true),
         ]));
     realm.write(() => team.players.clear());
+    realm.refresh();
+    realm.write(() => realm.delete(team));
   });
 
   test('RealmList.changes - await for with yield', () async {
@@ -1238,6 +1248,7 @@ void main() {
         ]));
     realm.write(() => team.players.clear());
     expect(playersAsResults.length, 0);
+    realm.refresh();
   });
 
   test('Query on RealmList with IN-operator', () {

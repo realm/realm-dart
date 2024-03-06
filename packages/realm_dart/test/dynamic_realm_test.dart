@@ -100,13 +100,49 @@ void main() {
   AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero);
 
   AllCollections _getPopulatedAllCollections() => AllCollections(
-      strings: ['abc', 'def'],
-      bools: [true, false],
-      dates: [date, DateTime(0).toUtc()],
-      doubles: [-123.456, 555.666],
-      objectIds: [objectId, objectId],
-      uuids: [uuid, uuid],
-      ints: [-987, 123]);
+        stringList: ['abc', 'def'],
+        boolList: [true, false],
+        dateList: [date, DateTime(0).toUtc()],
+        doubleList: [-123.456, 555.666],
+        objectIdList: [objectId, objectId],
+        uuidList: [uuid, uuid],
+        intList: [-987, 123],
+        nullableStringList: ['abc', null],
+        nullableBoolList: [true, null],
+        nullableDateList: [date, null],
+        nullableDoubleList: [555.666, null],
+        nullableObjectIdList: [objectId, null],
+        nullableUuidList: [uuid, null],
+        nullableIntList: [123, null],
+        stringSet: {'abc', 'def'},
+        boolSet: {true, false},
+        dateSet: {date, DateTime(0).toUtc()},
+        doubleSet: {-123.456, 555.666},
+        objectIdSet: {objectId, objectId},
+        uuidSet: {uuid, uuid},
+        intSet: {-987, 123},
+        nullableStringSet: {'abc', null},
+        nullableBoolSet: {true, null},
+        nullableDateSet: {date, null},
+        nullableDoubleSet: {555.666, null},
+        nullableObjectIdSet: {objectId, null},
+        nullableUuidSet: {uuid, null},
+        nullableIntSet: {123, null},
+        stringMap: {'a': 'abc', 'b': 'def'},
+        boolMap: {'a': true, 'b': false},
+        dateMap: {'a': date, 'b': DateTime(0).toUtc()},
+        doubleMap: {'a': -123.456, 'b': 555.666},
+        objectIdMap: {'a': objectId, 'b': objectId},
+        uuidMap: {'a': uuid, 'b': uuid},
+        intMap: {'a': -987, 'b': 123},
+        nullableStringMap: {'a': 'abc', 'b': null},
+        nullableBoolMap: {'a': true, 'b': null},
+        nullableDateMap: {'a': date, 'b': null},
+        nullableDoubleMap: {'a': 555.666, 'b': null},
+        nullableObjectIdMap: {'a': objectId, 'b': null},
+        nullableUuidMap: {'a': uuid, 'b': null},
+        nullableIntMap: {'a': 123, 'b': null},
+      );
 
   void _validateDynamic(RealmObject actual, AllTypes expected) {
     expect(actual.dynamic.get<String>('stringProp'), expected.stringProp);
@@ -168,40 +204,212 @@ void main() {
     expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
   }
 
-  void _validateDynamicLists(RealmObject actual, AllCollections expected) {
-    expect(actual.dynamic.getList<String>('strings'), expected.strings);
-    expect(actual.dynamic.getList('strings'), expected.strings);
-
-    expect(actual.dynamic.getList<bool>('bools'), expected.bools);
-    expect(actual.dynamic.getList('bools'), expected.bools);
-
-    expect(actual.dynamic.getList<DateTime>('dates'), expected.dates);
-    expect(actual.dynamic.getList('dates'), expected.dates);
-
-    expect(actual.dynamic.getList<double>('doubles'), expected.doubles);
-    expect(actual.dynamic.getList('doubles'), expected.doubles);
-
-    expect(actual.dynamic.getList<ObjectId>('objectIds'), expected.objectIds);
-    expect(actual.dynamic.getList('objectIds'), expected.objectIds);
-
-    expect(actual.dynamic.getList<Uuid>('uuids'), expected.uuids);
-    expect(actual.dynamic.getList('uuids'), expected.uuids);
-
-    expect(actual.dynamic.getList<int>('ints'), expected.ints);
-    expect(actual.dynamic.getList('ints'), expected.ints);
-
-    expect(actual.dynamic.getList<Decimal128>('decimals'), expected.decimals);
-    expect(actual.dynamic.getList('decimals'), expected.decimals);
-
+  void _validateDynamicCollections(RealmObject actual, AllCollections expected) {
     dynamic actualDynamic = actual;
-    expect(actualDynamic.strings, expected.strings);
-    expect(actualDynamic.bools, expected.bools);
-    expect(actualDynamic.dates, expected.dates);
-    expect(actualDynamic.doubles, expected.doubles);
-    expect(actualDynamic.objectIds, expected.objectIds);
-    expect(actualDynamic.uuids, expected.uuids);
-    expect(actualDynamic.ints, expected.ints);
-    expect(actualDynamic.decimals, expected.decimals);
+
+    // Lists
+    expect(actual.dynamic.getList<String>('stringList'), expected.stringList);
+    expect(actual.dynamic.getList('stringList'), expected.stringList);
+
+    expect(actual.dynamic.getList<bool>('boolList'), expected.boolList);
+    expect(actual.dynamic.getList('boolList'), expected.boolList);
+
+    expect(actual.dynamic.getList<DateTime>('dateList'), expected.dateList);
+    expect(actual.dynamic.getList('dateList'), expected.dateList);
+
+    expect(actual.dynamic.getList<double>('doubleList'), expected.doubleList);
+    expect(actual.dynamic.getList('doubleList'), expected.doubleList);
+
+    expect(actual.dynamic.getList<ObjectId>('objectIdList'), expected.objectIdList);
+    expect(actual.dynamic.getList('objectIdList'), expected.objectIdList);
+
+    expect(actual.dynamic.getList<Uuid>('uuidList'), expected.uuidList);
+    expect(actual.dynamic.getList('uuidList'), expected.uuidList);
+
+    expect(actual.dynamic.getList<int>('intList'), expected.intList);
+    expect(actual.dynamic.getList('intList'), expected.intList);
+
+    expect(actual.dynamic.getList<Decimal128>('decimalList'), expected.decimalList);
+    expect(actual.dynamic.getList('decimalList'), expected.decimalList);
+
+    expect(actualDynamic.stringList, expected.stringList);
+    expect(actualDynamic.boolList, expected.boolList);
+    expect(actualDynamic.dateList, expected.dateList);
+    expect(actualDynamic.doubleList, expected.doubleList);
+    expect(actualDynamic.objectIdList, expected.objectIdList);
+    expect(actualDynamic.uuidList, expected.uuidList);
+    expect(actualDynamic.intList, expected.intList);
+    expect(actualDynamic.decimalList, expected.decimalList);
+
+    // Nullable lists
+    expect(actual.dynamic.getList<String?>('nullableStringList'), expected.nullableStringList);
+    expect(actual.dynamic.getList('nullableStringList'), expected.nullableStringList);
+
+    expect(actual.dynamic.getList<bool?>('nullableBoolList'), expected.nullableBoolList);
+    expect(actual.dynamic.getList('nullableBoolList'), expected.nullableBoolList);
+
+    expect(actual.dynamic.getList<DateTime?>('nullableDateList'), expected.nullableDateList);
+    expect(actual.dynamic.getList('nullableDateList'), expected.nullableDateList);
+
+    expect(actual.dynamic.getList<double?>('nullableDoubleList'), expected.nullableDoubleList);
+    expect(actual.dynamic.getList('nullableDoubleList'), expected.nullableDoubleList);
+
+    expect(actual.dynamic.getList<ObjectId?>('nullableObjectIdList'), expected.nullableObjectIdList);
+    expect(actual.dynamic.getList('nullableObjectIdList'), expected.nullableObjectIdList);
+
+    expect(actual.dynamic.getList<Uuid?>('nullableUuidList'), expected.nullableUuidList);
+    expect(actual.dynamic.getList('nullableUuidList'), expected.nullableUuidList);
+
+    expect(actual.dynamic.getList<int?>('nullableIntList'), expected.nullableIntList);
+    expect(actual.dynamic.getList('nullableIntList'), expected.nullableIntList);
+
+    expect(actual.dynamic.getList<Decimal128?>('nullableDecimalList'), expected.nullableDecimalList);
+    expect(actual.dynamic.getList('nullableDecimalList'), expected.nullableDecimalList);
+
+    expect(actualDynamic.nullableStringList, expected.nullableStringList);
+    expect(actualDynamic.nullableBoolList, expected.nullableBoolList);
+    expect(actualDynamic.nullableDateList, expected.nullableDateList);
+    expect(actualDynamic.nullableDoubleList, expected.nullableDoubleList);
+    expect(actualDynamic.nullableObjectIdList, expected.nullableObjectIdList);
+    expect(actualDynamic.nullableUuidList, expected.nullableUuidList);
+    expect(actualDynamic.nullableIntList, expected.nullableIntList);
+    expect(actualDynamic.nullableDecimalList, expected.nullableDecimalList);
+
+    // Sets
+    expect(actual.dynamic.getSet<String>('stringSet'), expected.stringSet);
+    expect(actual.dynamic.getSet('stringSet'), expected.stringSet);
+
+    expect(actual.dynamic.getSet<bool>('boolSet'), expected.boolSet);
+    expect(actual.dynamic.getSet('boolSet'), expected.boolSet);
+
+    expect(actual.dynamic.getSet<DateTime>('dateSet'), expected.dateSet);
+    expect(actual.dynamic.getSet('dateSet'), expected.dateSet);
+
+    expect(actual.dynamic.getSet<double>('doubleSet'), expected.doubleSet);
+    expect(actual.dynamic.getSet('doubleSet'), expected.doubleSet);
+
+    expect(actual.dynamic.getSet<ObjectId>('objectIdSet'), expected.objectIdSet);
+    expect(actual.dynamic.getSet('objectIdSet'), expected.objectIdSet);
+
+    expect(actual.dynamic.getSet<Uuid>('uuidSet'), expected.uuidSet);
+    expect(actual.dynamic.getSet('uuidSet'), expected.uuidSet);
+
+    expect(actual.dynamic.getSet<int>('intSet'), expected.intSet);
+    expect(actual.dynamic.getSet('intSet'), expected.intSet);
+
+    expect(actual.dynamic.getSet<Decimal128>('decimalSet'), expected.decimalSet);
+    expect(actual.dynamic.getSet('decimalSet'), expected.decimalSet);
+
+    expect(actualDynamic.stringSet, expected.stringSet);
+    expect(actualDynamic.boolSet, expected.boolSet);
+    expect(actualDynamic.dateSet, expected.dateSet);
+    expect(actualDynamic.doubleSet, expected.doubleSet);
+    expect(actualDynamic.objectIdSet, expected.objectIdSet);
+    expect(actualDynamic.uuidSet, expected.uuidSet);
+    expect(actualDynamic.intSet, expected.intSet);
+    expect(actualDynamic.decimalSet, expected.decimalSet);
+
+    // Nullable sets
+    expect(actual.dynamic.getSet<String?>('nullableStringSet'), expected.nullableStringSet);
+    expect(actual.dynamic.getSet('nullableStringSet'), expected.nullableStringSet);
+
+    expect(actual.dynamic.getSet<bool?>('nullableBoolSet'), expected.nullableBoolSet);
+    expect(actual.dynamic.getSet('nullableBoolSet'), expected.nullableBoolSet);
+
+    expect(actual.dynamic.getSet<DateTime?>('nullableDateSet'), expected.nullableDateSet);
+    expect(actual.dynamic.getSet('nullableDateSet'), expected.nullableDateSet);
+
+    expect(actual.dynamic.getSet<double?>('nullableDoubleSet'), expected.nullableDoubleSet);
+    expect(actual.dynamic.getSet('nullableDoubleSet'), expected.nullableDoubleSet);
+
+    expect(actual.dynamic.getSet<ObjectId?>('nullableObjectIdSet'), expected.nullableObjectIdSet);
+    expect(actual.dynamic.getSet('nullableObjectIdSet'), expected.nullableObjectIdSet);
+
+    expect(actual.dynamic.getSet<Uuid?>('nullableUuidSet'), expected.nullableUuidSet);
+    expect(actual.dynamic.getSet('nullableUuidSet'), expected.nullableUuidSet);
+
+    expect(actual.dynamic.getSet<int?>('nullableIntSet'), expected.nullableIntSet);
+    expect(actual.dynamic.getSet('nullableIntSet'), expected.nullableIntSet);
+
+    expect(actual.dynamic.getSet<Decimal128?>('nullableDecimalSet'), expected.nullableDecimalSet);
+    expect(actual.dynamic.getSet('nullableDecimalSet'), expected.nullableDecimalSet);
+
+    expect(actualDynamic.nullableStringSet, expected.nullableStringSet);
+    expect(actualDynamic.nullableBoolSet, expected.nullableBoolSet);
+    expect(actualDynamic.nullableDateSet, expected.nullableDateSet);
+    expect(actualDynamic.nullableDoubleSet, expected.nullableDoubleSet);
+    expect(actualDynamic.nullableObjectIdSet, expected.nullableObjectIdSet);
+    expect(actualDynamic.nullableUuidSet, expected.nullableUuidSet);
+    expect(actualDynamic.nullableIntSet, expected.nullableIntSet);
+    expect(actualDynamic.nullableDecimalSet, expected.nullableDecimalSet);
+
+    // Maps
+    expect(actual.dynamic.getMap<String>('stringMap'), expected.stringMap);
+    expect(actual.dynamic.getMap('stringMap'), expected.stringMap);
+
+    expect(actual.dynamic.getMap<bool>('boolMap'), expected.boolMap);
+    expect(actual.dynamic.getMap('boolMap'), expected.boolMap);
+
+    expect(actual.dynamic.getMap<DateTime>('dateMap'), expected.dateMap);
+    expect(actual.dynamic.getMap('dateMap'), expected.dateMap);
+
+    expect(actual.dynamic.getMap<double>('doubleMap'), expected.doubleMap);
+    expect(actual.dynamic.getMap('doubleMap'), expected.doubleMap);
+
+    expect(actual.dynamic.getMap<ObjectId>('objectIdMap'), expected.objectIdMap);
+    expect(actual.dynamic.getMap('objectIdMap'), expected.objectIdMap);
+
+    expect(actual.dynamic.getMap<Uuid>('uuidMap'), expected.uuidMap);
+    expect(actual.dynamic.getMap('uuidMap'), expected.uuidMap);
+
+    expect(actual.dynamic.getMap<int>('intMap'), expected.intMap);
+    expect(actual.dynamic.getMap('intMap'), expected.intMap);
+
+    expect(actual.dynamic.getMap<Decimal128>('decimalMap'), expected.decimalMap);
+    expect(actual.dynamic.getMap('decimalMap'), expected.decimalMap);
+
+    expect(actualDynamic.stringMap, expected.stringMap);
+    expect(actualDynamic.boolMap, expected.boolMap);
+    expect(actualDynamic.dateMap, expected.dateMap);
+    expect(actualDynamic.doubleMap, expected.doubleMap);
+    expect(actualDynamic.objectIdMap, expected.objectIdMap);
+    expect(actualDynamic.uuidMap, expected.uuidMap);
+    expect(actualDynamic.intMap, expected.intMap);
+    expect(actualDynamic.decimalMap, expected.decimalMap);
+
+    // Nullable Maps
+    expect(actual.dynamic.getMap<String?>('nullableStringMap'), expected.nullableStringMap);
+    expect(actual.dynamic.getMap('nullableStringMap'), expected.nullableStringMap);
+
+    expect(actual.dynamic.getMap<bool?>('nullableBoolMap'), expected.nullableBoolMap);
+    expect(actual.dynamic.getMap('nullableBoolMap'), expected.nullableBoolMap);
+
+    expect(actual.dynamic.getMap<DateTime?>('nullableDateMap'), expected.nullableDateMap);
+    expect(actual.dynamic.getMap('nullableDateMap'), expected.nullableDateMap);
+
+    expect(actual.dynamic.getMap<double?>('nullableDoubleMap'), expected.nullableDoubleMap);
+    expect(actual.dynamic.getMap('nullableDoubleMap'), expected.nullableDoubleMap);
+
+    expect(actual.dynamic.getMap<ObjectId?>('nullableObjectIdMap'), expected.nullableObjectIdMap);
+    expect(actual.dynamic.getMap('nullableObjectIdMap'), expected.nullableObjectIdMap);
+
+    expect(actual.dynamic.getMap<Uuid?>('nullableUuidMap'), expected.nullableUuidMap);
+    expect(actual.dynamic.getMap('nullableUuidMap'), expected.nullableUuidMap);
+
+    expect(actual.dynamic.getMap<int?>('nullableIntMap'), expected.nullableIntMap);
+    expect(actual.dynamic.getMap('nullableIntMap'), expected.nullableIntMap);
+
+    expect(actual.dynamic.getMap<Decimal128?>('nullableDecimalMap'), expected.nullableDecimalMap);
+    expect(actual.dynamic.getMap('nullableDecimalMap'), expected.nullableDecimalMap);
+
+    expect(actualDynamic.nullableStringMap, expected.nullableStringMap);
+    expect(actualDynamic.nullableBoolMap, expected.nullableBoolMap);
+    expect(actualDynamic.nullableDateMap, expected.nullableDateMap);
+    expect(actualDynamic.nullableDoubleMap, expected.nullableDoubleMap);
+    expect(actualDynamic.nullableObjectIdMap, expected.nullableObjectIdMap);
+    expect(actualDynamic.nullableUuidMap, expected.nullableUuidMap);
+    expect(actualDynamic.nullableIntMap, expected.nullableIntMap);
+    expect(actualDynamic.nullableDecimalMap, expected.nullableDecimalMap);
   }
 
   for (var isDynamic in [true, false]) {
@@ -438,24 +646,24 @@ void main() {
 
         final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
         expect(
-            () => obj.dynamic.get<String>('strings'),
+            () => obj.dynamic.get<String>('stringList'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'stringList' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
 
         expect(
-            () => obj.dynamic.get('strings'),
+            () => obj.dynamic.get('stringList'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'stringList' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
 
         expect(
-            () => obj.dynamic.get<String?>('strings'),
+            () => obj.dynamic.get<String?>('stringList'),
             throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+                "Property 'stringList' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
       });
     });
 
-    group('RealmObject.dynamic.getList', () {
-      test('gets all list types', () {
+    group('RealmObject.dynamic.getCollection when isDynamic=$isDynamic', () {
+      test('gets collection of primitive types', () {
         final config = Configuration.local([AllCollections.schema]);
         final staticRealm = getRealm(config);
         staticRealm.write(() {
@@ -465,14 +673,14 @@ void main() {
 
         final dynamicRealm = _getDynamicRealm(staticRealm);
         final objects = dynamicRealm.dynamic.all(AllCollections.schema.name);
-        final obj1 = objects.singleWhere((element) => element.dynamic.getList('strings').isNotEmpty);
-        final obj2 = objects.singleWhere((element) => element.dynamic.getList('strings').isEmpty);
+        final obj1 = objects.singleWhere((element) => element.dynamic.getList('stringList').isNotEmpty);
+        final obj2 = objects.singleWhere((element) => element.dynamic.getList('stringList').isEmpty);
 
-        _validateDynamicLists(obj1, _getPopulatedAllCollections());
-        _validateDynamicLists(obj2, AllCollections());
+        _validateDynamicCollections(obj1, _getPopulatedAllCollections());
+        _validateDynamicCollections(obj2, AllCollections());
       });
 
-      test('gets collections of objects', () {
+      test('gets collection of objects', () {
         final config = Configuration.local([LinksClass.schema]);
         final staticRealm = getRealm(config);
 
@@ -481,7 +689,7 @@ void main() {
 
         staticRealm.write(() {
           final obj1 = staticRealm.add(LinksClass(uuid1));
-          staticRealm.add(LinksClass(uuid2, list: [obj1, obj1]));
+          staticRealm.add(LinksClass(uuid2, list: [obj1, obj1], linksSet: {obj1}, map: {'a': obj1, 'b': obj1}));
         });
 
         final dynamicRealm = _getDynamicRealm(staticRealm);
@@ -491,62 +699,100 @@ void main() {
 
         expect(obj1.dynamic.getList<RealmObject>('list'), isEmpty);
         expect(obj1.dynamic.getList('list'), isEmpty);
+        expect(obj1.dynamic.getSet<RealmObject>('linksSet'), isEmpty);
+        expect(obj1.dynamic.getSet('linksSet'), isEmpty);
+        expect(obj1.dynamic.getMap<RealmObject?>('map'), isEmpty);
+        expect(obj1.dynamic.getMap('map'), isEmpty);
 
         expect(obj2.dynamic.getList<RealmObject>('list'), [obj1, obj1]);
         expect(obj2.dynamic.getList('list'), [obj1, obj1]);
         expect(obj2.dynamic.getList<RealmObject>('list')[0].dynamic.get<Uuid>('id'), uuid1);
 
+        expect(obj2.dynamic.getSet<RealmObject>('linksSet'), [obj1]);
+        expect(obj2.dynamic.getSet('linksSet'), [obj1]);
+        expect(obj2.dynamic.getSet<RealmObject>('linksSet').first.dynamic.get<Uuid>('id'), uuid1);
+
+        expect(obj2.dynamic.getMap<RealmObject?>('map'), {'a': obj1, 'b': obj1});
+        expect(obj2.dynamic.getMap('map'), {'a': obj1, 'b': obj1});
+        expect(obj2.dynamic.getMap<RealmObject?>('map')['a']!.dynamic.get<Uuid>('id'), uuid1);
+        expect(obj2.dynamic.getMap<RealmObject?>('map')['non-existent'], null);
+
         dynamic dynamicObj1 = obj1;
         dynamic dynamicObj2 = obj2;
 
         expect(dynamicObj1.list, isEmpty);
+        expect(dynamicObj1.linksSet, isEmpty);
+        expect(dynamicObj1.map, isEmpty);
 
         expect(dynamicObj2.list, [obj1, obj1]);
         expect(dynamicObj2.list[0].id, uuid1);
+        expect(dynamicObj2.linksSet, [obj1]);
+        expect(dynamicObj2.linksSet.first.id, uuid1);
+        expect(dynamicObj2.map, {'a': obj1, 'b': obj1});
+        expect(dynamicObj2.map['a']!.id, uuid1);
+        expect(dynamicObj2.map['non-existent'], null);
       });
 
-      test('fails with non-existent property', () {
-        final config = Configuration.local([AllCollections.schema]);
-        final staticRealm = getRealm(config);
-        staticRealm.write(() {
-          staticRealm.add(AllCollections());
+      for (final collectionType in [RealmCollectionType.list, RealmCollectionType.set, RealmCollectionType.map]) {
+        dynamic getter<T>(RealmObjectBase object, String property) {
+          return switch (collectionType) {
+            RealmCollectionType.list => object.dynamic.getList<T>(property),
+            RealmCollectionType.set => object.dynamic.getSet<T>(property),
+            RealmCollectionType.map => object.dynamic.getMap<T>(property),
+            _ => throw RealmError('Unexpected collectionType: $collectionType'),
+          };
+        }
+
+        final propertySuffix = switch (collectionType) {
+          RealmCollectionType.list => 'List',
+          RealmCollectionType.set => 'Set',
+          RealmCollectionType.map => 'Map',
+          _ => throw RealmError('Unexpected collectionType: $collectionType'),
+        };
+
+        test('get$propertySuffix fails with non-existent property', () {
+          final config = Configuration.local([AllCollections.schema]);
+          final staticRealm = getRealm(config);
+          staticRealm.write(() {
+            staticRealm.add(AllCollections());
+          });
+          final dynamicRealm = _getDynamicRealm(staticRealm);
+
+          final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
+          expect(() => getter(obj, 'i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllCollections'"));
         });
-        final dynamicRealm = _getDynamicRealm(staticRealm);
 
-        final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
-        expect(() => obj.dynamic.getList('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllCollections'"));
-      });
+        test('get$propertySuffix fails with wrong type', () {
+          final config = Configuration.local([AllCollections.schema]);
+          final staticRealm = getRealm(config);
+          staticRealm.write(() {
+            staticRealm.add(AllCollections());
+          });
+          final dynamicRealm = _getDynamicRealm(staticRealm);
 
-      test('fails with wrong type', () {
-        final config = Configuration.local([AllCollections.schema]);
-        final staticRealm = getRealm(config);
-        staticRealm.write(() {
-          staticRealm.add(AllCollections());
+          final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
+
+          expect(
+              () => getter<int>(obj, 'string$propertySuffix'),
+              throws<RealmException>(
+                  "Property 'string$propertySuffix' on class 'AllCollections' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
         });
-        final dynamicRealm = _getDynamicRealm(staticRealm);
 
-        final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
+        test('get$propertySuffix fails on non-collection properties', () {
+          final config = Configuration.local([AllTypes.schema]);
+          final staticRealm = getRealm(config);
+          staticRealm.write(() {
+            staticRealm.add(_getEmptyAllTypes());
+          });
+          final dynamicRealm = _getDynamicRealm(staticRealm);
 
-        expect(
-            () => obj.dynamic.getList<int>('strings'),
-            throws<RealmException>(
-                "Property 'strings' on class 'AllCollections' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'"));
-      });
-
-      test('fails on non-collection properties', () {
-        final config = Configuration.local([AllTypes.schema]);
-        final staticRealm = getRealm(config);
-        staticRealm.write(() {
-          staticRealm.add(_getEmptyAllTypes());
+          final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
+          expect(
+              () => getter(obj, 'intProp'),
+              throws<RealmException>(
+                  "Property 'intProp' on class 'AllTypes' is 'RealmCollectionType.none' but the method used to access it expected '$collectionType'."));
         });
-        final dynamicRealm = _getDynamicRealm(staticRealm);
-
-        final obj = dynamicRealm.dynamic.all(AllTypes.schema.name).single;
-        expect(
-            () => obj.dynamic.getList('intProp'),
-            throws<RealmException>(
-                "Property 'intProp' on class 'AllTypes' is 'RealmCollectionType.none' but the method used to access it expected 'RealmCollectionType.list'."));
-      });
+      }
     });
   }
 
@@ -575,7 +821,7 @@ void main() {
     });
 
     for (final obj in realm.all<AllCollections>()) {
-      _validateDynamicLists(obj, obj);
+      _validateDynamicCollections(obj, obj);
     }
   });
 

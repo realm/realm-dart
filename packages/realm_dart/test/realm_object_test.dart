@@ -379,9 +379,6 @@ void main() {
 
     // listProperty is mapped as `list-with-dashes`
     expect(json, contains('"list-with-dashes":'));
-
-    // RemappedClass is mapped as `myRemappedClass`
-    expect(json, contains('"table": "class_myRemappedClass"'));
   });
 
   test('Remapped class across different files works', () {
@@ -394,8 +391,7 @@ void main() {
     final json = obj.toJson();
 
     // linkToAnotherClass is mapped as `property with spaces`
-    // RemappedClass is mapped as `myRemappedClass`
-    expect(json, contains('"property with spaces":{ "table": "class_myRemappedClass", "key": 0}'));
+    expect(json, contains('"property with spaces":0'));
   });
 
   test('RealmObject read/write bool value with json', () {
@@ -461,14 +457,14 @@ void main() {
       final config = Configuration.local([AllCollections.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllCollections(dates: list));
+        return realm.add(AllCollections(dateList: list));
       });
 
       final json = obj.toJson();
       for (var i = 0; i < list.length; i++) {
         final expectedDate = list.elementAt(i).toUtc();
         expect(json, contains('"${expectedDate.toCoreTimestampString()}"'));
-        expect(obj.dates[i], equals(expectedDate));
+        expect(obj.dateList[i], equals(expectedDate));
       }
     });
   }
