@@ -8,7 +8,7 @@ import 'dart:io' as io;
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
-import 'package:meta/meta.dart';
+import 'package:async/async.dart';
 
 extension<T extends Enum> on Iterable<T> {
   T? firstEqualIgnoreCase(String? value) => value == null ? null : where((e) => equalsIgnoreAsciiCase(e.name, value)).firstOrNull;
@@ -160,13 +160,13 @@ class _BuildNativeCommand extends _BaseCommand {
     final p = await io.Process.start(args.first, args.skip(1).toList());
     Progress? progress;
     if (verbose) {
-      await io.stdout.addStream(p.stdout);
+      await Future.wait([io.stdout.addStream(p.stdout), io.stderr.addStream(p.stderr)]);
     } else {
       message ??= args.join(' ');
       final width = io.stdout.hasTerminal ? io.stdout.terminalColumns - 12 : 80;
       message = message.padRight(width).substring(0, width);
       progress = logger.progress(message);
-      await for (final _ in p.stdout) {
+      await for (final _ in StreamGroup.merge([p.stdout, p.stderr])) {
         progress.update(message);
       }
     }
