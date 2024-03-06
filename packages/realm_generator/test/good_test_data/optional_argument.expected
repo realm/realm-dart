@@ -29,17 +29,34 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'spouse': spouse.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'spouse': EJsonValue spouse,
+      } =>
+        Person(
+          spouse: fromEJson(spouse),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Person._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('spouse', RealmPropertyType.object,
           optional: true, linkTarget: 'Person'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
-

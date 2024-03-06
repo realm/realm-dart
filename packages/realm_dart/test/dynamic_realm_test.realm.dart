@@ -37,16 +37,37 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Taskv2 freeze() => RealmObjectBase.freezeObject<Taskv2>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'description': description.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Taskv2 value) => value.toEJson();
+  static Taskv2 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'description': EJsonValue description,
+      } =>
+        Taskv2(
+          fromEJson(id),
+          fromEJson(description),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Taskv2._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Taskv2, 'Task', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('description', RealmPropertyType.string),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;

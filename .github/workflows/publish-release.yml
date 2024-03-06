@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+      uses: actions/checkout@v4
       with:
         submodules: false
 
@@ -34,6 +34,11 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
+
+    - name: Setup Melos
+      run: |
+        dart pub global activate melos
+        dart pub global run melos bootstrap
 
     - name: Download all artifacts
       uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
@@ -135,7 +140,7 @@ jobs:
       shell: pwsh
 
     - name: Upload release folder
-      uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
+      uses: actions/upload-artifact@v4
       with:
         name: release-bundle
         path: release/**
@@ -170,12 +175,12 @@ jobs:
     - prepare-packages
     steps:
     - name: Checkout code
-      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+      uses: actions/checkout@v4
       with:
         submodules: false
 
     - name: Download release folder
-      uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+      uses: actions/download-artifact@v4
       with:
         name: release-bundle
         path: release
@@ -185,16 +190,16 @@ jobs:
       with:
         channel: 'stable'
 
+    - name: Setup Melos
+      run: |
+        dart pub global activate melos
+        dart pub global run melos bootstrap
+
     - name: Publish packages to pub.dev
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-
-        dart pub publish --directory realm_common --force
-        dart pub publish --directory realm_generator --force
-        dart pub publish --directory realm_dart --force
-        dart pub publish --directory realm --force
-      working-directory: release
+        melos publish --no-dry-run --yes
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
@@ -212,7 +217,6 @@ jobs:
     - name: Publish Github Release
       uses: ncipollo/release-action@10c84d509b28aae3903113151bfd832314964f2e
       with:
-        artifacts: release/*.tar.gz
         bodyFile: release/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
         commit: main
@@ -220,7 +224,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: false
 
-    - name: 'Post to #realm-releases'
+    - name: 'Post to #appx-releases'
       uses: realm/ci-actions/release-to-slack@338bf3e7575015a28faec8b67614385d122aece7
       continue-on-error: true
       with:

@@ -36,14 +36,32 @@ class TuckedIn extends _TuckedIn
   @override
   TuckedIn freeze() => RealmObjectBase.freezeObject<TuckedIn>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'x': x.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(TuckedIn value) => value.toEJson();
+  static TuckedIn _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'x': EJsonValue x,
+      } =>
+        TuckedIn(
+          x: fromEJson(x),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(TuckedIn._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -103,10 +121,34 @@ class AnythingGoes extends _AnythingGoes
   @override
   AnythingGoes freeze() => RealmObjectBase.freezeObject<AnythingGoes>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'oneAny': oneAny.toEJson(),
+      'manyAny': manyAny.toEJson(),
+      'dictOfAny': dictOfAny.toEJson(),
+      'setOfAny': setOfAny.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(AnythingGoes value) => value.toEJson();
+  static AnythingGoes _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'oneAny': EJsonValue oneAny,
+        'manyAny': EJsonValue manyAny,
+        'dictOfAny': EJsonValue dictOfAny,
+        'setOfAny': EJsonValue setOfAny,
+      } =>
+        AnythingGoes(
+          oneAny: fromEJson(oneAny),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(AnythingGoes._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, AnythingGoes, 'AnythingGoes', [
       SchemaProperty('oneAny', RealmPropertyType.mixed,
           optional: true, indexType: RealmIndexType.regular),
@@ -117,7 +159,7 @@ class AnythingGoes extends _AnythingGoes
       SchemaProperty('setOfAny', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.set),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -151,14 +193,32 @@ class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stuff freeze() => RealmObjectBase.freezeObject<Stuff>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'i': i.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Stuff value) => value.toEJson();
+  static Stuff _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'i': EJsonValue i,
+      } =>
+        Stuff(
+          i: fromEJson(i),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Stuff._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Stuff, 'Stuff', [
       SchemaProperty('i', RealmPropertyType.int),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;

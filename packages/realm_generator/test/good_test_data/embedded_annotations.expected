@@ -40,10 +40,30 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'single child': child.toEJson(),
+      'CHILDREN': children.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Parent value) => value.toEJson();
+  static Parent _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'single child': EJsonValue child,
+        'CHILDREN': EJsonValue children,
+      } =>
+        Parent(
+          child: fromEJson(child),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
@@ -52,7 +72,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'MySuperChild',
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -97,19 +117,43 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_value': value.toEJson(),
+      '_parent': linkToParent.toEJson(),
+      'indexedString': indexedString.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Child1 value) => value.toEJson();
+  static Child1 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_value': EJsonValue value,
+        '_parent': EJsonValue linkToParent,
+        'indexedString': EJsonValue indexedString,
+      } =>
+        Child1(
+          fromEJson(value),
+          fromEJson(indexedString),
+          linkToParent: fromEJson(linkToParent),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),
-      SchemaProperty('indexedString', RealmPropertyType.string, indexType: RealmIndexType.regular),
+      SchemaProperty('indexedString', RealmPropertyType.string,
+          indexType: RealmIndexType.regular),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
-

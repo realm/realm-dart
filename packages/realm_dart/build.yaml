@@ -21,3 +21,4 @@ builders:
     build_extensions: { ".dart": [".realm.dart"] }
     auto_apply: dependents
     build_to: source
+    runs_before: ["ejson_generator|ejson_generator"]

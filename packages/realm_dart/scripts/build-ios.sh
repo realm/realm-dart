@@ -21,7 +21,7 @@ function usage {
 }
 
 CONFIGURATION=Release
-SUPPORT_PLATFORMS=(catalyst ios simulator)
+SUPPORT_PLATFORMS=(ios simulator) # flutter doesn't support maccatalyst
 
 function is_supported_platform(){
     for platform in "${SUPPORT_PLATFORMS[@]}"; do
@@ -42,8 +42,8 @@ shift $((OPTIND-1))
 PLATFORMS=($@)
 
 if [ -z ${PLATFORMS} ]; then
-    echo "No platform given. building all platforms...";
-    PLATFORMS=(ios catalyst simulator)
+    echo "No platform given. building for all supported platforms...";
+    PLATFORMS=(ios simulator)
 else
     echo "Building for...";
     for check_platform in "${PLATFORMS[@]}"; do

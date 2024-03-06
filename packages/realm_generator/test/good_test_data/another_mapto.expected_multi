@@ -41,10 +41,30 @@ class MappedToo extends _MappedToo
   @override
   MappedToo freeze() => RealmObjectBase.freezeObject<MappedToo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'singleLink': singleLink.toEJson(),
+      'listLink': listLink.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(MappedToo value) => value.toEJson();
+  static MappedToo _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'singleLink': EJsonValue singleLink,
+        'listLink': EJsonValue listLink,
+      } =>
+        MappedToo(
+          singleLink: fromEJson(singleLink),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(MappedToo._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, MappedToo, 'this is also mapped', [
       SchemaProperty('singleLink', RealmPropertyType.object,
@@ -52,7 +72,7 @@ class MappedToo extends _MappedToo
       SchemaProperty('listLink', RealmPropertyType.object,
           linkTarget: 'another type', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;

@@ -28,14 +28,32 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'make': make.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Car value) => value.toEJson();
+  static Car _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'make': EJsonValue make,
+      } =>
+        Car(
+          fromEJson(make),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Car._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -62,14 +80,32 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+      } =>
+        Person(
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Person._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -111,17 +147,41 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Dog freeze() => RealmObjectBase.freezeObject<Dog>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'age': age.toEJson(),
+      'owner': owner.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Dog value) => value.toEJson();
+  static Dog _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'age': EJsonValue age,
+        'owner': EJsonValue owner,
+      } =>
+        Dog(
+          fromEJson(name),
+          age: fromEJson(age),
+          owner: fromEJson(owner),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Dog._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
       SchemaProperty('owner', RealmPropertyType.object,
           optional: true, linkTarget: 'Person'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -167,10 +227,32 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Team freeze() => RealmObjectBase.freezeObject<Team>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'players': players.toEJson(),
+      'scores': scores.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Team value) => value.toEJson();
+  static Team _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'players': EJsonValue players,
+        'scores': EJsonValue scores,
+      } =>
+        Team(
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Team._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Team, 'Team', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('players', RealmPropertyType.object,
@@ -178,7 +260,7 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('scores', RealmPropertyType.int,
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -228,10 +310,37 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Student freeze() => RealmObjectBase.freezeObject<Student>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'number': number.toEJson(),
+      'name': name.toEJson(),
+      'yearOfBirth': yearOfBirth.toEJson(),
+      'school': school.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Student value) => value.toEJson();
+  static Student _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'number': EJsonValue number,
+        'name': EJsonValue name,
+        'yearOfBirth': EJsonValue yearOfBirth,
+        'school': EJsonValue school,
+      } =>
+        Student(
+          fromEJson(number),
+          name: fromEJson(name),
+          yearOfBirth: fromEJson(yearOfBirth),
+          school: fromEJson(school),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Student._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Student, 'Student', [
       SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
@@ -239,7 +348,7 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('school', RealmPropertyType.object,
           optional: true, linkTarget: 'School'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -302,10 +411,38 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   @override
   School freeze() => RealmObjectBase.freezeObject<School>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'city': city.toEJson(),
+      'students': students.toEJson(),
+      'branchOfSchool': branchOfSchool.toEJson(),
+      'branches': branches.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(School value) => value.toEJson();
+  static School _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'city': EJsonValue city,
+        'students': EJsonValue students,
+        'branchOfSchool': EJsonValue branchOfSchool,
+        'branches': EJsonValue branches,
+      } =>
+        School(
+          fromEJson(name),
+          city: fromEJson(city),
+          branchOfSchool: fromEJson(branchOfSchool),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(School._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, School, 'School', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('city', RealmPropertyType.string, optional: true),
@@ -316,7 +453,7 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('branches', RealmPropertyType.object,
           linkTarget: 'School', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -357,10 +494,30 @@ class RemappedClass extends $RemappedClass
   @override
   RemappedClass freeze() => RealmObjectBase.freezeObject<RemappedClass>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'primitive_property': remappedProperty.toEJson(),
+      'list-with-dashes': listProperty.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(RemappedClass value) => value.toEJson();
+  static RemappedClass _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'primitive_property': EJsonValue remappedProperty,
+        'list-with-dashes': EJsonValue listProperty,
+      } =>
+        RemappedClass(
+          fromEJson(remappedProperty),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(RemappedClass._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, RemappedClass, 'myRemappedClass', [
       SchemaProperty('remappedProperty', RealmPropertyType.string,
@@ -370,7 +527,7 @@ class RemappedClass extends $RemappedClass
           linkTarget: 'myRemappedClass',
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -397,15 +554,33 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Task freeze() => RealmObjectBase.freezeObject<Task>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Task value) => value.toEJson();
+  static Task _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+      } =>
+        Task(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Task._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Task, 'Task', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -441,17 +616,38 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Product freeze() => RealmObjectBase.freezeObject<Product>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'stringQueryField': name.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Product value) => value.toEJson();
+  static Product _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'stringQueryField': EJsonValue name,
+      } =>
+        Product(
+          fromEJson(id),
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Product._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Product, 'Product', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string,
           mapTo: 'stringQueryField'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -488,17 +684,37 @@ class Schedule extends _Schedule
   @override
   Schedule freeze() => RealmObjectBase.freezeObject<Schedule>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'tasks': tasks.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Schedule value) => value.toEJson();
+  static Schedule _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'tasks': EJsonValue tasks,
+      } =>
+        Schedule(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Schedule._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('tasks', RealmPropertyType.object,
           linkTarget: 'Task', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -547,17 +763,41 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'requiredBinaryProp': requiredBinaryProp.toEJson(),
+      'defaultValueBinaryProp': defaultValueBinaryProp.toEJson(),
+      'nullableBinaryProp': nullableBinaryProp.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Foo value) => value.toEJson();
+  static Foo _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'requiredBinaryProp': EJsonValue requiredBinaryProp,
+        'defaultValueBinaryProp': EJsonValue defaultValueBinaryProp,
+        'nullableBinaryProp': EJsonValue nullableBinaryProp,
+      } =>
+        Foo(
+          fromEJson(requiredBinaryProp),
+          defaultValueBinaryProp: fromEJson(defaultValueBinaryProp),
+          nullableBinaryProp: fromEJson(nullableBinaryProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
       SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -734,10 +974,79 @@ class AllTypes extends _AllTypes
   @override
   AllTypes freeze() => RealmObjectBase.freezeObject<AllTypes>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'stringProp': stringProp.toEJson(),
+      'boolProp': boolProp.toEJson(),
+      'dateProp': dateProp.toEJson(),
+      'doubleProp': doubleProp.toEJson(),
+      'objectIdProp': objectIdProp.toEJson(),
+      'uuidProp': uuidProp.toEJson(),
+      'intProp': intProp.toEJson(),
+      'decimalProp': decimalProp.toEJson(),
+      'binaryProp': binaryProp.toEJson(),
+      'nullableStringProp': nullableStringProp.toEJson(),
+      'nullableBoolProp': nullableBoolProp.toEJson(),
+      'nullableDateProp': nullableDateProp.toEJson(),
+      'nullableDoubleProp': nullableDoubleProp.toEJson(),
+      'nullableObjectIdProp': nullableObjectIdProp.toEJson(),
+      'nullableUuidProp': nullableUuidProp.toEJson(),
+      'nullableIntProp': nullableIntProp.toEJson(),
+      'nullableDecimalProp': nullableDecimalProp.toEJson(),
+      'nullableBinaryProp': nullableBinaryProp.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(AllTypes value) => value.toEJson();
+  static AllTypes _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'stringProp': EJsonValue stringProp,
+        'boolProp': EJsonValue boolProp,
+        'dateProp': EJsonValue dateProp,
+        'doubleProp': EJsonValue doubleProp,
+        'objectIdProp': EJsonValue objectIdProp,
+        'uuidProp': EJsonValue uuidProp,
+        'intProp': EJsonValue intProp,
+        'decimalProp': EJsonValue decimalProp,
+        'binaryProp': EJsonValue binaryProp,
+        'nullableStringProp': EJsonValue nullableStringProp,
+        'nullableBoolProp': EJsonValue nullableBoolProp,
+        'nullableDateProp': EJsonValue nullableDateProp,
+        'nullableDoubleProp': EJsonValue nullableDoubleProp,
+        'nullableObjectIdProp': EJsonValue nullableObjectIdProp,
+        'nullableUuidProp': EJsonValue nullableUuidProp,
+        'nullableIntProp': EJsonValue nullableIntProp,
+        'nullableDecimalProp': EJsonValue nullableDecimalProp,
+        'nullableBinaryProp': EJsonValue nullableBinaryProp,
+      } =>
+        AllTypes(
+          fromEJson(stringProp),
+          fromEJson(boolProp),
+          fromEJson(dateProp),
+          fromEJson(doubleProp),
+          fromEJson(objectIdProp),
+          fromEJson(uuidProp),
+          fromEJson(intProp),
+          fromEJson(decimalProp),
+          binaryProp: fromEJson(binaryProp),
+          nullableStringProp: fromEJson(nullableStringProp),
+          nullableBoolProp: fromEJson(nullableBoolProp),
+          nullableDateProp: fromEJson(nullableDateProp),
+          nullableDoubleProp: fromEJson(nullableDoubleProp),
+          nullableObjectIdProp: fromEJson(nullableObjectIdProp),
+          nullableUuidProp: fromEJson(nullableUuidProp),
+          nullableIntProp: fromEJson(nullableIntProp),
+          nullableDecimalProp: fromEJson(nullableDecimalProp),
+          nullableBinaryProp: fromEJson(nullableBinaryProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(AllTypes._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, AllTypes, 'AllTypes', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
@@ -766,7 +1075,7 @@ class AllTypes extends _AllTypes
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -833,10 +1142,37 @@ class LinksClass extends _LinksClass
   @override
   LinksClass freeze() => RealmObjectBase.freezeObject<LinksClass>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+      'link': link.toEJson(),
+      'list': list.toEJson(),
+      'linksSet': linksSet.toEJson(),
+      'map': map.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(LinksClass value) => value.toEJson();
+  static LinksClass _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+        'link': EJsonValue link,
+        'list': EJsonValue list,
+        'linksSet': EJsonValue linksSet,
+        'map': EJsonValue map,
+      } =>
+        LinksClass(
+          fromEJson(id),
+          link: fromEJson(link),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(LinksClass._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, LinksClass, 'LinksClass', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
       SchemaProperty('link', RealmPropertyType.object,
@@ -850,7 +1186,7 @@ class LinksClass extends _LinksClass
           linkTarget: 'LinksClass',
           collectionType: RealmCollectionType.map),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1366,10 +1702,120 @@ class AllCollections extends _AllCollections
   @override
   AllCollections freeze() => RealmObjectBase.freezeObject<AllCollections>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'stringList': stringList.toEJson(),
+      'boolList': boolList.toEJson(),
+      'dateList': dateList.toEJson(),
+      'doubleList': doubleList.toEJson(),
+      'objectIdList': objectIdList.toEJson(),
+      'uuidList': uuidList.toEJson(),
+      'intList': intList.toEJson(),
+      'decimalList': decimalList.toEJson(),
+      'nullableStringList': nullableStringList.toEJson(),
+      'nullableBoolList': nullableBoolList.toEJson(),
+      'nullableDateList': nullableDateList.toEJson(),
+      'nullableDoubleList': nullableDoubleList.toEJson(),
+      'nullableObjectIdList': nullableObjectIdList.toEJson(),
+      'nullableUuidList': nullableUuidList.toEJson(),
+      'nullableIntList': nullableIntList.toEJson(),
+      'nullableDecimalList': nullableDecimalList.toEJson(),
+      'stringSet': stringSet.toEJson(),
+      'boolSet': boolSet.toEJson(),
+      'dateSet': dateSet.toEJson(),
+      'doubleSet': doubleSet.toEJson(),
+      'objectIdSet': objectIdSet.toEJson(),
+      'uuidSet': uuidSet.toEJson(),
+      'intSet': intSet.toEJson(),
+      'decimalSet': decimalSet.toEJson(),
+      'nullableStringSet': nullableStringSet.toEJson(),
+      'nullableBoolSet': nullableBoolSet.toEJson(),
+      'nullableDateSet': nullableDateSet.toEJson(),
+      'nullableDoubleSet': nullableDoubleSet.toEJson(),
+      'nullableObjectIdSet': nullableObjectIdSet.toEJson(),
+      'nullableUuidSet': nullableUuidSet.toEJson(),
+      'nullableIntSet': nullableIntSet.toEJson(),
+      'nullableDecimalSet': nullableDecimalSet.toEJson(),
+      'stringMap': stringMap.toEJson(),
+      'boolMap': boolMap.toEJson(),
+      'dateMap': dateMap.toEJson(),
+      'doubleMap': doubleMap.toEJson(),
+      'objectIdMap': objectIdMap.toEJson(),
+      'uuidMap': uuidMap.toEJson(),
+      'intMap': intMap.toEJson(),
+      'decimalMap': decimalMap.toEJson(),
+      'nullableStringMap': nullableStringMap.toEJson(),
+      'nullableBoolMap': nullableBoolMap.toEJson(),
+      'nullableDateMap': nullableDateMap.toEJson(),
+      'nullableDoubleMap': nullableDoubleMap.toEJson(),
+      'nullableObjectIdMap': nullableObjectIdMap.toEJson(),
+      'nullableUuidMap': nullableUuidMap.toEJson(),
+      'nullableIntMap': nullableIntMap.toEJson(),
+      'nullableDecimalMap': nullableDecimalMap.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(AllCollections value) => value.toEJson();
+  static AllCollections _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'stringList': EJsonValue stringList,
+        'boolList': EJsonValue boolList,
+        'dateList': EJsonValue dateList,
+        'doubleList': EJsonValue doubleList,
+        'objectIdList': EJsonValue objectIdList,
+        'uuidList': EJsonValue uuidList,
+        'intList': EJsonValue intList,
+        'decimalList': EJsonValue decimalList,
+        'nullableStringList': EJsonValue nullableStringList,
+        'nullableBoolList': EJsonValue nullableBoolList,
+        'nullableDateList': EJsonValue nullableDateList,
+        'nullableDoubleList': EJsonValue nullableDoubleList,
+        'nullableObjectIdList': EJsonValue nullableObjectIdList,
+        'nullableUuidList': EJsonValue nullableUuidList,
+        'nullableIntList': EJsonValue nullableIntList,
+        'nullableDecimalList': EJsonValue nullableDecimalList,
+        'stringSet': EJsonValue stringSet,
+        'boolSet': EJsonValue boolSet,
+        'dateSet': EJsonValue dateSet,
+        'doubleSet': EJsonValue doubleSet,
+        'objectIdSet': EJsonValue objectIdSet,
+        'uuidSet': EJsonValue uuidSet,
+        'intSet': EJsonValue intSet,
+        'decimalSet': EJsonValue decimalSet,
+        'nullableStringSet': EJsonValue nullableStringSet,
+        'nullableBoolSet': EJsonValue nullableBoolSet,
+        'nullableDateSet': EJsonValue nullableDateSet,
+        'nullableDoubleSet': EJsonValue nullableDoubleSet,
+        'nullableObjectIdSet': EJsonValue nullableObjectIdSet,
+        'nullableUuidSet': EJsonValue nullableUuidSet,
+        'nullableIntSet': EJsonValue nullableIntSet,
+        'nullableDecimalSet': EJsonValue nullableDecimalSet,
+        'stringMap': EJsonValue stringMap,
+        'boolMap': EJsonValue boolMap,
+        'dateMap': EJsonValue dateMap,
+        'doubleMap': EJsonValue doubleMap,
+        'objectIdMap': EJsonValue objectIdMap,
+        'uuidMap': EJsonValue uuidMap,
+        'intMap': EJsonValue intMap,
+        'decimalMap': EJsonValue decimalMap,
+        'nullableStringMap': EJsonValue nullableStringMap,
+        'nullableBoolMap': EJsonValue nullableBoolMap,
+        'nullableDateMap': EJsonValue nullableDateMap,
+        'nullableDoubleMap': EJsonValue nullableDoubleMap,
+        'nullableObjectIdMap': EJsonValue nullableObjectIdMap,
+        'nullableUuidMap': EJsonValue nullableUuidMap,
+        'nullableIntMap': EJsonValue nullableIntMap,
+        'nullableDecimalMap': EJsonValue nullableDecimalMap,
+      } =>
+        AllCollections(),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(AllCollections._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, AllCollections, 'AllCollections', [
       SchemaProperty('stringList', RealmPropertyType.string,
@@ -1469,7 +1915,7 @@ class AllCollections extends _AllCollections
       SchemaProperty('nullableDecimalMap', RealmPropertyType.decimal128,
           optional: true, collectionType: RealmCollectionType.map),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1571,10 +2017,55 @@ class NullableTypes extends _NullableTypes
   @override
   NullableTypes freeze() => RealmObjectBase.freezeObject<NullableTypes>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'stringProp': stringProp.toEJson(),
+      'boolProp': boolProp.toEJson(),
+      'dateProp': dateProp.toEJson(),
+      'doubleProp': doubleProp.toEJson(),
+      'objectIdProp': objectIdProp.toEJson(),
+      'uuidProp': uuidProp.toEJson(),
+      'intProp': intProp.toEJson(),
+      'decimalProp': decimalProp.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableTypes value) => value.toEJson();
+  static NullableTypes _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'stringProp': EJsonValue stringProp,
+        'boolProp': EJsonValue boolProp,
+        'dateProp': EJsonValue dateProp,
+        'doubleProp': EJsonValue doubleProp,
+        'objectIdProp': EJsonValue objectIdProp,
+        'uuidProp': EJsonValue uuidProp,
+        'intProp': EJsonValue intProp,
+        'decimalProp': EJsonValue decimalProp,
+      } =>
+        NullableTypes(
+          fromEJson(id),
+          fromEJson(differentiator),
+          stringProp: fromEJson(stringProp),
+          boolProp: fromEJson(boolProp),
+          dateProp: fromEJson(dateProp),
+          doubleProp: fromEJson(doubleProp),
+          objectIdProp: fromEJson(objectIdProp),
+          uuidProp: fromEJson(uuidProp),
+          intProp: fromEJson(intProp),
+          decimalProp: fromEJson(decimalProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableTypes._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, NullableTypes, 'NullableTypes', [
       SchemaProperty('id', RealmPropertyType.objectid,
@@ -1591,7 +2082,7 @@ class NullableTypes extends _NullableTypes
       SchemaProperty('decimalProp', RealmPropertyType.decimal128,
           optional: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1654,10 +2145,40 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Event freeze() => RealmObjectBase.freezeObject<Event>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'stringQueryField': name.toEJson(),
+      'boolQueryField': isCompleted.toEJson(),
+      'intQueryField': durationInMinutes.toEJson(),
+      'assignedTo': assignedTo.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Event value) => value.toEJson();
+  static Event _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'stringQueryField': EJsonValue name,
+        'boolQueryField': EJsonValue isCompleted,
+        'intQueryField': EJsonValue durationInMinutes,
+        'assignedTo': EJsonValue assignedTo,
+      } =>
+        Event(
+          fromEJson(id),
+          name: fromEJson(name),
+          isCompleted: fromEJson(isCompleted),
+          durationInMinutes: fromEJson(durationInMinutes),
+          assignedTo: fromEJson(assignedTo),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Event._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Event, 'Event', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
@@ -1669,7 +2190,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
           mapTo: 'intQueryField', optional: true),
       SchemaProperty('assignedTo', RealmPropertyType.string, optional: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1721,10 +2242,36 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Party freeze() => RealmObjectBase.freezeObject<Party>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'host': host.toEJson(),
+      'year': year.toEJson(),
+      'guests': guests.toEJson(),
+      'previous': previous.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Party value) => value.toEJson();
+  static Party _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'host': EJsonValue host,
+        'year': EJsonValue year,
+        'guests': EJsonValue guests,
+        'previous': EJsonValue previous,
+      } =>
+        Party(
+          fromEJson(year),
+          host: fromEJson(host),
+          previous: fromEJson(previous),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Party._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Party, 'Party', [
       SchemaProperty('host', RealmPropertyType.object,
           optional: true, linkTarget: 'Friend'),
@@ -1734,7 +2281,7 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('previous', RealmPropertyType.object,
           optional: true, linkTarget: 'Party'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1794,10 +2341,36 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Friend freeze() => RealmObjectBase.freezeObject<Friend>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'age': age.toEJson(),
+      'bestFriend': bestFriend.toEJson(),
+      'friends': friends.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Friend value) => value.toEJson();
+  static Friend _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'age': EJsonValue age,
+        'bestFriend': EJsonValue bestFriend,
+        'friends': EJsonValue friends,
+      } =>
+        Friend(
+          fromEJson(name),
+          age: fromEJson(age),
+          bestFriend: fromEJson(bestFriend),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Friend._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Friend, 'Friend', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int),
@@ -1806,7 +2379,7 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('friends', RealmPropertyType.object,
           linkTarget: 'Friend', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1844,15 +2417,36 @@ class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
   @override
   When freeze() => RealmObjectBase.freezeObject<When>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'dateTimeUtc': dateTimeUtc.toEJson(),
+      'locationName': locationName.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(When value) => value.toEJson();
+  static When _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'dateTimeUtc': EJsonValue dateTimeUtc,
+        'locationName': EJsonValue locationName,
+      } =>
+        When(
+          fromEJson(dateTimeUtc),
+          fromEJson(locationName),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(When._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, When, 'When', [
       SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
       SchemaProperty('locationName', RealmPropertyType.string),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1896,10 +2490,33 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Player freeze() => RealmObjectBase.freezeObject<Player>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'game': game.toEJson(),
+      'scoresByRound': scoresByRound.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Player value) => value.toEJson();
+  static Player _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'game': EJsonValue game,
+        'scoresByRound': EJsonValue scoresByRound,
+      } =>
+        Player(
+          fromEJson(name),
+          game: fromEJson(game),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Player._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Player, 'Player', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('game', RealmPropertyType.object,
@@ -1907,7 +2524,7 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('scoresByRound', RealmPropertyType.int,
           optional: true, collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -1937,15 +2554,31 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Game freeze() => RealmObjectBase.freezeObject<Game>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'winnerByRound': winnerByRound.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Game value) => value.toEJson();
+  static Game _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'winnerByRound': EJsonValue winnerByRound,
+      } =>
+        Game(),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Game._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Game, 'Game', [
       SchemaProperty('winnerByRound', RealmPropertyType.object,
           linkTarget: 'Player', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2182,10 +2815,89 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   AllTypesEmbedded freeze() =>
       RealmObjectBase.freezeObject<AllTypesEmbedded>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'stringProp': stringProp.toEJson(),
+      'boolProp': boolProp.toEJson(),
+      'dateProp': dateProp.toEJson(),
+      'doubleProp': doubleProp.toEJson(),
+      'objectIdProp': objectIdProp.toEJson(),
+      'uuidProp': uuidProp.toEJson(),
+      'intProp': intProp.toEJson(),
+      'decimalProp': decimalProp.toEJson(),
+      'nullableStringProp': nullableStringProp.toEJson(),
+      'nullableBoolProp': nullableBoolProp.toEJson(),
+      'nullableDateProp': nullableDateProp.toEJson(),
+      'nullableDoubleProp': nullableDoubleProp.toEJson(),
+      'nullableObjectIdProp': nullableObjectIdProp.toEJson(),
+      'nullableUuidProp': nullableUuidProp.toEJson(),
+      'nullableIntProp': nullableIntProp.toEJson(),
+      'nullableDecimalProp': nullableDecimalProp.toEJson(),
+      'strings': strings.toEJson(),
+      'bools': bools.toEJson(),
+      'dates': dates.toEJson(),
+      'doubles': doubles.toEJson(),
+      'objectIds': objectIds.toEJson(),
+      'uuids': uuids.toEJson(),
+      'ints': ints.toEJson(),
+      'decimals': decimals.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(AllTypesEmbedded value) => value.toEJson();
+  static AllTypesEmbedded _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'stringProp': EJsonValue stringProp,
+        'boolProp': EJsonValue boolProp,
+        'dateProp': EJsonValue dateProp,
+        'doubleProp': EJsonValue doubleProp,
+        'objectIdProp': EJsonValue objectIdProp,
+        'uuidProp': EJsonValue uuidProp,
+        'intProp': EJsonValue intProp,
+        'decimalProp': EJsonValue decimalProp,
+        'nullableStringProp': EJsonValue nullableStringProp,
+        'nullableBoolProp': EJsonValue nullableBoolProp,
+        'nullableDateProp': EJsonValue nullableDateProp,
+        'nullableDoubleProp': EJsonValue nullableDoubleProp,
+        'nullableObjectIdProp': EJsonValue nullableObjectIdProp,
+        'nullableUuidProp': EJsonValue nullableUuidProp,
+        'nullableIntProp': EJsonValue nullableIntProp,
+        'nullableDecimalProp': EJsonValue nullableDecimalProp,
+        'strings': EJsonValue strings,
+        'bools': EJsonValue bools,
+        'dates': EJsonValue dates,
+        'doubles': EJsonValue doubles,
+        'objectIds': EJsonValue objectIds,
+        'uuids': EJsonValue uuids,
+        'ints': EJsonValue ints,
+        'decimals': EJsonValue decimals,
+      } =>
+        AllTypesEmbedded(
+          fromEJson(stringProp),
+          fromEJson(boolProp),
+          fromEJson(dateProp),
+          fromEJson(doubleProp),
+          fromEJson(objectIdProp),
+          fromEJson(uuidProp),
+          fromEJson(intProp),
+          fromEJson(decimalProp),
+          nullableStringProp: fromEJson(nullableStringProp),
+          nullableBoolProp: fromEJson(nullableBoolProp),
+          nullableDateProp: fromEJson(nullableDateProp),
+          nullableDoubleProp: fromEJson(nullableDoubleProp),
+          nullableObjectIdProp: fromEJson(nullableObjectIdProp),
+          nullableUuidProp: fromEJson(nullableUuidProp),
+          nullableIntProp: fromEJson(nullableIntProp),
+          nullableDecimalProp: fromEJson(nullableDecimalProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(AllTypesEmbedded._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.embeddedObject, AllTypesEmbedded, 'AllTypesEmbedded', [
       SchemaProperty('stringProp', RealmPropertyType.string),
@@ -2228,7 +2940,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       SchemaProperty('decimals', RealmPropertyType.decimal128,
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2308,10 +3020,41 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
   ObjectWithEmbedded freeze() =>
       RealmObjectBase.freezeObject<ObjectWithEmbedded>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'singleObject': singleObject.toEJson(),
+      'list': list.toEJson(),
+      'recursiveObject': recursiveObject.toEJson(),
+      'recursiveList': recursiveList.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithEmbedded value) => value.toEJson();
+  static ObjectWithEmbedded _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'singleObject': EJsonValue singleObject,
+        'list': EJsonValue list,
+        'recursiveObject': EJsonValue recursiveObject,
+        'recursiveList': EJsonValue recursiveList,
+      } =>
+        ObjectWithEmbedded(
+          fromEJson(id),
+          differentiator: fromEJson(differentiator),
+          singleObject: fromEJson(singleObject),
+          recursiveObject: fromEJson(recursiveObject),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithEmbedded._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, ObjectWithEmbedded, 'ObjectWithEmbedded', [
       SchemaProperty('id', RealmPropertyType.string,
@@ -2328,7 +3071,7 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
           linkTarget: 'RecursiveEmbedded1',
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2388,10 +3131,36 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
   RecursiveEmbedded1 freeze() =>
       RealmObjectBase.freezeObject<RecursiveEmbedded1>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'value': value.toEJson(),
+      'child': child.toEJson(),
+      'children': children.toEJson(),
+      'realmObject': realmObject.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(RecursiveEmbedded1 value) => value.toEJson();
+  static RecursiveEmbedded1 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'value': EJsonValue value,
+        'child': EJsonValue child,
+        'children': EJsonValue children,
+        'realmObject': EJsonValue realmObject,
+      } =>
+        RecursiveEmbedded1(
+          fromEJson(value),
+          child: fromEJson(child),
+          realmObject: fromEJson(realmObject),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded1._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded1, 'RecursiveEmbedded1', [
       SchemaProperty('value', RealmPropertyType.string),
@@ -2403,7 +3172,7 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
       SchemaProperty('realmObject', RealmPropertyType.object,
           optional: true, linkTarget: 'ObjectWithEmbedded'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2463,10 +3232,36 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
   RecursiveEmbedded2 freeze() =>
       RealmObjectBase.freezeObject<RecursiveEmbedded2>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'value': value.toEJson(),
+      'child': child.toEJson(),
+      'children': children.toEJson(),
+      'realmObject': realmObject.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(RecursiveEmbedded2 value) => value.toEJson();
+  static RecursiveEmbedded2 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'value': EJsonValue value,
+        'child': EJsonValue child,
+        'children': EJsonValue children,
+        'realmObject': EJsonValue realmObject,
+      } =>
+        RecursiveEmbedded2(
+          fromEJson(value),
+          child: fromEJson(child),
+          realmObject: fromEJson(realmObject),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded2._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded2, 'RecursiveEmbedded2', [
       SchemaProperty('value', RealmPropertyType.string),
@@ -2478,7 +3273,7 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
       SchemaProperty('realmObject', RealmPropertyType.object,
           optional: true, linkTarget: 'ObjectWithEmbedded'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2507,15 +3302,33 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
   RecursiveEmbedded3 freeze() =>
       RealmObjectBase.freezeObject<RecursiveEmbedded3>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'value': value.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(RecursiveEmbedded3 value) => value.toEJson();
+  static RecursiveEmbedded3 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'value': EJsonValue value,
+      } =>
+        RecursiveEmbedded3(
+          fromEJson(value),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded3._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded3, 'RecursiveEmbedded3', [
       SchemaProperty('value', RealmPropertyType.string),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2554,17 +3367,38 @@ class ObjectWithDecimal extends _ObjectWithDecimal
   ObjectWithDecimal freeze() =>
       RealmObjectBase.freezeObject<ObjectWithDecimal>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'decimal': decimal.toEJson(),
+      'nullableDecimal': nullableDecimal.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithDecimal value) => value.toEJson();
+  static ObjectWithDecimal _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'decimal': EJsonValue decimal,
+        'nullableDecimal': EJsonValue nullableDecimal,
+      } =>
+        ObjectWithDecimal(
+          fromEJson(decimal),
+          nullableDecimal: fromEJson(nullableDecimal),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithDecimal._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
       SchemaProperty('decimal', RealmPropertyType.decimal128),
       SchemaProperty('nullableDecimal', RealmPropertyType.decimal128,
           optional: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2612,10 +3446,33 @@ class Asymmetric extends _Asymmetric
   @override
   Asymmetric freeze() => RealmObjectBase.freezeObject<Asymmetric>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'symmetric': symmetric.toEJson(),
+      'embeddedObjects': embeddedObjects.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Asymmetric value) => value.toEJson();
+  static Asymmetric _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'symmetric': EJsonValue symmetric,
+        'embeddedObjects': EJsonValue embeddedObjects,
+      } =>
+        Asymmetric(
+          fromEJson(id),
+          symmetric: fromEJson(symmetric),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.asymmetricObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
@@ -2624,7 +3481,7 @@ class Asymmetric extends _Asymmetric
       SchemaProperty('embeddedObjects', RealmPropertyType.object,
           linkTarget: 'Embedded', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2669,17 +3526,41 @@ class Embedded extends _Embedded
   @override
   Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'value': value.toEJson(),
+      'any': any.toEJson(),
+      'symmetric': symmetric.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Embedded value) => value.toEJson();
+  static Embedded _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'value': EJsonValue value,
+        'any': EJsonValue any,
+        'symmetric': EJsonValue symmetric,
+      } =>
+        Embedded(
+          fromEJson(value),
+          any: fromEJson(any),
+          symmetric: fromEJson(symmetric),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Embedded._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('value', RealmPropertyType.int),
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),
       SchemaProperty('symmetric', RealmPropertyType.object,
           optional: true, linkTarget: 'Symmetric'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -2707,15 +3588,33 @@ class Symmetric extends _Symmetric
   @override
   Symmetric freeze() => RealmObjectBase.freezeObject<Symmetric>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Symmetric value) => value.toEJson();
+  static Symmetric _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+      } =>
+        Symmetric(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Symmetric._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;

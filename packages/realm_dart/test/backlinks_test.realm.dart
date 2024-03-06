@@ -74,10 +74,38 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Source freeze() => RealmObjectBase.freezeObject<Source>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'et mål': oneTarget.toEJson(),
+      'manyTargets': manyTargets.toEJson(),
+      'dynamisk mål': dynamicTarget.toEJson(),
+      'dynamicManyTargets': dynamicManyTargets.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Source value) => value.toEJson();
+  static Source _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'et mål': EJsonValue oneTarget,
+        'manyTargets': EJsonValue manyTargets,
+        'dynamisk mål': EJsonValue dynamicTarget,
+        'dynamicManyTargets': EJsonValue dynamicManyTargets,
+      } =>
+        Source(
+          name: fromEJson(name),
+          oneTarget: fromEJson(oneTarget),
+          dynamicTarget: fromEJson(dynamicTarget),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Source._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneTarget', RealmPropertyType.object,
@@ -89,7 +117,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('dynamicManyTargets', RealmPropertyType.object,
           linkTarget: 'Target', collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -157,10 +185,35 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Target freeze() => RealmObjectBase.freezeObject<Target>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'source': source.toEJson(),
+      'oneToMany': oneToMany.toEJson(),
+      'manyToMany': manyToMany.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Target value) => value.toEJson();
+  static Target _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'source': EJsonValue source,
+        'oneToMany': EJsonValue oneToMany,
+        'manyToMany': EJsonValue manyToMany,
+      } =>
+        Target(
+          name: fromEJson(name),
+          source: fromEJson(source),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Target._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('source', RealmPropertyType.object,
@@ -174,7 +227,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
           collectionType: RealmCollectionType.list,
           linkTarget: 'Source'),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;

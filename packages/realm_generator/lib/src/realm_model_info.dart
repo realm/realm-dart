@@ -1,20 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2021 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2021 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
 
 import 'package:realm_common/realm_common.dart';
 
@@ -43,16 +28,16 @@ class RealmModelInfo {
         yield '';
       }
 
+      final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
+      final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
+      final lists = fields.where((f) => f.isDartCoreList).toList();
+      final sets = fields.where((f) => f.isDartCoreSet).toList();
+      final maps = fields.where((f) => f.isDartCoreMap).toList();
+
       // Constructor
       yield '$name(';
       {
-        final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
-
-        final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
-        final lists = fields.where((f) => f.isDartCoreList).toList();
-        final sets = fields.where((f) => f.isDartCoreSet).toList();
-        final maps = fields.where((f) => f.isDartCoreMap).toList();
         if (notRequired.isNotEmpty || lists.isNotEmpty || sets.isNotEmpty || maps.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) {
@@ -118,12 +103,49 @@ class RealmModelInfo {
       yield '$name freeze() => RealmObjectBase.freezeObject<$name>(this);';
       yield '';
 
+      // Encode
+      yield 'EJsonValue toEJson() {';
+      {
+        yield 'return <String, dynamic>{';
+        {
+          yield* fields.map((f) {
+            return "'${f.realmName}': ${f.name}.toEJson(),";
+          });
+        }
+        yield '};';
+      }
+      yield '}';
+
+      yield 'static EJsonValue _toEJson($name value) => value.toEJson();';
+
+      // Decode
+      yield 'static $name _fromEJson(EJsonValue ejson) {';
+      {
+        yield 'return switch (ejson) {';
+        {
+          yield '{';
+          {
+            yield* fields.map((f) {
+              return "'${f.realmName}': EJsonValue ${f.name},";
+            });
+          }
+          yield '} => $name(';
+          {
+            yield* required.map((f) => 'fromEJson(${f.name}),');
+            yield* notRequired.map((f) => '${f.name}: fromEJson(${f.name}),');
+          }
+          yield '),';
+          yield '_ => raiseInvalidEJson(ejson),';
+        }
+        yield '};';
+      }
+      yield '}';
+
       // Schema
-      yield 'static SchemaObject get schema => _schema ??= _initSchema();';
-      yield 'static SchemaObject? _schema;';
-      yield 'static SchemaObject _initSchema() {';
+      yield 'static final schema = () {';
       {
         yield 'RealmObjectBase.registerFactory($name._);';
+        yield 'register(_toEJson, _fromEJson);';
         yield "return SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
         {
           yield* fields.map((f) {
@@ -145,7 +167,7 @@ class RealmModelInfo {
         }
         yield ']);';
       }
-      yield '}';
+      yield '}();';
       yield '';
       yield '@override';
       yield 'SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;';

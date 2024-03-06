@@ -35,15 +35,36 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'make': make.toEJson(),
+      'color': color.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Car value) => value.toEJson();
+  static Car _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'make': EJsonValue make,
+        'color': EJsonValue color,
+      } =>
+        Car(
+          fromEJson(make),
+          color: fromEJson(color),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Car._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
@@ -254,10 +275,64 @@ class TestRealmSets extends _TestRealmSets
   @override
   TestRealmSets freeze() => RealmObjectBase.freezeObject<TestRealmSets>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'key': key.toEJson(),
+      'boolSet': boolSet.toEJson(),
+      'intSet': intSet.toEJson(),
+      'stringSet': stringSet.toEJson(),
+      'doubleSet': doubleSet.toEJson(),
+      'dateTimeSet': dateTimeSet.toEJson(),
+      'objectIdSet': objectIdSet.toEJson(),
+      'uuidSet': uuidSet.toEJson(),
+      'mixedSet': mixedSet.toEJson(),
+      'objectsSet': objectsSet.toEJson(),
+      'binarySet': binarySet.toEJson(),
+      'nullableBoolSet': nullableBoolSet.toEJson(),
+      'nullableIntSet': nullableIntSet.toEJson(),
+      'nullableStringSet': nullableStringSet.toEJson(),
+      'nullableDoubleSet': nullableDoubleSet.toEJson(),
+      'nullableDateTimeSet': nullableDateTimeSet.toEJson(),
+      'nullableObjectIdSet': nullableObjectIdSet.toEJson(),
+      'nullableUuidSet': nullableUuidSet.toEJson(),
+      'nullableBinarySet': nullableBinarySet.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(TestRealmSets value) => value.toEJson();
+  static TestRealmSets _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'key': EJsonValue key,
+        'boolSet': EJsonValue boolSet,
+        'intSet': EJsonValue intSet,
+        'stringSet': EJsonValue stringSet,
+        'doubleSet': EJsonValue doubleSet,
+        'dateTimeSet': EJsonValue dateTimeSet,
+        'objectIdSet': EJsonValue objectIdSet,
+        'uuidSet': EJsonValue uuidSet,
+        'mixedSet': EJsonValue mixedSet,
+        'objectsSet': EJsonValue objectsSet,
+        'binarySet': EJsonValue binarySet,
+        'nullableBoolSet': EJsonValue nullableBoolSet,
+        'nullableIntSet': EJsonValue nullableIntSet,
+        'nullableStringSet': EJsonValue nullableStringSet,
+        'nullableDoubleSet': EJsonValue nullableDoubleSet,
+        'nullableDateTimeSet': EJsonValue nullableDateTimeSet,
+        'nullableObjectIdSet': EJsonValue nullableObjectIdSet,
+        'nullableUuidSet': EJsonValue nullableUuidSet,
+        'nullableBinarySet': EJsonValue nullableBinarySet,
+      } =>
+        TestRealmSets(
+          fromEJson(key),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(TestRealmSets._);
+    register(_toEJson, _fromEJson);
     return SchemaObject(
         ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
@@ -298,7 +373,7 @@ class TestRealmSets extends _TestRealmSets
       SchemaProperty('nullableBinarySet', RealmPropertyType.binary,
           optional: true, collectionType: RealmCollectionType.set),
     ]);
-  }
+  }();
 
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;

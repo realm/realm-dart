@@ -1,0 +1,4 @@
+
+ignore:
+  # validator mistakenly flags this
+  - ejson_lint

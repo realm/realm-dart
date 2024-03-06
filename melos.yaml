@@ -1,0 +1,212 @@
+name: realm-dart
+
+repository: https://github.com/realm/realm-dart
+
+ide:
+  intellij: # no one uses android studio right?
+    enabled: false
+
+packages:
+  - packages/*
+  - packages/*/example
+  - packages/*/tests
+
+command:
+  bootstrap:
+    environment:
+      sdk: ^3.0.0
+      flutter: ^3.10.0
+    dev_dependencies:
+      lints: ^3.0.0
+
+  clean:
+    hooks:
+      pre: melos exec --flutter -- flutter clean
+
+scripts:
+  setup:
+    run: >-
+      dart pub global activate combine_coverage &&
+      dart pub global activate coverage &&
+      dart pub global activate coverde &&
+      dart pub global activate dependency_validator &&
+      dart pub global activate ffigen &&
+      dart pub global activate melos &&
+      dart pub global activate pana
+
+  build:
+    run: >-
+      melos run build:native &&
+      melos run build:binding &&
+      melos run build:dart
+      
+  build:native:
+    exec: dart run tool/build.dart native
+    packageFilters:
+      dirExists: src # by convention
+
+  build:dart:
+    run: dart run build_runner build --delete-conflicting-outputs
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: build_runner
+
+  build:binding:
+    exec: dart pub global run ffigen --config ffigen.yaml
+    packageFilters:
+      fileExists: ffigen.yaml # by convention
+
+  test:
+    description: Run all tests.
+    run: >-
+      melos run test:unit &&
+      melos run test:widget &&
+      melos run test:lints &&
+      melos run test:integration
+
+  test:unit:
+    run: dart test --concurrency=1 --coverage=coverage/ --file-reporter=json:test-results.json --reporter=github
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: test
+      dirExists: test/
+      flutter: false
+
+  test:widget:
+    run: flutter test --concurrency=1 --coverage --reporter=github
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: flutter_test
+      noDependsOn: integration_test # integration tests are run separately
+      dirExists: test/
+      flutter: true
+
+  test:lints:
+    run: dart run custom_lint
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: custom_lint
+
+  test:integration:
+    run: >-
+      flutter test integration_test/all_tests.dart
+      --coverage
+      --dart-define=BAAS_URL='$BAAS_URL'
+      --dart-define=BAAS_DIFFERENTIATOR='$BAAS_DIFFERENTIATOR'
+      --device-id='$DEVICE_ID'
+      --file-reporter=json:test-results.json
+      --reporter=github
+      --suppress-analytics
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: integration_test
+      fileExists: integration_test/all_tests.dart
+      flutter: true
+
+  doc:
+    description: Generate documentation.
+    exec: dart doc --validate-links
+    packageFilters:
+      published: true
+
+  format:
+    description: Format code.
+    # while we wait for https://github.com/dart-lang/dart_style/issues/864
+    run: >-
+      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
+      | xargs dart format --fix --line-length 160
+    exec: 
+      concurrency: 1 # only one project at a time to keep output sane
+
+  upgrade:
+    description: Upgrade all dependencies.
+    exec: dart pub upgrade --major-versions
+
+  lint:
+    description: Run all lints.
+    run: >-
+      melos run lint:format &&
+      melos run lint:pana &&
+      melos publish --dry-run
+
+  lint:format:
+    # while we wait for https://github.com/dart-lang/dart_style/issues/864
+    run: >-
+      find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
+      | xargs dart format --fix --line-length 160 --output none --set-exit-if-changed
+    exec: 
+      concurrency: 1 # only one project at a time to keep output sane
+
+  lint:pana:
+    run: dart pub global run pana --no-warning --exit-code-threshold 40 .
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      published: true
+
+  analyze:
+    description: Analyze code and dependencies.
+    run: >-
+      melos run analyze:code &&
+      melos run analyze:deps
+
+  analyze:code:
+    exec: dart analyze . --fatal-infos
+    
+  analyze:deps:
+    exec: dart pub global run dependency_validator
+
+  coverage:
+    description: Generate, check and render coverage.
+    run: >-
+      melos run coverage:convert &&
+      melos run coverage:gather &&
+      melos run coverage:groom &&
+      melos run coverage:report &&
+      melos run coverage:check
+
+  coverage:check: # TODO: Increase to 90 eventually
+    run: dart pub global run coverde check 80
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      fileExists: coverage/lcov.info # by convention
+
+  coverage:convert:
+    run: dart pub global run coverage:format_coverage --report-on=lib/ --in=coverage/test/ --lcov --out=coverage/lcov.info
+    exec:
+      concurrency: 1 # only one project at a time to keep output sane
+    packageFilters:
+      dependsOn: test
+      dirExists: coverage/test/
+      flutter: false
+
+  coverage:gather:
+    run: |
+      rm -rf $MELOS_ROOT_PATH/coverage
+      dart pub global run combine_coverage --repo-path=$MELOS_ROOT_PATH
+
+  coverage:groom:
+    run: |
+      lcov --remove coverage/lcov.info '*/lib/src/cli/*' -o coverage/lcov.info
+      lcov --remove coverage/lcov.info '*/realm_bindings.dart' -o coverage/lcov.info
+
+  coverage:report:
+    run: dart pub global run coverde report
+
+  # TODO: This is actually stricter than on CI, but we should aim for this
+  ci:
+    run: >-
+      melos clean &&
+      melos bootstrap &&
+      melos run build &&
+      melos run test &&
+      melos run coverage &&
+      melos run analyze &&
+      melos run lint
+  

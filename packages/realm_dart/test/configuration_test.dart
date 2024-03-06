@@ -1,20 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2021 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2021 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
 
 import 'dart:io';
 import 'dart:math';
@@ -212,15 +197,13 @@ void main() {
   test('Configuration - disableFormatUpgrade=true throws error', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: true);
     await copyFile('test/data/realm_files/old-format.realm', config.path);
-    expect(() {
-      getRealm(config);
-    }, throws<RealmException>("Database upgrade required but prohibited."));
+    expect(() => getRealm(config), throws<RealmException>("Database upgrade required but prohibited."));
   });
 
   test('Configuration - disableFormatUpgrade=false', () async {
     var config = Configuration.local([Car.schema], disableFormatUpgrade: false);
     await copyFile('test/data/realm_files/old-format.realm', config.path);
-    final realm = getRealm(config);
+    expect(() => getRealm(config), isNot(throwsException));
   });
 
   test('Configuration.initialDataCallback invoked', () {
@@ -441,7 +424,7 @@ void main() {
   });
 
   const dummyDataSize = 100;
-  _addDummyData(Realm realm) {
+  addDummyData(Realm realm) {
     for (var i = 0; i < dummyDataSize; i++) {
       realm.write(() {
         realm.add(Person(generateRandomString(1000)));
@@ -463,7 +446,7 @@ void main() {
       var config = Configuration.local([Person.schema]);
 
       final populateRealm = Realm(config);
-      _addDummyData(populateRealm);
+      addDummyData(populateRealm);
       populateRealm.close();
 
       final oldSize = File(config.path).lengthSync();

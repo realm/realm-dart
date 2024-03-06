@@ -46,6 +46,18 @@
 * Removed `SchemaObject.properties` - instead, `SchemaObject` is now an iterable collection of `Property`. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 
 ### Enhancements
+* Realm objects can now be serialized as [EJSON](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/)
+  ```dart
+  import 'package:ejson/ejson.dart';
+  // ...
+  class _Event {
+    late DateTime timestamp;
+    late String message;
+  }
+  // ...
+  final ejson = toEJson(aRealmObject);
+  final anUnmanagedRealmObject = fromEJson<Event>(ejson);
+  ```
 * Added `isCollectionDeleted` to `RealmListChanges`, `RealmSetChanges`, and `RealmMapChanges` which will be `true` if the parent object, containing the collection has been deleted. (Core 14.0.0)
 * Added `isCleared` to `RealmMapChanges` which will be `true` if the map has been cleared. (Core 14.0.0)
 * Querying a specific entry in a collection (in particular 'first and 'last') is supported. (Core 14.0.0)

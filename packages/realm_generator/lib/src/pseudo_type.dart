@@ -1,3 +1,6 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 // ignore_for_file: implementation_imports
 
 import 'dart:mirrors';

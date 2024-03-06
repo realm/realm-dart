@@ -18,4 +18,7 @@ test-results.json
 **/coverage/
 
 # dos
-**/doc/
+**/doc/api/
+
+# custom lint
+**/custom_lint.log
