@@ -7,6 +7,8 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
+import 'package:mason_logger/mason_logger.dart';
+import 'package:meta/meta.dart';
 
 extension<T extends Enum> on Iterable<T> {
   T? firstEqualIgnoreCase(String? value) => value == null ? null : where((e) => equalsIgnoreAsciiCase(e.name, value)).firstOrNull;
@@ -154,22 +156,29 @@ class _BuildNativeCommand extends _BaseCommand {
   @override
   OS get os => OS.current;
 
-  Future<int?> runProc(List<String> args) async {
+  Future<int?> runProc(List<String> args, {required Logger logger, String? message}) async {
     final p = await io.Process.start(args.first, args.skip(1).toList());
+    Progress? progress;
     if (verbose) {
       await io.stdout.addStream(p.stdout);
     } else {
+      message ??= args.join(' ');
+      final width = io.stdout.terminalColumns - 12;
+      message = message.padRight(width).substring(0, width);
+      progress = logger.progress(message);
       await for (final _ in p.stdout) {
-        io.stdout.write('.');
+        progress.update(message);
       }
     }
     final exitCode = await p.exitCode;
     if (exitCode < 0) {
-      io.stderr.writeln('Error: "${args.join(' ')}" exited with code $exitCode');
+      progress?.fail(message);
+      logger.err('Error: "$message}" exited with code $exitCode');
       return exitCode;
     } else {
+      progress?.complete(message);
       return null; // return null if successful
-    } 
+    }
   }
 
   @override
@@ -191,19 +200,22 @@ class _BuildNativeCommand extends _BaseCommand {
 
     int? exitCode;
     for (final target in targets) {
-      io.stdout.writeln('Building for ${target.name} in ${buildMode.name} mode');
+      logger.info('Building for ${target.name} in ${buildMode.name} mode');
       switch (target.os) {
         case OS.iOS:
           for (final sdk in iosSdks) {
-            exitCode ??= await runProc(['cmake', '--preset=ios']);
-            exitCode ??= await runProc(['cmake', '--build', '--preset=ios-${sdk.name}', '--config=${buildMode.cmakeName}']);
+            exitCode ??= await runProc(['cmake', '--preset=ios'], logger: logger);
+            exitCode ??= await runProc(['cmake', '--build', '--preset=ios-${sdk.name.toLowerCase()}', '--config=${buildMode.cmakeName}'], logger: logger);
           }
-          exitCode ??= await runProc([
-            'xcodebuild',
-            '-create-xcframework',
-            for (final s in iosSdks) '-framework ./binary/ios/${buildMode.cmakeName}-${s.name}/realm_dart.framework',
-            '-output ./binary/ios/realm_dart.xcframework',
-          ]);
+          exitCode ??= await runProc(
+            [
+              'xcodebuild',
+              '-create-xcframework',
+              for (final s in iosSdks) '-framework ./binary/ios/${buildMode.cmakeName}-${s.name}/realm_dart.framework',
+              '-output ./binary/ios/realm_dart.xcframework',
+            ],
+            logger: logger,
+          );
           break;
 
         case OS.android:
@@ -211,15 +223,18 @@ class _BuildNativeCommand extends _BaseCommand {
         case OS.macOS:
         case OS.windows:
           final preset = '${target.os.cmakeName}${target.os == OS.android ? "-${target.architecture.cmakeName}" : ""}';
-          exitCode ??= await runProc(['cmake', '--preset=$preset']);
-          exitCode ??= await runProc([
-            'cmake',
-            '--build',
-            '--preset=$preset',
-            '--config=${buildMode.cmakeName}',
-            if (target.os == OS.macOS) '-- -destination "generic/platform=macOS',
-            if (target.os == OS.android) '--target=strip',
-          ]);
+          exitCode ??= await runProc(['cmake', '--preset=$preset'], logger: logger);
+          exitCode ??= await runProc(
+            [
+              'cmake',
+              '--build',
+              '--preset=$preset',
+              '--config=${buildMode.cmakeName}',
+              if (target.os == OS.macOS) '-- -destination "generic/platform=macOS',
+              if (target.os == OS.android) '--target=strip',
+            ],
+            logger: logger,
+          );
           break;
       }
       io.stdout.writeln();
@@ -253,6 +268,8 @@ class _PossibleTargets extends _BaseCommand {
   }
 }
 
+final logger = Logger(progressOptions: ProgressOptions(trailing: ''));
+
 Future<void> main(List<String> arguments) async {
   final runner = CommandRunner<int>('build', 'Helper tool for building realm_dart')
     ..addCommand(_BuildNativeCommand())
@@ -262,7 +279,7 @@ Future<void> main(List<String> arguments) async {
     final exitCode = await runner.run(arguments);
     io.exit(exitCode!);
   } on UsageException catch (error) {
-    print(error);
+    logger.err('$error');
     io.exit(64); // Exit code 64 indicates a usage error.
   }
 }
