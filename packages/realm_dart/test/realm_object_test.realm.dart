@@ -30,15 +30,33 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   ObjectIdPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<ObjectIdPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectIdPrimaryKey value) => value.toEJson();
+  static ObjectIdPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        ObjectIdPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(ObjectIdPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
@@ -64,16 +82,35 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   NullableObjectIdPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<NullableObjectIdPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableObjectIdPrimaryKey value) =>
+      value.toEJson();
+  static NullableObjectIdPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableObjectIdPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableObjectIdPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject,
         NullableObjectIdPrimaryKey, 'NullableObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class IntPrimaryKey extends _IntPrimaryKey
@@ -98,15 +135,33 @@ class IntPrimaryKey extends _IntPrimaryKey
   @override
   IntPrimaryKey freeze() => RealmObjectBase.freezeObject<IntPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(IntPrimaryKey value) => value.toEJson();
+  static IntPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        IntPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(IntPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, IntPrimaryKey, 'IntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableIntPrimaryKey extends _NullableIntPrimaryKey
@@ -132,16 +187,34 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   NullableIntPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<NullableIntPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableIntPrimaryKey value) => value.toEJson();
+  static NullableIntPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableIntPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableIntPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey,
         'NullableIntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class StringPrimaryKey extends _StringPrimaryKey
@@ -167,15 +240,33 @@ class StringPrimaryKey extends _StringPrimaryKey
   StringPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<StringPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(StringPrimaryKey value) => value.toEJson();
+  static StringPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        StringPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(StringPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, StringPrimaryKey, 'StringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableStringPrimaryKey extends _NullableStringPrimaryKey
@@ -201,16 +292,34 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   NullableStringPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<NullableStringPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableStringPrimaryKey value) => value.toEJson();
+  static NullableStringPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableStringPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableStringPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey,
         'NullableStringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class UuidPrimaryKey extends _UuidPrimaryKey
@@ -235,15 +344,33 @@ class UuidPrimaryKey extends _UuidPrimaryKey
   @override
   UuidPrimaryKey freeze() => RealmObjectBase.freezeObject<UuidPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(UuidPrimaryKey value) => value.toEJson();
+  static UuidPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        UuidPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(UuidPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, UuidPrimaryKey, 'UuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
@@ -269,16 +396,34 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   NullableUuidPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<NullableUuidPrimaryKey>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableUuidPrimaryKey value) => value.toEJson();
+  static NullableUuidPrimaryKey _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableUuidPrimaryKey(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NullableUuidPrimaryKey._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey,
         'NullableUuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
     ]);
-  }
+  }();
 }
 
 class RemappedFromAnotherFile extends _RemappedFromAnotherFile
@@ -307,10 +452,28 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   RemappedFromAnotherFile freeze() =>
       RealmObjectBase.freezeObject<RemappedFromAnotherFile>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'property with spaces': linkToAnotherClass.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(RemappedFromAnotherFile value) => value.toEJson();
+  static RemappedFromAnotherFile _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'property with spaces': EJsonValue linkToAnotherClass,
+      } =>
+        RemappedFromAnotherFile(
+          linkToAnotherClass: fromEJson(linkToAnotherClass),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(RemappedFromAnotherFile._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, RemappedFromAnotherFile, 'class with spaces', [
       SchemaProperty('linkToAnotherClass', RealmPropertyType.object,
@@ -318,7 +481,7 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
           optional: true,
           linkTarget: 'myRemappedClass'),
     ]);
-  }
+  }();
 }
 
 class BoolValue extends _BoolValue
@@ -350,13 +513,34 @@ class BoolValue extends _BoolValue
   @override
   BoolValue freeze() => RealmObjectBase.freezeObject<BoolValue>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'key': key.toEJson(),
+      'value': value.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(BoolValue value) => value.toEJson();
+  static BoolValue _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'key': EJsonValue key,
+        'value': EJsonValue value,
+      } =>
+        BoolValue(
+          fromEJson(key),
+          fromEJson(value),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(BoolValue._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, BoolValue, 'BoolValue', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('value', RealmPropertyType.bool),
     ]);
-  }
+  }();
 }

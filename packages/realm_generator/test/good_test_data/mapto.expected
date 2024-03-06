@@ -58,10 +58,33 @@ class Original extends $Original
   @override
   Original freeze() => RealmObjectBase.freezeObject<Original>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'remapped primitive': primitiveProperty.toEJson(),
+      'remapped object': objectProperty.toEJson(),
+      'remapped list': listProperty.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Original value) => value.toEJson();
+  static Original _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'remapped primitive': EJsonValue primitiveProperty,
+        'remapped object': EJsonValue objectProperty,
+        'remapped list': EJsonValue listProperty,
+      } =>
+        Original(
+          primitiveProperty: fromEJson(primitiveProperty),
+          objectProperty: fromEJson(objectProperty),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Original._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, Original, 'another type', [
       SchemaProperty('primitiveProperty', RealmPropertyType.int,
@@ -73,6 +96,5 @@ class Original extends $Original
           linkTarget: 'another type',
           collectionType: RealmCollectionType.list),
     ]);
-  }
+  }();
 }
-

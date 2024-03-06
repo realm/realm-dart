@@ -294,7 +294,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -302,7 +302,7 @@ jobs:
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@v4
         with:
           name: librealm-ios
           path: packages/realm_dart/binary/ios
@@ -312,13 +312,18 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap
+
       - name: Install dependencies
         run: dart pub get
 
       - name: Launch Simulator
-        uses: futureware-tech/simulator-action@v2
+        uses: futureware-tech/simulator-action@v3
         with:
-          model: 'iPhone 8'
+          model: 'iPhone SE (3rd generation)'
           os: 'iOS'
           os_version: '>= 14.0'
 
@@ -331,7 +336,7 @@ jobs:
             --suppress-analytics
 
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Flutter iOS
@@ -373,7 +378,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -384,16 +389,16 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Gradle cache
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 11
 
       - name: Fetch artifacts
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@v4
         with:
           name: librealm-android
           path: packages/realm_dart/binary/android
@@ -402,6 +407,11 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap
 
       - name: Install dependencies
         run: dart pub get
@@ -447,7 +457,7 @@ jobs:
           script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Flutter Android
@@ -481,10 +491,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}-latest
     name: Generator Tests
+
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -493,8 +504,15 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          dart pub global run melos bootstrap
+
       - name: Delete generated files in realm_dart
-        run: find . -name "*.realm.dart" -delete
+        run: |
+          find . -name "*.g.dart" -delete
+          find . -name "*.realm.dart" -delete
         working-directory: packages/realm_dart
 
       - name: Run generator in realm_dart
@@ -533,52 +551,17 @@ jobs:
             exit 1
           fi
 
-      - name: Run generator tests
-        run: |
-          dart pub get
-          dart test -r expanded --coverage ./coverage/ --test-randomize-ordering-seed random
-
-      - name: Generate generator coverage report
-        if: matrix.os == 'ubuntu'
-        run: |
-          dart run coverage:format_coverage \
-            --in coverage/ \
-            --out ./coverage/lcov.info \
-            --check-ignore \
-            --lcov \
-            --packages .dart_tool/package_config.json \
-            --report-on lib
-
-      - name: Publish Generator Coverage
-        if: matrix.os == 'ubuntu'
-        id: publish-coverage
-        uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: generator
-          path-to-lcov: packages/realm_generator/coverage/lcov.info
-          parallel: true
-
-      - name: Output Coveralls response
-        if: matrix.os == 'ubuntu'
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
-
   coverage-finished:
     needs:
-      - generator
       - dart-tests-linux
     runs-on: ubuntu-latest
     steps:
-
       - name: Coveralls Finished
         id: publish-coverage
         uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-
-      - name: Output Coveralls response
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}
 
   slack-on-failure:
     name: Report failure in main branch

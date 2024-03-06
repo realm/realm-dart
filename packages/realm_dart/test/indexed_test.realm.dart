@@ -67,10 +67,43 @@ class WithIndexes extends _WithIndexes
   @override
   WithIndexes freeze() => RealmObjectBase.freezeObject<WithIndexes>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'anInt': anInt.toEJson(),
+      'aBool': aBool.toEJson(),
+      'string': string.toEJson(),
+      'timestamp': timestamp.toEJson(),
+      'objectId': objectId.toEJson(),
+      'uuid': uuid.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(WithIndexes value) => value.toEJson();
+  static WithIndexes _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'anInt': EJsonValue anInt,
+        'aBool': EJsonValue aBool,
+        'string': EJsonValue string,
+        'timestamp': EJsonValue timestamp,
+        'objectId': EJsonValue objectId,
+        'uuid': EJsonValue uuid,
+      } =>
+        WithIndexes(
+          fromEJson(anInt),
+          fromEJson(aBool),
+          fromEJson(string),
+          fromEJson(timestamp),
+          fromEJson(objectId),
+          fromEJson(uuid),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(WithIndexes._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, WithIndexes, 'WithIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int,
@@ -86,7 +119,7 @@ class WithIndexes extends _WithIndexes
       SchemaProperty('uuid', RealmPropertyType.uuid,
           indexType: RealmIndexType.regular),
     ]);
-  }
+  }();
 }
 
 class NoIndexes extends _NoIndexes
@@ -149,10 +182,43 @@ class NoIndexes extends _NoIndexes
   @override
   NoIndexes freeze() => RealmObjectBase.freezeObject<NoIndexes>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'anInt': anInt.toEJson(),
+      'aBool': aBool.toEJson(),
+      'string': string.toEJson(),
+      'timestamp': timestamp.toEJson(),
+      'objectId': objectId.toEJson(),
+      'uuid': uuid.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NoIndexes value) => value.toEJson();
+  static NoIndexes _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'anInt': EJsonValue anInt,
+        'aBool': EJsonValue aBool,
+        'string': EJsonValue string,
+        'timestamp': EJsonValue timestamp,
+        'objectId': EJsonValue objectId,
+        'uuid': EJsonValue uuid,
+      } =>
+        NoIndexes(
+          fromEJson(anInt),
+          fromEJson(aBool),
+          fromEJson(string),
+          fromEJson(timestamp),
+          fromEJson(objectId),
+          fromEJson(uuid),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(NoIndexes._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int),
       SchemaProperty('aBool', RealmPropertyType.bool),
@@ -161,7 +227,7 @@ class NoIndexes extends _NoIndexes
       SchemaProperty('objectId', RealmPropertyType.objectid),
       SchemaProperty('uuid', RealmPropertyType.uuid),
     ]);
-  }
+  }();
 }
 
 class ObjectWithFTSIndex extends _ObjectWithFTSIndex
@@ -203,10 +269,34 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   ObjectWithFTSIndex freeze() =>
       RealmObjectBase.freezeObject<ObjectWithFTSIndex>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'title': title.toEJson(),
+      'summary': summary.toEJson(),
+      'nullableSummary': nullableSummary.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithFTSIndex value) => value.toEJson();
+  static ObjectWithFTSIndex _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'title': EJsonValue title,
+        'summary': EJsonValue summary,
+        'nullableSummary': EJsonValue nullableSummary,
+      } =>
+        ObjectWithFTSIndex(
+          fromEJson(title),
+          fromEJson(summary),
+          nullableSummary: fromEJson(nullableSummary),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
       SchemaProperty('title', RealmPropertyType.string),
@@ -215,5 +305,5 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
       SchemaProperty('nullableSummary', RealmPropertyType.string,
           optional: true, indexType: RealmIndexType.fullText),
     ]);
-  }
+  }();
 }

@@ -29,14 +29,32 @@ class PersonIntName extends _PersonIntName
   @override
   PersonIntName freeze() => RealmObjectBase.freezeObject<PersonIntName>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(PersonIntName value) => value.toEJson();
+  static PersonIntName _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+      } =>
+        PersonIntName(
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(PersonIntName._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, PersonIntName, 'Person', [
       SchemaProperty('name', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
 
 class StudentV1 extends _StudentV1
@@ -69,15 +87,36 @@ class StudentV1 extends _StudentV1
   @override
   StudentV1 freeze() => RealmObjectBase.freezeObject<StudentV1>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'yearOfBirth': yearOfBirth.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(StudentV1 value) => value.toEJson();
+  static StudentV1 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'yearOfBirth': EJsonValue yearOfBirth,
+      } =>
+        StudentV1(
+          fromEJson(name),
+          yearOfBirth: fromEJson(yearOfBirth),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(StudentV1._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, StudentV1, 'Student', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
     ]);
-  }
+  }();
 }
 
 class MyObjectWithTypo extends _MyObjectWithTypo
@@ -110,16 +149,37 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   MyObjectWithTypo freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithTypo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'nmae': nmae.toEJson(),
+      'vlaue': vlaue.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(MyObjectWithTypo value) => value.toEJson();
+  static MyObjectWithTypo _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'nmae': EJsonValue nmae,
+        'vlaue': EJsonValue vlaue,
+      } =>
+        MyObjectWithTypo(
+          fromEJson(nmae),
+          fromEJson(vlaue),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithTypo._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
       SchemaProperty('nmae', RealmPropertyType.string),
       SchemaProperty('vlaue', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
@@ -152,16 +212,37 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   MyObjectWithoutTypo freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithoutTypo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+      'value': value.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(MyObjectWithoutTypo value) => value.toEJson();
+  static MyObjectWithoutTypo _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+        'value': EJsonValue value,
+      } =>
+        MyObjectWithoutTypo(
+          fromEJson(name),
+          fromEJson(value),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithoutTypo._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, MyObjectWithoutTypo, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('value', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
@@ -187,13 +268,31 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   MyObjectWithoutValue freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithoutValue>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'name': name.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(MyObjectWithoutValue value) => value.toEJson();
+  static MyObjectWithoutValue _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'name': EJsonValue name,
+      } =>
+        MyObjectWithoutValue(
+          fromEJson(name),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithoutValue._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, MyObjectWithoutValue, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
-  }
+  }();
 }

@@ -57,7 +57,7 @@ Pod::Spec.new do |s|
   s.script_phases             = [
                                   { :name => 'Download Realm Flutter macOS Binaries',
                                     #Use --debug to debug the install command
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type macos --flavor flutter',
+                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type macos',
                                     :execution_position => :before_headers
                                   },
                                   { :name => 'Report Metrics',

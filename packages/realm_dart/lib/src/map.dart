@@ -1,20 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2023 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2023 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
 import 'dart:collection';
@@ -53,9 +38,7 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 
   UnmanagedRealmMap([Map<String, T>? items]) : this._(Map<String, T>.from(items ?? <String, T>{}));
 
-  UnmanagedRealmMap._(Map<String, T> items)
-      : _base = items,
-        super(items);
+  UnmanagedRealmMap._(super.items) : _base = items;
 
   @override
   bool get isValid => true;

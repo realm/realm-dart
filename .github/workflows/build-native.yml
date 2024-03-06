@@ -30,7 +30,7 @@ jobs:
          build: ${{ fromJSON(inputs.build) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: 'recursive'
 
@@ -41,17 +41,18 @@ jobs:
           path: ./packages/realm_dart/binary/**
           key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}
 
-
       - name: Setup Ninja
-        if: steps.check-cache.outputs.cache-hit != 'true'
-        uses: seanmiddleditch/gha-setup-ninja@1815f2d05c2cd60c2d900f89843139b8dde09f4c
+        if: steps.check-cache.outputs.cache-hit != 'true' && (startsWith(matrix.build, 'android') || startsWith(matrix.build, 'linux'))
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build
 
       - name: Setup Android NDK
-        if: startsWith(matrix.build, 'android-')
+        if: startsWith(matrix.build, 'android')
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: Downgrade XCode for MacOS
-        if: ${{ matrix.build == 'macos' }}
+        if: matrix.build == 'macos'
         run: sudo xcode-select -s /Applications/Xcode_14.0.1.app
 
       - name: Build
@@ -61,7 +62,7 @@ jobs:
           cmake --build --preset ${{ matrix.build }} --config Release ${{ startsWith(matrix.build, 'android-') && '--target strip' || '' }}
 
       - name: Store artifacts
-        uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
+        uses: actions/upload-artifact@v4
         with:
           name: librealm-${{ matrix.build }}
           path: packages/realm_dart/binary/${{ inputs.binary }}/**

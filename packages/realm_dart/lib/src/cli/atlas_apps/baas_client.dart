@@ -1,20 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2022 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2022 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
 
 import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
@@ -200,7 +185,9 @@ class BaasClient {
   }
 
   static Future<List<_ContainerInfo>> _getContainers(BaasAuthHelper helper, {String? differentiator}) async {
-    var result = (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>).map((e) => _ContainerInfo.fromJson(e)).whereNotNull();
+    var result = (await helper.callEndpoint('listContainers', isPost: false) as List<dynamic>)
+        .map((e) => _ContainerInfo.fromJson(e as Map<String, dynamic>))
+        .whereNotNull();
     if (differentiator != null) {
       final userId = await helper.getUserId();
       result = result.where((c) => c.creatorId == userId && c.tags['DIFFERENTIATOR'] == differentiator);
@@ -282,7 +269,7 @@ class BaasClient {
     try {
       final response = await _get('groups/$_groupId/apps/$appId/sync/progress');
 
-      Map<String, dynamic> progressInfo = response['progress'];
+      final progressInfo = response['progress'] as Map<String, dynamic>;
       for (final key in progressInfo.keys) {
         final namespaceComplete = progressInfo[key]['complete'] as bool;
 
@@ -736,7 +723,7 @@ class _ContainerInfo {
     }
 
     final id = json['id'] as String;
-    final lastStatus = json['lastStatus'];
+    final lastStatus = json['lastStatus'] as String;
     final tags = {for (var v in json['tags'] as List<dynamic>) v['key'] as String: v['value'] as String};
     final creatorId = json['creatorId'] as String;
 

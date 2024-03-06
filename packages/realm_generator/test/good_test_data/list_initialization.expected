@@ -33,8 +33,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
         this, 'initSetWithType', RealmSet<int>(initSetWithType));
     RealmObjectBase.set<RealmSet<int>>(
         this, 'initSetConst', RealmSet<int>(initSetConst));
-    RealmObjectBase.set<RealmMap<int>>(
-        this, 'initMap', RealmMap<int>(initMap));
+    RealmObjectBase.set<RealmMap<int>>(this, 'initMap', RealmMap<int>(initMap));
     RealmObjectBase.set<RealmMap<int>>(
         this, 'initMapWithType', RealmMap<int>(initMapWithType));
     RealmObjectBase.set<RealmMap<int>>(
@@ -101,8 +100,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   @override
   RealmMap<int> get initMapWithType =>
-      RealmObjectBase.get<int>(this, 'initMapWithType')
-          as RealmMap<int>;
+      RealmObjectBase.get<int>(this, 'initMapWithType') as RealmMap<int>;
   @override
   set initMapWithType(covariant RealmMap<int> value) =>
       throw RealmUnsupportedSetError();
@@ -121,10 +119,44 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'children': children.toEJson(),
+      'initList': initList.toEJson(),
+      'initListWithType': initListWithType.toEJson(),
+      'initListConst': initListConst.toEJson(),
+      'initSet': initSet.toEJson(),
+      'initSetWithType': initSetWithType.toEJson(),
+      'initSetConst': initSetConst.toEJson(),
+      'initMap': initMap.toEJson(),
+      'initMapWithType': initMapWithType.toEJson(),
+      'initMapConst': initMapConst.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'children': EJsonValue children,
+        'initList': EJsonValue initList,
+        'initListWithType': EJsonValue initListWithType,
+        'initListConst': EJsonValue initListConst,
+        'initSet': EJsonValue initSet,
+        'initSetWithType': EJsonValue initSetWithType,
+        'initSetConst': EJsonValue initSetConst,
+        'initMap': EJsonValue initMap,
+        'initMapWithType': EJsonValue initMapWithType,
+        'initMapConst': EJsonValue initMapConst,
+      } =>
+        Person(),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Person._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'Person', collectionType: RealmCollectionType.list),
@@ -147,5 +179,5 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('initMapConst', RealmPropertyType.int,
           collectionType: RealmCollectionType.map),
     ]);
-  }
+  }();
 }

@@ -1,3 +1,6 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 import 'package:build_cli_annotations/build_cli_annotations.dart';
 
 part 'options.g.dart';
@@ -7,7 +10,10 @@ class Options {
   @CliOption(defaultsTo: false, help: "Optional. Cleans generator caches. Same as running 'dart run build_runner clean'")
   bool clean = false;
 
-  @CliOption(defaultsTo: false, help: "Optional. Watches for changes and generates RealmObjects classes on the background. Same as running 'dart run build_runner watch --delete-conflicting-outputs'")
+  @CliOption(
+      defaultsTo: false,
+      help:
+          "Optional. Watches for changes and generates RealmObjects classes on the background. Same as running 'dart run build_runner watch --delete-conflicting-outputs'")
   bool watch = false;
 }
 

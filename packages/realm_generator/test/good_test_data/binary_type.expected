@@ -14,7 +14,8 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     Uint8List? nullableBinaryProp,
   }) {
     RealmObjectBase.set(this, 'requiredBinaryProp', requiredBinaryProp);
-    RealmObjectBase.set(this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
+    RealmObjectBase.set(
+        this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
   }
 
@@ -49,15 +50,39 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'requiredBinaryProp': requiredBinaryProp.toEJson(),
+      'defaultValueBinaryProp': defaultValueBinaryProp.toEJson(),
+      'nullableBinaryProp': nullableBinaryProp.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Foo value) => value.toEJson();
+  static Foo _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'requiredBinaryProp': EJsonValue requiredBinaryProp,
+        'defaultValueBinaryProp': EJsonValue defaultValueBinaryProp,
+        'nullableBinaryProp': EJsonValue nullableBinaryProp,
+      } =>
+        Foo(
+          fromEJson(requiredBinaryProp),
+          defaultValueBinaryProp: fromEJson(defaultValueBinaryProp),
+          nullableBinaryProp: fromEJson(nullableBinaryProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
       SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);
-  }
+  }();
 }

@@ -55,7 +55,7 @@ add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
-execute_process(COMMAND "${FLUTTER_ROOT}/bin/dart" "run" "realm" "install" "--target-os-type" "linux" "--flavor" "flutter" # "--debug"
+execute_process(COMMAND "${FLUTTER_ROOT}/bin/dart" "run" "realm" "install" "--target-os-type" "linux" # "--debug"
   WORKING_DIRECTORY ${ABSOLUTE_PATH_APP_DIR}
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result

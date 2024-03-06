@@ -1,25 +1,9 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2021 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2021 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
@@ -93,21 +77,7 @@ export "configuration.dart"
         SchemaObject,
         ShouldCompactCallback,
         SyncError,
-        SyncErrorHandler,
-        // ignore: deprecated_member_use_from_same_package
-        SyncClientError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncConnectionError,
-        // ignore: deprecated_member_use_from_same_package
-        GeneralSyncError,
-        // ignore: deprecated_member_use_from_same_package
-        GeneralSyncErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncResolveError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncWebSocketError,
-        // ignore: deprecated_member_use_from_same_package
-        SyncSessionError;
+        SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
@@ -127,28 +97,7 @@ export 'realm_object.dart'
         UserCallbackException;
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
-export 'session.dart'
-    show
-        ConnectionStateChange,
-        SyncProgress,
-        ProgressDirection,
-        ProgressMode,
-        ConnectionState,
-        Session,
-        SessionState,
-        SyncErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncClientErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncConnectionErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncErrorCategory,
-        // ignore: deprecated_member_use_from_same_package
-        SyncResolveErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncWebSocketErrorCode,
-        // ignore: deprecated_member_use_from_same_package
-        SyncSessionErrorCode;
+export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState, SyncErrorCode;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
 export 'native/realm_core.dart' show Decimal128;
@@ -1021,7 +970,7 @@ class MigrationRealm extends DynamicRealm {
   /// the schema will be read from the file.
   RealmSchema get schema => _realm.schema;
 
-  MigrationRealm._(Realm realm) : super._(realm);
+  MigrationRealm._(super.realm) : super._();
 }
 
 /// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].

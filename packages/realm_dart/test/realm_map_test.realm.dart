@@ -35,15 +35,36 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'make': make.toEJson(),
+      'color': color.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Car value) => value.toEJson();
+  static Car _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'make': EJsonValue make,
+        'color': EJsonValue color,
+      } =>
+        Car(
+          fromEJson(make),
+          color: fromEJson(color),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(Car._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
     ]);
-  }
+  }();
 }
 
 class EmbeddedValue extends _EmbeddedValue
@@ -68,15 +89,33 @@ class EmbeddedValue extends _EmbeddedValue
   @override
   EmbeddedValue freeze() => RealmObjectBase.freezeObject<EmbeddedValue>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'intValue': intValue.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(EmbeddedValue value) => value.toEJson();
+  static EmbeddedValue _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'intValue': EJsonValue intValue,
+      } =>
+        EmbeddedValue(
+          fromEJson(intValue),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(EmbeddedValue._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.embeddedObject, EmbeddedValue, 'EmbeddedValue', [
       SchemaProperty('intValue', RealmPropertyType.int),
     ]);
-  }
+  }();
 }
 
 class TestRealmMaps extends _TestRealmMaps
@@ -317,10 +356,70 @@ class TestRealmMaps extends _TestRealmMaps
   @override
   TestRealmMaps freeze() => RealmObjectBase.freezeObject<TestRealmMaps>(this);
 
-  static SchemaObject get schema => _schema ??= _initSchema();
-  static SchemaObject? _schema;
-  static SchemaObject _initSchema() {
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'key': key.toEJson(),
+      'boolMap': boolMap.toEJson(),
+      'intMap': intMap.toEJson(),
+      'stringMap': stringMap.toEJson(),
+      'doubleMap': doubleMap.toEJson(),
+      'dateTimeMap': dateTimeMap.toEJson(),
+      'objectIdMap': objectIdMap.toEJson(),
+      'uuidMap': uuidMap.toEJson(),
+      'binaryMap': binaryMap.toEJson(),
+      'decimalMap': decimalMap.toEJson(),
+      'nullableBoolMap': nullableBoolMap.toEJson(),
+      'nullableIntMap': nullableIntMap.toEJson(),
+      'nullableStringMap': nullableStringMap.toEJson(),
+      'nullableDoubleMap': nullableDoubleMap.toEJson(),
+      'nullableDateTimeMap': nullableDateTimeMap.toEJson(),
+      'nullableObjectIdMap': nullableObjectIdMap.toEJson(),
+      'nullableUuidMap': nullableUuidMap.toEJson(),
+      'nullableBinaryMap': nullableBinaryMap.toEJson(),
+      'nullableDecimalMap': nullableDecimalMap.toEJson(),
+      'objectsMap': objectsMap.toEJson(),
+      'embeddedMap': embeddedMap.toEJson(),
+      'mixedMap': mixedMap.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(TestRealmMaps value) => value.toEJson();
+  static TestRealmMaps _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'key': EJsonValue key,
+        'boolMap': EJsonValue boolMap,
+        'intMap': EJsonValue intMap,
+        'stringMap': EJsonValue stringMap,
+        'doubleMap': EJsonValue doubleMap,
+        'dateTimeMap': EJsonValue dateTimeMap,
+        'objectIdMap': EJsonValue objectIdMap,
+        'uuidMap': EJsonValue uuidMap,
+        'binaryMap': EJsonValue binaryMap,
+        'decimalMap': EJsonValue decimalMap,
+        'nullableBoolMap': EJsonValue nullableBoolMap,
+        'nullableIntMap': EJsonValue nullableIntMap,
+        'nullableStringMap': EJsonValue nullableStringMap,
+        'nullableDoubleMap': EJsonValue nullableDoubleMap,
+        'nullableDateTimeMap': EJsonValue nullableDateTimeMap,
+        'nullableObjectIdMap': EJsonValue nullableObjectIdMap,
+        'nullableUuidMap': EJsonValue nullableUuidMap,
+        'nullableBinaryMap': EJsonValue nullableBinaryMap,
+        'nullableDecimalMap': EJsonValue nullableDecimalMap,
+        'objectsMap': EJsonValue objectsMap,
+        'embeddedMap': EJsonValue embeddedMap,
+        'mixedMap': EJsonValue mixedMap,
+      } =>
+        TestRealmMaps(
+          fromEJson(key),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
     RealmObjectBase.registerFactory(TestRealmMaps._);
+    register(_toEJson, _fromEJson);
     return const SchemaObject(
         ObjectType.realmObject, TestRealmMaps, 'TestRealmMaps', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
@@ -371,5 +470,5 @@ class TestRealmMaps extends _TestRealmMaps
       SchemaProperty('mixedMap', RealmPropertyType.mixed,
           optional: true, collectionType: RealmCollectionType.map),
     ]);
-  }
+  }();
 }

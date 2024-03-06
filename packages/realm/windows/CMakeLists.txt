@@ -47,7 +47,7 @@ add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
 
-execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "install" "--target-os-type" "windows" "--flavor" "flutter" #"--debug"
+execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "install" "--target-os-type" "windows" #"--debug"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
   COMMAND_ERROR_IS_FATAL ANY

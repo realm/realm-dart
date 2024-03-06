@@ -1,20 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2021 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2021 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 import 'package:analyzer/dart/element/element.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:source_span/source_span.dart';
@@ -31,8 +17,8 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   bool color;
 
   RealmInvalidGenerationSourceError(
-    String message, {
-    required String todo,
+    super.message, {
+    required super.todo,
     required Element element,
     FileSpan? primarySpan,
     bool? color,
@@ -41,7 +27,7 @@ class RealmInvalidGenerationSourceError extends InvalidGenerationSourceError {
   })  : primarySpan = primarySpan ?? element.span,
         secondarySpans = {...secondarySpans},
         color = color ?? session.color,
-        super(message, todo: todo, element: element) {
+        super(element: element) {
     if (element is FieldElement || element is ConstructorElement) {
       final classElement = element.enclosingElement!;
       this.secondarySpans.addAll({

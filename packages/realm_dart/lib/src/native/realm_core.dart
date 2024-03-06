@@ -1,20 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// Copyright 2021 Realm Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-////////////////////////////////////////////////////////////////////////////////
+// Copyright 2021 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:async';
@@ -114,7 +100,7 @@ class _RealmCore {
     // This disables creation of a second _RealmCore instance effectivelly making `realmCore` global variable readonly
     _instance = this;
 
-    // This prevents reentrancy if `realmCore` global variable is accessed during _RealmCore construction
+    // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
     defaultRealmLogger = _initDefaultLogger(scheduler);
   }
@@ -3177,13 +3163,13 @@ abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
 }
 
 abstract class CollectionHandleBase<T extends NativeType> extends RootedHandleBase<T> {
-  CollectionHandleBase(RealmHandle root, Pointer<T> pointer, int size) : super(root, pointer, size);
+  CollectionHandleBase(super.root, super.pointer, super.size);
 }
 
 class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
 
-  SchemaHandle.unowned(Pointer<realm_schema> pointer) : super.unowned(pointer);
+  SchemaHandle.unowned(super.pointer) : super.unowned();
 }
 
 class ConfigHandle extends HandleBase<realm_config> {
@@ -3197,7 +3183,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
 
-  RealmHandle._unowned(Pointer<shared_realm> pointer) : super.unowned(pointer);
+  RealmHandle._unowned(super.pointer) : super.unowned();
 
   int addChild(RootedHandleBase child) {
     final id = _counter++;

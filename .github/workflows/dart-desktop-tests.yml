@@ -30,21 +30,15 @@ jobs:
     runs-on: ${{ inputs.runner }}
     name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
     timeout-minutes: 45
-    defaults:
-      run:
-        working-directory: packages/realm_dart
 
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        uses: actions/checkout@v4
         with:
           submodules: false
 
-      - name: Cleanup Workspace
-        run: git clean -fdx
-
       - name: Fetch artifacts
-        uses: actions/download-artifact@9782bd6a9848b53b110e712e20e42d89988822b7
+        uses: actions/download-artifact@v4
         with:
           name: librealm-${{ inputs.os }}
           path: packages/realm_dart/binary/${{ inputs.os }}
@@ -55,18 +49,22 @@ jobs:
           sdk: stable
           architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
-      - name: Install dependencies
-        run: dart pub get
+      - name: Setup Melos
+        run: |
+          dart pub global activate melos
+          melos bootstrap --no-flutter
+          melos setup
 
-      - name: Bump ulimit
+      - name: Bump ulimit on macos
         run: ulimit -n 10240
         if: ${{ contains(inputs.os, 'macos') }}
 
       - name: Run tests
-        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}dart test -r expanded --coverage ./coverage/ -j 1 --test-randomize-ordering-seed random --file-reporter="json:test-results.json" || true
+        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}melos test:unit
 
+      # TODO: Publish all reports
       - name: Publish Test Report
-        uses: dorny/test-reporter@v1.7.0
+        uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
           name: Test Results Dart ${{ inputs.os }} ${{ inputs.architecture }}
@@ -75,30 +73,20 @@ jobs:
           only-summary: true
           working-directory: packages/realm_dart
 
-      # we're pruning generated files, the cli folder, as well as realm_bindings.dart from our coverage reports
-      - name: Generate realm_dart coverage report
+      - name: Gather coverage report
         if: inputs.runner == 'ubuntu-latest'
         run: |
-          sudo apt-get install -y lcov
-          dart run coverage:format_coverage \
-            --in coverage/ \
-            --out ./coverage/lcov.info \
-            --check-ignore \
-            --lcov \
-            --packages .dart_tool/package_config.json \
-            --report-on lib,common
-          lcov --remove ./coverage/lcov.info '*.realm.dart' '*/lib/src/cli/*' '*/lib/src/native/realm_bindings.dart' -o coverage/pruned-lcov.info
+          sudo apt-get install lcov
+          melos coverage:convert
+          melos coverage:gather
+          melos coverage:groom
 
-      - name: Publish realm_dart coverage
+      - name: Publish coverage
         if: inputs.runner == 'ubuntu-latest'
         id: publish-coverage
         uses: coverallsapp/github-action@f350da2c033043742f89e8c0b7b5145a1616da6d
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: realm_dart
-          path-to-lcov: packages/realm_dart/coverage/pruned-lcov.info
+          path-to-lcov: ./coverage/lcov.info
           parallel: true
-
-      - name: Output Coveralls response
-        if: inputs.runner == 'ubuntu-latest'
-        run: echo ${{ steps.publish-coverage.outputs.coveralls-api-result }}

@@ -5,6 +5,7 @@
   "cSpell.words": [
     "apikey",
     "apikeys",
+    "armeabi",
     "backlinks",
     "BEGINSWITH",
     "bson",
@@ -25,18 +26,23 @@
     "HRESULT",
     "keepalive",
     "loggable",
+    "maccatalyst",
     "mugaritz",
     "nodoc",
     "nullptr",
     "posix",
+    "riscv",
     "sublist",
     "sublists",
     "TRUEPREDICATE",
     "unmanaged",
+    "unsynced",
     "upsert",
     "usercode",
     "userdata",
-    "writeln"
+    "writeln",
+    "xcframework",
+    "xcodebuild"
   ],
   "cmake.statusbar.advanced": {
     "ctest": {
