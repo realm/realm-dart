@@ -235,7 +235,6 @@ class _BuildNativeCommand extends _BaseCommand {
               '--build',
               '--preset=$preset',
               '--config=${buildMode.cmakeName}',
-              if (target.os == OS.macOS) '-- -destination "generic/platform=macOS',
               if (target.os == OS.android) '--target=strip',
             ],
             logger: logger,
