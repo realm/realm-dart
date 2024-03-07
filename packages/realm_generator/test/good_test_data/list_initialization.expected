@@ -149,7 +149,18 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
         'initMapWithType': EJsonValue initMapWithType,
         'initMapConst': EJsonValue initMapConst,
       } =>
-        Person(),
+        Person(
+          children: fromEJson(children),
+          initList: fromEJson(initList),
+          initListWithType: fromEJson(initListWithType),
+          initListConst: fromEJson(initListConst),
+          initSet: fromEJson(initSet),
+          initSetWithType: fromEJson(initSetWithType),
+          initSetConst: fromEJson(initSetConst),
+          initMap: fromEJson(initMap),
+          initMapWithType: fromEJson(initMapWithType),
+          initMapConst: fromEJson(initMapConst),
+        ),
       _ => raiseInvalidEJson(ejson),
     };
   }
