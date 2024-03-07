@@ -322,11 +322,11 @@ extension FieldElementEx on FieldElement {
             );
           }
 
-          final intiExpression = initializerExpression;
-          if (intiExpression != null) {
+          final initExpression = initializerExpression;
+          if (initExpression != null) {
             throw RealmInvalidGenerationSourceError(
               'Realm object references should not have default values',
-              primarySpan: initializerExpressionSpan(file, intiExpression),
+              primarySpan: initializerExpressionSpan(file, initExpression),
               primaryLabel: ' Remove the default value',
               todo: 'Remove the default value for field "$displayName"',
               element: this,
@@ -344,6 +344,17 @@ extension FieldElementEx on FieldElement {
             element: this,
           );
         }
+      }
+
+      final initExpression = initializerExpression;
+      if (initExpression != null && initExpression is! Literal) {
+        throw RealmInvalidGenerationSourceError(
+          'Field initializers must be constant',
+          primarySpan: initializerExpressionSpan(file, initExpression),
+          primaryLabel: 'Must be const',
+          todo: 'Ensure the default value for field "$displayName" is const',
+          element: this,
+        );
       }
 
       return RealmFieldInfo(

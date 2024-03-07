@@ -56,6 +56,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
       } =>
         Parent(
           child: fromEJson(child),
+          children: fromEJson(children),
         ),
       _ => raiseInvalidEJson(ejson),
     };

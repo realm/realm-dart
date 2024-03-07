@@ -158,7 +158,19 @@ class LotsOfMaps extends _LotsOfMaps
         'binary': EJsonValue binary,
         'uuids': EJsonValue uuids,
       } =>
-        LotsOfMaps(),
+        LotsOfMaps(
+          persons: fromEJson(persons),
+          bools: fromEJson(bools),
+          dateTimes: fromEJson(dateTimes),
+          decimals: fromEJson(decimals),
+          doubles: fromEJson(doubles),
+          ints: fromEJson(ints),
+          objectIds: fromEJson(objectIds),
+          any: fromEJson(any),
+          strings: fromEJson(strings),
+          binary: fromEJson(binary),
+          uuids: fromEJson(uuids),
+        ),
       _ => raiseInvalidEJson(ejson),
     };
   }

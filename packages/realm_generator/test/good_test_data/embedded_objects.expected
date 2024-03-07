@@ -55,6 +55,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
       } =>
         Parent(
           child: fromEJson(child),
+          children: fromEJson(children),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -76,14 +77,14 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   Child1(
     String value, {
     Child2? child,
-    Parent? linkToParent,
     Iterable<Child2> children = const [],
+    Parent? linkToParent,
   }) {
     RealmObjectBase.set(this, 'value', value);
     RealmObjectBase.set(this, 'child', child);
-    RealmObjectBase.set(this, 'linkToParent', linkToParent);
     RealmObjectBase.set<RealmList<Child2>>(
         this, 'children', RealmList<Child2>(children));
+    RealmObjectBase.set(this, 'linkToParent', linkToParent);
   }
 
   Child1._();
@@ -141,6 +142,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
         Child1(
           fromEJson(value),
           child: fromEJson(child),
+          children: fromEJson(children),
           linkToParent: fromEJson(linkToParent),
         ),
       _ => raiseInvalidEJson(ejson),

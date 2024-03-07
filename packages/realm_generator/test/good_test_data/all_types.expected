@@ -83,43 +83,42 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
     String name,
     bool aBool,
     bool another,
+    Uint8List data,
+    DateTime timestamp,
     ObjectId objectId,
     Uuid uuid,
     Decimal128 decimal, {
-    Uint8List? data,
-    DateTime timestamp = DateTime.now(),
     double aDouble = 0.0,
     Foo? foo,
-    String? anOptionalString,
-    RealmValue any = const RealmValue.nullValue(),
     Iterable<int> list = const [],
-    Iterable<RealmValue> manyAny = const [],
     Set<int> set = const {},
     Map<String, int> map = const {},
+    String? anOptionalString,
+    RealmValue any = const RealmValue.nullValue(),
+    Iterable<RealmValue> manyAny = const [],
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<Bar>({
-        'tidspunkt': DateTime.now(),
         'aDouble': 0.0,
       });
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'aBool', aBool);
     RealmObjectBase.set(this, 'another', another);
-    RealmObjectBase.set(this, 'data', data ?? Uint8List(16));
+    RealmObjectBase.set(this, 'data', data);
     RealmObjectBase.set(this, 'tidspunkt', timestamp);
     RealmObjectBase.set(this, 'aDouble', aDouble);
     RealmObjectBase.set(this, 'foo', foo);
     RealmObjectBase.set(this, 'objectId', objectId);
     RealmObjectBase.set(this, 'uuid', uuid);
-    RealmObjectBase.set(this, 'anOptionalString', anOptionalString);
-    RealmObjectBase.set(this, 'any', any);
-    RealmObjectBase.set(this, 'decimal', decimal);
     RealmObjectBase.set<RealmList<int>>(this, 'list', RealmList<int>(list));
-    RealmObjectBase.set<RealmList<RealmValue>>(
-        this, 'manyAny', RealmList<RealmValue>(manyAny));
     RealmObjectBase.set<RealmSet<int>>(this, 'set', RealmSet<int>(set));
     RealmObjectBase.set<RealmMap<int>>(this, 'map', RealmMap<int>(map));
+    RealmObjectBase.set(this, 'anOptionalString', anOptionalString);
+    RealmObjectBase.set(this, 'any', any);
+    RealmObjectBase.set<RealmList<RealmValue>>(
+        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set(this, 'decimal', decimal);
   }
 
   Bar._();
@@ -284,15 +283,19 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
           fromEJson(name),
           fromEJson(aBool),
           fromEJson(another),
+          fromEJson(data),
+          fromEJson(timestamp),
           fromEJson(objectId),
           fromEJson(uuid),
           fromEJson(decimal),
-          data: fromEJson(data),
-          timestamp: fromEJson(timestamp),
           aDouble: fromEJson(aDouble),
           foo: fromEJson(foo),
+          list: fromEJson(list),
+          set: fromEJson(set),
+          map: fromEJson(map),
           anOptionalString: fromEJson(anOptionalString),
           any: fromEJson(any),
+          manyAny: fromEJson(manyAny),
         ),
       _ => raiseInvalidEJson(ejson),
     };

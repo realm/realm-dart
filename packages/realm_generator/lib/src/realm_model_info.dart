@@ -7,6 +7,10 @@ import 'dart_type_ex.dart';
 import 'field_element_ex.dart';
 import 'realm_field_info.dart';
 
+extension<T> on Iterable<T> {
+  Iterable<T> except(bool Function(T) test) => where((e) => !test(e));
+}
+
 class RealmModelInfo {
   final String name;
   final String modelName;
@@ -19,36 +23,32 @@ class RealmModelInfo {
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
     {
-      final allSettable = fields.where((f) => !f.type.isRealmCollection && !f.isRealmBacklink).toList();
+      final allSettable = fields.where((f) => !f.isComputed).toList();
 
-      final fieldsWithDefaultValue = allSettable.where((f) => f.hasDefaultValue && !f.type.isUint8List).toList();
-      final shouldEmitDefaultsSet = fieldsWithDefaultValue.isNotEmpty;
+      final fieldsWithRealmDefaults = allSettable.where((f) => f.hasDefaultValue && !f.isRealmCollection).toList();
+      final shouldEmitDefaultsSet = fieldsWithRealmDefaults.isNotEmpty;
       if (shouldEmitDefaultsSet) {
         yield 'static var _defaultsSet = false;';
         yield '';
       }
 
-      final required = allSettable.where((f) => f.isRequired || f.isPrimaryKey);
-      final notRequired = allSettable.where((f) => !f.isRequired && !f.isPrimaryKey);
-      final lists = fields.where((f) => f.isDartCoreList).toList();
-      final sets = fields.where((f) => f.isDartCoreSet).toList();
-      final maps = fields.where((f) => f.isDartCoreMap).toList();
+      bool requiredCondition(RealmFieldInfo f) => f.isRequired || f.isPrimaryKey;
+      final required = allSettable.where(requiredCondition);
+      final notRequired = allSettable.except(requiredCondition);
 
       // Constructor
       yield '$name(';
       {
         yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
-        if (notRequired.isNotEmpty || lists.isNotEmpty || sets.isNotEmpty || maps.isNotEmpty) {
+        if (notRequired.isNotEmpty) {
           yield '{';
           yield* notRequired.map((f) {
-            if (f.type.isUint8List && f.hasDefaultValue) {
-              return '${f.mappedTypeName}? ${f.name},';
+            if (f.isRealmCollection) {
+                final collectionPrefix = f.type.isDartCoreList ? 'Iterable<' : f.type.isDartCoreSet ? 'Set<' : 'Map<String, ';
+                return '$collectionPrefix${f.type.basicMappedName}> ${f.name}${f.initializer},';
             }
             return '${f.mappedTypeName} ${f.name}${f.initializer},';
           });
-          yield* lists.map((c) => 'Iterable<${c.type.basicMappedName}> ${c.name}${c.initializer},');
-          yield* sets.map((c) => 'Set<${c.type.basicMappedName}> ${c.name}${c.initializer},');
-          yield* maps.map((c) => 'Map<String, ${c.type.basicMappedName}> ${c.name}${c.initializer},');
           yield '}';
         }
 
@@ -57,7 +57,7 @@ class RealmModelInfo {
         if (shouldEmitDefaultsSet) {
           yield 'if (!_defaultsSet) {';
           yield '  _defaultsSet = RealmObjectBase.setDefaults<$name>({';
-          yield* fieldsWithDefaultValue.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
+          yield* fieldsWithRealmDefaults.map((f) => "'${f.realmName}': ${f.fieldElement.initializerExpression},");
           yield '  });';
           yield '}';
         }
@@ -66,20 +66,10 @@ class RealmModelInfo {
           if (f.type.isUint8List && f.hasDefaultValue) {
             return "RealmObjectBase.set(this, '${f.realmName}', ${f.name} ?? ${f.fieldElement.initializerExpression});";
           }
-
+          if (f.isRealmCollection) {
+            return "RealmObjectBase.set<${f.mappedTypeName}>(this, '${f.realmName}', ${f.mappedTypeName}(${f.name}));";
+          }
           return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
-        });
-
-        yield* lists.map((c) {
-          return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
-        });
-
-        yield* sets.map((c) {
-          return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
-        });
-
-        yield* maps.map((c) {
-          return "RealmObjectBase.set<${c.mappedTypeName}>(this, '${c.realmName}', ${c.mappedTypeName}(${c.name}));";
         });
       }
       yield '}';

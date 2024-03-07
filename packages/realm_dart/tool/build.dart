@@ -159,10 +159,11 @@ class _BuildNativeCommand extends _BaseCommand {
   Future<int?> runProc(List<String> args, {required Logger logger, String? message}) async {
     final p = await io.Process.start(args.first, args.skip(1).toList());
     Progress? progress;
+    message ??= args.join(' ');
     if (verbose) {
+      logger.info(message);
       await Future.wait([io.stdout.addStream(p.stdout), io.stderr.addStream(p.stderr)]);
     } else {
-      message ??= args.join(' ');
       final width = io.stdout.hasTerminal ? io.stdout.terminalColumns - 12 : 80;
       message = message.padRight(width).substring(0, width);
       progress = logger.progress(message);
@@ -207,12 +208,16 @@ class _BuildNativeCommand extends _BaseCommand {
             exitCode ??= await runProc(['cmake', '--preset=ios'], logger: logger);
             exitCode ??= await runProc(['cmake', '--build', '--preset=ios-${sdk.cmakeName}', '--config=${buildMode.cmakeName}'], logger: logger);
           }
+          final output = io.Directory('./binary/ios/realm_dart.xcframework');
+          if (await output.exists()) {
+            await output.delete(recursive: true);
+          }
           exitCode ??= await runProc(
             [
               'xcodebuild',
               '-create-xcframework',
-              for (final s in iosSdks) '-framework ./binary/ios/${buildMode.cmakeName}-${s.name.toLowerCase()}/realm_dart.framework',
-              '-output ./binary/ios/realm_dart.xcframework',
+              for (final s in iosSdks) ...['-framework', './binary/ios/${buildMode.cmakeName}-${s.name.toLowerCase()}/realm_dart.framework'],
+              ...['-output', output.path],
             ],
             logger: logger,
           );
@@ -230,7 +235,6 @@ class _BuildNativeCommand extends _BaseCommand {
               '--build',
               '--preset=$preset',
               '--config=${buildMode.cmakeName}',
-              if (target.os == OS.macOS) '-- -destination "generic/platform=macOS',
               if (target.os == OS.android) '--target=strip',
             ],
             logger: logger,

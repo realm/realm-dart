@@ -109,7 +109,6 @@ class _Schedule {
 @RealmModel()
 class _Foo {
   late Uint8List requiredBinaryProp;
-  var defaultValueBinaryProp = Uint8List(8);
   late Uint8List? nullableBinaryProp;
 }
 
@@ -123,7 +122,7 @@ class _AllTypes {
   late Uuid uuidProp;
   late int intProp;
   late Decimal128 decimalProp;
-  var binaryProp = Uint8List(16);
+  late Uint8List binaryProp;
 
   late String? nullableStringProp;
   late bool? nullableBoolProp;

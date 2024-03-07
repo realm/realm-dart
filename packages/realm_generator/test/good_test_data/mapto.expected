@@ -77,6 +77,7 @@ class Original extends $Original
         Original(
           primitiveProperty: fromEJson(primitiveProperty),
           objectProperty: fromEJson(objectProperty),
+          listProperty: fromEJson(listProperty),
         ),
       _ => raiseInvalidEJson(ejson),
     };
