@@ -69,16 +69,16 @@ class AnythingGoes extends _AnythingGoes
   AnythingGoes({
     RealmValue oneAny = const RealmValue.nullValue(),
     Iterable<RealmValue> manyAny = const [],
-    Set<RealmValue> setOfAny = const {},
     Map<String, RealmValue> dictOfAny = const {},
+    Set<RealmValue> setOfAny = const {},
   }) {
     RealmObjectBase.set(this, 'oneAny', oneAny);
     RealmObjectBase.set<RealmList<RealmValue>>(
         this, 'manyAny', RealmList<RealmValue>(manyAny));
-    RealmObjectBase.set<RealmSet<RealmValue>>(
-        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
     RealmObjectBase.set<RealmMap<RealmValue>>(
         this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
   }
 
   AnythingGoes._();
@@ -138,6 +138,9 @@ class AnythingGoes extends _AnythingGoes
       } =>
         AnythingGoes(
           oneAny: fromEJson(oneAny),
+          manyAny: fromEJson(manyAny),
+          dictOfAny: fromEJson(dictOfAny),
+          setOfAny: fromEJson(setOfAny),
         ),
       _ => raiseInvalidEJson(ejson),
     };
