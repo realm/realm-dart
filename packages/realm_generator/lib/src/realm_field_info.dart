@@ -32,7 +32,7 @@ class RealmFieldInfo {
   bool get isLate => fieldElement.isLate;
   bool get hasDefaultValue => fieldElement.hasInitializer;
   bool get optional => type.basicType.isNullable || realmType == RealmPropertyType.mixed;
-  bool get isRequired => !(hasDefaultValue || optional);
+  bool get isRequired => !(hasDefaultValue || optional || isRealmCollection);
   bool get isRealmBacklink => realmType == RealmPropertyType.linkingObjects;
   bool get isMixed => realmType == RealmPropertyType.mixed;
   bool get isComputed => isRealmBacklink; // only computed, so far
