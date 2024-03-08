@@ -2,5 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:dev/dev.dart' as dev;
-
-void main(List<String> arguments) => dev.main(arguments);
+import 'package:cli_launcher/cli_launcher.dart';
+Future<void> main(List<String> arguments) async => launchExecutable(
+      arguments,
+      LaunchConfig(
+        name: ExecutableName('dev'),
+        entrypoint: dev.main,
+      ),
+    );

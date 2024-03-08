@@ -4,10 +4,11 @@
 import 'dart:io' as io;
 
 import 'package:args/command_runner.dart';
+import 'package:cli_launcher/cli_launcher.dart';
 
 import 'src/build.dart';
 
-Future<void> main(List<String> arguments) async {
+Future<void> main(List<String> arguments, LaunchContext launchContext) async {
   final runner = CommandRunner<int>('dev', 'Helper tool for building realm_dart')
     ..addCommand(BuildNativeCommand())
     ..addCommand(PossibleTargets())
