@@ -3,17 +3,9 @@ name: Dart desktop tests
 on:
   workflow_call:
     inputs:
-      os:
-        description: OS to execute on.
-        required: true
-        type: string
       runner:
         description: GitHub runner image to execute on.
         required: true
-        type: string
-      architecture:
-        description: Architecture to execute on.
-        required: false
         type: string
       differentiator:
         description: Differentiator for the BaaS container.
@@ -28,7 +20,7 @@ env:
 jobs:
   dart-tests:
     runs-on: ${{ inputs.runner }}
-    name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
+    name: Dart tests on ${{ inputs.runner }}
     timeout-minutes: 45
 
     steps:
@@ -37,17 +29,21 @@ jobs:
         with:
           submodules: false
 
+      - name: Set RUNNER_OS
+        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯ 
+        run: echo ${{ runner.os }} | awk '{print "RUNNER_OS=" tolower($0)}' >> $GITHUB_ENV
+        shell: bash
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
         with:
-          name: librealm-${{ inputs.os }}
-          path: packages/realm_dart/binary/${{ inputs.os }}
+          name: librealm-${{ env.RUNNER_OS }}
+          path: packages/realm_dart/binary/${{ env.RUNNER_OS }}
 
-      - name : Setup Dart SDK
+      - name: Setup Dart SDK
         uses: dart-lang/setup-dart@main
         with:
           sdk: stable
-          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
 
       - name: Setup Melos
         run: |
@@ -57,17 +53,17 @@ jobs:
 
       - name: Bump ulimit on macos
         run: ulimit -n 10240
-        if: ${{ contains(inputs.os, 'macos') }}
+        if: ${{ contains(runner.os, 'macos') }}
 
-      - name: Run tests
-        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}melos test:unit
+      - name: Run tests ${{ runner.name }} ${{ runner.arch }}
+        run: melos test:unit
 
       # TODO: Publish all reports
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
-          name: Test Results Dart ${{ inputs.os }} ${{ inputs.architecture }}
+          name: Test Results Dart ${{ runner.name }} ${{ runner.arch }}
           path: test-results.json
           reporter: dart-json
           only-summary: true
