@@ -31,7 +31,8 @@ scripts:
       dart pub global activate dependency_validator &&
       dart pub global activate ffigen &&
       dart pub global activate melos &&
-      dart pub global activate pana
+      dart pub global activate pana &&
+      dart pub global activate --source path $MELOS_ROOT_PATH/packages/realm_dart/dev/
 
   build:
     run: >-
@@ -40,7 +41,7 @@ scripts:
       melos run build:dart
       
   build:native:
-    exec: dart run tool/build.dart native
+    exec: dev build
     packageFilters:
       dirExists: src # by convention
 

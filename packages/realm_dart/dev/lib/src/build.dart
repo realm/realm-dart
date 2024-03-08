@@ -10,7 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:async/async.dart';
 
-extension<T extends Enum> on Iterable<T> {
+extension IterableX<T extends Enum> on Iterable<T> {
   T? firstEqualIgnoreCase(String? value) => value == null ? null : where((e) => equalsIgnoreAsciiCase(e.name, value)).firstOrNull;
   Iterable<String> get names => map((e) => e.name);
 }
@@ -109,13 +109,13 @@ enum BuildMode {
   static BuildMode? from(String? name) => BuildMode.values.firstEqualIgnoreCase(name);
 }
 
-abstract class _BaseCommand extends Command<int> {
+abstract class BaseCommand extends Command<int> {
   @override
   final String name;
   @override
   final String description;
 
-  _BaseCommand(this.name, this.description);
+  BaseCommand(this.name, this.description);
 
   late final verbose = globalResults!['verbose'] as bool; // don't access before run
 
@@ -124,10 +124,10 @@ abstract class _BaseCommand extends Command<int> {
   Iterable<Target> get possibleTargets => Target.values.where((t) => t.os == os || t.os == OS.android || (os == OS.macOS && t.os == OS.iOS));
 }
 
-class _BuildNativeCommand extends _BaseCommand {
-  _BuildNativeCommand()
+class BuildNativeCommand extends BaseCommand {
+  BuildNativeCommand()
       : super(
-          'native',
+          'build',
           'Build native assets for realm_dart',
         ) {
     argParser
@@ -179,6 +179,7 @@ class _BuildNativeCommand extends _BaseCommand {
       }
     }
     final exitCode = await p.exitCode;
+    assert(verbose ^ (progress != null)); // verbose <=> progress == null
     if (exitCode != 0) {
       progress?.fail(message);
       logger.err('Error: "$command" exited with code $exitCode');
@@ -255,8 +256,8 @@ class _BuildNativeCommand extends _BaseCommand {
   }
 }
 
-class _PossibleTargets extends _BaseCommand {
-  _PossibleTargets()
+class PossibleTargets extends BaseCommand {
+  PossibleTargets()
       : super(
           'targets',
           'List possible targets for building native assets',
@@ -281,17 +282,3 @@ class _PossibleTargets extends _BaseCommand {
 }
 
 final logger = Logger(progressOptions: ProgressOptions(trailing: ''));
-
-Future<void> main(List<String> arguments) async {
-  final runner = CommandRunner<int>('build', 'Helper tool for building realm_dart')
-    ..addCommand(_BuildNativeCommand())
-    ..addCommand(_PossibleTargets())
-    ..argParser.addFlag('verbose', abbr: 'v', help: 'Print verbose output', defaultsTo: false);
-  try {
-    final exitCode = await runner.run(arguments);
-    io.exit(exitCode ?? 0);
-  } on UsageException catch (error) {
-    logger.err('$error');
-    io.exit(64); // Exit code 64 indicates a usage error.
-  }
-}
