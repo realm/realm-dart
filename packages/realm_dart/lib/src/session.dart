@@ -67,16 +67,15 @@ class Session implements Finalizable {
 
 /// A type containing information about the progress state at a given instant.
 class SyncProgress {
-  /// The number of bytes that have been transferred since subscribing for progress notifications.
-  final int transferredBytes;
+  /// A value between 0.0 and 1.0 representing the estimated transfer progress. This value is precise for
+  /// uploads, but will be based on historical data and certain heuristics applied by the server for downloads.
+  ///
+  /// Whenever the progress reporting mode is [ProgressMode.forCurrentlyOutstandingWork], that value
+  /// will monotonically increase until it reaches 1.0. If the progress mode is [ProgressMode.reportIndefinitely], the
+  /// value may either increase or decrease as new data needs to be transferred.
+  final double progressEstimate;
 
-  /// The total number of bytes that have to be transferred since subscribing for progress notifications.
-  /// The difference between that number and [transferredBytes] gives you the number of bytes not yet
-  /// transferred. If the difference is 0, then all changes at the instant the callback fires have been
-  /// successfully transferred.
-  final int transferableBytes;
-
-  const SyncProgress({required this.transferredBytes, required this.transferableBytes});
+  const SyncProgress({required this.progressEstimate});
 }
 
 /// A type containing information about the transition of a connection state from one value to another.
@@ -110,12 +109,11 @@ extension SessionInternal on Session {
     realmCore.raiseError(this, errorCode, isFatal);
   }
 
-  static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
-      SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes);
+  static SyncProgress createSyncProgress(double progressEstimate) => SyncProgress(progressEstimate: progressEstimate);
 }
 
 abstract interface class ProgressNotificationsController {
-  void onProgress(int transferredBytes, int transferableBytes);
+  void onProgress(double progressEstimate);
 }
 
 /// @nodoc
@@ -135,10 +133,10 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   }
 
   @override
-  void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add(SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes));
+  void onProgress(double progressEstimate) {
+    _streamController.add(SyncProgress(progressEstimate: progressEstimate));
 
-    if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
+    if (progressEstimate >= 1.0 && _mode == ProgressMode.forCurrentlyOutstandingWork) {
       _streamController.close();
     }
   }
@@ -153,6 +151,9 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   void _stop() {
     _tokenHandle?.release();
     _tokenHandle = null;
+
+    // TODO: PROGRESS remove
+    Realm.logger.log(RealmLogLevel.warn, '-------------------- CONTROLLER STOPPED --------------------');
   }
 }
 

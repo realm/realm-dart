@@ -31,7 +31,7 @@ RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, r
 
 RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_error_t* error);
 
-RLM_API void realm_dart_sync_progress_callback(realm_userdata_t userdata, uint64_t transferred_bytes, uint64_t total_bytes);
+RLM_API void realm_dart_sync_progress_callback(realm_userdata_t userdata, uint64_t transferred_bytes, uint64_t total_bytes, double estimate);
 
 RLM_API void realm_dart_sync_connection_state_changed_callback(realm_userdata_t userdata,
                                                                realm_sync_connection_state_e old_state,

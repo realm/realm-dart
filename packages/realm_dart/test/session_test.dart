@@ -159,27 +159,21 @@ void main() {
   });
 
   StreamProgressData subscribeToProgress(Realm realm, ProgressDirection direction, ProgressMode mode) {
+    // TODO: PROGRESS remove logging
+
     final data = StreamProgressData();
     final stream = realm.syncSession.getProgressStream(direction, mode);
-    data.subscription = stream.listen((event) {
-      expect(event.transferredBytes, greaterThanOrEqualTo(data.transferredBytes));
-      if (data.transferableBytes != 0) {
-        // We need to wait for the first event to store the total bytes we expect.
-        if (mode == ProgressMode.forCurrentlyOutstandingWork) {
-          // Transferable should not change after the first event
-          expect(event.transferableBytes, data.transferableBytes);
-        } else {
-          // For indefinite progress, we expect the transferable bytes to not decrease
-          expect(event.transferableBytes, greaterThanOrEqualTo(data.transferableBytes));
-        }
-      }
 
-      data.transferredBytes = event.transferredBytes;
-      data.transferableBytes = event.transferableBytes;
+    data.subscription = stream.listen((event) {
+      expect(event.progressEstimate, greaterThanOrEqualTo(data.progressEstimate));
+      Realm.logger.log(RealmLogLevel.warn, '-------------------- RECEIVED PROGRESS ${event.progressEstimate} --------------------');
+
+      data.progressEstimate = event.progressEstimate;
       data.callbacksInvoked++;
     });
 
     data.subscription.onDone(() {
+      Realm.logger.log(RealmLogLevel.warn, '-------------------- DONE INVOKED --------------------');
       data.doneInvoked = true;
     });
 
@@ -191,41 +185,48 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     expect(data.callbacksInvoked, greaterThan(0));
-    expect(data.transferableBytes, greaterThan(0));
-    expect(data.transferredBytes, greaterThan(0));
+    expect(data.progressEstimate, greaterThan(0));
     if (expectDone) {
-      expect(data.transferredBytes, data.transferableBytes);
+      expect(data.progressEstimate, 1.0);
     } else {
-      expect(data.transferredBytes, lessThanOrEqualTo(data.transferableBytes));
+      expect(data.progressEstimate, lessThanOrEqualTo(1.0));
     }
     expect(data.doneInvoked, expectDone);
   }
 
   baasTest('SyncSession.getProgressStream forCurrentlyOutstandingWork', (configuration) async {
+    // TODO: PROGRESS remove logging
+
     final differentiator = ObjectId();
-    final realmA = await getIntegrationRealm(differentiator: differentiator);
-    final realmB = await getIntegrationRealm(differentiator: differentiator);
+    final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
 
     for (var i = 0; i < 10; i++) {
-      realmA.write(() {
-        realmA.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+      uploadRealm.write(() {
+        uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
       });
     }
 
-    final uploadData = subscribeToProgress(realmA, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
-
-    await realmA.syncSession.waitForUpload();
+    final uploadData = subscribeToProgress(uploadRealm, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
+    await uploadRealm.syncSession.waitForUpload();
+    await validateData(uploadData, expectDone: true);
+    await uploadData.subscription.cancel();
 
     // Subscribe immediately after the upload to ensure we get the entire upload message as progress notifications
-    final downloadData = subscribeToProgress(realmB, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+    final downloadRealm = await getIntegrationRealm(differentiator: differentiator, waitForSync: false);
+    final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
 
-    await validateData(uploadData, expectDone: true);
+    Realm.logger.log(RealmLogLevel.warn, '-------------------- SUBSCRIBED --------------------');
+    await downloadRealm.subscriptions.waitForSynchronization();
 
-    await realmB.syncSession.waitForDownload();
+    Realm.logger.log(RealmLogLevel.warn, '-------------------- SUBSCRIPTIONS RECEIVED --------------------');
+
+    await downloadRealm.syncSession.waitForDownload();
+    await Future<void>.delayed(Duration(seconds: 1));
+
+    Realm.logger.log(RealmLogLevel.warn, '-------------------- DOWNLOAD COMPLETE --------------------');
 
     await validateData(downloadData, expectDone: true);
 
-    await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();
   });
 
@@ -263,12 +264,7 @@ void main() {
     await validateData(uploadData);
     await validateData(downloadData);
 
-    expect(uploadData.transferredBytes, greaterThan(uploadSnapshot.transferredBytes));
-    expect(uploadData.transferableBytes, greaterThan(uploadSnapshot.transferableBytes));
     expect(uploadData.callbacksInvoked, greaterThan(uploadSnapshot.callbacksInvoked));
-
-    expect(downloadData.transferredBytes, greaterThan(downloadSnapshot.transferredBytes));
-    expect(downloadData.transferableBytes, greaterThan(downloadSnapshot.transferableBytes));
     expect(downloadData.callbacksInvoked, greaterThan(downloadSnapshot.callbacksInvoked));
 
     await uploadData.subscription.cancel();
@@ -329,18 +325,13 @@ void main() {
 }
 
 class StreamProgressData {
-  int transferredBytes;
-  int transferableBytes;
+  double progressEstimate;
   int callbacksInvoked;
   bool doneInvoked;
   late StreamSubscription<SyncProgress> subscription;
 
-  StreamProgressData({this.transferableBytes = 0, this.transferredBytes = 0, this.callbacksInvoked = 0, this.doneInvoked = false});
+  StreamProgressData({this.progressEstimate = -1, this.callbacksInvoked = 0, this.doneInvoked = false});
 
   StreamProgressData.snapshot(StreamProgressData other)
-      : this(
-            transferableBytes: other.transferableBytes,
-            callbacksInvoked: other.callbacksInvoked,
-            doneInvoked: other.doneInvoked,
-            transferredBytes: other.transferredBytes);
+      : this(progressEstimate: other.progressEstimate, callbacksInvoked: other.callbacksInvoked, doneInvoked: other.doneInvoked);
 }

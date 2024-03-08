@@ -1328,17 +1328,17 @@ void main() {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
-    int transferredBytes = -1;
+    double progressEstimate = -1;
     final completer = Completer<void>();
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
-      transferredBytes = syncProgress.transferredBytes;
-      if (syncProgress.transferredBytes == syncProgress.transferableBytes) {
+      progressEstimate = syncProgress.progressEstimate;
+      if (syncProgress.progressEstimate == 1.0) {
         completer.complete();
       }
     });
     completer.future.timeout(Duration(milliseconds: 300), onTimeout: () => throw Exception("onProgressCallback did not happen."));
     expect(syncedRealm.isClosed, false);
-    expect(transferredBytes, greaterThan(-1));
+    expect(progressEstimate, 1.0);
   });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
@@ -1357,16 +1357,16 @@ void main() {
     final config = await _subscribeForAtlasAddedData(app);
 
     int printCount = 0;
-    int transferredBytes = 0;
+    double progressEstimate = 0;
 
     final syncedRealm = await getRealmAsync(config, onProgressCallback: (syncProgress) {
       printCount++;
-      transferredBytes = syncProgress.transferredBytes;
+      progressEstimate = syncProgress.progressEstimate;
     });
 
     expect(syncedRealm.isClosed, false);
     expect(printCount, isNot(0));
-    expect(transferredBytes, greaterThan(19)); //19 bytes is the empty realm
+    expect(progressEstimate, 1.0);
   });
 
   baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {

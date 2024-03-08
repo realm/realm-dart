@@ -155,11 +155,11 @@ RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userd
     });
 }
 
-RLM_API void realm_dart_sync_progress_callback(realm_userdata_t userdata, uint64_t transferred_bytes, uint64_t total_bytes)
+RLM_API void realm_dart_sync_progress_callback(realm_userdata_t userdata, uint64_t transferred_bytes, uint64_t total_bytes, double estimate)
 {
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, transferred_bytes, total_bytes]() {
-        (reinterpret_cast<realm_sync_progress_func_t>(ud->dart_callback))(ud->handle, transferred_bytes, total_bytes);
+    ud->scheduler->invoke([ud, transferred_bytes, total_bytes, estimate]() {
+        (reinterpret_cast<realm_sync_progress_func_t>(ud->dart_callback))(ud->handle, transferred_bytes, total_bytes, estimate);
     });
 }
 

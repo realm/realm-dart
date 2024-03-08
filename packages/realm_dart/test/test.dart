@@ -603,7 +603,7 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app);
 
@@ -614,7 +614,9 @@ Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfig
       mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
     });
 
-    await realm.subscriptions.waitForSynchronization();
+    if (waitForSync) {
+      await realm.subscriptions.waitForSynchronization();
+    }
   }
 
   return realm;

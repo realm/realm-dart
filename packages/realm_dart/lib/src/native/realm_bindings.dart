@@ -4014,21 +4014,23 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> userdata,
     int transferred_bytes,
     int total_bytes,
+    double estimate,
   ) {
     return _realm_dart_sync_progress_callback(
       userdata,
       transferred_bytes,
       total_bytes,
+      estimate,
     );
   }
 
   late final _realm_dart_sync_progress_callbackPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64,
-              ffi.Uint64)>>('realm_dart_sync_progress_callback');
+          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64,
+              ffi.Double)>>('realm_dart_sync_progress_callback');
   late final _realm_dart_sync_progress_callback =
       _realm_dart_sync_progress_callbackPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int, double)>();
 
   void realm_dart_sync_wait_for_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -5148,6 +5150,28 @@ class RealmLibrary {
       ffi.Pointer<realm_results_t> Function(
           ffi.Pointer<realm_object_t>, int, int)>();
 
+  /// Get the actual log category names (currently 15)
+  /// @param num_values number of values in the out_values array
+  /// @param out_values pointer to an array of size num_values
+  /// @return returns the number of categories returned. If num_values is zero, it will
+  /// return the total number of categories.
+  int realm_get_category_names(
+    int num_values,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> out_values,
+  ) {
+    return _realm_get_category_names(
+      num_values,
+      out_values,
+    );
+  }
+
+  late final _realm_get_category_namesPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Size Function(ffi.Size,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('realm_get_category_names');
+  late final _realm_get_category_names = _realm_get_category_namesPtr
+      .asFunction<int Function(int, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+
   /// Get the class with @a key from the schema.
   ///
   /// Passing an invalid @a key for this schema is considered an error.
@@ -5428,6 +5452,21 @@ class RealmLibrary {
               realm_property_key_t)>>('realm_get_list');
   late final _realm_get_list = _realm_get_listPtr.asFunction<
       ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
+
+  /// Get the logging level for given category.
+  int realm_get_log_level_category(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _realm_get_log_level_category(
+      arg0,
+    );
+  }
+
+  late final _realm_get_log_level_categoryPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Char>)>>(
+          'realm_get_log_level_category');
+  late final _realm_get_log_level_category = _realm_get_log_level_categoryPtr
+      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
   /// Return the number of classes in the Realm's schema.
   ///
@@ -9110,7 +9149,8 @@ class RealmLibrary {
   late final _realm_set_log_level =
       _realm_set_log_levelPtr.asFunction<void Function(int)>();
 
-  void realm_set_log_level_category(
+  /// Set the logging level for given category. Return the previous level.
+  int realm_set_log_level_category(
     ffi.Pointer<ffi.Char> arg0,
     int arg1,
   ) {
@@ -9121,11 +9161,11 @@ class RealmLibrary {
   }
 
   late final _realm_set_log_level_categoryPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Int32)>>(
-      'realm_set_log_level_category');
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ffi.Char>,
+              ffi.Int32)>>('realm_set_log_level_category');
   late final _realm_set_log_level_category = _realm_set_log_level_categoryPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+      .asFunction<int Function(ffi.Pointer<ffi.Char>, int)>();
 
   /// In a set of objects, delete all objects in the set and clear the set. In a
   /// set of values, clear the set.
@@ -11814,7 +11854,8 @@ class _SymbolAddresses {
           _library._realm_dart_sync_on_subscription_state_changed_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64, ffi.Double)>>
       get realm_dart_sync_progress_callback =>
           _library._realm_dart_sync_progress_callbackPtr;
   ffi.Pointer<
@@ -13001,9 +13042,13 @@ typedef realm_sync_progress_func_t
 typedef realm_sync_progress_func_tFunction = ffi.Void Function(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Uint64 transferred_bytes,
-    ffi.Uint64 total_bytes);
+    ffi.Uint64 total_bytes,
+    ffi.Double progress_estimate);
 typedef Dartrealm_sync_progress_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, int transferred_bytes, int total_bytes);
+    ffi.Pointer<ffi.Void> userdata,
+    int transferred_bytes,
+    int total_bytes,
+    double progress_estimate);
 
 final class realm_sync_session extends ffi.Opaque {}
 
