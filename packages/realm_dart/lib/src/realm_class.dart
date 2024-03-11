@@ -477,7 +477,7 @@ class Realm implements Finalizable {
 
     if (result == null || result.handle.released) {
       result = SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
-      realmCore.refreshSubscriptionSet(result);
+      result.handle.refresh();
       _subscriptions = WeakReference(result);
     }
 
