@@ -112,7 +112,7 @@ enum SubscriptionSetState {
 /// Realm is an expensive operation server-side, even if there's very little data that needs
 /// downloading.
 /// {@category Sync}
-sealed class SubscriptionSet with IterableMixin<Subscription> implements Finalizable {
+sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable {
   final Realm _realm;
   SubscriptionSetHandle _handle;
 
@@ -244,7 +244,7 @@ final class MutableSubscriptionSet extends SubscriptionSet {
       Subscription._(_handle.insertOrAssignSubscription(query, name, update));
 
   /// Removes the [subscription] from the set, if it exists.
-  bool remove(Subscription subscription) => _handle.erase(subscription);
+  bool remove(Subscription subscription) => _handle.erase(subscription._handle);
 
   /// Removes the [query] from the set, if it exists.
   bool removeByQuery<T extends RealmObject>(RealmResults<T> query) => _handle.eraseByResults(query);

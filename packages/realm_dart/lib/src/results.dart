@@ -7,6 +7,7 @@ import 'dart:ffi';
 import 'package:cancellation_token/cancellation_token.dart';
 
 import 'collections.dart';
+import 'native/handle_base.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';

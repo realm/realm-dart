@@ -4,7 +4,7 @@
 part of 'realm_core.dart';
 
 extension HandleBaseEx<T extends HandleBase> on T {
-  T? get nullPtrAsNull => _pointer == nullptr ? null : this;
+  T? get nullPtrAsNull => pointer == nullptr ? null : this;
   U? convert<U>(U Function(T) convertor) => nullPtrAsNull.convert(convertor);
 }
 

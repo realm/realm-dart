@@ -31,7 +31,7 @@ class LastError {
 
 LastError? getLastError(Allocator allocator) {
   final error = allocator<realm_error_t>();
-  final success = _realmLib.realm_get_last_error(error);
+  final success = realmLib.realm_get_last_error(error);
   return success ? error.ref.toDart() : null;
 }
 
