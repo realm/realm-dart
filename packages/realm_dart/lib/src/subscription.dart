@@ -196,6 +196,8 @@ extension SubscriptionSetInternal on SubscriptionSet {
     _handle.keepAlive();
   }
 
+  SubscriptionSetHandle get handle => _handle;
+
   static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => ImmutableSubscriptionSet._(realm, handle);
 }
 
