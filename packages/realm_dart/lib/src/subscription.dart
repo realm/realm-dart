@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:core';
-import 'dart:collection';
 import 'dart:ffi';
 
 import 'native/realm_core.dart';
@@ -114,9 +113,10 @@ enum SubscriptionSetState {
 /// {@category Sync}
 sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable {
   final Realm _realm;
-  SubscriptionSetHandle _handle;
+  SubscriptionSetHandle __handle;
+  SubscriptionSetHandle get _handle => !__handle.released ? __handle : throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm');
 
-  SubscriptionSet._(this._realm, this._handle);
+  SubscriptionSet._(this._realm, this.__handle);
 
   /// Finds an existing [Subscription] in this set by its query
   ///
