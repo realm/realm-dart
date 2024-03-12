@@ -114,7 +114,8 @@ enum SubscriptionSetState {
 sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable {
   final Realm _realm;
   SubscriptionSetHandle __handle;
-  SubscriptionSetHandle get _handle => !__handle.released ? __handle : throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm');
+  SubscriptionSetHandle get _handle => __handle.nullPtrAsNull ?? (throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm'));
+  set _handle(SubscriptionSetHandle value) => __handle = value;
 
   SubscriptionSet._(this._realm, this.__handle);
 
@@ -206,15 +207,15 @@ final class ImmutableSubscriptionSet extends SubscriptionSet {
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
-    final mutableSubscriptions = MutableSubscriptionSet._(_realm, _handle.toMutable());
-    final oldHandle = _handle;
+    final old = _handle;
+    final mutable = _handle.toMutable();
     try {
-      action(mutableSubscriptions);
-      __handle = mutableSubscriptions._handle.commit();
+      action(MutableSubscriptionSet._(_realm, mutable));
+      _handle = mutable.commit();
     } finally {
       // Release as early as possible, as we cannot start new update, until this is released!
-      mutableSubscriptions._handle.release();
-      oldHandle.release();
+      mutable.release();
+      old.release();
     }
   }
 }
