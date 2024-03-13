@@ -7,6 +7,7 @@ import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
+import 'logging.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';

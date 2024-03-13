@@ -7,19 +7,19 @@ import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
-import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
 import 'list.dart';
+import 'logging.dart';
+import 'map.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
 import 'session.dart';
-import 'subscription.dart';
 import 'set.dart';
-import 'map.dart';
+import 'subscription.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, TimeoutCancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -80,9 +80,9 @@ export "configuration.dart"
         SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
-export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
+export 'native/realm_core.dart' show Decimal128;
 export 'realm_object.dart'
     show
         AsymmetricObject,
@@ -98,9 +98,9 @@ export 'realm_object.dart'
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
 export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState, SyncErrorCode;
+export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
-export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -510,26 +510,9 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static Logger _logger = realmCore.defaultRealmLogger;
-
-  /// The logger to use for Realm logging in this `Isolate`
+  /// The logger to use for Realm logging in all [Isolate]s
   /// The default log level is [RealmLogLevel.info].
-  static Logger get logger {
-    return _logger;
-  }
-
-  static set logger(Logger value) {
-    if (_logger == value) {
-      return;
-    }
-
-    _logger.clearListeners();
-    realmCore.realmLoggerLevelChangedSubscription.cancel();
-    _logger = value;
-    realmCore.loggerSetLogLevel(_logger.level, scheduler.nativePort);
-    realmCore.realmLoggerLevelChangedSubscription =
-        _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
-  }
+  static const logger = RealmLogger();
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
@@ -855,10 +838,6 @@ extension RealmInternal on Realm {
     }
   }
 
-  static void logMessageForTesting(Level logLevel, String message) {
-    realmCore.logMessageForTesting(logLevel, message);
-  }
-
   void updateSchema() {
     _updateSchema();
   }
@@ -889,60 +868,6 @@ abstract class NotificationsController implements Finalizable {
     handle!.release();
     handle = null;
   }
-}
-
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-/// {@category Realm}
-class RealmLogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  ///
-  /// Same as [Level.ALL]
-  static const all = Level.ALL;
-
-  /// A version of [debug] that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  ///
-  /// Same as [Level.FINEST]
-  static const trace = Level('TRACE', 300);
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  ///
-  /// Same as [Level.FINER]
-  static const debug = Level('DEBUG', 400);
-
-  /// Same as [info], but prioritize completeness over minimalism.
-  ///
-  /// Same as [Level.FINE];
-  static const detail = Level('DETAIL', 500);
-
-  /// Log operational sync client messages, but in a minimalist fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  ///
-  /// Same as [Level.INFO];
-  static const info = Level.INFO;
-
-  /// Log errors and warnings.
-  ///
-  /// Same as [Level.WARNING];
-  static const warn = Level.WARNING;
-
-  /// Log errors only.
-  ///
-  /// Same as [Level.SEVERE];
-  static const error = Level('ERROR', 1000);
-
-  /// Log only fatal errors.
-  ///
-  /// Same as [Level.SHOUT];
-  static const fatal = Level('FATAL', 1200);
-
-  /// Turn off logging.
-  ///
-  /// Same as [Level.OFF];
-  static const off = Level.OFF;
 }
 
 /// @nodoc

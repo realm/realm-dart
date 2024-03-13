@@ -10,15 +10,16 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:cancellation_token/cancellation_token.dart';
+import 'package:crypto/crypto.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:realm_common/realm_common.dart' hide Decimal128;
+import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_common/realm_common.dart' as common show Decimal128;
+import 'package:realm_common/realm_common.dart' hide Decimal128;
+import 'package:realm_dart/src/logging.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -33,9 +34,9 @@ import '../realm_object.dart';
 import '../results.dart';
 import '../scheduler.dart';
 import '../session.dart';
+import '../set.dart';
 import '../subscription.dart';
 import '../user.dart';
-import '../set.dart';
 import 'realm_bindings.dart';
 
 part 'decimal128.dart';
@@ -91,8 +92,6 @@ class _RealmCore {
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   final encryptionKeySize = 64;
-  late final Logger defaultRealmLogger;
-  late StreamSubscription<Level?> realmLoggerLevelChangedSubscription;
   // ignore: unused_field
   static late final _RealmCore _instance;
 
@@ -102,21 +101,21 @@ class _RealmCore {
 
     // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
-    defaultRealmLogger = _initDefaultLogger(scheduler);
+    _initDefaultLogger();
   }
 
-  Logger _initDefaultLogger(Scheduler scheduler) {
-    final logger = Logger.detached('Realm')..level = Level.INFO;
-    realmLoggerLevelChangedSubscription = logger.onLevelChanged.listen((logLevel) => loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
-
-    bool isDefaultLogger = _realmLib.realm_dart_init_core_logger(logger.level.toInt());
-    if (isDefaultLogger) {
-      logger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
+  void _initDefaultLogger() {
+    if (_realmLib.realm_dart_init_core_logger(RealmLogLevel.info.index)) {
+      loggerAttach(); // TODO: Should we do this, or should we let the user attach the logger?
     }
+  }
 
-    loggerSetLogLevel(logger.level, scheduler.nativePort);
+  void loggerAttach() {
+    _realmLib.realm_dart_attach_logger(scheduler.nativePort);
+  }
 
-    return logger;
+  void loggerDetach() {
+    _realmLib.realm_dart_detach_logger(scheduler.nativePort);
   }
 
   // for debugging only. Enable in realm_dart.cpp
@@ -2084,13 +2083,9 @@ class _RealmCore {
     });
   }
 
-  void loggerSetLogLevel(Level logLevel, int schedulerPort) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt(), schedulerPort);
-  }
-
-  void logMessageForTesting(Level logLevel, String message) {
+  void logMessage(RealmLogCategory category, RealmLogLevel logLevel, String message) {
     return using((arena) {
-      _realmLib.realm_dart_log_message_for_testing(logLevel.toInt(), message.toCharPtr(arena));
+      _realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
@@ -3075,6 +3070,12 @@ class _RealmCore {
       collectionHandle?.release();
     }
   }
+
+  void setLogLevel(RealmLogLevel level, {required RealmLogCategory category}) {
+    using((arena) {
+      _realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
+    });
+  }
 }
 
 class LastError {
@@ -3821,58 +3822,6 @@ extension on realm_app_user_apikey {
         key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true),
         !disabled,
       );
-}
-
-extension LevelExt on Level {
-  int toInt() {
-    if (this == Level.ALL) {
-      return 0;
-    } else if (name == "TRACE") {
-      return 1;
-    } else if (name == "DEBUG") {
-      return 2;
-    } else if (name == "DETAIL") {
-      return 3;
-    } else if (this == Level.INFO) {
-      return 4;
-    } else if (this == Level.WARNING) {
-      return 5;
-    } else if (name == "ERROR") {
-      return 6;
-    } else if (name == "FATAL") {
-      return 7;
-    } else if (this == Level.OFF) {
-      return 8;
-    } else {
-      // if unknown logging is off
-      return 8;
-    }
-  }
-
-  static Level fromInt(int value) {
-    switch (value) {
-      case 0:
-        return RealmLogLevel.all;
-      case 1:
-        return RealmLogLevel.trace;
-      case 2:
-        return RealmLogLevel.debug;
-      case 3:
-        return RealmLogLevel.detail;
-      case 4:
-        return RealmLogLevel.info;
-      case 5:
-        return RealmLogLevel.warn;
-      case 6:
-        return RealmLogLevel.error;
-      case 7:
-        return RealmLogLevel.fatal;
-      case 8:
-      default:
-        // if unknown logging is off
-        return RealmLogLevel.off;
-    }
-  }
 }
 
 extension PlatformEx on Platform {

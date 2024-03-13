@@ -25,8 +25,6 @@ typedef void (*realm_sync_after_client_reset_begin_func_t)(realm_userdata_t user
 
 RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_http_request_t request, void* request_context);
 
-RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message);
-
 RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, realm_sync_session_t* session, realm_sync_error_t error);
 
 RLM_API void realm_dart_sync_wait_for_completion_callback(realm_userdata_t userdata, realm_error_t* error);

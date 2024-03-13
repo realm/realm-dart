@@ -3,6 +3,8 @@
 
 import 'dart:ffi';
 import 'dart:isolate';
+import 'package:realm_dart/src/logging.dart';
+
 import 'native/realm_core.dart';
 
 import 'realm_class.dart';
@@ -22,9 +24,11 @@ class Scheduler {
     _receivePort.handler = (dynamic message) {
       if (message is List) {
         // currently the only `message as List` is from the logger.
-        final level = message[0] as int;
-        final text = message[1] as String;
-        Realm.logger.log(LevelExt.fromInt(level), text);
+        final category = RealmLogCategory.fromString(message[0] as String);
+        // category is a string to avoid converting back and forth between RealmLogCategory and String
+        final level = RealmLogLevel.fromInt(message[1] as int);
+        final text = message[2] as String;
+        Realm.logger.raise((category: category, level: level, message: text));
       } else if (message is int) {
         realmCore.invokeScheduler(message);
       } else {

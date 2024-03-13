@@ -3795,25 +3795,24 @@ class RealmLibrary {
   late final _realm_dart_library_version = _realm_dart_library_versionPtr
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
-  void realm_dart_log_message_for_testing(
+  void realm_dart_log(
     int level,
     ffi.Pointer<ffi.Char> category,
     ffi.Pointer<ffi.Char> message,
   ) {
-    return _realm_dart_log_message_for_testing(
+    return _realm_dart_log(
       level,
       category,
       message,
     );
   }
 
-  late final _realm_dart_log_message_for_testingPtr = _lookup<
+  late final _realm_dart_logPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('realm_dart_log_message_for_testing');
-  late final _realm_dart_log_message_for_testing =
-      _realm_dart_log_message_for_testingPtr.asFunction<
-          void Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+              ffi.Pointer<ffi.Char>)>>('realm_dart_log');
+  late final _realm_dart_log = _realm_dart_logPtr.asFunction<
+      void Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(
     Object handle,
@@ -3927,26 +3926,6 @@ class RealmLibrary {
   late final _realm_dart_sync_before_reset_handler_callback =
       _realm_dart_sync_before_reset_handler_callbackPtr.asFunction<
           bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>();
-
-  void realm_dart_sync_client_log_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    int level,
-    ffi.Pointer<ffi.Char> message,
-  ) {
-    return _realm_dart_sync_client_log_callback(
-      userdata,
-      level,
-      message,
-    );
-  }
-
-  late final _realm_dart_sync_client_log_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32,
-              ffi.Pointer<ffi.Char>)>>('realm_dart_sync_client_log_callback');
-  late final _realm_dart_sync_client_log_callback =
-      _realm_dart_sync_client_log_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, int, ffi.Pointer<ffi.Char>)>();
 
   void realm_dart_sync_connection_state_changed_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -11806,8 +11785,7 @@ class _SymbolAddresses {
           ffi.NativeFunction<
               ffi.Void Function(
                   ffi.Int32, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>
-      get realm_dart_log_message_for_testing =>
-          _library._realm_dart_log_message_for_testingPtr;
+      get realm_dart_log => _library._realm_dart_logPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
       get realm_dart_object_to_persistent_handle =>
           _library._realm_dart_object_to_persistent_handlePtr;
@@ -11838,12 +11816,6 @@ class _SymbolAddresses {
               ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>
       get realm_dart_sync_before_reset_handler_callback =>
           _library._realm_dart_sync_before_reset_handler_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Pointer<ffi.Char>)>>
-      get realm_dart_sync_client_log_callback =>
-          _library._realm_dart_sync_client_log_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>

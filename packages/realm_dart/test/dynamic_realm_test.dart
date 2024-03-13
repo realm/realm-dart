@@ -632,7 +632,7 @@ void main() {
         expect(dynamicObj2.link, obj1);
         expect(dynamicObj2.link.id, uuid1);
 
-        assertSchemaMatches(dynamicObj2.link.objectSchema, LinksClass.schema);
+        assertSchemaMatches(dynamicObj2.link.objectSchema as SchemaObject, LinksClass.schema);
       });
 
       test('fails with non-existent property', () {

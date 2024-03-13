@@ -11,6 +11,7 @@ import 'package:path/path.dart' as _path;
 
 import '../realm.dart';
 import 'credentials.dart';
+import 'logging.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
 
