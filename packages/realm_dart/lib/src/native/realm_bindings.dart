@@ -3343,6 +3343,20 @@ class RealmLibrary {
               ffi.Pointer<realm_thread_safe_reference_t>,
               ffi.Pointer<realm_async_error_t>)>();
 
+  void realm_dart_attach_logger(
+    int port,
+  ) {
+    return _realm_dart_attach_logger(
+      port,
+    );
+  }
+
+  late final _realm_dart_attach_loggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
+          'realm_dart_attach_logger');
+  late final _realm_dart_attach_logger =
+      _realm_dart_attach_loggerPtr.asFunction<void Function(int)>();
+
   ffi.Pointer<realm_scheduler_t> realm_dart_create_scheduler(
     int isolateId,
     int port,
@@ -3636,6 +3650,20 @@ class RealmLibrary {
       _realm_dart_delete_persistent_handlePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
+  void realm_dart_detach_logger(
+    int port,
+  ) {
+    return _realm_dart_detach_logger(
+      port,
+    );
+  }
+
+  late final _realm_dart_detach_loggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
+          'realm_dart_detach_logger');
+  late final _realm_dart_detach_logger =
+      _realm_dart_detach_loggerPtr.asFunction<void Function(int)>();
+
   /// implemented for Android only
   ffi.Pointer<ffi.Char> realm_dart_get_bundle_id() {
     return _realm_dart_get_bundle_id();
@@ -3769,21 +3797,23 @@ class RealmLibrary {
 
   void realm_dart_log_message_for_testing(
     int level,
+    ffi.Pointer<ffi.Char> category,
     ffi.Pointer<ffi.Char> message,
   ) {
     return _realm_dart_log_message_for_testing(
       level,
+      category,
       message,
     );
   }
 
   late final _realm_dart_log_message_for_testingPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>(
-      'realm_dart_log_message_for_testing');
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>>('realm_dart_log_message_for_testing');
   late final _realm_dart_log_message_for_testing =
-      _realm_dart_log_message_for_testingPtr
-          .asFunction<void Function(int, ffi.Pointer<ffi.Char>)>();
+      _realm_dart_log_message_for_testingPtr.asFunction<
+          void Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
 
   ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(
     Object handle,
@@ -3814,20 +3844,6 @@ class RealmLibrary {
   late final _realm_dart_persistent_handle_to_object =
       _realm_dart_persistent_handle_to_objectPtr
           .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
-
-  void realm_dart_release_logger(
-    int port,
-  ) {
-    return _realm_dart_release_logger(
-      port,
-    );
-  }
-
-  late final _realm_dart_release_loggerPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
-          'realm_dart_release_logger');
-  late final _realm_dart_release_logger =
-      _realm_dart_release_loggerPtr.asFunction<void Function(int)>();
 
   void realm_dart_return_string_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -3867,22 +3883,6 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>)>>('realm_dart_scheduler_invoke');
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
-
-  void realm_dart_set_log_level(
-    int level,
-    int port,
-  ) {
-    return _realm_dart_set_log_level(
-      level,
-      port,
-    );
-  }
-
-  late final _realm_dart_set_log_levelPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32, Dart_Port)>>(
-          'realm_dart_set_log_level');
-  late final _realm_dart_set_log_level =
-      _realm_dart_set_log_levelPtr.asFunction<void Function(int, int)>();
 
   bool realm_dart_sync_after_reset_handler_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -11692,6 +11692,8 @@ class _SymbolAddresses {
                   ffi.Pointer<realm_async_error_t>)>>
       get realm_dart_async_open_task_callback =>
           _library._realm_dart_async_open_task_callbackPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
+      get realm_dart_attach_logger => _library._realm_dart_attach_loggerPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
@@ -11769,6 +11771,8 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_delete_persistent_handle =>
           _library._realm_dart_delete_persistent_handlePtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
+      get realm_dart_detach_logger => _library._realm_dart_detach_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_get_bundle_id => _library._realm_dart_get_bundle_idPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
@@ -11799,8 +11803,9 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>)>>
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Int32, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>
       get realm_dart_log_message_for_testing =>
           _library._realm_dart_log_message_for_testingPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
@@ -11809,8 +11814,6 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_persistent_handle_to_object =>
           _library._realm_dart_persistent_handle_to_objectPtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
-      get realm_dart_release_logger => _library._realm_dart_release_loggerPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
@@ -11822,8 +11825,6 @@ class _SymbolAddresses {
           .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Int32, Dart_Port)>>
-      get realm_dart_set_log_level => _library._realm_dart_set_log_levelPtr;
   ffi.Pointer<
       ffi.NativeFunction<
           ffi.Bool Function(
@@ -12517,10 +12518,14 @@ typedef realm_log_func_t
     = ffi.Pointer<ffi.NativeFunction<realm_log_func_tFunction>>;
 typedef realm_log_func_tFunction = ffi.Void Function(
     ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<ffi.Char> category,
     ffi.Int32 level,
     ffi.Pointer<ffi.Char> message);
 typedef Dartrealm_log_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, int level, ffi.Pointer<ffi.Char> message);
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.Pointer<ffi.Char> category,
+    int level,
+    ffi.Pointer<ffi.Char> message);
 
 /// Logging */
 /// // equivalent to realm::util::Logger::Level in util/logger.hpp and must be kept in sync.
