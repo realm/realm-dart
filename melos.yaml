@@ -188,7 +188,6 @@ scripts:
 
   coverage:gather:
     run: |
-      env
       rm -rf $MELOS_ROOT_PATH/coverage
       combine_coverage --repo-path=$MELOS_ROOT_PATH
 
