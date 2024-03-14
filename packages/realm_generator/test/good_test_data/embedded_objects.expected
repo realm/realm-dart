@@ -64,13 +64,16 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
+    return SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           optional: true, linkTarget: 'Child1'),
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'Child1', collectionType: RealmCollectionType.list),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
@@ -152,7 +155,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, Child1, 'Child1', [
+    return SchemaObject(ObjectType.embeddedObject, Child1, 'Child1', [
       SchemaProperty('value', RealmPropertyType.string),
       SchemaProperty('child', RealmPropertyType.object,
           optional: true, linkTarget: 'Child2'),
@@ -162,6 +165,9 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
           optional: true, linkTarget: 'Parent'),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
@@ -358,7 +364,7 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Child2._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, Child2, 'Child2', [
+    return SchemaObject(ObjectType.embeddedObject, Child2, 'Child2', [
       SchemaProperty('boolProp', RealmPropertyType.bool),
       SchemaProperty('intProp', RealmPropertyType.int),
       SchemaProperty('doubleProp', RealmPropertyType.double),
@@ -381,4 +387,7 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
           optional: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

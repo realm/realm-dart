@@ -225,7 +225,7 @@ class Indexable extends _Indexable
   static final schema = () {
     RealmObjectBase.registerFactory(Indexable._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
+    return SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
       SchemaProperty('aBool', RealmPropertyType.bool,
           indexType: RealmIndexType.regular),
       SchemaProperty('aNullableBool', RealmPropertyType.bool,
@@ -260,4 +260,7 @@ class Indexable extends _Indexable
           optional: true, indexType: RealmIndexType.fullText),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

@@ -398,12 +398,11 @@ class InMemoryConfiguration extends Configuration {
 /// A collection of properties describing the underlying schema of a [RealmObjectBase].
 ///
 /// {@category Configuration}
-class SchemaObject {
+class SchemaObject extends Iterable<SchemaProperty> {
+  final List<SchemaProperty> _properties;
+
   /// Schema object type.
   final Type type;
-
-  /// Collection of the properties of this schema object.
-  final List<SchemaProperty> properties;
 
   /// Returns the name of this schema type.
   final String name;
@@ -412,7 +411,18 @@ class SchemaObject {
   final ObjectType baseType;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.baseType, this.type, this.name, this.properties);
+  SchemaObject(this.baseType, this.type, this.name, Iterable<SchemaProperty> properties) : _properties = List.from(properties);
+
+  @override
+  Iterator<SchemaProperty> get iterator => _properties.iterator;
+
+  @override
+  int get length => _properties.length;
+
+  SchemaProperty operator [](int index) => _properties[index];
+
+  @override
+  SchemaProperty elementAt(int index) => _properties.elementAt(index);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
@@ -441,6 +451,14 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// @nodoc
 extension SchemaObjectInternal on SchemaObject {
   bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase;
+
+  void add(SchemaProperty property) => _properties.add(property);
+}
+
+extension RealmSchemaInternal on RealmSchema {
+  void add(SchemaObject obj) {
+    _schema.add(obj);
+  }
 }
 
 /// [ClientResetHandler] is triggered if the device and server cannot agree

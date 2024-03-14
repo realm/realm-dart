@@ -379,12 +379,12 @@ void main() {
     v1Realm.close();
 
     final v2Config = Configuration.local([MyObjectWithoutValue.schema], schemaVersion: 2, migrationCallback: (migration, oldSchemaVersion) {
-      expect(migration.oldRealm.schema.single.properties.length, 2);
-      expect(migration.newRealm.schema.single.properties.length, 1);
+      expect(migration.oldRealm.schema.single.length, 2);
+      expect(migration.newRealm.schema.single.length, 1);
     });
 
     final v2Realm = getRealm(v2Config);
-    expect(v2Realm.schema.single.properties.length, 1);
+    expect(v2Realm.schema.single.length, 1);
     expect(v2Realm.all<MyObjectWithoutValue>().single.name, 'name');
     v2Realm.close();
 
@@ -392,7 +392,7 @@ void main() {
     final dynamicConfig = Configuration.local([], schemaVersion: 2);
     final dynamicRealm = getRealm(dynamicConfig);
 
-    expect(dynamicRealm.schema.single.properties.length, 1);
+    expect(dynamicRealm.schema.single.length, 1);
     expect(dynamicRealm.dynamic.all('MyObject').single.dynamic.get<String>('name'), 'name');
   });
 

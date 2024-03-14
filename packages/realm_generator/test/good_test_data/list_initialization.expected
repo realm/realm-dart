@@ -168,7 +168,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('children', RealmPropertyType.object,
           linkTarget: 'Person', collectionType: RealmCollectionType.list),
       SchemaProperty('initList', RealmPropertyType.int,
@@ -191,4 +191,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
           collectionType: RealmCollectionType.map),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

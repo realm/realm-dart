@@ -161,8 +161,8 @@ class _RealmCore {
       for (var i = 0; i < classCount; i++) {
         final schemaObject = schema.elementAt(i);
         final classInfo = schemaClasses.elementAt(i).ref;
-        final propertiesCount = schemaObject.properties.length;
-        final computedCount = schemaObject.properties.where((p) => p.isComputed).length;
+        final propertiesCount = schemaObject.length;
+        final computedCount = schemaObject.where((p) => p.isComputed).length;
         final persistedCount = propertiesCount - computedCount;
 
         classInfo.name = schemaObject.name.toCharPtr(arena);
@@ -175,7 +175,7 @@ class _RealmCore {
         final properties = arena<realm_property_info_t>(propertiesCount);
 
         for (var j = 0; j < propertiesCount; j++) {
-          final schemaProperty = schemaObject.properties[j];
+          final schemaProperty = schemaObject[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.mapTo.toCharPtr(arena);
           propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
@@ -275,7 +275,7 @@ class _RealmCore {
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
-        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
@@ -321,9 +321,16 @@ class _RealmCore {
         _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
+
       if (config.encryptionKey != null) {
         _realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
       }
+
+      // For sync and for dynamic Realms, we need to have a complete view of the schema in Core.
+      if (config.schemaObjects.isEmpty || config is FlexibleSyncConfiguration) {
+        _realmLib.realm_config_set_schema_subset_mode(configHandle._pointer, realm_schema_subset_mode.RLM_SCHEMA_SUBSET_MODE_COMPLETE);
+      }
+
       return configHandle;
     });
   }
@@ -948,36 +955,40 @@ class _RealmCore {
       }
 
       final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key, primaryKey));
+      return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertiesMetadata(realm, classInfo.ref.key, primaryKey, arena));
     });
   }
 
-  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey, String? primaryKeyName) {
+  Map<String, RealmPropertyMetadata> getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName) {
     return using((Arena arena) {
-      final propertyCountPtr = arena<Size>();
-      _realmLib.invokeGetBool(
-          () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
-
-      var propertyCount = propertyCountPtr.value;
-      final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-      _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
-          "Error getting class properties.");
-
-      propertyCount = propertyCountPtr.value;
-      Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
-      for (var i = 0; i < propertyCount; i++) {
-        final property = propertiesPtr.elementAt(i);
-        final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
-        final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
-        final isPrimaryKey = propertyName == primaryKeyName;
-        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
-            isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
-        result[propertyName] = propertyMeta;
-      }
-      return result;
+      return _getPropertiesMetadata(realm, classKey, primaryKeyName, arena);
     });
+  }
+
+  Map<String, RealmPropertyMetadata> _getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName, Arena arena) {
+    final propertyCountPtr = arena<Size>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
+
+    var propertyCount = propertyCountPtr.value;
+    final propertiesPtr = arena<realm_property_info_t>(propertyCount);
+    _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
+        "Error getting class properties.");
+
+    propertyCount = propertyCountPtr.value;
+    Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
+    for (var i = 0; i < propertyCount; i++) {
+      final property = propertiesPtr.elementAt(i);
+      final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
+      final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+      final isPrimaryKey = propertyName == primaryKeyName;
+      final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
+          isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
+      result[propertyName] = propertyMeta;
+    }
+    return result;
   }
 
   RealmObjectHandle createRealmObject(Realm realm, int classKey) {
@@ -1757,6 +1768,15 @@ class _RealmCore {
     controller.onUserChanged();
   }
 
+  static void schema_change_callback(Pointer<Void> userdata, Pointer<realm_schema> data) {
+    final Realm realm = userdata.toObject();
+    try {
+      realm.updateSchema();
+    } catch (e) {
+      Realm.logger.log(RealmLogLevel.error, 'Failed to update Realm schema: $e');
+    }
+  }
+
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           results.handle._pointer,
@@ -1815,6 +1835,13 @@ class _RealmCore {
       _realmLib.addresses.realm_dart_userdata_async_free,
     );
     return UserNotificationTokenHandle._(notification_token);
+  }
+
+  RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_add_schema_changed_callback(realm.handle._pointer,
+        Pointer.fromFunction(schema_change_callback), realm.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+    return RealmCallbackTokenHandle._(pointer, realm.handle);
   }
 
   bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
@@ -3254,6 +3281,10 @@ class RealmMapHandle extends CollectionHandleBase<realm_dictionary> {
 
 class _RealmQueryHandle extends RootedHandleBase<realm_query> {
   _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
+}
+
+class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
+  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {

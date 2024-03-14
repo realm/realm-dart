@@ -3,29 +3,49 @@
 
 // ignore_for_file: avoid_relative_lib_imports
 
+import 'package:collection/collection.dart';
 import 'dart:ffi';
 import 'dart:typed_data';
-
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
 
+part 'dynamic_realm_test.realm.dart';
+
+@RealmModel()
+@MapTo('Task')
+class _Taskv2 {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+
+  late String description;
+}
+
 void main() {
   setupTests();
 
-  _assertSchemaExists(Realm realm, SchemaObject expected) {
-    final foundSchema = realm.schema.singleWhere((e) => e.name == expected.name);
-    expect(foundSchema.properties.length, expected.properties.length);
+  void assertSchemaMatches(SchemaObject actual, SchemaObject expected) {
+    expect(actual.name, expected.name);
+    expect(actual.baseType, expected.baseType);
+    expect(actual.length, expected.length);
 
-    for (final prop in foundSchema.properties) {
-      final expectedProp = expected.properties.singleWhere((e) => e.mapTo == prop.name);
-      expect(prop.collectionType, expectedProp.collectionType);
+    for (final prop in actual) {
+      final expectedProp = expected.singleWhereOrNull((e) => e.name == prop.name || e.mapTo == prop.name);
+      expect(expectedProp, isNotNull,
+          reason: "Expected to find '${prop.name}' in schema '${actual.name}', but couldn't. Properties in schema: ${expected.map((e) => e.name).join(', ')}");
+      expect(prop.collectionType, expectedProp!.collectionType);
       expect(prop.linkTarget, expectedProp.linkTarget);
       expect(prop.optional, expectedProp.optional);
       expect(prop.primaryKey, expectedProp.primaryKey);
       expect(prop.propertyType, expectedProp.propertyType);
     }
+  }
+
+  void assertSchemaExists(Realm realm, SchemaObject expected) {
+    final foundSchema = realm.schema.singleWhere((e) => e.name == expected.name);
+    assertSchemaMatches(foundSchema, expected);
   }
 
   test('schema is read from disk', () {
@@ -42,23 +62,35 @@ void main() {
       RecursiveEmbedded3.schema
     ]);
 
-    getRealm(config).close();
+    final staticRealm = getRealm(config);
+
+    staticRealm.write(() {
+      staticRealm.add(ObjectWithEmbedded('abc', recursiveObject: RecursiveEmbedded1('embedded')));
+    });
+
+    staticRealm.close();
 
     final dynamicConfig = Configuration.local([]);
     final realm = getRealm(dynamicConfig);
 
     expect(realm.schema.length, 10);
 
-    _assertSchemaExists(realm, Car.schema);
-    _assertSchemaExists(realm, Dog.schema);
-    _assertSchemaExists(realm, Person.schema);
-    _assertSchemaExists(realm, AllTypes.schema);
-    _assertSchemaExists(realm, LinksClass.schema);
-    _assertSchemaExists(realm, ObjectWithEmbedded.schema);
-    _assertSchemaExists(realm, AllTypesEmbedded.schema);
-    _assertSchemaExists(realm, RecursiveEmbedded1.schema);
-    _assertSchemaExists(realm, RecursiveEmbedded2.schema);
-    _assertSchemaExists(realm, RecursiveEmbedded3.schema);
+    assertSchemaExists(realm, Car.schema);
+    assertSchemaExists(realm, Dog.schema);
+    assertSchemaExists(realm, Person.schema);
+    assertSchemaExists(realm, AllTypes.schema);
+    assertSchemaExists(realm, LinksClass.schema);
+    assertSchemaExists(realm, ObjectWithEmbedded.schema);
+    assertSchemaExists(realm, AllTypesEmbedded.schema);
+    assertSchemaExists(realm, RecursiveEmbedded1.schema);
+    assertSchemaExists(realm, RecursiveEmbedded2.schema);
+    assertSchemaExists(realm, RecursiveEmbedded3.schema);
+
+    final obj = realm.dynamic.all(ObjectWithEmbedded.schema.name).single;
+    assertSchemaMatches(obj.objectSchema, ObjectWithEmbedded.schema);
+
+    final embedded = obj.dynamic.get<EmbeddedObject?>('recursiveObject')!;
+    assertSchemaMatches(embedded.objectSchema, RecursiveEmbedded1.schema);
   });
 
   test('dynamic is always the same', () {
@@ -525,6 +557,23 @@ void main() {
         expect(() => dynamicRealm.dynamic.find('i-dont-exist', 'i-dont-exist'),
             throws<RealmError>("Object type i-dont-exist not configured in the current Realm's schema"));
       });
+
+      test('all returns objects with schema', () {
+        final config = Configuration.local([Car.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(Car('Honda'));
+          staticRealm.add(Car('Toyota'));
+        });
+
+        final realm = _getDynamicRealm(staticRealm);
+        final allCars = realm.dynamic.all(Car.schema.name);
+        expect(allCars, hasLength(2));
+
+        for (final car in allCars) {
+          assertSchemaMatches(car.objectSchema, Car.schema);
+        }
+      });
     });
 
     group('RealmObject.dynamic.get when isDynamic=$isDynamic', () {
@@ -574,6 +623,7 @@ void main() {
         expect(obj2.dynamic.get('link'), obj1);
         expect(obj2.dynamic.get<RealmObject?>('link')?.dynamic.get<Uuid>('id'), uuid1);
 
+        assertSchemaMatches(obj2.dynamic.get<RealmObject?>('link')!.objectSchema, LinksClass.schema);
         dynamic dynamicObj1 = obj1;
         dynamic dynamicObj2 = obj2;
 
@@ -581,6 +631,8 @@ void main() {
 
         expect(dynamicObj2.link, obj1);
         expect(dynamicObj2.link.id, uuid1);
+
+        assertSchemaMatches(dynamicObj2.link.objectSchema, LinksClass.schema);
       });
 
       test('fails with non-existent property', () {
@@ -874,4 +926,261 @@ void main() {
     expect(dynamicObj2.list, [obj1, obj1]);
     expect(dynamicObj2.list[0].id, uuid1);
   });
+
+  test('Realm.schema is updated with a new class', () {
+    final v1Config = Configuration.local([
+      Car.schema,
+    ]);
+
+    final v1Realm = getRealm(v1Config);
+    v1Realm.close();
+
+    final dynamicRealm = getRealm(Configuration.local([]));
+
+    expect(dynamicRealm.schema, hasLength(1));
+    assertSchemaExists(dynamicRealm, Car.schema);
+
+    final v2Config = Configuration.local([Car.schema, Person.schema]);
+    final v2Realm = getRealm(v2Config);
+
+    v2Realm.write(() {
+      v2Realm.add(Person('Peter'));
+    });
+
+    expect(v2Realm.schema, hasLength(2));
+    assertSchemaExists(v2Realm, Car.schema);
+    assertSchemaExists(v2Realm, Person.schema);
+
+    dynamicRealm.refresh();
+    expect(dynamicRealm.schema, hasLength(2));
+    assertSchemaExists(dynamicRealm, Car.schema);
+    assertSchemaExists(dynamicRealm, Person.schema);
+
+    final dynamicPeople = dynamicRealm.dynamic.all(Person.schema.name);
+    expect(dynamicPeople, hasLength(1));
+    expect(dynamicPeople.single.dynamic.get<String>('name'), 'Peter');
+
+    assertSchemaMatches(dynamicPeople.single.objectSchema, Person.schema);
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
+
+  void updateLocalSchema(String realmPath, List<SchemaObject> newSchema) {
+    final config = Configuration.local(newSchema, path: realmPath);
+
+    final realm = getRealm(config);
+    realm.close();
+  }
+
+  void assertSchemaChangeNotification(
+      RealmSchemaChanges event, List<SchemaObject> expectedCurrent, List<SchemaObject> expectedNew, List<Object> validationErrors) {
+    try {
+      expect(event.currentSchema, hasLength(expectedCurrent.length));
+      expect(event.newSchema, hasLength(expectedNew.length));
+      expect(event.currentSchema.map((e) => e.name), unorderedMatches(expectedCurrent.map((e) => e.name)));
+      expect(event.newSchema.map((e) => e.name), unorderedMatches(expectedNew.map((e) => e.name)));
+    } catch (e) {
+      validationErrors.add(e);
+    }
+  }
+
+  test('Realm.schemaChanges is raised when the schema changes', () async {
+    final dynamicConfig = Configuration.local([]);
+    updateLocalSchema(dynamicConfig.path, [Car.schema]);
+
+    final dynamicRealm = getRealm(dynamicConfig);
+
+    final validationErrors = <Object>[];
+    var invocations = 0;
+
+    // final sub = dynamicRealm.schemaChanges.listen((event) {
+    //   invocations++;
+    //   assertSchemaChangeNotification(event, [Car.schema], [Car.schema, Person.schema], validationErrors);
+    // });
+
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
+
+    // dynamicRealm.refresh();
+    // expect(dynamicRealm.schema, hasLength(2));
+    // expect(invocations, 1);
+    // expect(validationErrors, isEmpty);
+
+    // await sub.cancel();
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
+
+  test('Realm.schemaChanges can be paused and resumed', () async {
+    final dynamicConfig = Configuration.local([]);
+    updateLocalSchema(dynamicConfig.path, [Car.schema]);
+    final dynamicRealm = getRealm(dynamicConfig);
+
+    var invocations = 0;
+    final validationErrors = <Object>[];
+    // final sub = dynamicRealm.schemaChanges.listen((event) {
+    //   invocations++;
+
+    //   if (invocations == 2) {
+    //     assertSchemaChangeNotification(event, [Car.schema, Person.schema, Dog.schema], [Car.schema, Person.schema, Dog.schema, Team.schema], validationErrors);
+    //   }
+    // });
+
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
+    // dynamicRealm.refresh();
+
+    // expect(invocations, 1);
+
+    // sub.pause();
+
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema]);
+
+    // // We paused the subscription, should not get a notification for this update
+    // dynamicRealm.refresh();
+    // expect(invocations, 1);
+
+    // sub.resume();
+
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema, Team.schema]);
+
+    // // We resumed the subscription, should get a notification for the latest update only
+    // dynamicRealm.refresh();
+    // expect(invocations, 2);
+    // expect(validationErrors, isEmpty);
+
+    // await sub.cancel();
+
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema, Team.schema, RemappedClass.schema]);
+
+    // // We canceled the subscription, should not get a notification
+    // dynamicRealm.refresh();
+    // expect(invocations, 2);
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
+
+  test("Realm.schemaChanges multiple subscribers", () async {
+    final dynamicConfig = Configuration.local([]);
+    updateLocalSchema(dynamicConfig.path, [Car.schema]);
+
+    final dynamicRealm = getRealm(dynamicConfig);
+
+    final validationErrors = <Object>[];
+
+    var sub1Invocations = 0;
+    // final sub1 = dynamicRealm.schemaChanges.listen((event) {
+    //   sub1Invocations++;
+    //   assertSchemaChangeNotification(event, [Car.schema], [Car.schema, Person.schema], validationErrors);
+    // });
+
+    // var sub2Invocations = 0;
+    // final sub2 = dynamicRealm.schemaChanges.listen((event) {
+    //   sub2Invocations++;
+    // });
+
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
+    // dynamicRealm.refresh();
+
+    // expect(sub1Invocations, 1);
+    // expect(sub2Invocations, 1);
+
+    // assertSchemaExists(dynamicRealm, Person.schema);
+
+    // expect(validationErrors, isEmpty);
+
+    // await sub1.cancel();
+    // await sub2.cancel();
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
+
+  Realm openPausedSyncRealm(User user, List<SchemaObject> schemas) {
+    // Some tests validate that adding a property in the schema will update the Realm.schema collection
+    // It goes through sync, because that's the only way to add a property without triggering a migration.
+    // It is necessary to immediately stop the sync sessions to make sure those changes don't make it to the
+    // server, otherwise the schema for all tests will be adjusted, which may pollute the test run.
+
+    final config = Configuration.flexibleSync(user, schemas);
+
+    final realm = getRealm(config);
+    realm.syncSession.pause();
+
+    realm.subscriptions.update((mutableSubscriptions) {
+      for (final schema in schemas) {
+        mutableSubscriptions.add(realm.dynamic.all(schema.name));
+      }
+    });
+
+    return realm;
+  }
+
+  baasTest('Realm.schema is updated with a new property', (config) async {
+    final app = App(config);
+    final user = await getIntegrationUser(app);
+
+    final v1Realm = openPausedSyncRealm(user, [Task.schema]);
+    v1Realm.syncSession.pause();
+
+    final v2Realm = openPausedSyncRealm(user, [Taskv2.schema]);
+
+    final taskId = ObjectId();
+    v2Realm.write(() {
+      v2Realm.add(Taskv2(taskId, 'lorem ipsum'));
+    });
+
+    expect(v2Realm.schema, hasLength(1));
+    assertSchemaExists(v2Realm, Taskv2.schema);
+
+    v1Realm.refresh();
+    expect(v1Realm.schema, hasLength(1));
+    assertSchemaExists(v1Realm, Taskv2.schema);
+
+    final tasks = v1Realm.all<Task>();
+    expect(tasks, hasLength(1));
+    expect(tasks.single.id, taskId);
+    expect(tasks.single.dynamic.get<String>('description'), 'lorem ipsum');
+
+    assertSchemaMatches(tasks.single.objectSchema, Taskv2.schema);
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
+
+  baasTest('RealmObject.schema is updated with a new property', (config) async {
+    final app = App(config);
+    final user = await getIntegrationUser(app);
+
+    final v1Realm = openPausedSyncRealm(user, [Task.schema]);
+    final task = v1Realm.write(() => v1Realm.add(Task(ObjectId())));
+    assertSchemaMatches(task.objectSchema, Task.schema);
+
+    final v2Realm = openPausedSyncRealm(user, [Taskv2.schema]);
+
+    expect(v2Realm.schema, hasLength(1));
+    assertSchemaExists(v2Realm, Taskv2.schema);
+
+    v2Realm.write(() {
+      final v2Task = v2Realm.find<Taskv2>(task.id)!;
+      v2Task.description = 'lorem ipsum';
+    });
+
+    v1Realm.refresh();
+    expect(v1Realm.schema, hasLength(1));
+    assertSchemaExists(v1Realm, Taskv2.schema);
+
+    assertSchemaMatches(task.objectSchema, Taskv2.schema);
+    expect(task.dynamic.get<String>('description'), 'lorem ipsum');
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
+
+  baasTest('UnmanagedObject.schema is updated with a new property', (config) async {
+    final app = App(config);
+    final user = await getIntegrationUser(app);
+
+    final v1Realm = openPausedSyncRealm(user, [Task.schema]);
+
+    // Update the schema
+    openPausedSyncRealm(user, [Taskv2.schema]);
+
+    final task = Task(ObjectId());
+    expect(() => task.dynamic.get<String>('description'),
+        throwsA(isA<RealmError>().having((p0) => p0.message, 'message', "Property 'description' does not exist on object of type 'Task'")));
+    assertSchemaMatches(task.objectSchema, Task.schema);
+
+    v1Realm.write(() {
+      v1Realm.add(task);
+    });
+
+    assertSchemaMatches(task.objectSchema, Taskv2.schema);
+
+    // Schema was updated so description shouldn't throw now
+    expect(task.dynamic.get<String>('description'), '');
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 }

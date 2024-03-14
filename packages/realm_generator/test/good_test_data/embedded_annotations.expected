@@ -65,7 +65,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
+    return SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
       SchemaProperty('children', RealmPropertyType.object,
@@ -74,6 +74,9 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
           collectionType: RealmCollectionType.list),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
@@ -143,8 +146,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
-        ObjectType.embeddedObject, Child1, 'MySuperChild', [
+    return SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),
@@ -152,4 +154,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
           indexType: RealmIndexType.regular),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
