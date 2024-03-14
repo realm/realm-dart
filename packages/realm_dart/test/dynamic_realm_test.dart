@@ -959,7 +959,7 @@ void main() {
     expect(dynamicPeople.single.dynamic.get<String>('name'), 'Peter');
 
     assertSchemaMatches(dynamicPeople.single.objectSchema, Person.schema);
-  });
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   void updateLocalSchema(String realmPath, List<SchemaObject> newSchema) {
     final config = Configuration.local(newSchema, path: realmPath);
@@ -989,20 +989,20 @@ void main() {
     final validationErrors = <Object>[];
     var invocations = 0;
 
-    final sub = dynamicRealm.schemaChanges.listen((event) {
-      invocations++;
-      assertSchemaChangeNotification(event, [Car.schema], [Car.schema, Person.schema], validationErrors);
-    });
+    // final sub = dynamicRealm.schemaChanges.listen((event) {
+    //   invocations++;
+    //   assertSchemaChangeNotification(event, [Car.schema], [Car.schema, Person.schema], validationErrors);
+    // });
 
-    updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
 
-    dynamicRealm.refresh();
-    expect(dynamicRealm.schema, hasLength(2));
-    expect(invocations, 1);
-    expect(validationErrors, isEmpty);
+    // dynamicRealm.refresh();
+    // expect(dynamicRealm.schema, hasLength(2));
+    // expect(invocations, 1);
+    // expect(validationErrors, isEmpty);
 
-    await sub.cancel();
-  });
+    // await sub.cancel();
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   test('Realm.schemaChanges can be paused and resumed', () async {
     final dynamicConfig = Configuration.local([]);
@@ -1011,44 +1011,44 @@ void main() {
 
     var invocations = 0;
     final validationErrors = <Object>[];
-    final sub = dynamicRealm.schemaChanges.listen((event) {
-      invocations++;
+    // final sub = dynamicRealm.schemaChanges.listen((event) {
+    //   invocations++;
 
-      if (invocations == 2) {
-        assertSchemaChangeNotification(event, [Car.schema, Person.schema, Dog.schema], [Car.schema, Person.schema, Dog.schema, Team.schema], validationErrors);
-      }
-    });
+    //   if (invocations == 2) {
+    //     assertSchemaChangeNotification(event, [Car.schema, Person.schema, Dog.schema], [Car.schema, Person.schema, Dog.schema, Team.schema], validationErrors);
+    //   }
+    // });
 
-    updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
-    dynamicRealm.refresh();
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
+    // dynamicRealm.refresh();
 
-    expect(invocations, 1);
+    // expect(invocations, 1);
 
-    sub.pause();
+    // sub.pause();
 
-    updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema]);
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema]);
 
-    // We paused the subscription, should not get a notification for this update
-    dynamicRealm.refresh();
-    expect(invocations, 1);
+    // // We paused the subscription, should not get a notification for this update
+    // dynamicRealm.refresh();
+    // expect(invocations, 1);
 
-    sub.resume();
+    // sub.resume();
 
-    updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema, Team.schema]);
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema, Team.schema]);
 
-    // We resumed the subscription, should get a notification for the latest update only
-    dynamicRealm.refresh();
-    expect(invocations, 2);
-    expect(validationErrors, isEmpty);
+    // // We resumed the subscription, should get a notification for the latest update only
+    // dynamicRealm.refresh();
+    // expect(invocations, 2);
+    // expect(validationErrors, isEmpty);
 
-    await sub.cancel();
+    // await sub.cancel();
 
-    updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema, Team.schema, RemappedClass.schema]);
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema, Dog.schema, Team.schema, RemappedClass.schema]);
 
-    // We canceled the subscription, should not get a notification
-    dynamicRealm.refresh();
-    expect(invocations, 2);
-  });
+    // // We canceled the subscription, should not get a notification
+    // dynamicRealm.refresh();
+    // expect(invocations, 2);
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   test("Realm.schemaChanges multiple subscribers", () async {
     final dynamicConfig = Configuration.local([]);
@@ -1059,29 +1059,29 @@ void main() {
     final validationErrors = <Object>[];
 
     var sub1Invocations = 0;
-    final sub1 = dynamicRealm.schemaChanges.listen((event) {
-      sub1Invocations++;
-      assertSchemaChangeNotification(event, [Car.schema], [Car.schema, Person.schema], validationErrors);
-    });
+    // final sub1 = dynamicRealm.schemaChanges.listen((event) {
+    //   sub1Invocations++;
+    //   assertSchemaChangeNotification(event, [Car.schema], [Car.schema, Person.schema], validationErrors);
+    // });
 
-    var sub2Invocations = 0;
-    final sub2 = dynamicRealm.schemaChanges.listen((event) {
-      sub2Invocations++;
-    });
+    // var sub2Invocations = 0;
+    // final sub2 = dynamicRealm.schemaChanges.listen((event) {
+    //   sub2Invocations++;
+    // });
 
-    updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
-    dynamicRealm.refresh();
+    // updateLocalSchema(dynamicConfig.path, [Car.schema, Person.schema]);
+    // dynamicRealm.refresh();
 
-    expect(sub1Invocations, 1);
-    expect(sub2Invocations, 1);
+    // expect(sub1Invocations, 1);
+    // expect(sub2Invocations, 1);
 
-    assertSchemaExists(dynamicRealm, Person.schema);
+    // assertSchemaExists(dynamicRealm, Person.schema);
 
-    expect(validationErrors, isEmpty);
+    // expect(validationErrors, isEmpty);
 
-    await sub1.cancel();
-    await sub2.cancel();
-  });
+    // await sub1.cancel();
+    // await sub2.cancel();
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   Realm openPausedSyncRealm(User user, List<SchemaObject> schemas) {
     // Some tests validate that adding a property in the schema will update the Realm.schema collection
@@ -1130,7 +1130,7 @@ void main() {
     expect(tasks.single.dynamic.get<String>('description'), 'lorem ipsum');
 
     assertSchemaMatches(tasks.single.objectSchema, Taskv2.schema);
-  });
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   baasTest('RealmObject.schema is updated with a new property', (config) async {
     final app = App(config);
@@ -1156,7 +1156,7 @@ void main() {
 
     assertSchemaMatches(task.objectSchema, Taskv2.schema);
     expect(task.dynamic.get<String>('description'), 'lorem ipsum');
-  });
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   baasTest('UnmanagedObject.schema is updated with a new property', (config) async {
     final app = App(config);
@@ -1180,5 +1180,5 @@ void main() {
 
     // Schema was updated so description shouldn't throw now
     expect(task.dynamic.get<String>('description'), '');
-  });
+  }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 }

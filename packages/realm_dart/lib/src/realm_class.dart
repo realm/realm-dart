@@ -138,7 +138,9 @@ class Realm implements Finalizable {
     // local Realms with user-supplied schema, the schema on disk may still change, but Core doesn't report the updated
     // schema, so even if we subscribe, we wouldn't be able to see the updates.
     if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
-      _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+      // TODO: enable once https://github.com/realm/realm-core/issues/7426 is fixed.
+      // _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+      _schemaCallbackHandle = null;
     } else {
       _schemaCallbackHandle = null;
     }
@@ -614,7 +616,8 @@ class Realm implements Finalizable {
   /// Realms will emit schema change notifications.
   ///
   /// Returns a [Stream] of [RealmSchemaChanges] that can be listened to.
-  Stream<RealmSchemaChanges> get schemaChanges {
+  // TODO: this is private due to https://github.com/realm/realm-core/issues/7426. Once that is fixed, we can expose it.
+  Stream<RealmSchemaChanges> get _schemaChanges {
     late StreamController<RealmSchemaChanges> controller;
     controller = StreamController<RealmSchemaChanges>(
         onListen: () => _schemaChangeListeners.add(controller),
