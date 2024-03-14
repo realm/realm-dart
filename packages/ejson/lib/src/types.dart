@@ -48,7 +48,7 @@ final class Undefined<T> extends UndefinedOr<T> {
   String toString() => 'Undefined<$T>()';
 }
 
-const undefined = Undefined();
+const undefined = Undefined<dynamic>();
 
 final class Defined<T> extends UndefinedOr<T> {
   final T value;

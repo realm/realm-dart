@@ -423,7 +423,7 @@ void main() {
       final config = Configuration.local([AllTypes.schema]);
       final realm = getRealm(config);
       final obj = realm.write(() {
-        return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+        return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
       });
 
       final json = obj.toJson();
@@ -462,7 +462,7 @@ void main() {
     expect(date.isUtc, isFalse);
 
     final obj = realm.write(() {
-      return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+      return realm.add(AllTypes('', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
     });
 
     final json = obj.toJson();
@@ -479,8 +479,8 @@ void main() {
     final date = DateTime.now();
 
     realm.write(() {
-      realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
-      realm.add(AllTypes('cde', false, DateTime.now().add(Duration(seconds: 1)), 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+      realm.add(AllTypes('abc', false, date, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
+      realm.add(AllTypes('cde', false, DateTime.now().add(Duration(seconds: 1)), 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
     });
 
     var results = realm.all<AllTypes>().query('dateProp = \$0', [date]);
@@ -497,9 +497,9 @@ void main() {
     final date3 = date1.subtract(Duration(microseconds: 1));
 
     realm.write(() {
-      realm.add(AllTypes('1', false, date1, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
-      realm.add(AllTypes('2', false, date2, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
-      realm.add(AllTypes('3', false, date3, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one));
+      realm.add(AllTypes('1', false, date1, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
+      realm.add(AllTypes('2', false, date2, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
+      realm.add(AllTypes('3', false, date3, 0, ObjectId(), Uuid.v4(), 0, Decimal128.one, Uint8List(16)));
     });
 
     final lessThan1 = realm.all<AllTypes>().query('dateProp < \$0', [date1]);
@@ -524,7 +524,7 @@ void main() {
     var uuid = Uuid.v4();
 
     final object = realm.write(() {
-      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten, binaryProp: Uint8List.fromList([1, 2]), nullableBinaryProp: null));
+      return realm.add(AllTypes('cde', false, date, 0.1, objectId, uuid, 4, Decimal128.ten, Uint8List.fromList([1, 2]), nullableBinaryProp: null));
     });
 
     expect(object.stringProp, 'cde');

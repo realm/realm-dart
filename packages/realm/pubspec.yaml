@@ -13,7 +13,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  realm_dart: ^1.8.0
+  realm_dart: ^2.0.0-alpha.2
 
 flutter:
   plugin:

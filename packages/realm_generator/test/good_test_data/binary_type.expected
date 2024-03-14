@@ -10,12 +10,9 @@ part of 'binary_type.dart';
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   Foo(
     Uint8List requiredBinaryProp, {
-    Uint8List? defaultValueBinaryProp,
     Uint8List? nullableBinaryProp,
   }) {
     RealmObjectBase.set(this, 'requiredBinaryProp', requiredBinaryProp);
-    RealmObjectBase.set(
-        this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
   }
 
@@ -27,14 +24,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   set requiredBinaryProp(Uint8List value) =>
       RealmObjectBase.set(this, 'requiredBinaryProp', value);
-
-  @override
-  Uint8List get defaultValueBinaryProp =>
-      RealmObjectBase.get<Uint8List>(this, 'defaultValueBinaryProp')
-          as Uint8List;
-  @override
-  set defaultValueBinaryProp(Uint8List value) =>
-      RealmObjectBase.set(this, 'defaultValueBinaryProp', value);
 
   @override
   Uint8List? get nullableBinaryProp =>
@@ -53,7 +42,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   EJsonValue toEJson() {
     return <String, dynamic>{
       'requiredBinaryProp': requiredBinaryProp.toEJson(),
-      'defaultValueBinaryProp': defaultValueBinaryProp.toEJson(),
       'nullableBinaryProp': nullableBinaryProp.toEJson(),
     };
   }
@@ -63,12 +51,10 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     return switch (ejson) {
       {
         'requiredBinaryProp': EJsonValue requiredBinaryProp,
-        'defaultValueBinaryProp': EJsonValue defaultValueBinaryProp,
         'nullableBinaryProp': EJsonValue nullableBinaryProp,
       } =>
         Foo(
           fromEJson(requiredBinaryProp),
-          defaultValueBinaryProp: fromEJson(defaultValueBinaryProp),
           nullableBinaryProp: fromEJson(nullableBinaryProp),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -80,7 +66,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
-      SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);

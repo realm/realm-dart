@@ -11,15 +11,15 @@ class Asymmetric extends _Asymmetric
     with RealmEntity, RealmObjectBase, RealmObject {
   Asymmetric(
     ObjectId id, {
+    Iterable<Embedded> children = const [],
     Embedded? father,
     Embedded? mother,
-    Iterable<Embedded> children = const [],
   }) {
     RealmObjectBase.set(this, '_id', id);
-    RealmObjectBase.set(this, 'father', father);
-    RealmObjectBase.set(this, 'mother', mother);
     RealmObjectBase.set<RealmList<Embedded>>(
         this, 'children', RealmList<Embedded>(children));
+    RealmObjectBase.set(this, 'father', father);
+    RealmObjectBase.set(this, 'mother', mother);
   }
 
   Asymmetric._();
@@ -77,6 +77,7 @@ class Asymmetric extends _Asymmetric
       } =>
         Asymmetric(
           fromEJson(id),
+          children: fromEJson(children),
           father: fromEJson(father),
           mother: fromEJson(mother),
         ),

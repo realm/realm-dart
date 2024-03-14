@@ -10,7 +10,7 @@ import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:async/async.dart';
 
-extension<T extends Enum> on Iterable<T> {
+extension IterableX<T extends Enum> on Iterable<T> {
   T? firstEqualIgnoreCase(String? value) => value == null ? null : where((e) => equalsIgnoreAsciiCase(e.name, value)).firstOrNull;
   Iterable<String> get names => map((e) => e.name);
 }
@@ -109,13 +109,13 @@ enum BuildMode {
   static BuildMode? from(String? name) => BuildMode.values.firstEqualIgnoreCase(name);
 }
 
-abstract class _BaseCommand extends Command<int> {
+abstract class BaseCommand extends Command<int> {
   @override
   final String name;
   @override
   final String description;
 
-  _BaseCommand(this.name, this.description);
+  BaseCommand(this.name, this.description);
 
   late final verbose = globalResults!['verbose'] as bool; // don't access before run
 
@@ -124,10 +124,10 @@ abstract class _BaseCommand extends Command<int> {
   Iterable<Target> get possibleTargets => Target.values.where((t) => t.os == os || t.os == OS.android || (os == OS.macOS && t.os == OS.iOS));
 }
 
-class _BuildNativeCommand extends _BaseCommand {
-  _BuildNativeCommand()
+class BuildNativeCommand extends BaseCommand {
+  BuildNativeCommand()
       : super(
-          'native',
+          'build',
           'Build native assets for realm_dart',
         ) {
     argParser
@@ -159,21 +159,30 @@ class _BuildNativeCommand extends _BaseCommand {
   Future<int?> runProc(List<String> args, {required Logger logger, String? message}) async {
     final p = await io.Process.start(args.first, args.skip(1).toList());
     Progress? progress;
+    final command = args.join(' ');
+    message ??= command;
     if (verbose) {
+      logger.info(message);
       await Future.wait([io.stdout.addStream(p.stdout), io.stderr.addStream(p.stderr)]);
     } else {
-      message ??= args.join(' ');
+      // trim message to fit terminal width
       final width = io.stdout.hasTerminal ? io.stdout.terminalColumns - 12 : 80;
-      message = message.padRight(width).substring(0, width);
+      message = message.padRight(width);
+      if (message.length > width) {
+        message = '${message.substring(0, width - 4)} ...';
+      }
+
       progress = logger.progress(message);
       await for (final _ in StreamGroup.merge([p.stdout, p.stderr])) {
+        // update progress when there's output in child process
         progress.update(message);
       }
     }
     final exitCode = await p.exitCode;
-    if (exitCode < 0) {
+    assert(verbose ^ (progress != null)); // verbose <=> progress == null
+    if (exitCode != 0) {
       progress?.fail(message);
-      logger.err('Error: "$message}" exited with code $exitCode');
+      logger.err('Error: "$command" exited with code $exitCode');
       return exitCode;
     } else {
       progress?.complete(message);
@@ -198,21 +207,25 @@ class _BuildNativeCommand extends _BaseCommand {
         ? iOSSdk.values
         : iosSdkOptions.map((o) => iOSSdk.from(o)).whereNotNull();
 
-    int? exitCode;
     for (final target in targets) {
       logger.info('Building for ${target.name} in ${buildMode.name} mode');
+      int? exitCode;
       switch (target.os) {
         case OS.iOS:
           for (final sdk in iosSdks) {
             exitCode ??= await runProc(['cmake', '--preset=ios'], logger: logger);
             exitCode ??= await runProc(['cmake', '--build', '--preset=ios-${sdk.cmakeName}', '--config=${buildMode.cmakeName}'], logger: logger);
           }
+          final output = io.Directory('./binary/ios/realm_dart.xcframework');
+          if (await output.exists()) {
+            await output.delete(recursive: true);
+          }
           exitCode ??= await runProc(
             [
               'xcodebuild',
               '-create-xcframework',
-              for (final s in iosSdks) '-framework ./binary/ios/${buildMode.cmakeName}-${s.name.toLowerCase()}/realm_dart.framework',
-              '-output ./binary/ios/realm_dart.xcframework',
+              for (final s in iosSdks) ...['-framework', './binary/ios/${buildMode.cmakeName}-${s.name.toLowerCase()}/realm_dart.framework'],
+              ...['-output', output.path],
             ],
             logger: logger,
           );
@@ -230,21 +243,21 @@ class _BuildNativeCommand extends _BaseCommand {
               '--build',
               '--preset=$preset',
               '--config=${buildMode.cmakeName}',
-              if (target.os == OS.macOS) '-- -destination "generic/platform=macOS',
-              if (target.os == OS.android) '--target=strip',
+              if (target.os == OS.android && buildMode == BuildMode.release) '--target=strip',
             ],
             logger: logger,
           );
           break;
       }
       io.stdout.writeln();
+      if (exitCode != null) return exitCode; // return first non-zero exit code
     }
-    return exitCode ?? 0;
+    return 0; // success
   }
 }
 
-class _PossibleTargets extends _BaseCommand {
-  _PossibleTargets()
+class PossibleTargets extends BaseCommand {
+  PossibleTargets()
       : super(
           'targets',
           'List possible targets for building native assets',
@@ -269,17 +282,3 @@ class _PossibleTargets extends _BaseCommand {
 }
 
 final logger = Logger(progressOptions: ProgressOptions(trailing: ''));
-
-Future<void> main(List<String> arguments) async {
-  final runner = CommandRunner<int>('build', 'Helper tool for building realm_dart')
-    ..addCommand(_BuildNativeCommand())
-    ..addCommand(_PossibleTargets())
-    ..argParser.addFlag('verbose', abbr: 'v', help: 'Print verbose output', defaultsTo: false);
-  try {
-    final exitCode = await runner.run(arguments);
-    io.exit(exitCode!);
-  } on UsageException catch (error) {
-    logger.err('$error');
-    io.exit(64); // Exit code 64 indicates a usage error.
-  }
-}

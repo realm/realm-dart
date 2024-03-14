@@ -791,9 +791,9 @@ void main() {
     final config = Configuration.local([AllTypes.schema]);
     Realm realm = getRealm(config);
     realm.write(() => realm.addAll([
-          AllTypes(text_1, false, DateTime.now(), 1.1, id_1, uid_1, 1, Decimal128.one, binaryProp: Uint8List.fromList([1, 2])),
-          AllTypes('text2', true, date_1, 2.2, id_2, uid_2, 2, Decimal128.ten),
-          AllTypes('text3', true, date_2, 3.3, ObjectId(), Uuid.v4(), 3, Decimal128.infinity, binaryProp: Uint8List.fromList([3, 4])),
+          AllTypes(text_1, false, DateTime.now(), 1.1, id_1, uid_1, 1, Decimal128.one, Uint8List.fromList([1, 2])),
+          AllTypes('text2', true, date_1, 2.2, id_2, uid_2, 2, Decimal128.ten, Uint8List(16)),
+          AllTypes('text3', true, date_2, 3.3, ObjectId(), Uuid.v4(), 3, Decimal128.infinity, Uint8List.fromList([3, 4])),
         ]));
 
     void queryWithListArg(String propName, Object? argument, {int expected = 0}) {

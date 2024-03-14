@@ -27,12 +27,17 @@ jobs:
           version: ${{ inputs.version }}
           version-suffix: ''
 
-      - name: Update pubspec.yaml
-        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
+      - name : Setup Dart SDK
+        uses: dart-lang/setup-dart@main
         with:
-          find: 'version: .*'
-          replace: 'version: ${{ steps.update-changelog.outputs.new-version }}'
-          include: '**pubspec.yaml'
+          sdk: stable
+          architecture: 'x64'
+
+      - name: Setup Melos
+        run: dart pub global activate melos
+
+      - name: Update pubspec.yaml files
+        run: REALM_VERSION=${{ inputs.version}} melos run update:version:realm
 
       - name: Update realm.podspec
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
@@ -104,4 +109,4 @@ jobs:
           draft: false
           body: An automated PR for next release.
           commit-message: '[Release ${{ steps.update-changelog.outputs.new-version }}]'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REALM_CI_PAT }}

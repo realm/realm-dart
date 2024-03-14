@@ -18,10 +18,10 @@ class _Bar {
   late String name;
   @Indexed()
   late bool aBool, another; // both are indexed!
-  var data = Uint8List(16);
+  late Uint8List data;
   @MapTo('tidspunkt')
   @Indexed()
-  var timestamp = DateTime.now();
+  late DateTime timestamp;
   var aDouble = 0.0;
   // late Decimal128 decimal; // not supported yet
   _Foo? foo;

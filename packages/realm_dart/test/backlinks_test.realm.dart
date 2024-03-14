@@ -13,8 +13,8 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   Source({
     String name = 'source',
     Target? oneTarget,
-    Target? dynamicTarget,
     Iterable<Target> manyTargets = const [],
+    Target? dynamicTarget,
     Iterable<Target> dynamicManyTargets = const [],
   }) {
     if (!_defaultsSet) {
@@ -24,9 +24,9 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'et mål', oneTarget);
-    RealmObjectBase.set(this, 'dynamisk mål', dynamicTarget);
     RealmObjectBase.set<RealmList<Target>>(
         this, 'manyTargets', RealmList<Target>(manyTargets));
+    RealmObjectBase.set(this, 'dynamisk mål', dynamicTarget);
     RealmObjectBase.set<RealmList<Target>>(
         this, 'dynamicManyTargets', RealmList<Target>(dynamicManyTargets));
   }
@@ -97,7 +97,9 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
         Source(
           name: fromEJson(name),
           oneTarget: fromEJson(oneTarget),
+          manyTargets: fromEJson(manyTargets),
           dynamicTarget: fromEJson(dynamicTarget),
+          dynamicManyTargets: fromEJson(dynamicManyTargets),
         ),
       _ => raiseInvalidEJson(ejson),
     };

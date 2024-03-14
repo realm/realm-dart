@@ -62,36 +62,9 @@ jobs:
       working-directory: packages/realm_dart
       shell: bash
 
-    - name: Update realm_* path dependencies (Production)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      if: ${{ github.event.inputs.environment == 'Production' }}
-      with:
-        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
-        replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
-        include: "**pubspec.yaml"
-
-    - name: Update realm_* path dependencies (Staging)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      if: ${{ github.event.inputs.environment != 'Production' }}
-      with:
-        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
-        replace: "  realm_$1:\n    path: ../realm_$1"
-        include: "**pubspec.yaml"
-
     - name: Update pubspec.yaml version (Staging)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       if: ${{ github.event.inputs.environment != 'Production' }}
-      with:
-        find: 'version: .*'
-        replace: 'version: ${{ steps.get-version.outputs.version }}'
-        include: '**pubspec.yaml'
-
-    - name: Remove pubspec.yaml/publish_to:none
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      with:
-        find: "publish_to: none(\\n|\\r\\n)"
-        replace: " "
-        include: "**pubspec.yaml"
+      run: REALM_VERSION=${{ steps.get-version.outputs.version }} melos run update:version:realm
 
     - name: Package realm_common
       run: |
@@ -210,7 +183,7 @@ jobs:
     - name: Merge Pull Request
       uses: juliangruber/merge-pull-request-action@8a13f2645ad8b6ada32f829b2fae9c0955a5265d
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.REALM_CI_PAT }}
         number: ${{ steps.find-pull-request.outputs.number }}
         method: squash
 
@@ -221,7 +194,7 @@ jobs:
         name: ${{ needs.prepare-packages.outputs.version }}
         commit: main
         tag: ${{ needs.prepare-packages.outputs.version }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.REALM_CI_PAT }}
         draft: false
 
     - name: 'Post to #appx-releases'

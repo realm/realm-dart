@@ -60,6 +60,7 @@ class Location extends _Location
       } =>
         Location(
           type: fromEJson(type),
+          coordinates: fromEJson(coordinates),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -183,7 +184,9 @@ class LocationList extends _LocationList
       {
         'locations': EJsonValue locations,
       } =>
-        LocationList(),
+        LocationList(
+          locations: fromEJson(locations),
+        ),
       _ => raiseInvalidEJson(ejson),
     };
   }

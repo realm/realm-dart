@@ -245,6 +245,8 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
       } =>
         Team(
           fromEJson(name),
+          players: fromEJson(players),
+          scores: fromEJson(scores),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -358,15 +360,15 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   School(
     String name, {
     String? city,
-    School? branchOfSchool,
     Iterable<Student> students = const [],
+    School? branchOfSchool,
     Iterable<School> branches = const [],
   }) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'city', city);
-    RealmObjectBase.set(this, 'branchOfSchool', branchOfSchool);
     RealmObjectBase.set<RealmList<Student>>(
         this, 'students', RealmList<Student>(students));
+    RealmObjectBase.set(this, 'branchOfSchool', branchOfSchool);
     RealmObjectBase.set<RealmList<School>>(
         this, 'branches', RealmList<School>(branches));
   }
@@ -434,7 +436,9 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
         School(
           fromEJson(name),
           city: fromEJson(city),
+          students: fromEJson(students),
           branchOfSchool: fromEJson(branchOfSchool),
+          branches: fromEJson(branches),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -510,6 +514,7 @@ class RemappedClass extends $RemappedClass
       } =>
         RemappedClass(
           fromEJson(remappedProperty),
+          listProperty: fromEJson(listProperty),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -700,6 +705,7 @@ class Schedule extends _Schedule
       } =>
         Schedule(
           fromEJson(id),
+          tasks: fromEJson(tasks),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -723,12 +729,9 @@ class Schedule extends _Schedule
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   Foo(
     Uint8List requiredBinaryProp, {
-    Uint8List? defaultValueBinaryProp,
     Uint8List? nullableBinaryProp,
   }) {
     RealmObjectBase.set(this, 'requiredBinaryProp', requiredBinaryProp);
-    RealmObjectBase.set(
-        this, 'defaultValueBinaryProp', defaultValueBinaryProp ?? Uint8List(8));
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
   }
 
@@ -740,14 +743,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   @override
   set requiredBinaryProp(Uint8List value) =>
       RealmObjectBase.set(this, 'requiredBinaryProp', value);
-
-  @override
-  Uint8List get defaultValueBinaryProp =>
-      RealmObjectBase.get<Uint8List>(this, 'defaultValueBinaryProp')
-          as Uint8List;
-  @override
-  set defaultValueBinaryProp(Uint8List value) =>
-      RealmObjectBase.set(this, 'defaultValueBinaryProp', value);
 
   @override
   Uint8List? get nullableBinaryProp =>
@@ -766,7 +761,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   EJsonValue toEJson() {
     return <String, dynamic>{
       'requiredBinaryProp': requiredBinaryProp.toEJson(),
-      'defaultValueBinaryProp': defaultValueBinaryProp.toEJson(),
       'nullableBinaryProp': nullableBinaryProp.toEJson(),
     };
   }
@@ -776,12 +770,10 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     return switch (ejson) {
       {
         'requiredBinaryProp': EJsonValue requiredBinaryProp,
-        'defaultValueBinaryProp': EJsonValue defaultValueBinaryProp,
         'nullableBinaryProp': EJsonValue nullableBinaryProp,
       } =>
         Foo(
           fromEJson(requiredBinaryProp),
-          defaultValueBinaryProp: fromEJson(defaultValueBinaryProp),
           nullableBinaryProp: fromEJson(nullableBinaryProp),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -793,7 +785,6 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
-      SchemaProperty('defaultValueBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
     ]);
@@ -813,8 +804,8 @@ class AllTypes extends _AllTypes
     ObjectId objectIdProp,
     Uuid uuidProp,
     int intProp,
-    Decimal128 decimalProp, {
-    Uint8List? binaryProp,
+    Decimal128 decimalProp,
+    Uint8List binaryProp, {
     String? nullableStringProp,
     bool? nullableBoolProp,
     DateTime? nullableDateProp,
@@ -833,7 +824,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'uuidProp', uuidProp);
     RealmObjectBase.set(this, 'intProp', intProp);
     RealmObjectBase.set(this, 'decimalProp', decimalProp);
-    RealmObjectBase.set(this, 'binaryProp', binaryProp ?? Uint8List(16));
+    RealmObjectBase.set(this, 'binaryProp', binaryProp);
     RealmObjectBase.set(this, 'nullableStringProp', nullableStringProp);
     RealmObjectBase.set(this, 'nullableBoolProp', nullableBoolProp);
     RealmObjectBase.set(this, 'nullableDateProp', nullableDateProp);
@@ -1029,7 +1020,7 @@ class AllTypes extends _AllTypes
           fromEJson(uuidProp),
           fromEJson(intProp),
           fromEJson(decimalProp),
-          binaryProp: fromEJson(binaryProp),
+          fromEJson(binaryProp),
           nullableStringProp: fromEJson(nullableStringProp),
           nullableBoolProp: fromEJson(nullableBoolProp),
           nullableDateProp: fromEJson(nullableDateProp),
@@ -1165,6 +1156,9 @@ class LinksClass extends _LinksClass
         LinksClass(
           fromEJson(id),
           link: fromEJson(link),
+          list: fromEJson(list),
+          linksSet: fromEJson(linksSet),
+          map: fromEJson(map),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -1808,7 +1802,56 @@ class AllCollections extends _AllCollections
         'nullableIntMap': EJsonValue nullableIntMap,
         'nullableDecimalMap': EJsonValue nullableDecimalMap,
       } =>
-        AllCollections(),
+        AllCollections(
+          stringList: fromEJson(stringList),
+          boolList: fromEJson(boolList),
+          dateList: fromEJson(dateList),
+          doubleList: fromEJson(doubleList),
+          objectIdList: fromEJson(objectIdList),
+          uuidList: fromEJson(uuidList),
+          intList: fromEJson(intList),
+          decimalList: fromEJson(decimalList),
+          nullableStringList: fromEJson(nullableStringList),
+          nullableBoolList: fromEJson(nullableBoolList),
+          nullableDateList: fromEJson(nullableDateList),
+          nullableDoubleList: fromEJson(nullableDoubleList),
+          nullableObjectIdList: fromEJson(nullableObjectIdList),
+          nullableUuidList: fromEJson(nullableUuidList),
+          nullableIntList: fromEJson(nullableIntList),
+          nullableDecimalList: fromEJson(nullableDecimalList),
+          stringSet: fromEJson(stringSet),
+          boolSet: fromEJson(boolSet),
+          dateSet: fromEJson(dateSet),
+          doubleSet: fromEJson(doubleSet),
+          objectIdSet: fromEJson(objectIdSet),
+          uuidSet: fromEJson(uuidSet),
+          intSet: fromEJson(intSet),
+          decimalSet: fromEJson(decimalSet),
+          nullableStringSet: fromEJson(nullableStringSet),
+          nullableBoolSet: fromEJson(nullableBoolSet),
+          nullableDateSet: fromEJson(nullableDateSet),
+          nullableDoubleSet: fromEJson(nullableDoubleSet),
+          nullableObjectIdSet: fromEJson(nullableObjectIdSet),
+          nullableUuidSet: fromEJson(nullableUuidSet),
+          nullableIntSet: fromEJson(nullableIntSet),
+          nullableDecimalSet: fromEJson(nullableDecimalSet),
+          stringMap: fromEJson(stringMap),
+          boolMap: fromEJson(boolMap),
+          dateMap: fromEJson(dateMap),
+          doubleMap: fromEJson(doubleMap),
+          objectIdMap: fromEJson(objectIdMap),
+          uuidMap: fromEJson(uuidMap),
+          intMap: fromEJson(intMap),
+          decimalMap: fromEJson(decimalMap),
+          nullableStringMap: fromEJson(nullableStringMap),
+          nullableBoolMap: fromEJson(nullableBoolMap),
+          nullableDateMap: fromEJson(nullableDateMap),
+          nullableDoubleMap: fromEJson(nullableDoubleMap),
+          nullableObjectIdMap: fromEJson(nullableObjectIdMap),
+          nullableUuidMap: fromEJson(nullableUuidMap),
+          nullableIntMap: fromEJson(nullableIntMap),
+          nullableDecimalMap: fromEJson(nullableDecimalMap),
+        ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -2200,14 +2243,14 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   Party(
     int year, {
     Friend? host,
-    Party? previous,
     Iterable<Friend> guests = const [],
+    Party? previous,
   }) {
     RealmObjectBase.set(this, 'host', host);
     RealmObjectBase.set(this, 'year', year);
-    RealmObjectBase.set(this, 'previous', previous);
     RealmObjectBase.set<RealmList<Friend>>(
         this, 'guests', RealmList<Friend>(guests));
+    RealmObjectBase.set(this, 'previous', previous);
   }
 
   Party._();
@@ -2263,6 +2306,7 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
         Party(
           fromEJson(year),
           host: fromEJson(host),
+          guests: fromEJson(guests),
           previous: fromEJson(previous),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -2363,6 +2407,7 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
           fromEJson(name),
           age: fromEJson(age),
           bestFriend: fromEJson(bestFriend),
+          friends: fromEJson(friends),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2509,6 +2554,7 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
         Player(
           fromEJson(name),
           game: fromEJson(game),
+          scoresByRound: fromEJson(scoresByRound),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2566,7 +2612,9 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
       {
         'winnerByRound': EJsonValue winnerByRound,
       } =>
-        Game(),
+        Game(
+          winnerByRound: fromEJson(winnerByRound),
+        ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -2890,6 +2938,14 @@ class AllTypesEmbedded extends _AllTypesEmbedded
           nullableUuidProp: fromEJson(nullableUuidProp),
           nullableIntProp: fromEJson(nullableIntProp),
           nullableDecimalProp: fromEJson(nullableDecimalProp),
+          strings: fromEJson(strings),
+          bools: fromEJson(bools),
+          dates: fromEJson(dates),
+          doubles: fromEJson(doubles),
+          objectIds: fromEJson(objectIds),
+          uuids: fromEJson(uuids),
+          ints: fromEJson(ints),
+          decimals: fromEJson(decimals),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2952,16 +3008,16 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
     String id, {
     Uuid? differentiator,
     AllTypesEmbedded? singleObject,
-    RecursiveEmbedded1? recursiveObject,
     Iterable<AllTypesEmbedded> list = const [],
+    RecursiveEmbedded1? recursiveObject,
     Iterable<RecursiveEmbedded1> recursiveList = const [],
   }) {
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'differentiator', differentiator);
     RealmObjectBase.set(this, 'singleObject', singleObject);
-    RealmObjectBase.set(this, 'recursiveObject', recursiveObject);
     RealmObjectBase.set<RealmList<AllTypesEmbedded>>(
         this, 'list', RealmList<AllTypesEmbedded>(list));
+    RealmObjectBase.set(this, 'recursiveObject', recursiveObject);
     RealmObjectBase.set<RealmList<RecursiveEmbedded1>>(
         this, 'recursiveList', RealmList<RecursiveEmbedded1>(recursiveList));
   }
@@ -3046,7 +3102,9 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
           fromEJson(id),
           differentiator: fromEJson(differentiator),
           singleObject: fromEJson(singleObject),
+          list: fromEJson(list),
           recursiveObject: fromEJson(recursiveObject),
+          recursiveList: fromEJson(recursiveList),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -3082,14 +3140,14 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
   RecursiveEmbedded1(
     String value, {
     RecursiveEmbedded2? child,
-    ObjectWithEmbedded? realmObject,
     Iterable<RecursiveEmbedded2> children = const [],
+    ObjectWithEmbedded? realmObject,
   }) {
     RealmObjectBase.set(this, 'value', value);
     RealmObjectBase.set(this, 'child', child);
-    RealmObjectBase.set(this, 'realmObject', realmObject);
     RealmObjectBase.set<RealmList<RecursiveEmbedded2>>(
         this, 'children', RealmList<RecursiveEmbedded2>(children));
+    RealmObjectBase.set(this, 'realmObject', realmObject);
   }
 
   RecursiveEmbedded1._();
@@ -3152,6 +3210,7 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
         RecursiveEmbedded1(
           fromEJson(value),
           child: fromEJson(child),
+          children: fromEJson(children),
           realmObject: fromEJson(realmObject),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -3183,14 +3242,14 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
   RecursiveEmbedded2(
     String value, {
     RecursiveEmbedded3? child,
-    ObjectWithEmbedded? realmObject,
     Iterable<RecursiveEmbedded3> children = const [],
+    ObjectWithEmbedded? realmObject,
   }) {
     RealmObjectBase.set(this, 'value', value);
     RealmObjectBase.set(this, 'child', child);
-    RealmObjectBase.set(this, 'realmObject', realmObject);
     RealmObjectBase.set<RealmList<RecursiveEmbedded3>>(
         this, 'children', RealmList<RecursiveEmbedded3>(children));
+    RealmObjectBase.set(this, 'realmObject', realmObject);
   }
 
   RecursiveEmbedded2._();
@@ -3253,6 +3312,7 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
         RecursiveEmbedded2(
           fromEJson(value),
           child: fromEJson(child),
+          children: fromEJson(children),
           realmObject: fromEJson(realmObject),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -3465,6 +3525,7 @@ class Asymmetric extends _Asymmetric
         Asymmetric(
           fromEJson(id),
           symmetric: fromEJson(symmetric),
+          embeddedObjects: fromEJson(embeddedObjects),
         ),
       _ => raiseInvalidEJson(ejson),
     };

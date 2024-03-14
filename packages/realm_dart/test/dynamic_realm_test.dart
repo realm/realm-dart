@@ -4,6 +4,8 @@
 // ignore_for_file: avoid_relative_lib_imports
 
 import 'package:collection/collection.dart';
+import 'dart:ffi';
+import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
@@ -105,7 +107,7 @@ void main() {
   final objectId = ObjectId();
   final uuid = Uuid.v4();
 
-  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987, Decimal128.fromDouble(42),
+  AllTypes _getPopulatedAllTypes() => AllTypes('abc', true, date, -123.456, objectId, uuid, -987, Decimal128.fromDouble(42), Uint8List.fromList([1, 2, 3]),
       nullableStringProp: 'def',
       nullableBoolProp: true,
       nullableDateProp: date,
@@ -115,7 +117,7 @@ void main() {
       nullableIntProp: 123,
       nullableDecimalProp: Decimal128.fromDouble(4242));
 
-  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero);
+  AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero, Uint8List(16));
 
   AllCollections _getPopulatedAllCollections() => AllCollections(
         stringList: ['abc', 'def'],

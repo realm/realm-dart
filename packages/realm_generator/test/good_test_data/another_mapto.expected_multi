@@ -57,6 +57,7 @@ class MappedToo extends _MappedToo
       } =>
         MappedToo(
           singleLink: fromEJson(singleLink),
+          listLink: fromEJson(listLink),
         ),
       _ => raiseInvalidEJson(ejson),
     };

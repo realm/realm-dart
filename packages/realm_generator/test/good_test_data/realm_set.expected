@@ -290,6 +290,22 @@ class RealmSets extends _RealmSets
       } =>
         RealmSets(
           fromEJson(key),
+          boolSet: fromEJson(boolSet),
+          nullableBoolSet: fromEJson(nullableBoolSet),
+          intSet: fromEJson(intSet),
+          nullableintSet: fromEJson(nullableintSet),
+          stringSet: fromEJson(stringSet),
+          nullablestringSet: fromEJson(nullablestringSet),
+          doubleSet: fromEJson(doubleSet),
+          nullabledoubleSet: fromEJson(nullabledoubleSet),
+          dateTimeSet: fromEJson(dateTimeSet),
+          nullabledateTimeSet: fromEJson(nullabledateTimeSet),
+          objectIdSet: fromEJson(objectIdSet),
+          nullableobjectIdSet: fromEJson(nullableobjectIdSet),
+          uuidSet: fromEJson(uuidSet),
+          nullableuuidSet: fromEJson(nullableuuidSet),
+          realmValueSet: fromEJson(realmValueSet),
+          realmObjectsSet: fromEJson(realmObjectsSet),
         ),
       _ => raiseInvalidEJson(ejson),
     };
