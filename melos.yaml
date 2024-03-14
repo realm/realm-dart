@@ -200,6 +200,30 @@ scripts:
   coverage:report:
     run: coverde report
 
+  update:version:
+    run: >-
+      melos run update:version:ejson &&
+      melos run update:version:realm
+
+  update:version:ejson:
+    description: Update version of all ejson packages collectively
+    run: >-
+      melos version --no-git-commit-version --no-changelog --no-dependent-versions --yes
+      -V ejson_analyzer:$EJSON_VERSION
+      -V ejson_annotation:$EJSON_VERSION
+      -V ejson_generator:$EJSON_VERSION
+      -V ejson_lint:$EJSON_VERSION
+      -V ejson:$EJSON_VERSION
+
+  update:version:realm:
+    description: Update version of all realm packages collectively
+    run: >-
+      melos version --no-git-commit-version --no-changelog --no-dependent-versions --yes
+      -V realm_common:$REALM_VERSION
+      -V realm_dart:$REALM_VERSION
+      -V realm_generator:$REALM_VERSION
+      -V realm:$REALM_VERSION
+
   # TODO: This is actually stricter than on CI, but we should aim for this
   ci:
     run: >-
