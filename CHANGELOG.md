@@ -108,19 +108,18 @@
 * Added `RealmObjectBase.objectSchema` that returns the schema for this object. In most cases, this would be the schema defined in the model, but in case the Realm is opened as dynamic (by providing an empty collection for schemaObjects in the config) or using `FlexibleSyncConfiguration`, it may change as the schema on disk changes. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 * Added `Realm.schemaChanges` that returns a stream of schema changes that can be listened to. Only dynamic and synchronized Realms will emit schema changes. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 
-* Improve performance of object notifiers with complex schemas and very simple changes to process by as much as 20% ([PR #7424](https://github.com/realm/realm-core/pull/7424)).
-* Improve performance with very large number of notifiers as much as 75% ([PR #7424](https://github.com/realm/realm-core/pull/7424)).
-* Add support to synchronize collections embedded in Mixed properties and other collections (except sets) ([PR #7353](https://github.com/realm/realm-core/pull/7353) Core v14.2.0-12-g95c6efce8).
-* Improve performance of change notifications on nested collections somewhat ([PR #7402](https://github.com/realm/realm-core/pull/7402) Core v14.2.0-12-g95c6efce8).
-* Improve performance of aggregate operations on Dictionaries of objects, particularly when the dictionaries are empty ([PR #7418](https://github.com/realm/realm-core/pull/7418) Core v14.2.0-12-g95c6efce8)
+* Improve performance of object notifiers with complex schemas and very simple changes to process by as much as 20% ([Core 14.2.0).
+* Improve performance with very large number of notifiers as much as 75% (Core 14.2.0).
+* Add support to synchronize collections embedded in Mixed properties and other collections (except sets) (Core v14.2.0-12-g95c6efce8).
+* Improve performance of change notifications on nested collections somewhat (Core v14.2.0-12-g95c6efce8).
+* Improve performance of aggregate operations on Dictionaries of objects, particularly when the dictionaries are empty (Core v14.2.0-12-g95c6efce8)
 
 ### Fixed
 * If you have more than 8388606 links pointing to one specific object, the program will crash. (Core 14.0.0)
 * A Realm generated on a non-apple ARM 64 device and copied to another platform (and vice-versa) were non-portable due to a sorting order difference. This impacts strings or binaries that have their first difference at a non-ascii character. These items may not be found in a set, or in an indexed column if the strings had a long common prefix (> 200 characters). (Core 14.0.0)
 * Ctor arguments appear in random order on generated classes, if the realm model contains many properties. (PR [#1531](https://github.com/realm/realm-dart/pull/1531))
-* Fixed an issue where removing realm objects from a List with more than 1000 items could crash. ([#7414](https://github.com/realm/realm-core/pull/7414), Core 14.2.0)
-* Fixed conflict resolution bug which may result in an crash when the AddInteger instruction on Mixed properties is merged against updates to a non-integer type ([PR #7353](https://github.com/realm/realm-core/pull/7353), Core v14.2.0-12-g95c6efce8).
-* Fix a spurious crash related to opening a Realm on background thread while the process was in the middle of exiting ([#7420](https://github.com/realm/realm-core/issues/7420jj), Core v14.2.0-12-g95c6efce8)
+* Fixed an issue where removing realm objects from a List with more than 1000 items could crash. (Core 14.2.0)
+* Fix a spurious crash related to opening a Realm on background thread while the process was in the middle of exiting (Core v14.2.0-12-g95c6efce8)
 
 ### Compatibility
 * Realm Studio: 14.0.0 or later.
