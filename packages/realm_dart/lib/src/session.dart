@@ -67,16 +67,23 @@ class Session implements Finalizable {
 
 /// A type containing information about the progress state at a given instant.
 class SyncProgress {
-  /// The number of bytes that have been transferred since subscribing for progress notifications.
-  final int transferredBytes;
+  /// A value between 0.0 and 1.0 representing the estimated transfer progress. This value is precise for
+  /// uploads, but will be based on historical data and certain heuristics applied by the server for downloads.
+  ///
+  /// Whenever the progress reporting mode is [ProgressMode.forCurrentlyOutstandingWork], that value
+  /// will monotonically increase until it reaches 1.0. If the progress mode is [ProgressMode.reportIndefinitely], the
+  /// value may either increase or decrease as new data needs to be transferred.
+  final double progressEstimate;
 
-  /// The total number of bytes that have to be transferred since subscribing for progress notifications.
-  /// The difference between that number and [transferredBytes] gives you the number of bytes not yet
-  /// transferred. If the difference is 0, then all changes at the instant the callback fires have been
-  /// successfully transferred.
-  final int transferableBytes;
+  const SyncProgress._({required this.progressEstimate});
 
-  const SyncProgress({required this.transferredBytes, required this.transferableBytes});
+  static double _calculateProgress({required int transferred, required int transferable}) {
+    if (transferable == 0 || transferred > transferable) {
+      return 1;
+    }
+
+    return transferred / transferable;
+  }
 }
 
 /// A type containing information about the transition of a connection state from one value to another.
@@ -111,7 +118,7 @@ extension SessionInternal on Session {
   }
 
   static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
-      SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes);
+      SyncProgress._(progressEstimate: SyncProgress._calculateProgress(transferred: transferredBytes, transferable: transferableBytes));
 }
 
 abstract interface class ProgressNotificationsController {
@@ -136,7 +143,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
 
   @override
   void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add(SyncProgress(transferredBytes: transferredBytes, transferableBytes: transferableBytes));
+    _streamController.add(SyncProgress._(progressEstimate: SyncProgress._calculateProgress(transferred: transferredBytes, transferable: transferableBytes)));
 
     if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
       _streamController.close();

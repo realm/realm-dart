@@ -162,20 +162,11 @@ void main() {
     final data = StreamProgressData();
     final stream = realm.syncSession.getProgressStream(direction, mode);
     data.subscription = stream.listen((event) {
-      expect(event.transferredBytes, greaterThanOrEqualTo(data.transferredBytes));
-      if (data.transferableBytes != 0) {
-        // We need to wait for the first event to store the total bytes we expect.
-        if (mode == ProgressMode.forCurrentlyOutstandingWork) {
-          // Transferable should not change after the first event
-          expect(event.transferableBytes, data.transferableBytes);
-        } else {
-          // For indefinite progress, we expect the transferable bytes to not decrease
-          expect(event.transferableBytes, greaterThanOrEqualTo(data.transferableBytes));
-        }
+      if (mode == ProgressMode.forCurrentlyOutstandingWork) {
+        expect(event.progressEstimate, greaterThanOrEqualTo(data.progressEstimate));
       }
 
-      data.transferredBytes = event.transferredBytes;
-      data.transferableBytes = event.transferableBytes;
+      data.progressEstimate = event.progressEstimate;
       data.callbacksInvoked++;
     });
 
@@ -191,12 +182,11 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 100));
 
     expect(data.callbacksInvoked, greaterThan(0));
-    expect(data.transferableBytes, greaterThan(0));
-    expect(data.transferredBytes, greaterThan(0));
+    expect(data.progressEstimate, greaterThan(0));
     if (expectDone) {
-      expect(data.transferredBytes, data.transferableBytes);
+      expect(data.progressEstimate, 1.0);
     } else {
-      expect(data.transferredBytes, lessThanOrEqualTo(data.transferableBytes));
+      expect(data.progressEstimate, lessThanOrEqualTo(1.0));
     }
     expect(data.doneInvoked, expectDone);
   }
@@ -245,9 +235,11 @@ void main() {
 
     await realmA.syncSession.waitForUpload();
     await validateData(uploadData);
+    expect(uploadData.progressEstimate, 1.0);
 
     await realmB.syncSession.waitForDownload();
     await validateData(downloadData);
+    expect(downloadData.progressEstimate, 1.0);
 
     // Snapshot the current state, then add a new object. We should receive more notifications
     final uploadSnapshot = StreamProgressData.snapshot(uploadData);
@@ -261,14 +253,12 @@ void main() {
     await realmB.syncSession.waitForDownload();
 
     await validateData(uploadData);
+    expect(uploadData.progressEstimate, 1.0);
     await validateData(downloadData);
+    expect(downloadData.progressEstimate, 1.0);
 
-    expect(uploadData.transferredBytes, greaterThan(uploadSnapshot.transferredBytes));
-    expect(uploadData.transferableBytes, greaterThan(uploadSnapshot.transferableBytes));
     expect(uploadData.callbacksInvoked, greaterThan(uploadSnapshot.callbacksInvoked));
 
-    expect(downloadData.transferredBytes, greaterThan(downloadSnapshot.transferredBytes));
-    expect(downloadData.transferableBytes, greaterThan(downloadSnapshot.transferableBytes));
     expect(downloadData.callbacksInvoked, greaterThan(downloadSnapshot.callbacksInvoked));
 
     await uploadData.subscription.cancel();
@@ -329,18 +319,13 @@ void main() {
 }
 
 class StreamProgressData {
-  int transferredBytes;
-  int transferableBytes;
+  double progressEstimate;
   int callbacksInvoked;
   bool doneInvoked;
   late StreamSubscription<SyncProgress> subscription;
 
-  StreamProgressData({this.transferableBytes = 0, this.transferredBytes = 0, this.callbacksInvoked = 0, this.doneInvoked = false});
+  StreamProgressData({this.progressEstimate = 0, this.callbacksInvoked = 0, this.doneInvoked = false});
 
   StreamProgressData.snapshot(StreamProgressData other)
-      : this(
-            transferableBytes: other.transferableBytes,
-            callbacksInvoked: other.callbacksInvoked,
-            doneInvoked: other.doneInvoked,
-            transferredBytes: other.transferredBytes);
+      : this(callbacksInvoked: other.callbacksInvoked, doneInvoked: other.doneInvoked, progressEstimate: other.progressEstimate);
 }
