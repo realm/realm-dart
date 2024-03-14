@@ -32,7 +32,8 @@ scripts:
       dart pub global activate dependency_validator &&
       dart pub global activate ffigen &&
       dart pub global activate melos &&
-      dart pub global activate pana
+      dart pub global activate pana &&
+      dart pub global activate --source path $MELOS_ROOT_PATH/packages/realm_dart/dev/
 
   build:
     run: >-
@@ -41,7 +42,7 @@ scripts:
       melos run build:dart
       
   build:native:
-    exec: dart run tool/build.dart native
+    exec: dev build
     packageFilters:
       dirExists: src # by convention
 
@@ -53,10 +54,10 @@ scripts:
       dependsOn: build_runner
 
   build:binding:
-    exec: dart pub global run ffigen --config ffigen.yaml
+    exec: dart run ffigen --config ffigen.yaml
     packageFilters:
       fileExists: ffigen.yaml # by convention
-
+      dependsOn: ffigen
   test:
     description: Run all tests.
     run: >-
@@ -143,7 +144,7 @@ scripts:
       concurrency: 1 # only one project at a time to keep output sane
 
   lint:pana:
-    run: dart pub global run pana --no-warning --exit-code-threshold 40 .
+    run: pana --no-warning --exit-code-threshold 40 .
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
@@ -159,7 +160,7 @@ scripts:
     exec: dart analyze . --fatal-infos
     
   analyze:deps:
-    exec: dart pub global run dependency_validator
+    exec: dependency_validator
 
   coverage:
     description: Generate, check and render coverage.
@@ -171,14 +172,14 @@ scripts:
       melos run coverage:check
 
   coverage:check: # TODO: Increase to 90 eventually
-    run: dart pub global run coverde check 80
+    run: coverde check 80
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       fileExists: coverage/lcov.info # by convention
 
   coverage:convert:
-    run: dart pub global run coverage:format_coverage --report-on=lib/ --in=coverage/test/ --lcov --out=coverage/lcov.info
+    run: format_coverage --packages=.dart_tool/package_config.json --report-on=lib/ --in=coverage/test/ --lcov --out=coverage/lcov.info
     exec:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
@@ -189,7 +190,7 @@ scripts:
   coverage:gather:
     run: |
       rm -rf $MELOS_ROOT_PATH/coverage
-      dart pub global run combine_coverage --repo-path=$MELOS_ROOT_PATH
+      combine_coverage --repo-path=$MELOS_ROOT_PATH
 
   coverage:groom:
     run: |
@@ -197,7 +198,31 @@ scripts:
       lcov --remove coverage/lcov.info '*/realm_bindings.dart' -o coverage/lcov.info
 
   coverage:report:
-    run: dart pub global run coverde report
+    run: coverde report
+
+  update:version:
+    run: >-
+      melos run update:version:ejson &&
+      melos run update:version:realm
+
+  update:version:ejson:
+    description: Update version of all ejson packages collectively
+    run: >-
+      melos version --no-git-commit-version --no-changelog --no-dependent-versions --yes
+      -V ejson_analyzer:$EJSON_VERSION
+      -V ejson_annotation:$EJSON_VERSION
+      -V ejson_generator:$EJSON_VERSION
+      -V ejson_lint:$EJSON_VERSION
+      -V ejson:$EJSON_VERSION
+
+  update:version:realm:
+    description: Update version of all realm packages collectively
+    run: >-
+      melos version --no-git-commit-version --no-changelog --no-dependent-versions --yes
+      -V realm_common:$REALM_VERSION
+      -V realm_dart:$REALM_VERSION
+      -V realm_generator:$REALM_VERSION
+      -V realm:$REALM_VERSION
 
   # TODO: This is actually stricter than on CI, but we should aim for this
   ci:
