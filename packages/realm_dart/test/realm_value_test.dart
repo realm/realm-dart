@@ -592,6 +592,8 @@ void main() {
 
         final list = obj.oneAny.asList();
 
+        expect(list[1].type, RealmValueType.map);
+
         writeIfNecessary(realm, () => list[1] = RealmValue.from({'new': 5}));
         expectMatches(obj.oneAny, [
           true,
@@ -636,6 +638,8 @@ void main() {
 
         final map = obj.oneAny.asMap();
 
+        expect(map['b']!.type, RealmValueType.map);
+
         writeIfNecessary(realm, () => map['b'] = RealmValue.from({'new': 5}));
         expectMatches(obj.oneAny, {
           'a': 5,
@@ -676,6 +680,8 @@ void main() {
         }
 
         final list = obj.oneAny.asList();
+
+        expect(list[1].type, RealmValueType.list);
 
         writeIfNecessary(realm, () => list[1] = RealmValue.from([5, true]));
         expectMatches(obj.oneAny, [
@@ -720,6 +726,8 @@ void main() {
         }
 
         final map = obj.oneAny.asMap();
+
+        expect(map['b']!.type, RealmValueType.list);
 
         writeIfNecessary(realm, () => map['b'] = RealmValue.from([999, true]));
         expectMatches(obj.oneAny, {
