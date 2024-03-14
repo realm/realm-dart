@@ -418,7 +418,7 @@ void setupTests() {
     Realm.logger = Logger.detached('test run')
       ..level = Level.ALL
       ..onRecord.listen((record) {
-        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
+        print('${record.time} ${record.level.name}: ${record.message}');
       });
 
     // Enable this to print platform info, including current PID
@@ -603,11 +603,15 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
+FlexibleSyncConfiguration getIntegrationConfig(User user) {
+  return Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+}
+
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+  final config = getIntegrationConfig(user);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {

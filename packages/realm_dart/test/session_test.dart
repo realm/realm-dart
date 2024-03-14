@@ -194,6 +194,60 @@ void main() {
     expect(data.doneInvoked, expectDone);
   }
 
+  // TODO: remove when the issue is resolved
+  baasTest('New progress sanity check', (configuration) async {
+    final differentiator = ObjectId();
+
+    // This creates a Realm and uploads 10 objects with a known ObjectId
+    final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
+    for (var i = 0; i < 10; i++) {
+      uploadRealm.write(() {
+        uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+      });
+    }
+    await uploadRealm.syncSession.waitForUpload();
+
+    // Open a Realm that will try and download the 10 objects
+    final app = App(configuration);
+    final user = await getIntegrationUser(app);
+
+    final config = getIntegrationConfig(user);
+    final realm = getRealm(config);
+    await realm.syncSession.waitForDownload();
+
+    Realm.logger.log(RealmLogLevel.warn, '==== Realm opened, creating subscriptions');
+
+    final progress = <SyncProgress>[];
+
+    // Subscribe for progress notifications with streaming: false
+    final sub = realm.syncSession.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen((event) {
+      progress.add(event);
+      Realm.logger.log(RealmLogLevel.warn, '==== Progress: ${event.progressEstimate}');
+    }, onDone: () {
+      Realm.logger.log(RealmLogLevel.warn, '==== Progress subscription done');
+    });
+
+    // Create a subscription for all nullable types with the known ObjectId (should match 10 objects)
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
+    });
+
+    await realm.subscriptions.waitForSynchronization();
+
+    // Wait 1 second extra in case there are any race conditions between wait for sync and progress reporting
+    await Future.delayed(Duration(seconds: 1));
+
+    Realm.logger.log(RealmLogLevel.warn, '==== Subscriptions synchronized');
+    Realm.logger.log(RealmLogLevel.warn, '==== Number of events ${progress.length}');
+    Realm.logger.log(RealmLogLevel.warn, '==== Last progress estimate: ${progress.last.progressEstimate}');
+
+    expect(realm.all<NullableTypes>(), hasLength(10));
+    expect(progress, hasLength(greaterThanOrEqualTo(1)));
+    expect(progress.last.progressEstimate, 1.0);
+
+    sub.cancel();
+  });
+
   baasTest('SyncSession.getProgressStream forCurrentlyOutstandingWork', (configuration) async {
     // TODO: PROGRESS remove logging
 
