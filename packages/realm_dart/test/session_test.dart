@@ -214,10 +214,16 @@ void main() {
     final config = getIntegrationConfig(user);
     final realm = getRealm(config);
     await realm.syncSession.waitForDownload();
+    await realm.syncSession.waitForUpload();
 
     Realm.logger.log(RealmLogLevel.warn, '==== Realm opened, creating subscriptions');
 
     final progress = <SyncProgress>[];
+
+    // Create a subscription for all nullable types with the known ObjectId (should match 10 objects)
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
+    });
 
     // Subscribe for progress notifications with streaming: false
     final sub = realm.syncSession.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen((event) {
@@ -225,11 +231,6 @@ void main() {
       Realm.logger.log(RealmLogLevel.warn, '==== Progress: ${event.progressEstimate}');
     }, onDone: () {
       Realm.logger.log(RealmLogLevel.warn, '==== Progress subscription done');
-    });
-
-    // Create a subscription for all nullable types with the known ObjectId (should match 10 objects)
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
     });
 
     await realm.subscriptions.waitForSynchronization();
