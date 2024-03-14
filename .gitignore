@@ -2,11 +2,11 @@
 .dart_tool/
 
 # Dart packages and Flutter plugins should not commit these files
-**/pubspec.lock
+pubspec.lock
 .packages
 .flutter-plugins
 .flutter-plugins-dependencies
-**/build/
+build/
 
 # melos
 .idea/
@@ -15,10 +15,10 @@ melos**.iml
 
 # test
 test-results.json
-**/coverage/
+coverage/
 
-# dos
-**/doc/api/
+# docs
+doc/api/
 
 # custom lint
-**/custom_lint.log
+custom_lint.log
