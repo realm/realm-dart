@@ -26,6 +26,7 @@ command:
 scripts:
   setup:
     run: >-
+      dart pub global activate combine_coverage &&
       dart pub global activate coverage &&
       dart pub global activate coverde &&
       dart pub global activate dependency_validator &&
