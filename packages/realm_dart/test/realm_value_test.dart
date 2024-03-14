@@ -509,6 +509,8 @@ void main() {
         expect(obj.oneAny.type, RealmValueType.list);
         expectMatches(obj.oneAny, [true, 5.3]);
 
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(['foo']));
+
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
         expectMatches(obj.oneAny, 999);
 
@@ -566,11 +568,184 @@ void main() {
         expect(obj.oneAny.type, RealmValueType.map);
         expectMatches(obj.oneAny, {'bool': true, 'double': 5.3});
 
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from({'foo': 'bar'}));
+        expectMatches(obj.oneAny, {'foo': 'bar'});
+
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
         expectMatches(obj.oneAny, 999);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from([1.23456789]));
         expectMatches(obj.oneAny, [1.23456789]);
+      });
+
+      test('Map inside list when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from([
+          true,
+          {'foo': 'bar'},
+          5.3
+        ]));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final list = obj.oneAny.asList();
+
+        writeIfNecessary(realm, () => list[1] = RealmValue.from({'new': 5}));
+        expectMatches(obj.oneAny, [
+          true,
+          {'new': 5},
+          5.3
+        ]);
+
+        writeIfNecessary(realm, () {
+          list.add(list[1]);
+        });
+
+        expectMatches(obj.oneAny, [
+          true,
+          {'new': 5},
+          5.3,
+          {'new': 5}
+        ]);
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   list[1] = list[1];
+        // });
+        // expectMatches(obj.oneAny, [
+        //   true,
+        //   {'new': 5},
+        //   5.3,
+        //   {'new': 5}
+        // ]);
+      });
+
+      test('Map inside map when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from({
+          'a': 5,
+          'b': {'foo': 'bar'}
+        }));
+
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final map = obj.oneAny.asMap();
+
+        writeIfNecessary(realm, () => map['b'] = RealmValue.from({'new': 5}));
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': {'new': 5}
+        });
+
+        writeIfNecessary(realm, () {
+          map['c'] = map['b']!;
+        });
+
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': {'new': 5},
+          'c': {'new': 5},
+        });
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   map['a'] = map['a'];
+        // });
+        // expectMatches(obj.oneAny, {
+        //   'a': 5,
+        //   'b': {'new': 5},
+        //   'c': {'new': 5},
+        // });
+      });
+
+      test('List inside list when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from([
+          true,
+          ['foo'],
+          5.3
+        ]));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final list = obj.oneAny.asList();
+
+        writeIfNecessary(realm, () => list[1] = RealmValue.from([5, true]));
+        expectMatches(obj.oneAny, [
+          true,
+          [5, true],
+          5.3
+        ]);
+
+        writeIfNecessary(realm, () {
+          list.add(list[1]);
+        });
+
+        expectMatches(obj.oneAny, [
+          true,
+          [5, true],
+          5.3,
+          [5, true]
+        ]);
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   list[1] = list[1];
+        // });
+        // expectMatches(obj.oneAny, [
+        //   true,
+        //   [5, true],
+        //   5.3,
+        //   [5, true]
+        // ]);
+      });
+
+      test('List inside map when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from({
+          'a': 5,
+          'b': ['foo']
+        }));
+
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final map = obj.oneAny.asMap();
+
+        writeIfNecessary(realm, () => map['b'] = RealmValue.from([999, true]));
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': [999, true]
+        });
+
+        writeIfNecessary(realm, () {
+          map['c'] = map['b']!;
+        });
+
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': [999, true],
+          'c': [999, true]
+        });
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   map['a'] = map['a'];
+        // });
+        // expectMatches(obj.oneAny, {
+        //   'a': 5,
+        //   'b': [999, true],
+        //   'c': [999, true]
+        // });
       });
 
       test('RealmValue when $managedString can store complex struct', () {

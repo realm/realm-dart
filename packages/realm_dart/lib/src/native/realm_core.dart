@@ -3021,6 +3021,10 @@ class _RealmCore {
           collectionHandle = listHandle;
 
           final list = realm.createList<RealmValue>(listHandle, null);
+
+          // Necessary since Core will not clear the collection if the value was already a collection
+          list.clear();
+
           for (final item in value.value as List<RealmValue>) {
             list.add(item);
           }
@@ -3030,6 +3034,10 @@ class _RealmCore {
           collectionHandle = mapHandle;
 
           final map = realm.createMap<RealmValue>(mapHandle, null);
+
+          // Necessary since Core will not clear the collection if the value was already a collection
+          map.clear();
+
           for (final kvp in (value.value as Map<String, RealmValue>).entries) {
             map[kvp.key] = kvp.value;
           }
