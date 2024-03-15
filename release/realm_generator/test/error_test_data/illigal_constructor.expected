@@ -1,0 +1,13 @@
+No constructors allowed on realm model classes
+
+in: asset:pkg/test/error_test_data/illigal_constructor.dart:10:3
+    ╷
+5   │ @RealmModel()
+6   │ class _Bad {
+    │       ━━━━ in realm model for 'Bad'
+... │
+10  │   _Bad(this.id);
+    │   ^^^^ has constructor
+    ╵
+Remove constructor
+

@@ -1,0 +1,13 @@
+Realm objects in lists must be non-nullable
+
+in: asset:pkg/test/error_test_data/nullable_list_elements.dart:14:8
+    ╷
+8   │ @RealmModel()
+9   │ class _Bad {
+    │       ━━━━ in realm model for 'Bad'
+... │
+14  │   late List<_Other?> wrong;
+    │        ^^^^^^^^^^^^^ which has a nullable realm object element type
+    ╵
+Ensure element type is non-nullable
+

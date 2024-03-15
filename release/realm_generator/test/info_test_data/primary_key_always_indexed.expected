@@ -1,0 +1,10 @@
+[INFO] testBuilder: Indexed is implied for a primary key
+
+in: asset:pkg/test/info_test_data/primary_key_always_indexed.dart:9:12
+  ╷
+7 │   @PrimaryKey()
+8 │   @Indexed()
+9 │   late int primaryKeysAreAlwaysIndexed;
+  │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  ╵
+Remove either the @Indexed or @PrimaryKey annotation from 'primaryKeysAreAlwaysIndexed'.

@@ -1,0 +1,440 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'primary_key.dart';
+
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
+  IntPK(
+    int id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  IntPK._();
+
+  @override
+  int get id => RealmObjectBase.get<int>(this, 'id') as int;
+  @override
+  set id(int value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<IntPK>> get changes =>
+      RealmObjectBase.getChanges<IntPK>(this);
+
+  @override
+  IntPK freeze() => RealmObjectBase.freezeObject<IntPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(IntPK value) => value.toEJson();
+  static IntPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        IntPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(IntPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, IntPK, 'IntPK', [
+      SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class NullableIntPK extends _NullableIntPK
+    with RealmEntity, RealmObjectBase, RealmObject {
+  NullableIntPK(
+    int? id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  NullableIntPK._();
+
+  @override
+  int? get id => RealmObjectBase.get<int>(this, 'id') as int?;
+  @override
+  set id(int? value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<NullableIntPK>> get changes =>
+      RealmObjectBase.getChanges<NullableIntPK>(this);
+
+  @override
+  NullableIntPK freeze() => RealmObjectBase.freezeObject<NullableIntPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableIntPK value) => value.toEJson();
+  static NullableIntPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableIntPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(NullableIntPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, NullableIntPK, 'NullableIntPK', [
+      SchemaProperty('id', RealmPropertyType.int,
+          optional: true, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class StringPK extends _StringPK
+    with RealmEntity, RealmObjectBase, RealmObject {
+  StringPK(
+    String id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  StringPK._();
+
+  @override
+  String get id => RealmObjectBase.get<String>(this, 'id') as String;
+  @override
+  set id(String value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<StringPK>> get changes =>
+      RealmObjectBase.getChanges<StringPK>(this);
+
+  @override
+  StringPK freeze() => RealmObjectBase.freezeObject<StringPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(StringPK value) => value.toEJson();
+  static StringPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        StringPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(StringPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, StringPK, 'StringPK', [
+      SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class NullableStringPK extends _NullableStringPK
+    with RealmEntity, RealmObjectBase, RealmObject {
+  NullableStringPK(
+    String? id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  NullableStringPK._();
+
+  @override
+  String? get id => RealmObjectBase.get<String>(this, 'id') as String?;
+  @override
+  set id(String? value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<NullableStringPK>> get changes =>
+      RealmObjectBase.getChanges<NullableStringPK>(this);
+
+  @override
+  NullableStringPK freeze() =>
+      RealmObjectBase.freezeObject<NullableStringPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableStringPK value) => value.toEJson();
+  static NullableStringPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableStringPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(NullableStringPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, NullableStringPK, 'NullableStringPK', [
+      SchemaProperty('id', RealmPropertyType.string,
+          optional: true, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class ObjectIdPK extends _ObjectIdPK
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ObjectIdPK(
+    ObjectId id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  ObjectIdPK._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<ObjectIdPK>> get changes =>
+      RealmObjectBase.getChanges<ObjectIdPK>(this);
+
+  @override
+  ObjectIdPK freeze() => RealmObjectBase.freezeObject<ObjectIdPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectIdPK value) => value.toEJson();
+  static ObjectIdPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        ObjectIdPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ObjectIdPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
+      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class NullableObjectIdPK extends _NullableObjectIdPK
+    with RealmEntity, RealmObjectBase, RealmObject {
+  NullableObjectIdPK(
+    ObjectId? id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  NullableObjectIdPK._();
+
+  @override
+  ObjectId? get id => RealmObjectBase.get<ObjectId>(this, 'id') as ObjectId?;
+  @override
+  set id(ObjectId? value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
+      RealmObjectBase.getChanges<NullableObjectIdPK>(this);
+
+  @override
+  NullableObjectIdPK freeze() =>
+      RealmObjectBase.freezeObject<NullableObjectIdPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableObjectIdPK value) => value.toEJson();
+  static NullableObjectIdPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableObjectIdPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(NullableObjectIdPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, NullableObjectIdPK, 'NullableObjectIdPK', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          optional: true, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
+  UuidPK(
+    Uuid id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  UuidPK._();
+
+  @override
+  Uuid get id => RealmObjectBase.get<Uuid>(this, 'id') as Uuid;
+  @override
+  set id(Uuid value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<UuidPK>> get changes =>
+      RealmObjectBase.getChanges<UuidPK>(this);
+
+  @override
+  UuidPK freeze() => RealmObjectBase.freezeObject<UuidPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(UuidPK value) => value.toEJson();
+  static UuidPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        UuidPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(UuidPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, UuidPK, 'UuidPK', [
+      SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class NullableUuidPK extends _NullableUuidPK
+    with RealmEntity, RealmObjectBase, RealmObject {
+  NullableUuidPK(
+    Uuid? id,
+  ) {
+    RealmObjectBase.set(this, 'id', id);
+  }
+
+  NullableUuidPK._();
+
+  @override
+  Uuid? get id => RealmObjectBase.get<Uuid>(this, 'id') as Uuid?;
+  @override
+  set id(Uuid? value) => RealmObjectBase.set(this, 'id', value);
+
+  @override
+  Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
+      RealmObjectBase.getChanges<NullableUuidPK>(this);
+
+  @override
+  NullableUuidPK freeze() => RealmObjectBase.freezeObject<NullableUuidPK>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'id': id.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(NullableUuidPK value) => value.toEJson();
+  static NullableUuidPK _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'id': EJsonValue id,
+      } =>
+        NullableUuidPK(
+          fromEJson(id),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(NullableUuidPK._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, NullableUuidPK, 'NullableUuidPK', [
+      SchemaProperty('id', RealmPropertyType.uuid,
+          optional: true, primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}

@@ -1,0 +1,15 @@
+Realm only supports the @Indexed annotation on fields of type
+int, bool, String, RealmValue, DateTime, ObjectId, Uuid
+as well as their nullable versions
+
+in: asset:pkg/test/error_test_data/not_an_indexable_type.dart:8:8
+  ╷
+5 │ @RealmModel()
+6 │ class _Bad {
+  │       ━━━━ in realm model for 'Bad'
+7 │   @Indexed()
+8 │   late double notAnIndexableType;
+  │        ^^^^^^ double is not a valid type here
+  ╵
+Change the type of 'notAnIndexableType' or remove the @Indexed annotation
+

@@ -1,0 +1,197 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'list_initialization.dart';
+
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
+  Person({
+    Iterable<Person> children = const [],
+    Iterable<int> initList = const [],
+    Iterable<int> initListWithType = const [],
+    Iterable<int> initListConst = const [],
+    Set<int> initSet = const {},
+    Set<int> initSetWithType = const {},
+    Set<int> initSetConst = const {},
+    Map<String, int> initMap = const {},
+    Map<String, int> initMapWithType = const {},
+    Map<String, int> initMapConst = const {},
+  }) {
+    RealmObjectBase.set<RealmList<Person>>(
+        this, 'children', RealmList<Person>(children));
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'initList', RealmList<int>(initList));
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'initListWithType', RealmList<int>(initListWithType));
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'initListConst', RealmList<int>(initListConst));
+    RealmObjectBase.set<RealmSet<int>>(this, 'initSet', RealmSet<int>(initSet));
+    RealmObjectBase.set<RealmSet<int>>(
+        this, 'initSetWithType', RealmSet<int>(initSetWithType));
+    RealmObjectBase.set<RealmSet<int>>(
+        this, 'initSetConst', RealmSet<int>(initSetConst));
+    RealmObjectBase.set<RealmMap<int>>(this, 'initMap', RealmMap<int>(initMap));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'initMapWithType', RealmMap<int>(initMapWithType));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'initMapConst', RealmMap<int>(initMapConst));
+  }
+
+  Person._();
+
+  @override
+  RealmList<Person> get children =>
+      RealmObjectBase.get<Person>(this, 'children') as RealmList<Person>;
+  @override
+  set children(covariant RealmList<Person> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int> get initList =>
+      RealmObjectBase.get<int>(this, 'initList') as RealmList<int>;
+  @override
+  set initList(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int> get initListWithType =>
+      RealmObjectBase.get<int>(this, 'initListWithType') as RealmList<int>;
+  @override
+  set initListWithType(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int> get initListConst =>
+      RealmObjectBase.get<int>(this, 'initListConst') as RealmList<int>;
+  @override
+  set initListConst(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get initSet =>
+      RealmObjectBase.get<int>(this, 'initSet') as RealmSet<int>;
+  @override
+  set initSet(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get initSetWithType =>
+      RealmObjectBase.get<int>(this, 'initSetWithType') as RealmSet<int>;
+  @override
+  set initSetWithType(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get initSetConst =>
+      RealmObjectBase.get<int>(this, 'initSetConst') as RealmSet<int>;
+  @override
+  set initSetConst(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get initMap =>
+      RealmObjectBase.get<int>(this, 'initMap') as RealmMap<int>;
+  @override
+  set initMap(covariant RealmMap<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get initMapWithType =>
+      RealmObjectBase.get<int>(this, 'initMapWithType') as RealmMap<int>;
+  @override
+  set initMapWithType(covariant RealmMap<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get initMapConst =>
+      RealmObjectBase.get<int>(this, 'initMapConst') as RealmMap<int>;
+  @override
+  set initMapConst(covariant RealmMap<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObjectBase.getChanges<Person>(this);
+
+  @override
+  Person freeze() => RealmObjectBase.freezeObject<Person>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'children': children.toEJson(),
+      'initList': initList.toEJson(),
+      'initListWithType': initListWithType.toEJson(),
+      'initListConst': initListConst.toEJson(),
+      'initSet': initSet.toEJson(),
+      'initSetWithType': initSetWithType.toEJson(),
+      'initSetConst': initSetConst.toEJson(),
+      'initMap': initMap.toEJson(),
+      'initMapWithType': initMapWithType.toEJson(),
+      'initMapConst': initMapConst.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Person value) => value.toEJson();
+  static Person _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'children': EJsonValue children,
+        'initList': EJsonValue initList,
+        'initListWithType': EJsonValue initListWithType,
+        'initListConst': EJsonValue initListConst,
+        'initSet': EJsonValue initSet,
+        'initSetWithType': EJsonValue initSetWithType,
+        'initSetConst': EJsonValue initSetConst,
+        'initMap': EJsonValue initMap,
+        'initMapWithType': EJsonValue initMapWithType,
+        'initMapConst': EJsonValue initMapConst,
+      } =>
+        Person(
+          children: fromEJson(children),
+          initList: fromEJson(initList),
+          initListWithType: fromEJson(initListWithType),
+          initListConst: fromEJson(initListConst),
+          initSet: fromEJson(initSet),
+          initSetWithType: fromEJson(initSetWithType),
+          initSetConst: fromEJson(initSetConst),
+          initMap: fromEJson(initMap),
+          initMapWithType: fromEJson(initMapWithType),
+          initMapConst: fromEJson(initMapConst),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Person._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
+      SchemaProperty('children', RealmPropertyType.object,
+          linkTarget: 'Person', collectionType: RealmCollectionType.list),
+      SchemaProperty('initList', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('initListWithType', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('initListConst', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('initSet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('initSetWithType', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('initSetConst', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('initMap', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('initMapWithType', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('initMapConst', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}

@@ -1,0 +1,16 @@
+Realm only supports the @PrimaryKey annotation on fields of type
+int, String, ObjectId, Uuid
+as well as their nullable versions
+
+in: asset:pkg/test/error_test_data/realm_value_not_allowed_as_primary_key.dart:7:8
+  ╷
+3 │ @RealmModel()
+4 │ @MapTo('Bad')
+5 │ class _Foo {
+  │       ━━━━ in realm model for 'Foo'
+6 │   @PrimaryKey()
+7 │   late RealmValue bad;
+  │        ^^^^^^^^^^ RealmValue is not a valid type here
+  ╵
+Change the type of 'bad' or remove the @PrimaryKey annotation
+
