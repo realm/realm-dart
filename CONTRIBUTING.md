@@ -30,7 +30,7 @@ Realm welcomes all contributions! The only requirement we have is that, like man
 ## Building from source
 
 > [!NOTE]
-> If you want to enable switching between different Flutter and Dart versions in your local environment, see section [Switching between versions of Flutter and Dart](#switching-between-versions-of-flutter-and-dart) for instructions of how to install those SDKs.
+> If you want to enable switching between different Flutter and Dart versions in your local environment, see section [Switching between versions of Flutter and Dart](#switching-between-versions-of-flutter-and-dart) for instructions on how to install those SDKs.
 
 ### Clone the repo
 
