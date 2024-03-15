@@ -41,12 +41,13 @@ jobs:
         dart pub global run melos bootstrap
 
     - name: Download all artifacts
-      uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
+      uses: dawidd6/action-download-artifact@71072fbb1229e1317f1a8de6b04206afb461bd67 # 3.1.2
       with:
         workflow: ci.yml
         commit: ${{ github.sha }}
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
+        github_token: ${{ secrets.REALM_CI_PAT }}
 
     # The rename is necessary because action-download-artifact will put things in a folder named the same
     # as the artifact name - i.e. librealm-linux, etc.
@@ -81,12 +82,14 @@ jobs:
       working-directory: release
 
     # realm_flutter has symlinks to native binaries which should not be packaged
-    - name: Cleanup binary symlinks
+    - name: Cleanup symlinks, etc.
       run: |
         rm packages/realm/android/src/main/cpp/lib
         rm packages/realm/ios/realm_dart.xcframework
         rm packages/realm/linux/binary
         rm packages/realm/windows/binary
+        rm -rf packages/realm/tests/linux/flutter/ephemeral
+        rm -rf packages/realm/tests/windows/flutter/ephemeral
 
     - name: Package realm (flutter)
       run: |
@@ -169,13 +172,18 @@ jobs:
         dart pub global run melos bootstrap
 
     - name: Publish packages to pub.dev
-      # Using just:
-      #  melos publish --no-dry-run --yes
-      # will fail currently
+      # Using
+      #  melos exec --no-published --no-private -- dart pub publish --force --skip-validation
+      # will fail due to symlinks in the realm package. Once we get rid of them, we can replace
+      # the manual publishing with using melos
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-        melos exec --no-published --no-private -- dart pub publish --force --skip-validation
+        dart pub publish --directory realm_common --force --skip-validation
+        dart pub publish --directory realm_generator --force --skip-validation
+        dart pub publish --directory realm_dart --force --skip-validation
+        dart pub publish --directory realm --force --skip-validation
+      working-directory: release
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
@@ -235,6 +243,7 @@ jobs:
         branch: vnext-changelog
         title: Add vNext Changelog header
         body: Update Changelog for vNext
+        labels: no-jira-ticket
         delete-branch: true
         base: main
         commit-message: Add vNext Changelog header
