@@ -82,12 +82,14 @@ jobs:
       working-directory: release
 
     # realm_flutter has symlinks to native binaries which should not be packaged
-    - name: Cleanup binary symlinks
+    - name: Cleanup symlinks, etc.
       run: |
         rm packages/realm/android/src/main/cpp/lib
         rm packages/realm/ios/realm_dart.xcframework
         rm packages/realm/linux/binary
         rm packages/realm/windows/binary
+        rm -rf packages/realm/tests/linux/flutter/ephemeral
+        rm -rf packages/realm/tests/windows/flutter/ephemeral
 
     - name: Package realm (flutter)
       run: |
