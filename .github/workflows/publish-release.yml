@@ -102,7 +102,7 @@ jobs:
       run: |
         mkdir realm_dart
         cp -Lr ../packages/realm_dart/bin ../packages/realm_dart/example ../packages/realm_dart/lib ../packages/realm_dart/test realm_dart
-        rsync -vt ../packages/realm_dart/* realm_dart/
+        rsync -vtL ../packages/realm_dart/* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
       working-directory: release
@@ -179,8 +179,6 @@ jobs:
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-        dart pub publish --directory realm_common --force --skip-validation
-        dart pub publish --directory realm_generator --force --skip-validation
         dart pub publish --directory realm_dart --force --skip-validation
         dart pub publish --directory realm --force --skip-validation
       working-directory: release
