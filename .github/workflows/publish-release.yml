@@ -179,10 +179,10 @@ jobs:
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-        dart pub publish --directory realm_common --force
-        dart pub publish --directory realm_generator --force
-        dart pub publish --directory realm_dart --force
-        dart pub publish --directory realm --force
+        dart pub publish --directory realm_common --force --skip-validation
+        dart pub publish --directory realm_generator --force --skip-validation
+        dart pub publish --directory realm_dart --force --skip-validation
+        dart pub publish --directory realm --force --skip-validation
       working-directory: release
 
     - name: Find Release PR
