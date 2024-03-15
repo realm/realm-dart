@@ -41,7 +41,7 @@ jobs:
         dart pub global run melos bootstrap
 
     - name: Download all artifacts
-      uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
+      uses: dawidd6/action-download-artifact@71072fbb1229e1317f1a8de6b04206afb461bd67 # 3.1.2
       with:
         workflow: ci.yml
         commit: ${{ github.sha }}
