@@ -52,7 +52,7 @@ Make sure that `~/.pub-cache/bin/` is added to your `PATH`. Otherwise you need t
 # In e.g. `~/.zshrc`
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 ```
-    
+
 ### Set up the project
 
 ```shell
@@ -66,12 +66,12 @@ melos run setup
 melos run build
 ```
 
-To only build the native code for a specific target (see available target names in [packages/realm_dart/tool/build.dart](./packages/realm_dart/tool/build.dart)), run:
+To only build the native code for a specific target (see available target names in [build.dart](./packages/realm_dart/dev/lib/src/build.dart)), run:
 
 ```shell
 cd packages/realm_dart
 # Example using `macOSArm64` as target and debug mode.
-dart run tool/build.dart native -m debug -t macOSArm64
+dev build -m debug -t macOSArm64
 ```
 
 ### Run all tests
