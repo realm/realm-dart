@@ -172,13 +172,18 @@ jobs:
         dart pub global run melos bootstrap
 
     - name: Publish packages to pub.dev
-      # Using just:
-      #  melos publish --no-dry-run --yes
-      # will fail currently
+      # Using
+      #  melos exec --no-published --no-private -- dart pub publish --force --skip-validation
+      # will fail due to symlinks in the realm package. Once we get rid of them, we can replace
+      # the manual publishing with using melos
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-        melos exec --no-published --no-private -- dart pub publish --force --skip-validation
+        dart pub publish --directory realm_common --force
+        dart pub publish --directory realm_generator --force
+        dart pub publish --directory realm_dart --force
+        dart pub publish --directory realm --force
+      working-directory: release
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
