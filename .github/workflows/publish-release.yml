@@ -236,6 +236,7 @@ jobs:
         branch: vnext-changelog
         title: Add vNext Changelog header
         body: Update Changelog for vNext
+        labels: no-jira-ticket
         delete-branch: true
         base: main
         commit-message: Add vNext Changelog header
