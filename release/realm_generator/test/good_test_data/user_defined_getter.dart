@@ -1,0 +1,9 @@
+import 'package:realm_common/realm_common.dart';
+
+part 'user_defined_getter.realm.dart';
+
+@RealmModel()
+class _Person {
+  late String name;
+  String get lastName => name.split(' ').first; // <-- should be ignored by generator
+}

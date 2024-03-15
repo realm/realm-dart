@@ -1,0 +1,17 @@
+# ignore realm files
+*.realm*
+
+# Ignore symlinks
+# Unfortuantely this don't work. We need to remove the symlinks before publishing
+/android/src/main/cpp/lib/
+/ios/realm_flutter_ios.xcframework
+# No symlink for macos
+# /macos/librealm_dart.dylib
+/windows/binary
+/linux/binary
+
+# Ignore realm-cre pem files
+/ios/src/realm-core/**/*.pem
+
+# Ignore the special tests folder for the flutter driver tests
+tests/

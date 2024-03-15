@@ -1,0 +1,11 @@
+Backlink must be an iterable of realm objects
+
+in: asset:pkg/test/error_test_data/backlink_annotation_on_invalid_iterable.dart:6:8
+  ╷
+3 │ @RealmModel()
+4 │ class _Foo {
+  │       ━━━━ in realm model for 'Foo'
+5 │   @Backlink(#bad)
+6 │   late Iterable<int> bad;
+  │        ^^^^^^^^^^^^^ Iterable<int> is not an iterable of realm objects
+  ╵

@@ -1,0 +1,14 @@
+Duplicate definition
+
+in: asset:pkg/test/error_test_data/defining_both_class_prefixes.dart:9:7
+    ╷
+5   │ @RealmModel()
+6   │ class $Bad1 {}
+    │       ━━━━━ 
+... │
+8   │ @RealmModel()
+9   │ class _Bad1 {}
+    │       ^^^^^ realm model '$Bad1' already defines 'Bad1'
+    ╵
+Duplicate realm model definitions '_Bad1' and '$Bad1'.
+

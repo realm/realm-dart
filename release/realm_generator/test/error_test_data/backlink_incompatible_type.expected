@@ -1,0 +1,11 @@
+Incompatible backlink type
+
+in: asset:pkg/test/error_test_data/backlink_incompatible_type.dart:11:8
+   ╷
+8  │ @RealmModel()
+9  │ class _Target {
+   │       ━━━━━━━ in realm model for 'Target'
+10 │   @Backlink(#target)
+11 │   late Iterable<_IncompatibleSource> backlinks;
+   │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ _IncompatibleSource.target is not a '_Target?' or 'List<_Target>'
+   ╵

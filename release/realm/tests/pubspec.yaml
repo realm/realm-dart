@@ -1,0 +1,37 @@
+name: realm_tests
+description: A new Flutter project.
+
+publish_to: "none"
+
+version: 2.0.0-alpha.2
+
+environment:
+  sdk: ^3.0.0
+  flutter: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  realm:
+    # When depending on this package from a real application you should use:
+    #   realm_flutter: ^x.y.z
+    # See https://dart.dev/tools/pub/dependencies#version-constraints
+    # The tests app is bundled with the plugin so we use a path dependency on
+    # the parent directory to use the current plugin's version.
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter  
+  flutter_lints: ^3.0.1
+  test: any
+  timezone: ^0.9.0
+  integration_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    # test/data is a symlink to the test/data directory in
+    # the realm_dart package.
+    - test/data/ 
+    - test/data/realm_files/

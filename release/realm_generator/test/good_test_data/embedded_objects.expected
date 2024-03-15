@@ -1,0 +1,393 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'embedded_objects.dart';
+
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
+  Parent({
+    Child1? child,
+    Iterable<Child1> children = const [],
+  }) {
+    RealmObjectBase.set(this, 'child', child);
+    RealmObjectBase.set<RealmList<Child1>>(
+        this, 'children', RealmList<Child1>(children));
+  }
+
+  Parent._();
+
+  @override
+  Child1? get child => RealmObjectBase.get<Child1>(this, 'child') as Child1?;
+  @override
+  set child(covariant Child1? value) =>
+      RealmObjectBase.set(this, 'child', value);
+
+  @override
+  RealmList<Child1> get children =>
+      RealmObjectBase.get<Child1>(this, 'children') as RealmList<Child1>;
+  @override
+  set children(covariant RealmList<Child1> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<Parent>> get changes =>
+      RealmObjectBase.getChanges<Parent>(this);
+
+  @override
+  Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'child': child.toEJson(),
+      'children': children.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Parent value) => value.toEJson();
+  static Parent _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'child': EJsonValue child,
+        'children': EJsonValue children,
+      } =>
+        Parent(
+          child: fromEJson(child),
+          children: fromEJson(children),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Parent._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
+      SchemaProperty('child', RealmPropertyType.object,
+          optional: true, linkTarget: 'Child1'),
+      SchemaProperty('children', RealmPropertyType.object,
+          linkTarget: 'Child1', collectionType: RealmCollectionType.list),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
+  Child1(
+    String value, {
+    Child2? child,
+    Iterable<Child2> children = const [],
+    Parent? linkToParent,
+  }) {
+    RealmObjectBase.set(this, 'value', value);
+    RealmObjectBase.set(this, 'child', child);
+    RealmObjectBase.set<RealmList<Child2>>(
+        this, 'children', RealmList<Child2>(children));
+    RealmObjectBase.set(this, 'linkToParent', linkToParent);
+  }
+
+  Child1._();
+
+  @override
+  String get value => RealmObjectBase.get<String>(this, 'value') as String;
+  @override
+  set value(String value) => RealmObjectBase.set(this, 'value', value);
+
+  @override
+  Child2? get child => RealmObjectBase.get<Child2>(this, 'child') as Child2?;
+  @override
+  set child(covariant Child2? value) =>
+      RealmObjectBase.set(this, 'child', value);
+
+  @override
+  RealmList<Child2> get children =>
+      RealmObjectBase.get<Child2>(this, 'children') as RealmList<Child2>;
+  @override
+  set children(covariant RealmList<Child2> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Parent? get linkToParent =>
+      RealmObjectBase.get<Parent>(this, 'linkToParent') as Parent?;
+  @override
+  set linkToParent(covariant Parent? value) =>
+      RealmObjectBase.set(this, 'linkToParent', value);
+
+  @override
+  Stream<RealmObjectChanges<Child1>> get changes =>
+      RealmObjectBase.getChanges<Child1>(this);
+
+  @override
+  Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'value': value.toEJson(),
+      'child': child.toEJson(),
+      'children': children.toEJson(),
+      'linkToParent': linkToParent.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Child1 value) => value.toEJson();
+  static Child1 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'value': EJsonValue value,
+        'child': EJsonValue child,
+        'children': EJsonValue children,
+        'linkToParent': EJsonValue linkToParent,
+      } =>
+        Child1(
+          fromEJson(value),
+          child: fromEJson(child),
+          children: fromEJson(children),
+          linkToParent: fromEJson(linkToParent),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Child1._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.embeddedObject, Child1, 'Child1', [
+      SchemaProperty('value', RealmPropertyType.string),
+      SchemaProperty('child', RealmPropertyType.object,
+          optional: true, linkTarget: 'Child2'),
+      SchemaProperty('children', RealmPropertyType.object,
+          linkTarget: 'Child2', collectionType: RealmCollectionType.list),
+      SchemaProperty('linkToParent', RealmPropertyType.object,
+          optional: true, linkTarget: 'Parent'),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
+  Child2(
+    bool boolProp,
+    int intProp,
+    double doubleProp,
+    String stringProp,
+    DateTime dateProp,
+    ObjectId objectIdProp,
+    Uuid uuidProp, {
+    bool? nullableBoolProp,
+    int? nullableIntProp,
+    double? nullableDoubleProp,
+    String? nullableStringProp,
+    DateTime? nullableDateProp,
+    ObjectId? nullableObjectIdProp,
+    Uuid? nullableUuidProp,
+  }) {
+    RealmObjectBase.set(this, 'boolProp', boolProp);
+    RealmObjectBase.set(this, 'intProp', intProp);
+    RealmObjectBase.set(this, 'doubleProp', doubleProp);
+    RealmObjectBase.set(this, 'stringProp', stringProp);
+    RealmObjectBase.set(this, 'dateProp', dateProp);
+    RealmObjectBase.set(this, 'objectIdProp', objectIdProp);
+    RealmObjectBase.set(this, 'uuidProp', uuidProp);
+    RealmObjectBase.set(this, 'nullableBoolProp', nullableBoolProp);
+    RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
+    RealmObjectBase.set(this, 'nullableDoubleProp', nullableDoubleProp);
+    RealmObjectBase.set(this, 'nullableStringProp', nullableStringProp);
+    RealmObjectBase.set(this, 'nullableDateProp', nullableDateProp);
+    RealmObjectBase.set(this, 'nullableObjectIdProp', nullableObjectIdProp);
+    RealmObjectBase.set(this, 'nullableUuidProp', nullableUuidProp);
+  }
+
+  Child2._();
+
+  @override
+  bool get boolProp => RealmObjectBase.get<bool>(this, 'boolProp') as bool;
+  @override
+  set boolProp(bool value) => RealmObjectBase.set(this, 'boolProp', value);
+
+  @override
+  int get intProp => RealmObjectBase.get<int>(this, 'intProp') as int;
+  @override
+  set intProp(int value) => RealmObjectBase.set(this, 'intProp', value);
+
+  @override
+  double get doubleProp =>
+      RealmObjectBase.get<double>(this, 'doubleProp') as double;
+  @override
+  set doubleProp(double value) =>
+      RealmObjectBase.set(this, 'doubleProp', value);
+
+  @override
+  String get stringProp =>
+      RealmObjectBase.get<String>(this, 'stringProp') as String;
+  @override
+  set stringProp(String value) =>
+      RealmObjectBase.set(this, 'stringProp', value);
+
+  @override
+  DateTime get dateProp =>
+      RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime;
+  @override
+  set dateProp(DateTime value) => RealmObjectBase.set(this, 'dateProp', value);
+
+  @override
+  ObjectId get objectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId;
+  @override
+  set objectIdProp(ObjectId value) =>
+      RealmObjectBase.set(this, 'objectIdProp', value);
+
+  @override
+  Uuid get uuidProp => RealmObjectBase.get<Uuid>(this, 'uuidProp') as Uuid;
+  @override
+  set uuidProp(Uuid value) => RealmObjectBase.set(this, 'uuidProp', value);
+
+  @override
+  bool? get nullableBoolProp =>
+      RealmObjectBase.get<bool>(this, 'nullableBoolProp') as bool?;
+  @override
+  set nullableBoolProp(bool? value) =>
+      RealmObjectBase.set(this, 'nullableBoolProp', value);
+
+  @override
+  int? get nullableIntProp =>
+      RealmObjectBase.get<int>(this, 'nullableIntProp') as int?;
+  @override
+  set nullableIntProp(int? value) =>
+      RealmObjectBase.set(this, 'nullableIntProp', value);
+
+  @override
+  double? get nullableDoubleProp =>
+      RealmObjectBase.get<double>(this, 'nullableDoubleProp') as double?;
+  @override
+  set nullableDoubleProp(double? value) =>
+      RealmObjectBase.set(this, 'nullableDoubleProp', value);
+
+  @override
+  String? get nullableStringProp =>
+      RealmObjectBase.get<String>(this, 'nullableStringProp') as String?;
+  @override
+  set nullableStringProp(String? value) =>
+      RealmObjectBase.set(this, 'nullableStringProp', value);
+
+  @override
+  DateTime? get nullableDateProp =>
+      RealmObjectBase.get<DateTime>(this, 'nullableDateProp') as DateTime?;
+  @override
+  set nullableDateProp(DateTime? value) =>
+      RealmObjectBase.set(this, 'nullableDateProp', value);
+
+  @override
+  ObjectId? get nullableObjectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
+  @override
+  set nullableObjectIdProp(ObjectId? value) =>
+      RealmObjectBase.set(this, 'nullableObjectIdProp', value);
+
+  @override
+  Uuid? get nullableUuidProp =>
+      RealmObjectBase.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
+  @override
+  set nullableUuidProp(Uuid? value) =>
+      RealmObjectBase.set(this, 'nullableUuidProp', value);
+
+  @override
+  Stream<RealmObjectChanges<Child2>> get changes =>
+      RealmObjectBase.getChanges<Child2>(this);
+
+  @override
+  Child2 freeze() => RealmObjectBase.freezeObject<Child2>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'boolProp': boolProp.toEJson(),
+      'intProp': intProp.toEJson(),
+      'doubleProp': doubleProp.toEJson(),
+      'stringProp': stringProp.toEJson(),
+      'dateProp': dateProp.toEJson(),
+      'objectIdProp': objectIdProp.toEJson(),
+      'uuidProp': uuidProp.toEJson(),
+      'nullableBoolProp': nullableBoolProp.toEJson(),
+      'nullableIntProp': nullableIntProp.toEJson(),
+      'nullableDoubleProp': nullableDoubleProp.toEJson(),
+      'nullableStringProp': nullableStringProp.toEJson(),
+      'nullableDateProp': nullableDateProp.toEJson(),
+      'nullableObjectIdProp': nullableObjectIdProp.toEJson(),
+      'nullableUuidProp': nullableUuidProp.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(Child2 value) => value.toEJson();
+  static Child2 _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'boolProp': EJsonValue boolProp,
+        'intProp': EJsonValue intProp,
+        'doubleProp': EJsonValue doubleProp,
+        'stringProp': EJsonValue stringProp,
+        'dateProp': EJsonValue dateProp,
+        'objectIdProp': EJsonValue objectIdProp,
+        'uuidProp': EJsonValue uuidProp,
+        'nullableBoolProp': EJsonValue nullableBoolProp,
+        'nullableIntProp': EJsonValue nullableIntProp,
+        'nullableDoubleProp': EJsonValue nullableDoubleProp,
+        'nullableStringProp': EJsonValue nullableStringProp,
+        'nullableDateProp': EJsonValue nullableDateProp,
+        'nullableObjectIdProp': EJsonValue nullableObjectIdProp,
+        'nullableUuidProp': EJsonValue nullableUuidProp,
+      } =>
+        Child2(
+          fromEJson(boolProp),
+          fromEJson(intProp),
+          fromEJson(doubleProp),
+          fromEJson(stringProp),
+          fromEJson(dateProp),
+          fromEJson(objectIdProp),
+          fromEJson(uuidProp),
+          nullableBoolProp: fromEJson(nullableBoolProp),
+          nullableIntProp: fromEJson(nullableIntProp),
+          nullableDoubleProp: fromEJson(nullableDoubleProp),
+          nullableStringProp: fromEJson(nullableStringProp),
+          nullableDateProp: fromEJson(nullableDateProp),
+          nullableObjectIdProp: fromEJson(nullableObjectIdProp),
+          nullableUuidProp: fromEJson(nullableUuidProp),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(Child2._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.embeddedObject, Child2, 'Child2', [
+      SchemaProperty('boolProp', RealmPropertyType.bool),
+      SchemaProperty('intProp', RealmPropertyType.int),
+      SchemaProperty('doubleProp', RealmPropertyType.double),
+      SchemaProperty('stringProp', RealmPropertyType.string),
+      SchemaProperty('dateProp', RealmPropertyType.timestamp),
+      SchemaProperty('objectIdProp', RealmPropertyType.objectid),
+      SchemaProperty('uuidProp', RealmPropertyType.uuid),
+      SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
+          optional: true),
+      SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
+      SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
+          optional: true),
+      SchemaProperty('nullableStringProp', RealmPropertyType.string,
+          optional: true),
+      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
+          optional: true),
+      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
+          optional: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
