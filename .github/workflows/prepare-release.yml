@@ -79,7 +79,7 @@ jobs:
       - name: Read Core version
         id: get-core-version
         run: |
-          pkgVersion=$(grep "\bVERSION=" dependencies.list | cut -d= -f2)
+          pkgVersion=$(yq '.VERSION' dependencies.yml)
           echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
           echo "Realm Core version: $pkgVersion"
         shell: bash
