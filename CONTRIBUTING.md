@@ -173,7 +173,7 @@ Restart your terminal (or run `source <path to profile file>`) to load the new e
 4. Under `Dart: Flutter Sdk Paths`, click `Add Item`.
 5. Enter the path to the `flutter` directory. Example: */Users/janedoe/development/flutter*
 6. To confirm that it was added, open the Command Palette again, then type `open settings` and select `Preferences: Open Settings (JSON)`. `"dart.flutterSdkPaths"` should be defined (remove any entry with the singular `"dart.flutterSdkPath"`). Example:
-```json
+```jsonc
 {
     // ...
     "dart.flutterSdkPaths": [
