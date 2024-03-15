@@ -1,2 +1,4 @@
-binary/
-build-native/
+/binary/
+/build-native/
+/mongodb-realm/
+*.realm.*

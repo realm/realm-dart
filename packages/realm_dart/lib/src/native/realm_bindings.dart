@@ -5148,6 +5148,28 @@ class RealmLibrary {
       ffi.Pointer<realm_results_t> Function(
           ffi.Pointer<realm_object_t>, int, int)>();
 
+  /// Get the actual log category names (currently 15)
+  /// @param num_values number of values in the out_values array
+  /// @param out_values pointer to an array of size num_values
+  /// @return returns the number of categories returned. If num_values is zero, it will
+  /// return the total number of categories.
+  int realm_get_category_names(
+    int num_values,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> out_values,
+  ) {
+    return _realm_get_category_names(
+      num_values,
+      out_values,
+    );
+  }
+
+  late final _realm_get_category_namesPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Size Function(ffi.Size,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('realm_get_category_names');
+  late final _realm_get_category_names = _realm_get_category_namesPtr
+      .asFunction<int Function(int, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+
   /// Get the class with @a key from the schema.
   ///
   /// Passing an invalid @a key for this schema is considered an error.
@@ -5428,6 +5450,21 @@ class RealmLibrary {
               realm_property_key_t)>>('realm_get_list');
   late final _realm_get_list = _realm_get_listPtr.asFunction<
       ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
+
+  /// Get the logging level for given category.
+  int realm_get_log_level_category(
+    ffi.Pointer<ffi.Char> arg0,
+  ) {
+    return _realm_get_log_level_category(
+      arg0,
+    );
+  }
+
+  late final _realm_get_log_level_categoryPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Char>)>>(
+          'realm_get_log_level_category');
+  late final _realm_get_log_level_category = _realm_get_log_level_categoryPtr
+      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
   /// Return the number of classes in the Realm's schema.
   ///
@@ -8506,24 +8543,6 @@ class RealmLibrary {
   late final _realm_scheduler_get_frozen = _realm_scheduler_get_frozenPtr
       .asFunction<ffi.Pointer<realm_scheduler_t> Function()>();
 
-  /// Returns true if there is a default scheduler implementation for the current
-  /// platform, or one has been set with `realm_scheduler_set_default_factory()`.
-  ///
-  /// If there is no default factory, and no scheduler is provided in the config,
-  /// `realm_open()` will fail. Note that `realm_scheduler_get_frozen()` always
-  /// returns a valid scheduler.
-  ///
-  /// This function is thread-safe, and cannot fail.
-  bool realm_scheduler_has_default_factory() {
-    return _realm_scheduler_has_default_factory();
-  }
-
-  late final _realm_scheduler_has_default_factoryPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-          'realm_scheduler_has_default_factory');
-  late final _realm_scheduler_has_default_factory =
-      _realm_scheduler_has_default_factoryPtr.asFunction<bool Function()>();
-
   /// Create an instance of the default scheduler for the current platform,
   /// normally confined to the calling thread.
   ffi.Pointer<realm_scheduler_t> realm_scheduler_make_default() {
@@ -8605,40 +8624,6 @@ class RealmLibrary {
       'realm_scheduler_perform_work');
   late final _realm_scheduler_perform_work = _realm_scheduler_perform_workPtr
       .asFunction<void Function(ffi.Pointer<realm_work_queue_t>)>();
-
-  /// For platforms with no default scheduler implementation, register a factory
-  /// function which can produce custom schedulers. If there is a platform-specific
-  /// scheduler, this function will fail. If a custom scheduler is desired for
-  /// platforms that already have a default scheduler implementation, the caller
-  /// must call `realm_open()` with a config that indicates the desired scheduler.
-  ///
-  /// The provided callback may produce a scheduler by calling
-  /// `realm_scheduler_new()`.
-  ///
-  /// This function is thread-safe, but should generally only be called once.
-  bool realm_scheduler_set_default_factory(
-    ffi.Pointer<ffi.Void> userdata,
-    realm_free_userdata_func_t userdata_free,
-    realm_scheduler_default_factory_func_t arg2,
-  ) {
-    return _realm_scheduler_set_default_factory(
-      userdata,
-      userdata_free,
-      arg2,
-    );
-  }
-
-  late final _realm_scheduler_set_default_factoryPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  realm_scheduler_default_factory_func_t)>>(
-      'realm_scheduler_set_default_factory');
-  late final _realm_scheduler_set_default_factory =
-      _realm_scheduler_set_default_factoryPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, realm_free_userdata_func_t,
-              realm_scheduler_default_factory_func_t)>();
 
   /// Create a new schema from classes and their properties.
   ///
@@ -9110,7 +9095,8 @@ class RealmLibrary {
   late final _realm_set_log_level =
       _realm_set_log_levelPtr.asFunction<void Function(int)>();
 
-  void realm_set_log_level_category(
+  /// Set the logging level for given category. Return the previous level.
+  int realm_set_log_level_category(
     ffi.Pointer<ffi.Char> arg0,
     int arg1,
   ) {
@@ -9121,11 +9107,11 @@ class RealmLibrary {
   }
 
   late final _realm_set_log_level_categoryPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Int32)>>(
-      'realm_set_log_level_category');
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ffi.Char>,
+              ffi.Int32)>>('realm_set_log_level_category');
   late final _realm_set_log_level_category = _realm_set_log_level_categoryPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+      .asFunction<int Function(ffi.Pointer<ffi.Char>, int)>();
 
   /// In a set of objects, delete all objects in the set and clear the set. In a
   /// set of values, clear the set.
@@ -12745,10 +12731,6 @@ typedef realm_scheduler_can_deliver_notifications_func_tFunction = ffi.Bool
     Function(ffi.Pointer<ffi.Void> userdata);
 typedef Dartrealm_scheduler_can_deliver_notifications_func_tFunction = bool
     Function(ffi.Pointer<ffi.Void> userdata);
-typedef realm_scheduler_default_factory_func_t = ffi.Pointer<
-    ffi.NativeFunction<realm_scheduler_default_factory_func_tFunction>>;
-typedef realm_scheduler_default_factory_func_tFunction
-    = ffi.Pointer<realm_scheduler_t> Function(ffi.Pointer<ffi.Void> userdata);
 typedef realm_scheduler_is_on_thread_func_t = ffi
     .Pointer<ffi.NativeFunction<realm_scheduler_is_on_thread_func_tFunction>>;
 typedef realm_scheduler_is_on_thread_func_tFunction = ffi.Bool Function(

@@ -1,43 +1,19 @@
-out
-.vs
-# ingore build file
-.dart_tool/
+# Ignore native code
+/CMakeLists.txt
+/CMakePresets.json
+/src/
 
-# ignore realm files
-**/*.realm
-**/*.realm.lock
-
-# Dart packages and Flutter plugins should not commit these files
-.packages
-
-# Ignore flutter package
-flutter/**
-
-# Ignore generator package
-generator/**
-
-# Ignore doc build output directory
-doc/
-
-# Ignore native binaries output directory
-binary/
-
-# Ignore native binaries in examples directory
-example/binary
-
-# Ignore native binaries build directories
-build-android/
-build/
-
-# Ignore the ffigen directory
-ffigen/
-
-# Ignore realm-cre pem files
-src/realm-core/**/*.pem
-
-# Ignore realm-core doc
-src/realm-core/doc
+# Ignore build tools
+/scripts/
+/tool/
+/dev/
+/ffigen.yaml
 
 # Ignore test resources
-test/data
+/test/
 
+# Repeated from .gitignore *sigh*
+/binary/
+/build-native/
+/mongodb-realm/
+*.realm.*
