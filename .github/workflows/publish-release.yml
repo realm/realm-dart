@@ -82,7 +82,7 @@ jobs:
       working-directory: release
 
     # realm_flutter has symlinks to native binaries which should not be packaged
-    - name: Cleanup symlinks, etc.
+    - name: Cleanup symlinks
       run: |
         rm packages/realm/android/src/main/cpp/lib
         rm packages/realm/ios/realm_dart.xcframework
@@ -171,17 +171,21 @@ jobs:
         dart pub global activate melos
         dart pub global run melos bootstrap
 
+    # realm_flutter has symlinks to native binaries which should not be packaged
+    - name: Cleanup symlinks
+      run: |
+        rm packages/realm/android/src/main/cpp/lib
+        rm packages/realm/ios/realm_dart.xcframework
+        rm packages/realm/linux/binary
+        rm packages/realm/windows/binary
+        rm -rf packages/realm/tests/linux/flutter/ephemeral
+        rm -rf packages/realm/tests/windows/flutter/ephemeral
+
     - name: Publish packages to pub.dev
-      # Using
-      #  melos exec --no-published --no-private -- dart pub publish --force --skip-validation
-      # will fail due to symlinks in the realm package. Once we get rid of them, we can replace
-      # the manual publishing with using melos
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-        dart pub publish --directory realm_dart --force --skip-validation
-        dart pub publish --directory realm --force --skip-validation
-      working-directory: release
+        melos exec --no-published --no-private -- dart pub publish --force --skip-validation
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
