@@ -3680,3 +3680,131 @@ class Symmetric extends _Symmetric
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
+
+class AnythingGoesSync extends _AnythingGoesSync
+    with RealmEntity, RealmObjectBase, RealmObject {
+  AnythingGoesSync(
+    ObjectId id,
+    ObjectId differentiator, {
+    RealmValue oneAny = const RealmValue.nullValue(),
+    Iterable<RealmValue> manyAny = const [],
+    Map<String, RealmValue> dictOfAny = const {},
+    Set<RealmValue> setOfAny = const {},
+  }) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'differentiator', differentiator);
+    RealmObjectBase.set(this, 'oneAny', oneAny);
+    RealmObjectBase.set<RealmList<RealmValue>>(
+        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
+  }
+
+  AnythingGoesSync._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId;
+  @override
+  set differentiator(ObjectId value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
+
+  @override
+  RealmValue get oneAny =>
+      RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
+  @override
+  set oneAny(RealmValue value) => RealmObjectBase.set(this, 'oneAny', value);
+
+  @override
+  RealmList<RealmValue> get manyAny =>
+      RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
+  @override
+  set manyAny(covariant RealmList<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<RealmValue> get dictOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'dictOfAny')
+          as RealmMap<RealmValue>;
+  @override
+  set dictOfAny(covariant RealmMap<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<RealmValue> get setOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'setOfAny') as RealmSet<RealmValue>;
+  @override
+  set setOfAny(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<AnythingGoesSync>> get changes =>
+      RealmObjectBase.getChanges<AnythingGoesSync>(this);
+
+  @override
+  AnythingGoesSync freeze() =>
+      RealmObjectBase.freezeObject<AnythingGoesSync>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'oneAny': oneAny.toEJson(),
+      'manyAny': manyAny.toEJson(),
+      'dictOfAny': dictOfAny.toEJson(),
+      'setOfAny': setOfAny.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(AnythingGoesSync value) => value.toEJson();
+  static AnythingGoesSync _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'oneAny': EJsonValue oneAny,
+        'manyAny': EJsonValue manyAny,
+        'dictOfAny': EJsonValue dictOfAny,
+        'setOfAny': EJsonValue setOfAny,
+      } =>
+        AnythingGoesSync(
+          fromEJson(id),
+          fromEJson(differentiator),
+          oneAny: fromEJson(oneAny),
+          manyAny: fromEJson(manyAny),
+          dictOfAny: fromEJson(dictOfAny),
+          setOfAny: fromEJson(setOfAny),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(AnythingGoesSync._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, AnythingGoesSync, 'AnythingGoesSync', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid),
+      SchemaProperty('oneAny', RealmPropertyType.mixed,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('manyAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('dictOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('setOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}

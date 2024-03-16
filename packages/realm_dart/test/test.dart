@@ -375,6 +375,19 @@ class _Symmetric {
   late ObjectId id;
 }
 
+@RealmModel()
+class _AnythingGoesSync {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId differentiator;
+  @Indexed()
+  late RealmValue oneAny;
+  late List<RealmValue> manyAny;
+  late Map<String, RealmValue> dictOfAny;
+  late Set<RealmValue> setOfAny;
+}
+
 String? testName;
 final _openRealms = Queue<Realm>();
 
@@ -738,6 +751,7 @@ List<SchemaObject> getSyncSchema() {
     Asymmetric.schema,
     Embedded.schema,
     Symmetric.schema,
+    AnythingGoesSync.schema,
   ];
 }
 
