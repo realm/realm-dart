@@ -3808,3 +3808,88 @@ class AnythingGoesSync extends _AnythingGoesSync
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
+
+class StuffSync extends _StuffSync
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  StuffSync(
+    ObjectId id,
+    ObjectId differentiator, {
+    int i = 42,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<StuffSync>({
+        'i': 42,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'differentiator', differentiator);
+    RealmObjectBase.set(this, 'i', i);
+  }
+
+  StuffSync._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId;
+  @override
+  set differentiator(ObjectId value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
+
+  @override
+  int get i => RealmObjectBase.get<int>(this, 'i') as int;
+  @override
+  set i(int value) => RealmObjectBase.set(this, 'i', value);
+
+  @override
+  Stream<RealmObjectChanges<StuffSync>> get changes =>
+      RealmObjectBase.getChanges<StuffSync>(this);
+
+  @override
+  StuffSync freeze() => RealmObjectBase.freezeObject<StuffSync>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'i': i.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(StuffSync value) => value.toEJson();
+  static StuffSync _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'i': EJsonValue i,
+      } =>
+        StuffSync(
+          fromEJson(id),
+          fromEJson(differentiator),
+          i: fromEJson(i),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(StuffSync._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.realmObject, StuffSync, 'StuffSync', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid),
+      SchemaProperty('i', RealmPropertyType.int),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}

@@ -382,11 +382,22 @@ class _AnythingGoesSync {
   @MapTo('_id')
   late ObjectId id;
   late ObjectId differentiator;
+
   @Indexed()
   late RealmValue oneAny;
   late List<RealmValue> manyAny;
   late Map<String, RealmValue> dictOfAny;
   late Set<RealmValue> setOfAny;
+}
+
+@RealmModel()
+class _StuffSync {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId differentiator;
+
+  int i = 42;
 }
 
 String? testName;
@@ -754,6 +765,7 @@ List<SchemaObject> getSyncSchema() {
     Embedded.schema,
     Symmetric.schema,
     AnythingGoesSync.schema,
+    StuffSync.schema,
   ];
 }
 

@@ -45,6 +45,7 @@ void main() {
 
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<AnythingGoesSync>(r'differentiator = $0', [differentiator]));
+      mutableSubscriptions.add(realm.query<StuffSync>(r'differentiator = $0', [differentiator]));
     });
     await realm.subscriptions.waitForSynchronization();
 
@@ -77,8 +78,8 @@ void main() {
       baasTest('BaaS roundtrip ${x.runtimeType} $x', (appConfig) async {
         final differentiator = ObjectId();
         final realm = await logInAndGetMixedRealm(appConfig, differentiator);
-        final something = realm.write(() => realm.add(AnythingGoesSync(ObjectId(), differentiator, oneAny: RealmValue.from(x))));
 
+        final something = realm.write(() => realm.add(AnythingGoesSync(ObjectId(), differentiator, oneAny: RealmValue.from(x))));
         expect(something.oneAny.value.runtimeType, x.runtimeType);
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
@@ -109,6 +110,16 @@ void main() {
       final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(stuff))));
       expect(something.oneAny.value.runtimeType, Stuff);
       expect(something.oneAny.as<Stuff>().i, 123);
+    });
+
+    baasTest('BaaS roundtrip object', (appConfig) async {
+      final differentiator = ObjectId();
+      final realm = await logInAndGetMixedRealm(appConfig, differentiator);
+
+      final stuff = StuffSync(ObjectId(), differentiator, i: 123);
+      final something = realm.write(() => realm.add(AnythingGoesSync(ObjectId(), differentiator, oneAny: RealmValue.from(stuff))));
+      expect(something.oneAny.value.runtimeType, StuffSync);
+      expect(something.oneAny.as<StuffSync>().i, 123);
     });
 
     test('Query @type == object', () {
