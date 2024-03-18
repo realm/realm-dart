@@ -31,8 +31,7 @@ class InstallCommand extends Command<void> {
     populateOptionsParser(argParser);
   }
 
-  Directory getBinaryPath(Package realmPackage, {required bool isFlutter}) {
-    final realmPackagePath = realmPackage.root.toFilePath();
+  Directory getBinaryPath(String realmPackagePath, {required bool isFlutter}) {
     if (isFlutter) {
       return Directory(switch (options.targetOsType) {
         TargetOsType.android => path.join(realmPackagePath, 'android', 'src', 'main', 'cpp', 'lib'),
@@ -100,7 +99,7 @@ class InstallCommand extends Command<void> {
     await versionFile.writeAsString(version.toString());
   }
 
-  Future<Package> getPackage(String name) async {
+  Future<String> getPackagePath(String name) async {
     final packageConfig = await findPackageConfig(Directory.current);
     if (packageConfig == null) {
       abort('Run `dart pub get`');
@@ -109,7 +108,7 @@ class InstallCommand extends Command<void> {
     if (package == null) {
       abort('$name package not found in dependencies. Add $name package to your pubspec.yaml');
     }
-    return package;
+    return package.root.toFilePath();
   }
 
   Future<Pubspec> parsePubspec(File file) async {
@@ -139,9 +138,10 @@ class InstallCommand extends Command<void> {
       // TODO: Should we just add it for them? What about the version?
     }
 
-    final realmPackage = await getPackage(flavorName);
-    final realmPubspec = await parsePubspec(File.fromUri(realmPackage.root));
-    final binaryPath = getBinaryPath(realmPackage, isFlutter: flavor == Flavor.flutter);
+    final realmPackagePath = await getPackagePath(flavorName);
+    final realmPubspec = await parsePubspec(File(path.join(realmPackagePath, "pubspec.yaml")));
+
+    final binaryPath = getBinaryPath(realmPackagePath, isFlutter: flavor == Flavor.flutter);
     print(binaryPath);
     final archiveName = '${options.targetOsType!.name}.tar.gz';
     await downloadAndExtractBinaries(binaryPath, realmPubspec.version!, archiveName);
