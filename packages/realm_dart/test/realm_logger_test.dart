@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:isolate';
+import 'dart:math';
+import 'package:logging/logging.dart';
 import 'package:realm_dart/src/logging.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
@@ -63,5 +65,28 @@ void main() {
     await Future<void>.delayed(const Duration(seconds: 1)); // yield
     expectLater(trace, completion('Hey'));
     Realm.logger.log(RealmLogLevel.trace, 'Hey');
+  });
+
+  test('RealmLogger hookup logging', () async {
+    final logger = Logger.detached('Test');
+    Realm.logger.onRecord.forEach((r) => logger.log(r.level.level, r.message));
+    logger.level = Level.ALL;
+    Realm.logger.setLogLevel(RealmLogLevel.error);
+
+    expectLater(logger.onRecord, emits(isA<LogRecord>().having((r) => r.level, '==', Level.SEVERE).having((r) => r.message, '==', 'error')));
+
+    Realm.logger.log(RealmLogLevel.error, 'error', category: RealmLogCategory.realm.sdk);
+  });
+
+  test('RealmLogger hookup hierarchical logging', () async {
+    hierarchicalLoggingEnabled = true;
+    Realm.logger.onRecord.forEach((r) => Logger(r.category.toString()).log(r.level.level, r.message));
+    Logger.root.level = Level.ALL;
+    Realm.logger.setLogLevel(RealmLogLevel.error);
+
+    expectLater(Logger('Realm').onRecord, emits(isA<LogRecord>().having((r) => r.level, '==', Level.SEVERE).having((r) => r.message, '==', 'error')));
+    expectLater(Logger('Realm.SDK').onRecord, emits(isA<LogRecord>().having((r) => r.level, '==', Level.SEVERE).having((r) => r.message, '==', 'error')));
+
+    Realm.logger.log(RealmLogLevel.error, 'error', category: RealmLogCategory.realm.sdk);
   });
 }
