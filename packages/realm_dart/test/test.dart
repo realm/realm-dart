@@ -416,7 +416,7 @@ void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
 
-    Realm.logger.setLogLevel(RealmLogLevel.all);
+    Realm.logger.setLogLevel(RealmLogLevel.detail);
     Realm.logger.onRecord.listen((record) {
       testing.printOnFailure('${record.category} ${record.level.name}: ${record.message}');
     });
