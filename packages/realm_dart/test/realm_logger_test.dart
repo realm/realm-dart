@@ -13,10 +13,11 @@ void main() {
   setupTests();
 
   group('All levels', () {
-    Realm.logger.setLogLevel(RealmLogLevel.off);
-    Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
     for (var level in RealmLogLevel.values) {
       test('Realm.logger supports log level $level', () {
+        Realm.logger.setLogLevel(RealmLogLevel.off);
+        Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
+
         final tag = Uuid.v4();
         expectLater(
           Realm.logger.onRecord,
@@ -28,11 +29,12 @@ void main() {
   });
 
   group('Match levels', () {
-    Realm.logger.setLogLevel(RealmLogLevel.off);
     for (var level in RealmLogLevel.values) {
       final expectedLevels = RealmLogLevel.logToValues.where((l) => l.index >= level.index);
-      test('$level matches $expectedLevels', () {        
+      test('$level matches $expectedLevels', () {
+        Realm.logger.setLogLevel(RealmLogLevel.off);
         Realm.logger.setLogLevel(level, category: RealmLogCategory.realm.sdk);
+
         expectLater(Realm.logger.onRecord, emitsInOrder(expectedLevels.map((l) => isA<RealmLogRecord>().having((r) => r.level, '$l', l))));
         for (var sendLevel in RealmLogLevel.logToValues) {
           Realm.logger.log(sendLevel, '$sendLevel');
@@ -54,6 +56,7 @@ void main() {
   test('Trace in subisolate seen in parent', () {
     Realm.logger.setLogLevel(RealmLogLevel.off);
     Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
+
     expectLater(Realm.logger.onRecord, emits(isA<RealmLogRecord>().having((r) => r.message, 'message', 'Hey')));
     Isolate.run(() {
       Realm.logger.log(RealmLogLevel.trace, 'Hey');
@@ -63,6 +66,7 @@ void main() {
   test('Trace in root isolate seen in subisolate', () async {
     Realm.logger.setLogLevel(RealmLogLevel.off);
     Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
+
     final trace = Isolate.run(() async {
       return (await Realm.logger.onRecord.first).message;
     });
