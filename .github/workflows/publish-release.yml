@@ -187,6 +187,9 @@ jobs:
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
         melos exec --no-published --no-private -- dart pub publish --force --skip-validation
 
+    - name: Reset repo state
+      run: git reset --hard
+
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
       id: find-pull-request
