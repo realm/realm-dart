@@ -31,15 +31,15 @@ class InstallCommand extends Command<void> {
     populateOptionsParser(argParser);
   }
 
-  Directory getBinaryPath(Package realmPackage, {required bool isFlutter}) {
-    final realmPackagePath = realmPackage.root.toFilePath();
+  Directory getBinaryPath(Directory realmPackagePath, {required bool isFlutter}) {
     if (isFlutter) {
+      final root = realmPackagePath.path;
       return Directory(switch (options.targetOsType) {
-        TargetOsType.android => path.join(realmPackagePath, 'android', 'src', 'main', 'cpp', 'lib'),
-        TargetOsType.ios => path.join(realmPackagePath, 'ios'),
-        TargetOsType.macos => path.join(realmPackagePath, 'macos'),
-        TargetOsType.linux => path.join(realmPackagePath, 'linux', 'binary', 'linux'),
-        TargetOsType.windows => path.join(realmPackagePath, 'windows', 'binary', 'windows'),
+        TargetOsType.android => path.join(root, 'android', 'src', 'main', 'cpp', 'lib'),
+        TargetOsType.ios => path.join(root, 'ios'),
+        TargetOsType.macos => path.join(root, 'macos'),
+        TargetOsType.linux => path.join(root, 'linux', 'binary', 'linux'),
+        TargetOsType.windows => path.join(root, 'windows', 'binary', 'windows'),
         _ => throw Exception('Unsupported target OS type for Flutter: ${options.targetOsType}')
       });
     }
@@ -100,7 +100,7 @@ class InstallCommand extends Command<void> {
     await versionFile.writeAsString(version.toString());
   }
 
-  Future<Package> getPackage(String name) async {
+  Future<Directory> getPackagePath(String name) async {
     final packageConfig = await findPackageConfig(Directory.current);
     if (packageConfig == null) {
       abort('Run `dart pub get`');
@@ -109,7 +109,7 @@ class InstallCommand extends Command<void> {
     if (package == null) {
       abort('$name package not found in dependencies. Add $name package to your pubspec.yaml');
     }
-    return package;
+    return Directory.fromUri(package.root);
   }
 
   Future<Pubspec> parsePubspec(File file) async {
@@ -139,9 +139,10 @@ class InstallCommand extends Command<void> {
       // TODO: Should we just add it for them? What about the version?
     }
 
-    final realmPackage = await getPackage(flavorName);
-    final realmPubspec = await parsePubspec(File.fromUri(realmPackage.root));
-    final binaryPath = getBinaryPath(realmPackage, isFlutter: flavor == Flavor.flutter);
+    final realmPackagePath = await getPackagePath(flavorName);
+    final realmPubspec = await parsePubspec(File(path.join(realmPackagePath.path, "pubspec.yaml")));
+
+    final binaryPath = getBinaryPath(realmPackagePath, isFlutter: flavor == Flavor.flutter);
     print(binaryPath);
     final archiveName = '${options.targetOsType!.name}.tar.gz';
     await downloadAndExtractBinaries(binaryPath, realmPubspec.version!, archiveName);
