@@ -9411,6 +9411,26 @@ class RealmLibrary {
       _realm_sync_client_config_set_fast_reconnect_limitPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
+  void realm_sync_client_config_set_max_resumption_delay_interval(
+    ffi.Pointer<realm_sync_client_config_t> arg0,
+    int arg1,
+  ) {
+    return _realm_sync_client_config_set_max_resumption_delay_interval(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_sync_client_config_set_max_resumption_delay_intervalPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(
+                      ffi.Pointer<realm_sync_client_config_t>, ffi.Uint64)>>(
+          'realm_sync_client_config_set_max_resumption_delay_interval');
+  late final _realm_sync_client_config_set_max_resumption_delay_interval =
+      _realm_sync_client_config_set_max_resumption_delay_intervalPtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
+
   void realm_sync_client_config_set_metadata_encryption_key(
     ffi.Pointer<realm_sync_client_config_t> arg0,
     ffi.Pointer<ffi.Uint8> arg1,
@@ -9521,6 +9541,47 @@ class RealmLibrary {
               ffi.Int32)>>('realm_sync_client_config_set_reconnect_mode');
   late final _realm_sync_client_config_set_reconnect_mode =
       _realm_sync_client_config_set_reconnect_modePtr.asFunction<
+          void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
+
+  void realm_sync_client_config_set_resumption_delay_backoff_multiplier(
+    ffi.Pointer<realm_sync_client_config_t> arg0,
+    int arg1,
+  ) {
+    return _realm_sync_client_config_set_resumption_delay_backoff_multiplier(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_sync_client_config_set_resumption_delay_backoff_multiplierPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(
+                      ffi.Pointer<realm_sync_client_config_t>, ffi.Int)>>(
+          'realm_sync_client_config_set_resumption_delay_backoff_multiplier');
+  late final _realm_sync_client_config_set_resumption_delay_backoff_multiplier =
+      _realm_sync_client_config_set_resumption_delay_backoff_multiplierPtr
+          .asFunction<
+              void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
+
+  void realm_sync_client_config_set_resumption_delay_interval(
+    ffi.Pointer<realm_sync_client_config_t> arg0,
+    int arg1,
+  ) {
+    return _realm_sync_client_config_set_resumption_delay_interval(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_sync_client_config_set_resumption_delay_intervalPtr =
+      _lookup<
+              ffi.NativeFunction<
+                  ffi.Void Function(
+                      ffi.Pointer<realm_sync_client_config_t>, ffi.Uint64)>>(
+          'realm_sync_client_config_set_resumption_delay_interval');
+  late final _realm_sync_client_config_set_resumption_delay_interval =
+      _realm_sync_client_config_set_resumption_delay_intervalPtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
   void realm_sync_client_config_set_sync_socket(
