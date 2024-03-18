@@ -36,7 +36,7 @@ puts "bundleId is #{bundleId}"
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '2.0.0-alpha.5'
+  s.version                   = '2.0.0-beta.1'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.
