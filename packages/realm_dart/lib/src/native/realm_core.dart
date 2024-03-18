@@ -14,7 +14,6 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:crypto/crypto.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
-import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_common/realm_common.dart' as common show Decimal128;
@@ -101,13 +100,8 @@ class _RealmCore {
 
     // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
-    _initDefaultLogger();
-  }
 
-  void _initDefaultLogger() {
-    if (_realmLib.realm_dart_init_core_logger(RealmLogLevel.info.index)) {
-      loggerAttach(); // TODO: Should we do this, or should we let the user attach the logger?
-    }
+    _realmLib.realm_dart_init_debug_logger();
   }
 
   void loggerAttach() {

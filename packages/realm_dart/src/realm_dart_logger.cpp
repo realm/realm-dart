@@ -16,31 +16,17 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <sstream>
-#include <set>
-#include <mutex>
-#include <thread>
-#include <map>
 #include <algorithm>
+#include <map>
+#include <mutex>
+#include <set>
+#include <sstream>
+#include <thread>
 #include <realm/object-store/c_api/util.hpp>
 
 #include "realm_dart_logger.h"
 
 using namespace realm::util;
-
-std::mutex dart_logger_mutex;
-bool is_core_logger_callback_set = false;
-std::set<Dart_Port> dart_send_ports;
-
-RLM_API void realm_dart_detach_logger(Dart_Port port) {
-    std::lock_guard<std::mutex> lock(dart_logger_mutex);
-    dart_send_ports.erase(port);
-}
-
-RLM_API void realm_dart_attach_logger(Dart_Port port) {
-    std::lock_guard<std::mutex> lock(dart_logger_mutex);
-    dart_send_ports.insert(port);
-}
 
 bool send_message_to_scheduler(Dart_Port port, const char* category, realm_log_level_e level, const char* message) {
     Dart_CObject c_category;
@@ -64,6 +50,20 @@ bool send_message_to_scheduler(Dart_Port port, const char* category, realm_log_l
     return Dart_PostCObject_DL(port, &c_request);
 }
 
+std::mutex dart_logger_mutex;
+std::set<Dart_Port> dart_send_ports;
+std::shared_ptr<StderrLogger> default_debug_logger;
+bool default_debug_logger_initialized = false;
+
+RLM_API void realm_dart_init_debug_logger() {
+    if (default_debug_logger_initialized) {
+        return;
+    }
+    default_debug_logger = std::make_shared<StderrLogger>();
+    Logger::set_default_logger(default_debug_logger);
+    default_debug_logger_initialized = true;
+}
+
 void realm_dart_logger_callback(realm_userdata_t userData, const char* category, realm_log_level_e level, const char* message) {
     std::lock_guard<std::mutex> lock(dart_logger_mutex);
     for (auto itr = dart_send_ports.begin(); itr != dart_send_ports.end(); ++itr) {
@@ -72,16 +72,20 @@ void realm_dart_logger_callback(realm_userdata_t userData, const char* category,
     }
 }
 
-RLM_API bool realm_dart_init_core_logger(realm_log_level_e level) {
+RLM_API void realm_dart_attach_logger(Dart_Port port) {
     std::lock_guard<std::mutex> lock(dart_logger_mutex);
-    if (is_core_logger_callback_set) {
-        return false;
+    if (dart_send_ports.empty()) {
+        realm_set_log_callback(realm_dart_logger_callback, nullptr, nullptr);
     }
+    dart_send_ports.insert(port);
+}
 
-    realm_set_log_callback(realm_dart_logger_callback, level, nullptr, nullptr);
-    is_core_logger_callback_set = true;
-
-    return is_core_logger_callback_set;
+RLM_API void realm_dart_detach_logger(Dart_Port port) {
+    std::lock_guard<std::mutex> lock(dart_logger_mutex);
+    dart_send_ports.erase(port);
+    if (dart_send_ports.empty()) {
+        Logger::set_default_logger(default_debug_logger);
+    }
 }
 
 RLM_API void realm_dart_log(realm_log_level_e level, const char* category, const char* message) {

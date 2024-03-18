@@ -1,8 +1,8 @@
 // Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
 import 'dart:isolate';
-import 'dart:math';
 import 'package:logging/logging.dart';
 import 'package:realm_dart/src/logging.dart';
 import 'package:test/test.dart' hide test, throws;
@@ -51,7 +51,7 @@ void main() {
 
   test('Trace in subisolate seen in parent', () {
     Realm.logger.setLogLevel(RealmLogLevel.all);
-    expectLater(Realm.logger.onRecord, emits(isA<RealmLogRecord>().having((r) => r.message, '', 'Hey')));
+    expectLater(Realm.logger.onRecord, emits(isA<RealmLogRecord>().having((r) => r.message, 'message', 'Hey')));
     Isolate.run(() {
       Realm.logger.log(RealmLogLevel.trace, 'Hey');
     });
@@ -62,7 +62,7 @@ void main() {
     final trace = Isolate.run(() async {
       return (await Realm.logger.onRecord.first).message;
     });
-    await Future<void>.delayed(const Duration(seconds: 1)); // yield
+    await Future<void>.delayed(const Duration(milliseconds: 1)); // yield
     expectLater(trace, completion('Hey'));
     Realm.logger.log(RealmLogLevel.trace, 'Hey');
   });
@@ -73,7 +73,7 @@ void main() {
     logger.level = Level.ALL;
     Realm.logger.setLogLevel(RealmLogLevel.error);
 
-    expectLater(logger.onRecord, emits(isA<LogRecord>().having((r) => r.level, '==', Level.SEVERE).having((r) => r.message, '==', 'error')));
+    expectLater(logger.onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
 
     Realm.logger.log(RealmLogLevel.error, 'error', category: RealmLogCategory.realm.sdk);
   });
@@ -84,8 +84,9 @@ void main() {
     Logger.root.level = Level.ALL;
     Realm.logger.setLogLevel(RealmLogLevel.error);
 
-    expectLater(Logger('Realm').onRecord, emits(isA<LogRecord>().having((r) => r.level, '==', Level.SEVERE).having((r) => r.message, '==', 'error')));
-    expectLater(Logger('Realm.SDK').onRecord, emits(isA<LogRecord>().having((r) => r.level, '==', Level.SEVERE).having((r) => r.message, '==', 'error')));
+    expectLater(Logger('Realm').onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
+    expectLater(
+        Logger('Realm.SDK').onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
 
     Realm.logger.log(RealmLogLevel.error, 'error', category: RealmLogCategory.realm.sdk);
   });

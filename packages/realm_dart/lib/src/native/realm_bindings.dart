@@ -3737,20 +3737,15 @@ class RealmLibrary {
           void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>();
 
-  /// Returns `true` if Realm Core logger was initialized.
-  bool realm_dart_init_core_logger(
-    int level,
-  ) {
-    return _realm_dart_init_core_logger(
-      level,
-    );
+  void realm_dart_init_debug_logger() {
+    return _realm_dart_init_debug_logger();
   }
 
-  late final _realm_dart_init_core_loggerPtr =
-      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>(
-          'realm_dart_init_core_logger');
-  late final _realm_dart_init_core_logger =
-      _realm_dart_init_core_loggerPtr.asFunction<bool Function(int)>();
+  late final _realm_dart_init_debug_loggerPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'realm_dart_init_debug_logger');
+  late final _realm_dart_init_debug_logger =
+      _realm_dart_init_debug_loggerPtr.asFunction<void Function()>();
 
   void realm_dart_initializeDartApiDL(
     ffi.Pointer<ffi.Void> data,
@@ -9040,13 +9035,11 @@ class RealmLibrary {
   /// Install the default logger
   void realm_set_log_callback(
     realm_log_func_t arg0,
-    int arg1,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_set_log_callback(
       arg0,
-      arg1,
       userdata,
       userdata_free,
     );
@@ -9054,10 +9047,10 @@ class RealmLibrary {
 
   late final _realm_set_log_callbackPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(realm_log_func_t, ffi.Int32, ffi.Pointer<ffi.Void>,
+          ffi.Void Function(realm_log_func_t, ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t)>>('realm_set_log_callback');
   late final _realm_set_log_callback = _realm_set_log_callbackPtr.asFunction<
-      void Function(realm_log_func_t, int, ffi.Pointer<ffi.Void>,
+      void Function(realm_log_func_t, ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
   void realm_set_log_level(
@@ -11768,9 +11761,9 @@ class _SymbolAddresses {
           ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
               ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
       _library._realm_dart_http_request_callbackPtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Int32)>>
-      get realm_dart_init_core_logger =>
-          _library._realm_dart_init_core_loggerPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
+      get realm_dart_init_debug_logger =>
+          _library._realm_dart_init_debug_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_initializeDartApiDL =>
           _library._realm_dart_initializeDartApiDLPtr;

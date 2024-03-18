@@ -22,10 +22,7 @@
 #include <realm.h>
 #include <dart_api_dl.h>
 
-/**
- * Returns `true` if Realm Core logger was initialized.
- */
-RLM_API bool realm_dart_init_core_logger(realm_log_level_e level);
+RLM_API void realm_dart_init_debug_logger();
 
 RLM_API void realm_dart_attach_logger(Dart_Port port);
 
