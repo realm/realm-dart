@@ -1203,4 +1203,101 @@ void main() {
       expect(noMatchesQuery, isEmpty);
     });
   });
+
+  group('RealmValue.fromJson', () {
+    test('Throws with invalid json', () {
+      final json = '{ "This is": invalid }';
+
+      expect(() => RealmValue.fromJson(json), throwsA(isA<FormatException>()));
+    });
+
+    test('Constructs objects', () {
+      final json = '{ "1.1": { "2.1": "foo", "2.2": 5 }, "1.2": [ 1, 2, true ], "1.3": null }';
+
+      final result = RealmValue.fromJson(json);
+      expect(result.type, RealmValueType.map);
+
+      final o1 = result.asMap()['1.1'];
+      expect(o1, isNotNull);
+      expect(o1!.type, RealmValueType.map);
+      expect(o1.asMap()['2.1']!.value, 'foo');
+      expect(o1.asMap()['2.2']!.value, 5);
+
+      final o2 = result.asMap()['1.2'];
+      expect(o2, isNotNull);
+      expect(o2!.type, RealmValueType.list);
+      expect(o2.asList()[0].value, 1);
+      expect(o2.asList()[1].value, 2);
+      expect(o2.asList()[2].value, true);
+
+      final o3 = result.asMap()['1.3'];
+      expect(o3, isNotNull);
+      expect(o3!.type, RealmValueType.nullValue);
+      expect(o3.value, null);
+    });
+
+    test('Constructs arrays', () {
+      final json = '[ "foo", true, { "foo": "bar" }, [ 1, 2.2, 3 ]]';
+
+      final result = RealmValue.fromJson(json);
+      expect(result.type, RealmValueType.list);
+      expect(result.asList(), hasLength(4));
+      expect(result.asList()[0].value, "foo");
+      expect(result.asList()[1].value, true);
+
+      final map = result.asList()[2];
+      expect(map.type, RealmValueType.map);
+      expect(map.asMap()['foo']!.value, 'bar');
+
+      final list = result.asList()[3];
+      expect(list.type, RealmValueType.list);
+      expect(list.asList(), hasLength(3));
+      expect(list.asList()[0].value, 1);
+      expect(list.asList()[0].type, RealmValueType.int);
+      expect(list.asList()[1].value, 2.2);
+      expect(list.asList()[1].type, RealmValueType.double);
+      expect(list.asList()[2].value, 3);
+      expect(list.asList()[2].type, RealmValueType.int);
+    });
+
+    test('Constructs string', () {
+      final json = '"foo"';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.string);
+      expect(result.value, 'foo');
+    });
+
+    test('Constructs integers', () {
+      final json = '-123';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.int);
+      expect(result.value, -123);
+    });
+
+    test('Constructs doubles', () {
+      final json = '-123.456';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.double);
+      expect(result.value, -123.456);
+    });
+
+    test('Constructs bools', () {
+      final json = 'true';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.boolean);
+      expect(result.value, true);
+    });
+
+    test('Constructs nulls', () {
+      final json = 'null';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.nullValue);
+      expect(result.value, isNull);
+    });
+  });
 }
