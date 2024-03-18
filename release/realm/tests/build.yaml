@@ -1,5 +1,0 @@
-targets:
-  $default:
-    builders:
-      realm_generator:
-        enabled: true
