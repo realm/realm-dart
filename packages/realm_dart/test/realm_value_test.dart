@@ -345,27 +345,46 @@ void main() {
     expect(results.first.oneAny, realmValues.last);
   });
 
-  test('Set<RealmValue> with numeric values', () {
-    final realm = getMixedRealm();
-    final values = [RealmValue.int(0), RealmValue.double(0.0), RealmValue.bool(false), RealmValue.decimal128(Decimal128.zero), RealmValue.nullValue()];
-    final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(values));
+  group('Set<RealmValue>', () {
+    final numericValues = [RealmValue.int(0), RealmValue.double(0.0), RealmValue.bool(false), RealmValue.decimal128(Decimal128.zero), RealmValue.nullValue()];
 
-    expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
-  });
+    test('With numeric values', () {
+      final realm = getMixedRealm();
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(numericValues));
 
-  test('Set<RealmValue> removes duplicates', () {
-    final realm = getMixedRealm();
-    final values = [
-      RealmValue.int(1),
-      RealmValue.nullValue(),
-      RealmValue.double(2.0),
-      RealmValue.string('abc'),
-      RealmValue.nullValue(),
-      RealmValue.string('abc')
-    ];
-    final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(values));
+      expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
+    });
 
-    expect(obj.setOfAny, unorderedMatches([RealmValue.int(1), RealmValue.double(2.0), RealmValue.nullValue(), RealmValue.string('abc')]));
+    baasTest('[BaaS] With numeric values', (appConfig) async {
+      final differentiator = ObjectId();
+      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+
+      // Add object in first realm.
+      final id = ObjectId();
+      realm1.write(() => realm1.add(ObjectWithRealmValue(id, differentiator: differentiator))..setOfAny.addAll(numericValues));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check object values in second realm.
+      final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [id])[0];
+      expect(syncedObject.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
+    });
+
+    test('Removes duplicates', () {
+      final realm = getMixedRealm();
+      final values = [
+        RealmValue.int(1),
+        RealmValue.nullValue(),
+        RealmValue.double(2.0),
+        RealmValue.string('abc'),
+        RealmValue.nullValue(),
+        RealmValue.string('abc')
+      ];
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(values));
+
+      expect(obj.setOfAny, unorderedMatches([RealmValue.int(1), RealmValue.double(2.0), RealmValue.nullValue(), RealmValue.string('abc')]));
+    });
   });
 
   group('Collections in RealmValue', () {
