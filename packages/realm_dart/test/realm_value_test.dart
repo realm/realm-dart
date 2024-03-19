@@ -64,15 +64,21 @@ void main() {
 
       baasTest('[BaaS] Roundtrip ${x.runtimeType} $x', (appConfig) async {
         final differentiator = ObjectId();
-        final realm = await logInAndGetMixedRealm(appConfig, differentiator);
+        final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+        final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
 
-        final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(),
+        final id = ObjectId();
+        realm1.write(() => realm1.add(ObjectWithRealmValue(id,
           differentiator: differentiator,
           oneAny: RealmValue.from(x))));
 
-        expect(something.oneAny.value.runtimeType, x.runtimeType);
-        expect(something.oneAny.value, x);
-        expect(something.oneAny, RealmValue.from(x));
+        await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+        // Expect contains values of inserted object.
+        final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [id])[0];
+        expect(syncedObject.oneAny.value.runtimeType, x.runtimeType);
+        expect(syncedObject.oneAny.value, x);
+        expect(syncedObject.oneAny, RealmValue.from(x));
       });
 
       final queryArg = RealmValue.from(x);
@@ -104,15 +110,21 @@ void main() {
 
     baasTest('[BaaS] Roundtrip object', (appConfig) async {
       final differentiator = ObjectId();
-      final realm = await logInAndGetMixedRealm(appConfig, differentiator);
+      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
 
-      final stuff = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
-      final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(),
+      final parentId = ObjectId();
+      final child = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
+      realm1.write(() => realm1.add(ObjectWithRealmValue(parentId,
         differentiator: differentiator,
-        oneAny: RealmValue.from(stuff))));
+        oneAny: RealmValue.from(child))));
 
-      expect(something.oneAny.value.runtimeType, ObjectWithInt);
-      expect(something.oneAny.as<ObjectWithInt>().i, 123);
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Expect contains values of inserted object.
+      final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [parentId])[0];
+      expect(syncedObject.oneAny.value.runtimeType, ObjectWithInt);
+      expect(syncedObject.oneAny.as<ObjectWithInt>().i, 123);
     });
 
     test('Query @type == object', () {
