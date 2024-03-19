@@ -1,19 +1,5 @@
 ## vNext (TBD)
 
-### Enhancements
-* None
-
-### Fixed
-* None
-
-### Compatibility
-* Realm Studio: 13.0.0 or later.
-
-### Internal
-* Using Core x.y.z.
-
-## 2.0.0-beta.1 (2024-03-18)
-
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
 * Renamed `RealmValue.uint8List` constructor to `RealmValue.binary`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
