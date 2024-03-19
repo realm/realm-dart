@@ -34,6 +34,11 @@ void main() {
     return realm;
   }
 
+  Future<void> waitForSynchronization({required Realm uploadRealm, required Realm downloadRealm}) async {
+    await uploadRealm.syncSession.waitForUpload();
+    await downloadRealm.syncSession.waitForDownload();
+  }
+
   group('RealmValue', () {
     final primitiveValues = <Object?>[
       null,
@@ -251,6 +256,7 @@ void main() {
   });
 
   group('List<RealmValue>', () {
+    final differentiator = ObjectId();
     final now = DateTime.now().toUtc();
     final values = <Object?>[
       null,
@@ -258,8 +264,8 @@ void main() {
       'text',
       42,
       3.14,
-      ObjectWithRealmValue(ObjectId()),
-      ObjectWithInt(ObjectId()),
+      ObjectWithRealmValue(ObjectId(), differentiator: differentiator),
+      ObjectWithInt(ObjectId(), differentiator: differentiator),
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
@@ -271,6 +277,33 @@ void main() {
       final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
+    });
+
+    baasTest('[BaaS] Roundtrip', (appConfig) async {
+      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+      expect(realm1.all<ObjectWithRealmValue>().length, 0);
+      expect(realm2.all<ObjectWithRealmValue>().length, 0);
+
+      final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, manyAny: values.map(RealmValue.from));
+      realm1.write(() => realm1.add(object));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Expect contains values of inserted object.
+      final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object.id])[0];
+      expect(syncedObject.manyAny.length, values.length);
+      expect(syncedObject.manyAny[0].value, values[0]);
+
+      // Add a new item.
+      const newValue = 'new value';
+      realm2.write(() => syncedObject.manyAny.add(RealmValue.from(newValue)));
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Expect contains new item.
+      expect(object.manyAny.length, values.length + 1);
+      expect(object.manyAny.last.value, newValue);
     });
   });
 
