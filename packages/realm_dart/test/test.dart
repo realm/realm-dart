@@ -10,6 +10,7 @@ import 'dart:typed_data';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
+import 'package:realm_dart/src/logging.dart';
 import 'package:test/test.dart' hide test;
 import 'package:test/test.dart' as testing;
 import 'package:realm_dart/realm.dart';
@@ -415,11 +416,10 @@ void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
 
-    Realm.logger = Logger.detached('test run')
-      ..level = Level.ALL
-      ..onRecord.listen((record) {
-        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
-      });
+    Realm.logger.setLogLevel(LogLevel.detail);
+    Realm.logger.onRecord.listen((record) {
+      testing.printOnFailure('${record.category} ${record.level.name}: ${record.message}');
+    });
 
     // Enable this to print platform info, including current PID
     _printPlatformInfo();
@@ -553,7 +553,7 @@ Future<void> tryDeleteRealm(String path) async {
 
       return;
     } catch (e) {
-      Realm.logger.info('Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
+      Realm.logger.log(LogLevel.info, 'Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
   }

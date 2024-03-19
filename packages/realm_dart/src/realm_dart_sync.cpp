@@ -50,14 +50,6 @@ RLM_API void realm_dart_http_request_callback(realm_userdata_t userdata, realm_h
     });
 }
 
-RLM_API void realm_dart_sync_client_log_callback(realm_userdata_t userdata, realm_log_level_e level, const char* message)
-{
-    auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
-    ud->scheduler->invoke([ud, level, message = std::string(message)]() {
-        (reinterpret_cast<realm_log_func_t>(ud->dart_callback))(ud->handle, level, message.c_str());
-    });
-}
-
 RLM_API void realm_dart_sync_error_handler_callback(realm_userdata_t userdata, realm_sync_session_t* session, realm_sync_error_t error)
 {
     // the pointers in error are to stack values, we need to make copies and move them into the scheduler invocation

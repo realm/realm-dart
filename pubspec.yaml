@@ -3,5 +3,5 @@ name: my_project_workspace
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dev_dependencies:
-  melos: ^4.1.0
+  melos: ^5.1.0
 
