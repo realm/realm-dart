@@ -24,11 +24,7 @@ void main() {
   }
 
   Future<Realm> logInAndGetMixedRealm(AppConfiguration appConfig, ObjectId differentiator) async {
-    final app = App(appConfig);
-    final user = await getAnonymousUser(app);
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-    final realm = getRealm(config);
-
+    final realm = await getIntegrationRealm(appConfig: appConfig, differentiator: differentiator);
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<ObjectWithRealmValue>(r'differentiator = $0', [differentiator]));
       mutableSubscriptions.add(realm.query<ObjectWithInt>(r'differentiator = $0', [differentiator]));
