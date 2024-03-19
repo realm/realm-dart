@@ -3681,11 +3681,11 @@ class Symmetric extends _Symmetric
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class AnythingGoesSync extends _AnythingGoesSync
+class ObjectWithRealmValue extends _ObjectWithRealmValue
     with RealmEntity, RealmObjectBase, RealmObject {
-  AnythingGoesSync(
-    ObjectId id,
-    ObjectId differentiator, {
+  ObjectWithRealmValue(
+    ObjectId id, {
+    ObjectId? differentiator,
     RealmValue oneAny = const RealmValue.nullValue(),
     Iterable<RealmValue> manyAny = const [],
     Map<String, RealmValue> dictOfAny = const {},
@@ -3702,7 +3702,7 @@ class AnythingGoesSync extends _AnythingGoesSync
         this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
   }
 
-  AnythingGoesSync._();
+  ObjectWithRealmValue._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -3710,10 +3710,10 @@ class AnythingGoesSync extends _AnythingGoesSync
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  ObjectId get differentiator =>
-      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId;
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
   @override
-  set differentiator(ObjectId value) =>
+  set differentiator(ObjectId? value) =>
       RealmObjectBase.set(this, 'differentiator', value);
 
   @override
@@ -3745,12 +3745,12 @@ class AnythingGoesSync extends _AnythingGoesSync
       throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<AnythingGoesSync>> get changes =>
-      RealmObjectBase.getChanges<AnythingGoesSync>(this);
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithRealmValue>(this);
 
   @override
-  AnythingGoesSync freeze() =>
-      RealmObjectBase.freezeObject<AnythingGoesSync>(this);
+  ObjectWithRealmValue freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithRealmValue>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -3763,8 +3763,8 @@ class AnythingGoesSync extends _AnythingGoesSync
     };
   }
 
-  static EJsonValue _toEJson(AnythingGoesSync value) => value.toEJson();
-  static AnythingGoesSync _fromEJson(EJsonValue ejson) {
+  static EJsonValue _toEJson(ObjectWithRealmValue value) => value.toEJson();
+  static ObjectWithRealmValue _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         '_id': EJsonValue id,
@@ -3774,9 +3774,9 @@ class AnythingGoesSync extends _AnythingGoesSync
         'dictOfAny': EJsonValue dictOfAny,
         'setOfAny': EJsonValue setOfAny,
       } =>
-        AnythingGoesSync(
+        ObjectWithRealmValue(
           fromEJson(id),
-          fromEJson(differentiator),
+          differentiator: fromEJson(differentiator),
           oneAny: fromEJson(oneAny),
           manyAny: fromEJson(manyAny),
           dictOfAny: fromEJson(dictOfAny),
@@ -3787,13 +3787,14 @@ class AnythingGoesSync extends _AnythingGoesSync
   }
 
   static final schema = () {
-    RealmObjectBase.registerFactory(AnythingGoesSync._);
+    RealmObjectBase.registerFactory(ObjectWithRealmValue._);
     register(_toEJson, _fromEJson);
     return SchemaObject(
-        ObjectType.realmObject, AnythingGoesSync, 'AnythingGoesSync', [
+        ObjectType.realmObject, ObjectWithRealmValue, 'ObjectWithRealmValue', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
-      SchemaProperty('differentiator', RealmPropertyType.objectid),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
       SchemaProperty('oneAny', RealmPropertyType.mixed,
           optional: true, indexType: RealmIndexType.regular),
       SchemaProperty('manyAny', RealmPropertyType.mixed,
@@ -3809,17 +3810,17 @@ class AnythingGoesSync extends _AnythingGoesSync
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class StuffSync extends _StuffSync
+class ObjectWithInt extends _ObjectWithInt
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  StuffSync(
-    ObjectId id,
-    ObjectId differentiator, {
+  ObjectWithInt(
+    ObjectId id, {
+    ObjectId? differentiator,
     int i = 42,
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<StuffSync>({
+      _defaultsSet = RealmObjectBase.setDefaults<ObjectWithInt>({
         'i': 42,
       });
     }
@@ -3828,7 +3829,7 @@ class StuffSync extends _StuffSync
     RealmObjectBase.set(this, 'i', i);
   }
 
-  StuffSync._();
+  ObjectWithInt._();
 
   @override
   ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
@@ -3836,10 +3837,10 @@ class StuffSync extends _StuffSync
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  ObjectId get differentiator =>
-      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId;
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
   @override
-  set differentiator(ObjectId value) =>
+  set differentiator(ObjectId? value) =>
       RealmObjectBase.set(this, 'differentiator', value);
 
   @override
@@ -3848,11 +3849,11 @@ class StuffSync extends _StuffSync
   set i(int value) => RealmObjectBase.set(this, 'i', value);
 
   @override
-  Stream<RealmObjectChanges<StuffSync>> get changes =>
-      RealmObjectBase.getChanges<StuffSync>(this);
+  Stream<RealmObjectChanges<ObjectWithInt>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithInt>(this);
 
   @override
-  StuffSync freeze() => RealmObjectBase.freezeObject<StuffSync>(this);
+  ObjectWithInt freeze() => RealmObjectBase.freezeObject<ObjectWithInt>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -3862,17 +3863,17 @@ class StuffSync extends _StuffSync
     };
   }
 
-  static EJsonValue _toEJson(StuffSync value) => value.toEJson();
-  static StuffSync _fromEJson(EJsonValue ejson) {
+  static EJsonValue _toEJson(ObjectWithInt value) => value.toEJson();
+  static ObjectWithInt _fromEJson(EJsonValue ejson) {
     return switch (ejson) {
       {
         '_id': EJsonValue id,
         'differentiator': EJsonValue differentiator,
         'i': EJsonValue i,
       } =>
-        StuffSync(
+        ObjectWithInt(
           fromEJson(id),
-          fromEJson(differentiator),
+          differentiator: fromEJson(differentiator),
           i: fromEJson(i),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -3880,12 +3881,14 @@ class StuffSync extends _StuffSync
   }
 
   static final schema = () {
-    RealmObjectBase.registerFactory(StuffSync._);
+    RealmObjectBase.registerFactory(ObjectWithInt._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, StuffSync, 'StuffSync', [
+    return SchemaObject(
+        ObjectType.realmObject, ObjectWithInt, 'ObjectWithInt', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
-      SchemaProperty('differentiator', RealmPropertyType.objectid),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
       SchemaProperty('i', RealmPropertyType.int),
     ]);
   }();

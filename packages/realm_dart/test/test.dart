@@ -376,11 +376,11 @@ class _Symmetric {
 }
 
 @RealmModel()
-class _AnythingGoesSync {
+class _ObjectWithRealmValue {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  late ObjectId differentiator;
+  late ObjectId? differentiator;
 
   @Indexed()
   late RealmValue oneAny;
@@ -390,11 +390,11 @@ class _AnythingGoesSync {
 }
 
 @RealmModel()
-class _StuffSync {
+class _ObjectWithInt {
   @PrimaryKey()
   @MapTo('_id')
   late ObjectId id;
-  late ObjectId differentiator;
+  late ObjectId? differentiator;
 
   int i = 42;
 }
@@ -762,8 +762,8 @@ List<SchemaObject> getSyncSchema() {
     Asymmetric.schema,
     Embedded.schema,
     Symmetric.schema,
-    AnythingGoesSync.schema,
-    StuffSync.schema,
+    ObjectWithRealmValue.schema,
+    ObjectWithInt.schema,
   ];
 }
 

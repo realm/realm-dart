@@ -15,25 +15,11 @@ class _TuckedIn {
   int x = 42;
 }
 
-@RealmModel()
-class _AnythingGoes {
-  @Indexed()
-  late RealmValue oneAny;
-  late List<RealmValue> manyAny;
-  late Map<String, RealmValue> dictOfAny;
-  late Set<RealmValue> setOfAny;
-}
-
-@RealmModel()
-class _Stuff {
-  int i = 42;
-}
-
 void main() {
   setupTests();
 
   Realm getMixedRealm() {
-    final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+    final config = Configuration.local([ObjectWithRealmValue.schema, ObjectWithInt.schema, TuckedIn.schema]);
     return getRealm(config);
   }
 
@@ -44,8 +30,8 @@ void main() {
     final realm = getRealm(config);
 
     realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<AnythingGoesSync>(r'differentiator = $0', [differentiator]));
-      mutableSubscriptions.add(realm.query<StuffSync>(r'differentiator = $0', [differentiator]));
+      mutableSubscriptions.add(realm.query<ObjectWithRealmValue>(r'differentiator = $0', [differentiator]));
+      mutableSubscriptions.add(realm.query<ObjectWithInt>(r'differentiator = $0', [differentiator]));
     });
     await realm.subscriptions.waitForSynchronization();
 
@@ -69,17 +55,20 @@ void main() {
     for (final x in primitiveValues) {
       test('Roundtrip ${x.runtimeType} $x', () {
         final realm = getMixedRealm();
-        final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
+        final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(x))));
         expect(something.oneAny.value.runtimeType, x.runtimeType);
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
       });
 
-      baasTest('BaaS roundtrip ${x.runtimeType} $x', (appConfig) async {
+      baasTest('[BaaS] Roundtrip ${x.runtimeType} $x', (appConfig) async {
         final differentiator = ObjectId();
         final realm = await logInAndGetMixedRealm(appConfig, differentiator);
 
-        final something = realm.write(() => realm.add(AnythingGoesSync(ObjectId(), differentiator, oneAny: RealmValue.from(x))));
+        final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(),
+          differentiator: differentiator,
+          oneAny: RealmValue.from(x))));
+
         expect(something.oneAny.value.runtimeType, x.runtimeType);
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
@@ -91,12 +80,12 @@ void main() {
         realm.write(() {
           // Add all values, we're going to query for just one of them.
           for (final v in primitiveValues) {
-            realm.add(AnythingGoes(oneAny: RealmValue.from(v)));
+            realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(v)));
           }
-          realm.add(AnythingGoes(oneAny: RealmValue.from(Stuff())));
+          realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(ObjectWithInt(ObjectId()))));
         });
 
-        final matches = realm.query<AnythingGoes>(r'oneAny.@type == $0', [queryArg.type]);
+        final matches = realm.query<ObjectWithRealmValue>(r'oneAny.@type == $0', [queryArg.type]);
         expect(matches.length, 1);
         expect(matches.single.oneAny.value, x);
         expect(matches.single.oneAny.type, queryArg.type);
@@ -105,52 +94,55 @@ void main() {
     }
 
     test('Roundtrip object', () {
-      final stuff = Stuff(i: 123);
+      final stuff = ObjectWithInt(ObjectId(), i: 123);
       final realm = getMixedRealm();
-      final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(stuff))));
-      expect(something.oneAny.value.runtimeType, Stuff);
-      expect(something.oneAny.as<Stuff>().i, 123);
+      final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(stuff))));
+      expect(something.oneAny.value.runtimeType, ObjectWithInt);
+      expect(something.oneAny.as<ObjectWithInt>().i, 123);
     });
 
-    baasTest('BaaS roundtrip object', (appConfig) async {
+    baasTest('[BaaS] Roundtrip object', (appConfig) async {
       final differentiator = ObjectId();
       final realm = await logInAndGetMixedRealm(appConfig, differentiator);
 
-      final stuff = StuffSync(ObjectId(), differentiator, i: 123);
-      final something = realm.write(() => realm.add(AnythingGoesSync(ObjectId(), differentiator, oneAny: RealmValue.from(stuff))));
-      expect(something.oneAny.value.runtimeType, StuffSync);
-      expect(something.oneAny.as<StuffSync>().i, 123);
+      final stuff = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
+      final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: RealmValue.from(stuff))));
+
+      expect(something.oneAny.value.runtimeType, ObjectWithInt);
+      expect(something.oneAny.as<ObjectWithInt>().i, 123);
     });
 
     test('Query @type == object', () {
       final realm = getMixedRealm();
       realm.write(() {
         for (final v in primitiveValues) {
-          realm.add(AnythingGoes(oneAny: RealmValue.from(v)));
+          realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(v)));
         }
 
-        realm.add(AnythingGoes(oneAny: RealmValue.from(Stuff(i: 123))));
+        realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(ObjectWithInt(ObjectId(), i: 123))));
       });
 
-      final matches = realm.query<AnythingGoes>(r'oneAny.@type == $0', [RealmValueType.object]);
+      final matches = realm.query<ObjectWithRealmValue>(r'oneAny.@type == $0', [RealmValueType.object]);
       expect(matches.length, 1);
-      expect(matches.single.oneAny.as<Stuff>().i, 123);
+      expect(matches.single.oneAny.as<ObjectWithInt>().i, 123);
       expect(matches.single.oneAny.type, RealmValueType.object);
     });
 
     test('Illegal value', () {
       final realm = getMixedRealm();
-      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(realm)))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(realm)))), throwsArgumentError);
     });
 
     test('Embedded object not allowed in RealmValue', () {
       final realm = getMixedRealm();
-      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
     });
 
     for (final x in primitiveValues) {
       test('Switch $x', () {
-        final something = AnythingGoes(oneAny: RealmValue.from(x));
+        final something = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
 
         switch (something.oneAny.type) {
@@ -170,7 +162,7 @@ void main() {
             expect(value, isA<double>());
             break;
           case RealmValueType.object:
-            expect(value is AnythingGoes || value is Stuff, true);
+            expect(value is ObjectWithRealmValue || value is ObjectWithInt, true);
             break;
           case RealmValueType.dateTime:
             expect(value, isA<DateTime>());
@@ -196,7 +188,7 @@ void main() {
 
     for (final x in primitiveValues) {
       test('If-is $x', () {
-        final something = AnythingGoes(oneAny: RealmValue.from(x));
+        final something = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
         final type = something.oneAny.type;
         if (value == null) {
@@ -219,9 +211,9 @@ void main() {
           expect(type, RealmValueType.decimal);
         } else if (value is Uint8List) {
           expect(type, RealmValueType.binary);
-        } else if (value is AnythingGoes) {
+        } else if (value is ObjectWithRealmValue) {
           expect(type, RealmValueType.object);
-        } else if (value is Stuff) {
+        } else if (value is ObjectWithInt) {
           expect(type, RealmValueType.object);
         } else {
           fail('$value not handled correctly in if-is');
@@ -231,21 +223,22 @@ void main() {
 
     test('Unknown schema for RealmValue.value after bad migration', () {
       {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], schemaVersion: 0);
+        final config = Configuration.local([ObjectWithRealmValue.schema, ObjectWithInt.schema], schemaVersion: 0);
         Realm.deleteRealm(config.path);
         final realm = Realm(config);
 
-        final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.realmObject(Stuff()))));
+        final object = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.realmObject(ObjectWithInt(ObjectId())));
+        final something = realm.write(() => realm.add(object));
         expect(something.oneAny, isA<RealmValue>());
-        expect(something.oneAny.value, isA<Stuff>());
-        expect(something.oneAny.as<Stuff>().i, 42);
+        expect(something.oneAny.value, isA<ObjectWithInt>());
+        expect(something.oneAny.as<ObjectWithInt>().i, 42);
 
         realm.close();
       }
 
       // From here on Stuff is unknown
       final config = Configuration.local(
-        [AnythingGoes.schema],
+        [ObjectWithRealmValue.schema],
         schemaVersion: 1,
         migrationCallback: (migration, oldSchemaVersion) {
           // forget to handle RealmValue pointing to Stuff
@@ -253,7 +246,7 @@ void main() {
       );
       final realm = getRealm(config);
 
-      final something = realm.all<AnythingGoes>()[0];
+      final something = realm.all<ObjectWithRealmValue>()[0];
       // something.oneAny points to a Stuff, but that is not known, so returns null.
       // A better option would be to return a DynamicRealmObject, but c-api does
       // not currently allow this.
@@ -269,8 +262,8 @@ void main() {
       'text',
       42,
       3.14,
-      AnythingGoes(),
-      Stuff(),
+      ObjectWithRealmValue(ObjectId()),
+      ObjectWithInt(ObjectId()),
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
@@ -279,7 +272,7 @@ void main() {
 
     test('Roundtrip', () {
       final realm = getMixedRealm();
-      final something = realm.write(() => realm.add(AnythingGoes(manyAny: values.map(RealmValue.from))));
+      final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
     });
@@ -293,8 +286,8 @@ void main() {
       'text',
       42,
       3.14,
-      AnythingGoes(),
-      Stuff(),
+      ObjectWithRealmValue(ObjectId()),
+      ObjectWithInt(ObjectId()),
       now,
       ObjectId.fromTimestamp(now),
       Uuid.v4(),
@@ -302,19 +295,19 @@ void main() {
     ];
     final realm = getMixedRealm();
     final realmValues = values.map(RealmValue.from);
-    realm.write(() => realm.add(AnythingGoes(manyAny: realmValues, oneAny: realmValues.last)));
+    realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: realmValues, oneAny: realmValues.last)));
 
-    var results = realm.query<AnythingGoes>("manyAny IN \$0", [values]);
+    var results = realm.query<ObjectWithRealmValue>("manyAny IN \$0", [values]);
     expect(results.first.manyAny, realmValues);
 
-    results = realm.query<AnythingGoes>("oneAny IN \$0", [values]);
+    results = realm.query<ObjectWithRealmValue>("oneAny IN \$0", [values]);
     expect(results.first.oneAny, realmValues.last);
   });
 
   test('Set<RealmValue> with numeric values', () {
     final realm = getMixedRealm();
     final values = [RealmValue.int(0), RealmValue.double(0.0), RealmValue.bool(false), RealmValue.decimal128(Decimal128.zero), RealmValue.nullValue()];
-    final obj = realm.write(() => realm.add(AnythingGoes())..setOfAny.addAll(values));
+    final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(values));
 
     expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
   });
@@ -329,7 +322,7 @@ void main() {
       RealmValue.nullValue(),
       RealmValue.string('abc')
     ];
-    final obj = realm.write(() => realm.add(AnythingGoes())..setOfAny.addAll(values));
+    final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(values));
 
     expect(obj.setOfAny, unorderedMatches([RealmValue.int(1), RealmValue.double(2.0), RealmValue.nullValue(), RealmValue.string('abc')]));
   });
@@ -367,7 +360,7 @@ void main() {
       final list = RealmValue.list([RealmValue.from(5)]);
       final map = RealmValue.map({'a': RealmValue.from('abc')});
 
-      final obj = AnythingGoes();
+      final obj = ObjectWithRealmValue(ObjectId());
       expect(() => obj.setOfAny.add(list), throws<RealmStateError>());
       expect(() => obj.setOfAny.add(map), throws<RealmStateError>());
 
@@ -383,7 +376,11 @@ void main() {
       final realm = getMixedRealm();
       final list = RealmValue.from([5]);
 
-      final obj = AnythingGoes(oneAny: list, manyAny: [list], dictOfAny: {'value': list});
+      final obj = ObjectWithRealmValue(ObjectId(),
+        oneAny: list,
+        manyAny: [list],
+        dictOfAny: {'value': list});
+
       expect(obj.oneAny.value, isA<List<RealmValue>>());
       expect(obj.oneAny.asList().length, 1);
       expect(obj.oneAny.asList().single.value, 5);
@@ -400,7 +397,7 @@ void main() {
         realm.add(obj);
       });
 
-      final foundObj = realm.all<AnythingGoes>().single;
+      final foundObj = realm.all<ObjectWithRealmValue>().single;
       expect(foundObj.oneAny.value, isA<List<RealmValue>>());
       expect(foundObj.oneAny.asList().length, 1);
       expect(foundObj.oneAny.asList()[0].value, 5);
@@ -428,7 +425,7 @@ void main() {
       final realm = getMixedRealm();
       final map = RealmValue.from({'foo': 5});
 
-      final obj = AnythingGoes(oneAny: map, manyAny: [map], dictOfAny: {'value': map});
+      final obj = ObjectWithRealmValue(ObjectId(), oneAny: map, manyAny: [map], dictOfAny: {'value': map});
       expect(obj.oneAny.value, isA<Map<String, RealmValue>>());
       expect(obj.oneAny.asMap().length, 1);
       expect(obj.oneAny.asMap()['foo']!.value, 5);
@@ -445,7 +442,7 @@ void main() {
         realm.add(obj);
       });
 
-      final foundObj = realm.all<AnythingGoes>().single;
+      final foundObj = realm.all<ObjectWithRealmValue>().single;
       expect(foundObj.oneAny.value, isA<Map<String, RealmValue>>());
       expect(foundObj.oneAny.asMap().length, 1);
       expect(foundObj.oneAny.asMap()['foo']!.value, 5);
@@ -474,10 +471,10 @@ void main() {
       RealmValue persistIfNecessary(RealmValue rv, Realm realm) {
         if (isManaged) {
           realm.write(() {
-            realm.add(AnythingGoes(oneAny: rv));
+            realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv));
           });
 
-          return realm.all<AnythingGoes>().first.oneAny;
+          return realm.all<ObjectWithRealmValue>().first.oneAny;
         }
 
         return rv;
@@ -504,7 +501,7 @@ void main() {
           ObjectId.fromHexString('5f63e882536de46d71877979'),
           Uuid.fromString('3809d6d9-7618-4b3d-8044-2aa35fd02f31'),
           Uint8List.fromList([1, 2, 0]),
-          Stuff(i: 123),
+          ObjectWithInt(ObjectId(), i: 123),
           [5, 'abc'],
           {'int': -10, 'string': 'abc'}
         ];
@@ -522,9 +519,9 @@ void main() {
         }
 
         final storedObj = foundList[primitiveCount];
-        expect(storedObj.value, isA<Stuff>());
-        expect(storedObj.as<Stuff>().isManaged, isManaged);
-        expect(storedObj.as<Stuff>().i, 123);
+        expect(storedObj.value, isA<ObjectWithInt>());
+        expect(storedObj.as<ObjectWithInt>().isManaged, isManaged);
+        expect(storedObj.as<ObjectWithInt>().i, 123);
 
         final storedList = foundList[primitiveCount + 1];
         expectMatches(storedList, [5, 'abc']);
@@ -536,7 +533,7 @@ void main() {
 
       test('List when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(oneAny: RealmValue.from([true, 5.3]));
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from([true, 5.3]));
         if (isManaged) {
           realm.write(() => realm.add(obj));
         }
@@ -566,7 +563,7 @@ void main() {
           'primitive_objectId': ObjectId.fromHexString('5f63e882536de46d71877979'),
           'primitive_uuid': Uuid.fromString('3809d6d9-7618-4b3d-8044-2aa35fd02f31'),
           'primitive_binary': Uint8List.fromList([1, 2, 0]),
-          'object': Stuff(i: 123),
+          'object': ObjectWithInt(ObjectId(), i: 123),
           'list': [5, 'abc'],
           'map': {'int': -10, 'string': 'abc'}
         };
@@ -582,9 +579,9 @@ void main() {
         }
 
         final storedObj = foundMap['object']!;
-        expect(storedObj.value, isA<Stuff>());
-        expect(storedObj.as<Stuff>().isManaged, isManaged);
-        expect(storedObj.as<Stuff>().i, 123);
+        expect(storedObj.value, isA<ObjectWithInt>());
+        expect(storedObj.as<ObjectWithInt>().isManaged, isManaged);
+        expect(storedObj.as<ObjectWithInt>().i, 123);
 
         final storedList = foundMap['list']!;
         expectMatches(storedList, [5, 'abc']);
@@ -595,7 +592,7 @@ void main() {
 
       test('Map when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
         if (isManaged) {
           realm.write(() => realm.add(obj));
         }
@@ -615,7 +612,7 @@ void main() {
 
       test('Map inside list when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           true,
           {'foo': 'bar'},
@@ -661,7 +658,7 @@ void main() {
 
       test('Map inside map when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from({
           'a': 5,
           'b': {'foo': 'bar'}
@@ -704,7 +701,7 @@ void main() {
 
       test('List inside list when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           true,
           ['foo'],
@@ -750,7 +747,7 @@ void main() {
 
       test('List inside map when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from({
           'a': 5,
           'b': ['foo']
@@ -863,7 +860,7 @@ void main() {
       final realm = getMixedRealm();
       final originalList = [1];
       final managedValue = realm.write(() {
-        return realm.add(AnythingGoes(oneAny: RealmValue.from(originalList))).oneAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalList))).oneAny;
       });
 
       final unmanagedValue = RealmValue.from(originalList);
@@ -890,7 +887,7 @@ void main() {
       final realm = getMixedRealm();
       final originalList = [1];
       final managedList = realm.write(() {
-        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalList)])).manyAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), manyAny: [RealmValue.from(originalList)])).manyAny;
       });
 
       final unmanagedList = [RealmValue.from(originalList)];
@@ -917,7 +914,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'foo': 1};
       final managedList = realm.write(() {
-        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalMap)])).manyAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), manyAny: [RealmValue.from(originalMap)])).manyAny;
       });
 
       final unmanagedList = [RealmValue.from(originalMap)];
@@ -944,7 +941,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'foo': 'bar'};
       final managedValue = realm.write(() {
-        return realm.add(AnythingGoes(oneAny: RealmValue.from(originalMap))).oneAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalMap))).oneAny;
       });
 
       final unmanagedValue = RealmValue.from(originalMap);
@@ -971,7 +968,7 @@ void main() {
       final realm = getMixedRealm();
       final originalList = [1];
       final managedMap = realm.write(() {
-        return realm.add(AnythingGoes(dictOfAny: {'foo': RealmValue.from(originalList)})).dictOfAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), dictOfAny: {'foo': RealmValue.from(originalList)})).dictOfAny;
       });
 
       final unmanagedMap = {'foo': RealmValue.from(originalList)};
@@ -995,7 +992,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'bar': 1};
       final managedMap = realm.write(() {
-        return realm.add(AnythingGoes(dictOfAny: {'foo': RealmValue.from(originalMap)})).dictOfAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), dictOfAny: {'foo': RealmValue.from(originalMap)})).dictOfAny;
       });
 
       final unmanagedMap = {'foo': RealmValue.from(originalMap)};
@@ -1019,7 +1016,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'foo': 1};
       final managedList = realm.write(() {
-        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalMap)])).manyAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), manyAny: [RealmValue.from(originalMap)])).manyAny;
       });
 
       final unmanagedList = [RealmValue.from(originalMap)];
@@ -1052,7 +1049,7 @@ void main() {
       final list = [RealmValue.bool(true), RealmValue.string('abc')];
       final rv = RealmValue.list(list);
       final realm = getMixedRealm();
-      final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv)));
       expect(identical(obj.oneAny.asList(), list), false);
     });
 
@@ -1066,13 +1063,13 @@ void main() {
       final map = {'bool': RealmValue.bool(true), 'str': RealmValue.string('abc')};
       final rv = RealmValue.map(map);
       final realm = getMixedRealm();
-      final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv)));
       expect(identical(obj.oneAny.asMap(), map), false);
     });
 
     test('Notifications', () async {
       final realm = getMixedRealm();
-      final obj = AnythingGoes(
+      final obj = ObjectWithRealmValue(ObjectId(),
           oneAny: RealmValue.from([
         5,
         {
@@ -1085,7 +1082,7 @@ void main() {
         realm.add(obj);
       });
 
-      final List<RealmObjectChanges<AnythingGoes>> parentChanges = [];
+      final List<RealmObjectChanges<ObjectWithRealmValue>> parentChanges = [];
       final subscription = obj.changes.listen((event) {
         parentChanges.add(event);
       });
@@ -1186,25 +1183,25 @@ void main() {
     test('Queries', () {
       final realm = getMixedRealm();
 
-      late AnythingGoes first;
-      late AnythingGoes second;
-      late AnythingGoes third;
+      late ObjectWithRealmValue first;
+      late ObjectWithRealmValue second;
+      late ObjectWithRealmValue third;
 
       realm.write(() {
-        first = realm.add(AnythingGoes(
+        first = realm.add(ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           1,
           'a',
           {'foo': 'bar'}
         ])));
 
-        second = realm.add(AnythingGoes(
+        second = realm.add(ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           2,
           {'foo': 'baz'}
         ])));
 
-        third = realm.add(AnythingGoes(
+        third = realm.add(ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           3,
           'c',
@@ -1216,25 +1213,25 @@ void main() {
         ])));
       });
 
-      final listElementQuery = realm.query<AnythingGoes>('oneAny[0] < 3');
+      final listElementQuery = realm.query<ObjectWithRealmValue>('oneAny[0] < 3');
       expect(listElementQuery, unorderedMatches([first, second]));
 
-      final listLengthQuery = realm.query<AnythingGoes>('oneAny.@size > 3');
+      final listLengthQuery = realm.query<ObjectWithRealmValue>('oneAny.@size > 3');
       expect(listLengthQuery, unorderedMatches([third]));
 
-      final listStarQuery = realm.query<AnythingGoes>('oneAny[*] == 3.4');
+      final listStarQuery = realm.query<ObjectWithRealmValue>('oneAny[*] == 3.4');
       expect(listStarQuery, unorderedMatches([third]));
 
-      final typeQuery = realm.query<AnythingGoes>("oneAny[2].@type == 'dictionary'");
+      final typeQuery = realm.query<ObjectWithRealmValue>("oneAny[2].@type == 'dictionary'");
       expect(typeQuery, unorderedMatches([first, third]));
 
-      final dictionaryInListQuery = realm.query<AnythingGoes>("oneAny[*].foo BEGINSWITH 'ba'");
+      final dictionaryInListQuery = realm.query<ObjectWithRealmValue>("oneAny[*].foo BEGINSWITH 'ba'");
       expect(dictionaryInListQuery, unorderedMatches([first, second]));
 
-      final dictionaryKeysQuery = realm.query<AnythingGoes>("oneAny[*].foo.@keys == 'child'");
+      final dictionaryKeysQuery = realm.query<ObjectWithRealmValue>("oneAny[*].foo.@keys == 'child'");
       expect(dictionaryKeysQuery, unorderedMatches([third]));
 
-      final noMatchesQuery = realm.query<AnythingGoes>("oneAny[*].bar == 9");
+      final noMatchesQuery = realm.query<ObjectWithRealmValue>("oneAny[*].bar == 9");
       expect(noMatchesQuery, isEmpty);
     });
   });
