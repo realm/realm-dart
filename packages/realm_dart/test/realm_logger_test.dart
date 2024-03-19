@@ -90,10 +90,11 @@ void main() {
     Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
 
     final logger = Logger.detached('Test');
-    Realm.logger.onRecord.forEach((r) => logger.log(r.level.level, r.message));
+    final sub = Realm.logger.onRecord.listen((r) => logger.log(r.level.level, r.message));
     logger.level = Level.ALL;
 
-    expectLater(logger.onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
+    expectLater(logger.onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')))
+        .whenComplete(sub.cancel);
 
     Realm.logger.log(RealmLogLevel.error, 'error');
   });
@@ -102,13 +103,24 @@ void main() {
     Realm.logger.setLogLevel(RealmLogLevel.off);
     Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
 
+    final old = hierarchicalLoggingEnabled;
     hierarchicalLoggingEnabled = true;
-    Realm.logger.onRecord.forEach((r) => Logger(r.category.toString()).log(r.level.level, r.message));
+
+    final sub = Realm.logger.onRecord.listen((r) => Logger(r.category.toString()).log(r.level.level, r.message));
     Logger.root.level = Level.ALL;
 
     expectLater(Logger('Realm').onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
     expectLater(
-        Logger('Realm.SDK').onRecord, emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
+      Logger('Realm.SDK').onRecord,
+      emits(isA<LogRecord>().having((r) => r.level, 'level', Level.SEVERE).having(
+            (r) => r.message,
+            'message',
+            'error',
+          )),
+    ).whenComplete(() {
+      sub.cancel();
+      hierarchicalLoggingEnabled = old;
+    });
 
     Realm.logger.log(RealmLogLevel.error, 'error', category: RealmLogCategory.realm.sdk);
   });
