@@ -3070,6 +3070,15 @@ class _RealmCore {
       _realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
     });
   }
+
+  List<String> getAllCategoryNames() {
+    return using((arena) {
+      final count = _realmLib.realm_get_category_names(0, nullptr);
+      final out_values = arena<Pointer<Char>>(count);
+      _realmLib.realm_get_category_names(count, out_values);
+      return [for (int i = 0; i < count; i++) out_values[i].cast<Utf8>().toDartString()];
+    });
+  }
 }
 
 class LastError {

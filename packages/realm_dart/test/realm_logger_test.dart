@@ -5,19 +5,12 @@ import 'dart:async';
 import 'dart:isolate';
 import 'package:logging/logging.dart';
 import 'package:realm_dart/src/logging.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-const logToValues = [
-  RealmLogLevel.trace,
-  RealmLogLevel.debug,
-  RealmLogLevel.detail,
-  RealmLogLevel.info,
-  RealmLogLevel.warn,
-  RealmLogLevel.error,
-  RealmLogLevel.fatal,
-];
+final logToValues = RealmLogLevel.values.where((l) => ![RealmLogLevel.all, RealmLogLevel.off].contains(l));
 
 void main() {
   setupTests();
@@ -123,5 +116,22 @@ void main() {
     });
 
     Realm.logger.log(RealmLogLevel.error, 'error', category: RealmLogCategory.realm.sdk);
+  });
+
+  group('Category mapping', () {
+    final nativeCategoryNames= realmCore.getAllCategoryNames();
+    for (final name in nativeCategoryNames) {
+      test('$name can parse', () {
+        expect(() => RealmLogCategory.fromString(name), returnsNormally);
+        final category = RealmLogCategory.fromString(name);
+        expect(category, isA<RealmLogCategory>().having((c) => c.toString(), 'toString()', name));
+      });
+    }
+
+    for(final category in RealmLogCategory.values) {
+      test('$category known by native', () {
+        expect(nativeCategoryNames, contains(category.toString()));
+      });
+    }
   });
 }
