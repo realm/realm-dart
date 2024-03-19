@@ -40,8 +40,8 @@ sealed class RealmLogCategory {
   bool contains(RealmLogCategory category) {
     var current = category;
     while (current != this) {
-      if (current == realm) {
-        // root
+      final isRoot = current == realm;
+      if (isRoot) {
         return false;
       }
       current = current._parent!;

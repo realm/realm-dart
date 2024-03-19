@@ -71,7 +71,7 @@
     realm.sync.server,
     ...
   ```
-  the `onRecord` stream now pumps `RealmLogRecord`s that includes the category the message was logged to.
+  The `onRecord` stream now pumps `RealmLogRecord`s that include the category the message was logged to.
 
   If you want to hook up realm logging with conventional dart logging you can do:
   ```dart
