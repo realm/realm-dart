@@ -1347,6 +1347,139 @@ void main() {
       expect(mapChanges, hasLength(2));
     });
 
+    baasTest('[BaaS] Notifications', (appConfig) async {
+      final differentiator = ObjectId();
+      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+
+      // Add object in first realm.
+      final list = [
+        5,
+        {
+          'foo': 'bar',
+          'list': [10]
+        }
+      ];
+      final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(list));
+      realm1.write(() => realm1.add(object));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Add listeners in first realm.
+      final List<RealmObjectChanges<ObjectWithRealmValue>> parentChanges = [];
+      final subscription = object.changes.listen((event) {
+        parentChanges.add(event);
+      });
+
+      final List<RealmListChanges<RealmValue>> listChanges = [];
+      final listSubscription = object.oneAny.asList().changes.listen((event) {
+        listChanges.add(event);
+      });
+
+      final List<RealmMapChanges<RealmValue>> mapChanges = [];
+      final mapSubscription = object.oneAny.asList()[1].asMap().changes.listen((event) {
+        mapChanges.add(event);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      parentChanges.clear();
+      listChanges.clear();
+      mapChanges.clear();
+
+      // Get object in second realm.
+      final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object.id]).single;
+      expect(syncedObject.id, object.id);
+
+      // Add item in second realm.
+      realm2.write(() {
+        syncedObject.oneAny.asList().add(RealmValue.bool(true));
+      });
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(1));
+      expect(parentChanges[0].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(1));
+      expect(listChanges[0].inserted, [2]);
+      expect(listChanges[0].deleted, isEmpty);
+      expect(listChanges[0].modified, isEmpty);
+      expect(listChanges[0].isCleared, false);
+      expect(listChanges[0].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(0));
+
+      // Update item in second realm.
+      realm2.write(() {
+        syncedObject.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
+        syncedObject.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
+      });
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(2));
+      expect(parentChanges[1].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(2));
+      expect(listChanges[1].inserted, isEmpty);
+      expect(listChanges[1].deleted, isEmpty);
+      expect(listChanges[1].modified, [1]);
+      expect(listChanges[1].isCleared, false);
+      expect(listChanges[1].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(1));
+      expect(mapChanges[0].modified, ['list']);
+      expect(mapChanges[0].inserted, ['new-value']);
+      expect(mapChanges[0].deleted, isEmpty);
+      expect(mapChanges[0].isCleared, false);
+      expect(mapChanges[0].isCollectionDeleted, false);
+
+      // Remove item in second realm.
+      realm2.write(() {
+        syncedObject.oneAny.asList().removeAt(1);
+      });
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(3));
+      expect(parentChanges[2].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(3));
+      expect(listChanges[2].inserted, isEmpty);
+      expect(listChanges[2].deleted, [1]);
+      expect(listChanges[2].modified, isEmpty);
+      expect(listChanges[2].isCleared, false);
+      expect(listChanges[2].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(2));
+      expect(mapChanges[1].isCollectionDeleted, true);
+
+      // Cancel subscriptions.
+      subscription.cancel();
+      listSubscription.cancel();
+      mapSubscription.cancel();
+
+      // Update item in second realm.
+      realm2.write(() {
+        syncedObject.oneAny = RealmValue.bool(false);
+      });
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Subscriptions have been canceled - shouldn't get more notifications.
+      expect(parentChanges, hasLength(3));
+      expect(listChanges, hasLength(3));
+      expect(mapChanges, hasLength(2));
+    });
+
     test('Queries', () {
       final realm = getMixedRealm();
 
