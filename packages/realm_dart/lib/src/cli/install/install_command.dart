@@ -155,6 +155,7 @@ class InstallCommand extends Command<void> {
     if (targetOs == null) {
       abort('Target OS not specified');
     }
+    options.targetOsType = targetOs;
   }
 
   TargetOsType getTargetOS() => Platform.operatingSystem.asTargetOsType ?? (throw UnsupportedError('Unsupported platform ${Platform.operatingSystem}'));
