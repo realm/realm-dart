@@ -16,45 +16,23 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <sstream>
-#include <set>
-#include <mutex>
-#include <thread>
-#include <map>
 #include <algorithm>
+#include <map>
+#include <mutex>
+#include <set>
+#include <sstream>
+#include <thread>
+#include <realm/object-store/c_api/util.hpp>
 
 #include "realm_dart_logger.h"
 
-std::recursive_mutex dart_logger_mutex;
-bool is_core_logger_callback_set = false;
-std::map<Dart_Port, realm_log_level_e> dart_send_ports;
-realm_log_level_e current_core_log_level;
+using namespace realm::util;
 
-realm_log_level_e calculate_minimum_log_level() {
-    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
-    auto min_element = std::min_element(dart_send_ports.begin(), dart_send_ports.end(),
-        [](std::pair<Dart_Port, realm_log_level_e> const& prev, std::pair<Dart_Port, realm_log_level_e> const& next) {
-        return prev.second < next.second;
-    });
-    if (min_element != dart_send_ports.end()) {
-        return min_element->second;
-    }
+bool send_message_to_scheduler(Dart_Port port, const char* category, realm_log_level_e level, const char* message) {
+    Dart_CObject c_category;
+    c_category.type = Dart_CObject_kString;
+    c_category.value.as_string = const_cast<char*>(category);
 
-    return current_core_log_level;
-}
-
-RLM_API void realm_dart_release_logger(Dart_Port port) {
-    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
-
-    if (dart_send_ports.find(port) != dart_send_ports.end())
-    {
-        dart_send_ports.erase(port);
-        auto minimum_level = calculate_minimum_log_level();
-        realm_set_log_level(minimum_level);
-    }
-}
-
-bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const char* message) {
     Dart_CObject c_level;
     c_level.type = Dart_CObject_kInt32;
     c_level.value.as_int32 = level;
@@ -63,7 +41,7 @@ bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const ch
     c_message.type = Dart_CObject_kString;
     c_message.value.as_string = const_cast<char*>(message);
 
-    Dart_CObject* c_request_arr[] = { &c_level , &c_message };
+    Dart_CObject* c_request_arr[] = { &c_category, &c_level, &c_message };
     Dart_CObject c_request;
     c_request.type = Dart_CObject_kArray;
     c_request.value.as_array.values = c_request_arr;
@@ -72,40 +50,44 @@ bool send_message_to_scheduler(Dart_Port port, realm_log_level_e level, const ch
     return Dart_PostCObject_DL(port, &c_request);
 }
 
-void realm_dart_logger_callback(realm_userdata_t userData, realm_log_level_e level, const char* message) {
-    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
+std::mutex dart_logger_mutex;
+std::set<Dart_Port> dart_send_ports;
+std::shared_ptr<StderrLogger> default_debug_logger;
+bool default_debug_logger_initialized = false;
 
+RLM_API void realm_dart_init_debug_logger() {
+    if (default_debug_logger_initialized) {
+        return;
+    }
+    default_debug_logger = std::make_shared<StderrLogger>();
+    Logger::set_default_logger(default_debug_logger);
+    default_debug_logger_initialized = true;
+}
+
+void realm_dart_logger_callback(realm_userdata_t userData, const char* category, realm_log_level_e level, const char* message) {
+    std::lock_guard<std::mutex> lock(dart_logger_mutex);
     for (auto itr = dart_send_ports.begin(); itr != dart_send_ports.end(); ++itr) {
-        Dart_Port port = itr->first;
-        send_message_to_scheduler(port, level, message);
+        Dart_Port port = *itr;
+        send_message_to_scheduler(port, category, level, message);
     }
 }
 
-RLM_API bool realm_dart_init_core_logger(realm_log_level_e level) {
-    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
-
-    if (is_core_logger_callback_set) {
-        return false;
+RLM_API void realm_dart_attach_logger(Dart_Port port) {
+    std::lock_guard<std::mutex> lock(dart_logger_mutex);
+    if (dart_send_ports.empty()) {
+        realm_set_log_callback(realm_dart_logger_callback, nullptr, nullptr);
     }
-
-    current_core_log_level = level;
-    realm_set_log_callback(realm_dart_logger_callback, current_core_log_level, nullptr, nullptr);
-    is_core_logger_callback_set = true;
-
-    return is_core_logger_callback_set;
+    dart_send_ports.insert(port);
 }
 
-RLM_API void realm_dart_set_log_level(realm_log_level_e level, Dart_Port port) {
-    std::lock_guard<std::recursive_mutex> lock(dart_logger_mutex);
-
-    auto port_item = dart_send_ports.find(port);
-    if (port_item == dart_send_ports.end() || port_item->second != level) {
-        dart_send_ports[port] = level;
-        auto minimum_level = calculate_minimum_log_level();
-        realm_set_log_level(minimum_level);
+RLM_API void realm_dart_detach_logger(Dart_Port port) {
+    std::lock_guard<std::mutex> lock(dart_logger_mutex);
+    dart_send_ports.erase(port);
+    if (dart_send_ports.empty()) {
+        Logger::set_default_logger(default_debug_logger);
     }
 }
 
-RLM_API void realm_dart_log_message_for_testing(realm_log_level_e level, const char* message) {
-    realm_dart_logger_callback(nullptr, level, message);
+RLM_API void realm_dart_log(realm_log_level_e level, const char* category, const char* message) {
+    Logger::get_default_logger()->log(LogCategory::get_category(category), Logger::Level(level), message);
 }

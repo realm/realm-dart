@@ -7,6 +7,7 @@ import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
+import 'logging.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
@@ -306,12 +307,12 @@ enum SessionStopPolicy {
 typedef SyncErrorHandler = void Function(SyncError);
 
 void defaultSyncErrorHandler(SyncError e) {
-  Realm.logger.log(RealmLogLevel.error, e);
+  Realm.logger.log(LogLevel.error, e);
 }
 
 void _defaultClientResetHandler(ClientResetError e) {
   Realm.logger.log(
-      RealmLogLevel.error,
+      LogLevel.error,
       "A client reset error occurred but no handler was supplied. "
       "Synchronization is now paused and will resume automatically once the app is restarted and "
       "the server data is re-downloaded. Any un-synchronized changes the client has made or will "

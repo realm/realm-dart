@@ -45,6 +45,40 @@
   ```
 * Removed `SchemaObject.properties` - instead, `SchemaObject` is now an iterable collection of `Property`. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 * `SyncProgress.transferredBytes` and `SyncProgress.transferableBytes` have been consolidated into `SyncProgress.progressEstimate`. The values reported previously were incorrect and did not accurately represent bytes either. The new field better conveys the uncertainty around the progress being reported. With this release, we're reporting accurate estimates for upload progress, but estimating downloads is still unreliable. A future server and SDK release will add better estimations for download progress. (Issue [#1562](https://github.com/realm/realm-dart/issues/1562))
+* `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is exlicitly given, then `RealmLogCategory.realm` is assumed.
+
+  Also, note that setting a level is no longer local to the current isolate, but shared accross all isolates. At the core level there is just one process wide logger.
+
+  Categories form a hierarchy and setting the log level of a parent category will override the level of its children. The hierarchy is exposed in a type safe manner with:
+  ```dart
+  sealed class RealmLogCategory {
+    /// All possible log categories.
+    static final values = [
+    realm,
+    realm.app,
+    realm.sdk,
+    realm.storage,
+    realm.storage.notification,
+    realm.storage.object,
+    realm.storage.query,
+    realm.storage.transaction,
+    realm.sync,
+    realm.sync.client,
+    realm.sync.client.changeset,
+    realm.sync.client.network,
+    realm.sync.client.reset,
+    realm.sync.client.session,
+    realm.sync.server,
+    ...
+  ```
+  The `onRecord` stream now pumps `RealmLogRecord`s that include the category the message was logged to.
+
+  If you want to hook up realm logging with conventional dart logging you can do:
+  ```dart
+  Realm.logger.onRecord.forEach((r) => Logger(r.category.toString()).log(r.level.level, r.message));
+  ```
+  If no isolate subscribes to `Realm.logger.onRecord` then the logs will by default be sent to stdout.
+
 
 ### Enhancements
 * Realm objects can now be serialized as [EJSON](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/)
