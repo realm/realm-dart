@@ -25,8 +25,7 @@ class Scheduler {
       if (message is List) {
         // currently the only `message as List` is from the logger.
         final category = RealmLogCategory.fromString(message[0] as String);
-        // category is a string to avoid converting back and forth between RealmLogCategory and String
-        final level = RealmLogLevel.fromInt(message[1] as int);
+        final level = RealmLogLevel.values[message[1] as int];
         final text = message[2] as String;
         Realm.logger.raise((category: category, level: level, message: text));
       } else if (message is int) {

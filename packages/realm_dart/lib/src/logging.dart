@@ -36,10 +36,12 @@ sealed class RealmLogCategory {
 
   RealmLogCategory._(this._name, this._parent);
 
+  /// Returns `true` if this category contains the given [category].
   bool contains(RealmLogCategory category) {
     var current = category;
     while (current != this) {
-      if (current == realm) { // root
+      if (current == realm) {
+        // root
         return false;
       }
       current = current._parent!;
@@ -53,7 +55,10 @@ sealed class RealmLogCategory {
   String toString() => _toString;
 
   static final _map = {for (final category in RealmLogCategory.values) category.toString(): category};
-  factory RealmLogCategory.fromString(String message) => _map[message]!;
+
+  /// Returns the [RealmLogCategory] for the given [category] string.
+  /// Will throw if the category is not recognized.
+  factory RealmLogCategory.fromString(String category) => _map[category]!;
 }
 
 class _LeafLogCategory extends RealmLogCategory {
@@ -130,21 +135,11 @@ enum RealmLogLevel {
   off(Level.OFF),
   ;
 
-  static const logToValues = [
-    RealmLogLevel.trace,
-    RealmLogLevel.debug,
-    RealmLogLevel.detail,
-    RealmLogLevel.info,
-    RealmLogLevel.warn,
-    RealmLogLevel.error,
-    RealmLogLevel.fatal,
-  ];
-
+  /// The [Level] from package [logging](https://pub.dev/packages/logging) that
+  /// corresponds to this [RealmLogLevel].
   final Level level;
-  const RealmLogLevel(this.level);
 
-  static final _valuesMap = {for (var value in RealmLogLevel.values) value.index: value};
-  factory RealmLogLevel.fromInt(int code) => _valuesMap[code]!;
+  const RealmLogLevel(this.level);
 }
 
 /// A record of a log message from the Realm SDK.
@@ -159,6 +154,7 @@ class RealmLogger {
 
   const RealmLogger();
 
+  /// Set the log [level] for the given [category].
   void setLogLevel(RealmLogLevel level, {RealmLogCategory? category}) {
     category ??= RealmLogCategory.realm;
     realmCore.setLogLevel(level, category: category);

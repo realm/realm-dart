@@ -9,6 +9,16 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+const logToValues = [
+  RealmLogLevel.trace,
+  RealmLogLevel.debug,
+  RealmLogLevel.detail,
+  RealmLogLevel.info,
+  RealmLogLevel.warn,
+  RealmLogLevel.error,
+  RealmLogLevel.fatal,
+];
+
 void main() {
   setupTests();
 
@@ -30,13 +40,13 @@ void main() {
 
   group('Match levels', () {
     for (var level in RealmLogLevel.values) {
-      final expectedLevels = RealmLogLevel.logToValues.where((l) => l.index >= level.index);
+      final expectedLevels = logToValues.where((l) => l.index >= level.index);
       test('$level matches $expectedLevels', () {
         Realm.logger.setLogLevel(RealmLogLevel.off);
         Realm.logger.setLogLevel(level, category: RealmLogCategory.realm.sdk);
 
         expectLater(Realm.logger.onRecord, emitsInOrder(expectedLevels.map((l) => isA<RealmLogRecord>().having((r) => r.level, '$l', l))));
-        for (var sendLevel in RealmLogLevel.logToValues) {
+        for (var sendLevel in logToValues) {
           Realm.logger.log(sendLevel, '$sendLevel');
         }
       });

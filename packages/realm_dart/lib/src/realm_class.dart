@@ -80,6 +80,7 @@ export "configuration.dart"
         SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
+export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
 export 'native/realm_core.dart' show Decimal128;
@@ -510,7 +511,11 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  /// The logger to use for Realm logging in all [Isolate]s
+  /// The logger that will emit log messages from the database and sync operations.
+  /// To receive log messages, use the [RealmLogger.onRecord] stream.
+  ///
+  /// If no isolate subscribes to the stream, the trace messages will go to stdout.
+  ///
   /// The default log level is [RealmLogLevel.info].
   static const logger = RealmLogger();
 

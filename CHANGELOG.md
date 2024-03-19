@@ -47,7 +47,7 @@
 * `SyncProgress.transferredBytes` and `SyncProgress.transferableBytes` have been consolidated into `SyncProgress.progressEstimate`. The values reported previously were incorrect and did not accurately represent bytes either. The new field better conveys the uncertainty around the progress being reported. With this release, we're reporting accurate estimates for upload progress, but estimating downloads is still unreliable. A future server and SDK release will add better estimations for download progress. (Issue [#1562](https://github.com/realm/realm-dart/issues/1562))
 * `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is exlicitly given, then `RealmLogCategory.realm` is assumed.
 
-  Also, note that setting a level is no longer local to the current isolate, but shared between accross all isolates. Maintaining the illution that there exists a logger per isolate, became untennable with the new API. At the core level there is just one process wide logger.
+  Also, note that setting a level is no longer local to the current isolate, but shared accross all isolates. At the core level there is just one process wide logger.
 
   Categories form a hirarchy and setting the log level of a parent category will override the level of the current children. The hierarchy is exposed in a type safe manner with:
   ```dart
@@ -77,7 +77,7 @@
   ```dart
   Realm.logger.onRecord.forEach((r) => Logger(r.category.toString()).log(r.level.level, r.message));
   ```
-  If no isolate subscribes to `Realm.logger.onRecord` then the logs will by default be send to stdout.
+  If no isolate subscribes to `Realm.logger.onRecord` then the logs will by default be sent to stdout.
 
 
 ### Enhancements
