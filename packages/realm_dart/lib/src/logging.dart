@@ -37,7 +37,7 @@ sealed class RealmLogCategory {
   RealmLogCategory._(this._name, this._parent);
 
   /// Returns `true` if this category contains the given [category].
-  bool contains(RealmLogCategory category) {
+  bool _contains(RealmLogCategory category) {
     var current = category;
     while (current != this) {
       final isRoot = current == realm;
@@ -197,4 +197,8 @@ class RealmLogger {
 extension RealmLoggerInternal on RealmLogger {
   void raise(RealmLogRecord record) => _raise(record);
   void log(RealmLogLevel level, Object message, {RealmLogCategory? category}) => _log(level, message, category: category);
+}
+
+extension RealmLogCategoryInternal on RealmLogCategory {
+  bool contains(RealmLogCategory category) => _contains(category);
 }
