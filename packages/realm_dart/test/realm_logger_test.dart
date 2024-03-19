@@ -139,7 +139,7 @@ void main() {
     // see https://github.com/realm/realm-dart/pull/1574#issuecomment-2006769321
     expect(Realm.logger.onRecord.isBroadcast, isTrue);
     final sub = Realm.logger.onRecord.listen((_) {});
-    expect(() => Realm.logger.onRecord.first, returnsNormally); // safe to listen twice on a broadcast stream 
+    expect(() => Realm.logger.onRecord.first, returnsNormally); // safe to listen twice on a broadcast stream
     sub.cancel();
   });
 
@@ -158,6 +158,6 @@ void main() {
     Realm.logger.log(RealmLogLevel.trace, 'trace');
     Realm.logger.setLogLevel(RealmLogLevel.warn, category: RealmLogCategory.realm.sdk);
     Realm.logger.log(RealmLogLevel.trace, 'trace'); // <-- not seen
-    Realm.logger.log(RealmLogLevel.warn, 'warn'); 
+    Realm.logger.log(RealmLogLevel.warn, 'warn');
   });
 }

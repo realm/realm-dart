@@ -146,6 +146,22 @@ enum RealmLogLevel {
 typedef RealmLogRecord = ({RealmLogCategory category, RealmLogLevel level, String message});
 
 /// A logger that logs messages from the Realm SDK.
+///
+/// To subscribe to log messages, use [onRecord].
+///
+/// Example:
+/// ```dart
+/// hierarchyLoggingEnabled = true;
+/// final logSubscription = Realm.logger.onRecord.listen((record) {
+///   Logger(record.category.toString()).log(record.level.level, record.message);
+///   // or just print(record);
+/// });
+/// ...
+/// logSubscription.cancel(); // when done
+/// ```
+///
+/// If no listeners are attached to [onRecord] in any isolate, the trace will go
+/// to stdout.
 class RealmLogger {
   static final _controller = StreamController<RealmLogRecord>.broadcast(
     onListen: () => realmCore.loggerAttach(),
@@ -155,11 +171,17 @@ class RealmLogger {
   const RealmLogger();
 
   /// Set the log [level] for the given [category].
+  ///
+  /// If [category] is not provided, the log level will be set [RealmLogCategory.realm].
   void setLogLevel(RealmLogLevel level, {RealmLogCategory? category}) {
     category ??= RealmLogCategory.realm;
     realmCore.setLogLevel(level, category: category);
   }
 
+  /// The stream of log records.
+  ///
+  /// This is a broadcast stream. It is safe to listen to it multiple times.
+  /// If no listeners are attached in any isolate, the trace will go to stdout.
   Stream<RealmLogRecord> get onRecord => _controller.stream;
 
   void _raise(RealmLogRecord record) {
