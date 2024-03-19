@@ -516,7 +516,7 @@ class Realm implements Finalizable {
   ///
   /// If no isolate subscribes to the stream, the trace messages will go to stdout.
   ///
-  /// The default log level is [RealmLogLevel.info].
+  /// The default log level is [LogLevel.info].
   static const logger = RealmLogger();
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.

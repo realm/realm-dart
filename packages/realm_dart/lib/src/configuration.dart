@@ -305,12 +305,12 @@ enum SessionStopPolicy {
 typedef SyncErrorHandler = void Function(SyncError);
 
 void defaultSyncErrorHandler(SyncError e) {
-  Realm.logger.log(RealmLogLevel.error, e);
+  Realm.logger.log(LogLevel.error, e);
 }
 
 void _defaultClientResetHandler(ClientResetError e) {
   Realm.logger.log(
-      RealmLogLevel.error,
+      LogLevel.error,
       "A client reset error occurred but no handler was supplied. "
       "Synchronization is now paused and will resume automatically once the app is restarted and "
       "the server data is re-downloaded. Any un-synchronized changes the client has made or will "

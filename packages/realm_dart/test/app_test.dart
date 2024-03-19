@@ -358,7 +358,7 @@ void main() {
   });
 
   baasTest('App(AppConfiguration) on background isolate logs warning', (appConfig) async {
-    Realm.logger.setLogLevel(RealmLogLevel.warn);
+    Realm.logger.setLogLevel(LogLevel.warn);
 
     final sb = StringBuffer();
     Realm.logger.onRecord.listen((event) {

@@ -24,14 +24,14 @@ class Scheduler {
     _receivePort.handler = (dynamic message) {
       if (message is List) {
         // currently the only `message as List` is from the logger.
-        final category = RealmLogCategory.fromString(message[0] as String);
-        final level = RealmLogLevel.values[message[1] as int];
+        final category = LogCategory.fromString(message[0] as String);
+        final level = LogLevel.values[message[1] as int];
         final text = message[2] as String;
         Realm.logger.raise((category: category, level: level, message: text));
       } else if (message is int) {
         realmCore.invokeScheduler(message);
       } else {
-        Realm.logger.log(RealmLogLevel.error, 'Unexpected Scheduler message type: ${message.runtimeType} - $message');
+        Realm.logger.log(LogLevel.error, 'Unexpected Scheduler message type: ${message.runtimeType} - $message');
       }
     };
 

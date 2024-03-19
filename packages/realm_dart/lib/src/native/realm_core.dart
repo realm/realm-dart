@@ -1766,7 +1766,7 @@ class _RealmCore {
     try {
       realm.updateSchema();
     } catch (e) {
-      Realm.logger.log(RealmLogLevel.error, 'Failed to update Realm schema: $e');
+      Realm.logger.log(LogLevel.error, 'Failed to update Realm schema: $e');
     }
   }
 
@@ -2026,7 +2026,7 @@ class _RealmCore {
           request.add(utf8.encode(body));
         }
 
-        Realm.logger.log(RealmLogLevel.debug, "HTTP Transport: Executing ${method.name} $url");
+        Realm.logger.log(LogLevel.debug, "HTTP Transport: Executing ${method.name} $url");
 
         final stopwatch = Stopwatch()..start();
 
@@ -2034,7 +2034,7 @@ class _RealmCore {
         final response = await request.close();
 
         stopwatch.stop();
-        Realm.logger.log(RealmLogLevel.debug, "HTTP Transport: Executed ${method.name} $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
+        Realm.logger.log(LogLevel.debug, "HTTP Transport: Executed ${method.name} $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
 
         final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
 
@@ -2063,13 +2063,13 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (socketEx) {
-        Realm.logger.log(RealmLogLevel.warn, "HTTP Transport: SocketException executing ${method.name} $url: $socketEx");
+        Realm.logger.log(LogLevel.warn, "HTTP Transport: SocketException executing ${method.name} $url: $socketEx");
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (httpEx) {
-        Realm.logger.log(RealmLogLevel.warn, "HTTP Transport: HttpException executing ${method.name} $url: $httpEx");
+        Realm.logger.log(LogLevel.warn, "HTTP Transport: HttpException executing ${method.name} $url: $httpEx");
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
       } catch (ex) {
-        Realm.logger.log(RealmLogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
+        Realm.logger.log(LogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
         responseRef.custom_status_code = _CustomErrorCode.unknown.code;
       } finally {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
@@ -2077,7 +2077,7 @@ class _RealmCore {
     });
   }
 
-  void logMessage(RealmLogCategory category, RealmLogLevel logLevel, String message) {
+  void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
       _realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
@@ -3065,7 +3065,7 @@ class _RealmCore {
     }
   }
 
-  void setLogLevel(RealmLogLevel level, {required RealmLogCategory category}) {
+  void setLogLevel(LogLevel level, {required LogCategory category}) {
     using((arena) {
       _realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
     });
@@ -3102,7 +3102,7 @@ class LastError {
 const _enableFinalizerTrace = false;
 
 // Level used for finalization trace, if enabled.
-const _finalizerTraceLevel = RealmLogLevel.trace;
+const _finalizerTraceLevel = LogLevel.trace;
 
 void _traceFinalization(Object o) {
   Realm.logger.log(_finalizerTraceLevel, 'Finalizing: $o');

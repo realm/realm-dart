@@ -416,7 +416,7 @@ void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
 
-    Realm.logger.setLogLevel(RealmLogLevel.detail);
+    Realm.logger.setLogLevel(LogLevel.detail);
     Realm.logger.onRecord.listen((record) {
       testing.printOnFailure('${record.category} ${record.level.name}: ${record.message}');
     });
@@ -553,7 +553,7 @@ Future<void> tryDeleteRealm(String path) async {
 
       return;
     } catch (e) {
-      Realm.logger.log(RealmLogLevel.info, 'Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
+      Realm.logger.log(LogLevel.info, 'Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
       await Future<void>.delayed(duration);
     }
   }

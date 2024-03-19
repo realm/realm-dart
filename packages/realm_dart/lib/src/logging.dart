@@ -8,7 +8,7 @@ import 'package:logging/logging.dart';
 import 'native/realm_core.dart';
 
 // Using classes to make a fancy hierarchical enum
-sealed class RealmLogCategory {
+sealed class LogCategory {
   /// All possible log categories.
   static final values = [
     realm,
@@ -32,12 +32,12 @@ sealed class RealmLogCategory {
   static final realm = _RealmLogCategory();
 
   final String _name;
-  final RealmLogCategory? _parent;
+  final LogCategory? _parent;
 
-  RealmLogCategory._(this._name, this._parent);
+  LogCategory._(this._name, this._parent);
 
   /// Returns `true` if this category contains the given [category].
-  bool _contains(RealmLogCategory category) {
+  bool _contains(LogCategory category) {
     var current = category;
     while (current != this) {
       final isRoot = current == realm;
@@ -54,18 +54,18 @@ sealed class RealmLogCategory {
   @override
   String toString() => _toString;
 
-  static final _map = {for (final category in RealmLogCategory.values) category.toString(): category};
+  static final _map = {for (final category in LogCategory.values) category.toString(): category};
 
-  /// Returns the [RealmLogCategory] for the given [category] string.
+  /// Returns the [LogCategory] for the given [category] string.
   /// Will throw if the category is not recognized.
-  factory RealmLogCategory.fromString(String category) => _map[category]!;
+  factory LogCategory.fromString(String category) => _map[category]!;
 }
 
-class _LeafLogCategory extends RealmLogCategory {
-  _LeafLogCategory(super.name, RealmLogCategory super.parent) : super._();
+class _LeafLogCategory extends LogCategory {
+  _LeafLogCategory(super.name, LogCategory super.parent) : super._();
 }
 
-class _RealmLogCategory extends RealmLogCategory {
+class _RealmLogCategory extends LogCategory {
   _RealmLogCategory() : super._('Realm', null);
 
   late final app = _LeafLogCategory('App', this);
@@ -74,15 +74,15 @@ class _RealmLogCategory extends RealmLogCategory {
   late final sync = _SyncLogCategory(this);
 }
 
-class _SyncLogCategory extends RealmLogCategory {
-  _SyncLogCategory(RealmLogCategory parent) : super._('Sync', parent);
+class _SyncLogCategory extends LogCategory {
+  _SyncLogCategory(LogCategory parent) : super._('Sync', parent);
 
   late final client = _ClientLogCategory(this);
   late final server = _LeafLogCategory('Server', this);
 }
 
-class _ClientLogCategory extends RealmLogCategory {
-  _ClientLogCategory(RealmLogCategory parent) : super._('Client', parent);
+class _ClientLogCategory extends LogCategory {
+  _ClientLogCategory(LogCategory parent) : super._('Client', parent);
 
   late final changeset = _LeafLogCategory('Changeset', this);
   late final network = _LeafLogCategory('Network', this);
@@ -90,8 +90,8 @@ class _ClientLogCategory extends RealmLogCategory {
   late final session = _LeafLogCategory('Session', this);
 }
 
-class _StorageLogCategory extends RealmLogCategory {
-  _StorageLogCategory(RealmLogCategory parent) : super._('Storage', parent);
+class _StorageLogCategory extends LogCategory {
+  _StorageLogCategory(LogCategory parent) : super._('Storage', parent);
 
   late final notification = _LeafLogCategory('Notification', this);
   late final object = _LeafLogCategory('Object', this);
@@ -102,7 +102,7 @@ class _StorageLogCategory extends RealmLogCategory {
 /// Specifies the criticality level above which messages will be logged
 /// by the default sync client logger.
 /// {@category Realm}
-enum RealmLogLevel {
+enum LogLevel {
   /// Log everything. This will seriously harm the performance of the
   /// sync client and should never be used in production scenarios.
   all(Level.ALL),
@@ -136,14 +136,14 @@ enum RealmLogLevel {
   ;
 
   /// The [Level] from package [logging](https://pub.dev/packages/logging) that
-  /// corresponds to this [RealmLogLevel].
+  /// corresponds to this [LogLevel].
   final Level level;
 
-  const RealmLogLevel(this.level);
+  const LogLevel(this.level);
 }
 
 /// A record of a log message from the Realm SDK.
-typedef RealmLogRecord = ({RealmLogCategory category, RealmLogLevel level, String message});
+typedef LogRecord = ({LogCategory category, LogLevel level, String message});
 
 /// A logger that logs messages from the Realm SDK.
 ///
@@ -163,7 +163,7 @@ typedef RealmLogRecord = ({RealmLogCategory category, RealmLogLevel level, Strin
 /// If no listeners are attached to [onRecord] in any isolate, the trace will go
 /// to stdout.
 class RealmLogger {
-  static final _controller = StreamController<RealmLogRecord>.broadcast(
+  static final _controller = StreamController<LogRecord>.broadcast(
     onListen: () => realmCore.loggerAttach(),
     onCancel: () => realmCore.loggerDetach(),
   );
@@ -172,9 +172,9 @@ class RealmLogger {
 
   /// Set the log [level] for the given [category].
   ///
-  /// If [category] is not provided, the log level will be set [RealmLogCategory.realm].
-  void setLogLevel(RealmLogLevel level, {RealmLogCategory? category}) {
-    category ??= RealmLogCategory.realm;
+  /// If [category] is not provided, the log level will be set [LogCategory.realm].
+  void setLogLevel(LogLevel level, {LogCategory? category}) {
+    category ??= LogCategory.realm;
     realmCore.setLogLevel(level, category: category);
   }
 
@@ -182,23 +182,23 @@ class RealmLogger {
   ///
   /// This is a broadcast stream. It is safe to listen to it multiple times.
   /// If no listeners are attached in any isolate, the trace will go to stdout.
-  Stream<RealmLogRecord> get onRecord => _controller.stream;
+  Stream<LogRecord> get onRecord => _controller.stream;
 
-  void _raise(RealmLogRecord record) {
+  void _raise(LogRecord record) {
     _controller.add(record);
   }
 
-  void _log(RealmLogLevel level, Object message, {RealmLogCategory? category}) {
-    category ??= RealmLogCategory.realm.sdk;
-    realmCore.logMessage(RealmLogCategory.realm.sdk, level, message.toString());
+  void _log(LogLevel level, Object message, {LogCategory? category}) {
+    category ??= LogCategory.realm.sdk;
+    realmCore.logMessage(LogCategory.realm.sdk, level, message.toString());
   }
 }
 
 extension RealmLoggerInternal on RealmLogger {
-  void raise(RealmLogRecord record) => _raise(record);
-  void log(RealmLogLevel level, Object message, {RealmLogCategory? category}) => _log(level, message, category: category);
+  void raise(LogRecord record) => _raise(record);
+  void log(LogLevel level, Object message, {LogCategory? category}) => _log(level, message, category: category);
 }
 
-extension RealmLogCategoryInternal on RealmLogCategory {
-  bool contains(RealmLogCategory category) => _contains(category);
+extension RealmLogCategoryInternal on LogCategory {
+  bool contains(LogCategory category) => _contains(category);
 }
