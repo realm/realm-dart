@@ -49,7 +49,7 @@
 
   Also, note that setting a level is no longer local to the current isolate, but shared accross all isolates. At the core level there is just one process wide logger.
 
-  Categories form a hirarchy and setting the log level of a parent category will override the level of the current children. The hierarchy is exposed in a type safe manner with:
+  Categories form a hierarchy and setting the log level of a parent category will override the level of its children. The hierarchy is exposed in a type safe manner with:
   ```dart
   sealed class RealmLogCategory {
     /// All possible log categories.
