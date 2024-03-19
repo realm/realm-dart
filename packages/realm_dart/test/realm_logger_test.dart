@@ -119,7 +119,7 @@ void main() {
   });
 
   group('Category mapping', () {
-    final nativeCategoryNames= realmCore.getAllCategoryNames();
+    final nativeCategoryNames = realmCore.getAllCategoryNames();
     for (final name in nativeCategoryNames) {
       test('$name can parse', () {
         expect(() => RealmLogCategory.fromString(name), returnsNormally);
@@ -128,10 +128,36 @@ void main() {
       });
     }
 
-    for(final category in RealmLogCategory.values) {
+    for (final category in RealmLogCategory.values) {
       test('$category known by native', () {
         expect(nativeCategoryNames, contains(category.toString()));
       });
     }
+  });
+
+  test('RealmLogger.onRecord is a broadcast stream', () {
+    // see https://github.com/realm/realm-dart/pull/1574#issuecomment-2006769321
+    expect(Realm.logger.onRecord.isBroadcast, isTrue);
+    final sub = Realm.logger.onRecord.listen((_) {});
+    expect(() => Realm.logger.onRecord.first, returnsNormally); // safe to listen twice on a broadcast stream 
+    sub.cancel();
+  });
+
+  test('Changing levels works', () {
+    Realm.logger.setLogLevel(RealmLogLevel.off);
+    Realm.logger.setLogLevel(RealmLogLevel.all, category: RealmLogCategory.realm.sdk);
+
+    expectLater(
+        Realm.logger.onRecord,
+        emitsInOrder([
+          isA<RealmLogRecord>().having((r) => r.level, 'level', RealmLogLevel.trace).having((r) => r.message, 'message', 'trace'),
+          // note second trace is not seen
+          isA<RealmLogRecord>().having((r) => r.level, 'level', RealmLogLevel.warn).having((r) => r.message, 'message', 'warn'),
+        ]));
+
+    Realm.logger.log(RealmLogLevel.trace, 'trace');
+    Realm.logger.setLogLevel(RealmLogLevel.warn, category: RealmLogCategory.realm.sdk);
+    Realm.logger.log(RealmLogLevel.trace, 'trace'); // <-- not seen
+    Realm.logger.log(RealmLogLevel.warn, 'warn'); 
   });
 }
