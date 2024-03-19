@@ -188,6 +188,7 @@ abstract class Configuration implements Finalizable {
     ClientResetHandler clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
     int? maxNumberOfActiveVersions,
     ShouldCompactCallback? shouldCompactCallback,
+    int schemaVersion = 0,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -199,6 +200,7 @@ abstract class Configuration implements Finalizable {
         clientResetHandler: clientResetHandler,
         maxNumberOfActiveVersions: maxNumberOfActiveVersions,
         shouldCompactCallback: shouldCompactCallback,
+        schemaVersion: schemaVersion,
       );
 
   /// Constructs a [DisconnectedSyncConfiguration]
@@ -339,6 +341,9 @@ class FlexibleSyncConfiguration extends Configuration {
   /// Called when opening a `Realm` for the first time, after process start.
   final ShouldCompactCallback? shouldCompactCallback;
 
+  /// TODO
+  final int schemaVersion;
+
   FlexibleSyncConfiguration._(
     this.user,
     super.schemaObjects, {
@@ -349,6 +354,7 @@ class FlexibleSyncConfiguration extends Configuration {
     this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
     super.maxNumberOfActiveVersions,
     this.shouldCompactCallback,
+    this.schemaVersion = 0,
   }) : super._();
 
   @override

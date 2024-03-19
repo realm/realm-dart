@@ -234,7 +234,13 @@ class _RealmCore {
 
       // Setting schema version only makes sense for local realms, but core insists it is always set,
       // hence we set it to 0 in those cases.
-      _realmLib.realm_config_set_schema_version(configHandle._pointer, config is LocalConfiguration ? config.schemaVersion : 0);
+
+      final schemaVersion = switch (config) {
+        (LocalConfiguration lc) => lc.schemaVersion,
+        (FlexibleSyncConfiguration fsc) => fsc.schemaVersion,
+        _ => 0,
+      };
+      _realmLib.realm_config_set_schema_version(configHandle._pointer, schemaVersion);
       if (config.maxNumberOfActiveVersions != null) {
         _realmLib.realm_config_set_max_number_of_active_versions(configHandle._pointer, config.maxNumberOfActiveVersions!);
       }

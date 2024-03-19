@@ -503,8 +503,7 @@ void main() {
   });
 
   baasTest('Writing before subscribe', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final config = Configuration.flexibleSync(user, getSyncSchema());
 
@@ -556,8 +555,7 @@ void main() {
   baasTest('SyncSessionErrorCode.compensatingWrite', (configuration) async {
     late SyncError compensatingWriteError;
     final productNamePrefix = generateRandomString(4);
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema(), syncErrorHandler: (syncError) {
       compensatingWriteError = syncError;
     });

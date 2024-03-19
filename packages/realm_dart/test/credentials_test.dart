@@ -80,13 +80,13 @@ void main() {
     String username = generateRandomEmail();
     await expectLater(() => authProvider.registerUser(username, "pwd"), throws<AppException>("password must be between 6 and 128 characters"));
     await expectLater(() => authProvider.registerUser(username, ""), throws<AppException>("password must be between 6 and 128 characters"));
-  }, appName: AppNames.autoConfirm);
+  });
 
   baasTest('Email/Password - register user with empty email throws', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     await expectLater(() => authProvider.registerUser("", "password"), throws<AppException>("email invalid"));
-  }, appName: AppNames.autoConfirm);
+  });
 
   baasTest('Email/Password - confirm user token expired', (configuration) async {
     final app = App(configuration);

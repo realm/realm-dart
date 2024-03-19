@@ -418,7 +418,7 @@ void setupTests() {
     Realm.logger = Logger.detached('test run')
       ..level = Level.ALL
       ..onRecord.listen((record) {
-        testing.printOnFailure('${record.time} ${record.level.name}: ${record.message}');
+        print('${record.time} ${record.level.name}: ${record.message}');
       });
 
     // Enable this to print platform info, including current PID
@@ -591,7 +591,8 @@ dynamic shouldSkip(dynamic skip) {
   return skip;
 }
 
-Future<User> getIntegrationUser(App app) async {
+Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
+  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);
@@ -604,8 +605,7 @@ Future<User> getAnonymousUser(App app) {
 }
 
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
-  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
-  final user = await getIntegrationUser(app);
+  final user = await getIntegrationUser(app: app, appConfig: appConfig);
 
   final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
   final realm = getRealm(config);

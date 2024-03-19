@@ -56,7 +56,7 @@ void main() {
 
   baasTest('User link credentials', (configuration) async {
     final app = App(configuration);
-    final user1 = await app.logIn(Credentials.anonymous());
+    final user1 = await getAnonymousUser(app);
 
     expect(user1.state, UserState.loggedIn);
     expect(user1.identities.length, 1);
@@ -74,7 +74,7 @@ void main() {
 
     final user2 = await app.logIn(Credentials.emailPassword(username, password));
     expect(user1, user2);
-  }, appName: AppNames.autoConfirm);
+  });
 
   baasTest('User deviceId', (configuration) async {
     final app = App(configuration);
@@ -113,8 +113,7 @@ void main() {
   }
 
   baasTest('User.apiKeys.create creates and reveals value', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final apiKey = await createAndVerifyApiKey(user, 'my-api-key');
 
     expect(apiKey.isEnabled, true);
@@ -126,7 +125,7 @@ void main() {
   baasTest('User.apiKeys.create on background isolate', (configuration) async {
     // This test is to ensure that the API key creation works on a background isolate.
     // It was introduced due to: https://github.com/realm/realm-dart/issues/1467
-    await getIntegrationUser(App(configuration));
+    await getIntegrationUser(appConfig: configuration);
     final appId = configuration.appId;
     expect(Isolate.run(() async {
       final app = App.getById(appId)!;
@@ -136,8 +135,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.create with invalid name returns error', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     await expectLater(
         () => user.apiKeys.create('Spaces are not allowed'),
         throwsA(isA<AppException>()
@@ -147,8 +145,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.create with duplicate name returns error', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     await user.apiKeys.create('my-api-key');
     await expectLater(
         () => user.apiKeys.create('my-api-key'),
@@ -159,8 +156,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.fetch with non existent returns null', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final key = await user.apiKeys.fetch(ObjectId());
     expect(key, isNull);
@@ -175,8 +171,7 @@ void main() {
   }
 
   baasTest('User.apiKeys.fetch with existent returns result', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final apiKey = await createAndVerifyApiKey(user, 'my-api-key');
 
     final refetched = await user.apiKeys.fetch(apiKey.id);
@@ -185,8 +180,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.fetchAll with no keys returns empty', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final apiKeys = await user.apiKeys.fetchAll();
 
     expect(apiKeys, isEmpty);
@@ -195,7 +189,7 @@ void main() {
   baasTest('User.apiKeys.fetchAll from background isolate', (configuration) async {
     // This test is to ensure that the API key creation works on a background isolate.
     // It was introduced due to: https://github.com/realm/realm-dart/issues/1467
-    await getIntegrationUser(App(configuration));
+    await getIntegrationUser(appConfig: configuration);
     final appId = configuration.appId;
     expect(Isolate.run(() async {
       final app = App.getById(appId)!;
@@ -205,8 +199,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.fetchAll with one key returns it', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final original = await createAndVerifyApiKey(user, 'my-api-key');
 
@@ -217,8 +210,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.fetchAll with multiple keys returns all', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final original = <ApiKey>[];
     for (var i = 0; i < 5; i++) {
@@ -234,8 +226,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.delete with non-existent key', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final key = await createAndVerifyApiKey(user, 'key');
 
@@ -247,8 +238,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.delete with existent key', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final toDelete = await createAndVerifyApiKey(user, 'to-delete');
     final toRemain = await createAndVerifyApiKey(user, 'to-remain');
@@ -264,8 +254,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.disable with non-existent throws', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     await expectLater(
         () => user.apiKeys.disable(ObjectId()),
@@ -276,8 +265,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.enable with non-existent throws', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     await expectLater(
         () => user.apiKeys.enable(ObjectId()),
@@ -288,8 +276,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.enable when enabled is a no-op', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
 
@@ -303,8 +290,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.disable when disabled is a no-op', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
 
@@ -322,8 +308,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.disable disables key', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final first = await createAndVerifyApiKey(user, 'first');
     final second = await createAndVerifyApiKey(user, 'second');
@@ -343,8 +328,7 @@ void main() {
   });
 
   baasTest('User.apiKeys.enable reenables key', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     final first = await createAndVerifyApiKey(user, 'first');
     final second = await createAndVerifyApiKey(user, 'second');
@@ -375,7 +359,7 @@ void main() {
 
   baasTest('User.apiKeys can login with generated key', (configuration) async {
     final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(app: app);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
 
@@ -387,7 +371,7 @@ void main() {
 
   baasTest('User.apiKeys can login with reenabled key', (configuration) async {
     final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(app: app);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
 
@@ -410,7 +394,7 @@ void main() {
 
   baasTest("User.apiKeys can't login with deleted key", (configuration) async {
     final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(app: app);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
 
@@ -427,16 +411,14 @@ void main() {
   });
 
   baasTest("User.apiKeys when user is logged out throws", (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     await user.logOut();
 
     expect(() => user.apiKeys, throws<RealmError>('User must be logged in to access API keys'));
   });
 
   baasTest("User.apiKeys.anyMethod when user is logged out throws", (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
 
     // Store in a temp variable as accessing the property will throw
     final apiKeys = user.apiKeys;
@@ -476,8 +458,7 @@ void main() {
   });
 
   baasTest('User.logOut raises changes', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfig);
 
     expect(user.state, UserState.loggedIn);
 

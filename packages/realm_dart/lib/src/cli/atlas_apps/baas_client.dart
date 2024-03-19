@@ -29,6 +29,16 @@ class BaasAuthHelper {
   }
 }
 
+enum AppNames {
+  flexible,
+
+  // For application with name 'autoConfirm' and with confirmationType = 'auto'
+  // all the usernames are automatically confirmed.
+  autoConfirm,
+
+  emailConfirm,
+}
+
 class BaasClient {
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
@@ -94,7 +104,7 @@ class BaasClient {
     }
   };''';
 
-  static const String defaultAppName = "flexible";
+  static final String defaultAppName = AppNames.flexible.name;
 
   final String _adminApiUrl;
   final String? _clusterName;
@@ -244,8 +254,8 @@ class BaasClient {
   Future<List<BaasApp>> getOrCreateApps() async {
     var apps = await _getApps();
     await _createAppIfNotExists(apps, defaultAppName, _appSuffix);
-    await _createAppIfNotExists(apps, "autoConfirm", _appSuffix, confirmationType: "auto");
-    await _createAppIfNotExists(apps, "emailConfirm", _appSuffix, confirmationType: "email");
+    await _createAppIfNotExists(apps, AppNames.autoConfirm.name, _appSuffix, confirmationType: "auto");
+    await _createAppIfNotExists(apps, AppNames.emailConfirm.name, _appSuffix, confirmationType: "email");
     return apps;
   }
 

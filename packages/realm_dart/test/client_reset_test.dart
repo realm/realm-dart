@@ -15,8 +15,7 @@ void main() {
   setupTests();
 
   baasTest("Configuration.flexibleSync set recoverOrDiscard as a default resync mode", (appConfiguration) async {
-    final app = App(appConfiguration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfiguration);
     expect(
         Configuration.flexibleSync(
           user,
@@ -51,8 +50,7 @@ void main() {
   });
 
   baasTest('ManualRecoveryHandler error is reported in callback', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfig);
 
     final resetCompleter = Completer<void>();
     final config = Configuration.flexibleSync(
@@ -101,8 +99,7 @@ void main() {
   });
 
   baasTest('Initiate resetRealm after ManualRecoveryHandler callback fails when Realm is opened', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfig);
 
     final resetCompleter = Completer<bool>();
     final config = Configuration.flexibleSync(
@@ -133,8 +130,7 @@ void main() {
     DiscardUnsyncedChangesHandler,
   ]) {
     baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onBeforeReset', (appConfig) async {
-      final app = App(appConfig);
-      final user = await getIntegrationUser(app);
+      final user = await getIntegrationUser(appConfig: appConfig);
 
       final onManualResetFallback = Completer<void>();
       final config = Configuration.flexibleSync(user, getSyncSchema(),
@@ -157,8 +153,7 @@ void main() {
     });
 
     baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onAfterReset', (appConfig) async {
-      final app = App(appConfig);
-      final user = await getIntegrationUser(app);
+      final user = await getIntegrationUser(appConfig: appConfig);
 
       final onManualResetFallback = Completer<void>();
       void onAfterReset(Realm beforeResetRealm, Realm afterResetRealm) {
@@ -188,8 +183,7 @@ void main() {
     });
 
     baasTest('$clientResetHandlerType.onBeforeReset and onAfterReset are invoked', (appConfig) async {
-      final app = App(appConfig);
-      final user = await getIntegrationUser(app);
+      final user = await getIntegrationUser(appConfig: appConfig);
 
       final onBeforeCompleter = Completer<void>();
       final onAfterCompleter = Completer<void>();
@@ -219,8 +213,7 @@ void main() {
       final shouldDisableAutoRecoveryForApp = clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler;
       baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', appName: baasAppName, (appConfig) async {
         try {
-          final app = App(appConfig);
-          final user = await getIntegrationUser(app);
+          final user = await getIntegrationUser(appConfig: appConfig);
           int onBeforeResetOccurred = 0;
           int onAfterDiscardOccurred = 0;
           int onAfterRecoveryOccurred = 0;
@@ -289,8 +282,7 @@ void main() {
     }
 
     baasTest('$clientResetHandlerType check data in beforeResetRealm realm and after realm when recover or discard', (appConfig) async {
-      final app = App(appConfig);
-      final user = await getIntegrationUser(app);
+      final user = await getIntegrationUser(appConfig: appConfig);
 
       final onAfterCompleter = Completer<void>();
 
@@ -342,8 +334,7 @@ void main() {
     final baasAppName = AppNames.flexible;
     baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', appName: baasAppName,
         (appConfig) async {
-      final app = App(appConfig);
-      final user = await getIntegrationUser(app);
+      final user = await getIntegrationUser(appConfig: appConfig);
 
       final onBeforeCompleter = Completer<void>();
       final onAfterCompleter = Completer<void>();
@@ -382,8 +373,7 @@ void main() {
   }
 
   baasTest('onAfterReset is reported after async onBeforeReset completes', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfig);
     int onBeforeResetOccurred = 0;
     int onAfterResetOccurred = 0;
     final onAfterCompleter = Completer<void>();
@@ -417,8 +407,7 @@ void main() {
   });
 
   baasTest('onManualResetFallback is reported after async onAfterReset throws', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfig);
     int onBeforeResetOccurred = 0;
     int onAfterResetOccurred = 0;
     int manualResetFallbackOccurred = 0;
@@ -536,8 +525,7 @@ void main() {
   });
 
   baasTest('ClientResetError details are received', (appConfig) async {
-    final app = App(appConfig);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: appConfig);
 
     final resetCompleter = Completer<void>();
     late ClientResetError clientResetError;

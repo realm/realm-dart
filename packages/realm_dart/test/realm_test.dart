@@ -1500,9 +1500,6 @@ void main() {
   });
 
   baasTest('Realm - disconnected sync realm can be compacted', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
     var config = Configuration.disconnectedSync([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
 
     final beforeCompactSize = await createRealmForCompact(config);
@@ -1511,14 +1508,12 @@ void main() {
 
     validateCompact(compacted, config.path, beforeCompactSize);
 
-    //test the realm can be opened.
-    final realm = getRealm(config);
+    // test the realm can be opened.
+    expect(() => getRealm(config), returnsNormally);
   });
 
   baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous(reuseCredentials: false);
-    var user = await app.logIn(credentials);
+    var user = await getIntegrationUser(appConfig: appConfiguration);
     final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
     final config = Configuration.flexibleSync(user, getSyncSchema(), path: path);
     final beforeCompactSize = await createRealmForCompact(config);
@@ -1526,9 +1521,9 @@ void main() {
     final compacted = await runWithRetries(() => Realm.compact(config));
     validateCompact(compacted, config.path, beforeCompactSize);
 
-    //test the realm can be opened.
-    final realm = getRealm(config);
-  }, appName: AppNames.autoConfirm);
+    // test the realm can be opened.
+    expect(() => getRealm(config), returnsNormally);
+  });
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
     final app = App(appConfiguration);
@@ -1542,9 +1537,9 @@ void main() {
     final compacted = await runWithRetries(() => Realm.compact(config));
     validateCompact(compacted, config.path, beforeCompactSize);
 
-    //test the realm can be opened.
-    final realm = getRealm(config);
-  }, appName: AppNames.autoConfirm);
+    // test the realm can be opened.
+    expect(() => getRealm(config), returnsNormally);
+  });
 
   test('Realm writeCopy local to existing file', () {
     final config = Configuration.local([Car.schema]);
