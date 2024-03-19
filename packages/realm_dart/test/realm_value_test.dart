@@ -585,6 +585,54 @@ void main() {
       expect(obj.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
     });
 
+    baasTest('[BaaS] Map get and set', (appConfig) async {
+      final differentiator = ObjectId();
+      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+      expect(realm1.all<ObjectWithRealmValue>().length, 0);
+      expect(realm2.all<ObjectWithRealmValue>().length, 0);
+
+      // Add object in first realm.
+      final map = RealmValue.from({'foo': 5});
+      final object = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: map,
+        manyAny: [map],
+        dictOfAny: {'value': map});
+      realm1.write(() => realm1.add(object));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check object values in second realm.
+      final syncedObject = realm2.all<ObjectWithRealmValue>().single;
+      expect(syncedObject.id, object.id);
+      expect(object.oneAny.value, isA<Map<String, RealmValue>>());
+      expect(object.oneAny.asMap().length, 1);
+      expect(object.oneAny.asMap()['foo']!.value, 5);
+
+      expect(object.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expect(object.manyAny[0].asMap().length, 1);
+      expect(object.manyAny[0].asMap()['foo']!.value, 5);
+
+      expect(object.dictOfAny['value']!.value, isA<Map<String, RealmValue>>());
+      expect(object.dictOfAny['value']!.asMap().length, 1);
+      expect(object.dictOfAny['value']!.asMap()['foo']!.value, 5);
+
+      // Add new items in second realm.
+      realm2.write(() {
+        syncedObject.oneAny.asMap()['bar'] = RealmValue.from('abc');
+        syncedObject.manyAny[0].asMap()['bar'] = RealmValue.from('abc');
+        syncedObject.dictOfAny['value']!.asMap()['bar'] = RealmValue.from('abc');
+      });
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check new items in first realm.
+      expect(object.oneAny.asMap()['bar']!.value, 'abc');
+      expect(object.manyAny[0].asMap()['bar']!.value, 'abc');
+      expect(object.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
+    });
+
     for (var isManaged in [true, false]) {
       final managedString = isManaged ? 'managed' : 'unmanaged';
       RealmValue persistIfNecessary(RealmValue rv, Realm realm) {
