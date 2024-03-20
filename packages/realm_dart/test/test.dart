@@ -617,6 +617,7 @@ dynamic shouldSkip(dynamic skip) {
 
 String getAutoverifiedEmail() => 'realm_tests_do_autoverify_${generateRandomEmail()}';
 
+/// Registers, logs in, and returns the new user.
 Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final email = getAutoverifiedEmail();
@@ -630,6 +631,10 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
+/// Returns a synced realm after logging in a user.
+///
+/// A subscription for querying all [NullableTypes] objects containing
+/// the `differentiator` will be added if a `differentiator` is provided.
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
   final user = await getIntegrationUser(app: app, appConfig: appConfig);
 
