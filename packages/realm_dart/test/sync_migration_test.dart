@@ -74,10 +74,11 @@ void main() {
     final oid = ObjectId();
     final uuid = Uuid.v4();
     final date = DateTime(1999, 12, 21, 4, 53, 17).toUtc();
+    final binary = Uint8List.fromList([1, 2, 3]);
 
     final realmv0 = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 0);
-    realmv0.write(() {
-      realmv0.add(NullablesV0(ObjectId(), differentiator,
+    final objv0 = realmv0.write(() {
+      return realmv0.add(NullablesV0(ObjectId(), differentiator,
           boolValue: true,
           dateValue: date,
           decimalValue: Decimal128.fromDouble(123.456),
@@ -85,22 +86,73 @@ void main() {
           intValue: 42,
           objectIdValue: oid,
           stringValue: 'abc',
-          uuidValue: uuid));
+          uuidValue: uuid,
+          binaryValue: binary));
     });
 
     await realmv0.syncSession.waitForUpload();
 
     final realmv1 = await openRealm(appConfig, NullablesV1.schema, differentiator, schemaVersion: 1);
 
-    final obj = realmv1.all<NullablesV1>().single;
+    final objv1 = realmv1.all<NullablesV1>().single;
 
-    expect(obj.boolValue, true);
-    expect(obj.dateValue, date);
-    expect(obj.decimalValue, Decimal128.fromDouble(123.456));
-    expect(obj.doubleValue, -123.987);
-    expect(obj.intValue, 42);
-    expect(obj.objectIdValue, oid);
-    expect(obj.stringValue, 'abc');
-    expect(obj.uuidValue, uuid);
+    expect(objv1.boolValue, true);
+    expect(objv1.dateValue, date);
+    expect(objv1.decimalValue, Decimal128.fromDouble(123.456));
+    expect(objv1.doubleValue, -123.987);
+    expect(objv1.intValue, 42);
+    expect(objv1.objectIdValue, oid);
+    expect(objv1.stringValue, 'abc');
+    expect(objv1.uuidValue, uuid);
+    expect(objv1.binaryValue, binary);
+
+    final realmv2 = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 2);
+    final objv2 = realmv2.all<NullablesV0>().single;
+
+    expect(objv2.boolValue, true);
+    expect(objv2.dateValue, date);
+    expect(objv2.decimalValue, Decimal128.fromDouble(123.456));
+    expect(objv2.doubleValue, -123.987);
+    expect(objv2.intValue, 42);
+    expect(objv2.objectIdValue, oid);
+    expect(objv2.stringValue, 'abc');
+    expect(objv2.uuidValue, uuid);
+    expect(objv2.binaryValue, binary);
+
+    realmv0.write(() {
+      objv0.boolValue = null;
+      objv0.dateValue = null;
+      objv0.decimalValue = null;
+      objv0.doubleValue = null;
+      objv0.intValue = null;
+      objv0.objectIdValue = null;
+      objv0.stringValue = null;
+      objv0.uuidValue = null;
+      objv0.binaryValue = null;
+    });
+
+    await realmv0.syncSession.waitForUpload();
+    await realmv1.syncSession.waitForDownload();
+    await realmv2.syncSession.waitForDownload();
+
+    expect(objv1.boolValue, false);
+    expect(objv1.dateValue, DateTime.utc(1));
+    expect(objv1.decimalValue, Decimal128.fromDouble(0));
+    expect(objv1.doubleValue, 0);
+    expect(objv1.intValue, 0);
+    expect(objv1.objectIdValue, ObjectId.fromBytes(List.generate(12, (index) => 0)));
+    expect(objv1.stringValue, '');
+    expect(objv1.uuidValue, Uuid.nil);
+    expect(objv1.binaryValue, Uint8List(0));
+
+    expect(objv2.boolValue, isNull);
+    expect(objv2.dateValue, isNull);
+    expect(objv2.decimalValue, isNull);
+    expect(objv2.doubleValue, isNull);
+    expect(objv2.intValue, isNull);
+    expect(objv2.objectIdValue, isNull);
+    expect(objv2.stringValue, isNull);
+    expect(objv2.uuidValue, isNull);
+    expect(objv2.binaryValue, isNull);
   }, appName: AppNames.staticSchema);
 }

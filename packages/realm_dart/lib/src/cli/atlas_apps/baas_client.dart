@@ -126,7 +126,7 @@ class BaasClient {
     }
   };''';
 
-  static final _staticSchema_V0 = JsonSchemaDefinition('Nullables', [
+  static final _staticSchema_v0 = JsonSchemaDefinition('Nullables', [
     JsonSchemaProperty(name: '_id', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'differentiator', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'boolValue', bsonType: 'bool', required: false),
@@ -568,10 +568,13 @@ class BaasClient {
       );
 
       if (appName == AppNames.staticSchema) {
-        final schemaId = await _createSchema(app, mongoServiceId, _staticSchema_V0);
+        final schemaId = await _createSchema(app, mongoServiceId, _staticSchema_v0);
         await _updateSchema(app, schemaId, _staticSchema_v1);
 
-        await _waitForSchemaVersion(app, 1);
+        // Revert to schema_v0
+        await _updateSchema(app, schemaId, _staticSchema_v0);
+
+        await _waitForSchemaVersion(app, 2);
       } else {
         await _put('groups/$_groupId/apps/$app/sync/config', '{ "development_mode_enabled": true }');
       }
