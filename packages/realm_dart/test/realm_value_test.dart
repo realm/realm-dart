@@ -40,7 +40,7 @@ void main() {
   }
 
   group('RealmValue', () {
-    final primitiveValues = <Object?>[
+    final primitiveValues = [
       null,
       true,
       'text',
@@ -646,9 +646,8 @@ void main() {
         }
       }
 
-      test('List when $managedString works with all types', () {
-        final realm = getMixedRealm();
-        final originalList = [
+      List<Object?> getListAllTypes({ObjectId? differentiator}) {
+        return [
           null,
           1,
           true,
@@ -659,10 +658,15 @@ void main() {
           ObjectId.fromHexString('5f63e882536de46d71877979'),
           Uuid.fromString('3809d6d9-7618-4b3d-8044-2aa35fd02f31'),
           Uint8List.fromList([1, 2, 0]),
-          ObjectWithInt(ObjectId(), i: 123),
+          ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123),
           [5, 'abc'],
           {'int': -10, 'string': 'abc'}
         ];
+      }
+
+      test('List when $managedString works with all types', () {
+        final realm = getMixedRealm();
+        final originalList = getListAllTypes();
         final foundValue = persistIfNecessary(RealmValue.from(originalList), realm);
         expect(foundValue.value, isA<List<RealmValue>>());
         expect(foundValue.type, RealmValueType.list);
@@ -688,6 +692,74 @@ void main() {
         expectMatches(storedDict, {'int': -10, 'string': 'abc'});
         expect(storedDict.asMap()['non-existent'], null);
       });
+
+      // This test only needs to run once, but it's placed
+      // here to be collocated with the above test.
+      if (isManaged) {
+        baasTest('[BaaS] List works with all types', (appConfig) async {
+          final differentiator = ObjectId();
+          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+          expect(realm1.all<ObjectWithRealmValue>().length, 0);
+          expect(realm2.all<ObjectWithRealmValue>().length, 0);
+
+          // Add object in first realm.
+          final originalList = getListAllTypes(differentiator: differentiator);
+          final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalList));
+          realm1.write(() => realm1.add(object));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
+          expect(syncedObject.id, object.id);
+
+          final foundValue = syncedObject.oneAny;
+          expect(foundValue.value, isA<List<RealmValue>>());
+          expect(foundValue.type, RealmValueType.list);
+
+          final foundList = foundValue.asList();
+          expect(foundList.length, originalList.length);
+
+          // Last 3 elements are objects/collections, so they are treated specially.
+          final primitiveCount = originalList.length - 3;
+          for (var i = 0; i < primitiveCount; i++) {
+            expect(foundList[i].value, originalList[i]);
+          }
+
+          final storedObjIndex = primitiveCount;
+          final storedObj = foundList[storedObjIndex];
+          expect(storedObj.value, isA<ObjectWithInt>());
+          expect(storedObj.as<ObjectWithInt>().isManaged, true);
+          expect(storedObj.as<ObjectWithInt>().i, 123);
+
+          final storedListIndex = primitiveCount + 1;
+          final storedList = foundList[storedListIndex];
+          expectMatches(storedList, [5, 'abc']);
+
+          final storedDictIndex = primitiveCount + 2;
+          final storedDict = foundList[storedDictIndex];
+          expectMatches(storedDict, {'int': -10, 'string': 'abc'});
+          expect(storedDict.asMap()['non-existent'], null);
+
+          // Update and add items in second realm.
+          realm2.write(() {
+            storedObj.as<ObjectWithInt>().i = 456;
+            storedList.asList()[0] = RealmValue.from('updated');
+            storedList.asList().add(RealmValue.from('new-value'));
+            storedDict.asMap()['string'] = RealmValue.from('updated');
+            storedDict.asMap()['new-value'] = RealmValue.from('new-value');
+          });
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check updated items in first realm.
+          final list = object.oneAny.asList();
+          expect(list[storedObjIndex].as<ObjectWithInt>().i, 456);
+          expectMatches(list[storedListIndex], ['updated', 'abc', 'new-value']);
+          expectMatches(list[storedDictIndex], {'int': -10, 'string': 'updated', 'new-value': 'new-value'});
+        });
+      }
 
       test('List when $managedString can be reassigned', () {
         final realm = getMixedRealm();

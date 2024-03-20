@@ -615,6 +615,7 @@ dynamic shouldSkip(dynamic skip) {
   return skip;
 }
 
+/// Registers, logs in, and returns the new user.
 Future<User> getIntegrationUser(App app) async {
   final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
   final password = 'password';
@@ -627,6 +628,10 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
+/// Returns a synced realm after logging in a user.
+///
+/// A subscription for querying all [NullableTypes] objects containing
+/// the `differentiator` will be added if a `differentiator` is provided.
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app);
