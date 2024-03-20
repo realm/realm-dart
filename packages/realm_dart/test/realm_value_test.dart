@@ -523,7 +523,7 @@ void main() {
         syncedObject.dictOfAny['value']!.asList().add(RealmValue.from('abc'));
       });
 
-      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
       // Check new items in first realm.
       expect(object.oneAny.asList()[1].value, 'abc');
@@ -616,7 +616,7 @@ void main() {
         syncedObject.dictOfAny['value']!.asMap()['bar'] = RealmValue.from('abc');
       });
 
-      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
       // Check new items in first realm.
       expect(object.oneAny.asMap()['bar']!.value, 'abc');
@@ -1380,14 +1380,13 @@ void main() {
 
       // Get object in second realm.
       final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object.id]).single;
-      expect(syncedObject.id, object.id);
 
       // Add item in second realm.
       realm2.write(() {
         syncedObject.oneAny.asList().add(RealmValue.bool(true));
       });
 
-      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Expect listeners to be fired in first realm.
@@ -1409,7 +1408,7 @@ void main() {
         syncedObject.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
       });
 
-      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Expect listeners to be fired in first realm.
@@ -1435,7 +1434,7 @@ void main() {
         syncedObject.oneAny.asList().removeAt(1);
       });
 
-      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Expect listeners to be fired in first realm.
@@ -1462,7 +1461,7 @@ void main() {
         syncedObject.oneAny = RealmValue.bool(false);
       });
 
-      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Subscriptions have been canceled - shouldn't get more notifications.
