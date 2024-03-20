@@ -11,6 +11,8 @@ import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
 import 'list.dart';
+import 'logging.dart';
+import 'map.dart';
 import 'native/handle_base.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';

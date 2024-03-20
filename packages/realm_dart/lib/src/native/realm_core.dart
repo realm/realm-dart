@@ -14,7 +14,6 @@ import 'package:cancellation_token/cancellation_token.dart';
 import 'package:crypto/crypto.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
-import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_common/realm_common.dart' as common show Decimal128;
@@ -26,6 +25,7 @@ import '../configuration.dart';
 import '../credentials.dart';
 import '../init.dart';
 import '../list.dart';
+import '../logging.dart';
 import '../map.dart';
 import '../migration.dart';
 import '../realm_class.dart';
@@ -36,18 +36,18 @@ import '../session.dart';
 import '../set.dart';
 //import '../subscription.dart';
 import '../user.dart';
+import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
-import 'handle_base.dart';
 
 // TODO: Use regular
 part 'convert.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'mutable_subscription_set_handle.dart';
+part 'rooted_handle.dart';
 part 'subscription_handle.dart';
 part 'subscription_set_handle.dart';
-part 'rooted_handle.dart';
 
 final _pluginLib = () {
   if (!isFlutterPlatform) {
@@ -93,20 +93,20 @@ class _RealmCore {
     // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
 
-    _realmLib.realm_dart_init_debug_logger();
+    realmLib.realm_dart_init_debug_logger();
   }
 
   void loggerAttach() {
-    _realmLib.realm_dart_attach_logger(scheduler.nativePort);
+    realmLib.realm_dart_attach_logger(scheduler.nativePort);
   }
 
   void loggerDetach() {
-    _realmLib.realm_dart_detach_logger(scheduler.nativePort);
+    realmLib.realm_dart_detach_logger(scheduler.nativePort);
   }
 
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
-  //   _realmLib.realm_dart_gc();
+  //   realmLib.realm_dart_gc();
   // }
 
   SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
@@ -203,7 +203,7 @@ class _RealmCore {
         realmLib.realm_config_set_max_number_of_active_versions(configHandle.pointer, config.maxNumberOfActiveVersions!);
       }
       if (config is LocalConfiguration) {
-        //_realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
+        //realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
         if (config.initialDataCallback != null) {
           realmLib.realm_config_set_data_initialization_function(
             configHandle.pointer,
@@ -292,7 +292,7 @@ class _RealmCore {
 
       // For sync and for dynamic Realms, we need to have a complete view of the schema in Core.
       if (config.schemaObjects.isEmpty || config is FlexibleSyncConfiguration) {
-        _realmLib.realm_config_set_schema_subset_mode(configHandle._pointer, realm_schema_subset_mode.RLM_SCHEMA_SUBSET_MODE_COMPLETE);
+        realmLib.realm_config_set_schema_subset_mode(configHandle.pointer, realm_schema_subset_mode.RLM_SCHEMA_SUBSET_MODE_COMPLETE);
       }
 
       return configHandle;
@@ -759,12 +759,11 @@ class _RealmCore {
 
   Map<String, RealmPropertyMetadata> _getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName, Arena arena) {
     final propertyCountPtr = arena<Size>();
-    _realmLib.invokeGetBool(
-        () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
+    invokeGetBool(() => realmLib.realm_get_property_keys(realm.handle.pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
 
     var propertyCount = propertyCountPtr.value;
     final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-    _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
+    invokeGetBool(() => realmLib.realm_get_class_properties(realm.handle.pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
         "Error getting class properties.");
 
     propertyCount = propertyCountPtr.value;
@@ -781,16 +780,6 @@ class _RealmCore {
       result[propertyName] = propertyMeta;
     }
     return result;
-  }
-
-  RealmObjectHandle createRealmObject(Realm realm, int classKey) {
-    final realmPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_object_create(realm.handle._pointer, classKey));
-    return RealmObjectHandle._(realmPtr, realm.handle);
-  }
-
-  RealmObjectHandle createEmbeddedObject(RealmObjectBase obj, int propertyKey) {
-    final objectPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_set_embedded(obj.handle._pointer, propertyKey));
-    return RealmObjectHandle._(objectPtr, obj.realm.handle);
   }
 
   RealmObjectHandle createRealmObject(Realm realm, int classKey) => RealmObjectHandle.create(realm.handle, classKey);
@@ -1638,8 +1627,8 @@ class _RealmCore {
   }
 
   RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
-    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_add_schema_changed_callback(realm.handle._pointer,
-        Pointer.fromFunction(schema_change_callback), realm.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+    final pointer = invokeGetPointer(() => realmLib.realm_add_schema_changed_callback(realm.handle.pointer, Pointer.fromFunction(schema_change_callback),
+        realm.toPersistentHandle(), realmLib.addresses.realm_dart_delete_persistent_handle));
 
     return RealmCallbackTokenHandle._(pointer, realm.handle);
   }
@@ -1893,7 +1882,7 @@ class _RealmCore {
 
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
-      _realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
+      realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
@@ -2862,22 +2851,20 @@ class _RealmCore {
     }
   }
 
-void setLogLevel(LogLevel level, {required LogCategory category}) {
-using((arena) {
-_realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
-});
-}
+  void setLogLevel(LogLevel level, {required LogCategory category}) {
+    using((arena) {
+      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
+    });
+  }
 
-List<String> getAllCategoryNames() {
-return using((arena) {
-final count = _realmLib.realm_get_category_names(0, nullptr);
-final out_values = arena<Pointer<Char>>(count);
-_realmLib.realm_get_category_names(count, out_values);
-return [for (int i = 0; i < count; i++) out_values[i].cast<Utf8>().toDartString()];
-});
-}
-}
-
+  List<String> getAllCategoryNames() {
+    return using((arena) {
+      final count = realmLib.realm_get_category_names(0, nullptr);
+      final out_values = arena<Pointer<Char>>(count);
+      realmLib.realm_get_category_names(count, out_values);
+      return [for (int i = 0; i < count; i++) out_values[i].cast<Utf8>().toDartString()];
+    });
+  }
 }
 
 class SchemaHandle extends HandleBase<realm_schema> {
