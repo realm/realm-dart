@@ -86,7 +86,7 @@ RLM_API void realm_dart_invoke_unlock_callback(realm_userdata_t error, void* unl
 // Stamped into the library by the build system (see prepare-release.yml)
 // Keep this method as it is written and do not format it.
 // We have a github workflow that looks for and replaces this string as it is written here.
-RLM_API const char* realm_dart_library_version() { return "2.0.0-beta.1"; }
+RLM_API const char* realm_dart_library_version() { return "2.0.0-beta.2"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() {
