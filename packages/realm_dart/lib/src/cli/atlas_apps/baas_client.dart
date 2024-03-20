@@ -37,16 +37,38 @@ enum AppNames {
   autoConfirm,
 
   emailConfirm,
+
+  staticSchema,
+}
+
+class JsonSchemaDefinition {
+  final String collectionName;
+  final List<JsonSchemaProperty> properties;
+
+  JsonSchemaDefinition(this.collectionName, this.properties);
+}
+
+class JsonSchemaProperty {
+  final String name;
+  final String bsonType;
+
+  final bool required;
+
+  JsonSchemaProperty({required this.name, required this.bsonType, required this.required});
+
+  Map toJson() => {'bsonType': bsonType};
 }
 
 class BaasClient {
+  static const String _mongoServiceName = 'BackingDB';
+
   static const String _confirmFuncSource = '''exports = async ({ token, tokenId, username }) => {
     // process the confirm token, tokenId and username
     if (username.includes("realm_tests_do_autoverify")) {
       return { status: 'success' }
     }
     else if (username.includes("realm_tests_pending_confirm")) {
-      const mdb = context.services.get("BackingDB");
+      const mdb = context.services.get("$_mongoServiceName");
       const collection = mdb.db("custom-auth").collection("users");
       const existing = await collection.findOne({ username: username });
       if (existing) {
@@ -91,7 +113,7 @@ class BaasClient {
   };''';
 
   static const String _triggerClientResetFuncSource = '''exports = async function(userId, appId) {
-    const mongodb = context.services.get('BackingDB');
+    const mongodb = context.services.get('$_mongoServiceName');
     console.log('user.id: ' + context.user.id);
     try {
       const dbName = `__realm_sync_\${appId}`;
@@ -103,6 +125,36 @@ class BaasClient {
       throw 'Deletion failed: ' + err;
     }
   };''';
+
+  static final _staticSchema_V0 = JsonSchemaDefinition('Nullables', [
+    JsonSchemaProperty(name: '_id', bsonType: 'objectId', required: true),
+    JsonSchemaProperty(name: 'differentiator', bsonType: 'objectId', required: true),
+    JsonSchemaProperty(name: 'boolValue', bsonType: 'bool', required: false),
+    JsonSchemaProperty(name: 'intValue', bsonType: 'long', required: false),
+    JsonSchemaProperty(name: 'floatValue', bsonType: 'float', required: false),
+    JsonSchemaProperty(name: 'doubleValue', bsonType: 'double', required: false),
+    JsonSchemaProperty(name: 'decimalValue', bsonType: 'decimal', required: false),
+    JsonSchemaProperty(name: 'dateValue', bsonType: 'date', required: false),
+    JsonSchemaProperty(name: 'stringValue', bsonType: 'string', required: false),
+    JsonSchemaProperty(name: 'objectIdValue', bsonType: 'objectId', required: false),
+    JsonSchemaProperty(name: 'uuidValue', bsonType: 'uuid', required: false),
+    JsonSchemaProperty(name: 'binaryValue', bsonType: 'binData', required: false),
+  ]);
+
+  static final _staticSchema_v1 = JsonSchemaDefinition('Nullables', [
+    JsonSchemaProperty(name: '_id', bsonType: 'objectId', required: true),
+    JsonSchemaProperty(name: 'differentiator', bsonType: 'objectId', required: true),
+    JsonSchemaProperty(name: 'boolValue', bsonType: 'bool', required: true),
+    JsonSchemaProperty(name: 'intValue', bsonType: 'long', required: true),
+    JsonSchemaProperty(name: 'floatValue', bsonType: 'float', required: true),
+    JsonSchemaProperty(name: 'doubleValue', bsonType: 'double', required: true),
+    JsonSchemaProperty(name: 'decimalValue', bsonType: 'decimal', required: true),
+    JsonSchemaProperty(name: 'dateValue', bsonType: 'date', required: true),
+    JsonSchemaProperty(name: 'stringValue', bsonType: 'string', required: true),
+    JsonSchemaProperty(name: 'objectIdValue', bsonType: 'objectId', required: true),
+    JsonSchemaProperty(name: 'uuidValue', bsonType: 'uuid', required: true),
+    JsonSchemaProperty(name: 'binaryValue', bsonType: 'binData', required: true),
+  ]);
 
   static final String defaultAppName = AppNames.flexible.name;
 
@@ -170,7 +222,7 @@ class BaasClient {
 
     String? httpUrl;
     while (httpUrl == null) {
-      await Future.delayed(Duration(seconds: 1));
+      await Future<Object?>.delayed(Duration(seconds: 1));
       httpUrl = await _waitForContainer(authHelper, id);
     }
 
@@ -253,25 +305,26 @@ class BaasClient {
   /// @nodoc
   Future<List<BaasApp>> getOrCreateApps() async {
     var apps = await _getApps();
-    await _createAppIfNotExists(apps, defaultAppName, _appSuffix);
-    await _createAppIfNotExists(apps, AppNames.autoConfirm.name, _appSuffix, confirmationType: "auto");
-    await _createAppIfNotExists(apps, AppNames.emailConfirm.name, _appSuffix, confirmationType: "email");
+    await _createAppIfNotExists(apps, AppNames.flexible);
+    await _createAppIfNotExists(apps, AppNames.autoConfirm);
+    await _createAppIfNotExists(apps, AppNames.emailConfirm);
+    await _createAppIfNotExists(apps, AppNames.staticSchema);
     return apps;
   }
 
   Future<void> waitForInitialSync(BaasApp app) async {
     while (!await _isSyncComplete(app.appId)) {
       print('Initial sync for ${app.name} is incomplete. Waiting 5 seconds.');
-      await Future.delayed(Duration(seconds: 5));
+      await Future<Object?>.delayed(Duration(seconds: 5));
     }
 
     print('Initial sync for ${app.name} is complete.');
   }
 
-  Future<void> _createAppIfNotExists(List<BaasApp> existingApps, String appName, String appSuffix, {String? confirmationType}) async {
-    final existingApp = existingApps.firstWhereOrNull((a) => a.name == appName);
+  Future<void> _createAppIfNotExists(List<BaasApp> existingApps, AppNames appName) async {
+    final existingApp = existingApps.firstWhereOrNull((a) => a.name == appName.name);
     if (existingApp == null) {
-      existingApps.add(await _createApp(appName, appSuffix, confirmationType: confirmationType));
+      existingApps.add(await _createApp(appName));
     }
   }
 
@@ -281,6 +334,12 @@ class BaasClient {
 
       final progressInfo = response['progress'] as Map<String, dynamic>;
       for (final key in progressInfo.keys) {
+        final error = progressInfo[key]['error'] as String?;
+        if (error != null) {
+          print(error);
+          return false;
+        }
+
         final namespaceComplete = progressInfo[key]['complete'] as bool;
 
         if (!namespaceComplete) {
@@ -331,15 +390,18 @@ class BaasClient {
     await _updateFunction(app, 'confirmFunc', confirmFuncId, source ?? _confirmFuncSource);
   }
 
-  Future<BaasApp> _createApp(String name, String suffix, {String? confirmationType}) async {
-    final uniqueName = "$name$suffix";
+  Future<BaasApp> _createApp(AppNames appName) async {
+    final uniqueName = "${appName.name}$_appSuffix";
     print('Creating app $uniqueName');
+
+    final runConfirmationFunction = appName != AppNames.autoConfirm && appName != AppNames.emailConfirm;
 
     BaasApp? app;
     try {
       final dynamic doc = await _post('groups/$_groupId/apps', '{ "name": "$uniqueName" }');
 
-      app = BaasApp(appId: doc['_id'] as String, clientAppId: doc['client_app_id'] as String, name: name, uniqueName: uniqueName, isNewDeployment: true);
+      app =
+          BaasApp(appId: doc['_id'] as String, clientAppId: doc['client_app_id'] as String, name: appName.name, uniqueName: uniqueName, isNewDeployment: true);
 
       final confirmFuncId = await _createFunction(app, 'confirmFunc', _confirmFuncSource);
       final resetFuncId = await _createFunction(app, 'resetFunc', _resetFuncSource);
@@ -351,7 +413,7 @@ class BaasClient {
 
       await enableProvider(app, 'anon-user');
       await enableProvider(app, 'local-userpass', config: '''{
-        "autoConfirm": ${(confirmationType == "auto").toString()},
+        "autoConfirm": ${appName == AppNames.autoConfirm},
         "confirmEmailSubject": "Confirmation required",
         "confirmationFunctionName": "confirmFunc",
         "confirmationFunctionId": "$confirmFuncId",
@@ -360,7 +422,7 @@ class BaasClient {
         "resetFunctionId": "$resetFuncId",
         "resetPasswordSubject": "",
         "resetPasswordUrl": "http://localhost/resetPassword",
-        "runConfirmationFunction": ${(confirmationType != "email" && confirmationType != "auto").toString()},
+        "runConfirmationFunction": $runConfirmationFunction,
         "runResetFunction": true
       }''');
 
@@ -424,7 +486,7 @@ class BaasClient {
           }''');
       }
 
-      if (confirmationType == null) {
+      if (runConfirmationFunction) {
         await enableProvider(app, 'custom-function', config: '''{
             "authFunctionName": "authFunc",
             "authFunctionId": "$authFuncId"
@@ -477,7 +539,7 @@ class BaasClient {
 
       print('Creating database db_$uniqueName');
 
-      await _createMongoDBService(
+      final mongoServiceId = await _createMongoDBService(
         app,
         syncConfig: '''{
         "flexible_sync": {
@@ -504,14 +566,22 @@ class BaasClient {
         ]
       }''',
       );
-      await _put('groups/$_groupId/apps/$app/sync/config', '{ "development_mode_enabled": true }');
+
+      if (appName == AppNames.staticSchema) {
+        final schemaId = await _createSchema(app, mongoServiceId, _staticSchema_V0);
+        await _updateSchema(app, schemaId, _staticSchema_v1);
+
+        await _waitForSchemaVersion(app, 1);
+      } else {
+        await _put('groups/$_groupId/apps/$app/sync/config', '{ "development_mode_enabled": true }');
+      }
 
       //create email/password user for tests
       final dynamic createUserResult = await _post('groups/$_groupId/apps/$app/users', '{"email": "realm-test@realm.io", "password":"123456"}');
       print("Create user result: $createUserResult");
     } catch (error) {
       print(error);
-      app ??= BaasApp._empty(name);
+      app ??= BaasApp._empty(appName.name);
       app.error = error;
     }
     return app;
@@ -591,7 +661,7 @@ class BaasClient {
   Future<String> _createMongoDBService(BaasApp app, {required String syncConfig, required String rules}) async {
     final serviceName = _clusterName == null ? 'mongodb' : 'mongodb-atlas';
     final mongoConfig = _clusterName == null ? '{ "uri": "mongodb://localhost:26000" }' : '{ "clusterName": "$_clusterName" }';
-    final mongoServiceId = await _createService(app, 'BackingDB', serviceName, mongoConfig);
+    final mongoServiceId = await _createService(app, _mongoServiceName, serviceName, mongoConfig);
 
     await _post('groups/$_groupId/apps/$app/services/$mongoServiceId/default_rule', rules);
 
@@ -628,6 +698,55 @@ class BaasClient {
       }''');
 
     return response['_id'] as String;
+  }
+
+  Future<String> _createSchema(BaasApp app, String mongoServiceId, JsonSchemaDefinition schemaDefinition) async {
+    print('Creating schema ${schemaDefinition.collectionName} for ${app.clientAppId}...');
+
+    final schema = _getSchemaJson(schemaDefinition);
+
+    final response = await _post('groups/$_groupId/apps/$app/schemas', schema);
+
+    return response["_id"] as String;
+  }
+
+  Future<void> _updateSchema(BaasApp app, String schemaId, JsonSchemaDefinition schemaDefinition) async {
+    print('Updating schema ${schemaDefinition.collectionName} for ${app.clientAppId}...');
+
+    final schema = _getSchemaJson(schemaDefinition);
+
+    await _put('groups/$_groupId/apps/$app/schemas/$schemaId?bypass_service_change=SyncSchemaVersionIncrease', schema);
+  }
+
+  Future<void> _waitForSchemaVersion(BaasApp app, int expectedVersion) async {
+    while (true) {
+      final response = await _get('groups/$_groupId/apps/$app/sync/schemas/versions');
+      final versions = response["versions"] as List<dynamic>;
+
+      for (final version in versions) {
+        if (version['version_major'] as int >= expectedVersion) {
+          return;
+        }
+      }
+    }
+  }
+
+  String _getSchemaJson(JsonSchemaDefinition schemaDefinition) {
+    final requiredProps = schemaDefinition.properties.where((p) => p.required).map((p) => '"${p.name}"').join(', ');
+    final props = {for (var p in schemaDefinition.properties) p.name: p};
+    return '''{
+      "metadata": {
+        "database": "Schema_$_appSuffix",
+        "collection": "${schemaDefinition.collectionName}",
+        "data_source": "$_mongoServiceName"
+      },
+      "schema": {
+        "title": "${schemaDefinition.collectionName}",
+        "bsonType": "object",
+        "properties": ${jsonEncode(props)},
+        "required": [ $requiredProps ]
+      }
+    }''';
   }
 
   Future<void> _deleteApp(String appId) async {
@@ -702,7 +821,7 @@ class BaasClient {
         appId: doc['_id'] as String, clientAppId: doc['client_app_id'] as String, name: name, uniqueName: doc['name'] as String, isNewDeployment: false);
 
     final dynamic services = await _get('groups/$_groupId/apps/$app/services');
-    dynamic service = services.firstWhere((dynamic s) => s["name"] == "BackingDB", orElse: () => throw Exception("Func 'confirmFunc' not found"));
+    dynamic service = services.firstWhere((dynamic s) => s["name"] == _mongoServiceName, orElse: () => throw Exception("Func 'confirmFunc' not found"));
     final mongoServiceId = service['_id'] as String;
     final dynamic configDocs = await _get('groups/$_groupId/apps/$app/services/$mongoServiceId/config');
     final dynamic flexibleSync = configDocs['flexible_sync'];

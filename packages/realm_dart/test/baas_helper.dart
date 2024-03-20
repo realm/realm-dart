@@ -127,7 +127,7 @@ class BaasHelper {
 
       for (final app in apps) {
         _baasApps[app.name] = app;
-        if (app.name == AppNames.flexible.name && app.isNewDeployment) {
+        if ((app.name == AppNames.flexible.name || app.name == AppNames.staticSchema.name)) {
           await _waitForInitialSync(app);
         }
       }
@@ -140,7 +140,7 @@ class BaasHelper {
   Future<void> _waitForInitialSync(BaasApp app) async {
     while (true) {
       try {
-        print('Validating initial sync is complete...');
+        print('Validating initial sync for $app is complete...');
         await _baasClient.waitForInitialSync(app);
         return;
       } catch (e) {
