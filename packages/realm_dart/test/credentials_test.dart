@@ -48,7 +48,7 @@ void main() {
   baasTest('Email/Password - register user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomEmail()}";
+    String username = getAutoverifiedEmail();
     await authProvider.registerUser(username, strongPassword);
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
     expect(user, isNotNull);
@@ -119,7 +119,7 @@ void main() {
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify_${generateRandomEmail()}";
+    String username = getAutoverifiedEmail();
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
     await authProvider.registerUser(username, strongPassword);
 

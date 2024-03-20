@@ -63,7 +63,7 @@ void main() {
     expect(user1.identities.singleWhere((identity) => identity.provider == AuthProviderType.anonymous), isA<UserIdentity>());
 
     final authProvider = EmailPasswordAuthProvider(app);
-    final username = generateRandomEmail();
+    final username = getAutoverifiedEmail();
     final password = generateRandomString(8);
     await authProvider.registerUser(username, password);
 

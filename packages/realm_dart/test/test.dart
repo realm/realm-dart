@@ -591,9 +591,11 @@ dynamic shouldSkip(dynamic skip) {
   return skip;
 }
 
+String getAutoverifiedEmail() => 'realm_tests_do_autoverify_${generateRandomEmail()}';
+
 Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
-  final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
+  final email = getAutoverifiedEmail();
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
