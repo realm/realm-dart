@@ -274,22 +274,25 @@ void main() {
 
   group('List<RealmValue>', () {
     final differentiator = ObjectId();
-    final now = DateTime.now().toUtc();
-    final values = <Object?>[
-      null,
-      true,
-      'text',
-      42,
-      3.14,
-      ObjectWithRealmValue(ObjectId(), differentiator: differentiator),
-      ObjectWithInt(ObjectId(), differentiator: differentiator),
-      now,
-      ObjectId.fromTimestamp(now),
-      Uuid.v4(),
-      Decimal128.fromInt(128),
-    ];
+    List<Object?> getValues() {
+      final now = DateTime.now().toUtc();
+      return [
+        null,
+        true,
+        'text',
+        42,
+        3.14,
+        ObjectWithRealmValue(ObjectId(), differentiator: differentiator),
+        ObjectWithInt(ObjectId(), differentiator: differentiator),
+        now,
+        ObjectId.fromTimestamp(now),
+        Uuid.v4(),
+        Decimal128.fromInt(128),
+      ];
+    }
 
     test('Roundtrip', () {
+      final values = getValues();
       final realm = getMixedRealm();
       final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
@@ -297,6 +300,7 @@ void main() {
     });
 
     baasTest('[BaaS] Roundtrip', (appConfig) async {
+      final values = getValues();
       final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
       final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
       expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
@@ -325,32 +329,19 @@ void main() {
       expect(object.manyAny.length, values.length + 1);
       expect(object.manyAny.last.value, newValue);
     });
-  });
 
-  test('Query with list of realm values in arguments', () {
-    final now = DateTime.now().toUtc();
-    final values = <Object?>[
-      null,
-      true,
-      'text',
-      42,
-      3.14,
-      ObjectWithRealmValue(ObjectId()),
-      ObjectWithInt(ObjectId()),
-      now,
-      ObjectId.fromTimestamp(now),
-      Uuid.v4(),
-      Decimal128.fromInt(128),
-    ];
-    final realm = getMixedRealm();
-    final realmValues = values.map(RealmValue.from);
-    realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: realmValues, oneAny: realmValues.last)));
+    test('Query with list of realm values in arguments', () {
+      final values = getValues();
+      final realm = getMixedRealm();
+      final realmValues = values.map(RealmValue.from);
+      realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: realmValues, oneAny: realmValues.last)));
 
-    var results = realm.query<ObjectWithRealmValue>("manyAny IN \$0", [values]);
-    expect(results.first.manyAny, realmValues);
+      var results = realm.query<ObjectWithRealmValue>("manyAny IN \$0", [values]);
+      expect(results.first.manyAny, realmValues);
 
-    results = realm.query<ObjectWithRealmValue>("oneAny IN \$0", [values]);
-    expect(results.first.oneAny, realmValues.last);
+      results = realm.query<ObjectWithRealmValue>("oneAny IN \$0", [values]);
+      expect(results.first.oneAny, realmValues.last);
+    });
   });
 
   group('Set<RealmValue>', () {
