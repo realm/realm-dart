@@ -1,211 +1,167 @@
 // Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// ignore_for_file: unused_local_variable, avoid_relative_lib_imports
-
 import 'dart:async';
 import 'dart:isolate';
-import 'package:logging/logging.dart';
+import 'package:logging/logging.dart' hide LogRecord;
+import 'package:logging/logging.dart' as logging show LogRecord;
+import 'package:realm_dart/src/logging.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:test/test.dart' hide test, throws;
-import 'package:realm_dart/src/realm_class.dart' show RealmInternal;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-const logLevels = [
-  RealmLogLevel.all,
-  RealmLogLevel.trace,
-  RealmLogLevel.debug,
-  RealmLogLevel.detail,
-  RealmLogLevel.info,
-  RealmLogLevel.fatal,
-  RealmLogLevel.error,
-  RealmLogLevel.warn
-];
+typedef DartLogRecord = logging.LogRecord;
 
-class LoggedMessage {
-  final Level level;
-  final String message;
-
-  const LoggedMessage(this.level, this.message);
-
-  factory LoggedMessage.empty() => const LoggedMessage(RealmLogLevel.off, "");
-
-  @override
-  // ignore: hash_and_equals
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! LoggedMessage) return false;
-    return level == other.level && message == other.message;
-  }
-
-  @override
-  String toString() => "level:$level message:$message";
-}
-
-void openARealm() {
-  Configuration.defaultRealmName = generateRandomRealmPath();
-  final config = Configuration.inMemory([Car.schema]);
-  Realm(config).close();
-  tryDeleteRealm(Configuration.defaultRealmName);
-}
+final logToValues = LogLevel.values.where((l) => ![LogLevel.all, LogLevel.off].contains(l));
 
 void main() {
   setupTests();
 
-  for (var level in logLevels) {
-    test('Realm.logger supports log level $level', () async {
-      LoggedMessage actual = await Isolate.run(() async {
-        final completer = Completer<LoggedMessage>();
+  group('All levels', () {
+    for (var level in LogLevel.values) {
+      test('Realm.logger supports log level $level', () {
+        Realm.logger.setLogLevel(LogLevel.off);
+        Realm.logger.setLogLevel(LogLevel.all, category: LogCategory.realm.sdk);
 
-        Realm.logger.level = level;
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-        Realm.logger.onRecord.listen((event) {
-          completer.complete(LoggedMessage(event.level, event.message));
-        });
-
-        RealmInternal.logMessageForTesting(level, "123");
-
-        return await completer.future;
+        final tag = Uuid.v4();
+        expectLater(
+          Realm.logger.onRecord,
+          emits((category: LogCategory.realm.sdk, level: level, message: '$level $tag')),
+        );
+        Realm.logger.log(level, '$level $tag');
       });
-
-      expect(actual, LoggedMessage(level, "123"));
-    });
-  }
-
-  test('Realm.logger supports changing log level', () async {
-    List<LoggedMessage> actual = await Isolate.run(() async {
-      final result = <LoggedMessage>[];
-
-      var completer = Completer<LoggedMessage>();
-      Realm.logger.level = RealmLogLevel.trace;
-      Realm.logger.onRecord.listen((event) {
-        if (event.level != Realm.logger.level) {
-          return;
-        }
-
-        completer.complete(LoggedMessage(event.level, event.message));
-      });
-      openARealm();
-      result.add(await completer.future);
-
-      Realm.logger.level = RealmLogLevel.debug;
-      completer = Completer<LoggedMessage>();
-      openARealm();
-      result.add(await completer.future);
-
-      Realm.logger.level = RealmLogLevel.trace;
-      completer = Completer<LoggedMessage>();
-      openARealm();
-      result.add(await completer.future);
-
-      //increase log verbosity
-      Realm.logger.level = RealmLogLevel.debug;
-      completer = Completer<LoggedMessage>();
-      openARealm();
-      result.add(await completer.future);
-
-      return result;
-    });
-
-    expect(actual[0].level, RealmLogLevel.trace);
-    expect(actual[1].level, RealmLogLevel.debug);
-    expect(actual[2].level, RealmLogLevel.trace);
-    expect(actual[3].level, RealmLogLevel.debug);
+    }
   });
 
-  test('Realm.logger supports custom logger', () async {
-    LoggedMessage actual = await Isolate.run(() async {
-      final completer = Completer<LoggedMessage>();
+  group('Match levels', () {
+    for (var level in LogLevel.values) {
+      final expectedLevels = logToValues.where((l) => l.index >= level.index);
+      test('$level matches $expectedLevels', () {
+        Realm.logger.setLogLevel(LogLevel.off);
+        Realm.logger.setLogLevel(level, category: LogCategory.realm.sdk);
 
-      Realm.logger.onRecord.listen((event) {
-        throw RealmError("Default logger should not log messages if custom logger is set");
+        expectLater(Realm.logger.onRecord, emitsInOrder(expectedLevels.map((l) => isA<LogRecord>().having((r) => r.level, '$l', l))));
+        for (var sendLevel in logToValues) {
+          Realm.logger.log(sendLevel, '$sendLevel');
+        }
       });
-
-      Realm.logger = Logger.detached("custom logger")..level = RealmLogLevel.detail;
-
-      Realm.logger.onRecord.listen((event) {
-        completer.complete(LoggedMessage(event.level, event.message));
-      });
-
-      RealmInternal.logMessageForTesting(RealmLogLevel.detail, "123");
-
-      return await completer.future;
-    });
-
-    expect(actual, LoggedMessage(RealmLogLevel.detail, "123"));
+    }
   });
 
-  test('Realm.logger supports logging from multiple isolates', () async {
-    List<LoggedMessage> actual = await Isolate.run(() async {
-      var completer = Completer<void>();
-      final result = <LoggedMessage>[];
-
-      Realm.logger.level = RealmLogLevel.all;
-      Realm.logger.onRecord.listen((event) {
-        if (event.message == "stop") {
-          return completer.complete();
-        }
-
-        result.add(LoggedMessage(event.level, event.message));
-      });
-
-      // run a second isolate to listen logging specific log level messages
-      await Isolate.run(() async {
-        var completer2 = Completer<void>();
-        Realm.logger.level = RealmLogLevel.error;
-        Realm.logger.onRecord.listen((event) {
-          if ((event.level == RealmLogLevel.error && event.message != "2") || (event.level == RealmLogLevel.trace && event.message != "3")) {
-            throw RealmError("Unexpected message ${LoggedMessage(event.level, event.message)}");
-          }
-
-          completer2.complete();
+  group('LogCategory.contains', () {
+    for (final outer in LogCategory.values) {
+      for (final inner in LogCategory.values) {
+        test('$outer contains $inner', () {
+          expect(outer.contains(inner), inner.toString().startsWith(outer.toString()));
         });
+      }
+    }
+  });
 
-        Future<void> logTestMessage(Level level, String message) async {
-          completer2 = Completer<void>();
-          RealmInternal.logMessageForTesting(level, message);
-          if (Realm.logger.level == RealmLogLevel.off) {
-            Future<void>.delayed(const Duration(milliseconds: 10)).then((value) {
-              completer2.complete();
-            }).ignore();
-          }
-          await completer2.future;
-        }
+  test('Trace in subisolate seen in parent', () {
+    Realm.logger.setLogLevel(LogLevel.off);
+    Realm.logger.setLogLevel(LogLevel.all, category: LogCategory.realm.sdk);
 
-        await logTestMessage(RealmLogLevel.error, "2");
-        await logTestMessage(RealmLogLevel.error, "2");
+    expectLater(Realm.logger.onRecord, emits(isA<LogRecord>().having((r) => r.message, 'message', 'Hey')));
+    Isolate.run(() {
+      Realm.logger.log(LogLevel.trace, 'Hey');
+    });
+  });
 
-        // turn off second isolate
-        Realm.logger.level = RealmLogLevel.off;
+  test('Trace in root isolate seen in subisolate', () async {
+    Realm.logger.setLogLevel(LogLevel.off);
+    Realm.logger.setLogLevel(LogLevel.all, category: LogCategory.realm.sdk);
 
-        // log another message. second isoalte should not get it
-        await logTestMessage(RealmLogLevel.error, "first only");
+    final trace = Isolate.run(() async {
+      return (await Realm.logger.onRecord.first).message;
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 100)); // yield
+    expectLater(trace, completion('Hey'));
+    Realm.logger.log(LogLevel.trace, 'Hey');
+  });
 
-        // turn on second isolate
-        Realm.logger.level = RealmLogLevel.trace;
+  test('RealmLogger hookup logging', () async {
+    Realm.logger.setLogLevel(LogLevel.off);
+    Realm.logger.setLogLevel(LogLevel.all, category: LogCategory.realm.sdk);
 
-        // log a another message
-        await logTestMessage(RealmLogLevel.trace, "3");
+    final logger = Logger.detached('Test');
+    final sub = Realm.logger.onRecord.listen((r) => logger.log(r.level.level, r.message));
+    logger.level = Level.ALL;
 
-        // stop all isolates signal
-        await logTestMessage(RealmLogLevel.detail, "stop");
+    expectLater(logger.onRecord, emits(isA<DartLogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')))
+        .whenComplete(sub.cancel);
 
-        return await completer2.future;
-      });
+    Realm.logger.log(LogLevel.error, 'error');
+  });
 
-      await completer.future;
+  test('RealmLogger hookup hierarchical logging', () async {
+    Realm.logger.setLogLevel(LogLevel.off);
+    Realm.logger.setLogLevel(LogLevel.all, category: LogCategory.realm.sdk);
 
-      return result;
+    final old = hierarchicalLoggingEnabled;
+    hierarchicalLoggingEnabled = true;
+
+    final sub = Realm.logger.onRecord.listen((r) => Logger(r.category.toString()).log(r.level.level, r.message));
+    Logger.root.level = Level.ALL;
+
+    expectLater(
+        Logger('Realm').onRecord, emits(isA<DartLogRecord>().having((r) => r.level, 'level', Level.SEVERE).having((r) => r.message, 'message', 'error')));
+    expectLater(
+      Logger('Realm.SDK').onRecord,
+      emits(isA<DartLogRecord>().having((r) => r.level, 'level', Level.SEVERE).having(
+            (r) => r.message,
+            'message',
+            'error',
+          )),
+    ).whenComplete(() {
+      sub.cancel();
+      hierarchicalLoggingEnabled = old;
     });
 
-    final expected = [
-      const LoggedMessage(RealmLogLevel.error, "2"),
-      const LoggedMessage(RealmLogLevel.error, "2"),
-      const LoggedMessage(RealmLogLevel.error, "first only"),
-      const LoggedMessage(RealmLogLevel.trace, "3")
-    ];
+    Realm.logger.log(LogLevel.error, 'error', category: LogCategory.realm.sdk);
+  });
 
-    //first isolate should have collected all the messages
-    expect(actual, containsAllInOrder(expected));
+  group('Category mapping', () {
+    final nativeCategoryNames = realmCore.getAllCategoryNames();
+    for (final name in nativeCategoryNames) {
+      test('$name can parse', () {
+        expect(() => LogCategory.fromString(name), returnsNormally);
+        final category = LogCategory.fromString(name);
+        expect(category, isA<LogCategory>().having((c) => c.toString(), 'toString()', name));
+      });
+    }
+
+    for (final category in LogCategory.values) {
+      test('$category known by native', () {
+        expect(nativeCategoryNames, contains(category.toString()));
+      });
+    }
+  });
+
+  test('RealmLogger.onRecord is a broadcast stream', () {
+    // see https://github.com/realm/realm-dart/pull/1574#issuecomment-2006769321
+    expect(Realm.logger.onRecord.isBroadcast, isTrue);
+    final sub = Realm.logger.onRecord.listen((_) {});
+    expect(() => Realm.logger.onRecord.first, returnsNormally); // safe to listen twice on a broadcast stream
+    sub.cancel();
+  });
+
+  test('Changing levels works', () {
+    Realm.logger.setLogLevel(LogLevel.off);
+    Realm.logger.setLogLevel(LogLevel.all, category: LogCategory.realm.sdk);
+
+    expectLater(
+        Realm.logger.onRecord,
+        emitsInOrder([
+          isA<LogRecord>().having((r) => r.level, 'level', LogLevel.trace).having((r) => r.message, 'message', 'trace'),
+          // note second trace is not seen
+          isA<LogRecord>().having((r) => r.level, 'level', LogLevel.warn).having((r) => r.message, 'message', 'warn'),
+        ]));
+
+    Realm.logger.log(LogLevel.trace, 'trace');
+    Realm.logger.setLogLevel(LogLevel.warn, category: LogCategory.realm.sdk);
+    Realm.logger.log(LogLevel.trace, 'trace'); // <-- not seen
+    Realm.logger.log(LogLevel.warn, 'warn');
   });
 }

@@ -10,15 +10,15 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:cancellation_token/cancellation_token.dart';
+import 'package:crypto/crypto.dart';
 // Hide StringUtf8Pointer.toNativeUtf8 and StringUtf16Pointer since these allows silently allocating memory. Use toUtf8Ptr instead
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
-import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:realm_common/realm_common.dart' hide Decimal128;
+import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_common/realm_common.dart' as common show Decimal128;
+import 'package:realm_common/realm_common.dart' hide Decimal128;
+import 'package:realm_dart/src/logging.dart';
 
 import '../app.dart';
 import '../collections.dart';
@@ -33,9 +33,9 @@ import '../realm_object.dart';
 import '../results.dart';
 import '../scheduler.dart';
 import '../session.dart';
+import '../set.dart';
 import '../subscription.dart';
 import '../user.dart';
-import '../set.dart';
 import 'realm_bindings.dart';
 
 part 'decimal128.dart';
@@ -76,7 +76,7 @@ final _pluginLib = () {
 }();
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '2.0.0-alpha.2';
+const libraryVersion = '2.0.0-beta.2';
 
 _RealmCore realmCore = _RealmCore();
 
@@ -91,8 +91,6 @@ class _RealmCore {
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
   final encryptionKeySize = 64;
-  late final Logger defaultRealmLogger;
-  late StreamSubscription<Level?> realmLoggerLevelChangedSubscription;
   // ignore: unused_field
   static late final _RealmCore _instance;
 
@@ -102,21 +100,16 @@ class _RealmCore {
 
     // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
-    defaultRealmLogger = _initDefaultLogger(scheduler);
+
+    _realmLib.realm_dart_init_debug_logger();
   }
 
-  Logger _initDefaultLogger(Scheduler scheduler) {
-    final logger = Logger.detached('Realm')..level = Level.INFO;
-    realmLoggerLevelChangedSubscription = logger.onLevelChanged.listen((logLevel) => loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
+  void loggerAttach() {
+    _realmLib.realm_dart_attach_logger(scheduler.nativePort);
+  }
 
-    bool isDefaultLogger = _realmLib.realm_dart_init_core_logger(logger.level.toInt());
-    if (isDefaultLogger) {
-      logger.onRecord.listen((event) => print('${event.time.toIso8601String()}: $event'));
-    }
-
-    loggerSetLogLevel(logger.level, scheduler.nativePort);
-
-    return logger;
+  void loggerDetach() {
+    _realmLib.realm_dart_detach_logger(scheduler.nativePort);
   }
 
   // for debugging only. Enable in realm_dart.cpp
@@ -161,8 +154,8 @@ class _RealmCore {
       for (var i = 0; i < classCount; i++) {
         final schemaObject = schema.elementAt(i);
         final classInfo = schemaClasses.elementAt(i).ref;
-        final propertiesCount = schemaObject.properties.length;
-        final computedCount = schemaObject.properties.where((p) => p.isComputed).length;
+        final propertiesCount = schemaObject.length;
+        final computedCount = schemaObject.where((p) => p.isComputed).length;
         final persistedCount = propertiesCount - computedCount;
 
         classInfo.name = schemaObject.name.toCharPtr(arena);
@@ -175,7 +168,7 @@ class _RealmCore {
         final properties = arena<realm_property_info_t>(propertiesCount);
 
         for (var j = 0; j < propertiesCount; j++) {
-          final schemaProperty = schemaObject.properties[j];
+          final schemaProperty = schemaObject[j];
           final propInfo = properties.elementAt(j).ref;
           propInfo.name = schemaProperty.mapTo.toCharPtr(arena);
           propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
@@ -275,7 +268,7 @@ class _RealmCore {
       } else if (config is InMemoryConfiguration) {
         _realmLib.realm_config_set_in_memory(configHandle._pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
-        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
+        _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
         final syncConfigPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_flx_sync_config_new(config.user.handle._pointer));
         try {
           _realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
@@ -321,9 +314,16 @@ class _RealmCore {
         _realmLib.realm_config_set_schema_mode(configHandle._pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         _realmLib.realm_config_set_force_sync_history(configPtr, true);
       }
+
       if (config.encryptionKey != null) {
         _realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
       }
+
+      // For sync and for dynamic Realms, we need to have a complete view of the schema in Core.
+      if (config.schemaObjects.isEmpty || config is FlexibleSyncConfiguration) {
+        _realmLib.realm_config_set_schema_subset_mode(configHandle._pointer, realm_schema_subset_mode.RLM_SCHEMA_SUBSET_MODE_COMPLETE);
+      }
+
       return configHandle;
     });
   }
@@ -948,36 +948,40 @@ class _RealmCore {
       }
 
       final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertyMetadata(realm, classInfo.ref.key, primaryKey));
+      return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertiesMetadata(realm, classInfo.ref.key, primaryKey, arena));
     });
   }
 
-  Map<String, RealmPropertyMetadata> _getPropertyMetadata(Realm realm, int classKey, String? primaryKeyName) {
+  Map<String, RealmPropertyMetadata> getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName) {
     return using((Arena arena) {
-      final propertyCountPtr = arena<Size>();
-      _realmLib.invokeGetBool(
-          () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
-
-      var propertyCount = propertyCountPtr.value;
-      final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-      _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
-          "Error getting class properties.");
-
-      propertyCount = propertyCountPtr.value;
-      Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
-      for (var i = 0; i < propertyCount; i++) {
-        final property = propertiesPtr.elementAt(i);
-        final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
-        final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-        final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
-        final isPrimaryKey = propertyName == primaryKeyName;
-        final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
-            isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
-        result[propertyName] = propertyMeta;
-      }
-      return result;
+      return _getPropertiesMetadata(realm, classKey, primaryKeyName, arena);
     });
+  }
+
+  Map<String, RealmPropertyMetadata> _getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName, Arena arena) {
+    final propertyCountPtr = arena<Size>();
+    _realmLib.invokeGetBool(
+        () => _realmLib.realm_get_property_keys(realm.handle._pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
+
+    var propertyCount = propertyCountPtr.value;
+    final propertiesPtr = arena<realm_property_info_t>(propertyCount);
+    _realmLib.invokeGetBool(() => _realmLib.realm_get_class_properties(realm.handle._pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
+        "Error getting class properties.");
+
+    propertyCount = propertyCountPtr.value;
+    Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
+    for (var i = 0; i < propertyCount; i++) {
+      final property = propertiesPtr.elementAt(i);
+      final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
+      final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+      final isPrimaryKey = propertyName == primaryKeyName;
+      final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
+          isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
+      result[propertyName] = propertyMeta;
+    }
+    return result;
   }
 
   RealmObjectHandle createRealmObject(Realm realm, int classKey) {
@@ -1757,6 +1761,15 @@ class _RealmCore {
     controller.onUserChanged();
   }
 
+  static void schema_change_callback(Pointer<Void> userdata, Pointer<realm_schema> data) {
+    final Realm realm = userdata.toObject();
+    try {
+      realm.updateSchema();
+    } catch (e) {
+      Realm.logger.log(LogLevel.error, 'Failed to update Realm schema: $e');
+    }
+  }
+
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_results_add_notification_callback(
           results.handle._pointer,
@@ -1815,6 +1828,13 @@ class _RealmCore {
       _realmLib.addresses.realm_dart_userdata_async_free,
     );
     return UserNotificationTokenHandle._(notification_token);
+  }
+
+  RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
+    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_add_schema_changed_callback(realm.handle._pointer,
+        Pointer.fromFunction(schema_change_callback), realm.toPersistentHandle(), _realmLib.addresses.realm_dart_delete_persistent_handle));
+
+    return RealmCallbackTokenHandle._(pointer, realm.handle);
   }
 
   bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
@@ -2006,7 +2026,7 @@ class _RealmCore {
           request.add(utf8.encode(body));
         }
 
-        Realm.logger.log(RealmLogLevel.debug, "HTTP Transport: Executing ${method.name} $url");
+        Realm.logger.log(LogLevel.debug, "HTTP Transport: Executing ${method.name} $url");
 
         final stopwatch = Stopwatch()..start();
 
@@ -2014,7 +2034,7 @@ class _RealmCore {
         final response = await request.close();
 
         stopwatch.stop();
-        Realm.logger.log(RealmLogLevel.debug, "HTTP Transport: Executed ${method.name} $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
+        Realm.logger.log(LogLevel.debug, "HTTP Transport: Executed ${method.name} $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
 
         final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
 
@@ -2043,13 +2063,13 @@ class _RealmCore {
 
         responseRef.custom_status_code = _CustomErrorCode.noError.code;
       } on SocketException catch (socketEx) {
-        Realm.logger.log(RealmLogLevel.warn, "HTTP Transport: SocketException executing ${method.name} $url: $socketEx");
+        Realm.logger.log(LogLevel.warn, "HTTP Transport: SocketException executing ${method.name} $url: $socketEx");
         responseRef.custom_status_code = _CustomErrorCode.timeout.code;
       } on HttpException catch (httpEx) {
-        Realm.logger.log(RealmLogLevel.warn, "HTTP Transport: HttpException executing ${method.name} $url: $httpEx");
+        Realm.logger.log(LogLevel.warn, "HTTP Transport: HttpException executing ${method.name} $url: $httpEx");
         responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
       } catch (ex) {
-        Realm.logger.log(RealmLogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
+        Realm.logger.log(LogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
         responseRef.custom_status_code = _CustomErrorCode.unknown.code;
       } finally {
         _realmLib.realm_http_transport_complete_request(request_context, response_pointer);
@@ -2057,13 +2077,9 @@ class _RealmCore {
     });
   }
 
-  void loggerSetLogLevel(Level logLevel, int schedulerPort) {
-    _realmLib.realm_dart_set_log_level(logLevel.toInt(), schedulerPort);
-  }
-
-  void logMessageForTesting(Level logLevel, String message) {
+  void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
-      _realmLib.realm_dart_log_message_for_testing(logLevel.toInt(), message.toCharPtr(arena));
+      _realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
@@ -3021,6 +3037,10 @@ class _RealmCore {
           collectionHandle = listHandle;
 
           final list = realm.createList<RealmValue>(listHandle, null);
+
+          // Necessary since Core will not clear the collection if the value was already a collection
+          list.clear();
+
           for (final item in value.value as List<RealmValue>) {
             list.add(item);
           }
@@ -3030,6 +3050,10 @@ class _RealmCore {
           collectionHandle = mapHandle;
 
           final map = realm.createMap<RealmValue>(mapHandle, null);
+
+          // Necessary since Core will not clear the collection if the value was already a collection
+          map.clear();
+
           for (final kvp in (value.value as Map<String, RealmValue>).entries) {
             map[kvp.key] = kvp.value;
           }
@@ -3039,6 +3063,21 @@ class _RealmCore {
     } finally {
       collectionHandle?.release();
     }
+  }
+
+  void setLogLevel(LogLevel level, {required LogCategory category}) {
+    using((arena) {
+      _realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
+    });
+  }
+
+  List<String> getAllCategoryNames() {
+    return using((arena) {
+      final count = _realmLib.realm_get_category_names(0, nullptr);
+      final out_values = arena<Pointer<Char>>(count);
+      _realmLib.realm_get_category_names(count, out_values);
+      return [for (int i = 0; i < count; i++) out_values[i].cast<Utf8>().toDartString()];
+    });
   }
 }
 
@@ -3063,7 +3102,7 @@ class LastError {
 const _enableFinalizerTrace = false;
 
 // Level used for finalization trace, if enabled.
-const _finalizerTraceLevel = RealmLogLevel.trace;
+const _finalizerTraceLevel = LogLevel.trace;
 
 void _traceFinalization(Object o) {
   Realm.logger.log(_finalizerTraceLevel, 'Finalizing: $o');
@@ -3246,6 +3285,10 @@ class RealmMapHandle extends CollectionHandleBase<realm_dictionary> {
 
 class _RealmQueryHandle extends RootedHandleBase<realm_query> {
   _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
+}
+
+class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
+  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
@@ -3782,58 +3825,6 @@ extension on realm_app_user_apikey {
         key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true),
         !disabled,
       );
-}
-
-extension LevelExt on Level {
-  int toInt() {
-    if (this == Level.ALL) {
-      return 0;
-    } else if (name == "TRACE") {
-      return 1;
-    } else if (name == "DEBUG") {
-      return 2;
-    } else if (name == "DETAIL") {
-      return 3;
-    } else if (this == Level.INFO) {
-      return 4;
-    } else if (this == Level.WARNING) {
-      return 5;
-    } else if (name == "ERROR") {
-      return 6;
-    } else if (name == "FATAL") {
-      return 7;
-    } else if (this == Level.OFF) {
-      return 8;
-    } else {
-      // if unknown logging is off
-      return 8;
-    }
-  }
-
-  static Level fromInt(int value) {
-    switch (value) {
-      case 0:
-        return RealmLogLevel.all;
-      case 1:
-        return RealmLogLevel.trace;
-      case 2:
-        return RealmLogLevel.debug;
-      case 3:
-        return RealmLogLevel.detail;
-      case 4:
-        return RealmLogLevel.info;
-      case 5:
-        return RealmLogLevel.warn;
-      case 6:
-        return RealmLogLevel.error;
-      case 7:
-        return RealmLogLevel.fatal;
-      case 8:
-      default:
-        // if unknown logging is off
-        return RealmLogLevel.off;
-    }
-  }
 }
 
 extension PlatformEx on Platform {

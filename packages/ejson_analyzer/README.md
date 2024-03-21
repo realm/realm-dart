@@ -1,1 +1,1 @@
-../../README.md
+../README.ejson.md

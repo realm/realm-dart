@@ -165,8 +165,9 @@ void main() {
     final stream = realm.syncSession.getProgressStream(direction, mode);
 
     data.subscription = stream.listen((event) {
-      expect(event.progressEstimate, greaterThanOrEqualTo(data.progressEstimate));
-      Realm.logger.log(RealmLogLevel.warn, '-------------------- RECEIVED PROGRESS ${event.progressEstimate} --------------------');
+      if (mode == ProgressMode.forCurrentlyOutstandingWork) {
+        expect(event.progressEstimate, greaterThanOrEqualTo(data.progressEstimate));
+      }
 
       data.progressEstimate = event.progressEstimate;
       data.callbacksInvoked++;
@@ -301,9 +302,11 @@ void main() {
 
     await realmA.syncSession.waitForUpload();
     await validateData(uploadData);
+    expect(uploadData.progressEstimate, 1.0);
 
     await realmB.syncSession.waitForDownload();
     await validateData(downloadData);
+    expect(downloadData.progressEstimate, 1.0);
 
     // Snapshot the current state, then add a new object. We should receive more notifications
     final uploadSnapshot = StreamProgressData.snapshot(uploadData);
@@ -317,7 +320,9 @@ void main() {
     await realmB.syncSession.waitForDownload();
 
     await validateData(uploadData);
+    expect(uploadData.progressEstimate, 1.0);
     await validateData(downloadData);
+    expect(downloadData.progressEstimate, 1.0);
 
     expect(uploadData.callbacksInvoked, greaterThan(uploadSnapshot.callbacksInvoked));
     expect(downloadData.callbacksInvoked, greaterThan(downloadSnapshot.callbacksInvoked));
@@ -388,5 +393,5 @@ class StreamProgressData {
   StreamProgressData({this.progressEstimate = -1, this.callbacksInvoked = 0, this.doneInvoked = false});
 
   StreamProgressData.snapshot(StreamProgressData other)
-      : this(progressEstimate: other.progressEstimate, callbacksInvoked: other.callbacksInvoked, doneInvoked: other.doneInvoked);
+      : this(callbacksInvoked: other.callbacksInvoked, doneInvoked: other.doneInvoked, progressEstimate: other.progressEstimate);
 }

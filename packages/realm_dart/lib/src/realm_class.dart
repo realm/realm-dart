@@ -7,19 +7,19 @@ import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
-import 'package:logging/logging.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
 import 'list.dart';
+import 'logging.dart';
+import 'map.dart';
 import 'native/realm_core.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
 import 'session.dart';
-import 'subscription.dart';
 import 'set.dart';
-import 'map.dart';
+import 'subscription.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, TimeoutCancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -80,9 +80,10 @@ export "configuration.dart"
         SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
-export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
+export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
+export 'native/realm_core.dart' show Decimal128;
 export 'realm_object.dart'
     show
         AsymmetricObject,
@@ -98,9 +99,9 @@ export 'realm_object.dart'
 export 'realm_property.dart';
 export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
 export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState, SyncErrorCode;
+export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
 export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
 export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
-export 'native/realm_core.dart' show Decimal128;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -109,6 +110,8 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
+  late final RealmCallbackTokenHandle? _schemaCallbackHandle;
+  final List<StreamController<RealmSchemaChanges>> _schemaChangeListeners = [];
 
   /// An object encompassing this `Realm` instance's dynamic API.
   late final DynamicRealm dynamic = DynamicRealm._(this);
@@ -130,6 +133,18 @@ class Realm implements Finalizable {
 
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
+
+    // The schema of a Realm file may change due to sync adding new properties/classes. We subscribe for notifications
+    // in order to update the managed schema instance in case this happens. The same is true for dynamic Realms. For
+    // local Realms with user-supplied schema, the schema on disk may still change, but Core doesn't report the updated
+    // schema, so even if we subscribe, we wouldn't be able to see the updates.
+    if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
+      // TODO: enable once https://github.com/realm/realm-core/issues/7426 is fixed.
+      // _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+      _schemaCallbackHandle = null;
+    } else {
+      _schemaCallbackHandle = null;
+    }
   }
 
   /// A method for asynchronously opening a [Realm].
@@ -387,6 +402,7 @@ class Realm implements Finalizable {
       return;
     }
 
+    _schemaCallbackHandle?.release();
     realmCore.closeRealm(this);
     handle.release();
   }
@@ -495,26 +511,13 @@ class Realm implements Finalizable {
     return realmCore.realmEquals(this, other);
   }
 
-  static Logger _logger = realmCore.defaultRealmLogger;
-
-  /// The logger to use for Realm logging in this `Isolate`
-  /// The default log level is [RealmLogLevel.info].
-  static Logger get logger {
-    return _logger;
-  }
-
-  static set logger(Logger value) {
-    if (_logger == value) {
-      return;
-    }
-
-    _logger.clearListeners();
-    realmCore.realmLoggerLevelChangedSubscription.cancel();
-    _logger = value;
-    realmCore.loggerSetLogLevel(_logger.level, scheduler.nativePort);
-    realmCore.realmLoggerLevelChangedSubscription =
-        _logger.onLevelChanged.listen((logLevel) => realmCore.loggerSetLogLevel(logLevel ?? RealmLogLevel.off, scheduler.nativePort));
-  }
+  /// The logger that will emit log messages from the database and sync operations.
+  /// To receive log messages, use the [RealmLogger.onRecord] stream.
+  ///
+  /// If no isolate subscribes to the stream, the trace messages will go to stdout.
+  ///
+  /// The default log level is [LogLevel.info].
+  static const logger = RealmLogger();
 
   /// Used to shutdown Realm and allow the process to correctly release native resources and exit.
   ///
@@ -596,6 +599,59 @@ class Realm implements Finalizable {
   Future<bool> refreshAsync() async {
     return realmCore.realmRefreshAsync(this);
   }
+
+  /// Allows listening for schema changes on this Realm. Only dynamic and synchronized
+  /// Realms will emit schema change notifications.
+  ///
+  /// Returns a [Stream] of [RealmSchemaChanges] that can be listened to.
+  // TODO: this is private due to https://github.com/realm/realm-core/issues/7426. Once that is fixed, we can expose it.
+  Stream<RealmSchemaChanges> get _schemaChanges {
+    late StreamController<RealmSchemaChanges> controller;
+    controller = StreamController<RealmSchemaChanges>(
+        onListen: () => _schemaChangeListeners.add(controller),
+        onPause: () => _schemaChangeListeners.remove(controller),
+        onResume: () => _schemaChangeListeners.add(controller),
+        onCancel: () => _schemaChangeListeners.remove(controller),
+        sync: true);
+    return controller.stream;
+  }
+
+  void _updateSchema() {
+    final newSchema = realmCore.readSchema(this);
+    for (final listener in _schemaChangeListeners) {
+      listener.add(RealmSchemaChanges._(schema, newSchema));
+    }
+
+    for (final schemaObject in newSchema) {
+      final existing = schema.firstWhereOrNull((s) => s.name == schemaObject.name);
+      if (existing == null) {
+        schema.add(schemaObject);
+        final meta = realmCore.getObjectMetadata(this, schemaObject);
+        metadata._add(meta);
+      } else if (schemaObject.length > existing.length) {
+        final existingMeta = metadata.getByName(schemaObject.name);
+        final propertyMeta = realmCore.getPropertiesMetadata(this, existingMeta.classKey, existingMeta.primaryKey);
+        for (final property in schemaObject) {
+          final existingProp = existing.firstWhereOrNull((e) => e.mapTo == property.mapTo);
+          if (existingProp == null) {
+            existing.add(property);
+            existingMeta[property.name] = propertyMeta[property.name]!;
+          }
+        }
+      }
+    }
+  }
+}
+
+/// Describes the schema changes that occurred on a Realm
+class RealmSchemaChanges {
+  /// The current schema, as returned by [Realm.schema].
+  final RealmSchema currentSchema;
+
+  /// The new schema that will be applied to the Realm as soon as the event handler completes.
+  final RealmSchema newSchema;
+
+  RealmSchemaChanges._(this.currentSchema, this.newSchema);
 }
 
 /// Provides a scope to safely write data to a [Realm]. Can be created using [Realm.beginWrite] or
@@ -787,8 +843,8 @@ extension RealmInternal on Realm {
     }
   }
 
-  static void logMessageForTesting(Level logLevel, String message) {
-    realmCore.logMessageForTesting(logLevel, message);
+  void updateSchema() {
+    _updateSchema();
   }
 }
 
@@ -819,60 +875,6 @@ abstract class NotificationsController implements Finalizable {
   }
 }
 
-/// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
-/// {@category Realm}
-class RealmLogLevel {
-  /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
-  ///
-  /// Same as [Level.ALL]
-  static const all = Level.ALL;
-
-  /// A version of [debug] that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
-  ///
-  /// Same as [Level.FINEST]
-  static const trace = Level('TRACE', 300);
-
-  /// Reveal information that can aid debugging, no longer paying
-  /// attention to efficiency.
-  ///
-  /// Same as [Level.FINER]
-  static const debug = Level('DEBUG', 400);
-
-  /// Same as [info], but prioritize completeness over minimalism.
-  ///
-  /// Same as [Level.FINE];
-  static const detail = Level('DETAIL', 500);
-
-  /// Log operational sync client messages, but in a minimalist fashion to
-  /// avoid general overhead from logging and to keep volume down.
-  ///
-  /// Same as [Level.INFO];
-  static const info = Level.INFO;
-
-  /// Log errors and warnings.
-  ///
-  /// Same as [Level.WARNING];
-  static const warn = Level.WARNING;
-
-  /// Log errors only.
-  ///
-  /// Same as [Level.SEVERE];
-  static const error = Level('ERROR', 1000);
-
-  /// Log only fatal errors.
-  ///
-  /// Same as [Level.SHOUT];
-  static const fatal = Level('FATAL', 1200);
-
-  /// Turn off logging.
-  ///
-  /// Same as [Level.OFF];
-  static const off = Level.OFF;
-}
-
 /// @nodoc
 class RealmMetadata {
   final _typeMap = <Type, RealmObjectMetadata>{};
@@ -881,13 +883,19 @@ class RealmMetadata {
 
   RealmMetadata._(Iterable<RealmObjectMetadata> objectMetadatas) {
     for (final metadata in objectMetadatas) {
-      if (!metadata.schema.isGenericRealmObject) {
-        _typeMap[metadata.schema.type] = metadata;
-      } else {
-        _stringMap[metadata.schema.name] = metadata;
-      }
-      _classKeyMap[metadata.classKey] = metadata;
+      _add(metadata);
     }
+  }
+
+  /// This is used when constructing the metadata, but also when the Realm schema
+  /// changes.
+  void _add(RealmObjectMetadata metadata) {
+    if (!metadata.schema.isGenericRealmObject) {
+      _typeMap[metadata.schema.type] = metadata;
+    } else {
+      _stringMap[metadata.schema.name] = metadata;
+    }
+    _classKeyMap[metadata.classKey] = metadata;
   }
 
   RealmObjectMetadata getByType(Type type) {

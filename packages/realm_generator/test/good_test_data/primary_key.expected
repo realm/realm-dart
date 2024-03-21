@@ -50,10 +50,13 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(IntPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, IntPK, 'IntPK', [
+    return SchemaObject(ObjectType.realmObject, IntPK, 'IntPK', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableIntPK extends _NullableIntPK
@@ -100,12 +103,15 @@ class NullableIntPK extends _NullableIntPK
   static final schema = () {
     RealmObjectBase.registerFactory(NullableIntPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableIntPK, 'NullableIntPK', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class StringPK extends _StringPK
@@ -152,10 +158,13 @@ class StringPK extends _StringPK
   static final schema = () {
     RealmObjectBase.registerFactory(StringPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, StringPK, 'StringPK', [
+    return SchemaObject(ObjectType.realmObject, StringPK, 'StringPK', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableStringPK extends _NullableStringPK
@@ -203,12 +212,15 @@ class NullableStringPK extends _NullableStringPK
   static final schema = () {
     RealmObjectBase.registerFactory(NullableStringPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableStringPK, 'NullableStringPK', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class ObjectIdPK extends _ObjectIdPK
@@ -255,11 +267,13 @@ class ObjectIdPK extends _ObjectIdPK
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectIdPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
-        ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
+    return SchemaObject(ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableObjectIdPK extends _NullableObjectIdPK
@@ -307,12 +321,15 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   static final schema = () {
     RealmObjectBase.registerFactory(NullableObjectIdPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableObjectIdPK, 'NullableObjectIdPK', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
@@ -358,10 +375,13 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(UuidPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, UuidPK, 'UuidPK', [
+    return SchemaObject(ObjectType.realmObject, UuidPK, 'UuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class NullableUuidPK extends _NullableUuidPK
@@ -408,10 +428,13 @@ class NullableUuidPK extends _NullableUuidPK
   static final schema = () {
     RealmObjectBase.registerFactory(NullableUuidPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, NullableUuidPK, 'NullableUuidPK', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

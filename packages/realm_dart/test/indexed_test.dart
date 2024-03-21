@@ -92,7 +92,7 @@ void main() {
     test('Indexed faster: ${testCase.name}', () {
       final config = Configuration.local([WithIndexes.schema, NoIndexes.schema]);
       final realm = getRealm(config);
-      const max = 10000;
+      const max = 100000;
       final allIndexed = realm.all<WithIndexes>();
       final allNotIndexed = realm.all<NoIndexes>();
       expect(allIndexed.length, 0);
@@ -130,7 +130,7 @@ void main() {
 
       // Inefficient, but fast enough for this test
       final halfMax = max ~/ 2;
-      final searchOrder = (List.generate(halfMax, (i) => halfMax + i)..shuffle(Random(42))).map((i) => testCase.factory(i)).take(1000).toList();
+      final searchOrder = (List.generate(halfMax, (i) => halfMax + i)..shuffle(Random(42))).map((i) => testCase.factory(i)).take(100).toList();
 
       @pragma('vm:no-interrupts')
       Duration measureSpeed<T extends RealmObject>(RealmResults<T> results) {

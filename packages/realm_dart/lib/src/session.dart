@@ -151,9 +151,6 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   void _stop() {
     _tokenHandle?.release();
     _tokenHandle = null;
-
-    // TODO: PROGRESS remove
-    Realm.logger.log(RealmLogLevel.warn, '-------------------- CONTROLLER STOPPED --------------------');
   }
 }
 

@@ -4,7 +4,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'package:logging/logging.dart';
 import 'package:test/expect.dart' hide throws;
 import 'package:path/path.dart' as path;
 import 'package:crypto/crypto.dart';
@@ -359,22 +358,18 @@ void main() {
   });
 
   baasTest('App(AppConfiguration) on background isolate logs warning', (appConfig) async {
-    final receivePort = ReceivePort();
-    await Isolate.spawn((args) {
-      final logger = Logger.detached('foo');
-      final sb = StringBuffer();
-      logger.onRecord.listen((event) {
-        sb.writeln('${event.level}: ${event.message}');
-      });
+    Realm.logger.setLogLevel(LogLevel.warn);
 
-      Realm.logger = logger;
+    final sb = StringBuffer();
+    Realm.logger.onRecord.listen((event) {
+      sb.writeln('${event.category} ${event.level}: ${event.message}');
+    });
 
-      final sendPort = args[0];
+    await Isolate.run(() {
       App(AppConfiguration('abc'));
-      Isolate.exit(sendPort, sb.toString());
-    }, [receivePort.sendPort]);
+    });
 
-    final log = await receivePort.first as String;
+    final log = sb.toString();
 
     expect(log, contains('App constructor called on Isolate'));
   });

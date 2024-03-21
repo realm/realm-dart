@@ -41,12 +41,13 @@ jobs:
         dart pub global run melos bootstrap
 
     - name: Download all artifacts
-      uses: dawidd6/action-download-artifact@d0f291cf39bd21965ea9c4c6e210fc355c3844ed
+      uses: dawidd6/action-download-artifact@71072fbb1229e1317f1a8de6b04206afb461bd67 # 3.1.2
       with:
         workflow: ci.yml
         commit: ${{ github.sha }}
         path: ${{ github.workspace }}/binary/
         workflow_conclusion: completed
+        github_token: ${{ secrets.REALM_CI_PAT }}
 
     # The rename is necessary because action-download-artifact will put things in a folder named the same
     # as the artifact name - i.e. librealm-linux, etc.
@@ -62,36 +63,9 @@ jobs:
       working-directory: packages/realm_dart
       shell: bash
 
-    - name: Update realm_* path dependencies (Production)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      if: ${{ github.event.inputs.environment == 'Production' }}
-      with:
-        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
-        replace: "  realm_$1: ${{ steps.get-version.outputs.version }}"
-        include: "**pubspec.yaml"
-
-    - name: Update realm_* path dependencies (Staging)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      if: ${{ github.event.inputs.environment != 'Production' }}
-      with:
-        find: "  realm_(common|generator|dart):(\\n|\\r\\n)    path:.*"
-        replace: "  realm_$1:\n    path: ../realm_$1"
-        include: "**pubspec.yaml"
-
     - name: Update pubspec.yaml version (Staging)
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
       if: ${{ github.event.inputs.environment != 'Production' }}
-      with:
-        find: 'version: .*'
-        replace: 'version: ${{ steps.get-version.outputs.version }}'
-        include: '**pubspec.yaml'
-
-    - name: Remove pubspec.yaml/publish_to:none
-      uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-      with:
-        find: "publish_to: none(\\n|\\r\\n)"
-        replace: " "
-        include: "**pubspec.yaml"
+      run: REALM_VERSION=${{ steps.get-version.outputs.version }} melos run update:version:realm
 
     - name: Package realm_common
       run: |
@@ -108,12 +82,14 @@ jobs:
       working-directory: release
 
     # realm_flutter has symlinks to native binaries which should not be packaged
-    - name: Cleanup binary symlinks
+    - name: Cleanup symlinks
       run: |
         rm packages/realm/android/src/main/cpp/lib
         rm packages/realm/ios/realm_dart.xcframework
         rm packages/realm/linux/binary
         rm packages/realm/windows/binary
+        rm -rf packages/realm/tests/linux/flutter/ephemeral
+        rm -rf packages/realm/tests/windows/flutter/ephemeral
 
     - name: Package realm (flutter)
       run: |
@@ -126,7 +102,7 @@ jobs:
       run: |
         mkdir realm_dart
         cp -Lr ../packages/realm_dart/bin ../packages/realm_dart/example ../packages/realm_dart/lib ../packages/realm_dart/test realm_dart
-        rsync -vt ../packages/realm_dart/* realm_dart/
+        rsync -vtL ../packages/realm_dart/* realm_dart/
         cd realm_dart
         dart pub publish --dry-run || true
       working-directory: release
@@ -195,11 +171,24 @@ jobs:
         dart pub global activate melos
         dart pub global run melos bootstrap
 
+    # realm_flutter has symlinks to native binaries which should not be packaged
+    - name: Cleanup symlinks
+      run: |
+        rm packages/realm/android/src/main/cpp/lib
+        rm packages/realm/ios/realm_dart.xcframework
+        rm packages/realm/linux/binary
+        rm packages/realm/windows/binary
+        rm -rf packages/realm/tests/linux/flutter/ephemeral
+        rm -rf packages/realm/tests/windows/flutter/ephemeral
+
     - name: Publish packages to pub.dev
       run: |
         mkdir -p $HOME/.config/dart
         echo '${{ secrets.PUB_CREDENTIALS }}' >> $HOME/.config/dart/pub-credentials.json
-        melos publish --no-dry-run --yes
+        melos exec --no-published --no-private -- dart pub publish --force --skip-validation
+
+    - name: Reset repo state
+      run: git reset --hard
 
     - name: Find Release PR
       uses: juliangruber/find-pull-request-action@f9f7484f8237cf8485e5ab826e542ba5dd9e9c6e
@@ -259,6 +248,7 @@ jobs:
         branch: vnext-changelog
         title: Add vNext Changelog header
         body: Update Changelog for vNext
+        labels: no-jira-ticket
         delete-branch: true
         base: main
         commit-message: Add vNext Changelog header
