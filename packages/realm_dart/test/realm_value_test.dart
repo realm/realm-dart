@@ -1369,7 +1369,7 @@ void main() {
           oneAny: RealmValue.from([
         5,
         {
-          'foo': 'bar',
+          'string': 'bar',
           'list': [10]
         }
       ]));
@@ -1378,6 +1378,7 @@ void main() {
         realm.add(obj);
       });
 
+      // Add listeners.
       final List<RealmObjectChanges<ObjectWithRealmValue>> parentChanges = [];
       final subscription = obj.changes.listen((event) {
         parentChanges.add(event);
@@ -1399,12 +1400,14 @@ void main() {
       listChanges.clear();
       mapChanges.clear();
 
+      // Add item to list.
       realm.write(() {
         obj.oneAny.asList().add(RealmValue.bool(true));
       });
 
       await Future<void>.delayed(Duration(milliseconds: 20));
 
+      // Expect listeners to be fired.
       expect(parentChanges, hasLength(1));
       expect(parentChanges[0].properties, ['oneAny']);
 
@@ -1417,6 +1420,7 @@ void main() {
 
       expect(mapChanges, hasLength(0));
 
+      // Update and add entry in nested dictionary.
       realm.write(() {
         obj.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
         obj.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
@@ -1424,6 +1428,7 @@ void main() {
 
       await Future<void>.delayed(Duration(milliseconds: 20));
 
+      // Expect listeners to be fired.
       expect(parentChanges, hasLength(2));
       expect(parentChanges[1].properties, ['oneAny']);
 
@@ -1441,29 +1446,59 @@ void main() {
       expect(mapChanges[0].isCleared, false);
       expect(mapChanges[0].isCollectionDeleted, false);
 
+      // Remove entry in nested dictionary.
+      realm.write(() {
+        obj.oneAny.asList()[1].asMap().remove('string');
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired.
+      expect(parentChanges, hasLength(3));
+      expect(parentChanges[2].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(3));
+      expect(listChanges[2].inserted, isEmpty);
+      expect(listChanges[2].deleted, isEmpty);
+      expect(listChanges[2].modified, [1]);
+      expect(listChanges[2].isCleared, false);
+      expect(listChanges[2].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(2));
+      expect(mapChanges[1].modified, isEmpty);
+      expect(mapChanges[1].inserted, isEmpty);
+      expect(mapChanges[1].deleted, ['string']);
+      expect(mapChanges[1].isCleared, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+
+      // Remove dictionary from list.
       realm.write(() {
         obj.oneAny.asList().removeAt(1);
       });
 
       await Future<void>.delayed(Duration(milliseconds: 20));
 
-      expect(parentChanges, hasLength(3));
-      expect(parentChanges[2].properties, ['oneAny']);
+      // Expect listeners to be fired.
+      expect(parentChanges, hasLength(4));
+      expect(parentChanges[3].properties, ['oneAny']);
 
-      expect(listChanges, hasLength(3));
-      expect(listChanges[2].inserted, isEmpty);
-      expect(listChanges[2].deleted, [1]);
-      expect(listChanges[2].modified, isEmpty);
-      expect(listChanges[2].isCleared, false);
-      expect(listChanges[2].isCollectionDeleted, false);
+      expect(listChanges, hasLength(4));
+      expect(listChanges[3].inserted, isEmpty);
+      expect(listChanges[3].deleted, [1]);
+      expect(listChanges[3].modified, isEmpty);
+      expect(listChanges[3].isCleared, false);
+      expect(listChanges[3].isCollectionDeleted, false);
 
-      expect(mapChanges, hasLength(2));
-      expect(mapChanges[1].isCollectionDeleted, true);
+      expect(mapChanges, hasLength(3));
+      expect(mapChanges[2].isCollectionDeleted, true);
 
+      // Cancel subscriptions.
       subscription.cancel();
       listSubscription.cancel();
       mapSubscription.cancel();
 
+      // Overwrite list with primitive.
       realm.write(() {
         obj.oneAny = RealmValue.bool(false);
       });
@@ -1471,9 +1506,9 @@ void main() {
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Subscriptions have been canceled - shouldn't get more notifications
-      expect(parentChanges, hasLength(3));
-      expect(listChanges, hasLength(3));
-      expect(mapChanges, hasLength(2));
+      expect(parentChanges, hasLength(4));
+      expect(listChanges, hasLength(4));
+      expect(mapChanges, hasLength(3));
     });
 
     baasTest('[BaaS] Notifications', (appConfig) async {
@@ -1485,7 +1520,7 @@ void main() {
       final list = [
         5,
         {
-          'foo': 'bar',
+          'string': 'bar',
           'list': [10]
         }
       ];
@@ -1519,7 +1554,7 @@ void main() {
       // Get object in second realm.
       final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object.id]).single;
 
-      // Add item in second realm.
+      // Add item to list in second realm.
       realm2.write(() {
         syncedObject.oneAny.asList().add(RealmValue.bool(true));
       });
@@ -1540,7 +1575,7 @@ void main() {
 
       expect(mapChanges, hasLength(0));
 
-      // Update item in second realm.
+      // Update and add entry in nested dictionary in second realm.
       realm2.write(() {
         syncedObject.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
         syncedObject.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
@@ -1567,9 +1602,9 @@ void main() {
       expect(mapChanges[0].isCleared, false);
       expect(mapChanges[0].isCollectionDeleted, false);
 
-      // Remove item in second realm.
+      // Remove entry in nested dictionary in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asList().removeAt(1);
+        syncedObject.oneAny.asList()[1].asMap().remove('string');
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
@@ -1581,20 +1616,47 @@ void main() {
 
       expect(listChanges, hasLength(3));
       expect(listChanges[2].inserted, isEmpty);
-      expect(listChanges[2].deleted, [1]);
-      expect(listChanges[2].modified, isEmpty);
+      expect(listChanges[2].deleted, isEmpty);
+      expect(listChanges[2].modified, [1]);
       expect(listChanges[2].isCleared, false);
       expect(listChanges[2].isCollectionDeleted, false);
 
       expect(mapChanges, hasLength(2));
-      expect(mapChanges[1].isCollectionDeleted, true);
+      expect(mapChanges[1].modified, isEmpty);
+      expect(mapChanges[1].inserted, isEmpty);
+      expect(mapChanges[1].deleted, ['string']);
+      expect(mapChanges[1].isCleared, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+
+      // Remove dictionary from list in second realm.
+      realm2.write(() {
+        syncedObject.oneAny.asList().removeAt(1);
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(4));
+      expect(parentChanges[3].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(4));
+      expect(listChanges[3].inserted, isEmpty);
+      expect(listChanges[3].deleted, [1]);
+      expect(listChanges[3].modified, isEmpty);
+      expect(listChanges[3].isCleared, false);
+      expect(listChanges[3].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(3));
+      expect(mapChanges[2].isCollectionDeleted, true);
 
       // Cancel subscriptions.
       subscription.cancel();
       listSubscription.cancel();
       mapSubscription.cancel();
 
-      // Update item in second realm.
+      // Overwrite list with primitive in second realm.
       realm2.write(() {
         syncedObject.oneAny = RealmValue.bool(false);
       });
@@ -1603,9 +1665,9 @@ void main() {
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Subscriptions have been canceled - shouldn't get more notifications.
-      expect(parentChanges, hasLength(3));
-      expect(listChanges, hasLength(3));
-      expect(mapChanges, hasLength(2));
+      expect(parentChanges, hasLength(4));
+      expect(listChanges, hasLength(4));
+      expect(mapChanges, hasLength(3));
     });
 
     test('Queries', () {
