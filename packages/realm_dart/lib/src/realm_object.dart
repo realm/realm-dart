@@ -472,6 +472,12 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
 
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObjectBase>(T object) {
+    return getChangesFor<T>(object, null);
+  }
+
+  //TODO we need to decide if we want to have keyPaths be nullable here of we force developers to use getChanges in that case
+  /// @nodoc
+  static Stream<RealmObjectChanges<T>> getChangesFor<T extends RealmObjectBase>(T object, [List<String>? keyPaths]) {
     if (!object.isManaged) {
       throw RealmStateError("Object is not managed");
     }
@@ -480,7 +486,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
       throw RealmStateError('Object is frozen and cannot emit changes.');
     }
 
-    final controller = RealmObjectNotificationsController<T>(object);
+    final controller = RealmObjectNotificationsController<T>(object, keyPaths);
     return controller.createStream();
   }
 
@@ -703,12 +709,14 @@ extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChange
 class RealmObjectNotificationsController<T extends RealmObjectBase> extends NotificationsController {
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  RealmObjectNotificationsController(this.realmObject);
+  RealmObjectNotificationsController(this.realmObject, [this.keyPaths]);
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject, this);
+    final classKey = realmObject.realm.metadata.getByType(T).classKey;
+    return realmCore.subscribeObjectNotifications(realmObject, this, keyPaths, classKey);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {

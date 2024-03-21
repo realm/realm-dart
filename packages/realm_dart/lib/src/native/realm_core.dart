@@ -1781,16 +1781,32 @@ class _RealmCore {
     return RealmNotificationTokenHandle._(pointer, list.realm.handle);
   }
 
-  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller) {
-    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
-          object.handle._pointer,
-          controller.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(object_change_callback),
-        ));
+  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller,
+      [List<String>? keyPaths, int? classKey]) {
+    return using((Arena arena) {
+      Pointer<realm_key_path_array> kpNative = nullptr;
 
-    return RealmNotificationTokenHandle._(pointer, object.realm.handle);
+      if (keyPaths != null && classKey != null) {
+        final length = keyPaths.length;
+        final keypathsNative = arena<Pointer<Char>>(length);
+
+        for (int i = 0; i < length; i++) {
+          keypathsNative[i] = keyPaths[i].toCharPtr(arena);
+        }
+
+        kpNative = _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative);
+      }
+
+      final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
+            object.handle._pointer,
+            controller.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            kpNative,
+            Pointer.fromFunction(object_change_callback),
+          ));
+
+      return RealmNotificationTokenHandle._(pointer, object.realm.handle);
+    });
   }
 
   RealmNotificationTokenHandle subscribeMapNotifications(RealmMap map, NotificationsController controller) {
