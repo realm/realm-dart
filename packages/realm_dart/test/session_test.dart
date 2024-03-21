@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
+import 'package:realm_dart/src/logging.dart';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
@@ -174,7 +175,7 @@ void main() {
     });
 
     data.subscription.onDone(() {
-      Realm.logger.log(RealmLogLevel.warn, '-------------------- DONE INVOKED --------------------');
+      Realm.logger.log(LogLevel.warn, '-------------------- DONE INVOKED --------------------');
       data.doneInvoked = true;
     });
 
@@ -217,8 +218,6 @@ void main() {
     await realm.syncSession.waitForDownload();
     await realm.syncSession.waitForUpload();
 
-    Realm.logger.log(RealmLogLevel.warn, '==== Realm opened, creating subscriptions');
-
     final progress = <SyncProgress>[];
 
     // Create a subscription for all nullable types with the known ObjectId (should match 10 objects)
@@ -229,9 +228,9 @@ void main() {
     // Subscribe for progress notifications with streaming: false
     final sub = realm.syncSession.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen((event) {
       progress.add(event);
-      Realm.logger.log(RealmLogLevel.warn, '==== Progress: ${event.progressEstimate}');
+      Realm.logger.log(LogLevel.warn, '==== Progress: ${event.progressEstimate}');
     }, onDone: () {
-      Realm.logger.log(RealmLogLevel.warn, '==== Progress subscription done');
+      Realm.logger.log(LogLevel.warn, '==== Progress subscription done');
     });
 
     await realm.subscriptions.waitForSynchronization();
@@ -239,9 +238,9 @@ void main() {
     // Wait 1 second extra in case there are any race conditions between wait for sync and progress reporting
     await Future.delayed(Duration(seconds: 1));
 
-    Realm.logger.log(RealmLogLevel.warn, '==== Subscriptions synchronized');
-    Realm.logger.log(RealmLogLevel.warn, '==== Number of events ${progress.length}');
-    Realm.logger.log(RealmLogLevel.warn, '==== Last progress estimate: ${progress.last.progressEstimate}');
+    Realm.logger.log(LogLevel.warn, '==== Subscriptions synchronized');
+    Realm.logger.log(LogLevel.warn, '==== Number of events ${progress.length}');
+    Realm.logger.log(LogLevel.warn, '==== Last progress estimate: ${progress.last.progressEstimate}');
 
     expect(realm.all<NullableTypes>(), hasLength(10));
     expect(progress, hasLength(greaterThanOrEqualTo(1)));
@@ -271,15 +270,15 @@ void main() {
     final downloadRealm = await getIntegrationRealm(differentiator: differentiator, waitForSync: false);
     final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
 
-    Realm.logger.log(RealmLogLevel.warn, '-------------------- SUBSCRIBED --------------------');
+    Realm.logger.log(LogLevel.warn, '-------------------- SUBSCRIBED --------------------');
     await downloadRealm.subscriptions.waitForSynchronization();
 
-    Realm.logger.log(RealmLogLevel.warn, '-------------------- SUBSCRIPTIONS RECEIVED --------------------');
+    Realm.logger.log(LogLevel.warn, '-------------------- SUBSCRIPTIONS RECEIVED --------------------');
 
     await downloadRealm.syncSession.waitForDownload();
     await Future<void>.delayed(Duration(seconds: 1));
 
-    Realm.logger.log(RealmLogLevel.warn, '-------------------- DOWNLOAD COMPLETE --------------------');
+    Realm.logger.log(LogLevel.warn, '-------------------- DOWNLOAD COMPLETE --------------------');
 
     await validateData(downloadData, expectDone: true);
 
