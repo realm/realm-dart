@@ -416,9 +416,9 @@ void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
 
-    Realm.logger.setLogLevel(LogLevel.detail);
+    Realm.logger.setLogLevel(LogLevel.trace, category: LogCategory.realm.sync);
     Realm.logger.onRecord.listen((record) {
-      testing.printOnFailure('${record.category} ${record.level.name}: ${record.message}');
+      print('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
     });
 
     // Enable this to print platform info, including current PID
@@ -603,18 +603,24 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
+FlexibleSyncConfiguration getIntegrationConfig(User user) {
+  return Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+}
+
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app);
 
-  final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+  final config = getIntegrationConfig(user);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
     });
 
-    await realm.subscriptions.waitForSynchronization();
+    if (waitForSync) {
+      await realm.subscriptions.waitForSynchronization();
+    }
   }
 
   return realm;

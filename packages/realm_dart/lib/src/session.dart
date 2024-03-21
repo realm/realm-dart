@@ -75,15 +75,7 @@ class SyncProgress {
   /// value may either increase or decrease as new data needs to be transferred.
   final double progressEstimate;
 
-  const SyncProgress._({required this.progressEstimate});
-
-  static double _calculateProgress({required int transferred, required int transferable}) {
-    if (transferable == 0 || transferred > transferable) {
-      return 1;
-    }
-
-    return transferred / transferable;
-  }
+  const SyncProgress({required this.progressEstimate});
 }
 
 /// A type containing information about the transition of a connection state from one value to another.
@@ -117,12 +109,11 @@ extension SessionInternal on Session {
     realmCore.raiseError(this, errorCode, isFatal);
   }
 
-  static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
-      SyncProgress._(progressEstimate: SyncProgress._calculateProgress(transferred: transferredBytes, transferable: transferableBytes));
+  static SyncProgress createSyncProgress(double progressEstimate) => SyncProgress(progressEstimate: progressEstimate);
 }
 
 abstract interface class ProgressNotificationsController {
-  void onProgress(int transferredBytes, int transferableBytes);
+  void onProgress(double progressEstimate);
 }
 
 /// @nodoc
@@ -142,10 +133,10 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   }
 
   @override
-  void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add(SyncProgress._(progressEstimate: SyncProgress._calculateProgress(transferred: transferredBytes, transferable: transferableBytes)));
+  void onProgress(double progressEstimate) {
+    _streamController.add(SyncProgress(progressEstimate: progressEstimate));
 
-    if (transferredBytes >= transferableBytes && _mode == ProgressMode.forCurrentlyOutstandingWork) {
+    if (progressEstimate >= 1.0 && _mode == ProgressMode.forCurrentlyOutstandingWork) {
       _streamController.close();
     }
   }
