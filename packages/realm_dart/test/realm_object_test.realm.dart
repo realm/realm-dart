@@ -27,6 +27,11 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
       RealmObjectBase.getChanges<ObjectIdPrimaryKey>(this);
 
   @override
+  Stream<RealmObjectChanges<ObjectIdPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectIdPrimaryKey>(this, keyPaths);
+
+  @override
   ObjectIdPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<ObjectIdPrimaryKey>(this);
 
@@ -77,6 +82,11 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> get changes =>
       RealmObjectBase.getChanges<NullableObjectIdPrimaryKey>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableObjectIdPrimaryKey>(this, keyPaths);
 
   @override
   NullableObjectIdPrimaryKey freeze() =>
@@ -133,6 +143,11 @@ class IntPrimaryKey extends _IntPrimaryKey
       RealmObjectBase.getChanges<IntPrimaryKey>(this);
 
   @override
+  Stream<RealmObjectChanges<IntPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<IntPrimaryKey>(this, keyPaths);
+
+  @override
   IntPrimaryKey freeze() => RealmObjectBase.freezeObject<IntPrimaryKey>(this);
 
   EJsonValue toEJson() {
@@ -182,6 +197,11 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableIntPrimaryKey>> get changes =>
       RealmObjectBase.getChanges<NullableIntPrimaryKey>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableIntPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableIntPrimaryKey>(this, keyPaths);
 
   @override
   NullableIntPrimaryKey freeze() =>
@@ -237,6 +257,11 @@ class StringPrimaryKey extends _StringPrimaryKey
       RealmObjectBase.getChanges<StringPrimaryKey>(this);
 
   @override
+  Stream<RealmObjectChanges<StringPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<StringPrimaryKey>(this, keyPaths);
+
+  @override
   StringPrimaryKey freeze() =>
       RealmObjectBase.freezeObject<StringPrimaryKey>(this);
 
@@ -287,6 +312,11 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableStringPrimaryKey>> get changes =>
       RealmObjectBase.getChanges<NullableStringPrimaryKey>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableStringPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableStringPrimaryKey>(this, keyPaths);
 
   @override
   NullableStringPrimaryKey freeze() =>
@@ -342,6 +372,11 @@ class UuidPrimaryKey extends _UuidPrimaryKey
       RealmObjectBase.getChanges<UuidPrimaryKey>(this);
 
   @override
+  Stream<RealmObjectChanges<UuidPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<UuidPrimaryKey>(this, keyPaths);
+
+  @override
   UuidPrimaryKey freeze() => RealmObjectBase.freezeObject<UuidPrimaryKey>(this);
 
   EJsonValue toEJson() {
@@ -391,6 +426,11 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   @override
   Stream<RealmObjectChanges<NullableUuidPrimaryKey>> get changes =>
       RealmObjectBase.getChanges<NullableUuidPrimaryKey>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableUuidPrimaryKey>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableUuidPrimaryKey>(this, keyPaths);
 
   @override
   NullableUuidPrimaryKey freeze() =>
@@ -447,6 +487,11 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
   @override
   Stream<RealmObjectChanges<RemappedFromAnotherFile>> get changes =>
       RealmObjectBase.getChanges<RemappedFromAnotherFile>(this);
+
+  @override
+  Stream<RealmObjectChanges<RemappedFromAnotherFile>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RemappedFromAnotherFile>(this, keyPaths);
 
   @override
   RemappedFromAnotherFile freeze() =>
@@ -509,6 +554,10 @@ class BoolValue extends _BoolValue
   @override
   Stream<RealmObjectChanges<BoolValue>> get changes =>
       RealmObjectBase.getChanges<BoolValue>(this);
+
+  @override
+  Stream<RealmObjectChanges<BoolValue>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<BoolValue>(this, keyPaths);
 
   @override
   BoolValue freeze() => RealmObjectBase.freezeObject<BoolValue>(this);

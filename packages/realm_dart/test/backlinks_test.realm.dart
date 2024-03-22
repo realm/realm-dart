@@ -72,6 +72,10 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Source>(this);
 
   @override
+  Stream<RealmObjectChanges<Source>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Source>(this, keyPaths);
+
+  @override
   Source freeze() => RealmObjectBase.freezeObject<Source>(this);
 
   EJsonValue toEJson() {
@@ -180,6 +184,10 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Target>> get changes =>
       RealmObjectBase.getChanges<Target>(this);
+
+  @override
+  Stream<RealmObjectChanges<Target>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Target>(this, keyPaths);
 
   @override
   Target freeze() => RealmObjectBase.freezeObject<Target>(this);

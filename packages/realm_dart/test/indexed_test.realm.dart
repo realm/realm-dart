@@ -65,6 +65,11 @@ class WithIndexes extends _WithIndexes
       RealmObjectBase.getChanges<WithIndexes>(this);
 
   @override
+  Stream<RealmObjectChanges<WithIndexes>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<WithIndexes>(this, keyPaths);
+
+  @override
   WithIndexes freeze() => RealmObjectBase.freezeObject<WithIndexes>(this);
 
   EJsonValue toEJson() {
@@ -180,6 +185,10 @@ class NoIndexes extends _NoIndexes
       RealmObjectBase.getChanges<NoIndexes>(this);
 
   @override
+  Stream<RealmObjectChanges<NoIndexes>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NoIndexes>(this, keyPaths);
+
+  @override
   NoIndexes freeze() => RealmObjectBase.freezeObject<NoIndexes>(this);
 
   EJsonValue toEJson() {
@@ -264,6 +273,11 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   @override
   Stream<RealmObjectChanges<ObjectWithFTSIndex>> get changes =>
       RealmObjectBase.getChanges<ObjectWithFTSIndex>(this);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithFTSIndex>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithFTSIndex>(this, keyPaths);
 
   @override
   ObjectWithFTSIndex freeze() =>

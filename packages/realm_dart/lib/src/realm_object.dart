@@ -470,6 +470,9 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   /// If the object is not managed a [RealmStateError] is thrown.
   Stream<RealmObjectChanges<RealmObjectBase>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
+  Stream<RealmObjectChanges<RealmObjectBase>> changesFor([List<String>? keyPaths]) =>
+      throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObjectBase>(T object) {
     return getChangesFor<T>(object, null);

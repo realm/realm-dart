@@ -34,6 +34,10 @@ class TuckedIn extends _TuckedIn
       RealmObjectBase.getChanges<TuckedIn>(this);
 
   @override
+  Stream<RealmObjectChanges<TuckedIn>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<TuckedIn>(this, keyPaths);
+
+  @override
   TuckedIn freeze() => RealmObjectBase.freezeObject<TuckedIn>(this);
 
   EJsonValue toEJson() {
@@ -116,6 +120,11 @@ class AnythingGoes extends _AnythingGoes
       RealmObjectBase.getChanges<AnythingGoes>(this);
 
   @override
+  Stream<RealmObjectChanges<AnythingGoes>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AnythingGoes>(this, keyPaths);
+
+  @override
   AnythingGoes freeze() => RealmObjectBase.freezeObject<AnythingGoes>(this);
 
   EJsonValue toEJson() {
@@ -187,6 +196,10 @@ class Stuff extends _Stuff with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Stuff>> get changes =>
       RealmObjectBase.getChanges<Stuff>(this);
+
+  @override
+  Stream<RealmObjectChanges<Stuff>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Stuff>(this, keyPaths);
 
   @override
   Stuff freeze() => RealmObjectBase.freezeObject<Stuff>(this);
