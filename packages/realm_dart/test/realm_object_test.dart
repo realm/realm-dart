@@ -77,6 +77,61 @@ class _BoolValue {
 void main() {
   setupTests();
 
+  group("RealmObject keypath filtering", () {
+    void verifyNotifications<T extends RealmObjectBase>(RealmObjectChanges<T> changes, List<String> changedProperties) {
+      expect(changes.isDeleted, false);
+      exp
+    }
+
+    test('RealmObject notifications with key paths', () async {
+      var config = Configuration.local([Dog.schema, Person.schema]);
+      var realm = getRealm(config);
+
+      final dog = Dog("Lassy");
+
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      var callNum = 0;
+      final subscription = dog.changesFor(["age"]).listen((changes) {
+        if (callNum == 0) {
+          callNum++;
+          expect(changes.isDeleted, false);
+          expect(changes.object, dog);
+          expect(changes.properties.isEmpty, true);
+        } else if (callNum == 1) {
+          //object is modified
+          callNum++;
+          expect(changes.isDeleted, false);
+          expect(changes.object, dog);
+          expect(changes.properties, ["age"]);
+        } else {
+          //object is deleted
+          callNum++;
+          expect(changes.isDeleted, true);
+          expect(changes.object, dog);
+          expect(changes.properties.isEmpty, true);
+        }
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      realm.write(() {
+        dog.age = 2;
+        dog.owner = Person("owner");
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      realm.write(() {
+        realm.delete(dog);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+      subscription.cancel();
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+    });
+  });
   test('RealmObject get property', () {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
@@ -263,59 +318,7 @@ void main() {
         callNum++;
         expect(changes.isDeleted, true);
         expect(changes.object, dog);
-        expect(changes.properties, <String>[]);
-      }
-    });
-
-    await Future<void>.delayed(Duration(milliseconds: 20));
-    realm.write(() {
-      dog.age = 2;
-      dog.owner = Person("owner");
-    });
-
-    await Future<void>.delayed(Duration(milliseconds: 20));
-    realm.write(() {
-      realm.delete(dog);
-    });
-
-    await Future<void>.delayed(Duration(milliseconds: 20));
-    subscription.cancel();
-
-    await Future<void>.delayed(Duration(milliseconds: 20));
-  });
-
-  test('RealmObject notifications with key paths', () async {
-    var config = Configuration.local([Dog.schema, Person.schema]);
-    var realm = getRealm(config);
-
-    final dog = Dog("Lassy");
-
-    //unmanaged objects can not be listened to
-    expect(() => dog.changes, throws<RealmStateError>());
-
-    realm.write(() {
-      realm.add(dog);
-    });
-
-    var callNum = 0;
-    final subscription = dog.changesFor(["owner"]).listen((changes) {
-      if (callNum == 0) {
-        callNum++;
-        expect(changes.isDeleted, false);
-        expect(changes.object, dog);
         expect(changes.properties.isEmpty, true);
-      } else if (callNum == 1) {
-        //object is modified
-        callNum++;
-        expect(changes.isDeleted, false);
-        expect(changes.object, dog);
-        expect(changes.properties, ["owner"]);
-      } else {
-        //object is deleted
-        callNum++;
-        expect(changes.isDeleted, true);
-        expect(changes.object, dog);
-        expect(changes.properties, <String>[]);
       }
     });
 
