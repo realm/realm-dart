@@ -1,16 +1,16 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
 
 ### Fixed
 * None
 
 ### Compatibility
-* Realm Studio: 13.0.0 or later.
+* Realm Studio: 14.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core v14.3.0.
 
 ## 2.0.0 (2024-03-20)
 
