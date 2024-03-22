@@ -1106,8 +1106,7 @@ void main() {
   }
 
   baasTest('Realm.schema is updated with a new property', (config) async {
-    final app = App(config);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: config);
 
     final v1Realm = openPausedSyncRealm(user, [Task.schema]);
     v1Realm.syncSession.pause();
@@ -1135,8 +1134,7 @@ void main() {
   }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   baasTest('RealmObject.schema is updated with a new property', (config) async {
-    final app = App(config);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: config);
 
     final v1Realm = openPausedSyncRealm(user, [Task.schema]);
     final task = v1Realm.write(() => v1Realm.add(Task(ObjectId())));
@@ -1161,8 +1159,7 @@ void main() {
   }, skip: 'Requires https://github.com/realm/realm-core/issues/7426');
 
   baasTest('UnmanagedObject.schema is updated with a new property', (config) async {
-    final app = App(config);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: config);
 
     final v1Realm = openPausedSyncRealm(user, [Task.schema]);
 

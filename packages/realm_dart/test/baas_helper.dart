@@ -9,6 +9,8 @@ import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/cli/atlas_apps/baas_client.dart';
 import 'package:realm_dart/src/native/realm_core.dart';
 
+export 'package:realm_dart/src/cli/atlas_apps/baas_client.dart' show AppNames;
+
 const String publicRSAKeyForJWTValidation = '''-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvNHHs8T0AHD7SJ+CKvVR
 leeJa4wqYTnaVYV+5bX9FmFXVoN+vHbMLEteMvSw4L3kSRZdcqxY7cTuhlpAvkXP
@@ -50,16 +52,6 @@ extension on String? {
     if (self == null || self.isEmpty) return null;
     return self;
   }
-}
-
-enum AppNames {
-  flexible,
-
-  // For application with name 'autoConfirm' and with confirmationType = 'auto'
-  // all the usernames are automatically confirmed.
-  autoConfirm,
-
-  emailConfirm,
 }
 
 class BaasHelper {
@@ -135,7 +127,7 @@ class BaasHelper {
 
       for (final app in apps) {
         _baasApps[app.name] = app;
-        if (app.name == AppNames.flexible.name && app.isNewDeployment) {
+        if ((app.name == AppNames.flexible.name || app.name == AppNames.staticSchema.name)) {
           await _waitForInitialSync(app);
         }
       }
@@ -148,7 +140,7 @@ class BaasHelper {
   Future<void> _waitForInitialSync(BaasApp app) async {
     while (true) {
       try {
-        print('Validating initial sync is complete...');
+        print('Validating initial sync for $app is complete...');
         await _baasClient.waitForInitialSync(app);
         return;
       } catch (e) {
