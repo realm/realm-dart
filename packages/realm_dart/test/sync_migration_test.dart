@@ -1,4 +1,4 @@
-// Copyright 2022 MongoDB, Inc.
+// Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:typed_data';
@@ -230,7 +230,7 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppNames.staticSchema, skip: 'Depends on https://github.com/realm/realm-core/pull/7487');
+  }, appName: AppNames.staticSchema);
 
   baasTest('Realm can be migrated skipping versions (0->2)', (appConfig) async {
     final differentiator = ObjectId();
@@ -255,5 +255,5 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppNames.staticSchema, skip: 'Depends on https://github.com/realm/realm-core/pull/7487');
+  }, appName: AppNames.staticSchema);
 }
