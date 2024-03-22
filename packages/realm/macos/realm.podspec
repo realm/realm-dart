@@ -11,7 +11,7 @@ realmLibName = "librealm_dart.dylib"
 # We need to create an absolute symlink to librealm_dart.dylib otherwises
 # Cocoapods and Xcode build look for different files from different base directories while handling `vendored_libraries`
 realmLibraryPath = "#{realmPackageDir}/#{realmLibName}";
-if realmLibraryPath.include?("realm/") && !File.exist?(realmLibraryPath)
+if realmLibraryPath.include?("packages/realm/") && !File.exist?(realmLibraryPath)
   absoluteRealRealmLibPath = File.realpath("#{realmPackageDir}/../../realm_dart/binary/macos/#{realmLibName}")
 
   if !File.exist?(absoluteRealRealmLibPath)
@@ -36,7 +36,7 @@ puts "bundleId is #{bundleId}"
 
 Pod::Spec.new do |s|
   s.name                      = 'realm'
-  s.version                   = '2.0.0-beta.1'
+  s.version                   = '2.0.0'
   s.summary                   = 'The official Realm SDK for Flutter'
   s.description               = <<-DESC
                                     Realm is a mobile database - an alternative to SQLite and key-value stores.

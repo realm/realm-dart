@@ -25,21 +25,21 @@ command:
 
 scripts:
   setup:
-    run: >-
-      dart pub global activate combine_coverage &&
-      dart pub global activate coverage &&
-      dart pub global activate coverde &&
-      dart pub global activate dependency_validator &&
-      dart pub global activate ffigen &&
-      dart pub global activate melos &&
-      dart pub global activate pana &&
-      dart pub global activate --source path $MELOS_ROOT_PATH/packages/realm_dart/dev/
+    steps:
+      - dart pub global activate combine_coverage
+      - dart pub global activate coverage
+      - dart pub global activate coverde
+      - dart pub global activate dependency_validator
+      - dart pub global activate ffigen
+      - dart pub global activate melos
+      - dart pub global activate pana
+      - dart pub global activate --source path $MELOS_ROOT_PATH/packages/realm_dart/dev/
 
   build:
-    run: >-
-      melos run build:native &&
-      melos run build:binding &&
-      melos run build:dart
+    steps:
+      - build:native
+      - build:binding
+      - build:dart
       
   build:native:
     exec: dev build
@@ -60,11 +60,11 @@ scripts:
       dependsOn: ffigen
   test:
     description: Run all tests.
-    run: >-
-      melos run test:unit &&
-      melos run test:widget &&
-      melos run test:lints &&
-      melos run test:integration
+    steps:
+      - test:unit
+      - test:widget
+      - test:lints
+      - test:integration
 
   test:unit:
     run: dart test --concurrency=1 --coverage=coverage/ --file-reporter=json:test-results.json --reporter=github
@@ -115,7 +115,7 @@ scripts:
     packageFilters:
       published: true
 
-  format:
+  custom_format:
     description: Format code.
     # while we wait for https://github.com/dart-lang/dart_style/issues/864
     run: >-
@@ -130,10 +130,13 @@ scripts:
 
   lint:
     description: Run all lints.
-    run: >-
-      melos run lint:format &&
-      melos run lint:pana &&
-      melos publish --dry-run
+    steps:
+      - lint:format
+      - lint:pana
+      - melos publish --dry-run
+
+  lint:deps:
+    exec: dependency_validator
 
   lint:format:
     # while we wait for https://github.com/dart-lang/dart_style/issues/864
@@ -149,27 +152,15 @@ scripts:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       published: true
-
-  analyze:
-    description: Analyze code and dependencies.
-    run: >-
-      melos run analyze:code &&
-      melos run analyze:deps
-
-  analyze:code:
-    exec: dart analyze . --fatal-infos
     
-  analyze:deps:
-    exec: dependency_validator
-
   coverage:
     description: Generate, check and render coverage.
-    run: >-
-      melos run coverage:convert &&
-      melos run coverage:gather &&
-      melos run coverage:groom &&
-      melos run coverage:report &&
-      melos run coverage:check
+    steps:
+      - coverage:convert
+      - coverage:gather
+      - coverage:groom
+      - coverage:report
+      - coverage:check
 
   coverage:check: # TODO: Increase to 90 eventually
     run: coverde check 80
@@ -201,9 +192,9 @@ scripts:
     run: coverde report
 
   update:version:
-    run: >-
-      melos run update:version:ejson &&
-      melos run update:version:realm
+    steps:
+      - update:version:ejson
+      - update:version:realm
 
   update:version:ejson:
     description: Update version of all ejson packages collectively
@@ -226,12 +217,10 @@ scripts:
 
   # TODO: This is actually stricter than on CI, but we should aim for this
   ci:
-    run: >-
-      melos clean &&
-      melos bootstrap &&
-      melos run build &&
-      melos run test &&
-      melos run coverage &&
-      melos run analyze &&
-      melos run lint
+    steps:
+      - build
+      - test
+      - coverage
+      - analyze
+      - lint
   
