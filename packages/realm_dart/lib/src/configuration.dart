@@ -7,6 +7,7 @@ import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
+import 'logging.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'init.dart';
@@ -304,12 +305,12 @@ enum SessionStopPolicy {
 typedef SyncErrorHandler = void Function(SyncError);
 
 void defaultSyncErrorHandler(SyncError e) {
-  Realm.logger.log(RealmLogLevel.error, e);
+  Realm.logger.log(LogLevel.error, e);
 }
 
 void _defaultClientResetHandler(ClientResetError e) {
   Realm.logger.log(
-      RealmLogLevel.error,
+      LogLevel.error,
       "A client reset error occurred but no handler was supplied. "
       "Synchronization is now paused and will resume automatically once the app is restarted and "
       "the server data is re-downloaded. Any un-synchronized changes the client has made or will "
@@ -398,12 +399,11 @@ class InMemoryConfiguration extends Configuration {
 /// A collection of properties describing the underlying schema of a [RealmObjectBase].
 ///
 /// {@category Configuration}
-class SchemaObject {
+class SchemaObject extends Iterable<SchemaProperty> {
+  final List<SchemaProperty> _properties;
+
   /// Schema object type.
   final Type type;
-
-  /// Collection of the properties of this schema object.
-  final List<SchemaProperty> properties;
 
   /// Returns the name of this schema type.
   final String name;
@@ -412,7 +412,18 @@ class SchemaObject {
   final ObjectType baseType;
 
   /// Creates schema instance with object type and collection of object's properties.
-  const SchemaObject(this.baseType, this.type, this.name, this.properties);
+  SchemaObject(this.baseType, this.type, this.name, Iterable<SchemaProperty> properties) : _properties = List.from(properties);
+
+  @override
+  Iterator<SchemaProperty> get iterator => _properties.iterator;
+
+  @override
+  int get length => _properties.length;
+
+  SchemaProperty operator [](int index) => _properties[index];
+
+  @override
+  SchemaProperty elementAt(int index) => _properties.elementAt(index);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
@@ -441,6 +452,14 @@ class RealmSchema extends Iterable<SchemaObject> {
 /// @nodoc
 extension SchemaObjectInternal on SchemaObject {
   bool get isGenericRealmObject => type == RealmObject || type == EmbeddedObject || type == RealmObjectBase;
+
+  void add(SchemaProperty property) => _properties.add(property);
+}
+
+extension RealmSchemaInternal on RealmSchema {
+  void add(SchemaObject obj) {
+    _schema.add(obj);
+  }
 }
 
 /// [ClientResetHandler] is triggered if the device and server cannot agree

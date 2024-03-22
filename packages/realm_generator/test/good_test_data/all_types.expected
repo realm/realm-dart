@@ -67,13 +67,15 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Foo, 'MyFoo', [
-      SchemaProperty('x', RealmPropertyType.int,
-          indexType: RealmIndexType.regular),
+    return SchemaObject(ObjectType.realmObject, Foo, 'MyFoo', [
+      SchemaProperty('x', RealmPropertyType.int, indexType: RealmIndexType.regular),
       SchemaProperty('bar', RealmPropertyType.object,
           optional: true, linkTarget: 'Bar'),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
@@ -304,7 +306,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Bar._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Bar, 'Bar', [
+    return SchemaObject(ObjectType.realmObject, Bar, 'Bar', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('aBool', RealmPropertyType.bool,
           indexType: RealmIndexType.regular),
@@ -338,6 +340,9 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
           linkTarget: 'MyFoo'),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class PrimitiveTypes extends _PrimitiveTypes
@@ -431,7 +436,7 @@ class PrimitiveTypes extends _PrimitiveTypes
   static final schema = () {
     RealmObjectBase.registerFactory(PrimitiveTypes._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, PrimitiveTypes, 'PrimitiveTypes', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
@@ -440,4 +445,7 @@ class PrimitiveTypes extends _PrimitiveTypes
       SchemaProperty('objectIdProp', RealmPropertyType.objectid),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

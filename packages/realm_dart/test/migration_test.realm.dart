@@ -56,10 +56,13 @@ class PersonIntName extends _PersonIntName
   static final schema = () {
     RealmObjectBase.registerFactory(PersonIntName._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, PersonIntName, 'Person', [
+    return SchemaObject(ObjectType.realmObject, PersonIntName, 'Person', [
       SchemaProperty('name', RealmPropertyType.int),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class StudentV1 extends _StudentV1
@@ -121,11 +124,14 @@ class StudentV1 extends _StudentV1
   static final schema = () {
     RealmObjectBase.registerFactory(StudentV1._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, StudentV1, 'Student', [
+    return SchemaObject(ObjectType.realmObject, StudentV1, 'Student', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class MyObjectWithTypo extends _MyObjectWithTypo
@@ -188,12 +194,14 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithTypo._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
-        ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
+    return SchemaObject(ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
       SchemaProperty('nmae', RealmPropertyType.string),
       SchemaProperty('vlaue', RealmPropertyType.int),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
@@ -256,12 +264,15 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithoutTypo._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, MyObjectWithoutTypo, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('value', RealmPropertyType.int),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
@@ -314,9 +325,12 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithoutValue._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(
+    return SchemaObject(
         ObjectType.realmObject, MyObjectWithoutValue, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }

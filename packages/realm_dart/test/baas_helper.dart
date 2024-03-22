@@ -232,7 +232,7 @@ class BaasHelper {
       try {
         final result = await config.user.functions.call('triggerClientResetOnSyncServer', [userId, appId]) as Map<String, dynamic>;
         if (result['status'] != 'success') {
-          throw 'Unsuccesful status: ${result['status']}';
+          throw 'Unsuccessful status: ${result['status']}';
         }
         break;
       } catch (e) {

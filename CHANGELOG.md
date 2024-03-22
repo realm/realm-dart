@@ -1,4 +1,18 @@
-## vNext
+## vNext (TBD)
+
+### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 13.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
+## 2.0.0 (2024-03-20)
 
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
@@ -43,9 +57,45 @@
     Realm.shutdown();
   }
   ```
+* Removed `SchemaObject.properties` - instead, `SchemaObject` is now an iterable collection of `Property`. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
+* `SyncProgress.transferredBytes` and `SyncProgress.transferableBytes` have been consolidated into `SyncProgress.progressEstimate`. The values reported previously were incorrect and did not accurately represent bytes either. The new field better conveys the uncertainty around the progress being reported. With this release, we're reporting accurate estimates for upload progress, but estimating downloads is still unreliable. A future server and SDK release will add better estimations for download progress. (Issue [#1562](https://github.com/realm/realm-dart/issues/1562))
+* `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is exlicitly given, then `RealmLogCategory.realm` is assumed.
+
+  Also, note that setting a level is no longer local to the current isolate, but shared accross all isolates. At the core level there is just one process wide logger.
+
+  Categories form a hierarchy and setting the log level of a parent category will override the level of its children. The hierarchy is exposed in a type safe manner with:
+  ```dart
+  sealed class RealmLogCategory {
+    /// All possible log categories.
+    static final values = [
+    realm,
+    realm.app,
+    realm.sdk,
+    realm.storage,
+    realm.storage.notification,
+    realm.storage.object,
+    realm.storage.query,
+    realm.storage.transaction,
+    realm.sync,
+    realm.sync.client,
+    realm.sync.client.changeset,
+    realm.sync.client.network,
+    realm.sync.client.reset,
+    realm.sync.client.session,
+    realm.sync.server,
+    ...
+  ```
+  The `onRecord` stream now pumps `RealmLogRecord`s that include the category the message was logged to.
+
+  If you want to hook up realm logging with conventional dart logging you can do:
+  ```dart
+  Realm.logger.onRecord.forEach((r) => Logger(r.category.toString()).log(r.level.level, r.message));
+  ```
+  If no isolate subscribes to `Realm.logger.onRecord` then the logs will by default be sent to stdout. (Issue [#1578](https://github.com/realm/realm-dart/issues/1578))
+
 
 ### Enhancements
-* Realm objects can now be serialized as [EJSON](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/)
+* Realm objects can now be serialized as [EJSON](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/). (Issue [#1254](https://github.com/realm/realm-dart/issues/1254))
   ```dart
   import 'package:ejson/ejson.dart';
   // ...
@@ -103,19 +153,25 @@
   ```
 * Added `RealmValueType` enum that contains all the possible types that can be wrapped by a `RealmValue`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
 * Added support for accessing `Set` and `Map` types using the dynamic object API - `obj.dynamic.getSet/getMap`. (PR [#1533](https://github.com/realm/realm-dart/pull/1533))
-
+* Added `RealmObjectBase.objectSchema` that returns the schema for this object. In most cases, this would be the schema defined in the model, but in case the Realm is opened as dynamic (by providing an empty collection for schemaObjects in the config) or using `FlexibleSyncConfiguration`, it may change as the schema on disk changes. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
+* Added `Realm.schemaChanges` that returns a stream of schema changes that can be listened to. Only dynamic and synchronized Realms will emit schema changes. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
+* Improve performance of object notifiers with complex schemas and very simple changes to process by as much as 20% (Core 14.2.0).
+* Improve performance with very large number of notifiers as much as 75% (Core 14.2.0).
 
 ### Fixed
 * If you have more than 8388606 links pointing to one specific object, the program will crash. (Core 14.0.0)
 * A Realm generated on a non-apple ARM 64 device and copied to another platform (and vice-versa) were non-portable due to a sorting order difference. This impacts strings or binaries that have their first difference at a non-ascii character. These items may not be found in a set, or in an indexed column if the strings had a long common prefix (> 200 characters). (Core 14.0.0)
 * Ctor arguments appear in random order on generated classes, if the realm model contains many properties. (PR [#1531](https://github.com/realm/realm-dart/pull/1531))
+* Fixed an issue where removing realm objects from a List with more than 1000 items could crash. (Core 14.2.0)
+* Fix a spurious crash related to opening a Realm on background thread while the process was in the middle of exiting. (Core v14.3.0)
+* Fixed conflict resolution bug which may result in an crash when the AddInteger instruction on Mixed properties is merged against updates to a non-integer type. (Core v14.3.0)
 
 ### Compatibility
 * Realm Studio: 14.0.0 or later.
 * Fileformat: Generates files with format v24. Reads and automatically upgrade from fileformat v10. If you want to upgrade from an earlier file format version you will have to use RealmCore v13.x.y or earlier.
 
 ### Internal
-* Using Core 14.0.0
+* Using Core v14.3.0
 
 ## 1.9.0 (2024-02-02)
 

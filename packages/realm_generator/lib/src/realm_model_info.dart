@@ -144,7 +144,7 @@ class RealmModelInfo {
       {
         yield 'RealmObjectBase.registerFactory($name._);';
         yield 'register(_toEJson, _fromEJson);';
-        yield "return const SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
+        yield "return SchemaObject(ObjectType.${baseType.name}, $name, '$realmName', [";
         {
           yield* fields.map((f) {
             final namedArgs = {
@@ -166,6 +166,9 @@ class RealmModelInfo {
         yield ']);';
       }
       yield '}();';
+      yield '';
+      yield '@override';
+      yield 'SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;';
     }
     yield '}';
   }

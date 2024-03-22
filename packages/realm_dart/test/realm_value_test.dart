@@ -509,6 +509,8 @@ void main() {
         expect(obj.oneAny.type, RealmValueType.list);
         expectMatches(obj.oneAny, [true, 5.3]);
 
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(['foo']));
+
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
         expectMatches(obj.oneAny, 999);
 
@@ -566,11 +568,192 @@ void main() {
         expect(obj.oneAny.type, RealmValueType.map);
         expectMatches(obj.oneAny, {'bool': true, 'double': 5.3});
 
+        writeIfNecessary(realm, () => obj.oneAny = RealmValue.from({'foo': 'bar'}));
+        expectMatches(obj.oneAny, {'foo': 'bar'});
+
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
         expectMatches(obj.oneAny, 999);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from([1.23456789]));
         expectMatches(obj.oneAny, [1.23456789]);
+      });
+
+      test('Map inside list when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from([
+          true,
+          {'foo': 'bar'},
+          5.3
+        ]));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final list = obj.oneAny.asList();
+
+        expect(list[1].type, RealmValueType.map);
+
+        writeIfNecessary(realm, () => list[1] = RealmValue.from({'new': 5}));
+        expectMatches(obj.oneAny, [
+          true,
+          {'new': 5},
+          5.3
+        ]);
+
+        writeIfNecessary(realm, () {
+          list.add(list[1]);
+        });
+
+        expectMatches(obj.oneAny, [
+          true,
+          {'new': 5},
+          5.3,
+          {'new': 5}
+        ]);
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   list[1] = list[1];
+        // });
+        // expectMatches(obj.oneAny, [
+        //   true,
+        //   {'new': 5},
+        //   5.3,
+        //   {'new': 5}
+        // ]);
+      });
+
+      test('Map inside map when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from({
+          'a': 5,
+          'b': {'foo': 'bar'}
+        }));
+
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final map = obj.oneAny.asMap();
+
+        expect(map['b']!.type, RealmValueType.map);
+
+        writeIfNecessary(realm, () => map['b'] = RealmValue.from({'new': 5}));
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': {'new': 5}
+        });
+
+        writeIfNecessary(realm, () {
+          map['c'] = map['b']!;
+        });
+
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': {'new': 5},
+          'c': {'new': 5},
+        });
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   map['a'] = map['a'];
+        // });
+        // expectMatches(obj.oneAny, {
+        //   'a': 5,
+        //   'b': {'new': 5},
+        //   'c': {'new': 5},
+        // });
+      });
+
+      test('List inside list when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from([
+          true,
+          ['foo'],
+          5.3
+        ]));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final list = obj.oneAny.asList();
+
+        expect(list[1].type, RealmValueType.list);
+
+        writeIfNecessary(realm, () => list[1] = RealmValue.from([5, true]));
+        expectMatches(obj.oneAny, [
+          true,
+          [5, true],
+          5.3
+        ]);
+
+        writeIfNecessary(realm, () {
+          list.add(list[1]);
+        });
+
+        expectMatches(obj.oneAny, [
+          true,
+          [5, true],
+          5.3,
+          [5, true]
+        ]);
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   list[1] = list[1];
+        // });
+        // expectMatches(obj.oneAny, [
+        //   true,
+        //   [5, true],
+        //   5.3,
+        //   [5, true]
+        // ]);
+      });
+
+      test('List inside map when $managedString can be reassigned', () {
+        final realm = getMixedRealm();
+        final obj = AnythingGoes(
+            oneAny: RealmValue.from({
+          'a': 5,
+          'b': ['foo']
+        }));
+
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final map = obj.oneAny.asMap();
+
+        expect(map['b']!.type, RealmValueType.list);
+
+        writeIfNecessary(realm, () => map['b'] = RealmValue.from([999, true]));
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': [999, true]
+        });
+
+        writeIfNecessary(realm, () {
+          map['c'] = map['b']!;
+        });
+
+        expectMatches(obj.oneAny, {
+          'a': 5,
+          'b': [999, true],
+          'c': [999, true]
+        });
+
+        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+        // writeIfNecessary(realm, () {
+        //   map['a'] = map['a'];
+        // });
+        // expectMatches(obj.oneAny, {
+        //   'a': 5,
+        //   'b': [999, true],
+        //   'c': [999, true]
+        // });
       });
 
       test('RealmValue when $managedString can store complex struct', () {
@@ -1018,6 +1201,103 @@ void main() {
 
       final noMatchesQuery = realm.query<AnythingGoes>("oneAny[*].bar == 9");
       expect(noMatchesQuery, isEmpty);
+    });
+  });
+
+  group('RealmValue.fromJson', () {
+    test('Throws with invalid json', () {
+      final json = '{ "This is": invalid }';
+
+      expect(() => RealmValue.fromJson(json), throwsA(isA<FormatException>()));
+    });
+
+    test('Constructs objects', () {
+      final json = '{ "1.1": { "2.1": "foo", "2.2": 5 }, "1.2": [ 1, 2, true ], "1.3": null }';
+
+      final result = RealmValue.fromJson(json);
+      expect(result.type, RealmValueType.map);
+
+      final o1 = result.asMap()['1.1'];
+      expect(o1, isNotNull);
+      expect(o1!.type, RealmValueType.map);
+      expect(o1.asMap()['2.1']!.value, 'foo');
+      expect(o1.asMap()['2.2']!.value, 5);
+
+      final o2 = result.asMap()['1.2'];
+      expect(o2, isNotNull);
+      expect(o2!.type, RealmValueType.list);
+      expect(o2.asList()[0].value, 1);
+      expect(o2.asList()[1].value, 2);
+      expect(o2.asList()[2].value, true);
+
+      final o3 = result.asMap()['1.3'];
+      expect(o3, isNotNull);
+      expect(o3!.type, RealmValueType.nullValue);
+      expect(o3.value, null);
+    });
+
+    test('Constructs arrays', () {
+      final json = '[ "foo", true, { "foo": "bar" }, [ 1, 2.2, 3 ]]';
+
+      final result = RealmValue.fromJson(json);
+      expect(result.type, RealmValueType.list);
+      expect(result.asList(), hasLength(4));
+      expect(result.asList()[0].value, "foo");
+      expect(result.asList()[1].value, true);
+
+      final map = result.asList()[2];
+      expect(map.type, RealmValueType.map);
+      expect(map.asMap()['foo']!.value, 'bar');
+
+      final list = result.asList()[3];
+      expect(list.type, RealmValueType.list);
+      expect(list.asList(), hasLength(3));
+      expect(list.asList()[0].value, 1);
+      expect(list.asList()[0].type, RealmValueType.int);
+      expect(list.asList()[1].value, 2.2);
+      expect(list.asList()[1].type, RealmValueType.double);
+      expect(list.asList()[2].value, 3);
+      expect(list.asList()[2].type, RealmValueType.int);
+    });
+
+    test('Constructs string', () {
+      final json = '"foo"';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.string);
+      expect(result.value, 'foo');
+    });
+
+    test('Constructs integers', () {
+      final json = '-123';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.int);
+      expect(result.value, -123);
+    });
+
+    test('Constructs doubles', () {
+      final json = '-123.456';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.double);
+      expect(result.value, -123.456);
+    });
+
+    test('Constructs bools', () {
+      final json = 'true';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.boolean);
+      expect(result.value, true);
+    });
+
+    test('Constructs nulls', () {
+      final json = 'null';
+      final result = RealmValue.fromJson(json);
+
+      expect(result.type, RealmValueType.nullValue);
+      expect(result.value, isNull);
     });
   });
 }

@@ -11,6 +11,7 @@ import 'package:path/path.dart' as _path;
 
 import '../realm.dart';
 import 'credentials.dart';
+import 'logging.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
 
@@ -153,7 +154,7 @@ class App implements Finalizable {
     // background isolates. This check will log a warning if the isolate name is != 'main' and doesn't start with 'test/' since dart test will
     // construct a new isolate per file and we don't want to log excessively in unit test projects.
     if (Isolate.current.debugName != 'main' && Isolate.current.debugName?.startsWith('test/') == false) {
-      Realm.logger.log(RealmLogLevel.warn,
+      Realm.logger.log(LogLevel.warn,
           "App constructor called on Isolate ${Isolate.current.debugName} which doesn't appear to be the main isolate. If you need an app instance on a background isolate use App.getById after constructing the App on the main isolate.");
     }
   }

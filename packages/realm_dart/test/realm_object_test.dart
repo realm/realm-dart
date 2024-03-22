@@ -338,7 +338,7 @@ void main() {
 
   void testPrimaryKey<T extends RealmObject, K extends Object>(SchemaObject schema, T Function() createObject, K? key) {
     test("$T primary key: $key", () {
-      final pkProp = schema.properties.where((p) => p.primaryKey).single;
+      final pkProp = schema.where((p) => p.primaryKey).single;
       final realm = Realm(Configuration.local([schema]));
       final obj = realm.write(() {
         return realm.add(createObject());

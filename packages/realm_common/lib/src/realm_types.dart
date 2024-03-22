@@ -1,6 +1,7 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
@@ -266,6 +267,14 @@ class RealmValue {
       Iterable<dynamic> i => RealmValue.list(i.map((o) => RealmValue.from(o)).toList()),
       _ => throw ArgumentError.value(object.runtimeType, 'object', 'Unsupported type'),
     };
+  }
+
+  /// Constructs a RealmValue from a valid json string. The json object must contain only
+  /// values that are supported by [RealmValue].
+  ///
+  /// Throws [FormatException] if the [json] argument is not valid json.
+  factory RealmValue.fromJson(String json) {
+    return RealmValue.from(jsonDecode(json));
   }
 
   @override
