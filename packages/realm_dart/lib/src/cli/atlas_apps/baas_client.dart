@@ -126,7 +126,7 @@ class BaasClient {
     }
   };''';
 
-  static final _staticSchema_v0 = JsonSchemaDefinition('Nullables', [
+  static final _nullablesSchemaV0 = JsonSchemaDefinition('Nullables', [
     JsonSchemaProperty(name: '_id', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'differentiator', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'boolValue', bsonType: 'bool', required: false),
@@ -141,7 +141,7 @@ class BaasClient {
     JsonSchemaProperty(name: 'binaryValue', bsonType: 'binData', required: false),
   ]);
 
-  static final _staticSchema_v1 = JsonSchemaDefinition('Nullables', [
+  static final _nullablesSchemaV1 = JsonSchemaDefinition('Nullables', [
     JsonSchemaProperty(name: '_id', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'differentiator', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'boolValue', bsonType: 'bool', required: true),
@@ -154,6 +154,7 @@ class BaasClient {
     JsonSchemaProperty(name: 'objectIdValue', bsonType: 'objectId', required: true),
     JsonSchemaProperty(name: 'uuidValue', bsonType: 'uuid', required: true),
     JsonSchemaProperty(name: 'binaryValue', bsonType: 'binData', required: true),
+    JsonSchemaProperty(name: 'willBeRemoved', bsonType: 'string', required: true),
   ]);
 
   static final String defaultAppName = AppNames.flexible.name;
@@ -568,11 +569,11 @@ class BaasClient {
       );
 
       if (appName == AppNames.staticSchema) {
-        final schemaId = await _createSchema(app, mongoServiceId, _staticSchema_v0);
-        await _updateSchema(app, schemaId, _staticSchema_v1);
+        final schemaId = await _createSchema(app, mongoServiceId, _nullablesSchemaV0);
+        await _updateSchema(app, schemaId, _nullablesSchemaV1);
 
         // Revert to schema_v0
-        await _updateSchema(app, schemaId, _staticSchema_v0);
+        await _updateSchema(app, schemaId, _nullablesSchemaV0);
 
         await _waitForSchemaVersion(app, 2);
       } else {

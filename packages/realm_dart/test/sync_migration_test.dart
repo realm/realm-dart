@@ -11,6 +11,7 @@ import 'test.dart';
 
 part 'sync_migration_test.realm.dart';
 
+// This has to match the server-side schema declared in baas_client::_nullablesSchemaV0
 @RealmModel()
 @MapTo("Nullables")
 class _NullablesV0 {
@@ -31,6 +32,7 @@ class _NullablesV0 {
   late Uint8List? binaryValue;
 }
 
+// This has to match the server-side schema declared in baas_client::_nullablesSchemaV1
 @RealmModel()
 @MapTo("Nullables")
 class _NullablesV1 {
@@ -49,6 +51,8 @@ class _NullablesV1 {
   late ObjectId objectIdValue;
   late Uuid uuidValue;
   late Uint8List binaryValue;
+
+  late String willBeRemoved;
 }
 
 Future<Realm> openRealm(AppConfiguration appConfig, SchemaObject schema, ObjectId differentiator, {required int schemaVersion}) async {
@@ -105,6 +109,7 @@ void main() {
     expect(objv1.stringValue, 'abc');
     expect(objv1.uuidValue, uuid);
     expect(objv1.binaryValue, binary);
+    expect(objv1.willBeRemoved, '');
 
     final realmv2 = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 2);
     final objv2 = realmv2.all<NullablesV0>().single;
@@ -155,4 +160,100 @@ void main() {
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
   }, appName: AppNames.staticSchema);
+
+  baasTest('Can remove field', (appConfig) async {
+    final differentiator = ObjectId();
+    final realmv1 = await openRealm(appConfig, NullablesV1.schema, differentiator, schemaVersion: 1);
+    final objv1 = realmv1.write(() {
+      return realmv1.add(NullablesV1(
+          ObjectId(), differentiator, true, 5, 1, Decimal128.infinity, DateTime.now(), 'foo', ObjectId(), Uuid.v4(), Uint8List(0), 'this should go away!'));
+    });
+
+    expect(objv1.willBeRemoved, 'this should go away!');
+    await realmv1.syncSession.waitForUpload();
+
+    final realmv2 = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 2);
+
+    final id2 = ObjectId();
+    realmv2.write(() {
+      realmv2.add(NullablesV0(id2, differentiator));
+    });
+
+    await realmv2.syncSession.waitForUpload();
+    await realmv1.syncSession.waitForDownload();
+
+    final objv2 = realmv1.find<NullablesV1>(id2)!;
+    expect(objv2.willBeRemoved, '');
+  }, appName: AppNames.staticSchema);
+
+  baasTest('Fails with a future schema version', (appConfig) {
+    expectLater(() => openRealm(appConfig, NullablesV1.schema, ObjectId(), schemaVersion: 3),
+        throwsA(isA<RealmException>().having((e) => e.message, 'message', contains('schema version in BIND 3 is greater than latest schema version 2'))));
+  }, appName: AppNames.staticSchema);
+
+  baasTest('Realm can be migrated through consequtive versions (0->1->2)', (appConfig) async {
+    final differentiator = ObjectId();
+    var realm = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 0);
+    final id = ObjectId();
+    realm.write(() {
+      realm.add(NullablesV0(id, differentiator));
+    });
+
+    realm.close();
+
+    realm = await openRealm(appConfig, NullablesV1.schema, differentiator, schemaVersion: 1);
+    final objv1 = realm.all<NullablesV1>().first;
+    expect(objv1.id, id);
+    expect(objv1.differentiator, differentiator);
+    expect(objv1.boolValue, false);
+    expect(objv1.dateValue, DateTime.utc(1));
+    expect(objv1.decimalValue, Decimal128.fromDouble(0));
+    expect(objv1.doubleValue, 0);
+    expect(objv1.intValue, 0);
+    expect(objv1.objectIdValue, ObjectId.fromBytes(List.generate(12, (index) => 0)));
+    expect(objv1.stringValue, '');
+    expect(objv1.uuidValue, Uuid.nil);
+    expect(objv1.binaryValue, Uint8List(0));
+
+    realm.close();
+
+    realm = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 2);
+    final objv2 = realm.all<NullablesV0>().first;
+    expect(objv2.id, id);
+    expect(objv2.differentiator, differentiator);
+    expect(objv2.boolValue, isNull);
+    expect(objv2.dateValue, isNull);
+    expect(objv2.decimalValue, isNull);
+    expect(objv2.doubleValue, isNull);
+    expect(objv2.intValue, isNull);
+    expect(objv2.objectIdValue, isNull);
+    expect(objv2.stringValue, isNull);
+    expect(objv2.uuidValue, isNull);
+    expect(objv2.binaryValue, isNull);
+  }, appName: AppNames.staticSchema, skip: 'Depends on https://github.com/realm/realm-core/pull/7487');
+
+  baasTest('Realm can be migrated skipping versions (0->2)', (appConfig) async {
+    final differentiator = ObjectId();
+    var realm = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 0);
+    final id = ObjectId();
+    realm.write(() {
+      realm.add(NullablesV0(id, differentiator));
+    });
+
+    realm.close();
+
+    realm = await openRealm(appConfig, NullablesV0.schema, differentiator, schemaVersion: 2);
+    final objv2 = realm.all<NullablesV0>().first;
+    expect(objv2.id, id);
+    expect(objv2.differentiator, differentiator);
+    expect(objv2.boolValue, isNull);
+    expect(objv2.dateValue, isNull);
+    expect(objv2.decimalValue, isNull);
+    expect(objv2.doubleValue, isNull);
+    expect(objv2.intValue, isNull);
+    expect(objv2.objectIdValue, isNull);
+    expect(objv2.stringValue, isNull);
+    expect(objv2.uuidValue, isNull);
+    expect(objv2.binaryValue, isNull);
+  }, appName: AppNames.staticSchema, skip: 'Depends on https://github.com/realm/realm-core/pull/7487');
 }

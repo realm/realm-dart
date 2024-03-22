@@ -691,9 +691,8 @@ class _RealmCore {
       }
       if (error != nullptr) {
         final err = arena<realm_error>();
-        bool success = _realmLib.realm_get_async_error(error, err);
-        final lastError = success ? err.ref.toLastError() : null;
-        completer.completeError(RealmException("Failed to open realm${lastError?.message ?? ''}"));
+        final lastError = _realmLib.realm_get_async_error(error, err) ? err.ref.toLastError() : null;
+        completer.completeError(RealmException("Failed to open realm: ${lastError?.message ?? 'Error details missing.'}"));
         return;
       }
 
