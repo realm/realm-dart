@@ -1,16 +1,18 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
 
 ### Fixed
-* None
+* Modifying nested collections left the accessor used to make the modification in a stale state, resulting in some unneccesary work being done when making multiple modifications via one accessor (Core 14.4.0).
+* Fix opening realm with cached user while offline results in fatal error and session does not retry connection. (Core 14.4.0)
+* Fix disallow Sets in ArrayMixed. (Core 14.4.0)
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.4.1.
 
 ## 2.0.0 (2024-03-20)
 
