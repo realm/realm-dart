@@ -631,6 +631,7 @@ class TestNotificationObject extends _TestNotificationObject
     int? intProperty,
     int? remappedIntProperty,
     TestNotificationObject? link,
+    TestNotificationEmbeddedObject? embedded,
     Iterable<TestNotificationObject> listLinks = const [],
     Set<TestNotificationObject> setLinks = const {},
     Map<String, TestNotificationObject?> mapLinks = const {},
@@ -639,6 +640,7 @@ class TestNotificationObject extends _TestNotificationObject
     RealmObjectBase.set(this, 'intProperty', intProperty);
     RealmObjectBase.set(this, '_remappedIntProperty', remappedIntProperty);
     RealmObjectBase.set(this, 'link', link);
+    RealmObjectBase.set(this, 'embedded', embedded);
     RealmObjectBase.set<RealmList<TestNotificationObject>>(
         this, 'listLinks', RealmList<TestNotificationObject>(listLinks));
     RealmObjectBase.set<RealmSet<TestNotificationObject>>(
@@ -676,6 +678,14 @@ class TestNotificationObject extends _TestNotificationObject
   @override
   set link(covariant TestNotificationObject? value) =>
       RealmObjectBase.set(this, 'link', value);
+
+  @override
+  TestNotificationEmbeddedObject? get embedded =>
+      RealmObjectBase.get<TestNotificationEmbeddedObject>(this, 'embedded')
+          as TestNotificationEmbeddedObject?;
+  @override
+  set embedded(covariant TestNotificationEmbeddedObject? value) =>
+      RealmObjectBase.set(this, 'embedded', value);
 
   @override
   RealmList<TestNotificationObject> get listLinks =>
@@ -733,6 +743,7 @@ class TestNotificationObject extends _TestNotificationObject
       'intProperty': intProperty.toEJson(),
       '_remappedIntProperty': remappedIntProperty.toEJson(),
       'link': link.toEJson(),
+      'embedded': embedded.toEJson(),
       'listLinks': listLinks.toEJson(),
       'setLinks': setLinks.toEJson(),
       'mapLinks': mapLinks.toEJson(),
@@ -748,6 +759,7 @@ class TestNotificationObject extends _TestNotificationObject
         'intProperty': EJsonValue intProperty,
         '_remappedIntProperty': EJsonValue remappedIntProperty,
         'link': EJsonValue link,
+        'embedded': EJsonValue embedded,
         'listLinks': EJsonValue listLinks,
         'setLinks': EJsonValue setLinks,
         'mapLinks': EJsonValue mapLinks,
@@ -758,6 +770,7 @@ class TestNotificationObject extends _TestNotificationObject
           intProperty: fromEJson(intProperty),
           remappedIntProperty: fromEJson(remappedIntProperty),
           link: fromEJson(link),
+          embedded: fromEJson(embedded),
           listLinks: fromEJson(listLinks),
           setLinks: fromEJson(setLinks),
           mapLinks: fromEJson(mapLinks),
@@ -778,6 +791,8 @@ class TestNotificationObject extends _TestNotificationObject
           mapTo: '_remappedIntProperty', optional: true),
       SchemaProperty('link', RealmPropertyType.object,
           optional: true, linkTarget: 'TestNotificationObject'),
+      SchemaProperty('embedded', RealmPropertyType.object,
+          optional: true, linkTarget: 'TestNotificationEmbeddedObject'),
       SchemaProperty('listLinks', RealmPropertyType.object,
           linkTarget: 'TestNotificationObject',
           collectionType: RealmCollectionType.list),
@@ -792,6 +807,83 @@ class TestNotificationObject extends _TestNotificationObject
           linkOriginProperty: 'link',
           collectionType: RealmCollectionType.list,
           linkTarget: 'TestNotificationObject'),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
+  TestNotificationEmbeddedObject({
+    String? stringProperty,
+    int? intProperty,
+  }) {
+    RealmObjectBase.set(this, 'stringProperty', stringProperty);
+    RealmObjectBase.set(this, 'intProperty', intProperty);
+  }
+
+  TestNotificationEmbeddedObject._();
+
+  @override
+  String? get stringProperty =>
+      RealmObjectBase.get<String>(this, 'stringProperty') as String?;
+  @override
+  set stringProperty(String? value) =>
+      RealmObjectBase.set(this, 'stringProperty', value);
+
+  @override
+  int? get intProperty => RealmObjectBase.get<int>(this, 'intProperty') as int?;
+  @override
+  set intProperty(int? value) =>
+      RealmObjectBase.set(this, 'intProperty', value);
+
+  @override
+  Stream<RealmObjectChanges<TestNotificationEmbeddedObject>> get changes =>
+      RealmObjectBase.getChanges<TestNotificationEmbeddedObject>(this);
+
+  @override
+  Stream<RealmObjectChanges<TestNotificationEmbeddedObject>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<TestNotificationEmbeddedObject>(
+          this, keyPaths);
+
+  @override
+  TestNotificationEmbeddedObject freeze() =>
+      RealmObjectBase.freezeObject<TestNotificationEmbeddedObject>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'stringProperty': stringProperty.toEJson(),
+      'intProperty': intProperty.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(TestNotificationEmbeddedObject value) =>
+      value.toEJson();
+  static TestNotificationEmbeddedObject _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'stringProperty': EJsonValue stringProperty,
+        'intProperty': EJsonValue intProperty,
+      } =>
+        TestNotificationEmbeddedObject(
+          stringProperty: fromEJson(stringProperty),
+          intProperty: fromEJson(intProperty),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(TestNotificationEmbeddedObject._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(ObjectType.embeddedObject,
+        TestNotificationEmbeddedObject, 'TestNotificationEmbeddedObject', [
+      SchemaProperty('stringProperty', RealmPropertyType.string,
+          optional: true),
+      SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
     ]);
   }();
 
