@@ -1,0 +1,177 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'const_initializer.dart';
+
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class ConstInitizers extends _ConstInitizers
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  ConstInitizers({
+    int x = 0,
+    int y = -1,
+    int z = const int.fromEnvironment('FOO', defaultValue: 1),
+    String a = const String.fromEnvironment('FOO'),
+    String b = 'foo',
+    Iterable<int> s = const [],
+    Map<String, int> t = const {},
+    Set<int> u = const {},
+    Iterable<int> v = const [],
+    Map<String, int> w = const {},
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<ConstInitizers>({
+        'x': 0,
+        'y': -1,
+        'z': const int.fromEnvironment('FOO', defaultValue: 1),
+        'a': const String.fromEnvironment('FOO'),
+        'b': 'foo',
+      });
+    }
+    RealmObjectBase.set(this, 'x', x);
+    RealmObjectBase.set(this, 'y', y);
+    RealmObjectBase.set(this, 'z', z);
+    RealmObjectBase.set(this, 'a', a);
+    RealmObjectBase.set(this, 'b', b);
+    RealmObjectBase.set<RealmList<int>>(this, 's', RealmList<int>(s));
+    RealmObjectBase.set<RealmMap<int>>(this, 't', RealmMap<int>(t));
+    RealmObjectBase.set<RealmSet<int>>(this, 'u', RealmSet<int>(u));
+    RealmObjectBase.set<RealmList<int>>(this, 'v', RealmList<int>(v));
+    RealmObjectBase.set<RealmMap<int>>(this, 'w', RealmMap<int>(w));
+  }
+
+  ConstInitizers._();
+
+  @override
+  int get x => RealmObjectBase.get<int>(this, 'x') as int;
+  @override
+  set x(int value) => RealmObjectBase.set(this, 'x', value);
+
+  @override
+  int get y => RealmObjectBase.get<int>(this, 'y') as int;
+  @override
+  set y(int value) => RealmObjectBase.set(this, 'y', value);
+
+  @override
+  int get z => RealmObjectBase.get<int>(this, 'z') as int;
+  @override
+  set z(int value) => RealmObjectBase.set(this, 'z', value);
+
+  @override
+  String get a => RealmObjectBase.get<String>(this, 'a') as String;
+  @override
+  set a(String value) => RealmObjectBase.set(this, 'a', value);
+
+  @override
+  String get b => RealmObjectBase.get<String>(this, 'b') as String;
+  @override
+  set b(String value) => RealmObjectBase.set(this, 'b', value);
+
+  @override
+  RealmList<int> get s => RealmObjectBase.get<int>(this, 's') as RealmList<int>;
+  @override
+  set s(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get t => RealmObjectBase.get<int>(this, 't') as RealmMap<int>;
+  @override
+  set t(covariant RealmMap<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get u => RealmObjectBase.get<int>(this, 'u') as RealmSet<int>;
+  @override
+  set u(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int> get v => RealmObjectBase.get<int>(this, 'v') as RealmList<int>;
+  @override
+  set v(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get w => RealmObjectBase.get<int>(this, 'w') as RealmMap<int>;
+  @override
+  set w(covariant RealmMap<int> value) => throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ConstInitizers>> get changes =>
+      RealmObjectBase.getChanges<ConstInitizers>(this);
+
+  @override
+  ConstInitizers freeze() => RealmObjectBase.freezeObject<ConstInitizers>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'x': x.toEJson(),
+      'y': y.toEJson(),
+      'z': z.toEJson(),
+      'a': a.toEJson(),
+      'b': b.toEJson(),
+      's': s.toEJson(),
+      't': t.toEJson(),
+      'u': u.toEJson(),
+      'v': v.toEJson(),
+      'w': w.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ConstInitizers value) => value.toEJson();
+  static ConstInitizers _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'x': EJsonValue x,
+        'y': EJsonValue y,
+        'z': EJsonValue z,
+        'a': EJsonValue a,
+        'b': EJsonValue b,
+        's': EJsonValue s,
+        't': EJsonValue t,
+        'u': EJsonValue u,
+        'v': EJsonValue v,
+        'w': EJsonValue w,
+      } =>
+        ConstInitizers(
+          x: fromEJson(x),
+          y: fromEJson(y),
+          z: fromEJson(z),
+          a: fromEJson(a),
+          b: fromEJson(b),
+          s: fromEJson(s),
+          t: fromEJson(t),
+          u: fromEJson(u),
+          v: fromEJson(v),
+          w: fromEJson(w),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ConstInitizers._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, ConstInitizers, 'ConstInitizers', [
+      SchemaProperty('x', RealmPropertyType.int),
+      SchemaProperty('y', RealmPropertyType.int),
+      SchemaProperty('z', RealmPropertyType.int),
+      SchemaProperty('a', RealmPropertyType.string),
+      SchemaProperty('b', RealmPropertyType.string),
+      SchemaProperty('s', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('t', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('u', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('v', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('w', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
