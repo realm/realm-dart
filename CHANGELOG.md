@@ -4,6 +4,7 @@
 * Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
 
 ### Fixed
+* Using `-1` as an initializer would fail. ([#1606](https://github.com/realm/realm-dart/issues/1606))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
