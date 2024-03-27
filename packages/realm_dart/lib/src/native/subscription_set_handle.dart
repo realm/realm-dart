@@ -16,7 +16,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
   Exception? get error {
     final error = realmLib.realm_sync_subscription_set_error_str(pointer);
     final message = error.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-    return message == null ? null : RealmException(message);
+    return message.convert(RealmException.new);
   }
 
   SubscriptionHandle operator [](int index) => SubscriptionHandle._(invokeGetPointer(() => realmLib.realm_sync_subscription_at(pointer, index)));
@@ -27,7 +27,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
         pointer,
         name.toCharPtr(arena),
       );
-      return result == nullptr ? null : SubscriptionHandle._(result);
+      return result.convert(SubscriptionHandle._);
     });
   }
 
@@ -36,7 +36,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
       pointer,
       results.handle.pointer,
     );
-    return result == nullptr ? null : SubscriptionHandle._(result);
+    return result.convert(SubscriptionHandle._);
   }
 
   int get version => realmLib.realm_sync_subscription_set_version(pointer);
