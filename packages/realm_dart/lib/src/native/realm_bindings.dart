@@ -1082,6 +1082,17 @@ class RealmLibrary {
       _realm_app_get_current_userPtr.asFunction<
           ffi.Pointer<realm_user_t> Function(ffi.Pointer<realm_app_t>)>();
 
+  ffi.Pointer<ffi.Char> realm_app_get_default_base_url() {
+    return _realm_app_get_default_base_url();
+  }
+
+  late final _realm_app_get_default_base_urlPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'realm_app_get_default_base_url');
+  late final _realm_app_get_default_base_url =
+      _realm_app_get_default_base_urlPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
+
   /// Links the currently authenticated user with a new identity, where the identity is defined by the credentia
   /// specified as a parameter.
   /// @param app ptr to realm_app
@@ -12018,10 +12029,12 @@ typedef Dartrealm_async_open_task_completion_func_tFunction = void Function(
 /// callback runs.
 typedef realm_async_open_task_init_subscription_func_t = ffi.Pointer<
     ffi.NativeFunction<realm_async_open_task_init_subscription_func_tFunction>>;
-typedef realm_async_open_task_init_subscription_func_tFunction = ffi.Void
-    Function(ffi.Pointer<realm_t> realm, ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_async_open_task_init_subscription_func_tFunction = void
-    Function(ffi.Pointer<realm_t> realm, ffi.Pointer<ffi.Void> userdata);
+typedef realm_async_open_task_init_subscription_func_tFunction
+    = ffi.Void Function(ffi.Pointer<realm_thread_safe_reference_t> realm,
+        ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_async_open_task_init_subscription_func_tFunction
+    = void Function(ffi.Pointer<realm_thread_safe_reference_t> realm,
+        ffi.Pointer<ffi.Void> userdata);
 
 final class realm_async_open_task_progress_notification_token
     extends ffi.Opaque {}
