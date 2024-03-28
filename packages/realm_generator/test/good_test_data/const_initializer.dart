@@ -3,7 +3,7 @@ import 'package:realm_common/realm_common.dart';
 part 'const_initializer.realm.dart';
 
 @RealmModel()
-class _ConstInitizers {
+class _ConstInitializer {
   int x = 0;
   int y = -1;
   int z = const int.fromEnvironment('FOO', defaultValue: 1);
