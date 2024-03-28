@@ -376,6 +376,30 @@ class _Symmetric {
   late ObjectId id;
 }
 
+@RealmModel()
+class _ObjectWithRealmValue {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId? differentiator;
+
+  @Indexed()
+  late RealmValue oneAny;
+  late List<RealmValue> manyAny;
+  late Map<String, RealmValue> dictOfAny;
+  late Set<RealmValue> setOfAny;
+}
+
+@RealmModel()
+class _ObjectWithInt {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId? differentiator;
+
+  int i = 42;
+}
+
 String? testName;
 final _openRealms = Queue<Realm>();
 
@@ -591,6 +615,7 @@ dynamic shouldSkip(dynamic skip) {
   return skip;
 }
 
+/// Registers, logs in, and returns the new user.
 Future<User> getIntegrationUser(App app) async {
   final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
   final password = 'password';
@@ -603,6 +628,10 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
+/// Returns a synced realm after logging in a user.
+///
+/// A subscription for querying all [NullableTypes] objects containing
+/// the `differentiator` will be added if a `differentiator` is provided.
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app);
@@ -738,6 +767,8 @@ List<SchemaObject> getSyncSchema() {
     Asymmetric.schema,
     Embedded.schema,
     Symmetric.schema,
+    ObjectWithRealmValue.schema,
+    ObjectWithInt.schema,
   ];
 }
 
