@@ -347,7 +347,7 @@ extension FieldElementEx on FieldElement {
       }
 
       final initExpression = initializerExpression;
-      if (initExpression != null && initExpression is! Literal) {
+      if (initExpression != null && !_isValidFieldInitializer(initExpression)) {
         throw RealmInvalidGenerationSourceError(
           'Field initializers must be constant',
           primarySpan: initializerExpressionSpan(file, initExpression),
@@ -389,5 +389,16 @@ extension FieldElementEx on FieldElement {
       }
     }
     return false;
+  }
+
+  bool _isValidFieldInitializer(Expression initExpression) {
+    return switch (initExpression) {
+      Literal _ => true,
+      InstanceCreationExpression i => i.isConst,
+      ParenthesizedExpression i => _isValidFieldInitializer(i.expression),
+      PrefixExpression e => _isValidFieldInitializer(e.operand),
+      BinaryExpression b => _isValidFieldInitializer(b.leftOperand) && _isValidFieldInitializer(b.rightOperand),
+      _ => false,
+    };
   }
 }

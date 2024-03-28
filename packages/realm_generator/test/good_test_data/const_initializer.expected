@@ -1,0 +1,246 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'const_initializer.dart';
+
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class ConstInitializer extends _ConstInitializer
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  ConstInitializer({
+    int zero = 0,
+    int minusOne = -1,
+    int fooOrOne = const int.fromEnvironment('FOO', defaultValue: 1),
+    int parenthesis = (1),
+    int minusMinusOne = -(-1),
+    int add = 1 + 1,
+    String fooEnv = const String.fromEnvironment('FOO'),
+    String fooLit = 'foo',
+    Iterable<int> constEmptyList = const [],
+    Map<String, int> constEmptyMap = const {},
+    Set<int> constEmptySet = const {},
+    Iterable<int> emptyList = const [],
+    Map<String, int> emptyMao = const {},
+    Set<int> emptySet = const {},
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<ConstInitializer>({
+        'zero': 0,
+        'minusOne': -1,
+        'fooOrOne': const int.fromEnvironment('FOO', defaultValue: 1),
+        'parenthesis': (1),
+        'minusMinusOne': -(-1),
+        'add': 1 + 1,
+        'fooEnv': const String.fromEnvironment('FOO'),
+        'fooLit': 'foo',
+      });
+    }
+    RealmObjectBase.set(this, 'zero', zero);
+    RealmObjectBase.set(this, 'minusOne', minusOne);
+    RealmObjectBase.set(this, 'fooOrOne', fooOrOne);
+    RealmObjectBase.set(this, 'parenthesis', parenthesis);
+    RealmObjectBase.set(this, 'minusMinusOne', minusMinusOne);
+    RealmObjectBase.set(this, 'add', add);
+    RealmObjectBase.set(this, 'fooEnv', fooEnv);
+    RealmObjectBase.set(this, 'fooLit', fooLit);
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'constEmptyList', RealmList<int>(constEmptyList));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'constEmptyMap', RealmMap<int>(constEmptyMap));
+    RealmObjectBase.set<RealmSet<int>>(
+        this, 'constEmptySet', RealmSet<int>(constEmptySet));
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'emptyList', RealmList<int>(emptyList));
+    RealmObjectBase.set<RealmMap<int>>(
+        this, 'emptyMao', RealmMap<int>(emptyMao));
+    RealmObjectBase.set<RealmSet<int>>(
+        this, 'emptySet', RealmSet<int>(emptySet));
+  }
+
+  ConstInitializer._();
+
+  @override
+  int get zero => RealmObjectBase.get<int>(this, 'zero') as int;
+  @override
+  set zero(int value) => RealmObjectBase.set(this, 'zero', value);
+
+  @override
+  int get minusOne => RealmObjectBase.get<int>(this, 'minusOne') as int;
+  @override
+  set minusOne(int value) => RealmObjectBase.set(this, 'minusOne', value);
+
+  @override
+  int get fooOrOne => RealmObjectBase.get<int>(this, 'fooOrOne') as int;
+  @override
+  set fooOrOne(int value) => RealmObjectBase.set(this, 'fooOrOne', value);
+
+  @override
+  int get parenthesis => RealmObjectBase.get<int>(this, 'parenthesis') as int;
+  @override
+  set parenthesis(int value) => RealmObjectBase.set(this, 'parenthesis', value);
+
+  @override
+  int get minusMinusOne =>
+      RealmObjectBase.get<int>(this, 'minusMinusOne') as int;
+  @override
+  set minusMinusOne(int value) =>
+      RealmObjectBase.set(this, 'minusMinusOne', value);
+
+  @override
+  int get add => RealmObjectBase.get<int>(this, 'add') as int;
+  @override
+  set add(int value) => RealmObjectBase.set(this, 'add', value);
+
+  @override
+  String get fooEnv => RealmObjectBase.get<String>(this, 'fooEnv') as String;
+  @override
+  set fooEnv(String value) => RealmObjectBase.set(this, 'fooEnv', value);
+
+  @override
+  String get fooLit => RealmObjectBase.get<String>(this, 'fooLit') as String;
+  @override
+  set fooLit(String value) => RealmObjectBase.set(this, 'fooLit', value);
+
+  @override
+  RealmList<int> get constEmptyList =>
+      RealmObjectBase.get<int>(this, 'constEmptyList') as RealmList<int>;
+  @override
+  set constEmptyList(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get constEmptyMap =>
+      RealmObjectBase.get<int>(this, 'constEmptyMap') as RealmMap<int>;
+  @override
+  set constEmptyMap(covariant RealmMap<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get constEmptySet =>
+      RealmObjectBase.get<int>(this, 'constEmptySet') as RealmSet<int>;
+  @override
+  set constEmptySet(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmList<int> get emptyList =>
+      RealmObjectBase.get<int>(this, 'emptyList') as RealmList<int>;
+  @override
+  set emptyList(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<int> get emptyMao =>
+      RealmObjectBase.get<int>(this, 'emptyMao') as RealmMap<int>;
+  @override
+  set emptyMao(covariant RealmMap<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<int> get emptySet =>
+      RealmObjectBase.get<int>(this, 'emptySet') as RealmSet<int>;
+  @override
+  set emptySet(covariant RealmSet<int> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ConstInitializer>> get changes =>
+      RealmObjectBase.getChanges<ConstInitializer>(this);
+
+  @override
+  ConstInitializer freeze() =>
+      RealmObjectBase.freezeObject<ConstInitializer>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      'zero': zero.toEJson(),
+      'minusOne': minusOne.toEJson(),
+      'fooOrOne': fooOrOne.toEJson(),
+      'parenthesis': parenthesis.toEJson(),
+      'minusMinusOne': minusMinusOne.toEJson(),
+      'add': add.toEJson(),
+      'fooEnv': fooEnv.toEJson(),
+      'fooLit': fooLit.toEJson(),
+      'constEmptyList': constEmptyList.toEJson(),
+      'constEmptyMap': constEmptyMap.toEJson(),
+      'constEmptySet': constEmptySet.toEJson(),
+      'emptyList': emptyList.toEJson(),
+      'emptyMao': emptyMao.toEJson(),
+      'emptySet': emptySet.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ConstInitializer value) => value.toEJson();
+  static ConstInitializer _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        'zero': EJsonValue zero,
+        'minusOne': EJsonValue minusOne,
+        'fooOrOne': EJsonValue fooOrOne,
+        'parenthesis': EJsonValue parenthesis,
+        'minusMinusOne': EJsonValue minusMinusOne,
+        'add': EJsonValue add,
+        'fooEnv': EJsonValue fooEnv,
+        'fooLit': EJsonValue fooLit,
+        'constEmptyList': EJsonValue constEmptyList,
+        'constEmptyMap': EJsonValue constEmptyMap,
+        'constEmptySet': EJsonValue constEmptySet,
+        'emptyList': EJsonValue emptyList,
+        'emptyMao': EJsonValue emptyMao,
+        'emptySet': EJsonValue emptySet,
+      } =>
+        ConstInitializer(
+          zero: fromEJson(zero),
+          minusOne: fromEJson(minusOne),
+          fooOrOne: fromEJson(fooOrOne),
+          parenthesis: fromEJson(parenthesis),
+          minusMinusOne: fromEJson(minusMinusOne),
+          add: fromEJson(add),
+          fooEnv: fromEJson(fooEnv),
+          fooLit: fromEJson(fooLit),
+          constEmptyList: fromEJson(constEmptyList),
+          constEmptyMap: fromEJson(constEmptyMap),
+          constEmptySet: fromEJson(constEmptySet),
+          emptyList: fromEJson(emptyList),
+          emptyMao: fromEJson(emptyMao),
+          emptySet: fromEJson(emptySet),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ConstInitializer._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, ConstInitializer, 'ConstInitializer', [
+      SchemaProperty('zero', RealmPropertyType.int),
+      SchemaProperty('minusOne', RealmPropertyType.int),
+      SchemaProperty('fooOrOne', RealmPropertyType.int),
+      SchemaProperty('parenthesis', RealmPropertyType.int),
+      SchemaProperty('minusMinusOne', RealmPropertyType.int),
+      SchemaProperty('add', RealmPropertyType.int),
+      SchemaProperty('fooEnv', RealmPropertyType.string),
+      SchemaProperty('fooLit', RealmPropertyType.string),
+      SchemaProperty('constEmptyList', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('constEmptyMap', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('constEmptySet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('emptyList', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('emptyMao', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('emptySet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
