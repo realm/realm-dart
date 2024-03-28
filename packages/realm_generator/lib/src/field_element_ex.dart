@@ -392,9 +392,13 @@ extension FieldElementEx on FieldElement {
   }
 
   bool _isValidFieldInitializer(Expression initExpression) {
-    if (initExpression is Literal) return true;
-    if (initExpression is InstanceCreationExpression) return initExpression.isConst;
-    if (initExpression is PrefixExpression) return _isValidFieldInitializer(initExpression.operand);
-    return false;
+    return switch (initExpression) {
+      Literal _ => true,
+      InstanceCreationExpression i => i.isConst,
+      ParenthesizedExpression i => _isValidFieldInitializer(i.expression),
+      PrefixExpression e => _isValidFieldInitializer(e.operand),
+      BinaryExpression b => _isValidFieldInitializer(b.leftOperand) && _isValidFieldInitializer(b.rightOperand),
+      _ => false,
+    };
   }
 }
