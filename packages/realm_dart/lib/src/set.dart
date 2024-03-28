@@ -8,6 +8,7 @@ import 'dart:ffi';
 
 import 'package:collection/collection.dart' as collection;
 
+import 'native/handle_base.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';

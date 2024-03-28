@@ -9,7 +9,9 @@ import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
 import 'list.dart';
+import 'native/handle_base.dart';
 import 'native/realm_core.dart';
+import 'native/realm_library.dart';
 import 'realm_class.dart';
 import 'results.dart';
 import 'map.dart';
