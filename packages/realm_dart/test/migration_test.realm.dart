@@ -27,6 +27,11 @@ class PersonIntName extends _PersonIntName
       RealmObjectBase.getChanges<PersonIntName>(this);
 
   @override
+  Stream<RealmObjectChanges<PersonIntName>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<PersonIntName>(this, keyPaths);
+
+  @override
   PersonIntName freeze() => RealmObjectBase.freezeObject<PersonIntName>(this);
 
   EJsonValue toEJson() {
@@ -86,6 +91,10 @@ class StudentV1 extends _StudentV1
   @override
   Stream<RealmObjectChanges<StudentV1>> get changes =>
       RealmObjectBase.getChanges<StudentV1>(this);
+
+  @override
+  Stream<RealmObjectChanges<StudentV1>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<StudentV1>(this, keyPaths);
 
   @override
   StudentV1 freeze() => RealmObjectBase.freezeObject<StudentV1>(this);
@@ -150,6 +159,11 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   @override
   Stream<RealmObjectChanges<MyObjectWithTypo>> get changes =>
       RealmObjectBase.getChanges<MyObjectWithTypo>(this);
+
+  @override
+  Stream<RealmObjectChanges<MyObjectWithTypo>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<MyObjectWithTypo>(this, keyPaths);
 
   @override
   MyObjectWithTypo freeze() =>
@@ -217,6 +231,11 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
       RealmObjectBase.getChanges<MyObjectWithoutTypo>(this);
 
   @override
+  Stream<RealmObjectChanges<MyObjectWithoutTypo>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<MyObjectWithoutTypo>(this, keyPaths);
+
+  @override
   MyObjectWithoutTypo freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithoutTypo>(this);
 
@@ -274,6 +293,11 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   @override
   Stream<RealmObjectChanges<MyObjectWithoutValue>> get changes =>
       RealmObjectBase.getChanges<MyObjectWithoutValue>(this);
+
+  @override
+  Stream<RealmObjectChanges<MyObjectWithoutValue>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<MyObjectWithoutValue>(this, keyPaths);
 
   @override
   MyObjectWithoutValue freeze() =>

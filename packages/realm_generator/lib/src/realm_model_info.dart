@@ -44,8 +44,12 @@ class RealmModelInfo {
           yield '{';
           yield* notRequired.map((f) {
             if (f.isRealmCollection) {
-                final collectionPrefix = f.type.isDartCoreList ? 'Iterable<' : f.type.isDartCoreSet ? 'Set<' : 'Map<String, ';
-                return '$collectionPrefix${f.type.basicMappedName}> ${f.name}${f.initializer},';
+              final collectionPrefix = f.type.isDartCoreList
+                  ? 'Iterable<'
+                  : f.type.isDartCoreSet
+                      ? 'Set<'
+                      : 'Map<String, ';
+              return '$collectionPrefix${f.type.basicMappedName}> ${f.name}${f.initializer},';
             }
             return '${f.mappedTypeName} ${f.name}${f.initializer},';
           });
@@ -86,6 +90,10 @@ class RealmModelInfo {
       // Changes
       yield '@override';
       yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectBase.getChanges<$name>(this);';
+      yield '';
+
+      yield '@override';
+      yield 'Stream<RealmObjectChanges<$name>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<$name>(this, keyPaths);';
       yield '';
 
       // Freeze

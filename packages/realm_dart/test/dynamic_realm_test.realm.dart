@@ -35,6 +35,10 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Taskv2>(this);
 
   @override
+  Stream<RealmObjectChanges<Taskv2>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Taskv2>(this, keyPaths);
+
+  @override
   Taskv2 freeze() => RealmObjectBase.freezeObject<Taskv2>(this);
 
   EJsonValue toEJson() {

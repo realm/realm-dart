@@ -42,6 +42,10 @@ class Location extends _Location
       RealmObjectBase.getChanges<Location>(this);
 
   @override
+  Stream<RealmObjectChanges<Location>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Location>(this, keyPaths);
+
+  @override
   Location freeze() => RealmObjectBase.freezeObject<Location>(this);
 
   EJsonValue toEJson() {
@@ -109,6 +113,10 @@ class Restaurant extends _Restaurant
       RealmObjectBase.getChanges<Restaurant>(this);
 
   @override
+  Stream<RealmObjectChanges<Restaurant>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Restaurant>(this, keyPaths);
+
+  @override
   Restaurant freeze() => RealmObjectBase.freezeObject<Restaurant>(this);
 
   EJsonValue toEJson() {
@@ -168,6 +176,11 @@ class LocationList extends _LocationList
   @override
   Stream<RealmObjectChanges<LocationList>> get changes =>
       RealmObjectBase.getChanges<LocationList>(this);
+
+  @override
+  Stream<RealmObjectChanges<LocationList>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<LocationList>(this, keyPaths);
 
   @override
   LocationList freeze() => RealmObjectBase.freezeObject<LocationList>(this);
