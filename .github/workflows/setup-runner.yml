@@ -1,6 +1,7 @@
 name: Setup runner
 
 on:
+  workflow_dispatch: # For debug
   workflow_call:
     inputs:
       runner:
