@@ -12,6 +12,8 @@ on:
         description: Flutter version to use.
         type: string
         default: stable
+      checkout-recursive:
+        default: false  
 
 jobs:
   setup-runner:
@@ -20,14 +22,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: "recursive"
+          submodules: ${{ inputs.checkout-recursive }}
+
+      - name: Check cache
+        uses: actions/cache@v4
+        with:
+          path: .puro/
+          key: setup-runner-${{ inputs.runner }}-${{ github.run_id }}
+          restore-key: setup-runner-${{ inputs.runner }}-
 
       - name: Install puro
-        run: >-
-          which puro
-          || curl -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash
-          && source ~/.profile
-          && echo $PATH >> $GITHUB_PATH
+        run: |
+          curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash && source ~/.profile
+          echo $PATH >> $GITHUB_PATH
         shell: bash
       - run: puro upgrade-puro
       - run: puro use ${{ inputs.flutter-version }}
