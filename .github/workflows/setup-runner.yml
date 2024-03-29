@@ -2,7 +2,7 @@ name: Setup runner
 
 on:
   workflow_dispatch: # For debug
-  workflow_call:
+  # workflow_call:
     inputs:
       runner:
         description: Platforms to execute on.
