@@ -26,7 +26,7 @@ jobs:
       - name: Check cache
         uses: actions/cache@v4
         with:
-          path: .puro/
+          path: ~/.puro/
           key: setup-runner-${{ inputs.runs-on }}-${{ github.run_id }}
           restore-keys: setup-runner-${{ inputs.runs-on }}-
 
