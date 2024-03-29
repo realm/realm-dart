@@ -21,6 +21,7 @@ jobs:
         run: >-
             which puro
             || curl -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash
+            && source ~/.profile
         shell: bash
       - run: puro upgrade-puro
       - run: puro use ${{ inputs.flutter-version }}
