@@ -4,32 +4,31 @@ on:
   workflow_dispatch: # For debug
     # workflow_call:
     inputs:
-      runner:
+      runs-on:
         description: Platforms to execute on.
-        required: true
-        type: string
+        default: ubuntu-latest
       flutter-version:
         description: Flutter version to use.
-        type: string
         default: stable
-      checkout-recursive:
-        default: false  
+      checkout-submodules:
+        description: Whether to checkout submodules.
+        default: recursive
 
 jobs:
   setup-runner:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: ${{ inputs.checkout-recursive }}
+          submodules: ${{ inputs.checkout-submodules }}
 
       - name: Check cache
         uses: actions/cache@v4
         with:
           path: .puro/
-          key: setup-runner-${{ inputs.runner }}-${{ github.run_id }}
-          restore-key: setup-runner-${{ inputs.runner }}-
+          key: setup-runner-${{ inputs.runs-on }}-${{ github.run_id }}
+          restore-keys: setup-runner-${{ inputs.runs-on }}-
 
       - name: Install puro
         run: |
@@ -37,9 +36,8 @@ jobs:
           echo $PATH >> $GITHUB_PATH
         shell: bash
       - run: puro upgrade-puro
-      - run: puro use ${{ inputs.flutter-version }}
+      - run: puro use --global ${{ inputs.flutter-version }}
 
       - name: Activate melos
         run: puro pub global activate melos
       - run: melos bootstrap
-      - run: melos setup
