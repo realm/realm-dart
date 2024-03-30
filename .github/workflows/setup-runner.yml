@@ -27,8 +27,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.puro/
-          key: setup-runner-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: setup-runner-${{ inputs.runs-on }}-
+          key: setup-runner-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}
+          restore-keys: setup-runner-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Install puro
         run: |
