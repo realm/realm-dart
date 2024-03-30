@@ -32,11 +32,12 @@ jobs:
 
       - name: Install puro
         run: |
-          curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash && source ~/.profile
-          echo $PATH >> $GITHUB_PATH
-          echo PURO_ROOT=$PURO_ROOT >> $GITHUB_ENV
-          echo PUB_CACHE=$PUB_CACHE >> $GITHUB_ENV
-
+          curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash
+          echo ~/.puro/bin >> $GITHUB_PATH
+          echo ~/.puro/shared/pub_cache/bin/ >> $GITHUB_PATH
+          echo ~/.puro/envs/default/flutter/bin/ >> $GITHUB_PATH
+          echo PURO_ROOT=~/.puro/ >> $GITHUB_ENV
+          echo PUB_CACHE=~/.puro/shared/pub_cache >> $GITHUB_ENV
         shell: bash
       - run: puro upgrade-puro
       - run: puro use --global ${{ inputs.flutter-version }}
