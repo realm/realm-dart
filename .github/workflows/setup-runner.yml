@@ -27,13 +27,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.puro/
-          key: setup-runner-${{ inputs.runs-on }}-${{ github.run_id }}
+          key: setup-runner-${{ runner.os }}-${{ github.run_id }}
           restore-keys: setup-runner-${{ inputs.runs-on }}-
 
       - name: Install puro
         run: |
           curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash && source ~/.profile
           echo $PATH >> $GITHUB_PATH
+          echo PURO_ROOT=$PURO_ROOT >> $GITHUB_ENV
+          echo PUB_CACHE=$PUB_CACHE >> $GITHUB_ENV
+
         shell: bash
       - run: puro upgrade-puro
       - run: puro use --global ${{ inputs.flutter-version }}
