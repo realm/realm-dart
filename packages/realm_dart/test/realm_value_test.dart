@@ -126,10 +126,21 @@ void main() {
 
       // Check object values in second realm.
       expect(realm2.all<ObjectWithInt>().single.i, 123);
-      final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-      expect(syncedObject.id, parent.id);
-      expect(syncedObject.oneAny.value.runtimeType, ObjectWithInt);
-      expect(syncedObject.oneAny.as<ObjectWithInt>().i, 123);
+      final syncedParent = realm2.all<ObjectWithRealmValue>().single;
+      expect(syncedParent.id, parent.id);
+
+      expect(syncedParent.oneAny.value.runtimeType, ObjectWithInt);
+      final syncedChild = syncedParent.oneAny.as<ObjectWithInt>();
+      expect(syncedChild.i, 123);
+
+      // Update child object in second realm.
+      const newValue = 456;
+      realm2.write(() => syncedChild.i = newValue);
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Check updated object in first realm.
+      expect(parent.oneAny.as<ObjectWithInt>().i, newValue);
     });
 
     test('Query @type == object', () {
