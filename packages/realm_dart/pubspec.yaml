@@ -14,7 +14,7 @@ dependencies:
   build_cli_annotations: ^2.0.0
   collection: ^1.16.0
   crypto: ^3.0.0
-  ejson: ^0.2.0-pre.1
+  ejson: ^0.3.0
   ffi: ^2.0.1
   json_annotation: ^4.7.0
   logging: ^1.2.0
