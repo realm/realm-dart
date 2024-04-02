@@ -2,6 +2,8 @@ import 'package:realm_common/realm_common.dart';
 
 part 'const_initializer.realm.dart';
 
+const myConst = 1;
+
 @RealmModel()
 class _ConstInitializer {
   int zero = 0;
@@ -10,6 +12,11 @@ class _ConstInitializer {
   int parenthesis = (1);
   int minusMinusOne = -(-1);
   int add = 1 + 1;
+  int identifier = myConst;
+  
+  double infinity = double.infinity;
+  double nan = double.nan;
+  double negativeInfinity = double.negativeInfinity;
 
   String fooEnv = const String.fromEnvironment('FOO');
   String fooLit = 'foo';

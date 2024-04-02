@@ -398,6 +398,7 @@ extension FieldElementEx on FieldElement {
       ParenthesizedExpression i => _isValidFieldInitializer(i.expression),
       PrefixExpression e => _isValidFieldInitializer(e.operand),
       BinaryExpression b => _isValidFieldInitializer(b.leftOperand) && _isValidFieldInitializer(b.rightOperand),
+      Identifier i => (i.staticElement as PropertyAccessorElement?)?.variable.isConst ?? false,
       _ => false,
     };
   }
