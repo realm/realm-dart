@@ -18,6 +18,10 @@ class ConstInitializer extends _ConstInitializer
     int parenthesis = (1),
     int minusMinusOne = -(-1),
     int add = 1 + 1,
+    int identifier = myConst,
+    double infinity = double.infinity,
+    double nan = double.nan,
+    double negativeInfinity = double.negativeInfinity,
     String fooEnv = const String.fromEnvironment('FOO'),
     String fooLit = 'foo',
     Iterable<int> constEmptyList = const [],
@@ -35,6 +39,10 @@ class ConstInitializer extends _ConstInitializer
         'parenthesis': (1),
         'minusMinusOne': -(-1),
         'add': 1 + 1,
+        'identifier': myConst,
+        'infinity': double.infinity,
+        'nan': double.nan,
+        'negativeInfinity': double.negativeInfinity,
         'fooEnv': const String.fromEnvironment('FOO'),
         'fooLit': 'foo',
       });
@@ -45,6 +53,10 @@ class ConstInitializer extends _ConstInitializer
     RealmObjectBase.set(this, 'parenthesis', parenthesis);
     RealmObjectBase.set(this, 'minusMinusOne', minusMinusOne);
     RealmObjectBase.set(this, 'add', add);
+    RealmObjectBase.set(this, 'identifier', identifier);
+    RealmObjectBase.set(this, 'infinity', infinity);
+    RealmObjectBase.set(this, 'nan', nan);
+    RealmObjectBase.set(this, 'negativeInfinity', negativeInfinity);
     RealmObjectBase.set(this, 'fooEnv', fooEnv);
     RealmObjectBase.set(this, 'fooLit', fooLit);
     RealmObjectBase.set<RealmList<int>>(
@@ -94,6 +106,29 @@ class ConstInitializer extends _ConstInitializer
   int get add => RealmObjectBase.get<int>(this, 'add') as int;
   @override
   set add(int value) => RealmObjectBase.set(this, 'add', value);
+
+  @override
+  int get identifier => RealmObjectBase.get<int>(this, 'identifier') as int;
+  @override
+  set identifier(int value) => RealmObjectBase.set(this, 'identifier', value);
+
+  @override
+  double get infinity =>
+      RealmObjectBase.get<double>(this, 'infinity') as double;
+  @override
+  set infinity(double value) => RealmObjectBase.set(this, 'infinity', value);
+
+  @override
+  double get nan => RealmObjectBase.get<double>(this, 'nan') as double;
+  @override
+  set nan(double value) => RealmObjectBase.set(this, 'nan', value);
+
+  @override
+  double get negativeInfinity =>
+      RealmObjectBase.get<double>(this, 'negativeInfinity') as double;
+  @override
+  set negativeInfinity(double value) =>
+      RealmObjectBase.set(this, 'negativeInfinity', value);
 
   @override
   String get fooEnv => RealmObjectBase.get<String>(this, 'fooEnv') as String;
@@ -163,6 +198,10 @@ class ConstInitializer extends _ConstInitializer
       'parenthesis': parenthesis.toEJson(),
       'minusMinusOne': minusMinusOne.toEJson(),
       'add': add.toEJson(),
+      'identifier': identifier.toEJson(),
+      'infinity': infinity.toEJson(),
+      'nan': nan.toEJson(),
+      'negativeInfinity': negativeInfinity.toEJson(),
       'fooEnv': fooEnv.toEJson(),
       'fooLit': fooLit.toEJson(),
       'constEmptyList': constEmptyList.toEJson(),
@@ -184,6 +223,10 @@ class ConstInitializer extends _ConstInitializer
         'parenthesis': EJsonValue parenthesis,
         'minusMinusOne': EJsonValue minusMinusOne,
         'add': EJsonValue add,
+        'identifier': EJsonValue identifier,
+        'infinity': EJsonValue infinity,
+        'nan': EJsonValue nan,
+        'negativeInfinity': EJsonValue negativeInfinity,
         'fooEnv': EJsonValue fooEnv,
         'fooLit': EJsonValue fooLit,
         'constEmptyList': EJsonValue constEmptyList,
@@ -200,6 +243,10 @@ class ConstInitializer extends _ConstInitializer
           parenthesis: fromEJson(parenthesis),
           minusMinusOne: fromEJson(minusMinusOne),
           add: fromEJson(add),
+          identifier: fromEJson(identifier),
+          infinity: fromEJson(infinity),
+          nan: fromEJson(nan),
+          negativeInfinity: fromEJson(negativeInfinity),
           fooEnv: fromEJson(fooEnv),
           fooLit: fromEJson(fooLit),
           constEmptyList: fromEJson(constEmptyList),
@@ -224,6 +271,10 @@ class ConstInitializer extends _ConstInitializer
       SchemaProperty('parenthesis', RealmPropertyType.int),
       SchemaProperty('minusMinusOne', RealmPropertyType.int),
       SchemaProperty('add', RealmPropertyType.int),
+      SchemaProperty('identifier', RealmPropertyType.int),
+      SchemaProperty('infinity', RealmPropertyType.double),
+      SchemaProperty('nan', RealmPropertyType.double),
+      SchemaProperty('negativeInfinity', RealmPropertyType.double),
       SchemaProperty('fooEnv', RealmPropertyType.string),
       SchemaProperty('fooLit', RealmPropertyType.string),
       SchemaProperty('constEmptyList', RealmPropertyType.int,
