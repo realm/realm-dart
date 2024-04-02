@@ -498,8 +498,8 @@ void main() {
       final differentiator = ObjectId();
       final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
       final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().length, 0);
-      expect(realm2.all<ObjectWithRealmValue>().length, 0);
+      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
 
       // Add object in first realm.
       final list = RealmValue.from([5]);
@@ -591,8 +591,8 @@ void main() {
       final differentiator = ObjectId();
       final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
       final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().length, 0);
-      expect(realm2.all<ObjectWithRealmValue>().length, 0);
+      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
 
       // Add object in first realm.
       final map = RealmValue.from({'foo': 5});
@@ -711,8 +711,8 @@ void main() {
           final differentiator = ObjectId();
           final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
           final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-          expect(realm1.all<ObjectWithRealmValue>().length, 0);
-          expect(realm2.all<ObjectWithRealmValue>().length, 0);
+          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
 
           // Add object in first realm.
           final originalList = getListAllTypes(differentiator: differentiator);
@@ -819,7 +819,8 @@ void main() {
         final foundMap = foundValue.asMap();
         expect(foundMap.length, foundMap.length);
 
-        for (var key in originalMap.keys.where((k) => k.startsWith('primitive_'))) {
+        final primitiveKeys = originalMap.keys.where((k) => k.startsWith('primitive_'));
+        for (var key in primitiveKeys) {
           expect(foundMap[key]!.value, originalMap[key]);
         }
 
@@ -842,8 +843,8 @@ void main() {
           final differentiator = ObjectId();
           final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
           final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-          expect(realm1.all<ObjectWithRealmValue>().length, 0);
-          expect(realm2.all<ObjectWithRealmValue>().length, 0);
+          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
 
           // Add object in first realm.
           final originalMap = getDictAllTypes(differentiator: differentiator);
@@ -863,7 +864,8 @@ void main() {
           final foundMap = foundValue.asMap();
           expect(foundMap.length, foundMap.length);
 
-          for (var key in originalMap.keys.where((k) => k.startsWith('primitive_'))) {
+          final primitiveKeys = originalMap.keys.where((k) => k.startsWith('primitive_'));
+          for (var key in primitiveKeys) {
             expect(foundMap[key]!.value, originalMap[key]);
           }
 
