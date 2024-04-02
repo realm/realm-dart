@@ -22,7 +22,7 @@ const _commonDecoders = {
   bool: _decodeBool,
   DateTime: _decodeDate,
   Defined: _decodeDefined,
-  Key: _decodeKey,
+  BsonKey: _decodeKey,
   Map: _decodeDocument,
   double: _decodeDouble,
   num: _decodeNum,
@@ -45,7 +45,7 @@ final _decoders = () {
   TypePlus.addFactory(undefinedOr);
   TypePlus.addFactory(<T>(dynamic f) => f<Defined<T>>(), superTypes: [undefinedOr]);
   TypePlus.addFactory(<T>(dynamic f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
-  TypePlus.add<Key>();
+  TypePlus.add<BsonKey>();
   TypePlus.add<ObjectId>();
   TypePlus.add<Uint8List>();
   TypePlus.add<Uuid>();
@@ -173,10 +173,10 @@ int _decodeInt(EJsonValue ejson) {
   };
 }
 
-Key _decodeKey(EJsonValue ejson) {
+BsonKey _decodeKey(EJsonValue ejson) {
   return switch (ejson) {
-    {'\$minKey': 1} => Key.min,
-    {'\$maxKey': 1} => Key.max,
+    {'\$minKey': 1} => BsonKey.min,
+    {'\$maxKey': 1} => BsonKey.max,
     _ => raiseInvalidEJson(ejson),
   };
 }

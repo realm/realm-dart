@@ -83,8 +83,8 @@ void main() {
     expect({'a': 1, 'b': 2}.toEJson(), toEJson({'a': 1, 'b': 2}));
     expect(DateTime(1974, 4, 10, 2, 42, 12, 202).toEJson(), toEJson(DateTime(1974, 4, 10, 2, 42, 12, 202)));
     expect((#sym).toEJson(), toEJson(#sym));
-    expect(Key.max.toEJson(), toEJson(Key.max));
-    expect(Key.min.toEJson(), toEJson(Key.min));
+    expect(BsonKey.max.toEJson(), toEJson(BsonKey.max));
+    expect(BsonKey.min.toEJson(), toEJson(BsonKey.min));
     expect(undefined.toEJson(), toEJson(undefined));
     expect(const Undefined<int?>().toEJson(), toEJson(const Undefined<int?>()));
     expect(Undefined<int?>().toEJson(), toEJson(Undefined<int?>()));
@@ -108,7 +108,7 @@ void main() {
     _invalidTestCase<double>({'\$numberDouble': 'foobar'});
     _invalidTestCase<double>();
     _invalidTestCase<int>();
-    _invalidTestCase<Key>();
+    _invalidTestCase<BsonKey>();
     _invalidTestCase<List<int>>();
     _invalidTestCase<Map<int, int>>([]);
     _invalidTestCase<Null>();
@@ -188,8 +188,8 @@ void main() {
               : {'\$date': time.toIso8601String()},
         );
         _testCase(#sym, {'\$symbol': 'sym'});
-        _testCase(Key.max, {'\$maxKey': 1});
-        _testCase(Key.min, {'\$minKey': 1});
+        _testCase(BsonKey.max, {'\$maxKey': 1});
+        _testCase(BsonKey.min, {'\$minKey': 1});
         _testCase(undefined, {'\$undefined': 1});
         _testCase(const Undefined<int?>(), {'\$undefined': 1});
         _testCase(Undefined<int?>(), {'\$undefined': 1});
