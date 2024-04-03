@@ -71,10 +71,10 @@ DynamicLibrary _openRealmLib() {
     throw RealmError(
       [
         'Could not open $libName. Tried:',
-        (candidatePaths.join('\n')),
+        candidatePaths.map((p) => '- "$p"').join('\n'),
         isFlutterPlatform //
-            ? 'Did you forget to add a dependency on realm package?'
-            : 'Did you forget to run `dart run realm_dart install`?'
+            ? 'Hint: Did you forget to add a dependency on the realm package?'
+            : 'Hint: Did you forget to run `dart run realm_dart install`?'
       ].join('\n'),
     );
   }
