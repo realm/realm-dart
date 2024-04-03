@@ -783,6 +783,7 @@ void main() {
         expectMatches(obj.oneAny, [true, 5.3]);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(['foo']));
+        expectMatches(obj.oneAny, ['foo']);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
         expectMatches(obj.oneAny, 999);
@@ -790,6 +791,49 @@ void main() {
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from({'int': -100}));
         expectMatches(obj.oneAny, {'int': -100});
       });
+
+      if (isManaged) {
+        baasTest('[BaaS] List can be reassigned', (appConfig) async {
+          final differentiator = ObjectId();
+          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+
+          // Add object in first realm.
+          final object = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from([true, 5.3]));
+          realm1.write(() => realm1.add(object));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
+          expect(syncedObject.oneAny.type, RealmValueType.list);
+          expectMatches(syncedObject.oneAny, [true, 5.3]);
+
+          // Reassign value in second realm.
+          realm2.write(() => syncedObject.oneAny = RealmValue.from(['foo']));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check and reassign new value in first realm.
+          expectMatches(object.oneAny, ['foo']);
+          realm1.write(() => object.oneAny = RealmValue.from(999));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check and reassign new value in second realm.
+          expectMatches(syncedObject.oneAny, 999);
+          realm2.write(() => syncedObject.oneAny = RealmValue.from({'int': -100}));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check new value in first realm.
+          expectMatches(syncedObject.oneAny, {'int': -100});
+        });
+      }
 
       Map<String, Object?> getDictAllTypes({ObjectId? differentiator}) {
         return {
@@ -918,6 +962,49 @@ void main() {
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from([1.23456789]));
         expectMatches(obj.oneAny, [1.23456789]);
       });
+
+      if (isManaged) {
+        baasTest('[BaaS] Map can be reassigned', (appConfig) async {
+          final differentiator = ObjectId();
+          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
+          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+
+          // Add object in first realm.
+          final object = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
+          realm1.write(() => realm1.add(object));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
+          expect(syncedObject.oneAny.type, RealmValueType.map);
+          expectMatches(syncedObject.oneAny, {'bool': true, 'double': 5.3});
+
+          // Reassign value in second realm.
+          realm2.write(() => syncedObject.oneAny = RealmValue.from({'newKey': 'new value'}));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check and reassign new value in first realm.
+          expectMatches(object.oneAny, {'newKey': 'new value'});
+          realm1.write(() => object.oneAny = RealmValue.from(999));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check and reassign new value in second realm.
+          expectMatches(syncedObject.oneAny, 999);
+          realm2.write(() => syncedObject.oneAny = RealmValue.from([1.23456789]));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check new value in first realm.
+          expectMatches(object.oneAny, [1.23456789]);
+        });
+      }
 
       test('Map inside list when $managedString can be reassigned', () {
         final realm = getMixedRealm();
