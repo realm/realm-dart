@@ -23,7 +23,7 @@ void main() {
     return getRealm(config);
   }
 
-  Future<Realm> logInAndGetMixedRealm(AppConfiguration appConfig, ObjectId differentiator) async {
+  Future<Realm> logInAndGetSyncedRealm(AppConfiguration appConfig, ObjectId differentiator) async {
     final realm = await getIntegrationRealm(appConfig: appConfig, differentiator: differentiator);
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<ObjectWithRealmValue>(r'differentiator = $0', [differentiator]));
@@ -32,6 +32,15 @@ void main() {
     await realm.subscriptions.waitForSynchronization();
 
     return realm;
+  }
+
+  Future<(Realm, Realm)> logInAndGetSyncedRealms(AppConfiguration appConfig, ObjectId differentiator) async {
+    final realm1 = await logInAndGetSyncedRealm(appConfig, differentiator);
+    final realm2 = await logInAndGetSyncedRealm(appConfig, differentiator);
+    expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+    expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+
+    return (realm1, realm2);
   }
 
   Future<void> waitForSynchronization({required Realm uploadRealm, required Realm downloadRealm}) async {
@@ -64,10 +73,7 @@ void main() {
 
       baasTest('[BaaS] Roundtrip ${x.runtimeType} $x', (appConfig) async {
         final differentiator = ObjectId();
-        final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-        final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-        expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-        expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+        final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
         // Add object in first realm.
         final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(x));
@@ -112,10 +118,7 @@ void main() {
 
     baasTest('[BaaS] Roundtrip object', (appConfig) async {
       final differentiator = ObjectId();
-      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
       final child = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
@@ -312,10 +315,7 @@ void main() {
 
     baasTest('[BaaS] Roundtrip', (appConfig) async {
       final values = getValues();
-      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
       final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, manyAny: values.map(RealmValue.from));
@@ -367,10 +367,7 @@ void main() {
 
     baasTest('[BaaS] With numeric values', (appConfig) async {
       final differentiator = ObjectId();
-      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
       final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator);
@@ -496,10 +493,7 @@ void main() {
 
     baasTest('[BaaS] List get and set', (appConfig) async {
       final differentiator = ObjectId();
-      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
       final list = RealmValue.from([5]);
@@ -589,10 +583,7 @@ void main() {
 
     baasTest('[BaaS] Map get and set', (appConfig) async {
       final differentiator = ObjectId();
-      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-      expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-      expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
       final map = RealmValue.from({'foo': 5});
@@ -709,10 +700,7 @@ void main() {
       if (isManaged) {
         baasTest('[BaaS] List works with all types', (appConfig) async {
           final differentiator = ObjectId();
-          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
           final originalList = getListAllTypes(differentiator: differentiator);
@@ -795,10 +783,7 @@ void main() {
       if (isManaged) {
         baasTest('[BaaS] List can be reassigned', (appConfig) async {
           final differentiator = ObjectId();
-          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
           final object = ObjectWithRealmValue(ObjectId(),
@@ -885,10 +870,7 @@ void main() {
       if (isManaged) {
         baasTest('[BaaS] Map works with all types', (appConfig) async {
           final differentiator = ObjectId();
-          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
           final originalMap = getDictAllTypes(differentiator: differentiator);
@@ -966,10 +948,7 @@ void main() {
       if (isManaged) {
         baasTest('[BaaS] Map can be reassigned', (appConfig) async {
           final differentiator = ObjectId();
-          final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-          final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
-          expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
-          expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
           final object = ObjectWithRealmValue(ObjectId(),
@@ -1613,8 +1592,7 @@ void main() {
 
     baasTest('[BaaS] Notifications', (appConfig) async {
       final differentiator = ObjectId();
-      final realm1 = await logInAndGetMixedRealm(appConfig, differentiator);
-      final realm2 = await logInAndGetMixedRealm(appConfig, differentiator);
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
       final list = [
