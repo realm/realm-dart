@@ -597,7 +597,7 @@ Future<void> baasTest(
 
   skip = shouldSkip(skip);
 
-  test(name, () async {
+  test('[BAAS] $name', () async {
     baasHelper!.printSplunkLogLink(appName, baasHelper?.baseUrl);
     final config = await baasHelper!.getAppConfig(appName: appName);
     await testFunction(config);

@@ -71,7 +71,7 @@ void main() {
         expect(something.oneAny, RealmValue.from(x));
       });
 
-      baasTest('[BaaS] Roundtrip ${x.runtimeType} $x', (appConfig) async {
+      baasTest('Roundtrip ${x.runtimeType} $x', (appConfig) async {
         final differentiator = ObjectId();
         final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -116,7 +116,7 @@ void main() {
       expect(something.oneAny.as<ObjectWithInt>().i, 123);
     });
 
-    baasTest('[BaaS] Roundtrip object', (appConfig) async {
+    baasTest('Roundtrip object', (appConfig) async {
       final differentiator = ObjectId();
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -313,7 +313,7 @@ void main() {
       expect(something.manyAny, values.map(RealmValue.from));
     });
 
-    baasTest('[BaaS] Roundtrip', (appConfig) async {
+    baasTest('Roundtrip', (appConfig) async {
       final values = getValues();
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -365,7 +365,7 @@ void main() {
       expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
     });
 
-    baasTest('[BaaS] With numeric values', (appConfig) async {
+    baasTest('With numeric values', (appConfig) async {
       final differentiator = ObjectId();
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -491,7 +491,7 @@ void main() {
       expect(obj.dictOfAny['value']!.asList()[1].value, 'abc');
     });
 
-    baasTest('[BaaS] List get and set', (appConfig) async {
+    baasTest('List get and set', (appConfig) async {
       final differentiator = ObjectId();
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -581,7 +581,7 @@ void main() {
       expect(obj.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
     });
 
-    baasTest('[BaaS] Map get and set', (appConfig) async {
+    baasTest('Map get and set', (appConfig) async {
       final differentiator = ObjectId();
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -698,7 +698,7 @@ void main() {
       // This test only needs to run once, but it's placed
       // here to be collocated with the above test.
       if (isManaged) {
-        baasTest('[BaaS] List works with all types', (appConfig) async {
+        baasTest('List works with all types', (appConfig) async {
           final differentiator = ObjectId();
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -781,7 +781,7 @@ void main() {
       });
 
       if (isManaged) {
-        baasTest('[BaaS] List can be reassigned', (appConfig) async {
+        baasTest('List can be reassigned', (appConfig) async {
           final differentiator = ObjectId();
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -868,7 +868,7 @@ void main() {
       // This test only needs to run once, but it's placed
       // here to be collocated with the above test.
       if (isManaged) {
-        baasTest('[BaaS] Map works with all types', (appConfig) async {
+        baasTest('Map works with all types', (appConfig) async {
           final differentiator = ObjectId();
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -946,7 +946,7 @@ void main() {
       });
 
       if (isManaged) {
-        baasTest('[BaaS] Map can be reassigned', (appConfig) async {
+        baasTest('Map can be reassigned', (appConfig) async {
           final differentiator = ObjectId();
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -1259,7 +1259,7 @@ void main() {
         });
 
         if (isManaged) {
-          baasTest('[BaaS] RealmValue can store complex struct', (appConfig) async {
+          baasTest('RealmValue can store complex struct', (appConfig) async {
             final differentiator = ObjectId();
             final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
@@ -1677,7 +1677,7 @@ void main() {
       expect(mapChanges, hasLength(3));
     });
 
-    baasTest('[BaaS] Notifications', (appConfig) async {
+    baasTest('Notifications', (appConfig) async {
       final differentiator = ObjectId();
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
