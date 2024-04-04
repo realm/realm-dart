@@ -6,6 +6,7 @@
 
 ### Fixed
 * Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
+* Backlinks mistakenly included in EJson serialization. ([Issue #1616](https://github.com/realm/realm-dart/issues/1616))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.
