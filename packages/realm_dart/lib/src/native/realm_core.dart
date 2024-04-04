@@ -1807,7 +1807,7 @@ class _RealmCore {
           keypathsNative[i] = keyPaths[i].toCharPtr(arena);
         }
 
-        kpNative = _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative);
+        kpNative = _realmLib.invokeGetPointer(() => _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
       }
 
       final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
