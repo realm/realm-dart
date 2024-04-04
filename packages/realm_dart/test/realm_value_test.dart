@@ -1229,6 +1229,80 @@ void main() {
           true
         ]);
       });
+
+      if (isManaged) {
+        baasTest('[BaaS] RealmValue can store complex struct', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          final originalList = [
+            {'0_bool': true, '0_double': 5.3},
+            {
+              '1_int': 5,
+              '1_map': {
+                '2_decimal': Decimal128.fromDouble(0.1),
+                '2_list': [
+                  'bla bla',
+                  {
+                    '3_dict': {'4_string': 'abc'}
+                  }
+                ]
+              }
+            }
+          ];
+
+          // Add object in first realm.
+          final object = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from(originalList));
+          realm1.write(() => realm1.add(object));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
+          expectMatches(syncedObject.oneAny, originalList);
+
+          // Remove list item in second realm.
+          realm2.write(() => syncedObject.oneAny.asList().removeAt(0));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check list in first realm.
+          expectMatches(object.oneAny, [
+            {
+              '1_int': 5,
+              '1_map': {
+                '2_decimal': Decimal128.fromDouble(0.1),
+                '2_list': [
+                  'bla bla',
+                  {
+                    '3_dict': {'4_string': 'abc'}
+                  }
+                ]
+              }
+            }
+          ]);
+
+          // Make updates in first realm.
+          realm1.write(() {
+            final list = object.oneAny.asList();
+            list[0].asMap()['1_double'] = RealmValue.double(5.5);
+            // TODO: This removal will cause termination:
+            //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
+            list[0].asMap().remove('1_map');
+            list.add(RealmValue.bool(true));
+          });
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check updated list in second realm.
+          expectMatches(syncedObject.oneAny, [
+            {'1_int': 5, '1_double': 5.5},
+            true
+          ]);
+        }, skip: true);
+      }
     }
 
     test('List inside RealmValue equality', () {
