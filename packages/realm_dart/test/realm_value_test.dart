@@ -1020,6 +1020,50 @@ void main() {
         ]);
       });
 
+      if (isManaged) {
+        baasTest('Map inside list can be reassigned', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          // Add object in first realm.
+          final object = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from([true, {'foo': 'bar'}, 5.3]));
+          realm1.write(() => realm1.add(object));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
+          expect(syncedObject.oneAny.type, RealmValueType.list);
+          expectMatches(syncedObject.oneAny, [true, {'foo': 'bar'}, 5.3]);
+
+          final syncedList = syncedObject.oneAny.asList();
+          expect(syncedList[1].type, RealmValueType.map);
+
+          // Reassign map in second realm.
+          realm2.write(() => syncedList[1] = RealmValue.from({'new': 5}));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check and reassign new value in first realm.
+          expectMatches(object.oneAny, [true, {'new': 5}, 5.3]);
+          final list = object.oneAny.asList();
+          realm1.write(() => list[1] = RealmValue.from([1.23456789]));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check and reassign new value in second realm.
+          expectMatches(syncedObject.oneAny, [true, [1.23456789], 5.3]);
+          realm2.write(() => syncedList[1] = RealmValue.from(999));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check new value in first realm.
+          expectMatches(object.oneAny, [true, 999, 5.3]);
+        });
+      }
+
       // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
       test('Map inside list when $managedString can self-assign', () {
         final realm = getMixedRealm();
