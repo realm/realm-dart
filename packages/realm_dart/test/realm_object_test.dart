@@ -189,18 +189,13 @@ void main() {
         realm.add(dog);
       });
 
-      final externalChanges = <RealmObjectChanges<Dog>>[];
-      final subscription = dog.changesFor([""]).listen((changes) {
-        if (changes.properties.isNotEmpty) externalChanges.add(changes);
-      });
+      expect(() {
+        dog.changesFor([""]);
+      }, throws<RealmException>("It is not allowed to have empty key paths."));
 
-      realm.write(() {
-        dog.age = 2;
-        dog.owner = Person("owner");
-      });
-
-      await verifyNotifications<Dog>(dog, externalChanges, ["age"]);
-      subscription.cancel();
+      expect(() {
+        dog.changesFor(["age", ""]);
+      }, throws<RealmException>("It is not allowed to have empty key paths."));
     });
 
     test('unknown keypath', () async {
@@ -213,24 +208,13 @@ void main() {
         realm.add(dog);
       });
 
-      final externalChanges = <RealmObjectChanges<Dog>>[];
+      expect(() {
+        dog.changesFor(["unknown"]);
+      }, throws<RealmException>("Property 'unknown' in KeyPath 'unknown' is not a valid property in Dog."));
 
-      try {
-        final subscription = dog.changesFor(["unknown"]).listen((changes) {
-          if (changes.properties.isNotEmpty) externalChanges.add(changes);
-        }, onError: (error) {
-          print("Error: $error");
-        });
-      } catch (e) {
-        print(e);
-      }
-
-      realm.write(() {
-        dog.age = 2;
-        dog.owner = Person("owner");
-      });
-
-      await Future<void>.delayed(Duration(milliseconds: 20));
+      expect(() {
+        dog.changesFor(["age", "unknown"]);
+      }, throws<RealmException>("Property 'unknown' in KeyPath 'unknown' is not a valid property in Dog."));
     });
 
     test('embedded', () async {

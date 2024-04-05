@@ -1822,6 +1822,21 @@ class _RealmCore {
     });
   }
 
+  void verifyKeyPath(RealmObjectBase object, [List<String>? keyPaths, int? classKey]) {
+    return using((Arena arena) {
+      if (keyPaths != null && classKey != null) {
+        final length = keyPaths.length;
+        final keypathsNative = arena<Pointer<Char>>(length);
+
+        for (int i = 0; i < length; i++) {
+          keypathsNative[i] = keyPaths[i].toCharPtr(arena);
+        }
+
+        _realmLib.invokeGetPointer(() => _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
+      }
+    });
+  }
+
   RealmNotificationTokenHandle subscribeMapNotifications(RealmMap map, NotificationsController controller) {
     final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_dictionary_add_notification_callback(
           map.handle._pointer,
