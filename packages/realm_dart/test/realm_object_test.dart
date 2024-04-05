@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
+import 'backlinks_test.dart';
 import 'test.dart';
 
 part 'realm_object_test.realm.dart';
@@ -474,11 +475,42 @@ void main() {
       });
 
       realm.write(() {
-        final tno2 = TestNotificationObject(link: tno);
-        realm.add(tno2);
+        realm.add(TestNotificationObject(link: tno));
       });
 
+      expect(tno.backlink.length, 1);
+
       await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["backlink"]);
+
+      subscription.cancel();
+    });
+
+    test('backlink different type', () async {
+      final config = Configuration.local([Target.schema, Source.schema]);
+      final realm = getRealm(config);
+
+      final target = Target();
+      final source = realm.write(() => realm.add(Source(oneTarget: target)));
+
+      expect(source.oneTarget, target);
+      expect(target.oneToMany, [source]);
+
+      final tno = Target();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<Target>>[];
+      final subscription = tno.changes.listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        realm.add(Source(oneTarget: tno));
+      });
+
+      await verifyNotifications<Target>(tno, externalChanges, ["oneToMany"]);
 
       subscription.cancel();
     });
@@ -522,7 +554,7 @@ void main() {
     });
 
     test('empty list gives default subscriptions', () async {
-      var config = Configuration.local([TestNotificationObject.schema]);
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
 
       final tno = TestNotificationObject();
