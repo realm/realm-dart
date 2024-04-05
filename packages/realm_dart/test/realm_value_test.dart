@@ -76,17 +76,17 @@ void main() {
         final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
         // Add object in first realm.
-        final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(x));
-        realm1.write(() => realm1.add(object));
+        final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(x));
+        realm1.write(() => realm1.add(object1));
 
         await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
         // Check object values in second realm.
-        final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-        expect(syncedObject.id, object.id);
-        expect(syncedObject.oneAny.value.runtimeType, x.runtimeType);
-        expect(syncedObject.oneAny.value, x);
-        expect(syncedObject.oneAny, RealmValue.from(x));
+        final object2 = realm2.all<ObjectWithRealmValue>().single;
+        expect(object2.id, object1.id);
+        expect(object2.oneAny.value.runtimeType, x.runtimeType);
+        expect(object2.oneAny.value, x);
+        expect(object2.oneAny, RealmValue.from(x));
       });
 
       final queryArg = RealmValue.from(x);
@@ -121,29 +121,29 @@ void main() {
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
-      final child = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
-      final parent = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(child));
-      realm1.write(() => realm1.add(parent));
+      final child1 = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
+      final parent1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(child1));
+      realm1.write(() => realm1.add(parent1));
 
       await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
       // Check object values in second realm.
       expect(realm2.all<ObjectWithInt>().single.i, 123);
-      final syncedParent = realm2.all<ObjectWithRealmValue>().single;
-      expect(syncedParent.id, parent.id);
+      final parent2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(parent2.id, parent1.id);
 
-      expect(syncedParent.oneAny.value.runtimeType, ObjectWithInt);
-      final syncedChild = syncedParent.oneAny.as<ObjectWithInt>();
-      expect(syncedChild.i, 123);
+      expect(parent2.oneAny.value.runtimeType, ObjectWithInt);
+      final child2 = parent2.oneAny.as<ObjectWithInt>();
+      expect(child2.i, 123);
 
       // Update child object in second realm.
       const newValue = 456;
-      realm2.write(() => syncedChild.i = newValue);
+      realm2.write(() => child2.i = newValue);
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
       // Check updated object in first realm.
-      expect(parent.oneAny.as<ObjectWithInt>().i, newValue);
+      expect(parent1.oneAny.as<ObjectWithInt>().i, newValue);
     });
 
     test('Query @type == object', () {
@@ -318,27 +318,27 @@ void main() {
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
-      final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, manyAny: values.map(RealmValue.from));
-      realm1.write(() => realm1.add(object));
+      final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, manyAny: values.map(RealmValue.from));
+      realm1.write(() => realm1.add(object1));
 
       await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
       // Check object values in second realm.
       expect(realm2.all<ObjectWithInt>().single.i, 42);
       expect(realm2.all<ObjectWithRealmValue>().length, 2);
-      final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object.id]).single;
-      expect(syncedObject.manyAny.length, values.length);
-      expect(syncedObject.manyAny[0].value, values[0]);
+      final object2 = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object1.id]).single;
+      expect(object2.manyAny.length, values.length);
+      expect(object2.manyAny[0].value, values[0]);
 
       // Add new item in second realm.
       const newValue = 'new value';
-      realm2.write(() => syncedObject.manyAny.add(RealmValue.from(newValue)));
+      realm2.write(() => object2.manyAny.add(RealmValue.from(newValue)));
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
       // Check new item in first realm.
-      expect(object.manyAny.length, values.length + 1);
-      expect(object.manyAny.last.value, newValue);
+      expect(object1.manyAny.length, values.length + 1);
+      expect(object1.manyAny.last.value, newValue);
     });
 
     test('Query with list of realm values in arguments', () {
@@ -370,15 +370,15 @@ void main() {
       final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
       // Add object in first realm.
-      final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator);
-      realm1.write(() => realm1.add(object)..setOfAny.addAll(numericValues));
+      final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator);
+      realm1.write(() => realm1.add(object1)..setOfAny.addAll(numericValues));
 
       await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
       // Check object values in second realm.
-      final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-      expect(syncedObject.id, object.id);
-      expect(syncedObject.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
     });
 
     test('Removes duplicates', () {
@@ -497,43 +497,43 @@ void main() {
 
       // Add object in first realm.
       final list = RealmValue.from([5]);
-      final object = ObjectWithRealmValue(ObjectId(),
+      final object1 = ObjectWithRealmValue(ObjectId(),
         differentiator: differentiator,
         oneAny: list,
         manyAny: [list],
         dictOfAny: {'value': list});
-      realm1.write(() => realm1.add(object));
+      realm1.write(() => realm1.add(object1));
 
       await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
       // Check object values in second realm.
-      final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-      expect(syncedObject.id, object.id);
-      expect(syncedObject.oneAny.value, isA<List<RealmValue>>());
-      expect(syncedObject.oneAny.asList().length, 1);
-      expect(syncedObject.oneAny.asList().single.value, 5);
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.oneAny.value, isA<List<RealmValue>>());
+      expect(object2.oneAny.asList().length, 1);
+      expect(object2.oneAny.asList().single.value, 5);
 
-      expect(syncedObject.manyAny[0].value, isA<List<RealmValue>>());
-      expect(syncedObject.manyAny[0].asList().length, 1);
-      expect(syncedObject.manyAny[0].asList().single.value, 5);
+      expect(object2.manyAny[0].value, isA<List<RealmValue>>());
+      expect(object2.manyAny[0].asList().length, 1);
+      expect(object2.manyAny[0].asList().single.value, 5);
 
-      expect(syncedObject.dictOfAny['value']!.value, isA<List<RealmValue>>());
-      expect(syncedObject.dictOfAny['value']!.asList().length, 1);
-      expect(syncedObject.dictOfAny['value']!.asList().single.value, 5);
+      expect(object2.dictOfAny['value']!.value, isA<List<RealmValue>>());
+      expect(object2.dictOfAny['value']!.asList().length, 1);
+      expect(object2.dictOfAny['value']!.asList().single.value, 5);
 
       // Add new items in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asList().add(RealmValue.from('abc'));
-        syncedObject.manyAny[0].asList().add(RealmValue.from('abc'));
-        syncedObject.dictOfAny['value']!.asList().add(RealmValue.from('abc'));
+        object2.oneAny.asList().add(RealmValue.from('abc'));
+        object2.manyAny[0].asList().add(RealmValue.from('abc'));
+        object2.dictOfAny['value']!.asList().add(RealmValue.from('abc'));
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
       // Check new items in first realm.
-      expect(object.oneAny.asList()[1].value, 'abc');
-      expect(object.manyAny[0].asList()[1].value, 'abc');
-      expect(object.dictOfAny['value']!.asList()[1].value, 'abc');
+      expect(object1.oneAny.asList()[1].value, 'abc');
+      expect(object1.manyAny[0].asList()[1].value, 'abc');
+      expect(object1.dictOfAny['value']!.asList()[1].value, 'abc');
     });
 
     test('Map get and set', () {
@@ -587,43 +587,43 @@ void main() {
 
       // Add object in first realm.
       final map = RealmValue.from({'foo': 5});
-      final object = ObjectWithRealmValue(ObjectId(),
+      final object1 = ObjectWithRealmValue(ObjectId(),
         differentiator: differentiator,
         oneAny: map,
         manyAny: [map],
         dictOfAny: {'value': map});
-      realm1.write(() => realm1.add(object));
+      realm1.write(() => realm1.add(object1));
 
       await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
       // Check object values in second realm.
-      final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-      expect(syncedObject.id, object.id);
-      expect(object.oneAny.value, isA<Map<String, RealmValue>>());
-      expect(object.oneAny.asMap().length, 1);
-      expect(object.oneAny.asMap()['foo']!.value, 5);
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object1.oneAny.value, isA<Map<String, RealmValue>>());
+      expect(object1.oneAny.asMap().length, 1);
+      expect(object1.oneAny.asMap()['foo']!.value, 5);
 
-      expect(object.manyAny[0].value, isA<Map<String, RealmValue>>());
-      expect(object.manyAny[0].asMap().length, 1);
-      expect(object.manyAny[0].asMap()['foo']!.value, 5);
+      expect(object1.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expect(object1.manyAny[0].asMap().length, 1);
+      expect(object1.manyAny[0].asMap()['foo']!.value, 5);
 
-      expect(object.dictOfAny['value']!.value, isA<Map<String, RealmValue>>());
-      expect(object.dictOfAny['value']!.asMap().length, 1);
-      expect(object.dictOfAny['value']!.asMap()['foo']!.value, 5);
+      expect(object1.dictOfAny['value']!.value, isA<Map<String, RealmValue>>());
+      expect(object1.dictOfAny['value']!.asMap().length, 1);
+      expect(object1.dictOfAny['value']!.asMap()['foo']!.value, 5);
 
       // Add new items in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asMap()['bar'] = RealmValue.from('abc');
-        syncedObject.manyAny[0].asMap()['bar'] = RealmValue.from('abc');
-        syncedObject.dictOfAny['value']!.asMap()['bar'] = RealmValue.from('abc');
+        object2.oneAny.asMap()['bar'] = RealmValue.from('abc');
+        object2.manyAny[0].asMap()['bar'] = RealmValue.from('abc');
+        object2.dictOfAny['value']!.asMap()['bar'] = RealmValue.from('abc');
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
       // Check new items in first realm.
-      expect(object.oneAny.asMap()['bar']!.value, 'abc');
-      expect(object.manyAny[0].asMap()['bar']!.value, 'abc');
-      expect(object.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
+      expect(object1.oneAny.asMap()['bar']!.value, 'abc');
+      expect(object1.manyAny[0].asMap()['bar']!.value, 'abc');
+      expect(object1.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
     });
 
     for (var isManaged in [true, false]) {
@@ -704,16 +704,16 @@ void main() {
 
           // Add object in first realm.
           final originalList = getListAllTypes(differentiator: differentiator);
-          final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalList));
-          realm1.write(() => realm1.add(object));
+          final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalList));
+          realm1.write(() => realm1.add(object1));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check object values in second realm.
-          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-          expect(syncedObject.id, object.id);
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.id, object1.id);
 
-          final foundValue = syncedObject.oneAny;
+          final foundValue = object2.oneAny;
           expect(foundValue.value, isA<List<RealmValue>>());
           expect(foundValue.type, RealmValueType.list);
 
@@ -753,7 +753,7 @@ void main() {
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check updated items in first realm.
-          final list = object.oneAny.asList();
+          final list = object1.oneAny.asList();
           expect(list[storedObjIndex].as<ObjectWithInt>().i, 456);
           expectMatches(list[storedListIndex], ['updated', 'abc', 'new-value']);
           expectMatches(list[storedDictIndex], {'int': -10, 'string': 'updated', 'new-value': 'new-value'});
@@ -786,37 +786,37 @@ void main() {
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
-          final object = ObjectWithRealmValue(ObjectId(),
+          final object1 = ObjectWithRealmValue(ObjectId(),
             differentiator: differentiator,
             oneAny: RealmValue.from([true, 5.3]));
-          realm1.write(() => realm1.add(object));
+          realm1.write(() => realm1.add(object1));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check object values in second realm.
-          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-          expect(syncedObject.oneAny.type, RealmValueType.list);
-          expectMatches(syncedObject.oneAny, [true, 5.3]);
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.oneAny.type, RealmValueType.list);
+          expectMatches(object2.oneAny, [true, 5.3]);
 
           // Reassign value in second realm.
-          realm2.write(() => syncedObject.oneAny = RealmValue.from(['foo']));
+          realm2.write(() => object2.oneAny = RealmValue.from(['foo']));
 
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check and reassign new value in first realm.
-          expectMatches(object.oneAny, ['foo']);
-          realm1.write(() => object.oneAny = RealmValue.from(999));
+          expectMatches(object1.oneAny, ['foo']);
+          realm1.write(() => object1.oneAny = RealmValue.from(999));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check and reassign new value in second realm.
-          expectMatches(syncedObject.oneAny, 999);
-          realm2.write(() => syncedObject.oneAny = RealmValue.from({'int': -100}));
+          expectMatches(object2.oneAny, 999);
+          realm2.write(() => object2.oneAny = RealmValue.from({'int': -100}));
 
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check new value in first realm.
-          expectMatches(syncedObject.oneAny, {'int': -100});
+          expectMatches(object2.oneAny, {'int': -100});
         });
       }
 
@@ -874,16 +874,16 @@ void main() {
 
           // Add object in first realm.
           final originalMap = getDictAllTypes(differentiator: differentiator);
-          final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalMap));
-          realm1.write(() => realm1.add(object));
+          final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalMap));
+          realm1.write(() => realm1.add(object1));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check object values in second realm.
-          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-          expect(syncedObject.id, object.id);
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.id, object1.id);
 
-          final foundValue = syncedObject.oneAny;
+          final foundValue = object2.oneAny;
           expect(foundValue.value, isA<Map<String, RealmValue>>());
           expect(foundValue.type, RealmValueType.map);
 
@@ -918,7 +918,7 @@ void main() {
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check updated items in first realm.
-          final map = object.oneAny.asMap();
+          final map = object1.oneAny.asMap();
           expect(map['object']?.as<ObjectWithInt>().i, 456);
           expectMatches(map['list']!, ['updated', 'abc', 'new-value']);
           expectMatches(map['map']!, {'int': -10, 'string': 'updated', 'new-value': 'new-value'});
@@ -951,37 +951,37 @@ void main() {
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
-          final object = ObjectWithRealmValue(ObjectId(),
+          final object1 = ObjectWithRealmValue(ObjectId(),
             differentiator: differentiator,
             oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
-          realm1.write(() => realm1.add(object));
+          realm1.write(() => realm1.add(object1));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check object values in second realm.
-          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-          expect(syncedObject.oneAny.type, RealmValueType.map);
-          expectMatches(syncedObject.oneAny, {'bool': true, 'double': 5.3});
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.oneAny.type, RealmValueType.map);
+          expectMatches(object2.oneAny, {'bool': true, 'double': 5.3});
 
           // Reassign value in second realm.
-          realm2.write(() => syncedObject.oneAny = RealmValue.from({'newKey': 'new value'}));
+          realm2.write(() => object2.oneAny = RealmValue.from({'newKey': 'new value'}));
 
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check and reassign new value in first realm.
-          expectMatches(object.oneAny, {'newKey': 'new value'});
-          realm1.write(() => object.oneAny = RealmValue.from(999));
+          expectMatches(object1.oneAny, {'newKey': 'new value'});
+          realm1.write(() => object1.oneAny = RealmValue.from(999));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check and reassign new value in second realm.
-          expectMatches(syncedObject.oneAny, 999);
-          realm2.write(() => syncedObject.oneAny = RealmValue.from([1.23456789]));
+          expectMatches(object2.oneAny, 999);
+          realm2.write(() => object2.oneAny = RealmValue.from([1.23456789]));
 
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check new value in first realm.
-          expectMatches(object.oneAny, [1.23456789]);
+          expectMatches(object1.oneAny, [1.23456789]);
         });
       }
 
@@ -1026,19 +1026,19 @@ void main() {
           final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
           // Add object in first realm.
-          final object = ObjectWithRealmValue(ObjectId(),
+          final object1 = ObjectWithRealmValue(ObjectId(),
             differentiator: differentiator,
             oneAny: RealmValue.from([true, {'foo': 'bar'}, 5.3]));
-          realm1.write(() => realm1.add(object));
+          realm1.write(() => realm1.add(object1));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check object values in second realm.
-          final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-          expect(syncedObject.oneAny.type, RealmValueType.list);
-          expectMatches(syncedObject.oneAny, [true, {'foo': 'bar'}, 5.3]);
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.oneAny.type, RealmValueType.list);
+          expectMatches(object2.oneAny, [true, {'foo': 'bar'}, 5.3]);
 
-          final syncedList = syncedObject.oneAny.asList();
+          final syncedList = object2.oneAny.asList();
           expect(syncedList[1].type, RealmValueType.map);
 
           // Reassign map in second realm.
@@ -1047,20 +1047,20 @@ void main() {
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check and reassign new value in first realm.
-          expectMatches(object.oneAny, [true, {'new': 5}, 5.3]);
-          final list = object.oneAny.asList();
+          expectMatches(object1.oneAny, [true, {'new': 5}, 5.3]);
+          final list = object1.oneAny.asList();
           realm1.write(() => list[1] = RealmValue.from([1.23456789]));
 
           await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
           // Check and reassign new value in second realm.
-          expectMatches(syncedObject.oneAny, [true, [1.23456789], 5.3]);
+          expectMatches(object2.oneAny, [true, [1.23456789], 5.3]);
           realm2.write(() => syncedList[1] = RealmValue.from(999));
 
           await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
           // Check new value in first realm.
-          expectMatches(object.oneAny, [true, 999, 5.3]);
+          expectMatches(object1.oneAny, [true, 999, 5.3]);
         });
       }
 
@@ -1308,24 +1308,24 @@ void main() {
             final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
             // Add object in first realm.
-            final object = ObjectWithRealmValue(ObjectId(),
+            final object1 = ObjectWithRealmValue(ObjectId(),
               differentiator: differentiator,
               oneAny: RealmValue.from(originalList));
-            realm1.write(() => realm1.add(object));
+            realm1.write(() => realm1.add(object1));
 
             await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
             // Check object values in second realm.
-            final syncedObject = realm2.all<ObjectWithRealmValue>().single;
-            expectMatches(syncedObject.oneAny, originalList);
+            final object2 = realm2.all<ObjectWithRealmValue>().single;
+            expectMatches(object2.oneAny, originalList);
 
             // Remove list item in second realm.
-            realm2.write(() => syncedObject.oneAny.asList().removeAt(0));
+            realm2.write(() => object2.oneAny.asList().removeAt(0));
 
             await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
             // Check list in first realm.
-            expectMatches(object.oneAny, [
+            expectMatches(object1.oneAny, [
               {
                 '1_int': 5,
                 '1_map': {
@@ -1342,7 +1342,7 @@ void main() {
 
             // Make updates in first realm.
             realm1.write(() {
-              final list = object.oneAny.asList();
+              final list = object1.oneAny.asList();
               list[0].asMap()['1_double'] = RealmValue.double(5.5);
               // TODO: This removal will cause termination:
               //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
@@ -1353,7 +1353,7 @@ void main() {
             await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
             // Check updated list in second realm.
-            expectMatches(syncedObject.oneAny, [
+            expectMatches(object2.oneAny, [
               {'1_int': 5, '1_double': 5.5},
               true
             ]);
@@ -1733,24 +1733,24 @@ void main() {
           'list': [10]
         }
       ];
-      final object = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(list));
-      realm1.write(() => realm1.add(object));
+      final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(list));
+      realm1.write(() => realm1.add(object1));
 
       await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
       // Add listeners in first realm.
       final List<RealmObjectChanges<ObjectWithRealmValue>> parentChanges = [];
-      final subscription = object.changes.listen((event) {
+      final subscription = object1.changes.listen((event) {
         parentChanges.add(event);
       });
 
       final List<RealmListChanges<RealmValue>> listChanges = [];
-      final listSubscription = object.oneAny.asList().changes.listen((event) {
+      final listSubscription = object1.oneAny.asList().changes.listen((event) {
         listChanges.add(event);
       });
 
       final List<RealmMapChanges<RealmValue>> mapChanges = [];
-      final mapSubscription = object.oneAny.asList()[1].asMap().changes.listen((event) {
+      final mapSubscription = object1.oneAny.asList()[1].asMap().changes.listen((event) {
         mapChanges.add(event);
       });
 
@@ -1761,11 +1761,11 @@ void main() {
       mapChanges.clear();
 
       // Get object in second realm.
-      final syncedObject = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object.id]).single;
+      final object2 = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object1.id]).single;
 
       // Add item to list in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asList().add(RealmValue.bool(true));
+        object2.oneAny.asList().add(RealmValue.bool(true));
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
@@ -1786,8 +1786,8 @@ void main() {
 
       // Update and add entry in nested dictionary in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
-        syncedObject.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
+        object2.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
+        object2.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
@@ -1813,7 +1813,7 @@ void main() {
 
       // Remove entry in nested dictionary in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asList()[1].asMap().remove('string');
+        object2.oneAny.asList()[1].asMap().remove('string');
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
@@ -1840,7 +1840,7 @@ void main() {
 
       // Remove dictionary from list in second realm.
       realm2.write(() {
-        syncedObject.oneAny.asList().removeAt(1);
+        object2.oneAny.asList().removeAt(1);
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
@@ -1867,7 +1867,7 @@ void main() {
 
       // Overwrite list with primitive in second realm.
       realm2.write(() {
-        syncedObject.oneAny = RealmValue.bool(false);
+        object2.oneAny = RealmValue.bool(false);
       });
 
       await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
