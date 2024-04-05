@@ -109,11 +109,11 @@ void main() {
     }
 
     test('Roundtrip object', () {
-      final stuff = ObjectWithInt(ObjectId(), i: 123);
       final realm = getMixedRealm();
-      final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(stuff))));
-      expect(something.oneAny.value.runtimeType, ObjectWithInt);
-      expect(something.oneAny.as<ObjectWithInt>().i, 123);
+      final child = ObjectWithInt(ObjectId(), i: 123);
+      final parent = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(child))));
+      expect(parent.oneAny.value.runtimeType, ObjectWithInt);
+      expect(parent.oneAny.as<ObjectWithInt>().i, 123);
     });
 
     baasTest('Roundtrip object', (appConfig) async {
@@ -268,18 +268,18 @@ void main() {
         realm.close();
       }
 
-      // From here on Stuff is unknown
+      // From here on ObjectWithInt is unknown
       final config = Configuration.local(
         [ObjectWithRealmValue.schema],
         schemaVersion: 1,
         migrationCallback: (migration, oldSchemaVersion) {
-          // forget to handle RealmValue pointing to Stuff
+          // forget to handle RealmValue pointing to ObjectWithInt
         },
       );
       final realm = getRealm(config);
 
       final something = realm.all<ObjectWithRealmValue>()[0];
-      // something.oneAny points to a Stuff, but that is not known, so returns null.
+      // something.oneAny points to a ObjectWithInt, but that is not known, so returns null.
       // A better option would be to return a DynamicRealmObject, but c-api does
       // not currently allow this.
       expect(something.oneAny, const RealmValue.nullValue()); // at least we don't crash :-)
