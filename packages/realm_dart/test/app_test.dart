@@ -87,6 +87,11 @@ void main() {
     expect(app.id, configuration.appId);
   });
 
+  test('AppConfiguration.baseUrl points to the correct value', () {
+    final configuration = AppConfiguration('abc');
+    expect(configuration.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
+  });
+
   baasTest('App log in', (configuration) async {
     final app = App(configuration);
     final credentials = Credentials.anonymous();

@@ -4,13 +4,14 @@
 * Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
 * Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
 * Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
+* The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
 
 ### Fixed
 * Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
 * Backlinks mistakenly included in EJson serialization. ([Issue #1616](https://github.com/realm/realm-dart/issues/1616))
-* Fix an assertion failure "m_lock_info && m_lock_info->m_file.get_path() == m_filename" that appears to be related to opening a Realm while the file is in the process of being closed on another thread (Core 14.5.0).
-* Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included) (Core 14.5.0).
-* Null pointer exception may be triggered when logging out and async commits callbacks not executed (Core 14.5.0)
+* Fix an assertion failure "m_lock_info && m_lock_info->m_file.get_path() == m_filename" that appears to be related to opening a Realm while the file is in the process of being closed on another thread. (Core 14.5.0)
+* Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included). (Core 14.5.0)
+* Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.

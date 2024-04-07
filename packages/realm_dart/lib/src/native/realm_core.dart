@@ -2123,6 +2123,10 @@ class _RealmCore {
     return AppHandle._(realmAppPtr);
   }
 
+  String getDefaultBaseUrl() {
+    return _realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
+  }
+
   AppHandle? getApp(String id, String? baseUrl) {
     return using((arena) {
       final out_app = arena<Pointer<realm_app>>();

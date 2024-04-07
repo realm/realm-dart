@@ -83,8 +83,8 @@ class AppConfiguration {
 
   /// The [baseUrl] is the [Uri] used to reach the MongoDB Atlas.
   ///
-  /// [baseUrl] only needs to be set if for some reason your application isn't hosted on realm.mongodb.com.
-  /// This can be the case if you're testing locally or are using a pre-production environment.
+  /// [baseUrl] only needs to be set if for some reason your application isn't hosted on services.cloud.mongodb.com.
+  /// This can be the case if you're synchronizing with an edge server.
   final Uri baseUrl;
 
   /// The [defaultRequestTimeout] for HTTP requests. Defaults to 60 seconds.
@@ -124,7 +124,7 @@ class AppConfiguration {
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
-  })  : baseUrl = baseUrl ?? Uri.parse('https://realm.mongodb.com'),
+  })  : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
         baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
         httpClient = httpClient ?? _defaultClient {
     if (appId == '') {
