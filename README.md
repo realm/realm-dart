@@ -25,7 +25,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
     ```dart
     import 'package:realm/realm.dart';  // import realm package
 
-    part 'app.g.dart'; // declare a part file.
+    part 'app.realm.dart'; // declare a part file.
 
     @RealmModel() // define a data model class named `_Car`.
     class _Car {
@@ -132,12 +132,12 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
     import 'package:realm/realm.dart';
     ```
 
-* Declare a part file `catalog.g.dart` in the begining of the `catalog.dart` dart file after all imports.
+* Declare a part file `catalog.realm.dart` in the begining of the `catalog.dart` dart file after all imports.
 
     ```dart
     import 'dart:io';
 
-    part 'catalog.g.dart';
+    part 'catalog.realm.dart';
     ```
 
 * Create a data model class.
@@ -163,7 +163,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
     ```
     dart run realm generate
     ```
-    A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+    A new file `catalog.realm.dart` will be created next to the `catalog.dart`.
 
     _*The generated file should be committed to source control_
 
@@ -221,7 +221,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 ```dart
 import 'package:realm/realm.dart';
 
-part 'catalog.g.dart';
+part 'catalog.realm.dart';
 
 @RealmModel()
 class _Item {
@@ -315,7 +315,7 @@ Realm Dart package is published to [realm_dart](https://pub.dev/packages/realm_d
     ```
     dart run realm_dart generate
     ```
-    A new file `catalog.g.dart` will be created next to the `catalog.dart`.
+    A new file `catalog.realm.dart` will be created next to the `catalog.dart`.
 
     _*The generated file should be committed to source control_
 

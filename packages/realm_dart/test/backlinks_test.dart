@@ -164,6 +164,23 @@ void main() {
     }
   });
 
+  test('Backlinks not serialized', () {
+    final config = Configuration.local([Target.schema, Source.schema]);
+    final realm = getRealm(config);
+
+    final target = Target();
+    final source = realm.write(() => realm.add(Source(oneTarget: target)));
+
+    expect(() => source.toEJson(), returnsNormally); // <-- would die here before fix
+    expect(source.toEJson(), isNotNull);
+    expect(
+      source.toEJson(),
+      isA<Map<String, dynamic>>() //
+          .having((m) => m['et mål'], 'forward', isNotNull)
+          .having((m) => m['et mål']!['oneToMany'], 'back', isNull), // backlink not serialized
+    );
+  });
+
   group('getBacklinks() tests', () {
     (Target theOne, List<Target> targets, Iterable<String> expectedSources) populateData() {
       final config = Configuration.local([Target.schema, Source.schema]);

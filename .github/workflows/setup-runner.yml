@@ -1,0 +1,39 @@
+name: Setup runner
+
+on:
+  workflow_dispatch: # For debug
+  workflow_call:
+    inputs:
+      runner:
+        description: Platforms to execute on.
+        required: true
+        type: string
+      flutter-version:
+        description: Flutter version to use.
+        type: string
+        default: stable  
+
+jobs:
+  setup-runner:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Puro
+        run: >-
+            which puro
+            || curl -o- https://puro.dev/install.sh | PURO_VERSION="1.4.5" bash
+        shell: bash
+      - run: puro upgrade-puro
+      - run: puro use ${{ inputs.flutter-version }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Melos
+        run: puro pub global activate melos
+      - run: melos bootstrap
+      - run: melos setup
+
+  
+  

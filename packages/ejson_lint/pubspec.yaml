@@ -1,7 +1,7 @@
 name: ejson_lint
 description: A starting point for Dart libraries or applications.
 
-version: 0.2.0-pre.1
+version: 0.3.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_lint
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   analyzer: ^6.0.0
   custom_lint_builder: ^0.6.2
-  ejson_analyzer: ^0.2.0-pre.1
+  ejson_analyzer: ^0.3.0
 
 dev_dependencies:
   lints: ^3.0.0

@@ -1,7 +1,7 @@
 name: ejson_analyzer
 description: A starting point for Dart libraries or applications.
 
-version: 0.2.0-pre.1
+version: 0.3.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_analyzer
 
 environment:
@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   analyzer: ^6.0.0
-  ejson_annotation: ^0.2.0-pre.1
+  ejson_annotation: ^0.3.0
   source_gen: ^1.3.2
 
 dev_dependencies:

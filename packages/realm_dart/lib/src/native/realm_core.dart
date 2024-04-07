@@ -707,7 +707,7 @@ class _RealmCore {
 
   RealmAsyncOpenTaskProgressNotificationTokenHandle realmAsyncOpenRegisterAsyncOpenProgressNotifier(
       RealmAsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_syncProgressCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
     final tokenPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_async_open_task_register_download_progress_notifier(
           handle._pointer,
@@ -2576,7 +2576,7 @@ class _RealmCore {
   RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterProgressNotifier(
       Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_syncProgressCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
     final tokenPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_register_progress_notifier(
         session.handle._pointer,
@@ -2588,7 +2588,7 @@ class _RealmCore {
     return RealmSyncSessionConnectionStateNotificationTokenHandle._(tokenPtr);
   }
 
-  static void _syncProgressCallback(Object userdata, int transferred, int transferable) {
+  static void _syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
     final controller = userdata as ProgressNotificationsController;
 
     controller.onProgress(transferred, transferable);
