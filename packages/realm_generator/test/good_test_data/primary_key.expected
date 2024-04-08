@@ -26,6 +26,10 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<IntPK>(this);
 
   @override
+  Stream<RealmObjectChanges<IntPK>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<IntPK>(this, keyPaths);
+
+  @override
   IntPK freeze() => RealmObjectBase.freezeObject<IntPK>(this);
 
   EJsonValue toEJson() {
@@ -77,6 +81,11 @@ class NullableIntPK extends _NullableIntPK
   @override
   Stream<RealmObjectChanges<NullableIntPK>> get changes =>
       RealmObjectBase.getChanges<NullableIntPK>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableIntPK>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableIntPK>(this, keyPaths);
 
   @override
   NullableIntPK freeze() => RealmObjectBase.freezeObject<NullableIntPK>(this);
@@ -134,6 +143,10 @@ class StringPK extends _StringPK
       RealmObjectBase.getChanges<StringPK>(this);
 
   @override
+  Stream<RealmObjectChanges<StringPK>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<StringPK>(this, keyPaths);
+
+  @override
   StringPK freeze() => RealmObjectBase.freezeObject<StringPK>(this);
 
   EJsonValue toEJson() {
@@ -185,6 +198,11 @@ class NullableStringPK extends _NullableStringPK
   @override
   Stream<RealmObjectChanges<NullableStringPK>> get changes =>
       RealmObjectBase.getChanges<NullableStringPK>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableStringPK>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableStringPK>(this, keyPaths);
 
   @override
   NullableStringPK freeze() =>
@@ -243,6 +261,10 @@ class ObjectIdPK extends _ObjectIdPK
       RealmObjectBase.getChanges<ObjectIdPK>(this);
 
   @override
+  Stream<RealmObjectChanges<ObjectIdPK>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectIdPK>(this, keyPaths);
+
+  @override
   ObjectIdPK freeze() => RealmObjectBase.freezeObject<ObjectIdPK>(this);
 
   EJsonValue toEJson() {
@@ -294,6 +316,11 @@ class NullableObjectIdPK extends _NullableObjectIdPK
   @override
   Stream<RealmObjectChanges<NullableObjectIdPK>> get changes =>
       RealmObjectBase.getChanges<NullableObjectIdPK>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableObjectIdPK>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableObjectIdPK>(this, keyPaths);
 
   @override
   NullableObjectIdPK freeze() =>
@@ -351,6 +378,10 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<UuidPK>(this);
 
   @override
+  Stream<RealmObjectChanges<UuidPK>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<UuidPK>(this, keyPaths);
+
+  @override
   UuidPK freeze() => RealmObjectBase.freezeObject<UuidPK>(this);
 
   EJsonValue toEJson() {
@@ -402,6 +433,11 @@ class NullableUuidPK extends _NullableUuidPK
   @override
   Stream<RealmObjectChanges<NullableUuidPK>> get changes =>
       RealmObjectBase.getChanges<NullableUuidPK>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullableUuidPK>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableUuidPK>(this, keyPaths);
 
   @override
   NullableUuidPK freeze() => RealmObjectBase.freezeObject<NullableUuidPK>(this);

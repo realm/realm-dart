@@ -156,6 +156,10 @@ class Indexable extends _Indexable
       RealmObjectBase.getChanges<Indexable>(this);
 
   @override
+  Stream<RealmObjectChanges<Indexable>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Indexable>(this, keyPaths);
+
+  @override
   Indexable freeze() => RealmObjectBase.freezeObject<Indexable>(this);
 
   EJsonValue toEJson() {

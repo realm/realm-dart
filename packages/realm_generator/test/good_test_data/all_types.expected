@@ -40,6 +40,10 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Foo>(this);
 
   @override
+  Stream<RealmObjectChanges<Foo>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Foo>(this, keyPaths);
+
+  @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
   EJsonValue toEJson() {
@@ -68,7 +72,8 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Foo._);
     register(_toEJson, _fromEJson);
     return SchemaObject(ObjectType.realmObject, Foo, 'MyFoo', [
-      SchemaProperty('x', RealmPropertyType.int, indexType: RealmIndexType.regular),
+      SchemaProperty('x', RealmPropertyType.int,
+          indexType: RealmIndexType.regular),
       SchemaProperty('bar', RealmPropertyType.object,
           optional: true, linkTarget: 'Bar'),
     ]);
@@ -235,6 +240,10 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Bar>(this);
 
   @override
+  Stream<RealmObjectChanges<Bar>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Bar>(this, keyPaths);
+
+  @override
   Bar freeze() => RealmObjectBase.freezeObject<Bar>(this);
 
   EJsonValue toEJson() {
@@ -398,6 +407,11 @@ class PrimitiveTypes extends _PrimitiveTypes
   @override
   Stream<RealmObjectChanges<PrimitiveTypes>> get changes =>
       RealmObjectBase.getChanges<PrimitiveTypes>(this);
+
+  @override
+  Stream<RealmObjectChanges<PrimitiveTypes>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<PrimitiveTypes>(this, keyPaths);
 
   @override
   PrimitiveTypes freeze() => RealmObjectBase.freezeObject<PrimitiveTypes>(this);

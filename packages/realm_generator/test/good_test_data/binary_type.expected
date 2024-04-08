@@ -37,6 +37,10 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Foo>(this);
 
   @override
+  Stream<RealmObjectChanges<Foo>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Foo>(this, keyPaths);
+
+  @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
   EJsonValue toEJson() {
