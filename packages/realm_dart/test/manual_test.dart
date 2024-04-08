@@ -27,7 +27,7 @@ void main() {
         final app = App(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.registerUser(validUsername, strongPassword);
-      }, appName: AppNames.emailConfirm, skip: "It is a manual test");
+      }, appName: AppName.emailConfirm, skip: "It is a manual test");
 
       baasTest('Manual test 2. Take the recieved token from the email and confirm the user', (configuration) async {
         // Enter valid token and tokenId from the received email
@@ -39,7 +39,7 @@ void main() {
         await authProvider.confirmUser(token, tokenId);
         final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
         expect(user, isNotNull);
-      }, appName: AppNames.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
+      }, appName: AppName.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
     });
 
     // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -57,7 +57,7 @@ void main() {
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.registerUser(validUsername, strongPassword);
         await authProvider.resendUserConfirmation(validUsername);
-      }, appName: AppNames.emailConfirm, skip: "It is a manual test");
+      }, appName: AppName.emailConfirm, skip: "It is a manual test");
 
       baasTest('Manual test 2. Take recieved token from any of both emails and confirm the user', (configuration) async {
         // Make sure you have recieved two emails.
@@ -70,7 +70,7 @@ void main() {
         await authProvider.confirmUser(token, tokenId);
         final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
         expect(user, isNotNull);
-      }, appName: AppNames.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
+      }, appName: AppName.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
     });
 
     // The tests in this group are for manual testing, since they require interaction with mail box.
@@ -90,7 +90,7 @@ void main() {
         final app = App(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.registerUser(validUsername, strongPassword);
-      }, appName: AppNames.emailConfirm, skip: "It is a manual test");
+      }, appName: AppName.emailConfirm, skip: "It is a manual test");
 
       baasTest('Manual test 2 (resetPassword). Take recieved token from the received email and confirm the user', (configuration) async {
         // Enter valid token and tokenId from the received email
@@ -102,13 +102,13 @@ void main() {
         await authProvider.confirmUser(token, tokenId);
         final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
         expect(user, isNotNull);
-      }, appName: AppNames.emailConfirm, skip: "It is a manual test");
+      }, appName: AppName.emailConfirm, skip: "It is a manual test");
 
       baasTest('Manual test 3 (resetPassword). Reset user password email', (configuration) async {
         final app = App(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.resetPassword(validUsername);
-      }, appName: AppNames.emailConfirm, skip: "It is a manual test");
+      }, appName: AppName.emailConfirm, skip: "It is a manual test");
 
       baasTest('Manual test 4 (resetPassword). Take recieved token from the email and complete resetting new password', (configuration) async {
         // Make sure you have recieved an emails with hyperlink ResetPassword.
@@ -122,7 +122,7 @@ void main() {
         await authProvider.completeResetPassword(newPassword, token, tokenId);
         final user = await app.logIn(Credentials.emailPassword(validUsername, strongPassword));
         expect(user, isNotNull);
-      }, appName: AppNames.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
+      }, appName: AppName.emailConfirm, skip: "Run this test manually after test 1 and after setting token and tokenId");
     });
 
     ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"

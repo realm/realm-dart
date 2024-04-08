@@ -24,8 +24,7 @@ void main() {
   });
 
   baasTest('SyncSession.user returns a valid user', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
@@ -36,8 +35,7 @@ void main() {
   });
 
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
 
     // Don't use getRealm because we want the Realm to survive
@@ -304,8 +302,7 @@ void main() {
   });
 
   baasTest('SyncSession when Realm is closed gets closed as well', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 

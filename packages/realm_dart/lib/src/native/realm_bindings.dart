@@ -3999,21 +3999,23 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> userdata,
     int transferred_bytes,
     int total_bytes,
+    double estimate,
   ) {
     return _realm_dart_sync_progress_callback(
       userdata,
       transferred_bytes,
       total_bytes,
+      estimate,
     );
   }
 
   late final _realm_dart_sync_progress_callbackPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64,
-              ffi.Uint64)>>('realm_dart_sync_progress_callback');
+          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64,
+              ffi.Double)>>('realm_dart_sync_progress_callback');
   late final _realm_dart_sync_progress_callback =
       _realm_dart_sync_progress_callbackPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int, double)>();
 
   void realm_dart_sync_wait_for_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -11838,7 +11840,8 @@ class _SymbolAddresses {
           _library._realm_dart_sync_on_subscription_state_changed_callbackPtr;
   ffi.Pointer<
           ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64)>>
+              ffi.Void Function(
+                  ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64, ffi.Double)>>
       get realm_dart_sync_progress_callback =>
           _library._realm_dart_sync_progress_callbackPtr;
   ffi.Pointer<
@@ -13027,9 +13030,13 @@ typedef realm_sync_progress_func_t
 typedef realm_sync_progress_func_tFunction = ffi.Void Function(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Uint64 transferred_bytes,
-    ffi.Uint64 total_bytes);
+    ffi.Uint64 total_bytes,
+    ffi.Double progress_estimate);
 typedef Dartrealm_sync_progress_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, int transferred_bytes, int total_bytes);
+    ffi.Pointer<ffi.Void> userdata,
+    int transferred_bytes,
+    int total_bytes,
+    double progress_estimate);
 
 final class realm_sync_session extends ffi.Opaque {}
 

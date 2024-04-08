@@ -227,7 +227,13 @@ class _RealmCore {
 
       // Setting schema version only makes sense for local realms, but core insists it is always set,
       // hence we set it to 0 in those cases.
-      _realmLib.realm_config_set_schema_version(configHandle._pointer, config is LocalConfiguration ? config.schemaVersion : 0);
+
+      final schemaVersion = switch (config) {
+        (LocalConfiguration lc) => lc.schemaVersion,
+        (FlexibleSyncConfiguration fsc) => fsc.schemaVersion,
+        _ => 0,
+      };
+      _realmLib.realm_config_set_schema_version(configHandle._pointer, schemaVersion);
       if (config.maxNumberOfActiveVersions != null) {
         _realmLib.realm_config_set_max_number_of_active_versions(configHandle._pointer, config.maxNumberOfActiveVersions!);
       }
@@ -685,9 +691,8 @@ class _RealmCore {
       }
       if (error != nullptr) {
         final err = arena<realm_error>();
-        bool success = _realmLib.realm_get_async_error(error, err);
-        final lastError = success ? err.ref.toLastError() : null;
-        completer.completeError(RealmException("Failed to open realm${lastError?.message ?? ''}"));
+        final lastError = _realmLib.realm_get_async_error(error, err) ? err.ref.toLastError() : null;
+        completer.completeError(RealmException("Failed to open realm: ${lastError?.message ?? 'Error details missing.'}"));
         return;
       }
 
@@ -702,7 +707,7 @@ class _RealmCore {
 
   RealmAsyncOpenTaskProgressNotificationTokenHandle realmAsyncOpenRegisterAsyncOpenProgressNotifier(
       RealmAsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_syncProgressCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
     final tokenPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_async_open_task_register_download_progress_notifier(
           handle._pointer,
@@ -2118,6 +2123,10 @@ class _RealmCore {
     return AppHandle._(realmAppPtr);
   }
 
+  String getDefaultBaseUrl() {
+    return _realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
+  }
+
   AppHandle? getApp(String id, String? baseUrl) {
     return using((arena) {
       final out_app = arena<Pointer<realm_app>>();
@@ -2571,7 +2580,7 @@ class _RealmCore {
   RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterProgressNotifier(
       Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64)>(_syncProgressCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
     final userdata = _realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle._pointer);
     final tokenPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_sync_session_register_progress_notifier(
         session.handle._pointer,
@@ -2583,7 +2592,7 @@ class _RealmCore {
     return RealmSyncSessionConnectionStateNotificationTokenHandle._(tokenPtr);
   }
 
-  static void _syncProgressCallback(Object userdata, int transferred, int transferable) {
+  static void _syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
     final controller = userdata as ProgressNotificationsController;
 
     controller.onProgress(transferred, transferable);
