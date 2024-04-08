@@ -747,7 +747,6 @@ class TestNotificationObject extends _TestNotificationObject
       'listLinks': listLinks.toEJson(),
       'setLinks': setLinks.toEJson(),
       'mapLinks': mapLinks.toEJson(),
-      'backlink': backlink.toEJson(),
     };
   }
 
@@ -763,7 +762,6 @@ class TestNotificationObject extends _TestNotificationObject
         'listLinks': EJsonValue listLinks,
         'setLinks': EJsonValue setLinks,
         'mapLinks': EJsonValue mapLinks,
-        'backlink': EJsonValue backlink,
       } =>
         TestNotificationObject(
           stringProperty: fromEJson(stringProperty),
