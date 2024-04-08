@@ -20,7 +20,7 @@ void main() {
     final defaultAppConfig = AppConfiguration('myapp');
     expect(defaultAppConfig.appId, 'myapp');
     expect(defaultAppConfig.baseFilePath.path, Configuration.defaultStoragePath);
-    expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(defaultAppConfig.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
     expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
@@ -46,7 +46,7 @@ void main() {
   test('AppConfiguration can be created with defaults', () {
     final appConfig = AppConfiguration('myapp1');
     expect(appConfig.appId, 'myapp1');
-    expect(appConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(appConfig.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     expect(appConfig.defaultRequestTimeout, const Duration(minutes: 1));
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
