@@ -29,7 +29,7 @@ class BaasAuthHelper {
   }
 }
 
-enum AppNames {
+enum AppName {
   flexible,
 
   // For application with name 'autoConfirm' and with confirmationType = 'auto'
@@ -322,7 +322,7 @@ class BaasClient {
     print('Initial sync for ${app.name} is complete.');
   }
 
-  Future<void> _createAppIfNotExists(List<BaasApp> existingApps, AppNames appName) async {
+  Future<void> _createAppIfNotExists(List<BaasApp> existingApps, AppName appName) async {
     final existingApp = existingApps.firstWhereOrNull((a) => a.name == appName.name);
     if (existingApp == null) {
       existingApps.add(await _createApp(appName));
@@ -395,7 +395,7 @@ class BaasClient {
     final uniqueName = "${appName.name}$_appSuffix";
     print('Creating app $uniqueName');
 
-    final runConfirmationFunction = appName != AppNames.autoConfirm && appName != AppNames.emailConfirm;
+    final runConfirmationFunction = appName != AppName.autoConfirm && appName != AppName.emailConfirm;
 
     BaasApp? app;
     try {
