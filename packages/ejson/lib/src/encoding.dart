@@ -37,7 +37,7 @@ EJsonValue _encodeAny(Object? value) {
     Defined<dynamic> d => _encodeDefined(d),
     double d => _encodeDouble(d),
     int i => _encodeInt(i),
-    Key k => _encodeKey(k),
+    BsonKey k => _encodeKey(k),
     Uint8List b => _encodeBinary(b, subtype: '00'),
     Iterable<dynamic> l => _encodeArray(l),
     Map<dynamic, dynamic> m => _encodeDocument(m),
@@ -108,7 +108,7 @@ EJsonValue _encodeInt(int value, {IntFormat? forcedFormat}) {
   }
 }
 
-EJsonValue _encodeKey(Key key) => {'\$${key.name}Key': 1};
+EJsonValue _encodeKey(BsonKey key) => {'\$${key.name}Key': 1};
 
 @pragma('vm:prefer-inline')
 EJsonValue _encodeString(String value) => value;
@@ -168,8 +168,8 @@ extension IntEJsonEncoderExtension on int {
   EJsonValue toEJson({IntFormat? forcedFormat}) => _encodeInt(this, forcedFormat: forcedFormat);
 }
 
-extension KeyEJsonEncoderExtension on Key {
-  /// Converts this [Key] to EJson
+extension KeyEJsonEncoderExtension on BsonKey {
+  /// Converts this [BsonKey] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeKey(this);
 }

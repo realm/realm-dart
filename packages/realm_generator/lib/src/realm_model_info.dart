@@ -106,7 +106,7 @@ class RealmModelInfo {
       {
         yield 'return <String, dynamic>{';
         {
-          yield* fields.map((f) {
+          yield* allSettable.map((f) {
             return "'${f.realmName}': ${f.name}.toEJson(),";
           });
         }
@@ -123,7 +123,7 @@ class RealmModelInfo {
         {
           yield '{';
           {
-            yield* fields.map((f) {
+            yield* allSettable.map((f) {
               return "'${f.realmName}': EJsonValue ${f.name},";
             });
           }

@@ -29,7 +29,7 @@ enum EJsonType {
 
 /// See [MaxKey](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-MaxKey)
 /// and [MinKey](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-MinKey)
-enum Key { min, max }
+enum BsonKey { min, max }
 
 sealed class UndefinedOr<T> {
   const UndefinedOr();

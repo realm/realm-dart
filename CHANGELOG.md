@@ -16,8 +16,11 @@
   // Only changes to person.age and person.friends will raise a notification
   person.changesFor(["age", "friends"]).listen( .... )
   ```
+* Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
 
 ### Fixed
+* Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
+* Backlinks mistakenly included in EJson serialization. ([Issue #1616](https://github.com/realm/realm-dart/issues/1616))
 
 ### Compatibility
 * Realm Studio: 13.0.0 or later.

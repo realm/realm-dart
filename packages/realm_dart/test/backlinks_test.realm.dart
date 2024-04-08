@@ -199,8 +199,6 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
     return <String, dynamic>{
       'name': name.toEJson(),
       'source': source.toEJson(),
-      'oneToMany': oneToMany.toEJson(),
-      'manyToMany': manyToMany.toEJson(),
     };
   }
 
@@ -210,8 +208,6 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
       {
         'name': EJsonValue name,
         'source': EJsonValue source,
-        'oneToMany': EJsonValue oneToMany,
-        'manyToMany': EJsonValue manyToMany,
       } =>
         Target(
           name: fromEJson(name),

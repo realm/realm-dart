@@ -5,24 +5,17 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:realm_common/realm_common.dart';
 
 import '../realm.dart' as realm show isFlutterPlatform;
 import '../realm.dart' show realmBinaryName;
 import 'cli/common/target_os_type.dart';
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
+import 'realm_class.dart';
 
 DynamicLibrary? _library;
 
-void _debugWrite(String message) {
-  assert(() {
-    print(message);
-    return true;
-  }());
-}
-
-String _getBinaryPath(String libName) {
+String _getPluginPath(String libName) {
   if (Platform.isAndroid) {
     return libName;
   }
@@ -65,26 +58,45 @@ String get _exeDirName => p.dirname(Platform.resolvedExecutable);
 
 DynamicLibrary _openRealmLib() {
   final libName = _getLibName(realmBinaryName);
-  final root = _getNearestProjectRoot(Platform.script.path) ?? _getNearestProjectRoot(p.current);
 
-  // Try to open lib from various candidate paths
-  List<String> errMessages = [];
-  for (final open in [
-    () => _open(libName), // just ask OS..
-    () => _open(p.join(_exeDirName, libName)), // try finding it next to the executable
-    if (root != null) () => _open(p.join(root, 'binary', Platform.operatingSystem, libName)), // try finding it relative to project
-    () => _open(_getBinaryPath(libName)), // find it where it is installed by plugin
-  ]) {
+  DynamicLibrary? tryOpen(String path) {
     try {
-      return open();
-    } on Error catch (e) {
-      errMessages.add(e.toString());
+      return DynamicLibrary.open(path);
+    } on Error catch (_) {
+      return null;
     }
   }
-  throw RealmError(errMessages.join('\n'));
-}
 
-DynamicLibrary _open(String lib) => DynamicLibrary.open(lib);
+  Never throwError(Iterable<String> candidatePaths) {
+    throw RealmError(
+      [
+        'Could not open $libName. Tried:',
+        candidatePaths.map((p) => '- "$p"').join('\n'),
+        isFlutterPlatform //
+            ? 'Hint: Did you forget to add a dependency on the realm package?'
+            : 'Hint: Did you forget to run `dart run realm_dart install`?'
+      ].join('\n'),
+    );
+  }
+
+  if (isFlutterPlatform) {
+    final path = _getPluginPath(libName);
+    return tryOpen(path) ?? throwError([path]);
+  } else {
+    final root = _getNearestProjectRoot(Platform.script.path) ?? _getNearestProjectRoot(p.current);
+    final candidatePaths = [
+      libName, // just ask OS..
+      p.join(_exeDirName, libName), // try finding it next to the executable
+      if (root != null) p.join(root, 'binary', Platform.operatingSystem, libName), // try finding it relative to project
+    ];
+    DynamicLibrary? lib;
+    for (final path in candidatePaths) {
+      lib = tryOpen(path);
+      if (lib != null) return lib;
+    }
+    throwError(candidatePaths);
+  }
+}
 
 /// @nodoc
 // Initializes Realm library

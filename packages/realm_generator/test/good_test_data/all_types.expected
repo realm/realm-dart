@@ -264,7 +264,6 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
       'any': any.toEJson(),
       'manyAny': manyAny.toEJson(),
       'decimal': decimal.toEJson(),
-      'foos': foos.toEJson(),
     };
   }
 
@@ -288,7 +287,6 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
         'any': EJsonValue any,
         'manyAny': EJsonValue manyAny,
         'decimal': EJsonValue decimal,
-        'foos': EJsonValue foos,
       } =>
         Bar(
           fromEJson(name),
