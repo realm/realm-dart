@@ -2,6 +2,20 @@
 
 ### Enhancements
 * Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
+* Added support for specifying key paths when listening to notifications on an object with the `RealmObject.changesFor([List<String>? keyPaths])` method. The key paths indicates which changes in properties should raise a notification.
+  ```dart
+  @RealmModel()
+  class _Person {
+    late String name;
+    late int age;
+    late List<_Person> friends;
+  }
+
+  // ....
+
+  // Only changes to person.age and person.friends will raise a notification
+  person.changesFor(["age", "friends"]).listen( .... )
+  ```
 
 ### Fixed
 

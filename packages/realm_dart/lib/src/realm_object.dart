@@ -476,13 +476,34 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   /// Unmanaged objects are always considered valid.
   bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 
-  /// Allows listening for property changes on this Realm object
+  /// Allows listening for property changes on this Realm object.
   ///
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   ///
   /// If the object is not managed a [RealmStateError] is thrown.
   Stream<RealmObjectChanges<RealmObjectBase>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
+  /// Allows listening for property changes on this Realm object using the specified list of key paths.
+  /// The key paths indicates which changes in properties should raise a notification.
+  ///
+  /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
+  ///
+  /// If the object is not managed a [RealmStateError] is thrown.
+  ///
+  /// Example
+  /// ``` dart
+  /// @RealmModel()
+  /// class _Person {
+  ///   late String name;
+  ///   late int age;
+  ///   late List<_Person> friends;
+  /// }
+  ///
+  /// // ....
+  ///
+  /// // Only changes to person.age and person.friends will raise a notification
+  /// person.changesFor(["age", "friends"]).listen( .... )
+  /// ```
   Stream<RealmObjectChanges<RealmObjectBase>> changesFor([List<String>? keyPaths]) =>
       throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
@@ -491,7 +512,6 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
     return getChangesFor<T>(object, null);
   }
 
-  //TODO we need to decide if we want to have keyPaths be nullable here of we force developers to use getChanges in that case
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChangesFor<T extends RealmObjectBase>(T object, [List<String>? keyPaths]) {
     if (!object.isManaged) {
