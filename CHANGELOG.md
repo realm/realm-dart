@@ -21,6 +21,8 @@
 
 ## 2.0.0 (2024-03-20)
 
+**Note**: Using the newly added support for collections in `RealmValue` with Atlas Device Sync is currently in private preview. Reach out to the support team if you need it enabled for your app. Rolling it out across all apps is expected to happen in late April 2024.
+
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
 * Renamed `RealmValue.uint8List` constructor to `RealmValue.binary`. (PR [#1469](https://github.com/realm/realm-dart/pull/1469))
