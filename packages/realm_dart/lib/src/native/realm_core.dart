@@ -1794,22 +1794,9 @@ class _RealmCore {
     return RealmNotificationTokenHandle._(pointer, list.realm.handle);
   }
 
-  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller,
-      [List<String>? keyPaths, int? classKey]) {
+  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller, [List<String>? keyPaths]) {
     return using((Arena arena) {
-      Pointer<realm_key_path_array> kpNative = nullptr;
-
-      if (keyPaths != null && classKey != null) {
-        final length = keyPaths.length;
-        final keypathsNative = arena<Pointer<Char>>(length);
-
-        for (int i = 0; i < length; i++) {
-          keypathsNative[i] = keyPaths[i].toCharPtr(arena);
-        }
-
-        kpNative = _realmLib.invokeGetPointer(() => _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
-      }
-
+      final kpNative = buildAndVerifyKeyPath(object, keyPaths);
       final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
             object.handle._pointer,
             controller.toPersistentHandle(),
@@ -1822,18 +1809,21 @@ class _RealmCore {
     });
   }
 
-  void verifyKeyPath(RealmObjectBase object, [List<String>? keyPaths, int? classKey]) {
+  Pointer<realm_key_path_array> buildAndVerifyKeyPath(RealmObjectBase object, [List<String>? keyPaths]) {
     return using((Arena arena) {
-      if (keyPaths != null && classKey != null) {
-        final length = keyPaths.length;
-        final keypathsNative = arena<Pointer<Char>>(length);
-
-        for (int i = 0; i < length; i++) {
-          keypathsNative[i] = keyPaths[i].toCharPtr(arena);
-        }
-
-        _realmLib.invokeGetPointer(() => _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
+      if (keyPaths == null) {
+        return nullptr;
       }
+
+      final length = keyPaths.length;
+      final keypathsNative = arena<Pointer<Char>>(length);
+      final classKey = object.realm.metadata.getByName(object.objectSchema.name).classKey;
+
+      for (int i = 0; i < length; i++) {
+        keypathsNative[i] = keyPaths[i].toCharPtr(arena);
+      }
+
+      return _realmLib.invokeGetPointer(() => _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
     });
   }
 

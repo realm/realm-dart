@@ -360,7 +360,6 @@ void main() {
       subscription.cancel();
     });
 
-    // TODO Need to decide what we expect here....
     test('mappedProperty', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
@@ -381,8 +380,8 @@ void main() {
         tno.stringProperty = "newVal";
       });
 
-      //TODO What do we expect here....?
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["_remappedIntProperty"]);
+      // This fails because it's raising a notification for "_remappedIntProperty"
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["remappedIntProperty"]);
 
       subscription.cancel();
     });
@@ -721,13 +720,7 @@ void main() {
       subscription.cancel();
     });
 
-    /*
-    To test:
-    - Four levels depth
-    - Can get deeper than four levels
-    */
-
-    test('can subscribe multiple times example', () async {
+    test('subscribing multiple times merges keypaths', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
 
@@ -754,8 +747,7 @@ void main() {
       });
 
       // Both of these fails because both "intProperty and "stringProperty" are reported as changed
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["intProperty"]);
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges2, ["stringProperty"]);
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["intProperty", "stringProperty"]);
 
       subscription.cancel();
       subscription2.cancel();

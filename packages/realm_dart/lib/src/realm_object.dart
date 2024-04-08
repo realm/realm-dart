@@ -733,19 +733,18 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 
   RealmObjectNotificationsController(this.realmObject, [List<String>? keyPaths]) {
     if (keyPaths != null) {
-      this.classKey = realmObject.realm.metadata.getByType(T).classKey;
       this.keyPaths = keyPaths;
 
       if (keyPaths.any((element) => element.isEmpty)) {
         throw RealmException("It is not allowed to have empty key paths.");
       }
-      realmCore.verifyKeyPath(realmObject, keyPaths, classKey);
+      realmCore.buildAndVerifyKeyPath(realmObject, keyPaths);
     }
   }
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject, this, keyPaths, classKey);
+    return realmCore.subscribeObjectNotifications(realmObject, this, keyPaths);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {
