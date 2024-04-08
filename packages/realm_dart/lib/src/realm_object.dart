@@ -730,7 +730,10 @@ class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
   /// The property names that have changed.
   List<String> get properties {
     final propertyKeys = realmCore.getObjectChangesProperties(_handle);
-    return object.realm.getPropertyNames(object.runtimeType, propertyKeys);
+    return object.realm
+        .getPropertyNames(object.runtimeType, propertyKeys)
+        .map((e) => object.objectSchema.firstWhere((element) => element.mapTo == e || element.name == e).name)
+        .toList();
   }
 
   const RealmObjectChanges._(this._handle, this.object);
@@ -749,7 +752,6 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
   List<String>? keyPaths;
-  int? classKey;
 
   RealmObjectNotificationsController(this.realmObject, [List<String>? keyPaths]) {
     if (keyPaths != null) {
