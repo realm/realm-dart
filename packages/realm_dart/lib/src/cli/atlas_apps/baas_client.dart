@@ -157,7 +157,7 @@ class BaasClient {
     JsonSchemaProperty(name: 'willBeRemoved', bsonType: 'string', required: true),
   ]);
 
-  static final String defaultAppName = AppNames.flexible.name;
+  static final String defaultAppName = AppName.flexible.name;
 
   final String _adminApiUrl;
   final String? _clusterName;
@@ -306,10 +306,10 @@ class BaasClient {
   /// @nodoc
   Future<List<BaasApp>> getOrCreateApps() async {
     var apps = await _getApps();
-    await _createAppIfNotExists(apps, AppNames.flexible);
-    await _createAppIfNotExists(apps, AppNames.autoConfirm);
-    await _createAppIfNotExists(apps, AppNames.emailConfirm);
-    await _createAppIfNotExists(apps, AppNames.staticSchema);
+    await _createAppIfNotExists(apps, AppName.flexible);
+    await _createAppIfNotExists(apps, AppName.autoConfirm);
+    await _createAppIfNotExists(apps, AppName.emailConfirm);
+    await _createAppIfNotExists(apps, AppName.staticSchema);
     return apps;
   }
 
@@ -391,7 +391,7 @@ class BaasClient {
     await _updateFunction(app, 'confirmFunc', confirmFuncId, source ?? _confirmFuncSource);
   }
 
-  Future<BaasApp> _createApp(AppNames appName) async {
+  Future<BaasApp> _createApp(AppName appName) async {
     final uniqueName = "${appName.name}$_appSuffix";
     print('Creating app $uniqueName');
 
@@ -414,7 +414,7 @@ class BaasClient {
 
       await enableProvider(app, 'anon-user');
       await enableProvider(app, 'local-userpass', config: '''{
-        "autoConfirm": ${appName == AppNames.autoConfirm},
+        "autoConfirm": ${appName == AppName.autoConfirm},
         "confirmEmailSubject": "Confirmation required",
         "confirmationFunctionName": "confirmFunc",
         "confirmationFunctionId": "$confirmFuncId",
@@ -568,7 +568,7 @@ class BaasClient {
       }''',
       );
 
-      if (appName == AppNames.staticSchema) {
+      if (appName == AppName.staticSchema) {
         final schemaId = await _createSchema(app, mongoServiceId, _nullablesSchemaV0);
         await _updateSchema(app, schemaId, _nullablesSchemaV1);
 

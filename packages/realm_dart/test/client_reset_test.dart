@@ -209,7 +209,7 @@ void main() {
     });
 
     if (clientResetHandlerType != RecoverUnsyncedChangesHandler) {
-      final baasAppName = AppNames.flexible;
+      final baasAppName = AppName.flexible;
       final shouldDisableAutoRecoveryForApp = clientResetHandlerType == RecoverOrDiscardUnsyncedChangesHandler;
       baasTest('$clientResetHandlerType notifications for deleted local data when DiscardUnsynced', appName: baasAppName, (appConfig) async {
         try {
@@ -331,7 +331,7 @@ void main() {
   }
 
   {
-    final baasAppName = AppNames.flexible;
+    final baasAppName = AppName.flexible;
     baasTest('Disabled server recovery - onAfterDiscard callback is invoked for RecoverOrDiscardUnsyncedChangesHandler', appName: baasAppName,
         (appConfig) async {
       final user = await getIntegrationUser(appConfig: appConfig);

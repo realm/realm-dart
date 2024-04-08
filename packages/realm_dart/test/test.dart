@@ -19,7 +19,7 @@ import 'package:realm_dart/src/configuration.dart';
 
 import 'baas_helper.dart';
 
-export 'baas_helper.dart' show AppNames;
+export 'baas_helper.dart' show AppName;
 
 part 'test.realm.dart';
 
@@ -566,7 +566,7 @@ Future<void> tryDeleteRealm(String path) async {
 Future<void> baasTest(
   String name,
   FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
-  AppNames appName = AppNames.flexible,
+  AppName appName = AppName.flexible,
   dynamic skip,
 }) async {
   BaasHelper.throwIfSetupFailed();

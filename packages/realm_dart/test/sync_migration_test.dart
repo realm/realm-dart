@@ -159,7 +159,7 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppNames.staticSchema);
+  }, appName: AppName.staticSchema);
 
   baasTest('Can remove field', (appConfig) async {
     final differentiator = ObjectId();
@@ -184,12 +184,12 @@ void main() {
 
     final objv2 = realmv1.find<NullablesV1>(id2)!;
     expect(objv2.willBeRemoved, '');
-  }, appName: AppNames.staticSchema);
+  }, appName: AppName.staticSchema);
 
   baasTest('Fails with a future schema version', (appConfig) {
     expectLater(() => openRealm(appConfig, NullablesV1.schema, ObjectId(), schemaVersion: 3),
         throwsA(isA<RealmException>().having((e) => e.message, 'message', contains('schema version in BIND 3 is greater than latest schema version 2'))));
-  }, appName: AppNames.staticSchema);
+  }, appName: AppName.staticSchema);
 
   baasTest('Realm can be migrated through consequtive versions (0->1->2)', (appConfig) async {
     final differentiator = ObjectId();
@@ -230,7 +230,7 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppNames.staticSchema);
+  }, appName: AppName.staticSchema);
 
   baasTest('Realm can be migrated skipping versions (0->2)', (appConfig) async {
     final differentiator = ObjectId();
@@ -255,5 +255,5 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppNames.staticSchema);
+  }, appName: AppName.staticSchema);
 }

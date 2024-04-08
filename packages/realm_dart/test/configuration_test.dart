@@ -83,7 +83,7 @@ void main() {
     var customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
     Configuration.defaultRealmPath = customDefaultRealmPath;
 
-    final appClientId = baasHelper!.getClientAppId(appName: AppNames.flexible);
+    final appClientId = baasHelper!.getClientAppId(appName: AppName.flexible);
     final baasUrl = baasHelper!.baseUrl;
     var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
     expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
