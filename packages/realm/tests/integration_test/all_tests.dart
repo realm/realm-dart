@@ -32,6 +32,7 @@ import '../../../realm_dart/test/results_test.dart' as results_test;
 import '../../../realm_dart/test/session_test.dart' as session_test;
 import '../../../realm_dart/test/subscription_test.dart' as subscription_test;
 import '../../../realm_dart/test/user_test.dart' as user_test;
+import '../../../realm_dart/test/sync_migration_test.dart' as sync_migration_test;
 
 Future<void> _copyBundledFile(String fromPath, String toPath) async {
   final data = await rootBundle.load(fromPath);
@@ -70,4 +71,5 @@ void main() {
   group('session_test.dart', session_test.main);
   group('subscription_test.dart', subscription_test.main);
   group('user_test.dart', user_test.main);
+  group('sync_migration_test.dart', sync_migration_test.main);
 }

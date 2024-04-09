@@ -31,8 +31,7 @@ void main() {
   });
 
   baasTest('Synchronized Realm with orphan embedded schemas throws', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
 
     expect(() => getRealm(config), throws<RealmException>("Embedded object 'AllTypesEmbedded' is unreachable by any link path from top level objects"));

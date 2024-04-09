@@ -189,6 +189,7 @@ abstract class Configuration implements Finalizable {
     ClientResetHandler clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
     int? maxNumberOfActiveVersions,
     ShouldCompactCallback? shouldCompactCallback,
+    int schemaVersion = 0,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -200,6 +201,7 @@ abstract class Configuration implements Finalizable {
         clientResetHandler: clientResetHandler,
         maxNumberOfActiveVersions: maxNumberOfActiveVersions,
         shouldCompactCallback: shouldCompactCallback,
+        schemaVersion: schemaVersion,
       );
 
   /// Constructs a [DisconnectedSyncConfiguration]
@@ -340,6 +342,18 @@ class FlexibleSyncConfiguration extends Configuration {
   /// Called when opening a `Realm` for the first time, after process start.
   final ShouldCompactCallback? shouldCompactCallback;
 
+  /// The schema version for this Realm. This has to be a valid schema version on the server
+  /// and the schema supplied in [schemaObjects] should match the one on the server.
+  ///
+  /// Note that unlike with [LocalConfiguration], changing the schema version will not execute
+  /// any migrations locally as the data is migrated on the server.
+  ///
+  /// When changing the schema version, the Realm **must** be opened asynchronously - i.e.
+  /// using [Realm.open] as migrating the data will require that first all the local changes
+  /// are uploaded, and then, that a client reset is performed. When changing the schema version
+  /// all subscriptions will be reset since they may not conform to the new schema.
+  final int schemaVersion;
+
   FlexibleSyncConfiguration._(
     this.user,
     super.schemaObjects, {
@@ -350,6 +364,7 @@ class FlexibleSyncConfiguration extends Configuration {
     this.clientResetHandler = const RecoverOrDiscardUnsyncedChangesHandler(onManualResetFallback: _defaultClientResetHandler),
     super.maxNumberOfActiveVersions,
     this.shouldCompactCallback,
+    this.schemaVersion = 0,
   }) : super._();
 
   @override

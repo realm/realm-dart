@@ -19,7 +19,7 @@ import 'package:realm_dart/src/configuration.dart';
 
 import 'baas_helper.dart';
 
-export 'baas_helper.dart' show AppNames;
+export 'baas_helper.dart' show AppName;
 
 part 'test.realm.dart';
 
@@ -566,7 +566,7 @@ Future<void> tryDeleteRealm(String path) async {
 Future<void> baasTest(
   String name,
   FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
-  AppNames appName = AppNames.flexible,
+  AppName appName = AppName.flexible,
   dynamic skip,
 }) async {
   BaasHelper.throwIfSetupFailed();
@@ -591,8 +591,11 @@ dynamic shouldSkip(dynamic skip) {
   return skip;
 }
 
-Future<User> getIntegrationUser(App app) async {
-  final email = 'realm_tests_do_autoverify_${generateRandomEmail()}';
+String getAutoverifiedEmail() => 'realm_tests_do_autoverify_${generateRandomEmail()}';
+
+Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
+  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
+  final email = getAutoverifiedEmail();
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);
 
@@ -609,7 +612,7 @@ FlexibleSyncConfiguration getIntegrationConfig(User user) {
 
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
-  final user = await getIntegrationUser(app);
+  final user = await getIntegrationUser(app: app, appConfig: appConfig);
 
   final config = getIntegrationConfig(user);
   final realm = getRealm(config);

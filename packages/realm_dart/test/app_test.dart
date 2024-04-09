@@ -20,7 +20,7 @@ void main() {
     final defaultAppConfig = AppConfiguration('myapp');
     expect(defaultAppConfig.appId, 'myapp');
     expect(defaultAppConfig.baseFilePath.path, Configuration.defaultStoragePath);
-    expect(defaultAppConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(defaultAppConfig.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
     expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
@@ -46,7 +46,7 @@ void main() {
   test('AppConfiguration can be created with defaults', () {
     final appConfig = AppConfiguration('myapp1');
     expect(appConfig.appId, 'myapp1');
-    expect(appConfig.baseUrl, Uri.parse('https://realm.mongodb.com'));
+    expect(appConfig.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     expect(appConfig.defaultRequestTimeout, const Duration(minutes: 1));
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
     expect(appConfig.maxConnectionTimeout, const Duration(minutes: 2));
@@ -85,6 +85,11 @@ void main() {
     final configuration = AppConfiguration(generateRandomString(10));
     final app = App(configuration);
     expect(app.id, configuration.appId);
+  });
+
+  test('AppConfiguration.baseUrl points to the correct value', () {
+    final configuration = AppConfiguration('abc');
+    expect(configuration.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
   });
 
   baasTest('App log in', (configuration) async {
@@ -169,7 +174,7 @@ void main() {
   baasTest('App delete user', (configuration) async {
     final app = App(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
-    String username = "realm_tests_do_autoverify${generateRandomEmail()}";
+    String username = getAutoverifiedEmail();
     const String strongPassword = "SWV23R#@T#VFQDV";
     await authProvider.registerUser(username, strongPassword);
     final user = await loginWithRetry(app, Credentials.emailPassword(username, strongPassword));
