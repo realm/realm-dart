@@ -1662,6 +1662,7 @@ void main() {
 
       // Removal at index 1 in realm1 should have won over update in realm2.
       // Adding at index 2 in realm2 should have resolved to adding at index 1.
+      expect(object1.oneAny.asList().length, 2);
       expect(object1.oneAny.asList()[1].value, object2.oneAny.asList()[1].value);
       expect(object1.oneAny.asList()[1].value, 'added index 2 - realm2');
 
@@ -1670,6 +1671,120 @@ void main() {
 
       expect(object1.dictOfAny['key']!.asList()[1].value, object2.dictOfAny['key']!.asList()[1].value);
       expect(object1.dictOfAny['key']!.asList()[1].value, 'added index 2 - realm2');
+    });
+
+    baasTest('Map has conflicting writes resolved', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final map = RealmValue.from({'key0': 'original 0', 'key1': 'original 1'});
+      final object1 = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: map,
+        manyAny: [map],
+        dictOfAny: {'key': map});
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check synced object in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.oneAny.value, isA<Map<String, RealmValue>>());
+      expect(object2.oneAny.asMap()['key0']!.value, 'original 0');
+      expect(object2.oneAny.asMap()['key1']!.value, 'original 1');
+
+      expect(object2.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expect(object2.manyAny[0].asMap()['key0']!.value, 'original 0');
+      expect(object2.manyAny[0].asMap()['key1']!.value, 'original 1');
+
+      expect(object2.dictOfAny['key']!.value, isA<Map<String, RealmValue>>());
+      expect(object2.dictOfAny['key']!.asMap()['key0']!.value, 'original 0');
+      expect(object2.dictOfAny['key']!.asMap()['key1']!.value, 'original 1');
+
+      // Pause sessions and do conflicting writes.
+      realm1.syncSession.pause();
+      realm2.syncSession.pause();
+      await validateSessionStates("State after pause", realm1.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+      await validateSessionStates("State after pause", realm2.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+
+      // Realm1 changes: update at key0, remove at key1.
+      realm1.write(() {
+        object1.oneAny.asMap()['key0'] = RealmValue.from('updated key0 - realm1');
+        object1.oneAny.asMap().remove('key1');
+
+        object1.manyAny[0].asMap()['key0'] = RealmValue.from('updated key0 - realm1');
+        object1.manyAny[0].asMap().remove('key1');
+
+        object1.dictOfAny['key']!.asMap()['key0'] = RealmValue.from('updated key0 - realm1');
+        object1.dictOfAny['key']!.asMap().remove('key1');
+      });
+
+      // Realm2 changes: update at key0, update at key1, add key2.
+      realm2.write(() {
+        object2.oneAny.asMap()['key0'] = RealmValue.from('updated key0 - realm2');
+        object2.oneAny.asMap()['key1'] = RealmValue.from('updated key1 - realm2');
+        object2.oneAny.asMap()['key2'] = RealmValue.from('added key2 - realm2');
+
+        object2.manyAny[0].asMap()['key0'] = RealmValue.from('updated key0 - realm2');
+        object2.manyAny[0].asMap()['key1'] = RealmValue.from('updated key1 - realm2');
+        object2.manyAny[0].asMap()['key2'] = RealmValue.from('added key2 - realm2');
+
+        object2.dictOfAny['key']!.asMap()['key0'] = RealmValue.from('updated key0 - realm2');
+        object2.dictOfAny['key']!.asMap()['key1'] = RealmValue.from('updated key1 - realm2');
+        object2.dictOfAny['key']!.asMap()['key2'] = RealmValue.from('added key2 - realm2');
+      });
+
+      // Resume sessions and check resolution.
+      realm1.syncSession.resume();
+      realm2.syncSession.resume();
+      await validateSessionStates("State after resume", realm1.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+      await validateSessionStates("State after resume", realm2.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Update at key0 in realm2 should have won.
+      expect(object1.oneAny.asMap()['key0']!.value, object2.oneAny.asMap()['key0']!.value);
+      expect(object1.oneAny.asMap()['key0']!.value, 'updated key0 - realm2');
+
+      expect(object1.manyAny[0].asMap()['key0']!.value, object2.manyAny[0].asMap()['key0']!.value);
+      expect(object1.manyAny[0].asMap()['key0']!.value, 'updated key0 - realm2');
+
+      expect(object1.dictOfAny['key']!.asMap()['key0']!.value, object2.dictOfAny['key']!.asMap()['key0']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key0']!.value, 'updated key0 - realm2');
+
+      // TODO: Do we expect `key1` to have been removed?
+      // Removal of key1 in realm1 should have won over update in realm2.
+      // expect(object1.oneAny.asMap().containsKey('key1'), false);
+      // expect(object1.oneAny.asMap()['key1'], isNull);
+      // expect(object2.oneAny.asMap().containsKey('key1'), false);
+      // expect(object2.oneAny.asMap()['key1'], isNull);
+
+      // expect(object1.manyAny[0].asMap().containsKey('key1'), false);
+      // expect(object1.manyAny[0].asMap()['key1'], isNull);
+      // expect(object2.manyAny[0].asMap().containsKey('key1'), false);
+      // expect(object2.manyAny[0].asMap()['key1'], isNull);
+    
+      // expect(object1.dictOfAny['key']!.asMap().containsKey('key1'), false);
+      // expect(object1.dictOfAny['key']!.asMap()['key1'], isNull);
+      // expect(object2.dictOfAny['key']!.asMap().containsKey('key1'), false);
+      // expect(object2.dictOfAny['key']!.asMap()['key1'], isNull);
+
+      // Adding key2 in realm2 should have resolved to the same thing.
+      expect(object1.oneAny.asMap()['key2']!.value, object2.oneAny.asMap()['key2']!.value);
+      expect(object1.oneAny.asMap()['key2']!.value, 'added key2 - realm2');
+
+      expect(object1.manyAny[0].asMap()['key2']!.value, object2.manyAny[0].asMap()['key2']!.value);
+      expect(object1.manyAny[0].asMap()['key2']!.value, 'added key2 - realm2');
+
+      expect(object1.dictOfAny['key']!.asMap()['key2']!.value, object2.dictOfAny['key']!.asMap()['key2']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key2']!.value, 'added key2 - realm2');
     });
 
     test('Notifications', () async {
