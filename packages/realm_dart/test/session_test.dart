@@ -158,8 +158,6 @@ void main() {
   });
 
   StreamProgressData subscribeToProgress(Realm realm, ProgressDirection direction, ProgressMode mode) {
-    // TODO: PROGRESS remove logging
-
     final data = StreamProgressData();
     final stream = realm.syncSession.getProgressStream(direction, mode);
 
@@ -173,7 +171,6 @@ void main() {
     });
 
     data.subscription.onDone(() {
-      Realm.logger.log(LogLevel.warn, '-------------------- DONE INVOKED --------------------');
       data.doneInvoked = true;
     });
 
@@ -194,62 +191,7 @@ void main() {
     expect(data.doneInvoked, expectDone);
   }
 
-  // TODO: remove when the issue is resolved
-  baasTest('New progress sanity check', (configuration) async {
-    final differentiator = ObjectId();
-
-    // This creates a Realm and uploads 10 objects with a known ObjectId
-    final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
-    for (var i = 0; i < 10; i++) {
-      uploadRealm.write(() {
-        uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
-      });
-    }
-    await uploadRealm.syncSession.waitForUpload();
-
-    // Open a Realm that will try and download the 10 objects
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
-
-    final config = getIntegrationConfig(user);
-    final realm = getRealm(config);
-    await realm.syncSession.waitForDownload();
-    await realm.syncSession.waitForUpload();
-
-    final progress = <SyncProgress>[];
-
-    // Create a subscription for all nullable types with the known ObjectId (should match 10 objects)
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
-    });
-
-    // Subscribe for progress notifications with streaming: false
-    final sub = realm.syncSession.getProgressStream(ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork).listen((event) {
-      progress.add(event);
-      Realm.logger.log(LogLevel.warn, '==== Progress: ${event.progressEstimate}');
-    }, onDone: () {
-      Realm.logger.log(LogLevel.warn, '==== Progress subscription done');
-    });
-
-    await realm.subscriptions.waitForSynchronization();
-
-    // Wait 1 second extra in case there are any race conditions between wait for sync and progress reporting
-    await Future.delayed(Duration(seconds: 1));
-
-    Realm.logger.log(LogLevel.warn, '==== Subscriptions synchronized');
-    Realm.logger.log(LogLevel.warn, '==== Number of events ${progress.length}');
-    Realm.logger.log(LogLevel.warn, '==== Last progress estimate: ${progress.last.progressEstimate}');
-
-    expect(realm.all<NullableTypes>(), hasLength(10));
-    expect(progress, hasLength(greaterThanOrEqualTo(1)));
-    expect(progress.last.progressEstimate, 1.0);
-
-    sub.cancel();
-  });
-
   baasTest('SyncSession.getProgressStream forCurrentlyOutstandingWork', (configuration) async {
-    // TODO: PROGRESS remove logging
-
     final differentiator = ObjectId();
     final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
 
@@ -262,24 +204,33 @@ void main() {
     final uploadData = subscribeToProgress(uploadRealm, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
     await uploadRealm.syncSession.waitForUpload();
     await validateData(uploadData, expectDone: true);
-    await uploadData.subscription.cancel();
 
     // Subscribe immediately after the upload to ensure we get the entire upload message as progress notifications
     final downloadRealm = await getIntegrationRealm(differentiator: differentiator, waitForSync: false);
     final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
 
-    Realm.logger.log(LogLevel.warn, '-------------------- SUBSCRIBED --------------------');
     await downloadRealm.subscriptions.waitForSynchronization();
 
-    Realm.logger.log(LogLevel.warn, '-------------------- SUBSCRIPTIONS RECEIVED --------------------');
-
     await downloadRealm.syncSession.waitForDownload();
-    await Future<void>.delayed(Duration(seconds: 1));
-
-    Realm.logger.log(LogLevel.warn, '-------------------- DOWNLOAD COMPLETE --------------------');
 
     await validateData(downloadData, expectDone: true);
 
+    // We should not see more updates in either direction
+    final uploadCallbacks = uploadData.callbacksInvoked;
+    final downloadCallbacks = downloadData.callbacksInvoked;
+
+    uploadRealm.write(() {
+      uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+    });
+
+    await uploadRealm.syncSession.waitForUpload();
+    await downloadRealm.syncSession.waitForDownload();
+
+    expect(uploadRealm.all<NullableTypes>().length, downloadRealm.all<NullableTypes>().length);
+    expect(uploadData.callbacksInvoked, uploadCallbacks);
+    expect(downloadData.callbacksInvoked, downloadCallbacks);
+
+    await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();
   });
 

@@ -416,9 +416,9 @@ void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
 
-    Realm.logger.setLogLevel(LogLevel.trace, category: LogCategory.realm.sync);
+    Realm.logger.setLogLevel(LogLevel.detail);
     Realm.logger.onRecord.listen((record) {
-      print('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
+      testing.printOnFailure('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
     });
 
     // Enable this to print platform info, including current PID
