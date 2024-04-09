@@ -6,6 +6,19 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+Future<void> validateSessionStates(String validationName, Session session,
+    {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
+  if (expectedSessionState != null) {
+    await waitForCondition(() => session.state.name == expectedSessionState.name,
+        message: 'Expected ${session.state} to equal $expectedSessionState. Validation: $validationName', timeout: const Duration(seconds: 15));
+  }
+
+  if (expectedConnectionState != null) {
+    await waitForCondition(() => session.connectionState.name == expectedConnectionState.name,
+        message: 'Expected ${session.connectionState} to equal $expectedConnectionState. Validation: $validationName', timeout: const Duration(seconds: 15));
+  }
+}
+
 void main() {
   setupTests();
 
@@ -43,19 +56,6 @@ void main() {
 
     expect(realm.syncSession, isNotNull);
   });
-
-  Future<void> validateSessionStates(String validationName, Session session,
-      {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
-    if (expectedSessionState != null) {
-      await waitForCondition(() => session.state.name == expectedSessionState.name,
-          message: 'Expected ${session.state} to equal $expectedSessionState. Validation: $validationName', timeout: const Duration(seconds: 15));
-    }
-
-    if (expectedConnectionState != null) {
-      await waitForCondition(() => session.connectionState.name == expectedConnectionState.name,
-          message: 'Expected ${session.connectionState} to equal $expectedConnectionState. Validation: $validationName', timeout: const Duration(seconds: 15));
-    }
-  }
 
   baasTest('SyncSession.pause/resume', (configuration) async {
     final realm = await getIntegrationRealm();

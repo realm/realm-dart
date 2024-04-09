@@ -7,6 +7,7 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
+import 'session_test.dart' show validateSessionStates;
 
 part 'realm_value_test.realm.dart';
 
@@ -1571,6 +1572,104 @@ void main() {
       final realm = getMixedRealm();
       final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv)));
       expect(identical(obj.oneAny.asMap(), map), false);
+    });
+
+    baasTest('List has conflicting writes resolved', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final list = RealmValue.from(['original 0', 'original 1']);
+      final object1 = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: list,
+        manyAny: [list],
+        dictOfAny: {'key': list});
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check synced object in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.oneAny.value, isA<List<RealmValue>>());
+      expect(object2.oneAny.asList()[0].value, 'original 0');
+      expect(object2.oneAny.asList()[1].value, 'original 1');
+
+      expect(object2.manyAny[0].value, isA<List<RealmValue>>());
+      expect(object2.manyAny[0].asList()[0].value, 'original 0');
+      expect(object2.manyAny[0].asList()[1].value, 'original 1');
+
+      expect(object2.dictOfAny['key']!.value, isA<List<RealmValue>>());
+      expect(object2.dictOfAny['key']!.asList()[0].value, 'original 0');
+      expect(object2.dictOfAny['key']!.asList()[1].value, 'original 1');
+
+      // Pause sessions and do conflicting writes.
+      realm1.syncSession.pause();
+      realm2.syncSession.pause();
+      await validateSessionStates("State after pause", realm1.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+      await validateSessionStates("State after pause", realm2.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+
+      // Realm1 changes: update at index 0, remove at index 1.
+      realm1.write(() {
+        object1.oneAny.asList()[0] = RealmValue.from('updated index 0 - realm1');
+        object1.oneAny.asList().removeAt(1);
+
+        object1.manyAny[0].asList()[0] = RealmValue.from('updated index 0 - realm1');
+        object1.manyAny[0].asList().removeAt(1);
+
+        object1.dictOfAny['key']!.asList()[0] = RealmValue.from('updated index 0 - realm1');
+        object1.dictOfAny['key']!.asList().removeAt(1);
+      });
+
+      // Realm2 changes: update at index 0, update at index 1, add at end (index 2).
+      realm2.write(() {
+        object2.oneAny.asList()[0] = RealmValue.from('updated index 0 - realm2');
+        object2.oneAny.asList()[1] = RealmValue.from('updated index 1 - realm2');
+        object2.oneAny.asList().add(RealmValue.from('added index 2 - realm2'));
+
+        object2.manyAny[0].asList()[0] = RealmValue.from('updated index 0 - realm2');
+        object2.manyAny[0].asList()[1] = RealmValue.from('updated index 1 - realm2');
+        object2.manyAny[0].asList().add(RealmValue.from('added index 2 - realm2'));
+
+        object2.dictOfAny['key']!.asList()[0] = RealmValue.from('updated index 0 - realm2');
+        object2.dictOfAny['key']!.asList()[1] = RealmValue.from('updated index 1 - realm2');
+        object2.dictOfAny['key']!.asList().add(RealmValue.from('added index 2 - realm2'));
+      });
+
+      // Resume sessions and check resolution.
+      realm1.syncSession.resume();
+      realm2.syncSession.resume();
+      await validateSessionStates("State after resume", realm1.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+      await validateSessionStates("State after resume", realm2.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Update at index 0 in realm2 should have won.
+      expect(object1.oneAny.asList()[0].value, object2.oneAny.asList()[0].value);
+      expect(object1.oneAny.asList()[0].value, 'updated index 0 - realm2');
+
+      expect(object1.manyAny[0].asList()[0].value, object2.manyAny[0].asList()[0].value);
+      expect(object1.manyAny[0].asList()[0].value, 'updated index 0 - realm2');
+
+      expect(object1.dictOfAny['key']!.asList()[0].value, object2.dictOfAny['key']!.asList()[0].value);
+      expect(object1.dictOfAny['key']!.asList()[0].value, 'updated index 0 - realm2');
+
+      // Removal at index 1 in realm1 should have won over update in realm2.
+      // Adding at index 2 in realm2 should have resolved to adding at index 1.
+      expect(object1.oneAny.asList()[1].value, object2.oneAny.asList()[1].value);
+      expect(object1.oneAny.asList()[1].value, 'added index 2 - realm2');
+
+      expect(object1.manyAny[0].asList()[1].value, object2.manyAny[0].asList()[1].value);
+      expect(object1.manyAny[0].asList()[1].value, 'added index 2 - realm2');
+
+      expect(object1.dictOfAny['key']!.asList()[1].value, object2.dictOfAny['key']!.asList()[1].value);
+      expect(object1.dictOfAny['key']!.asList()[1].value, 'added index 2 - realm2');
     });
 
     test('Notifications', () async {
