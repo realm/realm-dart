@@ -127,7 +127,7 @@ class BaasHelper {
 
       for (final app in apps) {
         _baasApps[app.name] = app;
-        if ((app.name == AppName.flexible.name || app.name == AppName.staticSchema.name)) {
+        if (app.name == AppName.flexible.name || app.name == AppName.staticSchema.name) {
           await _waitForInitialSync(app);
         }
       }
