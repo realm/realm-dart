@@ -233,6 +233,60 @@ void main() {
     await downloadData.subscription.cancel();
   });
 
+  baasTest('SyncSession.getProgressStream after reconnecting', (configuration) async {
+    final differentiator = ObjectId();
+    final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
+
+    // Make sure we've caught up, then close the Realm. We'll reopen it later and verify that progress notifications
+    // are delivered. This is different from "SyncSession.getProgressStream forCurrentlyOutstandingWork" where we're
+    // testing notifications after change of query.
+    final user = await getIntegrationUser(appConfig: configuration);
+    final config = getIntegrationConfig(user);
+    var downloadRealm = getRealm(config);
+    downloadRealm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(downloadRealm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
+    });
+
+    await downloadRealm.subscriptions.waitForSynchronization();
+    downloadRealm.close();
+
+    for (var i = 0; i < 10; i++) {
+      uploadRealm.write(() {
+        uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+      });
+    }
+
+    final uploadData = subscribeToProgress(uploadRealm, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
+    await uploadRealm.syncSession.waitForUpload();
+    await validateData(uploadData, expectDone: true);
+
+    // Reopen the download realm and subscribe for notifications - those should still be delivered as normal.
+    downloadRealm = Realm(getIntegrationConfig(user));
+    final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+
+    await downloadRealm.syncSession.waitForDownload();
+
+    await validateData(downloadData, expectDone: true);
+
+    // We should not see more updates in either direction
+    final uploadCallbacks = uploadData.callbacksInvoked;
+    final downloadCallbacks = downloadData.callbacksInvoked;
+
+    uploadRealm.write(() {
+      uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+    });
+
+    await uploadRealm.syncSession.waitForUpload();
+    await downloadRealm.syncSession.waitForDownload();
+
+    expect(uploadRealm.all<NullableTypes>().length, downloadRealm.all<NullableTypes>().length);
+    expect(uploadData.callbacksInvoked, uploadCallbacks);
+    expect(downloadData.callbacksInvoked, downloadCallbacks);
+
+    await uploadData.subscription.cancel();
+    await downloadData.subscription.cancel();
+  });
+
   baasTest('SyncSession.getProgressStream reportIndefinitely', (configuration) async {
     final differentiator = ObjectId();
     final realmA = await getIntegrationRealm(differentiator: differentiator);

@@ -5,6 +5,7 @@
 * Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
 * Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
 * The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
+* The download progress estimate reported by `Session.getProgressStream` will now return meaningful estimated values, while previously it always returned 1. (Issue [#1564](https://github.com/realm/realm-dart/issues/1564))
 
 ### Fixed
 * Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
