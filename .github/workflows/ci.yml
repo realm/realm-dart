@@ -292,6 +292,11 @@ jobs:
         with:
           submodules: "recursive"
 
+      - name: Bump ulimit
+        run: |
+          ulimit -n
+          ulimit -n 10240
+
       - name: Select XCode for MacOS
         run: |
           xcodes installed

@@ -52,7 +52,9 @@ jobs:
           melos setup
 
       - name: Bump ulimit on macos
-        run: ulimit -n 10240
+        run: |
+          ulimit -n
+          ulimit -n 10240
         if: ${{ contains(runner.os, 'macos') }}
 
       - name: Run tests ${{ runner.name }} ${{ runner.arch }}
