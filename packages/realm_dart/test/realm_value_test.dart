@@ -1303,6 +1303,52 @@ void main() {
           ]);
         });
 
+        test('RealmValue list when $managedString can remove nested collections', () {
+          final realm = getMixedRealm();
+
+          final listWithMap = [
+            {
+              '1_map': {
+                '2_string': 'map value'
+              },
+              '1_list': ['list value']
+            }
+          ];
+          final rv = persistIfNecessary(RealmValue.from(listWithMap), realm);
+
+          expectMatches(rv, listWithMap);
+
+          writeIfNecessary(realm, () {
+            rv.asList()[0].asMap().remove('1_list');
+            rv.asList()[0].asMap().remove('1_map');
+          });
+
+          expect(rv.asList()[0].asMap().isEmpty, true);
+        });
+
+        test('RealmValue map when $managedString remove nested collections', () {
+          final realm = getMixedRealm();
+
+          final mapWithMap = {
+            '1_map': {
+              '2_map': {
+                '3_string': 'map value'
+              },
+              '2_list': ['list value']
+            }
+          };
+          final rv = persistIfNecessary(RealmValue.from(mapWithMap), realm);
+
+          expectMatches(rv, mapWithMap);
+
+          writeIfNecessary(realm, () {
+            rv.asMap()['1_map']!.asMap().remove('2_map');
+            rv.asMap()['1_map']!.asMap().remove('2_list');
+          });
+
+          expect(rv.asMap()['1_map']!.asMap().isEmpty, true);
+        });
+
         if (isManaged) {
           baasTest('RealmValue can store complex struct', (appConfig) async {
             final differentiator = ObjectId();
@@ -1370,6 +1416,10 @@ void main() {
           });
 
           baasTest('RealmValue list can remove nested collections', (appConfig) async {
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
             final listWithMap = [
               {
                 '1_map': {
@@ -1378,10 +1428,6 @@ void main() {
                 '1_list': ['list value']
               }
             ];
-            final differentiator = ObjectId();
-            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
-
-            // Add object in first realm.
             final object1 = ObjectWithRealmValue(ObjectId(),
               differentiator: differentiator,
               oneAny: RealmValue.from(listWithMap));
@@ -1409,6 +1455,10 @@ void main() {
           }, skip: true);
 
           baasTest('RealmValue map can remove nested collections', (appConfig) async {
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
             final mapWithMap = {
               '1_map': {
                 '2_map': {
@@ -1417,10 +1467,6 @@ void main() {
                 '2_list': ['list value']
               }
             };
-            final differentiator = ObjectId();
-            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
-
-            // Add object in first realm.
             final object1 = ObjectWithRealmValue(ObjectId(),
               differentiator: differentiator,
               oneAny: RealmValue.from(mapWithMap));
