@@ -25,14 +25,14 @@ String _getLibPathFlutter() {
     TargetOsType.android => nativeLibraryName,
     TargetOsType.ios => p.join(root, 'Frameworks', 'realm_dart.framework', nativeLibraryName),
     TargetOsType.linux => p.join(root, 'lib', nativeLibraryName),
-    TargetOsType.macos => p.join(root, 'Frameworks', nativeLibraryName),
+    TargetOsType.macos => p.join(p.dirname(root), 'Frameworks', nativeLibraryName),
     TargetOsType.windows => nativeLibraryName,
   };
 }
 
 String _getLibPathFlutterTest(Package realmPackage) {
   assert(realmPackage.name == 'realm');
-  final root = p.join(realmPackage.root.path, targetOsType.name);
+  final root = p.join(realmPackage.root.toFilePath(), targetOsType.name);
   return switch (targetOsType) {
     TargetOsType.linux => p.join(root, 'binary', 'linux', nativeLibraryName),
     TargetOsType.macos => p.join(root, nativeLibraryName),
@@ -43,7 +43,7 @@ String _getLibPathFlutterTest(Package realmPackage) {
 
 String _getLibPathDart(Package realmDartPackage) {
   assert(realmDartPackage.name == 'realm_dart');
-  final root = p.join(realmDartPackage.root.path, 'binary', targetOsType.name);
+  final root = p.join(realmDartPackage.root.toFilePath(), 'binary', targetOsType.name);
   if (targetOsType.isDesktop) {
     return p.join(root, nativeLibraryName);
   }
@@ -124,7 +124,7 @@ DynamicLibrary _openRealmLib() {
   final candidatePaths = [
     nativeLibraryName, // just ask OS..
     p.join(_exeDirName, nativeLibraryName), // try finding it next to the executable
-    _getLibPathDart(realmDartPackage)
+    _getLibPathDart(realmDartPackage), // try finding it in the package
   ];
   DynamicLibrary? lib;
   for (final path in candidatePaths) {
