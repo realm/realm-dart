@@ -1661,8 +1661,16 @@ void main() {
       expect(object1.dictOfAny['key']!.asList()[0].value, 'updated index 0 - realm2');
 
       // Removal at index 1 in realm1 should have won over update in realm2.
+      expect(object1.oneAny.asList().contains(RealmValue.from('updated index 1 - realm2')), false);
+      expect(object2.oneAny.asList().contains(RealmValue.from('updated index 1 - realm2')), false);
+
+      expect(object1.manyAny[0].asList().contains(RealmValue.from('updated index 1 - realm2')), false);
+      expect(object2.manyAny[0].asList().contains(RealmValue.from('updated index 1 - realm2')), false);
+
+      expect(object1.dictOfAny['key']!.asList().contains(RealmValue.from('updated index 1 - realm2')), false);
+      expect(object2.dictOfAny['key']!.asList().contains(RealmValue.from('updated index 1 - realm2')), false);
+
       // Adding at index 2 in realm2 should have resolved to adding at index 1.
-      expect(object1.oneAny.asList().length, 2);
       expect(object1.oneAny.asList()[1].value, object2.oneAny.asList()[1].value);
       expect(object1.oneAny.asList()[1].value, 'added index 2 - realm2');
 
@@ -1770,7 +1778,7 @@ void main() {
       // expect(object1.manyAny[0].asMap()['key1'], isNull);
       // expect(object2.manyAny[0].asMap().containsKey('key1'), false);
       // expect(object2.manyAny[0].asMap()['key1'], isNull);
-    
+
       // expect(object1.dictOfAny['key']!.asMap().containsKey('key1'), false);
       // expect(object1.dictOfAny['key']!.asMap()['key1'], isNull);
       // expect(object2.dictOfAny['key']!.asMap().containsKey('key1'), false);
