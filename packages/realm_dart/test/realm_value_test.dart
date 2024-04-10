@@ -1345,9 +1345,6 @@ void main() {
             realm1.write(() {
               final list = object1.oneAny.asList();
               list[0].asMap()['1_double'] = RealmValue.double(5.5);
-              // TODO: This removal will cause termination:
-              //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
-              list[0].asMap().remove('1_map');
               list.add(RealmValue.bool(true));
             });
 
@@ -1355,9 +1352,98 @@ void main() {
 
             // Check updated list in second realm.
             expectMatches(object2.oneAny, [
-              {'1_int': 5, '1_double': 5.5},
+              {
+                '1_int': 5,
+                '1_map': {
+                  '2_decimal': Decimal128.fromDouble(0.1),
+                  '2_list': [
+                    'bla bla',
+                    {
+                      '3_dict': {'4_string': 'abc'}
+                    }
+                  ]
+                },
+                '1_double': 5.5
+              },
               true
             ]);
+          });
+
+          baasTest('RealmValue list can remove nested collections', (appConfig) async {
+            final listWithMap = [
+              {
+                '1_map': {
+                  '2_string': 'map value'
+                },
+                '1_list': ['list value']
+              }
+            ];
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
+            final object1 = ObjectWithRealmValue(ObjectId(),
+              differentiator: differentiator,
+              oneAny: RealmValue.from(listWithMap));
+              // oneAny: RealmValue.from(listWithMap));
+            realm1.write(() => realm1.add(object1));
+
+            await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+            // Check object values in second realm.
+            final object2 = realm2.all<ObjectWithRealmValue>().single;
+            expectMatches(object2.oneAny, listWithMap);
+
+            // Remove nested map and list in second realm.
+            realm2.write(() {
+              // TODO: Committing these removals will cause termination:
+              //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
+              object2.oneAny.asList()[0].asMap().remove('1_list');
+              object2.oneAny.asList()[0].asMap().remove('1_map');
+            });
+
+            await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+            // Check list in first realm.
+            expect(object1.oneAny.asList()[0].asMap().isEmpty, true);
+          }, skip: true);
+
+          baasTest('RealmValue map can remove nested collections', (appConfig) async {
+            final mapWithMap = {
+              '1_map': {
+                '2_map': {
+                  '3_string': 'map value'
+                },
+                '2_list': ['list value']
+              }
+            };
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
+            final object1 = ObjectWithRealmValue(ObjectId(),
+              differentiator: differentiator,
+              oneAny: RealmValue.from(mapWithMap));
+            realm1.write(() => realm1.add(object1));
+
+            await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+            // Check object values in second realm.
+            final object2 = realm2.all<ObjectWithRealmValue>().single;
+            expectMatches(object2.oneAny, mapWithMap);
+
+            // Remove nested map and list in second realm.
+            realm2.write(() {
+              // TODO: Committing these removals will cause termination:
+              //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
+              object2.oneAny.asMap()['1_map']!.asMap().remove('2_map');
+              object2.oneAny.asMap()['1_map']!.asMap().remove('2_list');
+            });
+
+            await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+            // Check list in first realm.
+            expect(object1.oneAny.asMap()['1_map']!.asMap().isEmpty, true);
           }, skip: true);
         }
       });
