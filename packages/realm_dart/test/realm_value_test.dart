@@ -1415,6 +1415,7 @@ void main() {
             ]);
           });
 
+          // Skipped until this is fixed: https://github.com/realm/realm-core/issues/7573
           baasTest('RealmValue list can remove nested collections', (appConfig) async {
             final differentiator = ObjectId();
             final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
@@ -1431,7 +1432,6 @@ void main() {
             final object1 = ObjectWithRealmValue(ObjectId(),
               differentiator: differentiator,
               oneAny: RealmValue.from(listWithMap));
-              // oneAny: RealmValue.from(listWithMap));
             realm1.write(() => realm1.add(object1));
 
             await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
@@ -1444,16 +1444,17 @@ void main() {
             realm2.write(() {
               // TODO: Committing these removals will cause termination:
               //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
-              object2.oneAny.asList()[0].asMap().remove('1_list');
               object2.oneAny.asList()[0].asMap().remove('1_map');
+              object2.oneAny.asList()[0].asMap().remove('1_list');
             });
 
             await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
-            // Check list in first realm.
+            // Check object in first realm.
             expect(object1.oneAny.asList()[0].asMap().isEmpty, true);
           }, skip: true);
 
+          // Skipped until this is fixed: https://github.com/realm/realm-core/issues/7573
           baasTest('RealmValue map can remove nested collections', (appConfig) async {
             final differentiator = ObjectId();
             final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
@@ -1488,7 +1489,7 @@ void main() {
 
             await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
 
-            // Check list in first realm.
+            // Check object in first realm.
             expect(object1.oneAny.asMap()['1_map']!.asMap().isEmpty, true);
           }, skip: true);
         }
