@@ -8,24 +8,19 @@ enum TargetOsType {
   ios,
   linux,
   macos,
-  windows,
+  windows;
+
+  bool get isDesktop => [TargetOsType.linux, TargetOsType.macos, TargetOsType.windows].contains(this);
 }
 
 // Cannot use Dart 2.17 enhanced enums, due to an issue with build_cli :-/
 enum Flavor {
   flutter,
-  dart,
+  dart;
 }
 
 extension FlavorEx on Flavor {
-  String get packageName {
-    switch (this) {
-      case Flavor.dart:
-        return 'realm_dart';
-      case Flavor.flutter:
-        return 'realm';
-    }
-  }
+  String get packageName => switch (this) { Flavor.dart => 'realm_dart', Flavor.flutter => 'realm' };
 }
 
 extension StringEx on String {

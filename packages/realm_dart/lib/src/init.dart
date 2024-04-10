@@ -4,45 +4,61 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as p;
 
 import '../realm.dart' as realm show isFlutterPlatform;
-import '../realm.dart' show realmBinaryName;
 import 'cli/common/target_os_type.dart';
 import 'cli/metrics/metrics_command.dart';
 import 'cli/metrics/options.dart';
 import 'realm_class.dart';
 
+const realmBinaryName = 'realm_dart';
+final targetOsType = Platform.operatingSystem.asTargetOsType ?? _platformNotSupported();
+final nativeLibraryName = _getLibName(realmBinaryName);
+
 DynamicLibrary? _library;
 
-String _getPluginPath(String libName) {
-  if (Platform.isAndroid) {
-    return libName;
-  }
-  if (Platform.isLinux) {
-    return '$_exeDirName/lib/$libName';
-  }
-  if (Platform.isMacOS) {
-    return '$_exeDirName/../Frameworks/$libName';
-  }
-  if (Platform.isIOS) {
-    return '$_exeDirName/Frameworks/realm_dart.framework/$libName';
-  }
-  if (Platform.isWindows) {
-    return libName;
+String _getLibPathFlutter() {
+  final root = _exeDirName;
+  return switch (targetOsType) {
+    TargetOsType.android => nativeLibraryName,
+    TargetOsType.ios => p.join(root, 'Frameworks', 'realm_dart.framework', nativeLibraryName),
+    TargetOsType.linux => p.join(root, 'lib', nativeLibraryName),
+    TargetOsType.macos => p.join(root, 'Frameworks', nativeLibraryName),
+    TargetOsType.windows => nativeLibraryName,
+  };
+}
+
+String _getLibPathFlutterTest(Package realmPackage) {
+  assert(realmPackage.name == 'realm');
+  final root = p.join(realmPackage.root.path, targetOsType.name);
+  return switch (targetOsType) {
+    TargetOsType.linux => p.join(root, 'binary', 'linux', nativeLibraryName),
+    TargetOsType.macos => p.join(root, nativeLibraryName),
+    TargetOsType.windows => p.join(root, 'binary', 'windows', nativeLibraryName),
+    _ => _platformNotSupported(),
+  };
+}
+
+String _getLibPathDart(Package realmDartPackage) {
+  assert(realmDartPackage.name == 'realm_dart');
+  final root = p.join(realmDartPackage.root.path, 'binary', targetOsType.name);
+  if (targetOsType.isDesktop) {
+    return p.join(root, nativeLibraryName);
   }
   _platformNotSupported();
 }
 
 bool get isFlutterPlatform => realm.isFlutterPlatform;
 
-String _getLibName(String stem) {
-  if (Platform.isMacOS) return 'lib$stem.dylib';
-  if (Platform.isIOS) return stem;
-  if (Platform.isWindows) return '$stem.dll';
-  if (Platform.isAndroid || Platform.isLinux) return 'lib$stem.so';
-  _platformNotSupported(); // we don't support Fuchsia yet
-}
+String _getLibName(String stem) => switch (targetOsType) {
+      TargetOsType.android => 'lib$stem.so',
+      TargetOsType.ios => stem, // xcframeworks are a directory
+      TargetOsType.linux => 'lib$stem.so',
+      TargetOsType.macos => 'lib$stem.dylib',
+      TargetOsType.windows => '$stem.dll',
+    };
 
 String? _getNearestProjectRoot(String dir) {
   while (dir != p.dirname(dir)) {
@@ -52,17 +68,24 @@ String? _getNearestProjectRoot(String dir) {
   return null;
 }
 
+File _getPackageConfigJson(Directory d) {
+  final root = _getNearestProjectRoot(d.path);
+  if (root != null) {
+    final file = File(p.join(root, '.dart_tool', 'package_config.json'));
+    if (file.existsSync()) return file;
+  }
+  throw StateError('Could not find package_config.json');
+}
+
 Never _platformNotSupported() => throw UnsupportedError('Platform ${Platform.operatingSystem} is not supported');
 
 String get _exeDirName => p.dirname(Platform.resolvedExecutable);
 
 DynamicLibrary _openRealmLib() {
-  final libName = _getLibName(realmBinaryName);
-
   DynamicLibrary? tryOpen(String path) {
     try {
       return DynamicLibrary.open(path);
-    } on Error catch (_) {
+    } catch (_) {
       return null;
     }
   }
@@ -70,7 +93,7 @@ DynamicLibrary _openRealmLib() {
   Never throwError(Iterable<String> candidatePaths) {
     throw RealmError(
       [
-        'Could not open $libName. Tried:',
+        'Could not open $nativeLibraryName. Tried:',
         candidatePaths.map((p) => '- "$p"').join('\n'),
         isFlutterPlatform //
             ? 'Hint: Did you forget to add a dependency on the realm package?'
@@ -79,23 +102,36 @@ DynamicLibrary _openRealmLib() {
     );
   }
 
-  if (isFlutterPlatform) {
-    final path = _getPluginPath(libName);
-    return tryOpen(path) ?? throwError([path]);
-  } else {
-    final root = _getNearestProjectRoot(Platform.script.path) ?? _getNearestProjectRoot(p.current);
-    final candidatePaths = [
-      libName, // just ask OS..
-      p.join(_exeDirName, libName), // try finding it next to the executable
-      if (root != null) p.join(root, 'binary', Platform.operatingSystem, libName), // try finding it relative to project
-    ];
-    DynamicLibrary? lib;
-    for (final path in candidatePaths) {
-      lib = tryOpen(path);
-      if (lib != null) return lib;
-    }
-    throwError(candidatePaths);
+  DynamicLibrary open(String path) => tryOpen(path) ?? throwError([path]);
+
+  final isFlutterTest = Platform.environment.containsKey('FLUTTER_TEST');
+  if (isFlutterPlatform && !isFlutterTest) {
+    return open(_getLibPathFlutter());
   }
+
+  // NOTE: This needs to be sync, so we cannot use findPackageConfig
+  final packageConfigFile = _getPackageConfigJson(Directory.current);
+  final packageConfig = PackageConfig.parseBytes(packageConfigFile.readAsBytesSync(), packageConfigFile.uri);
+
+  if (isFlutterTest) {
+    final realmPackage = packageConfig['realm']!;
+    return open(_getLibPathFlutterTest(realmPackage));
+  }
+
+  final realmDartPackage = packageConfig['realm_dart']!;
+
+  // else plain dart
+  final candidatePaths = [
+    nativeLibraryName, // just ask OS..
+    p.join(_exeDirName, nativeLibraryName), // try finding it next to the executable
+    _getLibPathDart(realmDartPackage)
+  ];
+  DynamicLibrary? lib;
+  for (final path in candidatePaths) {
+    lib = tryOpen(path);
+    if (lib != null) return lib;
+  }
+  throwError(candidatePaths);
 }
 
 /// @nodoc
