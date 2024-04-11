@@ -1938,22 +1938,16 @@ void main() {
       expect(object1.dictOfAny['key']!.asMap()['key1']!.value, object2.dictOfAny['key']!.asMap()['key1']!.value);
       expect(object1.dictOfAny['key']!.asMap()['key1']!.value, 'updated str->str (key1) - realm2');
 
-      // TODO: Do we expect `key2` to have been removed?
-      // Removal of key2 in realm1 should have won over update in realm2.
-      // expect(object1.oneAny.asMap().containsKey('key2'), false);
-      // expect(object1.oneAny.asMap()['key2'], isNull);
-      // expect(object2.oneAny.asMap().containsKey('key2'), false);
-      // expect(object2.oneAny.asMap()['key2'], isNull);
+      // Update at key2 in realm2 (last writer) should have won over "removal" in realm1
+      // due to OT acting on two updates (the removal being a `KeyErased` update).
+      expect(object1.oneAny.asMap()['key2']!.value, object2.oneAny.asMap()['key2']!.value);
+      expect(object1.oneAny.asMap()['key2']!.value, 'updated str->str (key2) - realm2');
 
-      // expect(object1.manyAny[0].asMap().containsKey('key2'), false);
-      // expect(object1.manyAny[0].asMap()['key2'], isNull);
-      // expect(object2.manyAny[0].asMap().containsKey('key2'), false);
-      // expect(object2.manyAny[0].asMap()['key2'], isNull);
+      expect(object1.manyAny[0].asMap()['key2']!.value, object2.manyAny[0].asMap()['key2']!.value);
+      expect(object1.manyAny[0].asMap()['key2']!.value, 'updated str->str (key2) - realm2');
 
-      // expect(object1.dictOfAny['key']!.asMap().containsKey('key2'), false);
-      // expect(object1.dictOfAny['key']!.asMap()['key2'], isNull);
-      // expect(object2.dictOfAny['key']!.asMap().containsKey('key2'), false);
-      // expect(object2.dictOfAny['key']!.asMap()['key2'], isNull);
+      expect(object1.dictOfAny['key']!.asMap()['key2']!.value, object2.dictOfAny['key']!.asMap()['key2']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key2']!.value, 'updated str->str (key2) - realm2');
 
       // Adding key3 in realm2 should have resolved to the same thing.
       expect(object1.oneAny.asMap()['key3']!.value, object2.oneAny.asMap()['key3']!.value);
