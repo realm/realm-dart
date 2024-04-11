@@ -1903,6 +1903,13 @@ class _RealmCore {
 
       _realmLib.realm_app_config_set_bundle_id(handle._pointer, getBundleId().toCharPtr(arena));
 
+      _realmLib.realm_app_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toCharPtr(arena));
+      _realmLib.realm_app_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
+      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
+      if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
+        _realmLib.realm_app_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
+      }
+
       return handle;
     });
   }
@@ -2109,20 +2116,6 @@ class _RealmCore {
     });
   }
 
-  SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
-    return using((arena) {
-      final handle = SyncClientConfigHandle._(_realmLib.realm_sync_client_config_new());
-
-      _realmLib.realm_sync_client_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toCharPtr(arena));
-      _realmLib.realm_sync_client_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-      _realmLib.realm_sync_client_config_set_connect_timeout(handle._pointer, configuration.maxConnectionTimeout.inMilliseconds);
-      if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
-        _realmLib.realm_sync_client_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
-      }
-      return handle;
-    });
-  }
-
   // TODO:
   // We need a pure Dart equivalent of:
   // `ServiceBinding.rootIsolateToken != null`
@@ -2139,8 +2132,8 @@ class _RealmCore {
     }
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
-    final syncClientConfigHandle = _createSyncClientConfig(configuration);
-    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create_cached(appConfigHandle._pointer, syncClientConfigHandle._pointer));
+    final realmAppPtr = _realmLib.invokeGetPointer(() => _realmLib.realm_app_create_cached(appConfigHandle._pointer));
+
     return AppHandle._(realmAppPtr);
   }
 
@@ -2408,7 +2401,6 @@ class _RealmCore {
           () => _realmLib.realm_app_switch_user(
                 application.handle._pointer,
                 user.handle._pointer,
-                nullptr,
               ),
           "Switch user failed");
     });
@@ -3325,8 +3317,8 @@ class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_t
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
-class UserNotificationTokenHandle extends HandleBase<realm_sync_user_subscription_token> {
-  UserNotificationTokenHandle._(Pointer<realm_sync_user_subscription_token> pointer) : super(pointer, 32);
+class UserNotificationTokenHandle extends HandleBase<realm_app_user_subscription_token> {
+  UserNotificationTokenHandle._(Pointer<realm_app_user_subscription_token> pointer) : super(pointer, 32);
 }
 
 class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {

@@ -27,6 +27,7 @@ comments:
 compiler-opts:
   - '-DRLM_NO_ANON_UNIONS'
   - '-DFFI_GEN'
+  - '-DREALM_APP_SERVICES'
   - '-I src/realm-core/src'
   - '-I src/dart-dl'
 sort: true
