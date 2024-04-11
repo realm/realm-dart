@@ -41,7 +41,7 @@ class User {
 
   /// Gets an [ApiKeyClient] instance that exposes functionality for managing
   /// user API keys.
-  /// [API Keys Authentication Docs](https://docs.mongodb.com/realm/authentication/api-key/)
+  /// [API Keys Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/api-key/#api-key-authentication)
   ApiKeyClient get apiKeys {
     _ensureLoggedIn('access API keys');
 
@@ -50,7 +50,7 @@ class User {
 
   /// Gets a [FunctionsClient] instance that exposes functionality for calling remote Atlas Functions.
   /// A [FunctionsClient] instance scoped to this [User].
-  /// [Atlas Functions Docs](https://docs.mongodb.com/realm/functions/)
+  /// [Atlas Functions Docs](hhttps://www.mongodb.com/docs/atlas/app-services/functions/#atlas-functions)
   FunctionsClient get functions {
     _ensureLoggedIn('access API keys');
 
