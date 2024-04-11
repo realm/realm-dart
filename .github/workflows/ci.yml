@@ -139,7 +139,7 @@ jobs:
     secrets: inherit
     with:
       runner: macos-14
-      architecture: arm
+      arch: arm64
       differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-dart-macos-arm:
