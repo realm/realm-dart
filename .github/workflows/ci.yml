@@ -237,6 +237,35 @@ jobs:
     with:
       differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
+  deploy-cluster-flutter-macos-arm:
+    name: Deploy Cluster for Flutter MacOS Arm
+    uses: ./.github/workflows/deploy-baas.yml
+    secrets: inherit
+    with:
+      differentiator: fma${{ github.run_id }}${{ github.run_attempt }}
+
+  flutter-tests-macos-arm:
+    name: Flutter Tests MacOS Arm
+    uses: ./.github/workflows/flutter-desktop-tests.yml
+    needs:
+      - build-macos
+      - deploy-cluster-flutter-macos-arm
+    secrets: inherit
+    with:
+      runner: macos-14
+      arch: arm64
+      differentiator: fma${{ github.run_id }}${{ github.run_attempt }}
+
+  cleanup-cluster-flutter-macos-arm:
+    name: Cleanup Cluster for Flutter macOS Arm
+    uses: ./.github/workflows/terminate-baas.yml
+    if: always()
+    needs:
+      - flutter-tests-macos-arm
+    secrets: inherit
+    with:
+      differentiator: fma${{ github.run_id }}${{ github.run_attempt }}
+
   deploy-cluster-flutter-linux:
     name: Deploy Cluster for Flutter Linux
     uses: ./.github/workflows/deploy-baas.yml

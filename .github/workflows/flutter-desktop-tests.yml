@@ -3,21 +3,17 @@ name: Flutter desktop tests
 on:
   workflow_call:
     inputs:
-      os:
-        description: OS to execute on.
-        required: true
-        type: string
       runner:
         description: GitHub runner image to execute on.
         required: true
         type: string
-      architecture:
-        description: Architecture to execute on.
-        required: false
-        type: string
       differentiator:
         description: Differentiator for the BaaS container.
         required: true
+        type: string
+      arch:
+        description: Architecture to execute on.
+        default: x64
         type: string
 
 env:
@@ -26,7 +22,7 @@ env:
 jobs:
   flutter-tests:
     runs-on: ${{ inputs.runner }}
-    name: Flutter tests on ${{inputs.os }}-${{ inputs.architecture }}
+    name: Flutter tests on ${{ inputs.runner }}-${{ inputs.arch }}
     timeout-minutes: 45
     env:
       BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
@@ -42,8 +38,18 @@ jobs:
         with:
           submodules: false
 
+      - name: Check runner.arch
+        if: ${{ inputs.arch != runner.arch }}
+        run: false # fail if arch is not as expected
+        shell: bash
+
+      - name: Set RUNNER_OS
+        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯ 
+        run: echo ${{ runner.os }} | awk '{print "RUNNER_OS=" tolower($0)}' >> $GITHUB_ENV
+        shell: bash
+
       - name: Setup GTK & Ninja on Linux
-        if: ${{ inputs.os == 'linux' }}
+        if: ${{ runner.os == 'linux' }}
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libgtk-3-dev xvfb ninja-build
@@ -51,17 +57,14 @@ jobs:
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
         with:
-          name: librealm-${{ inputs.os }}
-          path: packages/realm_dart/binary/${{ inputs.os }}
+          name: librealm-${{ env.RUNNER_OS }}
+          path: packages/realm_dart/binary/${{ env.RUNNER_OS }}
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
-
-      - name: Enable Flutter Desktop support
-        run: flutter config --enable-${{ inputs.os }}-desktop
+          architecture: ${{ inputs.arch }}
 
       - name: Setup Melos
         run: |
@@ -72,16 +75,18 @@ jobs:
         run: dart pub get
 
       - name: Bump ulimit
-        run: ulimit -n 10240
-        if: ${{ contains(inputs.os, 'macos') }}
+        run: |
+          ulimit -n
+          ulimit -n 10240
+        if: ${{ contains(runner.os, 'macos') }}
 
       - name: Run tests
         run: |
-          ${{ inputs.os == 'linux' && 'xvfb-run' || '' }} \
+          ${{ runner.os == 'linux' && 'xvfb-run' || '' }} \
           flutter test integration_test/all_tests.dart \
             --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
             --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
-            --device-id=${{ inputs.os }} \
+            --device-id=${{ env.RUNNER_OS }} \
             --file-reporter=json:test-results.json \
             --suppress-analytics
         shell: bash
@@ -91,7 +96,7 @@ jobs:
         uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
-          name: Test Results Flutter ${{ inputs.os }} ${{ inputs.architecture }}
+          name: Test Results Flutter ${{ runner.os }} ${{ runner.arch }}
           path: test-results.json
           reporter: dart-json
           only-summary: true
