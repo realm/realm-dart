@@ -2904,7 +2904,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   @override
-  void _releaseCore() {
+  void releaseCore() {
     final keys = _children.keys.toList();
 
     for (final key in keys) {
