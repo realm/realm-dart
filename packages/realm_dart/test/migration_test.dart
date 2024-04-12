@@ -172,7 +172,7 @@ void main() {
 
     expect(students[2].name, 'Peter');
     expect(students[2].number, 2);
-  }, skip: 'TMP: Broken after handle refactoring');
+  });
 
   test('Migration can find old object in new realm', () {
     final v1Config = Configuration.local([StudentV1.schema], schemaVersion: 1);
@@ -436,7 +436,7 @@ void main() {
 
     expect(() => oldPlayers.handle.released, throws<RealmClosedError>());
     expect(() => newPlayers.handle.released, throws<RealmClosedError>());
-  }, skip: 'TMP: Broken after handle refactoring');
+  });
 
   test('LocalConfiguration.shouldDeleteIfMigrationNeeded deletes Realm', () {
     final config = Configuration.local([PersonIntName.schema]);

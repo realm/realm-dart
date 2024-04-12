@@ -367,7 +367,7 @@ void main() {
 
     final peopleAgain = realm.all<Person>();
     expect(peopleAgain.length, 1);
-  }, skip: 'TMP: Broken after handle refactoring');
+  });
 
   test('Configuration.shouldCompact can return false', () {
     var invoked = false;
