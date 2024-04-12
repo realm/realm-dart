@@ -45,6 +45,7 @@ part 'convert.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'mutable_subscription_set_handle.dart';
+part 'realm_handle.dart';
 part 'rooted_handle.dart';
 part 'subscription_handle.dart';
 part 'subscription_set_handle.dart';
@@ -72,6 +73,8 @@ final _pluginLib = () {
 
 _RealmCore realmCore = _RealmCore();
 
+const encryptionKeySize = 64;
+
 // All access to Realm Core functionality goes through this class
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -82,7 +85,6 @@ class _RealmCore {
   // ignore: unused_field, constant_identifier_names
   static const int RLM_INVALID_OBJECT_KEY = -1;
 
-  final encryptionKeySize = 64;
   // ignore: unused_field
   static late final _RealmCore _instance;
 
@@ -109,7 +111,7 @@ class _RealmCore {
   //   realmLib.realm_dart_gc();
   // }
 
-  SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
+  static SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
 
@@ -173,7 +175,7 @@ class _RealmCore {
     });
   }
 
-  ConfigHandle _createConfig(Configuration config) {
+  static ConfigHandle _createConfig(Configuration config) {
     return using((Arena arena) {
       final configPtr = realmLib.realm_config_new();
       final configHandle = ConfigHandle._(configPtr);
@@ -2791,13 +2793,7 @@ class _RealmCore {
     });
   }
 
-  bool compact(Realm realm) {
-    return using((arena) {
-      final out_did_compact = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_compact(realm.handle.pointer, out_did_compact));
-      return out_did_compact.value;
-    });
-  }
+  bool compact(Realm realm) => realm.handle.compact();
 
   bool immediatelyRunFileActions(App app, String realmPath) {
     return using((arena) {
@@ -2877,42 +2873,6 @@ class ConfigHandle extends HandleBase<realm_config> {
   ConfigHandle._(Pointer<realm_config> pointer) : super(pointer, 512);
 }
 
-class RealmHandle extends HandleBase<shared_realm> {
-  int _counter = 0;
-
-  final Map<int, WeakReference<RootedHandleBase>> _children = {};
-
-  RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
-
-  RealmHandle._unowned(super.pointer) : super.unowned();
-
-  int addChild(RootedHandleBase child) {
-    final id = _counter++;
-    _children[id] = WeakReference(child);
-    rootedHandleFinalizer.attach(this, FinalizationToken(this, id), detach: this);
-    return id;
-  }
-
-  void removeChild(int id) {
-    final child = _children.remove(id);
-    if (child != null) {
-      final target = child.target;
-      if (target != null) {
-        rootedHandleFinalizer.detach(target);
-      }
-    }
-  }
-
-  @override
-  void releaseCore() {
-    final keys = _children.keys.toList();
-
-    for (final key in keys) {
-      _children[key]?.target?.release();
-    }
-  }
-}
-
 class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
@@ -2920,37 +2880,19 @@ class SchedulerHandle extends HandleBase<realm_scheduler> {
 class RealmObjectHandle extends RootedHandleBase<realm_object> {
   RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
 
-  factory RealmObjectHandle.createWithPrimaryKey(RealmHandle realm, int classKey, Object? primaryKey) {
-    return using((Arena arena) {
-      final realm_value = _toRealmValue(primaryKey, arena);
-      final realmPtr = invokeGetPointer(() => realmLib.realm_object_create_with_primary_key(realm.pointer, classKey, realm_value.ref));
-      return RealmObjectHandle._(realmPtr, realm);
-    });
+  factory RealmObjectHandle.createWithPrimaryKey(RealmHandle realm, int classKey, Object? primaryKey) => realm.createWithPrimaryKey(classKey, primaryKey);
+
+  factory RealmObjectHandle.create(RealmHandle realm, int classKey) => realm.create(classKey);
+
+  factory RealmObjectHandle.createEmbedded(RealmObjectHandle parent, int propertyKey) => parent.createEmbedded(propertyKey);
+
+  RealmObjectHandle createEmbedded(int propertyKey) {
+    final objectPtr = invokeGetPointer(() => realmLib.realm_set_embedded(pointer, propertyKey));
+    return RealmObjectHandle._(objectPtr, _root);
   }
 
-  factory RealmObjectHandle.create(RealmHandle realm, int classKey) {
-    final realmPtr = invokeGetPointer(() => realmLib.realm_object_create(realm.pointer, classKey));
-    return RealmObjectHandle._(realmPtr, realm);
-  }
-
-  factory RealmObjectHandle.createEmbedded(RealmObjectHandle parent, int propertyKey) {
-    final objectPtr = invokeGetPointer(() => realmLib.realm_set_embedded(parent.pointer, propertyKey));
-    return RealmObjectHandle._(objectPtr, parent._root);
-  }
-
-  factory RealmObjectHandle.getOrCreateWithPrimaryKey(RealmHandle realm, int classKey, Object? primaryKey) {
-    return using((Arena arena) {
-      final realm_value = _toRealmValue(primaryKey, arena);
-      final didCreate = arena<Bool>();
-      final realmPtr = invokeGetPointer(() => realmLib.realm_object_get_or_create_with_primary_key(
-            realm.pointer,
-            classKey,
-            realm_value.ref,
-            didCreate,
-          ));
-      return RealmObjectHandle._(realmPtr, realm);
-    });
-  }
+  factory RealmObjectHandle.getOrCreateWithPrimaryKey(RealmHandle realm, int classKey, Object? primaryKey) =>
+      realm.getOrCreateWithPrimaryKey(classKey, primaryKey);
 }
 
 class _RealmLinkHandle {

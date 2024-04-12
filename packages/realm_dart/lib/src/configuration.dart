@@ -225,8 +225,8 @@ abstract class Configuration implements Finalizable {
       return;
     }
 
-    if (key.length != realmCore.encryptionKeySize) {
-      throw RealmException("Wrong encryption key size (must be ${realmCore.encryptionKeySize}, but was ${key.length})");
+    if (key.length != encryptionKeySize) {
+      throw RealmException("Wrong encryption key size (must be $encryptionKeySize, but was ${key.length})");
     }
 
     int notAByteElement = key.firstWhere((e) => e > 255, orElse: () => -1);

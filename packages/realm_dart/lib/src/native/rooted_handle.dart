@@ -1,3 +1,6 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 part of 'realm_core.dart';
 
 class FinalizationToken {
@@ -37,3 +40,4 @@ abstract class RootedHandleBase<T extends NativeType> extends HandleBase<T> {
 abstract class CollectionHandleBase<T extends NativeType> extends RootedHandleBase<T> {
   CollectionHandleBase(super.root, super.pointer, super.size);
 }
+
