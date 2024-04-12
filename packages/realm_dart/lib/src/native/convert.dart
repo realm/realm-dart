@@ -3,6 +3,11 @@
 
 part of 'realm_core.dart';
 
+extension PointerEx<T extends NativeType> on Pointer<T> {
+  Pointer<T>? get nullPtrAsNull => this == nullptr ? null : this;
+  U? convert<U>(U Function(Pointer<T>) convertor) => nullPtrAsNull.convert(convertor);
+}
+
 extension HandleBaseEx<T extends HandleBase> on T {
   T? get nullPtrAsNull => pointer == nullptr ? null : this;
   U? convert<U>(U Function(T) convertor) => nullPtrAsNull.convert(convertor);
