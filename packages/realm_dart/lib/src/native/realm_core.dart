@@ -198,7 +198,7 @@ class _RealmCore {
         (FlexibleSyncConfiguration fsc) => fsc.schemaVersion,
         _ => 0,
       };
-      _realmLib.realm_config_set_schema_version(configHandle._pointer, schemaVersion);
+      realmLib.realm_config_set_schema_version(configHandle.pointer, schemaVersion);
       if (config.maxNumberOfActiveVersions != null) {
         realmLib.realm_config_set_max_number_of_active_versions(configHandle.pointer, config.maxNumberOfActiveVersions!);
       }
@@ -1908,7 +1908,7 @@ class _RealmCore {
   }
 
   String getDefaultBaseUrl() {
-    return _realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
+    return realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
   }
 
   AppHandle? getApp(String id, String? baseUrl) {
