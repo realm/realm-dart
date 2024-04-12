@@ -16,7 +16,7 @@ This repository holds the source code for the Realm SDK for Flutter™ and Dart�
 * **Simple:** Realm’s object-oriented data model is simple to learn, doesn’t need an ORM, and the [API](https://pub.dev/documentation/realm/latest/) lets you write less code to get apps up & running in minutes.
 * **Modern:** Realm supports latest Dart and Flutter versions and is built with sound null-safety.
 * **Fast:** Realm is faster than even raw SQLite on common operations while maintaining an extremely rich feature set.
-* **[MongoDB Atlas Device Sync](https://www.mongodb.com/atlas/app-services/device-sync)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. Get started for free with [a template application](https://github.com/mongodb/template-app-dart-flutter-todo) and [create the cloud backend](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github).
+* **[MongoDB Atlas Device Sync](https://www.mongodb.com/docs/atlas/app-services/sync/)**: Makes it simple to keep data in sync across users, devices, and your backend in real-time. Get started for free with [a template application](https://github.com/mongodb/template-app-dart-flutter-todo) and [create the cloud backend](https://mongodb.com/realm/register?utm_medium=github_atlas_CTA&utm_source=realm_dart_github).
 
 ## Getting Started
 
@@ -90,7 +90,7 @@ For API documentation go to
 
 Use [realm](https://pub.dev/packages/realm) package for Flutter and [realm_dart](https://pub.dev/packages/realm_dart) package for Dart applications.
 
-For complete documentation of the SDKs, go to the [Realm SDK documentation](https://docs.mongodb.com/realm/sdk/flutter/).
+For complete documentation of the SDKs, go to the [Realm SDK documentation](https://www.mongodb.com/docs/atlas/device-sdks/sdk/flutter/).
 
 If you are using the Realm SDK for the first time, refer to the [Quick Start documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/).
 
@@ -352,7 +352,7 @@ This section is about how to use the Realm with [Device Sync](https://www.mongod
 1. Add a sync subscription and write data.
 
    Only data matching the query in the subscription will be synced to the server and only data matching the subscription will be downloaded to the local device realm file.
-   
+
    ``` dart
    realm.subscriptions.update((mutableSubscriptions) {
    mutableSubscriptions.add(realm.query<Task>(r'status == $0 AND progressMinutes == $1', ["completed", 100]));
