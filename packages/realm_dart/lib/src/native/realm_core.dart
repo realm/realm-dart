@@ -393,11 +393,6 @@ class _RealmCore {
     });
   }
 
-  SchedulerHandle createScheduler(int isolateId, int sendPort) {
-    final schedulerPtr = realmLib.realm_dart_create_scheduler(isolateId, sendPort);
-    return SchedulerHandle._(schedulerPtr);
-  }
-
   void invokeScheduler(int workQueue) {
     final queuePointer = Pointer<realm_work_queue>.fromAddress(workQueue);
     realmLib.realm_scheduler_perform_work(queuePointer);
@@ -1813,10 +1808,6 @@ class _RealmCore {
       return [for (int i = 0; i < count; i++) out_values[i].cast<Utf8>().toDartString()];
     });
   }
-}
-
-class SchedulerHandle extends HandleBase<realm_scheduler> {
-  SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
 
 class _RealmLinkHandle {

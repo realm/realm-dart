@@ -8,6 +8,7 @@ import 'package:realm_dart/src/logging.dart';
 
 import 'native/realm_core.dart';
 
+import 'native/scheduler_handle.dart';
 import 'realm_class.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
@@ -34,7 +35,7 @@ class Scheduler {
     // these.
     _receivePort.handler = Zone.current.bindUnaryCallbackGuarded(_handle);
     final sendPort = _receivePort.sendPort;
-    handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
+    handle = SchedulerHandle(Isolate.current.hashCode, sendPort.nativePort);
   }
 
   void _handle(dynamic message) {
