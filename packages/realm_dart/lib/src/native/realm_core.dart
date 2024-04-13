@@ -445,11 +445,6 @@ class _RealmCore {
     });
   }
 
-  ObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) =>
-      realm.handle.getOrCreateWithPrimaryKey(classKey, primaryKey);
-
-  ObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) => realm.handle.createWithPrimaryKey(classKey, primaryKey);
-
   Object? getProperty(RealmObjectBase object, int propertyKey) {
     return using((Arena arena) {
       final realm_value = arena<realm_value_t>();
@@ -478,39 +473,6 @@ class _RealmCore {
   // For debugging
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
-
-  ObjectHandle? find(Realm realm, int classKey, Object? primaryKey) {
-    return using((Arena arena) {
-      final realm_value = _toRealmValue(primaryKey, arena);
-      final pointer = realmLib.realm_object_find_with_primary_key(realm.handle.pointer, classKey, realm_value.ref, nullptr);
-      if (pointer == nullptr) {
-        return null;
-      }
-
-      return ObjectHandle._(pointer, realm.handle);
-    });
-  }
-
-  ObjectHandle? findExisting(Realm realm, int classKey, ObjectHandle other) {
-    final key = realmLib.realm_object_get_key(other.pointer);
-    final pointer = invokeGetPointer(() => realmLib.realm_get_object(realm.handle.pointer, classKey, key));
-    return ObjectHandle._(pointer, realm.handle);
-  }
-
-  void renameProperty(Realm realm, String objectType, String oldName, String newName, SchemaHandle schema) {
-    using((Arena arena) {
-      invokeGetBool(() => realmLib.realm_schema_rename_property(
-          realm.handle.pointer, schema.pointer, objectType.toCharPtr(arena), oldName.toCharPtr(arena), newName.toCharPtr(arena)));
-    });
-  }
-
-  bool deleteType(Realm realm, String objectType) {
-    return using((Arena arena) {
-      final deletedPtr = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_remove_table(realm.handle.pointer, objectType.toCharPtr(arena), deletedPtr));
-      return deletedPtr.value;
-    });
-  }
 
   void deleteRealmObject(RealmObjectBase object) {
     invokeGetBool(() => realmLib.realm_object_delete(object.handle.pointer));

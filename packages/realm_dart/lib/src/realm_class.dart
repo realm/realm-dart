@@ -127,7 +127,7 @@ class Realm implements Finalizable {
 
   /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
   /// and will not update when writes are made to the database.
-  late final bool isFrozen = this.handle.isFrozen;
+  late final bool isFrozen = handle.isFrozen;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
@@ -287,12 +287,12 @@ class Realm implements Finalizable {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
-      return this.handle.create(key);
+      return handle.create(key);
     }
     if (update) {
-      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
+      return _handle.getOrCreateWithPrimaryKey(key, object.accessor.get(object, primaryKey));
     }
-    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
+    return _handle.createWithPrimaryKey(key, object.accessor.get(object, primaryKey));
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
@@ -345,7 +345,7 @@ class Realm implements Finalizable {
   }
 
   /// Checks whether the `Realm` is in write transaction.
-  bool get isInTransaction => this.handle.isWritable;
+  bool get isInTransaction => handle.isWritable;
 
   /// Synchronously calls the provided callback inside a write transaction.
   ///
@@ -366,14 +366,14 @@ class Realm implements Finalizable {
 
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
-    this.handle.beginWrite();
+    handle.beginWrite();
     return Transaction._(this);
   }
 
   /// Asynchronously begins a write transaction for this [Realm]. You can supply a
   /// [CancellationToken] to cancel the operation.
   Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
-    await this.handle.beginWriteAsync(cancellationToken);
+    await handle.beginWriteAsync(cancellationToken);
     return Transaction._(this);
   }
 
@@ -404,18 +404,18 @@ class Realm implements Finalizable {
     }
 
     _schemaCallbackHandle?.release();
-    this.handle.close();
+    handle.close();
     handle.release();
   }
 
   /// Checks whether the `Realm` is closed.
-  bool get isClosed => _handle.released || this.handle.isClosed;
+  bool get isClosed => _handle.released || handle.isClosed;
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object? primaryKey) {
     final metadata = _metadata.getByType(T);
 
-    final handle = realmCore.find(this, metadata.classKey, primaryKey);
+    final handle = _handle.find(metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
     }
@@ -466,7 +466,7 @@ class Realm implements Finalizable {
       return this;
     }
 
-    return Realm._(config, this.handle.freeze());
+    return Realm._(config, handle.freeze());
   }
 
   WeakReference<SubscriptionSet>? _subscriptions;
@@ -480,7 +480,7 @@ class Realm implements Finalizable {
     var result = _subscriptions?.target;
 
     if (result == null || result.handle.released) {
-      result = SubscriptionSetInternal.create(this, this.handle.subscriptions);
+      result = SubscriptionSetInternal.create(this, handle.subscriptions);
       result.handle.refresh();
       _subscriptions = WeakReference(result);
     }
@@ -500,7 +500,7 @@ class Realm implements Finalizable {
     var result = _syncSession?.target;
 
     if (result == null || result.handle.released) {
-      result = SessionInternal.create(this.handle.getSession());
+      result = SessionInternal.create(handle.getSession());
       _syncSession = WeakReference(result);
     }
 
@@ -583,7 +583,7 @@ class Realm implements Finalizable {
       throw RealmError("Copying a Realm is not allowed within a write transaction or during migration.");
     }
 
-    this.handle.writeCopy(config);
+    handle.writeCopy(config);
   }
 
   /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
@@ -593,7 +593,7 @@ class Realm implements Finalizable {
   /// Typically you don't need to call this method since Realm has auto-refresh built-in.
   /// Note that this may return `true` even if no data has actually changed.
   bool refresh() {
-    return this.handle.refresh();
+    return handle.refresh();
   }
 
   /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
@@ -601,7 +601,7 @@ class Realm implements Finalizable {
   ///
   /// Note that this may return `true` even if no data has actually changed.
   Future<bool> refreshAsync() async {
-    return this.handle.refreshAsync();
+    return handle.refreshAsync();
   }
 
   /// Allows listening for schema changes on this Realm. Only dynamic and synchronized
@@ -963,7 +963,7 @@ class DynamicRealm {
   RealmObject? find(String className, Object primaryKey) {
     final metadata = _realm._metadata.getByName(className);
 
-    final handle = realmCore.find(_realm, metadata.classKey, primaryKey);
+    final handle = _realm.handle.find(metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
     }

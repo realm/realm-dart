@@ -33,7 +33,7 @@ class Migration {
     }
 
     final metadata = newRealm.metadata.getByType(T);
-    final handle = realmCore.findExisting(newRealm, metadata.classKey, oldObject.handle);
+    final handle = newRealm.handle.findExisting(metadata.classKey, oldObject.handle);
     if (handle == null) {
       return null;
     }
@@ -45,7 +45,7 @@ class Migration {
 
   /// Renames a property during a migration.
   void renameProperty(String className, String oldPropertyName, String newPropertyName) {
-    realmCore.renameProperty(newRealm, className, oldPropertyName, newPropertyName, _schema);
+    newRealm.handle.renameProperty(className, oldPropertyName, newPropertyName, _schema);
   }
 
   /// Deletes a type during a migration. All the data associated with the type, as well as its schema,
@@ -55,7 +55,7 @@ class Migration {
   ///
   /// Returns `true` if the table was present in the old Realm and was deleted. Returns `false` if it didn't exist.
   bool deleteType(String className) {
-    return realmCore.deleteType(newRealm, className);
+    return newRealm.handle.deleteType(className);
   }
 }
 

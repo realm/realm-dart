@@ -245,4 +245,36 @@ class RealmHandle extends HandleBase<shared_realm> {
     final ptr = invokeGetPointer(() => realmLib.realm_object_find_all(pointer, classKey));
     return ResultsHandle._(ptr, this);
   }
+
+  ObjectHandle? find(int classKey, Object? primaryKey) {
+    return using((Arena arena) {
+      final realmValue = _toRealmValue(primaryKey, arena);
+      final ptr = realmLib.realm_object_find_with_primary_key(pointer, classKey, realmValue.ref, nullptr);
+      if (ptr == nullptr) {
+        return null;
+      }
+      return ObjectHandle._(ptr, this);
+    });
+  }
+
+  ObjectHandle? findExisting(int classKey, ObjectHandle other) {
+    final key = realmLib.realm_object_get_key(other.pointer);
+    final ptr = invokeGetPointer(() => realmLib.realm_get_object(pointer, classKey, key));
+    return ptr.convert((p) => ObjectHandle._(p, this));
+  }
+
+  void renameProperty(String objectType, String oldName, String newName, SchemaHandle schema) {
+    using((Arena arena) {
+      invokeGetBool(() =>
+          realmLib.realm_schema_rename_property(pointer, schema.pointer, objectType.toCharPtr(arena), oldName.toCharPtr(arena), newName.toCharPtr(arena)));
+    });
+  }
+
+  bool deleteType(String objectType) {
+    return using((Arena arena) {
+      final tableDeleted = arena<Bool>();
+      invokeGetBool(() => realmLib.realm_remove_table(pointer, objectType.toCharPtr(arena), tableDeleted));
+      return tableDeleted.value;
+    });
+  }
 }
