@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 ///
+library;
+
 import 'dart:io';
 import 'package:tar/tar.dart';
 import 'package:path/path.dart' as path;

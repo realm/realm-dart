@@ -123,38 +123,38 @@ class EmailPasswordAuthProvider implements Finalizable {
   ///
   /// Successful completion indicates that the user has been created on the server and can now be logged in with [Credentials.emailPassword()].
   Future<void> registerUser(String email, String password) async {
-    return realmCore.appEmailPasswordRegisterUser(app, email, password);
+    return app.handle.registerUser(email, password);
   }
 
   /// Confirms a user with the given token and token id. These are typically included in the registration email.
   Future<void> confirmUser(String token, String tokenId) {
-    return realmCore.emailPasswordConfirmUser(app, token, tokenId);
+    return app.handle.confirmUser(token, tokenId);
   }
 
   /// Resend the confirmation email for a user to the given email.
   Future<void> resendUserConfirmation(String email) {
-    return realmCore.emailPasswordResendUserConfirmation(app, email);
+    return app.handle.resendConfirmation(email);
   }
 
   /// Completes the reset password procedure by providing the desired new [password] using the
   /// password reset [token] and [tokenId] that were emailed to a user.
   Future<void> completeResetPassword(String password, String token, String tokenId) {
-    return realmCore.emailPasswordCompleteResetPassword(app, password, token, tokenId);
+    return app.handle.completeResetPassword(password, token, tokenId);
   }
 
   /// Sends a password reset email.
   Future<void> resetPassword(String email) {
-    return realmCore.emailPasswordResetPassword(app, email);
+    return app.handle.requestResetPassword(email);
   }
 
   /// Calls the reset password function, configured on the server.
   Future<void> callResetPasswordFunction(String email, String password, {List<dynamic>? functionArgs}) {
-    return realmCore.emailPasswordCallResetPasswordFunction(app, email, password, functionArgs != null ? jsonEncode(functionArgs) : null);
+    return app.handle.callResetPasswordFunction(email, password, functionArgs.convert(jsonEncode));
   }
 
   /// Retries the custom confirmation function on a user for a given email.
   Future<void> retryCustomConfirmationFunction(String email) {
-    return realmCore.emailPasswordRetryCustomConfirmationFunction(app, email);
+    return app.handle.retryCustomConfirmationFunction(email);
   }
 }
 

@@ -226,7 +226,7 @@ final class MutableSubscriptionSet extends SubscriptionSet {
   @override
   MutableSubscriptionSetHandle get _handle => super._handle as MutableSubscriptionSetHandle;
 
-  MutableSubscriptionSet._(Realm realm, MutableSubscriptionSetHandle handle) : super._(realm, handle);
+  MutableSubscriptionSet._(super.realm, MutableSubscriptionSetHandle super.handle) : super._();
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {

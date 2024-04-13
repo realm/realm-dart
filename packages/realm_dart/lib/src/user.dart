@@ -5,9 +5,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 
+import 'app.dart';
+import 'credentials.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import './app.dart';
 
 /// Describes the changes to a [User] instance - for example when the access token is updated or the user state changes.
 /// Right now, this only conveys information that the user has changed, but in the future it will be enhanced by adding
@@ -113,7 +114,7 @@ class User {
 
   /// Refreshes the custom data for a this [User].
   Future<dynamic> refreshCustomData() async {
-    await realmCore.userRefreshCustomData(app, this);
+    await app.handle.refreshCustomData(handle);
     return customData;
   }
 
@@ -135,7 +136,7 @@ class User {
   ///  await user.linkCredentials(Credentials.emailPassword("username", "password"));
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
-    final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
+    final userHandle = await app.handle.linkCredentials(handle, credentials.handle);
     return UserInternal.create(userHandle, app);
   }
 

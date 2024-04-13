@@ -41,6 +41,7 @@ import 'realm_bindings.dart';
 import 'realm_library.dart';
 
 // TODO: Use regular
+part 'app_handle.dart';
 part 'config_handle.dart';
 part 'convert.dart';
 part 'decimal128.dart';
@@ -77,9 +78,65 @@ final _pluginLib = () {
   return pluginLib;
 }();
 
-_RealmCore realmCore = _RealmCore();
+var realmCore = _RealmCore();
 
 const encryptionKeySize = 64;
+String getFilesPath() {
+  return realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
+}
+
+String getDeviceName() {
+  if (Platform.isAndroid || Platform.isIOS) {
+    return realmLib.realm_dart_get_device_name().cast<Utf8>().toRealmDartString()!;
+  }
+
+  return "";
+}
+
+String getDeviceVersion() {
+  if (Platform.isAndroid || Platform.isIOS) {
+    return realmLib.realm_dart_get_device_version().cast<Utf8>().toRealmDartString()!;
+  }
+
+  return "";
+}
+
+String getRealmLibraryCpuArchitecture() {
+  return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
+}
+
+String getBundleId() {
+  readBundleId() {
+    try {
+      if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
+        var pubspecPath = path.join(path.current, 'pubspec.yaml');
+        var pubspecFile = File(pubspecPath);
+
+        if (pubspecFile.existsSync()) {
+          final pubspec = Pubspec.parse(pubspecFile.readAsStringSync());
+          return pubspec.name;
+        }
+      }
+
+      if (Platform.isAndroid) {
+        return realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
+      }
+
+      final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
+      final bundleIdPtr = getBundleIdFunc();
+      return bundleIdPtr.cast<Utf8>().toDartString();
+    } on Exception catch (_) {
+      //Never fail on bundleId. Use fallback value.
+    }
+
+    //Fallback value
+    return "realm_bundle_id";
+  }
+
+  String bundleId = readBundleId();
+  const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
+  return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
+}
 
 void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
   Pointer<Void> user_error = nullptr;
@@ -170,6 +227,127 @@ bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmPt
   }
 
   return false;
+}
+
+Pointer<Void> _createAsyncUserCallbackUserdata(Completer<void> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_user>,
+        Pointer<realm_app_error>,
+      )>(_app_user_completion_callback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
+  final Completer<ApiKey> completer = userdata.toObject();
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+  completer.complete(apiKey.ref.toDart());
+}
+
+void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
+  final Completer<List<ApiKey>> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  final result = <ApiKey>[];
+  for (var i = 0; i < size; i++) {
+    result.add(apiKey[i].toDart());
+  }
+
+  completer.complete(result);
+}
+
+void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+  final Completer<UserHandle> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  user = realmLib.realm_clone(user.cast()).cast(); // take an extra reference to the user object
+  if (user == nullptr) {
+    completer.completeError(RealmException("Error while cloning user object."));
+    return;
+  }
+
+  completer.complete(UserHandle._(user.cast()));
+}
+
+void _void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+  final Completer<void> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  completer.complete();
+}
+
+Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_app_error>,
+      )>(_void_completion_callback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_app_user_apikey>,
+        Pointer<realm_app_error>,
+      )>(_app_api_key_completion_callback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Completer<List<ApiKey>> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_app_user_apikey>,
+        Size count,
+        Pointer<realm_app_error>,
+      )>(_app_api_key_array_completion_callback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
 }
 
 // All access to Realm Core functionality goes through this class
@@ -360,30 +538,6 @@ class _RealmCore {
       final realm_deleted = arena<Bool>();
       invokeGetBool(() => realmLib.realm_delete_files(path.toCharPtr(arena), realm_deleted), "Error deleting realm at path $path");
     });
-  }
-
-  String getFilesPath() {
-    return realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
-  }
-
-  String getDeviceName() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmLib.realm_dart_get_device_name().cast<Utf8>().toRealmDartString()!;
-    }
-
-    return "";
-  }
-
-  String getDeviceVersion() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmLib.realm_dart_get_device_version().cast<Utf8>().toRealmDartString()!;
-    }
-
-    return "";
-  }
-
-  String getRealmLibraryCpuArchitecture() {
-    return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
@@ -1244,165 +1398,10 @@ class _RealmCore {
     });
   }
 
-  RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
-    final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_request_callback);
-    final requestCallbackUserdata = realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle.pointer);
-    return RealmHttpTransportHandle._(realmLib.realm_http_transport_new(
-      realmLib.addresses.realm_dart_http_request_callback,
-      requestCallbackUserdata.cast(),
-      realmLib.addresses.realm_dart_userdata_async_free,
-    ));
-  }
-
-  static void _request_callback(Object userData, realm_http_request request, Pointer<Void> request_context) {
-    //
-    // The request struct only survives until end-of-call, even though
-    // we explicitly call realm_http_transport_complete_request to
-    // mark request as completed later.
-    //
-    // Therefore we need to copy everything out of request before returning.
-    // We cannot clone request on the native side with realm_clone,
-    // since realm_http_request does not inherit from WrapC.
-
-    final client = userData as HttpClient;
-
-    client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
-
-    final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
-
-    final body = request.body.cast<Utf8>().toRealmDartString(length: request.body_size);
-
-    final headers = <String, String>{};
-    for (int i = 0; i < request.num_headers; ++i) {
-      final header = request.headers[i];
-      final name = header.name.cast<Utf8>().toRealmDartString()!;
-      final value = header.value.cast<Utf8>().toRealmDartString()!;
-      headers[name] = value;
-    }
-
-    _request_callback_async(client, request.method, url, body, headers, request_context);
-    // The request struct dies here!
-  }
-
-  static Future<void> _request_callback_async(
-    HttpClient client,
-    int requestMethod,
-    Uri url,
-    String? body,
-    Map<String, String> headers,
-    Pointer<Void> request_context,
-  ) async {
-    await using((arena) async {
-      final response_pointer = arena<realm_http_response>();
-      final responseRef = response_pointer.ref;
-      final method = _HttpMethod.values[requestMethod];
-
-      try {
-        // Build request
-        late HttpClientRequest request;
-
-        switch (method) {
-          case _HttpMethod.delete:
-            request = await client.deleteUrl(url);
-            break;
-          case _HttpMethod.put:
-            request = await client.putUrl(url);
-            break;
-          case _HttpMethod.patch:
-            request = await client.patchUrl(url);
-            break;
-          case _HttpMethod.post:
-            request = await client.postUrl(url);
-            break;
-          case _HttpMethod.get:
-            request = await client.getUrl(url);
-            break;
-        }
-
-        for (final header in headers.entries) {
-          request.headers.add(header.key, header.value);
-        }
-
-        if (body != null) {
-          request.add(utf8.encode(body));
-        }
-
-        Realm.logger.log(LogLevel.debug, "HTTP Transport: Executing ${method.name} $url");
-
-        final stopwatch = Stopwatch()..start();
-
-        // Do the call..
-        final response = await request.close();
-
-        stopwatch.stop();
-        Realm.logger.log(LogLevel.debug, "HTTP Transport: Executed ${method.name} $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
-
-        final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
-
-        // Report back to core
-        responseRef.status_code = response.statusCode;
-        responseRef.body = responseBody.toCharPtr(arena);
-        responseRef.body_size = responseBody.length;
-
-        int headerCnt = 0;
-        response.headers.forEach((name, values) {
-          headerCnt += values.length;
-        });
-
-        responseRef.headers = arena<realm_http_header>(headerCnt);
-        responseRef.num_headers = headerCnt;
-
-        int index = 0;
-        response.headers.forEach((name, values) {
-          for (final value in values) {
-            final headerRef = responseRef.headers.elementAt(index).ref;
-            headerRef.name = name.toCharPtr(arena);
-            headerRef.value = value.toCharPtr(arena);
-            index++;
-          }
-        });
-
-        responseRef.custom_status_code = _CustomErrorCode.noError.code;
-      } on SocketException catch (socketEx) {
-        Realm.logger.log(LogLevel.warn, "HTTP Transport: SocketException executing ${method.name} $url: $socketEx");
-        responseRef.custom_status_code = _CustomErrorCode.timeout.code;
-      } on HttpException catch (httpEx) {
-        Realm.logger.log(LogLevel.warn, "HTTP Transport: HttpException executing ${method.name} $url: $httpEx");
-        responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
-      } catch (ex) {
-        Realm.logger.log(LogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
-        responseRef.custom_status_code = _CustomErrorCode.unknown.code;
-      } finally {
-        realmLib.realm_http_transport_complete_request(request_context, response_pointer);
-      }
-    });
-  }
-
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
       realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
-  }
-
-  // TODO:
-  // We need a pure Dart equivalent of:
-  // `ServiceBinding.rootIsolateToken != null`
-  // to get rid of this hack.
-  final bool _isRootIsolate = Isolate.current.debugName == 'main';
-
-  static bool _firstTime = true;
-  AppHandle createApp(AppConfiguration configuration) {
-    // to avoid caching apps across hot restarts we clear the cache on the first
-    // call to createApp in the root isolate.
-    if (_firstTime && _isRootIsolate) {
-      _firstTime = false;
-      realmLib.realm_clear_cached_apps();
-    }
-    final httpTransportHandle = _createHttpTransport(configuration.httpClient);
-    final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
-    final realmAppPtr = invokeGetPointer(() => realmLib.realm_app_create_cached(appConfigHandle._pointer));
-
-    return AppHandle._(realmAppPtr);
   }
 
   String getDefaultBaseUrl() {
@@ -1417,317 +1416,8 @@ class _RealmCore {
     });
   }
 
-  String appGetId(App app) {
-    return realmLib.realm_app_get_app_id(app.handle.pointer).cast<Utf8>().toRealmDartString()!;
-  }
-
-  static void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-    final Completer<UserHandle> completer = userdata.toObject();
-
-    if (error != nullptr) {
-      completer.completeWithAppError(error);
-      return;
-    }
-
-    user = realmLib.realm_clone(user.cast()).cast(); // take an extra reference to the user object
-    if (user == nullptr) {
-      completer.completeError(RealmException("Error while cloning user object."));
-      return;
-    }
-
-    completer.complete(UserHandle._(user.cast()));
-  }
-
-  Pointer<Void> _createAsyncUserCallbackUserdata(Completer<void> completer) {
-    final callback = Pointer.fromFunction<
-        Void Function(
-          Pointer<Void>,
-          Pointer<realm_user>,
-          Pointer<realm_app_error>,
-        )>(_app_user_completion_callback);
-
-    final userdata = realmLib.realm_dart_userdata_async_new(
-      completer,
-      callback.cast(),
-      scheduler.handle.pointer,
-    );
-
-    return userdata.cast();
-  }
-
-  Future<UserHandle> logIn(App app, Credentials credentials) async {
-    final completer = Completer<UserHandle>();
-    final userdata = _createAsyncUserCallbackUserdata(completer);
-
-    invokeGetBool(
-        () => realmLib.realm_app_log_in_with_credentials(
-              app.handle.pointer,
-              credentials.handle.pointer,
-              realmLib.addresses.realm_dart_user_completion_callback,
-              userdata,
-              realmLib.addresses.realm_dart_userdata_async_free,
-            ),
-        "Login failed");
-
-    return await completer.future;
-  }
-
-  static void _void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-    final Completer<void> completer = userdata.toObject();
-
-    if (error != nullptr) {
-      completer.completeWithAppError(error);
-      return;
-    }
-
-    completer.complete();
-  }
-
-  Future<void> appEmailPasswordRegisterUser(App app, String email, String password) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_register_email(
-            app.handle.pointer,
-            email.toCharPtr(arena),
-            password.toRealmString(arena).ref,
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return completer.future;
-  }
-
-  Future<void> emailPasswordConfirmUser(App app, String token, String tokenId) async {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_confirm_user(
-            app.handle.pointer,
-            token.toCharPtr(arena),
-            tokenId.toCharPtr(arena),
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return await completer.future;
-  }
-
-  Future<void> emailPasswordResendUserConfirmation(App app, String email) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_resend_confirmation_email(
-            app.handle.pointer,
-            email.toCharPtr(arena),
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return completer.future;
-  }
-
-  Future<void> emailPasswordCompleteResetPassword(App app, String password, String token, String tokenId) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_reset_password(
-            app.handle.pointer,
-            password.toRealmString(arena).ref,
-            token.toCharPtr(arena),
-            tokenId.toCharPtr(arena),
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return completer.future;
-  }
-
-  Future<void> emailPasswordResetPassword(App app, String email) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_send_reset_password_email(
-            app.handle.pointer,
-            email.toCharPtr(arena),
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return completer.future;
-  }
-
-  Future<void> emailPasswordCallResetPasswordFunction(App app, String email, String password, String? argsAsJSON) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_call_reset_password_function(
-            app.handle.pointer,
-            email.toCharPtr(arena),
-            password.toRealmString(arena).ref,
-            argsAsJSON != null ? argsAsJSON.toCharPtr(arena) : nullptr,
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return completer.future;
-  }
-
-  Future<void> emailPasswordRetryCustomConfirmationFunction(App app, String email) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(() => realmLib.realm_app_email_password_provider_client_retry_custom_confirmation(
-            app.handle.pointer,
-            email.toCharPtr(arena),
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-    });
-    return completer.future;
-  }
-
-  UserHandle? getCurrentUser(AppHandle appHandle) {
-    final userPtr = realmLib.realm_app_get_current_user(appHandle.pointer);
-    if (userPtr == nullptr) {
-      return null;
-    }
-    return UserHandle._(userPtr);
-  }
-
-  Future<void> logOut(App application, User? user) {
-    final completer = Completer<void>();
-    if (user == null) {
-      invokeGetBool(
-          () => realmLib.realm_app_log_out_current_user(
-                application.handle.pointer,
-                realmLib.addresses.realm_dart_void_completion_callback,
-                _createAsyncCallbackUserdata(completer),
-                realmLib.addresses.realm_dart_userdata_async_free,
-              ),
-          "Logout failed");
-    } else {
-      invokeGetBool(
-          () => realmLib.realm_app_log_out(
-                application.handle.pointer,
-                user.handle.pointer,
-                realmLib.addresses.realm_dart_void_completion_callback,
-                _createAsyncCallbackUserdata(completer),
-                realmLib.addresses.realm_dart_userdata_async_free,
-              ),
-          "Logout failed");
-    }
-    return completer.future;
-  }
-
   void clearCachedApps() {
     realmLib.realm_clear_cached_apps();
-  }
-
-  List<UserHandle> getUsers(App app) {
-    return using((arena) {
-      return _getUsers(app, arena);
-    });
-  }
-
-  List<UserHandle> _getUsers(App app, Arena arena, {int expectedSize = 2}) {
-    final actualCount = arena<Size>();
-    final usersPtr = arena<Pointer<realm_user>>(expectedSize);
-    invokeGetBool(() => realmLib.realm_app_get_all_users(app.handle.pointer, usersPtr, expectedSize, actualCount));
-
-    if (expectedSize < actualCount.value) {
-      // The supplied array was too small - resize it
-      arena.free(usersPtr);
-      return _getUsers(app, arena, expectedSize: actualCount.value);
-    }
-
-    final result = <UserHandle>[];
-    for (var i = 0; i < actualCount.value; i++) {
-      result.add(UserHandle._(usersPtr.elementAt(i).value));
-    }
-
-    return result;
-  }
-
-  Future<void> removeUser(App app, User user) {
-    final completer = Completer<void>();
-    invokeGetBool(
-        () => realmLib.realm_app_remove_user(
-              app.handle.pointer,
-              user.handle.pointer,
-              realmLib.addresses.realm_dart_void_completion_callback,
-              _createAsyncCallbackUserdata(completer),
-              realmLib.addresses.realm_dart_userdata_async_free,
-            ),
-        "Remove user failed");
-    return completer.future;
-  }
-
-  void switchUser(App application, User user) {
-    return using((arena) {
-      invokeGetBool(
-          () => realmLib.realm_app_switch_user(
-                application.handle.pointer,
-                user.handle.pointer,
-              ),
-          "Switch user failed");
-    });
-  }
-
-  void reconnect(App application) {
-    realmLib.realm_app_sync_client_reconnect(
-      application.handle.pointer,
-    );
-  }
-
-  String getBaseUrl(App app) {
-    final customDataPtr = realmLib.realm_app_get_base_url(app.handle.pointer);
-    return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
-  }
-
-  Future<void> updateBaseUrl(App app, Uri? baseUrl) {
-    final completer = Completer<void>();
-    using((arena) {
-      invokeGetBool(
-          () => realmLib.realm_app_update_base_url(
-                app.handle._pointer,
-                baseUrl?.toString().toCharPtr(arena) ?? nullptr,
-                realmLib.addresses.realm_dart_void_completion_callback,
-                _createAsyncCallbackUserdata(completer),
-                realmLib.addresses.realm_dart_userdata_async_free,
-              ),
-          "Update base URL failed");
-    });
-    return completer.future;
-  }
-
-  Future<void> userRefreshCustomData(App app, User user) {
-    final completer = Completer<void>();
-    invokeGetBool(
-        () => realmLib.realm_app_refresh_custom_data(
-              app.handle.pointer,
-              user.handle.pointer,
-              realmLib.addresses.realm_dart_void_completion_callback,
-              _createAsyncCallbackUserdata(completer),
-              realmLib.addresses.realm_dart_userdata_async_free,
-            ),
-        "Refresh custom data failed");
-    return completer.future;
-  }
-
-  Future<UserHandle> userLinkCredentials(App app, User user, Credentials credentials) {
-    final completer = Completer<UserHandle>();
-    invokeGetBool(
-        () => realmLib.realm_app_link_user(
-              app.handle.pointer,
-              user.handle.pointer,
-              credentials.handle.pointer,
-              realmLib.addresses.realm_dart_user_completion_callback,
-              _createAsyncUserCallbackUserdata(completer),
-              realmLib.addresses.realm_dart_userdata_async_free,
-            ),
-        "Link credentials failed");
-    return completer.future;
   }
 
   AuthProviderType userGetCredentialsProviderType(Credentials credentials) {
@@ -1849,39 +1539,6 @@ class _RealmCore {
     }
   }
 
-  String getBundleId() {
-    readBundleId() {
-      try {
-        if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-          var pubspecPath = path.join(path.current, 'pubspec.yaml');
-          var pubspecFile = File(pubspecPath);
-
-          if (pubspecFile.existsSync()) {
-            final pubspec = Pubspec.parse(pubspecFile.readAsStringSync());
-            return pubspec.name;
-          }
-        }
-
-        if (Platform.isAndroid) {
-          return realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
-        }
-
-        final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
-        final bundleIdPtr = getBundleIdFunc();
-        return bundleIdPtr.cast<Utf8>().toDartString();
-      } on Exception catch (_) {
-        //Never fail on bundleId. Use fallback value.
-      }
-
-      //Fallback value
-      return "realm_bundle_id";
-    }
-
-    String bundleId = readBundleId();
-    const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
-    return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
-  }
-
   String _getAppDirectoryFromPlugin() {
     assert(isFlutterPlatform);
 
@@ -1923,20 +1580,6 @@ class _RealmCore {
     }
   }
 
-  Future<void> deleteUser(App app, User user) {
-    final completer = Completer<void>();
-    invokeGetBool(
-        () => realmLib.realm_app_delete_user(
-              app.handle.pointer,
-              user.handle.pointer,
-              realmLib.addresses.realm_dart_void_completion_callback,
-              _createAsyncCallbackUserdata(completer),
-              realmLib.addresses.realm_dart_userdata_async_free,
-            ),
-        "Delete user failed");
-    return completer.future;
-  }
-
   ResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) => realmResults.handle.resolveIn(frozenRealm.handle);
 
   ObjectHandle? resolveObject(RealmObjectBase object, Realm frozenRealm) {
@@ -1969,31 +1612,6 @@ class _RealmCore {
       invokeGetBool(() => realmLib.realm_dictionary_resolve_in(map.handle.pointer, frozenRealm.handle.pointer, resultPtr));
       return resultPtr == nullptr ? null : RealmMapHandle._(resultPtr.value, frozenRealm.handle);
     });
-  }
-
-  static void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
-    final Completer<ApiKey> completer = userdata.toObject();
-    if (error != nullptr) {
-      completer.completeWithAppError(error);
-      return;
-    }
-    completer.complete(apiKey.ref.toDart());
-  }
-
-  static void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
-    final Completer<List<ApiKey>> completer = userdata.toObject();
-
-    if (error != nullptr) {
-      completer.completeWithAppError(error);
-      return;
-    }
-
-    final result = <ApiKey>[];
-    for (var i = 0; i < size; i++) {
-      result.add(apiKey[i].toDart());
-    }
-
-    completer.complete(result);
   }
 
   Future<ApiKey> createApiKey(User user, String name) {
@@ -2060,57 +1678,6 @@ class _RealmCore {
 
       return completer.future;
     });
-  }
-
-  Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
-    final callback = Pointer.fromFunction<
-        Void Function(
-          Pointer<Void>,
-          Pointer<realm_app_error>,
-        )>(_void_completion_callback);
-
-    final userdata = realmLib.realm_dart_userdata_async_new(
-      completer,
-      callback.cast(),
-      scheduler.handle.pointer,
-    );
-
-    return userdata.cast();
-  }
-
-  Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
-    final callback = Pointer.fromFunction<
-        Void Function(
-          Pointer<Void>,
-          Pointer<realm_app_user_apikey>,
-          Pointer<realm_app_error>,
-        )>(_app_api_key_completion_callback);
-
-    final userdata = realmLib.realm_dart_userdata_async_new(
-      completer,
-      callback.cast(),
-      scheduler.handle.pointer,
-    );
-
-    return userdata.cast();
-  }
-
-  Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Completer<List<ApiKey>> completer) {
-    final callback = Pointer.fromFunction<
-        Void Function(
-          Pointer<Void>,
-          Pointer<realm_app_user_apikey>,
-          Size count,
-          Pointer<realm_app_error>,
-        )>(_app_api_key_array_completion_callback);
-
-    final userdata = realmLib.realm_dart_userdata_async_new(
-      completer,
-      callback.cast(),
-      scheduler.handle.pointer,
-    );
-
-    return userdata.cast();
   }
 
   Future<void> disableApiKey(User user, ObjectId objectId) {
@@ -2191,15 +1758,6 @@ class _RealmCore {
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
       return completer.future;
-    });
-  }
-
-  bool immediatelyRunFileActions(App app, String realmPath) {
-    return using((arena) {
-      final out_did_run = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_sync_immediately_run_file_actions(app.handle.pointer, realmPath.toCharPtr(arena), out_did_run),
-          "An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
-      return out_did_run.value;
     });
   }
 
@@ -2323,10 +1881,6 @@ class AppConfigHandle extends HandleBase<realm_app_config> {
 
 class SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
   SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
-}
-
-class AppHandle extends HandleBase<realm_app> {
-  AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
 }
 
 class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {

@@ -7,10 +7,12 @@ import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
+
+import 'app.dart';
+import 'init.dart';
 import 'logging.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'init.dart';
 import 'user.dart';
 
 /// The signature of a callback used to determine if compaction
@@ -653,7 +655,7 @@ class ClientResetError extends SyncError {
       throw RealmException("Missing `originalFilePath`");
     }
 
-    return realmCore.immediatelyRunFileActions(_app!, originalFilePath!);
+    return _app!.handle.immediatelyRunFileActions(originalFilePath!);
   }
 }
 
