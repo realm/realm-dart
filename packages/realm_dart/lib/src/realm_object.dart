@@ -636,9 +636,9 @@ extension EmbeddedObjectExtension on EmbeddedObject {
       return null;
     }
 
-    final parent = realmCore.getEmbeddedParent(this);
-    final (type, metadata) = realm.metadata.getByClassKey(parent.item2);
-    return realm.createObject(type, parent.item1, metadata);
+    final (handle, classKey) = realmCore.getEmbeddedParent(this);
+    final (type, metadata) = realm.metadata.getByClassKey(classKey);
+    return realm.createObject(type, handle, metadata);
   }
 }
 

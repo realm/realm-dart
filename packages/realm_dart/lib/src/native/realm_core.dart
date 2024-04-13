@@ -442,7 +442,7 @@ class _RealmCore {
     return result;
   }
 
-  Tuple<ObjectHandle, int> getEmbeddedParent(EmbeddedObject obj) {
+  (ObjectHandle, int) getEmbeddedParent(EmbeddedObject obj) {
     return using((Arena arena) {
       final parentPtr = arena<Pointer<realm_object>>();
       final classKeyPtr = arena<Uint32>();
@@ -450,7 +450,7 @@ class _RealmCore {
 
       final handle = ObjectHandle._(parentPtr.value, obj.realm.handle);
 
-      return Tuple(handle, classKeyPtr.value);
+      return (handle, classKeyPtr.value);
     });
   }
 
