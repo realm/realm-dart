@@ -516,11 +516,6 @@ class _RealmCore {
     invokeGetBool(() => realmLib.realm_object_delete(object.handle.pointer));
   }
 
-  ResultsHandle findAll(Realm realm, int classKey) {
-    final pointer = invokeGetPointer(() => realmLib.realm_object_find_all(realm.handle.pointer, classKey));
-    return ResultsHandle._(pointer, realm.handle);
-  }
-
   ResultsHandle queryList(RealmList target, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;

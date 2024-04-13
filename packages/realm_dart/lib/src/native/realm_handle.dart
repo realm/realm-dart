@@ -240,4 +240,9 @@ class RealmHandle extends HandleBase<shared_realm> {
     final completer = realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<bool>;
     completer.complete(true);
   }
+
+  ResultsHandle findAll(int classKey) {
+    final ptr = invokeGetPointer(() => realmLib.realm_object_find_all(pointer, classKey));
+    return ResultsHandle._(ptr, this);
+  }
 }

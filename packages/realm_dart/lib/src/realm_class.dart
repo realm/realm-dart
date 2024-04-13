@@ -430,7 +430,7 @@ class Realm implements Finalizable {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.findAll(this, metadata.classKey);
+    final handle = this.handle.findAll(metadata.classKey);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -780,7 +780,7 @@ extension RealmInternal on Realm {
   /// This should only be used for testing
   RealmResults<T> allEmbedded<T extends EmbeddedObject>() {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.findAll(this, metadata.classKey);
+    final handle = this.handle.findAll(metadata.classKey);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -955,7 +955,7 @@ class DynamicRealm {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<RealmObject> all(String className) {
     final metadata = _realm._metadata.getByName(className);
-    final handle = realmCore.findAll(_realm, metadata.classKey);
+    final handle = _realm.handle.findAll(metadata.classKey);
     return RealmResultsInternal.create<RealmObject>(handle, _realm, metadata);
   }
 
