@@ -287,7 +287,7 @@ class Realm implements Finalizable {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
-      return realmCore.createRealmObject(this, key);
+      return this.handle.create(key);
     }
     if (update) {
       return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
@@ -328,7 +328,7 @@ class Realm implements Finalizable {
     if (items is RealmResults<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
-      realmCore.resultsDeleteAll(items);
+      items.handle.deleteAll();
     } else if (items is ManagedRealmList<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
@@ -466,7 +466,7 @@ class Realm implements Finalizable {
       return this;
     }
 
-    return Realm._(config, realmCore.freeze(this));
+    return Realm._(config, this.handle.freeze());
   }
 
   WeakReference<SubscriptionSet>? _subscriptions;

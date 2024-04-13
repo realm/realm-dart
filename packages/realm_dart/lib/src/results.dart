@@ -18,7 +18,7 @@ import 'realm_object.dart';
 /// {@category Realm}
 class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity implements Finalizable {
   final RealmObjectMetadata? _metadata;
-  final RealmResultsHandle _handle;
+  final ResultsHandle _handle;
   final int _skipOffset; // to support skip efficiently
 
   final _supportsSnapshot = <T>[] is List<RealmObjectBase?>;
@@ -29,7 +29,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   }
 
   /// Gets a value indicating whether this collection is still valid to use.
-  bool get isValid => realmCore.resultsIsValid(this);
+  bool get isValid => this.handle.isValid();
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) => elementAt(index);
@@ -48,7 +48,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
       late RealmObjectMetadata targetMetadata;
       late Type type;
       if (T == RealmValue) {
-        (type, targetMetadata) = realm.metadata.getByClassKey(realmCore.getClassKey(value));
+        (type, targetMetadata) = realm.metadata.getByClassKey(value.getClassKey());
       } else {
         targetMetadata = _metadata!;
         type = T;
@@ -81,7 +81,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
 
     if (start < 0) start = 0;
     start += _skipOffset;
-    final index = realmCore.resultsFind(this, element);
+    final index = this.handle.find(element);
     return index < start ? -1 : index; // to align with dart list semantics
   }
 
@@ -102,7 +102,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   Iterator<T> get iterator {
     var results = this;
     if (_supportsSnapshot) {
-      final handle = realmCore.resultsSnapshot(this);
+      final handle = this.handle.snapshot();
       results = RealmResultsInternal.create<T>(handle, realm, _metadata, _skipOffset);
     }
     return _RealmResultsIterator(results);
@@ -110,7 +110,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
 
   /// The number of values in this `Results` collection.
   @override
-  int get length => realmCore.getResultsCount(this) - _skipOffset;
+  int get length => this.handle.count - _skipOffset;
 
   @override
   T get first {
@@ -174,7 +174,7 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
   ///
   /// The Realm Dart and Realm Flutter SDKs supports querying based on a language inspired by [NSPredicate](https://www.mongodb.com/docs/realm/realm-query-language/)
   RealmResults<T> query(String query, [List<Object> args = const []]) {
-    final handle = realmCore.queryResults(this, query, args);
+    final handle = this.handle.queryResults(query, args);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 }
@@ -280,7 +280,7 @@ extension RealmResultsInternal on RealmResults {
     _handle.keepAlive();
   }
 
-  RealmResultsHandle get handle {
+  ResultsHandle get handle {
     if (_handle.released) {
       throw RealmClosedError('Cannot access Results that belongs to a closed Realm');
     }
@@ -290,7 +290,7 @@ extension RealmResultsInternal on RealmResults {
 
   RealmObjectMetadata get metadata => _metadata!;
 
-  static RealmResults<T> create<T extends Object?>(RealmResultsHandle handle, Realm realm, RealmObjectMetadata? metadata, [int skip = 0]) =>
+  static RealmResults<T> create<T extends Object?>(ResultsHandle handle, Realm realm, RealmObjectMetadata? metadata, [int skip = 0]) =>
       RealmResults<T>._(handle, realm, metadata, skip);
 }
 

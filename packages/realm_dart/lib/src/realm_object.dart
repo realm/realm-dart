@@ -237,7 +237,7 @@ class RealmCoreAccessor implements RealmAccessor {
             late RealmObjectMetadata targetMetadata;
 
             if (propertyMeta.propertyType == RealmPropertyType.mixed) {
-              (type, targetMetadata) = meta.getByClassKey(realmCore.getClassKey(value));
+              (type, targetMetadata) = meta.getByClassKey(value.getClassKey());
             } else {
               // If we have an object but the user called the API without providing a generic
               // arg, we construct a RealmObject since we don't know the type of the object.
@@ -318,7 +318,7 @@ class RealmCoreAccessor implements RealmAccessor {
           throw RealmError("Can't set an embedded object that is already managed");
         }
 
-        final handle = realmCore.createEmbeddedObject(object, propertyMeta.key);
+        final handle = object.handle.createEmbedded(propertyMeta.key);
         object.realm.manageEmbedded(handle, value, update: update);
         return;
       }

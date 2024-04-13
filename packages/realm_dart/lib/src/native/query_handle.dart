@@ -6,10 +6,10 @@ part of 'realm_core.dart';
 class QueryHandle extends RootedHandleBase<realm_query> {
   QueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
 
-  RealmResultsHandle findAll() {
+  ResultsHandle findAll() {
     try {
       final resultsPointer = invokeGetPointer(() => realmLib.realm_query_find_all(pointer));
-      return RealmResultsHandle._(resultsPointer, _root);
+      return ResultsHandle._(resultsPointer, _root);
     } finally {
       release();
     }

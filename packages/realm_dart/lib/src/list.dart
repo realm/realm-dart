@@ -105,7 +105,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {
-          (type, targetMetadata) = realm.metadata.getByClassKey(realmCore.getClassKey(value));
+          (type, targetMetadata) = realm.metadata.getByClassKey(value.getClassKey());
         } else {
           targetMetadata = _metadata!;
           type = T;

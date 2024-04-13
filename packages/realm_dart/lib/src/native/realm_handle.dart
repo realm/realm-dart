@@ -76,7 +76,7 @@ class RealmHandle extends HandleBase<shared_realm> {
     invokeGetBool(() => realmLib.realm_convert_with_config(pointer, configHandle.pointer, false));
   }
 
-  RealmResultsHandle queryClass(int classKey, String query, List<Object?> args) {
+  ResultsHandle queryClass(int classKey, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
@@ -97,4 +97,6 @@ class RealmHandle extends HandleBase<shared_realm> {
       return queryHandle.findAll();
     });
   }
+
+  RealmHandle freeze() => RealmHandle._(invokeGetPointer(() => realmLib.realm_freeze(pointer)));
 }
