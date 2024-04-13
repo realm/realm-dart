@@ -157,7 +157,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
     try {
       var value = realmCore.realmSetGetElementAt(this, index);
-      if (value is RealmObjectHandle) {
+      if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {

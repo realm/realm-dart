@@ -93,7 +93,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
 
     try {
       var value = realmCore.mapGetElement(this, key);
-      if (value is RealmObjectHandle) {
+      if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {

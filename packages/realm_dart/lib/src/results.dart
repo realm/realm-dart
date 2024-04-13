@@ -44,7 +44,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
 
     var value = realmCore.resultsGetElementAt(this, _skipOffset + index);
 
-    if (value is RealmObjectHandle) {
+    if (value is ObjectHandle) {
       late RealmObjectMetadata targetMetadata;
       late Type type;
       if (T == RealmValue) {

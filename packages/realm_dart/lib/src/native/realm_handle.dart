@@ -36,20 +36,20 @@ class RealmHandle extends HandleBase<shared_realm> {
     }
   }
 
-  RealmObjectHandle createWithPrimaryKey(int classKey, Object? primaryKey) {
+  ObjectHandle createWithPrimaryKey(int classKey, Object? primaryKey) {
     return using((Arena arena) {
       final realmValue = _toRealmValue(primaryKey, arena);
       final realmPtr = invokeGetPointer(() => realmLib.realm_object_create_with_primary_key(pointer, classKey, realmValue.ref));
-      return RealmObjectHandle._(realmPtr, this);
+      return ObjectHandle._(realmPtr, this);
     });
   }
 
-  RealmObjectHandle create(int classKey) {
+  ObjectHandle create(int classKey) {
     final realmPtr = invokeGetPointer(() => realmLib.realm_object_create(pointer, classKey));
-    return RealmObjectHandle._(realmPtr, this);
+    return ObjectHandle._(realmPtr, this);
   }
 
-  RealmObjectHandle getOrCreateWithPrimaryKey(int classKey, Object? primaryKey) {
+  ObjectHandle getOrCreateWithPrimaryKey(int classKey, Object? primaryKey) {
     return using((Arena arena) {
       final realmValue = _toRealmValue(primaryKey, arena);
       final didCreate = arena<Bool>();
@@ -59,7 +59,7 @@ class RealmHandle extends HandleBase<shared_realm> {
             realmValue.ref,
             didCreate,
           ));
-      return RealmObjectHandle._(realmPtr, this);
+      return ObjectHandle._(realmPtr, this);
     });
   }
 

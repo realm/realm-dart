@@ -229,7 +229,7 @@ class RealmCoreAccessor implements RealmAccessor {
         default:
           var value = realmCore.getProperty(object, propertyMeta.key);
 
-          if (value is RealmObjectHandle) {
+          if (value is ObjectHandle) {
             final meta = object.realm.metadata;
             final typeName = propertyMeta.objectType;
 
@@ -365,7 +365,7 @@ extension RealmEntityInternal on RealmEntity {
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
 mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizable {
-  RealmObjectHandle? _handle;
+  ObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObjectBase Function()> _factories = <Type, RealmObjectBase Function()>{
     // Register default factories for `RealmObject` and `RealmObject?`. Whenever the user
@@ -651,7 +651,7 @@ extension RealmObjectInternal on RealmObjectBase {
     _handle?.keepAlive();
   }
 
-  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor, bool update) {
+  void manage(Realm realm, ObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
       //most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
@@ -667,7 +667,7 @@ extension RealmObjectInternal on RealmObjectBase {
     _accessor = accessor;
   }
 
-  static RealmObjectBase create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+  static RealmObjectBase create(Type type, Realm realm, ObjectHandle handle, RealmCoreAccessor accessor) {
     final object = RealmObjectBase.createObject(type, accessor.metadata);
     object._handle = handle;
     object._accessor = accessor;
@@ -675,7 +675,7 @@ extension RealmObjectInternal on RealmObjectBase {
     return object;
   }
 
-  RealmObjectHandle get handle {
+  ObjectHandle get handle {
     if (_handle?.released == true) {
       throw RealmClosedError('Cannot access an object that belongs to a closed Realm');
     }

@@ -283,7 +283,7 @@ class Realm implements Finalizable {
     object.manage(this, handle, accessor, false);
   }
 
-  RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
+  ObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
@@ -737,7 +737,7 @@ extension RealmInternal on Realm {
     return Realm._(config, handle, isInMigration);
   }
 
-  RealmObjectBase createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
+  RealmObjectBase createObject(Type type, ObjectHandle handle, RealmObjectMetadata metadata) {
     final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
@@ -768,7 +768,7 @@ extension RealmInternal on Realm {
 
   RealmMetadata get metadata => _metadata;
 
-  void manageEmbedded(RealmObjectHandle handle, EmbeddedObject object, {bool update = false}) {
+  void manageEmbedded(ObjectHandle handle, EmbeddedObject object, {bool update = false}) {
     final metadata = _metadata.getByType(object.runtimeType);
 
     final accessor = RealmCoreAccessor(metadata, _isInMigration);

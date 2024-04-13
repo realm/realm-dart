@@ -101,7 +101,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
 
     try {
       var value = realmCore.listGetElementAt(this, index);
-      if (value is RealmObjectHandle) {
+      if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {

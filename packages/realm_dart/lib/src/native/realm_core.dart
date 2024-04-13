@@ -46,6 +46,7 @@ part 'convert.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'mutable_subscription_set_handle.dart';
+part 'object_handle.dart';
 part 'query_handle.dart';
 part 'realm_handle.dart';
 part 'rooted_handle.dart';
@@ -573,31 +574,23 @@ class _RealmCore {
     return result;
   }
 
-  RealmObjectHandle createRealmObject(Realm realm, int classKey) => RealmObjectHandle.create(realm.handle, classKey);
-
-  RealmObjectHandle createEmbeddedObject(RealmObjectBase obj, int propertyKey) => RealmObjectHandle.createEmbedded(obj.handle, propertyKey);
-
-  Tuple<RealmObjectHandle, int> getEmbeddedParent(EmbeddedObject obj) {
+  Tuple<ObjectHandle, int> getEmbeddedParent(EmbeddedObject obj) {
     return using((Arena arena) {
       final parentPtr = arena<Pointer<realm_object>>();
       final classKeyPtr = arena<Uint32>();
       invokeGetBool(() => realmLib.realm_object_get_parent(obj.handle.pointer, parentPtr, classKeyPtr));
 
-      final handle = RealmObjectHandle._(parentPtr.value, obj.realm.handle);
+      final handle = ObjectHandle._(parentPtr.value, obj.realm.handle);
 
       return Tuple(handle, classKeyPtr.value);
     });
   }
+  
+  ObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) =>
+      realm.handle.getOrCreateWithPrimaryKey(classKey, primaryKey);
 
-  int getClassKey(RealmObjectHandle handle) {
-    return realmLib.realm_object_get_table(handle.pointer);
-  }
-
-  RealmObjectHandle getOrCreateRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) =>
-      RealmObjectHandle.getOrCreateWithPrimaryKey(realm.handle, classKey, primaryKey);
-
-  RealmObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) =>
-      RealmObjectHandle.createWithPrimaryKey(realm.handle, classKey, primaryKey);
+  ObjectHandle createRealmObjectWithPrimaryKey(Realm realm, int classKey, Object? primaryKey) =>
+      realm.handle.createWithPrimaryKey(classKey, primaryKey);
 
   Object? getProperty(RealmObjectBase object, int propertyKey) {
     return using((Arena arena) {
@@ -628,7 +621,7 @@ class _RealmCore {
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
 
-  RealmObjectHandle? find(Realm realm, int classKey, Object? primaryKey) {
+  ObjectHandle? find(Realm realm, int classKey, Object? primaryKey) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(primaryKey, arena);
       final pointer = realmLib.realm_object_find_with_primary_key(realm.handle.pointer, classKey, realm_value.ref, nullptr);
@@ -636,14 +629,14 @@ class _RealmCore {
         return null;
       }
 
-      return RealmObjectHandle._(pointer, realm.handle);
+      return ObjectHandle._(pointer, realm.handle);
     });
   }
 
-  RealmObjectHandle? findExisting(Realm realm, int classKey, RealmObjectHandle other) {
+  ObjectHandle? findExisting(Realm realm, int classKey, ObjectHandle other) {
     final key = realmLib.realm_object_get_key(other.pointer);
     final pointer = invokeGetPointer(() => realmLib.realm_get_object(realm.handle.pointer, classKey, key));
-    return RealmObjectHandle._(pointer, realm.handle);
+    return ObjectHandle._(pointer, realm.handle);
   }
 
   void renameProperty(Realm realm, String objectType, String oldName, String newName, SchemaHandle schema) {
@@ -794,9 +787,9 @@ class _RealmCore {
     });
   }
 
-  RealmObjectHandle resultsGetObjectAt(RealmResults results, int index) {
+  ObjectHandle resultsGetObjectAt(RealmResults results, int index) {
     final pointer = invokeGetPointer(() => realmLib.realm_results_get_object(results.handle.pointer, index));
-    return RealmObjectHandle._(pointer, results.realm.handle);
+    return ObjectHandle._(pointer, results.realm.handle);
   }
 
   int getResultsCount(RealmResults results) {
@@ -921,9 +914,9 @@ class _RealmCore {
     return _RealmLinkHandle._(realmLink);
   }
 
-  RealmObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
+  ObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
     final pointer = invokeGetPointer(() => realmLib.realm_get_object(realm.handle.pointer, classKey, objectKey));
-    return RealmObjectHandle._(pointer, realm.handle);
+    return ObjectHandle._(pointer, realm.handle);
   }
 
   RealmListHandle getListProperty(RealmObjectBase object, int propertyKey) {
@@ -965,14 +958,14 @@ class _RealmCore {
         () => (insert ? realmLib.realm_list_insert_dictionary : realmLib.realm_list_set_dictionary)(handle.pointer, index));
   }
 
-  RealmObjectHandle listSetEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
+  ObjectHandle listSetEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
     final ptr = invokeGetPointer(() => realmLib.realm_list_set_embedded(handle.pointer, index));
-    return RealmObjectHandle._(ptr, realm.handle);
+    return ObjectHandle._(ptr, realm.handle);
   }
 
-  RealmObjectHandle listInsertEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
+  ObjectHandle listInsertEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
     final ptr = invokeGetPointer(() => realmLib.realm_list_insert_embedded(handle.pointer, index));
-    return RealmObjectHandle._(ptr, realm.handle);
+    return ObjectHandle._(ptr, realm.handle);
   }
 
   void listRemoveElementAt(RealmListHandle handle, int index) {
@@ -1165,11 +1158,11 @@ class _RealmCore {
     });
   }
 
-  RealmObjectHandle mapInsertEmbeddedObject(Realm realm, RealmMapHandle handle, String key) {
+  ObjectHandle mapInsertEmbeddedObject(Realm realm, RealmMapHandle handle, String key) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(key, arena);
       final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(handle.pointer, realm_value.ref));
-      return RealmObjectHandle._(ptr, realm.handle);
+      return ObjectHandle._(ptr, realm.handle);
     });
   }
 
@@ -2296,11 +2289,11 @@ class _RealmCore {
     return RealmResultsHandle._(ptr, frozenRealm.handle);
   }
 
-  RealmObjectHandle? resolveObject(RealmObjectBase object, Realm frozenRealm) {
+  ObjectHandle? resolveObject(RealmObjectBase object, Realm frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_object>>();
       invokeGetBool(() => realmLib.realm_object_resolve_in(object.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : RealmObjectHandle._(resultPtr.value, frozenRealm.handle);
+      return resultPtr == nullptr ? null : ObjectHandle._(resultPtr.value, frozenRealm.handle);
     });
   }
 
@@ -2620,24 +2613,6 @@ class _RealmCore {
 
 class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
-}
-
-class RealmObjectHandle extends RootedHandleBase<realm_object> {
-  RealmObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
-
-  factory RealmObjectHandle.createWithPrimaryKey(RealmHandle realm, int classKey, Object? primaryKey) => realm.createWithPrimaryKey(classKey, primaryKey);
-
-  factory RealmObjectHandle.create(RealmHandle realm, int classKey) => realm.create(classKey);
-
-  factory RealmObjectHandle.createEmbedded(RealmObjectHandle parent, int propertyKey) => parent.createEmbedded(propertyKey);
-
-  RealmObjectHandle createEmbedded(int propertyKey) {
-    final objectPtr = invokeGetPointer(() => realmLib.realm_set_embedded(pointer, propertyKey));
-    return RealmObjectHandle._(objectPtr, _root);
-  }
-
-  factory RealmObjectHandle.getOrCreateWithPrimaryKey(RealmHandle realm, int classKey, Object? primaryKey) =>
-      realm.getOrCreateWithPrimaryKey(classKey, primaryKey);
 }
 
 class _RealmLinkHandle {
