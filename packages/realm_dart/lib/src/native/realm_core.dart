@@ -1862,18 +1862,6 @@ class RealmAppCredentialsHandle extends HandleBase<realm_app_credentials> {
   RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
-class RealmHttpTransportHandle extends HandleBase<realm_http_transport> {
-  RealmHttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
-}
-
-class AppConfigHandle extends HandleBase<realm_app_config> {
-  AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
-}
-
-class SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
-  SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
-}
-
 class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
   RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task_t> pointer) : super(pointer, 32);
 }

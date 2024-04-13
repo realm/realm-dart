@@ -332,10 +332,14 @@ class AppHandle extends HandleBase<realm_app> {
 // to get rid of this hack.
 final bool _isRootIsolate = Isolate.current.debugName == 'main';
 
-RealmHttpTransportHandle _createHttpTransport(HttpClient httpClient) {
+class _HttpTransportHandle extends HandleBase<realm_http_transport> {
+  _HttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
+}
+
+_HttpTransportHandle _createHttpTransport(HttpClient httpClient) {
   final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_requestCallback);
   final requestCallbackUserdata = realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle.pointer);
-  return RealmHttpTransportHandle._(realmLib.realm_http_transport_new(
+  return _HttpTransportHandle._(realmLib.realm_http_transport_new(
     realmLib.addresses.realm_dart_http_request_callback,
     requestCallbackUserdata.cast(),
     realmLib.addresses.realm_dart_userdata_async_free,
@@ -466,9 +470,13 @@ Future<void> _requestCallbackAsync(
   });
 }
 
-SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
+class _SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
+  _SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
+}
+
+_SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
   return using((arena) {
-    final handle = SyncClientConfigHandle._(realmLib.realm_sync_client_config_new());
+    final handle = _SyncClientConfigHandle._(realmLib.realm_sync_client_config_new());
 
     realmLib.realm_sync_client_config_set_base_file_path(handle.pointer, configuration.baseFilePath.path.toCharPtr(arena));
     realmLib.realm_sync_client_config_set_metadata_mode(handle.pointer, configuration.metadataPersistenceMode.index);
@@ -480,10 +488,14 @@ SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
   });
 }
 
-AppConfigHandle _createAppConfig(AppConfiguration configuration, RealmHttpTransportHandle httpTransport) {
+class _AppConfigHandle extends HandleBase<realm_app_config> {
+  _AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
+}
+
+_AppConfigHandle _createAppConfig(AppConfiguration configuration, _HttpTransportHandle httpTransport) {
   return using((arena) {
     final appId = configuration.appId.toCharPtr(arena);
-    final handle = AppConfigHandle._(realmLib.realm_app_config_new(appId, httpTransport.pointer));
+    final handle = _AppConfigHandle._(realmLib.realm_app_config_new(appId, httpTransport.pointer));
 
     realmLib.realm_app_config_set_platform_version(handle.pointer, Platform.operatingSystemVersion.toCharPtr(arena));
 
