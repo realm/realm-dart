@@ -61,49 +61,49 @@ class User {
 
   /// The current state of this [User].
   UserState get state {
-    return this.handle.state;
+    return handle.state;
   }
 
   /// Get this [User]'s id on MongoDB Atlas.
   String get id {
-    return this.handle.id;
+    return handle.id;
   }
 
   /// Gets a collection of all identities associated with this [User].
   List<UserIdentity> get identities {
-    return this.handle.identities;
+    return handle.identities;
   }
 
   /// Removes the [User]'s local credentials. This will also close any associated Sessions.
   Future<void> logOut() async {
-    return await this.handle.logOut();
+    return await handle.logOut();
   }
 
   /// Gets an unique identifier for the current device.
   String? get deviceId {
-    return this.handle.deviceId;
+    return handle.deviceId;
   }
 
   /// Gets the profile information for this [User].
   UserProfile get profile {
-    return this.handle.profileData;
+    return handle.profileData;
   }
 
   /// Gets the refresh token for this [User]. This is the user's credential for
   /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get refreshToken {
-    return this.handle.refreshToken;
+    return handle.refreshToken;
   }
 
   /// Gets the access token for this [User]. This is the user's credential for
   /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get accessToken {
-    return this.handle.accessToken;
+    return handle.accessToken;
   }
 
   /// The custom user data associated with this [User].
   dynamic get customData {
-    final data = this.handle.customData;
+    final data = handle.customData;
     if (data == null) {
       return null;
     }

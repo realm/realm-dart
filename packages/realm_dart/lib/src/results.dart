@@ -29,7 +29,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
   }
 
   /// Gets a value indicating whether this collection is still valid to use.
-  bool get isValid => this.handle.isValid();
+  bool get isValid => handle.isValid();
 
   /// Returns the element of type `T` at the specified [index].
   T operator [](int index) => elementAt(index);
@@ -81,7 +81,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
 
     if (start < 0) start = 0;
     start += _skipOffset;
-    final index = this.handle.find(element);
+    final index = handle.find(element);
     return index < start ? -1 : index; // to align with dart list semantics
   }
 
@@ -110,7 +110,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
 
   /// The number of values in this `Results` collection.
   @override
-  int get length => this.handle.count - _skipOffset;
+  int get length => handle.count - _skipOffset;
 
   @override
   T get first {
