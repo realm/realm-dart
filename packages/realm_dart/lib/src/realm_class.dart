@@ -440,8 +440,11 @@ class Realm implements Finalizable {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object?> args = const []]) {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.queryClass(this, metadata.classKey, query, args);
-    return RealmResultsInternal.create<T>(handle, this, metadata);
+    return RealmResultsInternal.create<T>(
+      _handle.queryClass(metadata.classKey, query, args),
+      this,
+      metadata,
+    );
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`

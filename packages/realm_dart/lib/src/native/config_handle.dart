@@ -12,7 +12,7 @@ class ConfigHandle extends HandleBase<realm_config> {
       final configHandle = ConfigHandle._(configPtr);
 
       if (config.schemaObjects.isNotEmpty) {
-        final schemaHandle = _RealmCore._createSchema(config.schemaObjects);
+        final schemaHandle = SchemaHandle(config.schemaObjects);
         realmLib.realm_config_set_schema(configHandle.pointer, schemaHandle.pointer);
       }
 

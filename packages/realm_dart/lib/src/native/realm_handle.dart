@@ -75,4 +75,26 @@ class RealmHandle extends HandleBase<shared_realm> {
     final configHandle = ConfigHandle(config);
     invokeGetBool(() => realmLib.realm_convert_with_config(pointer, configHandle.pointer, false));
   }
+
+  RealmResultsHandle queryClass(int classKey, String query, List<Object?> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_query_arg_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
+      }
+      final queryHandle = QueryHandle._(
+          invokeGetPointer(
+            () => realmLib.realm_query_parse(
+              pointer,
+              classKey,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          this);
+      return queryHandle.findAll();
+    });
+  }
 }

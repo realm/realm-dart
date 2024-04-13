@@ -46,8 +46,10 @@ part 'convert.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'mutable_subscription_set_handle.dart';
+part 'query_handle.dart';
 part 'realm_handle.dart';
 part 'rooted_handle.dart';
+part 'schema_handle.dart';
 part 'subscription_handle.dart';
 part 'subscription_set_handle.dart';
 
@@ -202,70 +204,6 @@ class _RealmCore {
   // void invokeGC() {
   //   realmLib.realm_dart_gc();
   // }
-
-  static SchemaHandle _createSchema(Iterable<SchemaObject> schema) {
-    return using((Arena arena) {
-      final classCount = schema.length;
-
-      final schemaClasses = arena<realm_class_info_t>(classCount);
-      final schemaProperties = arena<Pointer<realm_property_info_t>>(classCount);
-
-      for (var i = 0; i < classCount; i++) {
-        final schemaObject = schema.elementAt(i);
-        final classInfo = schemaClasses.elementAt(i).ref;
-        final propertiesCount = schemaObject.length;
-        final computedCount = schemaObject.where((p) => p.isComputed).length;
-        final persistedCount = propertiesCount - computedCount;
-
-        classInfo.name = schemaObject.name.toCharPtr(arena);
-        classInfo.primary_key = "".toCharPtr(arena);
-        classInfo.num_properties = persistedCount;
-        classInfo.num_computed_properties = computedCount;
-        classInfo.key = RLM_INVALID_CLASS_KEY;
-        classInfo.flags = schemaObject.baseType.flags;
-
-        final properties = arena<realm_property_info_t>(propertiesCount);
-
-        for (var j = 0; j < propertiesCount; j++) {
-          final schemaProperty = schemaObject[j];
-          final propInfo = properties.elementAt(j).ref;
-          propInfo.name = schemaProperty.mapTo.toCharPtr(arena);
-          propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
-          propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
-          propInfo.link_origin_property_name = (schemaProperty.linkOriginProperty ?? "").toCharPtr(arena);
-          propInfo.type = schemaProperty.propertyType.index;
-          propInfo.collection_type = schemaProperty.collectionType.index;
-          propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL;
-
-          if (schemaProperty.optional) {
-            propInfo.flags |= realm_property_flags.RLM_PROPERTY_NULLABLE;
-          }
-
-          switch (schemaProperty.indexType) {
-            case RealmIndexType.regular:
-              propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED;
-              break;
-            case RealmIndexType.fullText:
-              propInfo.flags |= realm_property_flags.RLM_PROPERTY_FULLTEXT_INDEXED;
-              break;
-            default:
-              break;
-          }
-
-          if (schemaProperty.primaryKey) {
-            classInfo.primary_key = schemaProperty.mapTo.toCharPtr(arena);
-            propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
-          }
-        }
-
-        schemaProperties[i] = properties;
-        schemaProperties.elementAt(i).value = properties;
-      }
-
-      final schemaPtr = invokeGetPointer(() => realmLib.realm_schema_new(schemaClasses, classCount, schemaProperties));
-      return SchemaHandle._(schemaPtr);
-    });
-  }
 
   String getPathForUser(User user) {
     final syncConfigPtr = invokeGetPointer(() => realmLib.realm_flx_sync_config_new(user.handle.pointer));
@@ -732,28 +670,6 @@ class _RealmCore {
     return RealmResultsHandle._(pointer, realm.handle);
   }
 
-  RealmResultsHandle queryClass(Realm realm, int classKey, String query, List<Object?> args) {
-    return using((arena) {
-      final length = args.length;
-      final argsPointer = arena<realm_query_arg_t>(length);
-      for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
-      }
-      final queryHandle = _RealmQueryHandle._(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse(
-              realm.handle.pointer,
-              classKey,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          realm.handle);
-      return _queryFindAll(queryHandle);
-    });
-  }
-
   RealmResultsHandle queryResults(RealmResults target, String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
@@ -761,7 +677,7 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = _RealmQueryHandle._(
+      final queryHandle = QueryHandle._(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_results(
               target.handle.pointer,
@@ -771,17 +687,8 @@ class _RealmCore {
             ),
           ),
           target.realm.handle);
-      return _queryFindAll(queryHandle);
+      return queryHandle.findAll();
     });
-  }
-
-  RealmResultsHandle _queryFindAll(_RealmQueryHandle queryHandle) {
-    try {
-      final resultsPointer = invokeGetPointer(() => realmLib.realm_query_find_all(queryHandle.pointer));
-      return RealmResultsHandle._(resultsPointer, queryHandle._root);
-    } finally {
-      queryHandle.release();
-    }
   }
 
   RealmResultsHandle queryList(RealmList target, String query, List<Object?> args) {
@@ -791,7 +698,7 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = _RealmQueryHandle._(
+      final queryHandle = QueryHandle._(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_list(
               target.handle.pointer,
@@ -801,7 +708,7 @@ class _RealmCore {
             ),
           ),
           target.realm.handle);
-      return _queryFindAll(queryHandle);
+      return queryHandle.findAll();
     });
   }
 
@@ -812,7 +719,7 @@ class _RealmCore {
       for (var i = 0; i < length; ++i) {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
-      final queryHandle = _RealmQueryHandle._(
+      final queryHandle = QueryHandle._(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_set(
               target.handle.pointer,
@@ -822,7 +729,7 @@ class _RealmCore {
             ),
           ),
           target.realm.handle);
-      return _queryFindAll(queryHandle);
+      return queryHandle.findAll();
     });
   }
 
@@ -835,7 +742,7 @@ class _RealmCore {
       }
 
       final results = mapGetValues(target);
-      final queryHandle = _RealmQueryHandle._(
+      final queryHandle = QueryHandle._(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_results(
               results.pointer,
@@ -845,7 +752,7 @@ class _RealmCore {
             ),
           ),
           target.realm.handle);
-      return _queryFindAll(queryHandle);
+      return queryHandle.findAll();
     });
   }
 
@@ -2711,12 +2618,6 @@ class _RealmCore {
   }
 }
 
-class SchemaHandle extends HandleBase<realm_schema> {
-  SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
-
-  SchemaHandle.unowned(super.pointer) : super.unowned();
-}
-
 class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 }
@@ -2761,10 +2662,6 @@ class RealmSetHandle extends RootedHandleBase<realm_set> {
 
 class RealmMapHandle extends CollectionHandleBase<realm_dictionary> {
   RealmMapHandle._(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
-}
-
-class _RealmQueryHandle extends RootedHandleBase<realm_query> {
-  _RealmQueryHandle._(Pointer<realm_query> pointer, RealmHandle root) : super(root, pointer, 256);
 }
 
 class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
