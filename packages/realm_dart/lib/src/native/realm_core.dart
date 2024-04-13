@@ -53,6 +53,7 @@ part 'realm_handle.dart';
 part 'results_handle.dart';
 part 'rooted_handle.dart';
 part 'schema_handle.dart';
+part 'session_handle.dart';
 part 'subscription_handle.dart';
 part 'subscription_set_handle.dart';
 part 'user_handle.dart';
@@ -615,17 +616,11 @@ class _RealmCore {
         () => realmLib.realm_set_dictionary(object.handle.pointer, propertyKey));
   }
 
-  String objectToString(RealmObjectBase object) {
-    return realmLib.realm_object_to_string(object.handle.pointer).cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
-  }
+  String objectToString(RealmObjectBase object) => object.handle.objectToString();
 
   // For debugging
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
-
-  void deleteRealmObject(RealmObjectBase object) {
-    invokeGetBool(() => realmLib.realm_object_delete(object.handle.pointer));
-  }
 
   ResultsHandle queryList(RealmList target, String query, List<Object?> args) {
     return using((arena) {
@@ -1420,46 +1415,6 @@ class _RealmCore {
     return AuthProviderTypeInternal.getByValue(provider);
   }
 
-  String sessionGetPath(Session session) {
-    return realmLib.realm_sync_session_get_file_path(session.handle.pointer).cast<Utf8>().toRealmDartString()!;
-  }
-
-  SessionState sessionGetState(Session session) {
-    final value = realmLib.realm_sync_session_get_state(session.handle.pointer);
-    return _convertCoreSessionState(value);
-  }
-
-  ConnectionState sessionGetConnectionState(Session session) {
-    final value = realmLib.realm_sync_session_get_connection_state(session.handle.pointer);
-    return ConnectionState.values[value];
-  }
-
-  UserHandle sessionGetUser(Session session) {
-    return UserHandle._(realmLib.realm_sync_session_get_user(session.handle.pointer));
-  }
-
-  SessionState _convertCoreSessionState(int value) {
-    switch (value) {
-      case 0: // RLM_SYNC_SESSION_STATE_ACTIVE
-      case 1: // RLM_SYNC_SESSION_STATE_DYING
-        return SessionState.active;
-      case 2: // RLM_SYNC_SESSION_STATE_INACTIVE
-      case 3: // RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN
-      case 4: // RLM_SYNC_SESSION_STATE_PAUSED
-        return SessionState.inactive;
-      default:
-        throw Exception("Unexpected SessionState: $value");
-    }
-  }
-
-  void sessionPause(Session session) {
-    realmLib.realm_sync_session_pause(session.handle.pointer);
-  }
-
-  void sessionResume(Session session) {
-    realmLib.realm_sync_session_resume(session.handle.pointer);
-  }
-
   RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterProgressNotifier(
       Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
@@ -1497,41 +1452,6 @@ class _RealmCore {
     final controller = userdata as SessionConnectionStateController;
 
     controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
-  }
-
-  Future<void> sessionWaitForUpload(Session session, [CancellationToken? cancellationToken]) {
-    final completer = CancellableCompleter<void>(cancellationToken);
-    if (!completer.isCancelled) {
-      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_sessionWaitCompletionCallback);
-      final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle.pointer);
-      realmLib.realm_sync_session_wait_for_upload_completion(session.handle.pointer, realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
-          userdata.cast(), realmLib.addresses.realm_dart_userdata_async_free);
-    }
-    return completer.future;
-  }
-
-  Future<void> sessionWaitForDownload(Session session, [CancellationToken? cancellationToken]) {
-    final completer = CancellableCompleter<void>(cancellationToken);
-    if (!completer.isCancelled) {
-      final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_sessionWaitCompletionCallback);
-      final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle.pointer);
-      realmLib.realm_sync_session_wait_for_download_completion(session.handle.pointer, realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
-          userdata.cast(), realmLib.addresses.realm_dart_userdata_async_free);
-    }
-    return completer.future;
-  }
-
-  static void _sessionWaitCompletionCallback(Object userdata, Pointer<realm_error_t> errorCode) {
-    final completer = userdata as CancellableCompleter<void>;
-    if (completer.isCancelled) {
-      return;
-    }
-    if (errorCode != nullptr) {
-      // Throw RealmException instead of RealmError to be recoverable by the user.
-      completer.completeError(RealmException(errorCode.toDart().toString()));
-    } else {
-      completer.complete();
-    }
   }
 
   String _getAppDirectoryFromPlugin() {
@@ -1868,13 +1788,6 @@ class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
 
 class RealmAsyncOpenTaskProgressNotificationTokenHandle extends HandleBase<realm_async_open_task_progress_notification_token_t> {
   RealmAsyncOpenTaskProgressNotificationTokenHandle._(Pointer<realm_async_open_task_progress_notification_token_t> pointer) : super(pointer, 40);
-}
-
-class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
-  @override
-  bool get shouldRoot => true;
-
-  SessionHandle._(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
 }
 
 extension on List<int> {

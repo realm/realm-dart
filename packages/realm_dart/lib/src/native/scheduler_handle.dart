@@ -1,6 +1,12 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:ffi';
+
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_library.dart';
+
 class SchedulerHandle extends HandleBase<realm_scheduler> {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 

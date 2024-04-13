@@ -18,38 +18,38 @@ class Session implements Finalizable {
   final SessionHandle _handle;
 
   /// The on-disk path of the file backing the [Realm] this [Session] represents
-  String get realmPath => realmCore.sessionGetPath(this);
+  String get realmPath => this.handle.path;
 
   /// The session’s current state. This is different from [connectionState] since a
   /// session may be active, even if the connection is disconnected (e.g. due to the device
   /// being offline).
-  SessionState get state => realmCore.sessionGetState(this);
+  SessionState get state => this.handle.state;
 
   /// The session’s current connection state. This is the physical state of the connection
   /// and is different from the session's logical state, which is returned by [state].
-  ConnectionState get connectionState => realmCore.sessionGetConnectionState(this);
+  ConnectionState get connectionState => this.handle.connectionState;
 
   /// The [User] that owns the [Realm] this [Session] is synchronizing.
-  User get user => UserInternal.create(realmCore.sessionGetUser(this));
+  User get user => UserInternal.create(this.handle.user);
 
   Session._(this._handle);
 
   /// Pauses any synchronization with the server until the Realm is re-opened again
   /// after fully closing it or [resume] is called.
-  void pause() => realmCore.sessionPause(this);
+  void pause() => this.handle.pause();
 
   /// Attempts to resume the session and enable synchronization with the server.
   /// All sessions are active by default and calling this method is only necessary
   /// if [pause] was called previously.
-  void resume() => realmCore.sessionResume(this);
+  void resume() => this.handle.resume();
 
   /// Waits for the [Session] to finish all pending uploads.
   /// An optional [cancellationToken] can be used to cancel the wait operation.
-  Future<void> waitForUpload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForUpload(this, cancellationToken);
+  Future<void> waitForUpload([CancellationToken? cancellationToken]) => this.handle.waitForUpload(cancellationToken);
 
   /// Waits for the [Session] to finish all pending downloads.
   /// An optional [cancellationToken] can be used to cancel the wait operation.
-  Future<void> waitForDownload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForDownload(this, cancellationToken);
+  Future<void> waitForDownload([CancellationToken? cancellationToken]) => this.handle.waitForDownload(cancellationToken);
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {

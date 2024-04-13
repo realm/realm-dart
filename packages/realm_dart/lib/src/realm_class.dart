@@ -317,7 +317,7 @@ class Realm implements Finalizable {
 
     _ensureManagedByThis(object, 'delete object from Realm');
 
-    realmCore.deleteRealmObject(object);
+    object.handle.delete();
   }
 
   /// Deletes many [RealmObject]s from this `Realm`.
