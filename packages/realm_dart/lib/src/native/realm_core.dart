@@ -217,19 +217,11 @@ class _RealmCore {
     }
   }
 
-  SubscriptionSetHandle getSubscriptions(Realm realm) {
-    return SubscriptionSetHandle._(invokeGetPointer(() => realmLib.realm_sync_get_active_subscription_set(realm.handle.pointer)), realm.handle);
-  }
-
   void raiseError(Session session, int errorCode, bool isFatal) {
     using((arena) {
       final message = "Simulated session error".toCharPtr(arena);
       realmLib.realm_sync_session_handle_error_for_testing(session.handle.pointer, errorCode, message, isFatal);
     });
-  }
-
-  void realmDisableAutoRefreshForTesting(Realm realm) {
-    realmLib.realm_set_auto_refresh(realm.handle.pointer, false);
   }
 
   SchedulerHandle createScheduler(int isolateId, int sendPort) {
@@ -401,131 +393,6 @@ class _RealmCore {
 
   String getRealmLibraryCpuArchitecture() {
     return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
-  }
-
-  void closeRealm(Realm realm) {
-    invokeGetBool(() => realmLib.realm_close(realm.handle.pointer), "Realm close failed");
-  }
-
-  bool isRealmClosed(Realm realm) {
-    return realmLib.realm_is_closed(realm.handle.pointer);
-  }
-
-  void beginWrite(Realm realm) {
-    invokeGetBool(() => realmLib.realm_begin_write(realm.handle.pointer), "Could not begin write");
-  }
-
-  void commitWrite(Realm realm) {
-    invokeGetBool(() => realmLib.realm_commit(realm.handle.pointer), "Could not commit write");
-  }
-
-  Future<void> beginWriteAsync(Realm realm, CancellationToken? ct) {
-    int? id;
-    final completer = CancellableCompleter<void>(ct, onCancel: () {
-      if (id != null) {
-        realmCore._cancelAsync(realm, id!);
-      }
-    });
-    if (ct?.isCancelled != true) {
-      using((arena) {
-        final transaction_id = arena<UnsignedInt>();
-        invokeGetBool(() => realmLib.realm_async_begin_write(
-              realm.handle.pointer,
-              Pointer.fromFunction(_completeAsyncBeginWrite),
-              completer.toPersistentHandle(),
-              realmLib.addresses.realm_dart_delete_persistent_handle,
-              true,
-              transaction_id,
-            ));
-        id = transaction_id.value;
-      });
-    }
-    return completer.future;
-  }
-
-  Future<void> commitWriteAsync(Realm realm, CancellationToken? ct) {
-    int? id;
-    final completer = CancellableCompleter<void>(ct, onCancel: () {
-      if (id != null) {
-        realmCore._cancelAsync(realm, id!);
-      }
-    });
-    if (ct?.isCancelled != true) {
-      using((arena) {
-        final transaction_id = arena<UnsignedInt>();
-        invokeGetBool(() => realmLib.realm_async_commit(
-              realm.handle.pointer,
-              Pointer.fromFunction(_completeAsyncCommit),
-              completer.toPersistentHandle(),
-              realmLib.addresses.realm_dart_delete_persistent_handle,
-              false,
-              transaction_id,
-            ));
-        id = transaction_id.value;
-      });
-    }
-    return completer.future;
-  }
-
-  bool _cancelAsync(Realm realm, int cancellationId) {
-    return using((Arena arena) {
-      final didCancel = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_async_cancel(realm.handle.pointer, cancellationId, didCancel));
-      return didCancel.value;
-    });
-  }
-
-  static void _completeAsyncBeginWrite(Pointer<Void> userdata) {
-    final Completer<void> completer = userdata.toObject();
-    completer.complete();
-  }
-
-  static void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
-    final Completer<void> completer = userdata.toObject();
-    if (error) {
-      completer.completeError(RealmException(description.cast<Utf8>().toDartString()));
-    } else {
-      completer.complete();
-    }
-  }
-
-  bool getIsWritable(Realm realm) {
-    return realmLib.realm_is_writable(realm.handle.pointer);
-  }
-
-  void rollbackWrite(Realm realm) {
-    invokeGetBool(() => realmLib.realm_rollback(realm.handle.pointer), "Could not rollback write");
-  }
-
-  bool realmRefresh(Realm realm) {
-    return using((Arena arena) {
-      final did_refresh = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_refresh(realm.handle.pointer, did_refresh), "Could not refresh");
-      return did_refresh.value;
-    });
-  }
-
-  Future<bool> realmRefreshAsync(Realm realm) async {
-    final completer = Completer<bool>();
-    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
-    Pointer<Void> completerPtr = realmLib.realm_dart_object_to_persistent_handle(completer);
-    Pointer<realm_refresh_callback_token> result =
-        realmLib.realm_add_realm_refresh_callback(realm.handle.pointer, callback.cast(), completerPtr, realmLib.addresses.realm_dart_delete_persistent_handle);
-
-    if (result == nullptr) {
-      return Future<bool>.value(false);
-    }
-
-    return completer.future;
-  }
-
-  static void _realmRefreshAsyncCallback(Pointer<Void> userdata) {
-    if (userdata == nullptr) {
-      return;
-    }
-
-    final completer = realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<bool>;
-    completer.complete(true);
   }
 
   RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
@@ -1999,10 +1866,6 @@ class _RealmCore {
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
-  SessionHandle realmGetSession(Realm realm) {
-    return SessionHandle._(invokeGetPointer(() => realmLib.realm_sync_session_get(realm.handle.pointer)), realm.handle);
-  }
-
   String sessionGetPath(Session session) {
     return realmLib.realm_sync_session_get_file_path(session.handle.pointer).cast<Utf8>().toRealmDartString()!;
   }
@@ -2205,12 +2068,8 @@ class _RealmCore {
     return completer.future;
   }
 
-  bool isFrozen(Realm realm) {
-    return realmLib.realm_is_frozen(realm.handle.pointer.cast());
-  }
-
   ResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) => realmResults.handle.resolveIn(frozenRealm.handle);
-  
+
   ObjectHandle? resolveObject(RealmObjectBase object, Realm frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_object>>();
@@ -2466,8 +2325,6 @@ class _RealmCore {
     });
   }
 
-  bool compact(Realm realm) => realm.handle.compact();
-
   bool immediatelyRunFileActions(App app, String realmPath) {
     return using((arena) {
       final out_did_run = arena<Bool>();
@@ -2476,8 +2333,6 @@ class _RealmCore {
       return out_did_run.value;
     });
   }
-
-  void writeCopy(Realm realm, Configuration config) => realm.handle.writeCopy(config);
 
   void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
     CollectionHandleBase? collectionHandle;

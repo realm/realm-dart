@@ -1819,7 +1819,7 @@ void main() {
     final results = realm.query<Person>(r"name == $0", [personName]);
 
     expect(realm.refresh(), false);
-    realmCore.realmDisableAutoRefreshForTesting(realm);
+    realm.handle.disableAutoRefreshForTesting();
 
     ReceivePort receivePort = ReceivePort();
     Isolate.spawn((SendPort sendPort) async {

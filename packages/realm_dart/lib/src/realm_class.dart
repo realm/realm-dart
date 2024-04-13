@@ -127,7 +127,7 @@ class Realm implements Finalizable {
 
   /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
   /// and will not update when writes are made to the database.
-  late final bool isFrozen = realmCore.isFrozen(this);
+  late final bool isFrozen = this.handle.isFrozen;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
@@ -345,7 +345,7 @@ class Realm implements Finalizable {
   }
 
   /// Checks whether the `Realm` is in write transaction.
-  bool get isInTransaction => realmCore.getIsWritable(this);
+  bool get isInTransaction => this.handle.isWritable;
 
   /// Synchronously calls the provided callback inside a write transaction.
   ///
@@ -366,14 +366,14 @@ class Realm implements Finalizable {
 
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
-    realmCore.beginWrite(this);
+    this.handle.beginWrite();
     return Transaction._(this);
   }
 
   /// Asynchronously begins a write transaction for this [Realm]. You can supply a
   /// [CancellationToken] to cancel the operation.
   Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
-    await realmCore.beginWriteAsync(this, cancellationToken);
+    await this.handle.beginWriteAsync(cancellationToken);
     return Transaction._(this);
   }
 
@@ -404,12 +404,12 @@ class Realm implements Finalizable {
     }
 
     _schemaCallbackHandle?.release();
-    realmCore.closeRealm(this);
+    this.handle.close();
     handle.release();
   }
 
   /// Checks whether the `Realm` is closed.
-  bool get isClosed => _handle.released || realmCore.isRealmClosed(this);
+  bool get isClosed => _handle.released || this.handle.isClosed;
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object? primaryKey) {
@@ -480,7 +480,7 @@ class Realm implements Finalizable {
     var result = _subscriptions?.target;
 
     if (result == null || result.handle.released) {
-      result = SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
+      result = SubscriptionSetInternal.create(this, this.handle.subscriptions);
       result.handle.refresh();
       _subscriptions = WeakReference(result);
     }
@@ -500,7 +500,7 @@ class Realm implements Finalizable {
     var result = _syncSession?.target;
 
     if (result == null || result.handle.released) {
-      result = SessionInternal.create(realmCore.realmGetSession(this));
+      result = SessionInternal.create(this.handle.getSession());
       _syncSession = WeakReference(result);
     }
 
@@ -563,7 +563,7 @@ class Realm implements Finalizable {
       realm.syncSession.pause();
     }
     try {
-      return realmCore.compact(realm);
+      return realm.handle.compact();
     } finally {
       realm.close();
     }
@@ -583,7 +583,7 @@ class Realm implements Finalizable {
       throw RealmError("Copying a Realm is not allowed within a write transaction or during migration.");
     }
 
-    realmCore.writeCopy(this, config);
+    this.handle.writeCopy(config);
   }
 
   /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
@@ -593,7 +593,7 @@ class Realm implements Finalizable {
   /// Typically you don't need to call this method since Realm has auto-refresh built-in.
   /// Note that this may return `true` even if no data has actually changed.
   bool refresh() {
-    return realmCore.realmRefresh(this);
+    return this.handle.refresh();
   }
 
   /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
@@ -601,7 +601,7 @@ class Realm implements Finalizable {
   ///
   /// Note that this may return `true` even if no data has actually changed.
   Future<bool> refreshAsync() async {
-    return realmCore.realmRefreshAsync(this);
+    return this.handle.refreshAsync();
   }
 
   /// Allows listening for schema changes on this Realm. Only dynamic and synchronized
@@ -645,6 +645,8 @@ class Realm implements Finalizable {
       }
     }
   }
+
+  void disableAutoRefreshForTesting() => handle.disableAutoRefreshForTesting();
 }
 
 /// Describes the schema changes that occurred on a Realm
@@ -674,7 +676,7 @@ class Transaction {
   void commit() {
     final realm = _ensureOpen('commit');
 
-    realmCore.commitWrite(realm);
+    realm.handle.commitWrite();
 
     _closeTransaction();
   }
@@ -685,7 +687,7 @@ class Transaction {
   Future<void> commitAsync([CancellationToken? cancellationToken]) async {
     final realm = _ensureOpen('commitAsync');
 
-    await realmCore.commitWriteAsync(realm, cancellationToken);
+    await realm.handle.commitWriteAsync(cancellationToken);
 
     _closeTransaction();
   }
@@ -695,7 +697,7 @@ class Transaction {
     final realm = _ensureOpen('rollback');
 
     if (!realm.isClosed) {
-      realmCore.rollbackWrite(realm);
+      realm.handle.rollbackWrite();
     }
 
     _closeTransaction();

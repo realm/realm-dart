@@ -99,4 +99,145 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   RealmHandle freeze() => RealmHandle._(invokeGetPointer(() => realmLib.realm_freeze(pointer)));
+
+  SessionHandle getSession() {
+    return SessionHandle._(invokeGetPointer(() => realmLib.realm_sync_session_get(pointer)), this);
+  }
+
+  bool get isFrozen {
+    return realmLib.realm_is_frozen(pointer.cast());
+  }
+
+  SubscriptionSetHandle get subscriptions {
+    return SubscriptionSetHandle._(invokeGetPointer(() => realmLib.realm_sync_get_active_subscription_set(pointer)), this);
+  }
+
+  void disableAutoRefreshForTesting() {
+    realmLib.realm_set_auto_refresh(pointer, false);
+  }
+
+  void close() {
+    invokeGetBool(() => realmLib.realm_close(pointer), "Realm close failed");
+  }
+
+  bool get isClosed {
+    return realmLib.realm_is_closed(pointer);
+  }
+
+  void beginWrite() {
+    invokeGetBool(() => realmLib.realm_begin_write(pointer), "Could not begin write");
+  }
+
+  void commitWrite() {
+    invokeGetBool(() => realmLib.realm_commit(pointer), "Could not commit write");
+  }
+
+  Future<void> beginWriteAsync(CancellationToken? ct) {
+    int? id;
+    final completer = CancellableCompleter<void>(ct, onCancel: () {
+      if (id != null) {
+        _cancelAsync(id!);
+      }
+    });
+    if (ct?.isCancelled != true) {
+      using((arena) {
+        final transactionId = arena<UnsignedInt>();
+        invokeGetBool(() => realmLib.realm_async_begin_write(
+              pointer,
+              Pointer.fromFunction(_completeAsyncBeginWrite),
+              completer.toPersistentHandle(),
+              realmLib.addresses.realm_dart_delete_persistent_handle,
+              true,
+              transactionId,
+            ));
+        id = transactionId.value;
+      });
+    }
+    return completer.future;
+  }
+
+  Future<void> commitWriteAsync(CancellationToken? ct) {
+    int? id;
+    final completer = CancellableCompleter<void>(ct, onCancel: () {
+      if (id != null) {
+        _cancelAsync(id!);
+      }
+    });
+    if (ct?.isCancelled != true) {
+      using((arena) {
+        final transactionId = arena<UnsignedInt>();
+        invokeGetBool(() => realmLib.realm_async_commit(
+              pointer,
+              Pointer.fromFunction(_completeAsyncCommit),
+              completer.toPersistentHandle(),
+              realmLib.addresses.realm_dart_delete_persistent_handle,
+              false,
+              transactionId,
+            ));
+        id = transactionId.value;
+      });
+    }
+    return completer.future;
+  }
+
+  bool _cancelAsync(int cancellationId) {
+    return using((Arena arena) {
+      final didCancel = arena<Bool>();
+      invokeGetBool(() => realmLib.realm_async_cancel(pointer, cancellationId, didCancel));
+      return didCancel.value;
+    });
+  }
+
+  static void _completeAsyncBeginWrite(Pointer<Void> userdata) {
+    final Completer<void> completer = userdata.toObject();
+    completer.complete();
+  }
+
+  static void _completeAsyncCommit(Pointer<Void> userdata, bool error, Pointer<Char> description) {
+    final Completer<void> completer = userdata.toObject();
+    if (error) {
+      completer.completeError(RealmException(description.cast<Utf8>().toDartString()));
+    } else {
+      completer.complete();
+    }
+  }
+
+  bool get isWritable {
+    return realmLib.realm_is_writable(pointer);
+  }
+
+  void rollbackWrite() {
+    invokeGetBool(() => realmLib.realm_rollback(pointer), "Could not rollback write");
+  }
+
+  bool refresh() {
+    return using((Arena arena) {
+      final didRefresh = arena<Bool>();
+      invokeGetBool(() => realmLib.realm_refresh(pointer, didRefresh), "Could not refresh");
+      return didRefresh.value;
+    });
+  }
+
+  Future<bool> refreshAsync() async {
+    final completer = Completer<bool>();
+    final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
+    Pointer<Void> completerPtr = realmLib.realm_dart_object_to_persistent_handle(completer);
+    Pointer<realm_refresh_callback_token> result =
+        realmLib.realm_add_realm_refresh_callback(pointer, callback.cast(), completerPtr, realmLib.addresses.realm_dart_delete_persistent_handle);
+
+    if (result == nullptr) {
+      return Future<bool>.value(false);
+    }
+
+    return completer.future;
+  }
+
+  static void _realmRefreshAsyncCallback(Pointer<Void> userdata) {
+    if (userdata == nullptr) {
+      return;
+    }
+
+    final completer = realmLib.realm_dart_persistent_handle_to_object(userdata) as Completer<bool>;
+    completer.complete(true);
+  }
 }
