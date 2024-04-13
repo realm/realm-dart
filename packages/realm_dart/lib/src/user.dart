@@ -33,7 +33,7 @@ class User {
   App get app {
     // The _app field may be null when we're retrieving a user from the session
     // rather than from the app.
-    return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
+    return _app ??= AppInternal.create(_handle.app);
   }
 
   late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
@@ -61,49 +61,49 @@ class User {
 
   /// The current state of this [User].
   UserState get state {
-    return realmCore.userGetState(this);
+    return this.handle.state;
   }
 
   /// Get this [User]'s id on MongoDB Atlas.
   String get id {
-    return realmCore.userGetId(this);
+    return this.handle.id;
   }
 
   /// Gets a collection of all identities associated with this [User].
   List<UserIdentity> get identities {
-    return realmCore.userGetIdentities(this);
+    return this.handle.identities;
   }
 
   /// Removes the [User]'s local credentials. This will also close any associated Sessions.
   Future<void> logOut() async {
-    return await realmCore.userLogOut(this);
+    return await this.handle.logOut();
   }
 
   /// Gets an unique identifier for the current device.
   String? get deviceId {
-    return realmCore.userGetDeviceId(this);
+    return this.handle.deviceId;
   }
 
   /// Gets the profile information for this [User].
   UserProfile get profile {
-    return realmCore.userGetProfileData(this);
+    return this.handle.profileData;
   }
 
   /// Gets the refresh token for this [User]. This is the user's credential for
   /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get refreshToken {
-    return realmCore.userGetRefreshToken(this);
+    return this.handle.refreshToken;
   }
 
   /// Gets the access token for this [User]. This is the user's credential for
   /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get accessToken {
-    return realmCore.userGetAccessToken(this);
+    return this.handle.accessToken;
   }
 
   /// The custom user data associated with this [User].
   dynamic get customData {
-    final data = realmCore.userGetCustomData(this);
+    final data = this.handle.customData;
     if (data == null) {
       return null;
     }

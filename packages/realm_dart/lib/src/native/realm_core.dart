@@ -54,6 +54,7 @@ part 'rooted_handle.dart';
 part 'schema_handle.dart';
 part 'subscription_handle.dart';
 part 'subscription_set_handle.dart';
+part 'user_handle.dart';
 
 final _pluginLib = () {
   if (!isFlutterPlatform) {
@@ -206,16 +207,6 @@ class _RealmCore {
   // void invokeGC() {
   //   realmLib.realm_dart_gc();
   // }
-
-  String getPathForUser(User user) {
-    final syncConfigPtr = invokeGetPointer(() => realmLib.realm_flx_sync_config_new(user.handle.pointer));
-    try {
-      final path = realmLib.realm_app_sync_client_get_default_file_path_for_realm(syncConfigPtr, nullptr);
-      return path.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
-    } finally {
-      realmLib.realm_release(syncConfigPtr.cast());
-    }
-  }
 
   void raiseError(Session session, int errorCode, bool isFatal) {
     using((arena) {
@@ -1753,11 +1744,6 @@ class _RealmCore {
     return completer.future;
   }
 
-  String? userGetCustomData(User user) {
-    final customDataPtr = realmLib.realm_user_get_custom_data(user.handle.pointer);
-    return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
-  }
-
   Future<void> userRefreshCustomData(App app, User user) {
     final completer = Completer<void>();
     invokeGetBool(
@@ -1787,83 +1773,9 @@ class _RealmCore {
     return completer.future;
   }
 
-  UserState userGetState(User user) {
-    final nativeUserState = realmLib.realm_user_get_state(user.handle.pointer);
-    return UserState.values.fromIndex(nativeUserState);
-  }
-
-  String userGetId(User user) {
-    final idPtr = invokeGetPointer(() => realmLib.realm_user_get_identity(user.handle.pointer), "Error while getting user id");
-    final userId = idPtr.cast<Utf8>().toDartString();
-    return userId;
-  }
-
-  AppHandle userGetApp(UserHandle userHandle) {
-    final appPtr = realmLib.realm_user_get_app(userHandle.pointer);
-    if (appPtr == nullptr) {
-      throw RealmException('User does not have an associated app. This is likely due to the user being logged out.');
-    }
-
-    return AppHandle._(appPtr);
-  }
-
-  List<UserIdentity> userGetIdentities(User user) {
-    return using((arena) {
-      return _userGetIdentities(user, arena);
-    });
-  }
-
-  List<UserIdentity> _userGetIdentities(User user, Arena arena, {int expectedSize = 2}) {
-    final actualCount = arena<Size>();
-    final identitiesPtr = arena<realm_user_identity_t>(expectedSize);
-    invokeGetBool(() => realmLib.realm_user_get_all_identities(user.handle.pointer, identitiesPtr, expectedSize, actualCount));
-
-    if (expectedSize < actualCount.value) {
-      // The supplied array was too small - resize it
-      arena.free(identitiesPtr);
-      return _userGetIdentities(user, arena, expectedSize: actualCount.value);
-    }
-
-    final result = <UserIdentity>[];
-    for (var i = 0; i < actualCount.value; i++) {
-      final identity = identitiesPtr.elementAt(i).ref;
-
-      result.add(UserIdentityInternal.create(
-          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));
-    }
-
-    return result;
-  }
-
-  Future<void> userLogOut(User user) {
-    invokeGetBool(() => realmLib.realm_user_log_out(user.handle.pointer), "Logout failed");
-    return Future<void>.value();
-  }
-
-  String? userGetDeviceId(User user) {
-    final deviceId = invokeGetPointer(() => realmLib.realm_user_get_device_id(user.handle.pointer));
-    return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
-  }
-
   AuthProviderType userGetCredentialsProviderType(Credentials credentials) {
     final provider = realmLib.realm_auth_credentials_get_provider(credentials.handle.pointer);
     return AuthProviderTypeInternal.getByValue(provider);
-  }
-
-  UserProfile userGetProfileData(User user) {
-    final data = invokeGetPointer(() => realmLib.realm_user_get_profile_data(user.handle.pointer));
-    final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
-    return UserProfile(profileData as Map<String, dynamic>);
-  }
-
-  String userGetRefreshToken(User user) {
-    final token = invokeGetPointer(() => realmLib.realm_user_get_refresh_token(user.handle.pointer));
-    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
-  }
-
-  String userGetAccessToken(User user) {
-    final token = invokeGetPointer(() => realmLib.realm_user_get_access_token(user.handle.pointer));
-    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   String sessionGetPath(Session session) {
@@ -2458,10 +2370,6 @@ class SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
 
 class AppHandle extends HandleBase<realm_app> {
   AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
-}
-
-class UserHandle extends HandleBase<realm_user> {
-  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
 }
 
 class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {

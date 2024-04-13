@@ -1,0 +1,93 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+part of 'realm_core.dart';
+
+class UserHandle extends HandleBase<realm_user> {
+  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
+
+  AppHandle get app {
+    return realmLib.realm_user_get_app(pointer).convert(AppHandle._) ??
+        (throw RealmException('User does not have an associated app. This is likely due to the user being logged out.'));
+  }
+
+  UserState get state {
+    final nativeUserState = realmLib.realm_user_get_state(pointer);
+    return UserState.values.fromIndex(nativeUserState);
+  }
+
+  String get id {
+    final idPtr = invokeGetPointer(() => realmLib.realm_user_get_identity(pointer), "Error while getting user id");
+    final userId = idPtr.cast<Utf8>().toDartString();
+    return userId;
+  }
+
+  List<UserIdentity> get identities {
+    return using((arena) {
+      return _userGetIdentities(arena);
+    });
+  }
+
+  List<UserIdentity> _userGetIdentities(Arena arena, {int expectedSize = 2}) {
+    final actualCount = arena<Size>();
+    final identitiesPtr = arena<realm_user_identity_t>(expectedSize);
+    invokeGetBool(() => realmLib.realm_user_get_all_identities(pointer, identitiesPtr, expectedSize, actualCount));
+
+    if (expectedSize < actualCount.value) {
+      // The supplied array was too small - resize it
+      arena.free(identitiesPtr);
+      return _userGetIdentities(arena, expectedSize: actualCount.value);
+    }
+
+    final result = <UserIdentity>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      final identity = identitiesPtr.elementAt(i).ref;
+
+      result.add(UserIdentityInternal.create(
+          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));
+    }
+
+    return result;
+  }
+
+  Future<void> logOut() {
+    invokeGetBool(() => realmLib.realm_user_log_out(pointer), "Logout failed");
+    return Future<void>.value(); // why?!
+  }
+
+  String? get deviceId {
+    final deviceId = invokeGetPointer(() => realmLib.realm_user_get_device_id(pointer));
+    return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
+  }
+
+  UserProfile get profileData {
+    final data = invokeGetPointer(() => realmLib.realm_user_get_profile_data(pointer));
+    final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
+    return UserProfile(profileData as Map<String, dynamic>);
+  }
+
+  String get refreshToken {
+    final token = invokeGetPointer(() => realmLib.realm_user_get_refresh_token(pointer));
+    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
+  }
+
+  String get accessToken {
+    final token = invokeGetPointer(() => realmLib.realm_user_get_access_token(pointer));
+    return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
+  }
+
+  String get path {
+    final syncConfigPtr = invokeGetPointer(() => realmLib.realm_flx_sync_config_new(pointer));
+    try {
+      final path = realmLib.realm_app_sync_client_get_default_file_path_for_realm(syncConfigPtr, nullptr);
+      return path.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
+    } finally {
+      realmLib.realm_release(syncConfigPtr.cast());
+    }
+  }
+
+  String? get customData {
+    final customDataPtr = realmLib.realm_user_get_custom_data(pointer);
+    return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
+  }
+}

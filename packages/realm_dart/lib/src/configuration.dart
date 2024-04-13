@@ -368,7 +368,7 @@ class FlexibleSyncConfiguration extends Configuration {
   }) : super._();
 
   @override
-  String get _defaultPath => realmCore.getPathForUser(user);
+  String get _defaultPath => user.handle.path;
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
