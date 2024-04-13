@@ -72,7 +72,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void writeCopy(Configuration config) {
-    final configHandle = _RealmCore._createConfig(config);
+    final configHandle = ConfigHandle(config);
     invokeGetBool(() => realmLib.realm_convert_with_config(pointer, configHandle.pointer, false));
   }
 }

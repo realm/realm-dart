@@ -406,7 +406,6 @@ final _openRealms = Queue<Realm>();
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
-final int encryptionKeySize = 64;
 
 const int maxInt = 9223372036854775807;
 const int minInt = -9223372036854775808;

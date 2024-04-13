@@ -84,7 +84,7 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExte
 export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
-export 'native/realm_core.dart' show Decimal128;
+export 'native/realm_core.dart' show Decimal128, encryptionKeySize;
 export 'realm_object.dart'
     show
         AsymmetricObject,
