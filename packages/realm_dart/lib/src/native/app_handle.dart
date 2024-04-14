@@ -113,22 +113,6 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
-  Future<UserHandle> linkCredentials(UserHandle user, RealmAppCredentialsHandle credentials) {
-    final completer = Completer<UserHandle>();
-    invokeGetBool(
-      () => realmLib.realm_app_link_user(
-        pointer,
-        user.pointer,
-        credentials.pointer,
-        realmLib.addresses.realm_dart_user_completion_callback,
-        _createAsyncUserCallbackUserdata(completer),
-        realmLib.addresses.realm_dart_userdata_async_free,
-      ),
-      "Link credentials failed",
-    );
-    return completer.future;
-  }
-
   String get id {
     return realmLib.realm_app_get_app_id(pointer).cast<Utf8>().toRealmDartString()!;
   }

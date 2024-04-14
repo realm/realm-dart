@@ -50,9 +50,8 @@ class UserHandle extends HandleBase<realm_user> {
     return result;
   }
 
-  Future<void> logOut() {
+  Future<void> logOut() async {
     invokeGetBool(() => realmLib.realm_user_log_out(pointer), "Logout failed");
-    return Future<void>.value(); // why?!
   }
 
   String? get deviceId {
@@ -89,5 +88,124 @@ class UserHandle extends HandleBase<realm_user> {
   String? get customData {
     final customDataPtr = realmLib.realm_user_get_custom_data(pointer);
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
+  }
+
+  Future<UserHandle> linkCredentials(AppHandle app, RealmAppCredentialsHandle credentials) {
+    final completer = Completer<UserHandle>();
+    invokeGetBool(
+      () => realmLib.realm_app_link_user(
+        app.pointer,
+        pointer,
+        credentials.pointer,
+        realmLib.addresses.realm_dart_user_completion_callback,
+        _createAsyncUserCallbackUserdata(completer),
+        realmLib.addresses.realm_dart_userdata_async_free,
+      ),
+      "Link credentials failed",
+    );
+    return completer.future;
+  }
+
+  Future<ApiKey> createApiKey(AppHandle app, String name) {
+    return using((Arena arena) {
+      final namePtr = name.toCharPtr(arena);
+      final completer = Completer<ApiKey>();
+      invokeGetBool(
+        () => realmLib.realm_app_user_apikey_provider_client_create_apikey(
+          app.pointer,
+          pointer,
+          namePtr,
+          realmLib.addresses.realm_dart_apikey_callback,
+          _createAsyncApikeyCallbackUserdata(completer),
+          realmLib.addresses.realm_dart_userdata_async_free,
+        ),
+      );
+
+      return completer.future;
+    });
+  }
+
+  Future<ApiKey> fetchApiKey(AppHandle app, ObjectId id) {
+    return using((Arena arena) {
+      final completer = Completer<ApiKey>();
+      final nativeId = id.toNative(arena);
+      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_fetch_apikey(
+            app.pointer,
+            pointer,
+            nativeId.ref,
+            realmLib.addresses.realm_dart_apikey_callback,
+            _createAsyncApikeyCallbackUserdata(completer),
+            realmLib.addresses.realm_dart_userdata_async_free,
+          ));
+
+      return completer.future;
+    });
+  }
+
+  Future<List<ApiKey>> fetchAllApiKeys(AppHandle app) {
+    return using((Arena arena) {
+      final completer = Completer<List<ApiKey>>();
+      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_fetch_apikeys(
+            app.pointer,
+            pointer,
+            realmLib.addresses.realm_dart_apikey_list_callback,
+            _createAsyncApikeyListCallbackUserdata(completer),
+            realmLib.addresses.realm_dart_userdata_async_free,
+          ));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> deleteApiKey(AppHandle app, ObjectId id) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final nativeId = id.toNative(arena);
+      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_delete_apikey(
+            app.pointer,
+            pointer,
+            nativeId.ref,
+            realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            realmLib.addresses.realm_dart_userdata_async_free,
+          ));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> disableApiKey(AppHandle app, ObjectId objectId) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final nativeId = objectId.toNative(arena);
+
+      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_disable_apikey(
+            app.pointer,
+            pointer,
+            nativeId.ref,
+            realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            realmLib.addresses.realm_dart_userdata_async_free,
+          ));
+
+      return completer.future;
+    });
+  }
+
+  Future<void> enableApiKey(AppHandle app, ObjectId objectId) {
+    return using((Arena arena) {
+      final completer = Completer<void>();
+      final nativeId = objectId.toNative(arena);
+      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_enable_apikey(
+            app.pointer,
+            pointer,
+            nativeId.ref,
+            realmLib.addresses.realm_dart_void_completion_callback,
+            _createAsyncCallbackUserdata(completer),
+            realmLib.addresses.realm_dart_userdata_async_free,
+          ));
+
+      return completer.future;
+    });
   }
 }

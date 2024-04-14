@@ -136,7 +136,7 @@ class User {
   ///  await user.linkCredentials(Credentials.emailPassword("username", "password"));
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
-    final userHandle = await app.handle.linkCredentials(handle, credentials.handle);
+    final userHandle = await handle.linkCredentials(app.handle, credentials.handle);
     return UserInternal.create(userHandle, app);
   }
 
@@ -276,42 +276,42 @@ class ApiKeyClient {
   Future<ApiKey> create(String name) async {
     _user._ensureLoggedIn('create an API key');
 
-    return realmCore.createApiKey(_user, name);
+    return _user.handle.createApiKey(_user.app.handle, name);
   }
 
   /// Fetches a specific API key by id.
   Future<ApiKey?> fetch(ObjectId id) {
     _user._ensureLoggedIn('fetch an API key');
 
-    return realmCore.fetchApiKey(_user, id).handle404();
+    return _user.handle.fetchApiKey(_user.app.handle, id).handle404();
   }
 
   /// Fetches all API keys associated with the user.
   Future<List<ApiKey>> fetchAll() async {
     _user._ensureLoggedIn('fetch all API keys');
 
-    return realmCore.fetchAllApiKeys(_user);
+    return _user.handle.fetchAllApiKeys(_user.app.handle);
   }
 
   /// Deletes a specific API key by id.
   Future<void> delete(ObjectId objectId) {
     _user._ensureLoggedIn('delete an API key');
 
-    return realmCore.deleteApiKey(_user, objectId).handle404();
+    return _user.handle.deleteApiKey(_user.app.handle, objectId).handle404();
   }
 
   /// Disables an API key by id.
   Future<void> disable(ObjectId objectId) {
     _user._ensureLoggedIn('disable an API key');
 
-    return realmCore.disableApiKey(_user, objectId).handle404(id: objectId);
+    return _user.handle.disableApiKey(_user.app.handle, objectId).handle404(id: objectId);
   }
 
   /// Enables an API key by id.
   Future<void> enable(ObjectId objectId) {
     _user._ensureLoggedIn('enable an API key');
 
-    return realmCore.enableApiKey(_user, objectId).handle404(id: objectId);
+    return _user.handle.enableApiKey(_user.app.handle, objectId).handle404(id: objectId);
   }
 }
 
