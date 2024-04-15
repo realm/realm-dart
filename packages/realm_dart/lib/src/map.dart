@@ -262,19 +262,19 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
           throw RealmError("Can't add to map an embedded object that is already managed");
         }
 
-        final objHandle = realmCore.mapInsertEmbeddedObject(realm, handle, key);
+        final objHandle = handle.insertEmbedded(key);
         realm.manageEmbedded(objHandle, value);
         return;
       }
 
       if (value is RealmValue && value.type.isCollection) {
-        realmCore.mapInsertCollection(handle, realm, key, value);
+        handle.insertCollection(realm, key, value);
         return;
       }
 
       realm.addUnmanagedRealmObjectFromValue(value, update);
 
-      realmCore.mapInsertValue(handle, key, value);
+      handle.insert(key, value);
     } on Exception catch (e) {
       throw RealmException("Error setting value at key $key. Error: $e");
     }

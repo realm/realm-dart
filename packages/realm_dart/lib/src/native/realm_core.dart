@@ -40,10 +40,11 @@ import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 
-// TODO: Use regular
+// TODO: Use regular imports
 part 'app_handle.dart';
 part 'config_handle.dart';
 part 'convert.dart';
+part 'credentials_handle.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'list_handle.dart';
@@ -902,30 +903,6 @@ class _RealmCore {
     return SetHandle._(pointer, object.realm.handle);
   }
 
-  ObjectHandle mapInsertEmbeddedObject(Realm realm, MapHandle handle, String key) {
-    return using((Arena arena) {
-      final realm_value = _toRealmValue(key, arena);
-      final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(handle.pointer, realm_value.ref));
-      return ObjectHandle._(ptr, realm.handle);
-    });
-  }
-
-  void mapInsertValue(MapHandle handle, String key, Object? value) {
-    using((Arena arena) {
-      final key_value = _toRealmValue(key, arena);
-      final value_value = _toRealmValue(value, arena);
-      invokeGetBool(() => realmLib.realm_dictionary_insert(handle.pointer, key_value.ref, value_value.ref, nullptr, nullptr));
-    });
-  }
-
-  void mapInsertCollection(MapHandle handle, Realm realm, String key, RealmValue value) {
-    using((Arena arena) {
-      final key_value = _toRealmValue(key, arena);
-      _createCollection(realm, value, () => realmLib.realm_dictionary_insert_list(handle.pointer, key_value.ref),
-          () => realmLib.realm_dictionary_insert_dictionary(handle.pointer, key_value.ref));
-    });
-  }
-
   MapHandle getMapProperty(RealmObjectBase object, int propertyKey) {
     final pointer = invokeGetPointer(() => realmLib.realm_get_dictionary(object.handle.pointer, propertyKey));
     return MapHandle._(pointer, object.realm.handle);
@@ -1031,104 +1008,6 @@ class _RealmCore {
     });
   }
 
-  AppConfigHandle _createAppConfig(AppConfiguration configuration, RealmHttpTransportHandle httpTransport) {
-    return using((arena) {
-      final app_id = configuration.appId.toCharPtr(arena);
-      final handle = AppConfigHandle._(realmLib.realm_app_config_new(app_id, httpTransport.pointer));
-
-      realmLib.realm_app_config_set_platform_version(handle.pointer, Platform.operatingSystemVersion.toCharPtr(arena));
-
-      realmLib.realm_app_config_set_sdk(handle.pointer, 'Dart'.toCharPtr(arena));
-      realmLib.realm_app_config_set_sdk_version(handle.pointer, libraryVersion.toCharPtr(arena));
-
-      final deviceName = getDeviceName();
-      realmLib.realm_app_config_set_device_name(handle.pointer, deviceName.toCharPtr(arena));
-
-      final deviceVersion = getDeviceVersion();
-      realmLib.realm_app_config_set_device_version(handle.pointer, deviceVersion.toCharPtr(arena));
-
-      realmLib.realm_app_config_set_framework_name(handle.pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
-      realmLib.realm_app_config_set_framework_version(handle.pointer, Platform.version.toCharPtr(arena));
-
-      realmLib.realm_app_config_set_base_url(handle.pointer, configuration.baseUrl.toString().toCharPtr(arena));
-
-      realmLib.realm_app_config_set_default_request_timeout(handle.pointer, configuration.defaultRequestTimeout.inMilliseconds);
-
-      realmLib.realm_app_config_set_bundle_id(handle.pointer, getBundleId().toCharPtr(arena));
-
-      _realmLib.realm_app_config_set_base_file_path(handle._pointer, configuration.baseFilePath.path.toCharPtr(arena));
-      _realmLib.realm_app_config_set_metadata_mode(handle._pointer, configuration.metadataPersistenceMode.index);
-      _realmLib.realm_app_config_set_default_request_timeout(handle._pointer, configuration.defaultRequestTimeout.inMilliseconds);
-      if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
-        _realmLib.realm_app_config_set_metadata_encryption_key(handle._pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
-      }
-
-      return handle;
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsAnonymous(bool reuseCredentials) {
-    return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_anonymous(reuseCredentials));
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsEmailPassword(String email, String password) {
-    return using((arena) {
-      final emailPtr = email.toCharPtr(arena);
-      final passwordPtr = password.toRealmString(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsJwt(String token) {
-    return using((arena) {
-      final tokenPtr = token.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_jwt(tokenPtr));
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsApple(String idToken) {
-    return using((arena) {
-      final idTokenPtr = idToken.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_apple(idTokenPtr));
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsFacebook(String accessToken) {
-    return using((arena) {
-      final accessTokenPtr = accessToken.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsGoogleIdToken(String idToken) {
-    return using((arena) {
-      final idTokenPtr = idToken.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsGoogleAuthCode(String authCode) {
-    return using((arena) {
-      final authCodePtr = authCode.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsFunction(String payload) {
-    return using((arena) {
-      final payloadPtr = payload.toCharPtr(arena);
-      final credentialsPtr = invokeGetPointer(() => realmLib.realm_app_credentials_new_function(payloadPtr));
-      return RealmAppCredentialsHandle._(credentialsPtr);
-    });
-  }
-
-  RealmAppCredentialsHandle createAppCredentialsApiKey(String key) {
-    return using((arena) {
-      final keyPtr = key.toCharPtr(arena);
-      return RealmAppCredentialsHandle._(realmLib.realm_app_credentials_new_api_key(keyPtr));
-    });
-  }
-
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
       realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
@@ -1149,11 +1028,6 @@ class _RealmCore {
 
   void clearCachedApps() {
     realmLib.realm_clear_cached_apps();
-  }
-
-  AuthProviderType userGetCredentialsProviderType(Credentials credentials) {
-    final provider = realmLib.realm_auth_credentials_get_provider(credentials.handle.pointer);
-    return AuthProviderTypeInternal.getByValue(provider);
   }
 
   RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterProgressNotifier(
@@ -1366,10 +1240,6 @@ class RealmMapChangesHandle extends HandleBase<realm_dictionary_changes> {
 
 class RealmObjectChangesHandle extends HandleBase<realm_object_changes> {
   RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
-}
-
-class RealmAppCredentialsHandle extends HandleBase<realm_app_credentials> {
-  RealmAppCredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 }
 
 class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {

@@ -90,7 +90,7 @@ class UserHandle extends HandleBase<realm_user> {
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
   }
 
-  Future<UserHandle> linkCredentials(AppHandle app, RealmAppCredentialsHandle credentials) {
+  Future<UserHandle> linkCredentials(AppHandle app, CredentialsHandle credentials) {
     final completer = Completer<UserHandle>();
     invokeGetBool(
       () => realmLib.realm_app_link_user(

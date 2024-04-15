@@ -84,21 +84,21 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
 
   bool containsValue(Object? value) => indexOf(value) > -1;
 
-  ObjectHandle mapInsertEmbeddedObject(Realm realm, MapHandle handle, String key) {
+  ObjectHandle insertEmbedded(String key) {
     return using((Arena arena) {
       final keyNative = _toRealmValue(key, arena);
-      final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(handle.pointer, keyNative.ref));
-      return ObjectHandle._(ptr, realm.handle);
+      final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(pointer, keyNative.ref));
+      return ObjectHandle._(ptr, _root);
     });
   }
 
-  void mapInsertValue(MapHandle handle, String key, Object? value) {
+  void insert(String key, Object? value) {
     using((Arena arena) {
       final keyNative = _toRealmValue(key, arena);
       final valueNative = _toRealmValue(value, arena);
       invokeGetBool(
         () => realmLib.realm_dictionary_insert(
-          handle.pointer,
+          pointer,
           keyNative.ref,
           valueNative.ref,
           nullptr,
@@ -108,14 +108,14 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
-  void mapInsertCollection(MapHandle handle, Realm realm, String key, RealmValue value) {
+  void insertCollection(Realm realm, String key, RealmValue value) {
     using((Arena arena) {
       final keyNative = _toRealmValue(key, arena);
       _createCollection(
         realm,
         value,
-        () => realmLib.realm_dictionary_insert_list(handle.pointer, keyNative.ref),
-        () => realmLib.realm_dictionary_insert_dictionary(handle.pointer, keyNative.ref),
+        () => realmLib.realm_dictionary_insert_list(pointer, keyNative.ref),
+        () => realmLib.realm_dictionary_insert_dictionary(pointer, keyNative.ref),
       );
     });
   }
