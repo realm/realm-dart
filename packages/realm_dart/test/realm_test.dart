@@ -1336,7 +1336,7 @@ void main() {
         completer.complete();
       }
     });
-    completer.future.timeout(Duration(milliseconds: 300), onTimeout: () => throw Exception("onProgressCallback did not happen."));
+    await completer.future.timeout(Duration(milliseconds: 300), onTimeout: () => throw Exception("onProgressCallback did not happen."));
     expect(syncedRealm.isClosed, false);
     expect(progressEstimate, 1.0);
   });
