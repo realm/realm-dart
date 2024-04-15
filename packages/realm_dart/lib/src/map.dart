@@ -60,7 +60,7 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 }
 
 class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> implements RealmMap<T> {
-  final RealmMapHandle _handle;
+  final MapHandle _handle;
 
   late final RealmObjectMetadata? _metadata;
 
@@ -69,7 +69,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  int get length => realmCore.mapGetSize(handle);
+  int get length => handle.size;
 
   @override
   T? remove(Object? key) {
@@ -78,7 +78,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
     }
 
     final value = this[key];
-    if (realmCore.mapRemoveKey(handle, key)) {
+    if (handle.remove(key)) {
       return value;
     }
 
@@ -92,7 +92,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
     }
 
     try {
-      var value = realmCore.mapGetElement(this, key);
+      var value = handle.find(realm, key);
       if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
@@ -127,10 +127,10 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   /// Removes all objects from this map; the length of the map becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this map.
   @override
-  void clear() => realmCore.mapClear(handle);
+  void clear() => handle.clear();
 
   @override
-  bool get isValid => realmCore.mapIsValid(this);
+  bool get isValid => handle.isValid;
 
   @override
   RealmMap<T> freeze() {
@@ -152,13 +152,13 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  Iterable<String> get keys => RealmResultsInternal.create<String>(realmCore.mapGetKeys(this), realm, null);
+  Iterable<String> get keys => RealmResultsInternal.create<String>(handle.keys, realm, null);
 
   @override
-  Iterable<T> get values => RealmResultsInternal.create<T>(realmCore.mapGetValues(this), realm, metadata);
+  Iterable<T> get values => RealmResultsInternal.create<T>(handle.values, realm, metadata);
 
   @override
-  bool containsKey(Object? key) => key is String && realmCore.mapContainsKey(this, key);
+  bool containsKey(Object? key) => key is String && handle.containsKey(key);
 
   @override
   bool containsValue(Object? value) {
@@ -180,7 +180,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
       }
     }
 
-    return realmCore.mapContainsValue(this, value);
+    return handle.containsValue(value);
   }
 }
 
@@ -239,7 +239,7 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 
   ManagedRealmMap<T> asManaged() => this is ManagedRealmMap<T> ? this as ManagedRealmMap<T> : throw RealmStateError('$this is not managed');
 
-  RealmMapHandle get handle {
+  MapHandle get handle {
     final result = asManaged()._handle;
     if (result.released) {
       throw RealmClosedError('Cannot access a map that belongs to a closed Realm');
@@ -252,10 +252,10 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 
   static RealmMap<T> createFromMap<T>(Map<String, T> map) => UnmanagedRealmMap._(map);
 
-  static RealmMap<T> create<T extends Object?>(RealmMapHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
+  static RealmMap<T> create<T extends Object?>(MapHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
       ManagedRealmMap<T>._(handle, realm, metadata);
 
-  static void setValue(RealmMapHandle handle, Realm realm, String key, Object? value, {bool update = false}) {
+  static void setValue(MapHandle handle, Realm realm, String key, Object? value, {bool update = false}) {
     try {
       if (value is EmbeddedObject) {
         if (value.isManaged) {
@@ -290,7 +290,7 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeMapNotifications(map, this);
+    return map.handle.subscribeForNotifications(this);
   }
 
   Stream<RealmMapChanges<T>> createStream() {

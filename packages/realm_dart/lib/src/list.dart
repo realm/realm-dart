@@ -177,7 +177,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 
   @override
-  bool get isValid => this.handle.isValid;
+  bool get isValid => handle.isValid;
 
   @override
   RealmList<T> freeze() {
@@ -245,7 +245,7 @@ extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   ///
   /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
-    final handle = realmCore.queryList(asManaged(), query, arguments);
+    final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 }
@@ -336,7 +336,7 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeListNotifications(list, this);
+    return list.handle.subscribeForNotifications(this);
   }
 
   Stream<RealmListChanges<T>> createStream() {

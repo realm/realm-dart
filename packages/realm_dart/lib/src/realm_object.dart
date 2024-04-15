@@ -284,7 +284,7 @@ class RealmCoreAccessor implements RealmAccessor {
       if (value is RealmSet) {
         final handle = realmCore.getSetProperty(object, propertyMeta.key);
         if (update) {
-          realmCore.realmSetClear(handle);
+          handle.clear();
         }
 
         // TODO: use realmSetAssign when available in C-API
@@ -293,7 +293,7 @@ class RealmCoreAccessor implements RealmAccessor {
         for (var element in value) {
           object.realm.addUnmanagedRealmObjectFromValue(element, update);
 
-          final result = realmCore.realmSetInsert(handle, element);
+          final result = handle.insert(element);
           if (!result) {
             throw RealmException("Error while adding value $element in RealmSet");
           }
@@ -304,7 +304,7 @@ class RealmCoreAccessor implements RealmAccessor {
       if (value is RealmMap) {
         final handle = realmCore.getMapProperty(object, propertyMeta.key);
         if (update) {
-          realmCore.mapClear(handle);
+          handle.clear();
         }
 
         for (var kvp in value.entries) {

@@ -47,6 +47,7 @@ part 'convert.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'list_handle.dart';
+part 'map_handle.dart';
 part 'mutable_subscription_set_handle.dart';
 part 'object_handle.dart';
 part 'query_handle.dart';
@@ -372,7 +373,7 @@ void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functi
         }
       case RealmCollectionType.map:
         final mapPointer = invokeGetPointer(createMap);
-        final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
+        final mapHandle = MapHandle._(mapPointer, realm.handle);
         collectionHandle = mapHandle;
 
         final map = realm.createMap<RealmValue>(mapHandle, null);
@@ -743,27 +744,6 @@ class _RealmCore {
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
 
-  ResultsHandle querySet(RealmSet target, String query, List<Object?> args) {
-    return using((arena) {
-      final length = args.length;
-      final argsPointer = arena<realm_query_arg_t>(length);
-      for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
-      }
-      final queryHandle = QueryHandle._(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse_for_set(
-              target.handle.pointer,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          target.realm.handle);
-      return queryHandle.findAll();
-    });
-  }
-
   ResultsHandle queryMap(ManagedRealmMap target, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
@@ -772,7 +752,7 @@ class _RealmCore {
         _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
 
-      final results = mapGetValues(target);
+      final results = target.handle.values;
       final queryHandle = QueryHandle._(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_results(
@@ -785,11 +765,6 @@ class _RealmCore {
           target.realm.handle);
       return queryHandle.findAll();
     });
-  }
-
-  ResultsHandle resultsFromSet(RealmSet set) {
-    final pointer = invokeGetPointer(() => realmLib.realm_set_to_results(set.handle.pointer));
-    return ResultsHandle._(pointer, set.realm.handle);
   }
 
   Object? resultsGetElementAt(RealmResults results, int index) {
@@ -922,158 +897,12 @@ class _RealmCore {
     return ResultsHandle._(pointer, object.realm.handle);
   }
 
-  RealmSetHandle getSetProperty(RealmObjectBase object, int propertyKey) {
+  SetHandle getSetProperty(RealmObjectBase object, int propertyKey) {
     final pointer = invokeGetPointer(() => realmLib.realm_get_set(object.handle.pointer, propertyKey));
-    return RealmSetHandle._(pointer, object.realm.handle);
+    return SetHandle._(pointer, object.realm.handle);
   }
 
-  bool realmSetInsert(RealmSetHandle handle, Object? value) {
-    return using((Arena arena) {
-      final realm_value = _toRealmValue(value, arena);
-      final out_index = arena<Size>();
-      final out_inserted = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_set_insert(handle.pointer, realm_value.ref, out_index, out_inserted));
-      return out_inserted.value;
-    });
-  }
-
-  Object? realmSetGetElementAt(RealmSet realmSet, int index) {
-    return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_set_get(realmSet.handle.pointer, index, realm_value));
-      final result = realm_value.toDartValue(
-          realmSet.realm, () => throw RealmException('Sets cannot contain collections'), () => throw RealmException('Sets cannot contain collections'));
-      return result;
-    });
-  }
-
-  bool realmSetFind(RealmSet realmSet, Object? value) {
-    return using((Arena arena) {
-      // TODO: how should this behave for collections
-      final realm_value = _toRealmValue(value, arena);
-      final out_index = arena<Size>();
-      final out_found = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_set_find(realmSet.handle.pointer, realm_value.ref, out_index, out_found));
-      return out_found.value;
-    });
-  }
-
-  bool realmSetErase(RealmSet realmSet, Object? value) {
-    return using((Arena arena) {
-      // TODO: do we support sets containing mixed collections
-      final realm_value = _toRealmValue(value, arena);
-      final out_erased = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_set_erase(realmSet.handle.pointer, realm_value.ref, out_erased));
-      return out_erased.value;
-    });
-  }
-
-  void realmSetClear(RealmSetHandle handle) {
-    invokeGetBool(() => realmLib.realm_set_clear(handle.pointer));
-  }
-
-  int realmSetSize(RealmSet realmSet) {
-    return using((Arena arena) {
-      final out_size = arena<Size>();
-      invokeGetBool(() => realmLib.realm_set_size(realmSet.handle.pointer, out_size));
-      return out_size.value;
-    });
-  }
-
-  bool realmSetIsValid(RealmSet realmSet) {
-    return realmLib.realm_set_is_valid(realmSet.handle.pointer);
-  }
-
-  void realmSetRemoveAll(RealmSet realmSet) {
-    invokeGetBool(() => realmLib.realm_set_remove_all(realmSet.handle.pointer));
-  }
-
-  RealmNotificationTokenHandle subscribeSetNotifications(RealmSet realmSet, NotificationsController controller) {
-    final pointer = invokeGetPointer(() => realmLib.realm_set_add_notification_callback(
-          realmSet.handle.pointer,
-          controller.toPersistentHandle(),
-          realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(collection_change_callback),
-        ));
-
-    return RealmNotificationTokenHandle._(pointer, realmSet.realm.handle);
-  }
-
-  int mapGetSize(RealmMapHandle handle) {
-    return using((Arena arena) {
-      final size = arena<Size>();
-      invokeGetBool(() => realmLib.realm_dictionary_size(handle.pointer, size));
-      return size.value;
-    });
-  }
-
-  bool mapRemoveKey(RealmMapHandle handle, String key) {
-    return using((Arena arena) {
-      final keyValue = _toRealmValue(key, arena);
-      final out_erased = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_dictionary_erase(handle.pointer, keyValue.ref, out_erased));
-      return out_erased.value;
-    });
-  }
-
-  Object? mapGetElement(RealmMap map, String key) {
-    return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
-      final key_value = _toRealmValue(key, arena);
-      final out_found = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_dictionary_find(map.handle.pointer, key_value.ref, realm_value, out_found));
-      if (out_found.value) {
-        return realm_value.toDartValue(map.realm, () => realmLib.realm_dictionary_get_list(map.handle.pointer, key_value.ref),
-            () => realmLib.realm_dictionary_get_dictionary(map.handle.pointer, key_value.ref));
-      }
-
-      return null;
-    });
-  }
-
-  bool mapIsValid(RealmMap map) {
-    return realmLib.realm_dictionary_is_valid(map.handle.pointer);
-  }
-
-  void mapClear(RealmMapHandle mapHandle) {
-    invokeGetBool(() => realmLib.realm_dictionary_clear(mapHandle.pointer));
-  }
-
-  ResultsHandle mapGetKeys(ManagedRealmMap map) {
-    return using((Arena arena) {
-      final out_size = arena<Size>();
-      final out_keys = arena<Pointer<realm_results>>();
-      invokeGetBool(() => realmLib.realm_dictionary_get_keys(map.handle.pointer, out_size, out_keys));
-      return ResultsHandle._(out_keys.value, map.realm.handle);
-    });
-  }
-
-  ResultsHandle mapGetValues(ManagedRealmMap map) {
-    final result = invokeGetPointer(() => realmLib.realm_dictionary_to_results(map.handle.pointer));
-    return ResultsHandle._(result, map.realm.handle);
-  }
-
-  bool mapContainsKey(ManagedRealmMap map, String key) {
-    return using((Arena arena) {
-      final key_value = _toRealmValue(key, arena);
-      final out_found = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_dictionary_contains_key(map.handle.pointer, key_value.ref, out_found));
-      return out_found.value;
-    });
-  }
-
-  bool mapContainsValue(ManagedRealmMap map, Object? value) {
-    return using((Arena arena) {
-      // TODO: how should this behave for collections
-      final value_value = _toRealmValue(value, arena);
-      final out_index = arena<Size>();
-      invokeGetBool(() => realmLib.realm_dictionary_contains_value(map.handle.pointer, value_value.ref, out_index));
-      return out_index.value > -1;
-    });
-  }
-
-  ObjectHandle mapInsertEmbeddedObject(Realm realm, RealmMapHandle handle, String key) {
+  ObjectHandle mapInsertEmbeddedObject(Realm realm, MapHandle handle, String key) {
     return using((Arena arena) {
       final realm_value = _toRealmValue(key, arena);
       final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(handle.pointer, realm_value.ref));
@@ -1081,7 +910,7 @@ class _RealmCore {
     });
   }
 
-  void mapInsertValue(RealmMapHandle handle, String key, Object? value) {
+  void mapInsertValue(MapHandle handle, String key, Object? value) {
     using((Arena arena) {
       final key_value = _toRealmValue(key, arena);
       final value_value = _toRealmValue(value, arena);
@@ -1089,7 +918,7 @@ class _RealmCore {
     });
   }
 
-  void mapInsertCollection(RealmMapHandle handle, Realm realm, String key, RealmValue value) {
+  void mapInsertCollection(MapHandle handle, Realm realm, String key, RealmValue value) {
     using((Arena arena) {
       final key_value = _toRealmValue(key, arena);
       _createCollection(realm, value, () => realmLib.realm_dictionary_insert_list(handle.pointer, key_value.ref),
@@ -1097,9 +926,9 @@ class _RealmCore {
     });
   }
 
-  RealmMapHandle getMapProperty(RealmObjectBase object, int propertyKey) {
+  MapHandle getMapProperty(RealmObjectBase object, int propertyKey) {
     final pointer = invokeGetPointer(() => realmLib.realm_get_dictionary(object.handle.pointer, propertyKey));
-    return RealmMapHandle._(pointer, object.realm.handle);
+    return MapHandle._(pointer, object.realm.handle);
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
@@ -1166,18 +995,6 @@ class _RealmCore {
 
       return invokeGetPointer(() => realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
     });
-  }
-
-  RealmNotificationTokenHandle subscribeMapNotifications(RealmMap map, NotificationsController controller) {
-    final pointer = invokeGetPointer(() => realmLib.realm_dictionary_add_notification_callback(
-          map.handle.pointer,
-          controller.toPersistentHandle(),
-          realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(map_change_callback),
-        ));
-
-    return RealmNotificationTokenHandle._(pointer, map.realm.handle);
   }
 
   UserNotificationTokenHandle subscribeUserNotifications(UserNotificationsController controller) {
@@ -1437,19 +1254,19 @@ class _RealmCore {
     });
   }
 
-  RealmSetHandle? resolveSet(ManagedRealmSet set, Realm frozenRealm) {
+  SetHandle? resolveSet(ManagedRealmSet set, Realm frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_set>>();
       invokeGetBool(() => realmLib.realm_set_resolve_in(set.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : RealmSetHandle._(resultPtr.value, frozenRealm.handle);
+      return resultPtr == nullptr ? null : SetHandle._(resultPtr.value, frozenRealm.handle);
     });
   }
 
-  RealmMapHandle? resolveMap(ManagedRealmMap map, Realm frozenRealm) {
+  MapHandle? resolveMap(ManagedRealmMap map, Realm frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_dictionary>>();
       invokeGetBool(() => realmLib.realm_dictionary_resolve_in(map.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : RealmMapHandle._(resultPtr.value, frozenRealm.handle);
+      return resultPtr == nullptr ? null : MapHandle._(resultPtr.value, frozenRealm.handle);
     });
   }
 
@@ -1521,10 +1338,6 @@ class _RealmLinkHandle {
   _RealmLinkHandle._(realm_link_t link)
       : targetKey = link.target,
         classKey = link.target_table;
-}
-
-class RealmMapHandle extends CollectionHandleBase<realm_dictionary> {
-  RealmMapHandle._(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
 }
 
 class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
@@ -1771,7 +1584,7 @@ extension on realm_value_t {
         }
 
         final mapPointer = invokeGetPointer(() => getMap());
-        final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
+        final mapHandle = MapHandle._(mapPointer, realm.handle);
         return realm.createMap<RealmValue>(mapHandle, null);
       default:
         throw RealmException("realm_value_type $type not supported");

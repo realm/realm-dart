@@ -122,7 +122,7 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 }
 
 class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implements RealmSet<T> {
-  final RealmSetHandle _handle;
+  final SetHandle _handle;
 
   ManagedRealmSet._(this._handle, Realm realm, this._metadata) {
     setRealm(realm);
@@ -132,7 +132,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   late final RealmObjectMetadata? _metadata;
 
   @override
-  bool get isValid => realmCore.realmSetIsValid(this);
+  bool get isValid => handle.isValid;
 
   @override
   bool add(T value) {
@@ -146,7 +146,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
       realm.addUnmanagedRealmObjectFromValue(value, false);
     }
 
-    return realmCore.realmSetInsert(_handle, value);
+    return _handle.insert(value);
   }
 
   @override
@@ -156,7 +156,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     }
 
     try {
-      var value = realmCore.realmSetGetElementAt(this, index);
+      var value = handle.elementAt(realm, index);
       if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
@@ -188,7 +188,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
     _ensureManagedByThis(element, "contains");
 
-    return realmCore.realmSetFind(this, element);
+    return handle.find(element);
   }
 
   @override
@@ -204,7 +204,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
 
     _ensureManagedByThis(value, "remove");
 
-    return realmCore.realmSetErase(this, value);
+    return handle.remove(value);
   }
 
   @override
@@ -214,10 +214,10 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   Set<T> toSet() => <T>{...this};
 
   @override
-  void clear() => realmCore.realmSetClear(_handle);
+  void clear() => _handle.clear();
 
   @override
-  int get length => realmCore.realmSetSize(this);
+  int get length => handle.size;
 
   @override
   Stream<RealmSetChanges<T>> get changes {
@@ -264,7 +264,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   }
 
   @override
-  RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromSet(this), realm, _metadata);
+  RealmResults<T> asResults() => RealmResultsInternal.create<T>(handle.asResults, realm, _metadata);
 
   @override
   RealmSet<T> freeze() {
@@ -283,7 +283,7 @@ extension RealmSetInternal<T extends Object?> on RealmSet<T> {
 
   RealmObjectMetadata? get metadata => asManaged()._metadata;
 
-  RealmSetHandle get handle {
+  SetHandle get handle {
     final result = asManaged()._handle;
     if (result.released) {
       throw RealmClosedError('Cannot access a RealmSet that belongs to a closed Realm');
@@ -292,7 +292,7 @@ extension RealmSetInternal<T extends Object?> on RealmSet<T> {
     return result;
   }
 
-  static RealmSet<T> create<T extends Object?>(RealmSetHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
+  static RealmSet<T> create<T extends Object?>(SetHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
       ManagedRealmSet<T>._(handle, realm, metadata);
 }
 
@@ -339,7 +339,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeSetNotifications(set, this);
+    return set.handle.subscribeForNotifications(this);
   }
 
   Stream<RealmSetChanges<T>> createStream() {
@@ -372,7 +372,7 @@ extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
   ///
   /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
-    final handle = realmCore.querySet(asManaged(), query, arguments);
+    final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
 }

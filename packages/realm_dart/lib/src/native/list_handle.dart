@@ -110,7 +110,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
     });
   }
 
-  RealmNotificationTokenHandle subscribeListNotifications(NotificationsController controller) {
+  RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(() => realmLib.realm_list_add_notification_callback(
           pointer,
           controller.toPersistentHandle(),
