@@ -1,0 +1,123 @@
+// Copyright 2024 MongoDB, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+part of 'realm_core.dart';
+
+class ListHandle extends CollectionHandleBase<realm_list> {
+  ListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
+
+  bool get isValid => realmLib.realm_list_is_valid(pointer);
+
+  ResultsHandle asResults() {
+    final ptr = invokeGetPointer(() => realmLib.realm_list_to_results(pointer));
+    return ResultsHandle._(ptr, _root);
+  }
+
+  int get size {
+    return using((Arena arena) {
+      final size = arena<Size>();
+      invokeGetBool(() => realmLib.realm_list_size(pointer, size));
+      return size.value;
+    });
+  }
+
+  void removeAt(int index) {
+    invokeGetBool(() => realmLib.realm_list_erase(pointer, index));
+  }
+
+  void move(int from, int to) {
+    invokeGetBool(() => realmLib.realm_list_move(pointer, from, to));
+  }
+
+  void deleteAll() {
+    invokeGetBool(() => realmLib.realm_list_remove_all(pointer));
+  }
+
+  int indexOf(Object? value) {
+    return using((Arena arena) {
+      final outIndex = arena<Size>();
+      final outFound = arena<Bool>();
+
+      // TODO: how should this behave for collections
+      final realmValue = _toRealmValue(value, arena);
+      invokeGetBool(
+        () => realmLib.realm_list_find(
+          pointer,
+          realmValue,
+          outIndex,
+          outFound,
+        ),
+      );
+      return outFound.value ? outIndex.value : -1;
+    });
+  }
+
+  void clear() {
+    invokeGetBool(() => realmLib.realm_list_clear(pointer));
+  }
+
+  // TODO: avoid taking the [realm] parameter
+  Object? elementAt(Realm realm, int index) {
+    return using((Arena arena) {
+      final realmValue = arena<realm_value_t>();
+      invokeGetBool(() => realmLib.realm_list_get(pointer, index, realmValue));
+      return realmValue.toDartValue(realm, () => realmLib.realm_list_get_list(pointer, index), () => realmLib.realm_list_get_dictionary(pointer, index));
+    });
+  }
+
+  // TODO: Consider splitting into two methods
+  void addOrUpdateAt(int index, Object? value, bool insert) {
+    using((Arena arena) {
+      final realmValue = _toRealmValue(value, arena);
+      invokeGetBool(() => (insert ? realmLib.realm_list_insert : realmLib.realm_list_set)(pointer, index, realmValue.ref));
+    });
+  }
+
+  // TODO: avoid taking the [realm] parameter
+  void addOrUpdateCollectionAt(Realm realm, int index, RealmValue value, bool insert) {
+    _createCollection(realm, value, () => (insert ? realmLib.realm_list_insert_list : realmLib.realm_list_set_list)(pointer, index),
+        () => (insert ? realmLib.realm_list_insert_dictionary : realmLib.realm_list_set_dictionary)(pointer, index));
+  }
+
+  ObjectHandle setEmbeddedAt(int index) {
+    final ptr = invokeGetPointer(() => realmLib.realm_list_set_embedded(pointer, index));
+    return ObjectHandle._(ptr, _root);
+  }
+
+  ObjectHandle insertEmbeddedAt(int index) {
+    final ptr = invokeGetPointer(() => realmLib.realm_list_insert_embedded(pointer, index));
+    return ObjectHandle._(ptr, _root);
+  }
+
+  ResultsHandle query(String query, List<Object?> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_query_arg_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmQueryArg(args[i], argsPointer + i, arena);
+      }
+      final queryHandle = QueryHandle._(
+          invokeGetPointer(
+            () => realmLib.realm_query_parse_for_list(
+              pointer,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          _root);
+      return queryHandle.findAll();
+    });
+  }
+
+  RealmNotificationTokenHandle subscribeListNotifications(NotificationsController controller) {
+    final ptr = invokeGetPointer(() => realmLib.realm_list_add_notification_callback(
+          pointer,
+          controller.toPersistentHandle(),
+          realmLib.addresses.realm_dart_delete_persistent_handle,
+          nullptr,
+          Pointer.fromFunction(collection_change_callback),
+        ));
+    return RealmNotificationTokenHandle._(ptr, _root);
+  }
+}

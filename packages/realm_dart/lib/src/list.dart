@@ -32,7 +32,7 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
   /// Converts this [List] to a [RealmResults].
   RealmResults<T> asResults();
 
-  factory RealmList._(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
+  factory RealmList._(ListHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmList._(handle, realm, metadata);
 
   /// Creates an unmanaged RealmList from [items]
   factory RealmList(Iterable<T> items) => UnmanagedRealmList(items);
@@ -45,7 +45,7 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T>,
 }
 
 class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
-  final RealmListHandle _handle;
+  final ListHandle _handle;
 
   @override
   late final RealmObjectMetadata? _metadata;
@@ -55,7 +55,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 
   @override
-  int get length => realmCore.getListSize(handle);
+  int get length => handle.size;
 
   /// Setting the `length` is a required method on [List], but makes less sense
   /// for [RealmList]s. You can only decrease the length, increasing it doesn't
@@ -100,7 +100,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     }
 
     try {
-      var value = realmCore.listGetElementAt(this, index);
+      var value = handle.elementAt(realm, index);
       if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
@@ -141,19 +141,19 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   @override
   T removeAt(int index) {
     final result = this[index];
-    realmCore.listRemoveElementAt(handle, index);
+    handle.removeAt(index);
     return result;
   }
 
   /// Move the element at index [from] to index [to].
   void move(int from, int to) {
-    realmCore.listMoveElement(handle, from, to);
+    handle.move(from, to);
   }
 
   /// Removes all objects from this list; the length of the list becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this list.
   @override
-  void clear() => realmCore.listClear(handle);
+  void clear() => handle.clear();
 
   @override
   int indexOf(covariant T element, [int start = 0]) {
@@ -172,12 +172,12 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     }
 
     if (start < 0) start = 0;
-    final index = realmCore.listFind(this, element);
+    final index = handle.indexOf(element);
     return index < start ? -1 : index; // to align with dart list semantics
   }
 
   @override
-  bool get isValid => realmCore.listIsValid(this);
+  bool get isValid => this.handle.isValid;
 
   @override
   RealmList<T> freeze() {
@@ -190,7 +190,7 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   }
 
   @override
-  RealmResults<T> asResults() => RealmResultsInternal.create<T>(realmCore.resultsFromList(this), realm, metadata);
+  RealmResults<T> asResults() => RealmResultsInternal.create<T>(handle.asResults(), realm, metadata);
 
   @override
   Stream<RealmListChanges<T>> get changes {
@@ -263,7 +263,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
 
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
-  RealmListHandle get handle {
+  ListHandle get handle {
     final result = asManaged()._handle;
     if (result.released) {
       throw RealmClosedError('Cannot access a list that belongs to a closed Realm');
@@ -278,14 +278,14 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
     return UnmanagedRealmList._(items);
   }
 
-  static RealmList<T> create<T extends Object?>(RealmListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
+  static RealmList<T> create<T extends Object?>(ListHandle handle, Realm realm, RealmObjectMetadata? metadata) => RealmList<T>._(handle, realm, metadata);
 
-  static void setValue(RealmListHandle handle, Realm realm, int index, Object? value, {bool update = false, bool insert = false}) {
+  static void setValue(ListHandle handle, Realm realm, int index, Object? value, {bool update = false, bool insert = false}) {
     if (index < 0) {
       throw RealmException("Index can not be negative: $index");
     }
 
-    final length = realmCore.getListSize(handle);
+    final length = handle.size;
     if (index > length) {
       throw RealmException('Index can not exceed the size of the list: $index, size: $length');
     }
@@ -297,19 +297,19 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
         }
 
         final objHandle =
-            insert || index >= length ? realmCore.listInsertEmbeddedObjectAt(realm, handle, index) : realmCore.listSetEmbeddedObjectAt(realm, handle, index);
+            insert || index >= length ? handle.insertEmbeddedAt(index) : handle.setEmbeddedAt(index);
         realm.manageEmbedded(objHandle, value);
         return;
       }
 
       if (value is RealmValue && value.type.isCollection) {
-        realmCore.listAddCollectionAt(handle, realm, index, value, insert || index >= length);
+        handle.addOrUpdateCollectionAt(realm, index, value, insert || index >= length);
         return;
       }
 
       realm.addUnmanagedRealmObjectFromValue(value, update);
 
-      realmCore.listAddElementAt(handle, index, value, insert || index >= length);
+      handle.addOrUpdateAt(index, value, insert || index >= length);
     } on Exception catch (e) {
       throw RealmException("Error setting value at index $index. Error: $e");
     }

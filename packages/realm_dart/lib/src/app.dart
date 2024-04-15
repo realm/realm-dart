@@ -144,7 +144,7 @@ class App implements Finalizable {
 
   /// The id of this application. This is the same as the appId in the [AppConfiguration] used to
   /// create this [App].
-  String get id => this.handle.id;
+  String get id => handle.id;
 
   /// Create an app with a particular [AppConfiguration]. This constructor should only be used on the main isolate and,
   /// ideally, only once as soon as the app starts.

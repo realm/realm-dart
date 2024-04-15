@@ -46,6 +46,7 @@ part 'config_handle.dart';
 part 'convert.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
+part 'list_handle.dart';
 part 'mutable_subscription_set_handle.dart';
 part 'object_handle.dart';
 part 'query_handle.dart';
@@ -54,6 +55,7 @@ part 'results_handle.dart';
 part 'rooted_handle.dart';
 part 'schema_handle.dart';
 part 'session_handle.dart';
+part 'set_handle.dart';
 part 'subscription_handle.dart';
 part 'subscription_set_handle.dart';
 part 'user_handle.dart';
@@ -351,6 +353,125 @@ Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Complet
   return userdata.cast();
 }
 
+void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
+  CollectionHandleBase? collectionHandle;
+  try {
+    switch (value.collectionType) {
+      case RealmCollectionType.list:
+        final listPointer = invokeGetPointer(createList);
+        final listHandle = ListHandle._(listPointer, realm.handle);
+        collectionHandle = listHandle;
+
+        final list = realm.createList<RealmValue>(listHandle, null);
+
+        // Necessary since Core will not clear the collection if the value was already a collection
+        list.clear();
+
+        for (final item in value.value as List<RealmValue>) {
+          list.add(item);
+        }
+      case RealmCollectionType.map:
+        final mapPointer = invokeGetPointer(createMap);
+        final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
+        collectionHandle = mapHandle;
+
+        final map = realm.createMap<RealmValue>(mapHandle, null);
+
+        // Necessary since Core will not clear the collection if the value was already a collection
+        map.clear();
+
+        for (final kvp in (value.value as Map<String, RealmValue>).entries) {
+          map[kvp.key] = kvp.value;
+        }
+      default:
+        throw RealmStateError('_createCollection invoked with type that is not list or map.');
+    }
+  } finally {
+    collectionHandle?.release();
+  }
+}
+
+void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
+  final NotificationsController controller = userdata.toObject();
+
+  if (data == nullptr) {
+    controller.onError(RealmError("Invalid notifications data received"));
+    return;
+  }
+
+  try {
+    final clonedData = realmLib.realm_clone(data.cast());
+    if (clonedData == nullptr) {
+      controller.onError(RealmError("Error while cloning notifications data"));
+      return;
+    }
+
+    final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
+    controller.onChanges(changesHandle);
+  } catch (e) {
+    controller.onError(RealmError("Error handling change notifications. Error: $e"));
+  }
+}
+
+void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
+  final NotificationsController controller = userdata.toObject();
+
+  if (data == nullptr) {
+    controller.onError(RealmError("Invalid notifications data received"));
+    return;
+  }
+
+  try {
+    final clonedData = realmLib.realm_clone(data.cast());
+    if (clonedData == nullptr) {
+      controller.onError(RealmError("Error while cloning notifications data"));
+      return;
+    }
+
+    final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
+    controller.onChanges(changesHandle);
+  } catch (e) {
+    controller.onError(RealmError("Error handling change notifications. Error: $e"));
+  }
+}
+
+void map_change_callback(Pointer<Void> userdata, Pointer<realm_dictionary_changes> data) {
+  final NotificationsController controller = userdata.toObject();
+
+  if (data == nullptr) {
+    controller.onError(RealmError("Invalid notifications data received"));
+    return;
+  }
+
+  try {
+    final clonedData = realmLib.realm_clone(data.cast());
+    if (clonedData == nullptr) {
+      controller.onError(RealmError("Error while cloning notifications data"));
+      return;
+    }
+
+    final changesHandle = RealmMapChangesHandle._(clonedData.cast());
+    controller.onChanges(changesHandle);
+  } catch (e) {
+    controller.onError(RealmError("Error handling change notifications. Error: $e"));
+  }
+}
+
+void user_change_callback(Object userdata, int data) {
+  final controller = userdata as UserNotificationsController;
+
+  controller.onUserChanged();
+}
+
+void schema_change_callback(Pointer<Void> userdata, Pointer<realm_schema> data) {
+  final Realm realm = userdata.toObject();
+  try {
+    realm.updateSchema();
+  } catch (e) {
+    Realm.logger.log(LogLevel.error, 'Failed to update Realm schema: $e');
+  }
+}
+
 // All access to Realm Core functionality goes through this class
 class _RealmCore {
   // From realm.h. Currently not exported from the shared library
@@ -622,27 +743,6 @@ class _RealmCore {
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
 
-  ResultsHandle queryList(RealmList target, String query, List<Object?> args) {
-    return using((arena) {
-      final length = args.length;
-      final argsPointer = arena<realm_query_arg_t>(length);
-      for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
-      }
-      final queryHandle = QueryHandle._(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse_for_list(
-              target.handle.pointer,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          target.realm.handle);
-      return queryHandle.findAll();
-    });
-  }
-
   ResultsHandle querySet(RealmSet target, String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
@@ -685,11 +785,6 @@ class _RealmCore {
           target.realm.handle);
       return queryHandle.findAll();
     });
-  }
-
-  ResultsHandle resultsFromList(RealmList list) {
-    final pointer = invokeGetPointer(() => realmLib.realm_list_to_results(list.handle.pointer));
-    return ResultsHandle._(pointer, list.realm.handle);
   }
 
   ResultsHandle resultsFromSet(RealmSet set) {
@@ -817,88 +912,14 @@ class _RealmCore {
     return ObjectHandle._(pointer, realm.handle);
   }
 
-  RealmListHandle getListProperty(RealmObjectBase object, int propertyKey) {
+  ListHandle getListProperty(RealmObjectBase object, int propertyKey) {
     final pointer = invokeGetPointer(() => realmLib.realm_get_list(object.handle.pointer, propertyKey));
-    return RealmListHandle._(pointer, object.realm.handle);
+    return ListHandle._(pointer, object.realm.handle);
   }
 
   ResultsHandle getBacklinks(RealmObjectBase object, int sourceTableKey, int propertyKey) {
     final pointer = invokeGetPointer(() => realmLib.realm_get_backlinks(object.handle.pointer, sourceTableKey, propertyKey));
     return ResultsHandle._(pointer, object.realm.handle);
-  }
-
-  int getListSize(RealmListHandle handle) {
-    return using((Arena arena) {
-      final size = arena<Size>();
-      invokeGetBool(() => realmLib.realm_list_size(handle.pointer, size));
-      return size.value;
-    });
-  }
-
-  Object? listGetElementAt(RealmList list, int index) {
-    return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_list_get(list.handle.pointer, index, realm_value));
-      return realm_value.toDartValue(
-          list.realm, () => realmLib.realm_list_get_list(list.handle.pointer, index), () => realmLib.realm_list_get_dictionary(list.handle.pointer, index));
-    });
-  }
-
-  void listAddElementAt(RealmListHandle handle, int index, Object? value, bool insert) {
-    using((Arena arena) {
-      final realm_value = _toRealmValue(value, arena);
-      invokeGetBool(() => (insert ? realmLib.realm_list_insert : realmLib.realm_list_set)(handle.pointer, index, realm_value.ref));
-    });
-  }
-
-  void listAddCollectionAt(RealmListHandle handle, Realm realm, int index, RealmValue value, bool insert) {
-    _createCollection(realm, value, () => (insert ? realmLib.realm_list_insert_list : realmLib.realm_list_set_list)(handle.pointer, index),
-        () => (insert ? realmLib.realm_list_insert_dictionary : realmLib.realm_list_set_dictionary)(handle.pointer, index));
-  }
-
-  ObjectHandle listSetEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
-    final ptr = invokeGetPointer(() => realmLib.realm_list_set_embedded(handle.pointer, index));
-    return ObjectHandle._(ptr, realm.handle);
-  }
-
-  ObjectHandle listInsertEmbeddedObjectAt(Realm realm, RealmListHandle handle, int index) {
-    final ptr = invokeGetPointer(() => realmLib.realm_list_insert_embedded(handle.pointer, index));
-    return ObjectHandle._(ptr, realm.handle);
-  }
-
-  void listRemoveElementAt(RealmListHandle handle, int index) {
-    invokeGetBool(() => realmLib.realm_list_erase(handle.pointer, index));
-  }
-
-  void listMoveElement(RealmListHandle handle, int from, int to) {
-    invokeGetBool(() => realmLib.realm_list_move(handle.pointer, from, to));
-  }
-
-  void listDeleteAll(RealmList list) {
-    invokeGetBool(() => realmLib.realm_list_remove_all(list.handle.pointer));
-  }
-
-  int listFind(RealmList list, Object? value) {
-    return using((Arena arena) {
-      final out_index = arena<Size>();
-      final out_found = arena<Bool>();
-
-      // TODO: how should this behave for collections
-      final realm_value = _toRealmValue(value, arena);
-      invokeGetBool(
-        () => realmLib.realm_list_find(
-          list.handle.pointer,
-          realm_value,
-          out_index,
-          out_found,
-        ),
-      );
-      return out_found.value ? out_index.value : -1;
-    });
-  }
-
-  void listClear(RealmListHandle listHandle) {
-    invokeGetBool(() => realmLib.realm_list_clear(listHandle.pointer));
   }
 
   RealmSetHandle getSetProperty(RealmObjectBase object, int propertyKey) {
@@ -1102,91 +1123,6 @@ class _RealmCore {
     return realmLib.realm_object_is_valid(object.handle.pointer);
   }
 
-  bool listIsValid(RealmList list) {
-    return realmLib.realm_list_is_valid(list.handle.pointer);
-  }
-
-  static void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
-    final NotificationsController controller = userdata.toObject();
-
-    if (data == nullptr) {
-      controller.onError(RealmError("Invalid notifications data received"));
-      return;
-    }
-
-    try {
-      final clonedData = realmLib.realm_clone(data.cast());
-      if (clonedData == nullptr) {
-        controller.onError(RealmError("Error while cloning notifications data"));
-        return;
-      }
-
-      final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
-      controller.onChanges(changesHandle);
-    } catch (e) {
-      controller.onError(RealmError("Error handling change notifications. Error: $e"));
-    }
-  }
-
-  static void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
-    final NotificationsController controller = userdata.toObject();
-
-    if (data == nullptr) {
-      controller.onError(RealmError("Invalid notifications data received"));
-      return;
-    }
-
-    try {
-      final clonedData = realmLib.realm_clone(data.cast());
-      if (clonedData == nullptr) {
-        controller.onError(RealmError("Error while cloning notifications data"));
-        return;
-      }
-
-      final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
-      controller.onChanges(changesHandle);
-    } catch (e) {
-      controller.onError(RealmError("Error handling change notifications. Error: $e"));
-    }
-  }
-
-  static void map_change_callback(Pointer<Void> userdata, Pointer<realm_dictionary_changes> data) {
-    final NotificationsController controller = userdata.toObject();
-
-    if (data == nullptr) {
-      controller.onError(RealmError("Invalid notifications data received"));
-      return;
-    }
-
-    try {
-      final clonedData = realmLib.realm_clone(data.cast());
-      if (clonedData == nullptr) {
-        controller.onError(RealmError("Error while cloning notifications data"));
-        return;
-      }
-
-      final changesHandle = RealmMapChangesHandle._(clonedData.cast());
-      controller.onChanges(changesHandle);
-    } catch (e) {
-      controller.onError(RealmError("Error handling change notifications. Error: $e"));
-    }
-  }
-
-  static void user_change_callback(Object userdata, int data) {
-    final controller = userdata as UserNotificationsController;
-
-    controller.onUserChanged();
-  }
-
-  static void schema_change_callback(Pointer<Void> userdata, Pointer<realm_schema> data) {
-    final Realm realm = userdata.toObject();
-    try {
-      realm.updateSchema();
-    } catch (e) {
-      Realm.logger.log(LogLevel.error, 'Failed to update Realm schema: $e');
-    }
-  }
-
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = invokeGetPointer(() => realmLib.realm_results_add_notification_callback(
           results.handle.pointer,
@@ -1197,18 +1133,6 @@ class _RealmCore {
         ));
 
     return RealmNotificationTokenHandle._(pointer, results.realm.handle);
-  }
-
-  RealmNotificationTokenHandle subscribeListNotifications(RealmList list, NotificationsController controller) {
-    final pointer = invokeGetPointer(() => realmLib.realm_list_add_notification_callback(
-          list.handle.pointer,
-          controller.toPersistentHandle(),
-          realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(collection_change_callback),
-        ));
-
-    return RealmNotificationTokenHandle._(pointer, list.realm.handle);
   }
 
   RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller, [List<String>? keyPaths]) {
@@ -1505,11 +1429,11 @@ class _RealmCore {
     });
   }
 
-  RealmListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
+  ListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_list>>();
       invokeGetBool(() => realmLib.realm_list_resolve_in(list.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : RealmListHandle._(resultPtr.value, frozenRealm.handle);
+      return resultPtr == nullptr ? null : ListHandle._(resultPtr.value, frozenRealm.handle);
     });
   }
 
@@ -1575,44 +1499,6 @@ class _RealmCore {
     });
   }
 
-  void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
-    CollectionHandleBase? collectionHandle;
-    try {
-      switch (value.collectionType) {
-        case RealmCollectionType.list:
-          final listPointer = invokeGetPointer(createList);
-          final listHandle = RealmListHandle._(listPointer, realm.handle);
-          collectionHandle = listHandle;
-
-          final list = realm.createList<RealmValue>(listHandle, null);
-
-          // Necessary since Core will not clear the collection if the value was already a collection
-          list.clear();
-
-          for (final item in value.value as List<RealmValue>) {
-            list.add(item);
-          }
-        case RealmCollectionType.map:
-          final mapPointer = invokeGetPointer(createMap);
-          final mapHandle = RealmMapHandle._(mapPointer, realm.handle);
-          collectionHandle = mapHandle;
-
-          final map = realm.createMap<RealmValue>(mapHandle, null);
-
-          // Necessary since Core will not clear the collection if the value was already a collection
-          map.clear();
-
-          for (final kvp in (value.value as Map<String, RealmValue>).entries) {
-            map[kvp.key] = kvp.value;
-          }
-        default:
-          throw RealmStateError('_createCollection invoked with type that is not list or map.');
-      }
-    } finally {
-      collectionHandle?.release();
-    }
-  }
-
   void setLogLevel(LogLevel level, {required LogCategory category}) {
     using((arena) {
       realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
@@ -1635,14 +1521,6 @@ class _RealmLinkHandle {
   _RealmLinkHandle._(realm_link_t link)
       : targetKey = link.target,
         classKey = link.target_table;
-}
-
-class RealmListHandle extends CollectionHandleBase<realm_list> {
-  RealmListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
-}
-
-class RealmSetHandle extends RootedHandleBase<realm_set> {
-  RealmSetHandle._(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 }
 
 class RealmMapHandle extends CollectionHandleBase<realm_dictionary> {
@@ -1885,7 +1763,7 @@ extension on realm_value_t {
         }
 
         final listPointer = invokeGetPointer(() => getList());
-        final listHandle = RealmListHandle._(listPointer, realm.handle);
+        final listHandle = ListHandle._(listPointer, realm.handle);
         return realm.createList<RealmValue>(listHandle, null);
       case realm_value_type.RLM_TYPE_DICTIONARY:
         if (getMap == null || realm == null) {

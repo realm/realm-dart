@@ -392,6 +392,9 @@ void main() {
     //Ensure the team exists in realm
     var teams = realm.all<Team>();
     expect(teams.length, 1);
+    expect(teams[0].players, newPlayers);
+    final allPersons = realm.all<Person>();
+    expect(allPersons.length, 3);
 
     //Delete team players
     realm.write(() => realm.deleteMany(teams[0].players));
@@ -400,7 +403,6 @@ void main() {
     expect(teams[0].players.length, 0);
 
     //Reload all persons from realm and ensure they are deleted
-    final allPersons = realm.all<Person>();
     expect(allPersons.length, 0);
   });
 

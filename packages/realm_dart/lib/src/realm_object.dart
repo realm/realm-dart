@@ -271,7 +271,7 @@ class RealmCoreAccessor implements RealmAccessor {
       if (value is RealmList) {
         final handle = realmCore.getListProperty(object, propertyMeta.key);
         if (update) {
-          realmCore.listClear(handle);
+          handle.clear();
         }
 
         for (var i = 0; i < value.length; i++) {

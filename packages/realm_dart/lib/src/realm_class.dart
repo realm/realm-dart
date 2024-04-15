@@ -332,7 +332,7 @@ class Realm implements Finalizable {
     } else if (items is ManagedRealmList<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
-      realmCore.listDeleteAll(items);
+      items.handle.deleteAll();
     } else if (items is ManagedRealmSet<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
@@ -744,7 +744,7 @@ extension RealmInternal on Realm {
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
-  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
+  RealmList<T> createList<T extends Object?>(ListHandle handle, RealmObjectMetadata? metadata) {
     return RealmListInternal.create<T>(handle, this, metadata);
   }
 
