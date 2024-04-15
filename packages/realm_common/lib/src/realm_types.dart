@@ -187,7 +187,7 @@ enum RealmValueType {
   bool get isCollection => this == RealmValueType.list || this == RealmValueType.map;
 }
 
-/// A type that can represent any valid realm data type, except collections and embedded objects.
+/// A type that can represent any valid realm data type, except embedded objects.
 ///
 /// You can use [RealmValue] to declare fields on realm models, in which case it must be non-nullable,
 /// but it can wrap a null-value. List of [RealmValue] (`List<RealmValue>`) are also legal.
@@ -278,21 +278,29 @@ class RealmValue {
   }
 
   @override
-  operator ==(Object? other) {
+  operator ==(Object other) {
+    // TODO(kn):
+    // Should we not start by testing for identical? Will break current
+    // test, but I think the tests are wrong
+    //if (identical(this, other)) return true;
+
     // We always return false when comparing two RealmValue collections.
     if (type.isCollection) {
       return false;
     }
 
+    final v = value;
+
     if (other is RealmValue) {
-      if (value is Uint8List && other.value is Uint8List) {
-        return ListEquality().equals(value as Uint8List, other.value as Uint8List);
+      final ov = other.value;
+      if (v is Uint8List && ov is Uint8List) {
+        return memEquals(v, ov);
       }
 
-      return type == other.type && value == other.value;
+      return type == other.type && v == ov;
     }
 
-    return value == other;
+    return v == other;
   }
 
   @override
@@ -300,6 +308,28 @@ class RealmValue {
 
   @override
   String toString() => 'RealmValue($value)';
+}
+
+/// Compares two [Uint8List]s by comparing 8 bytes at a time.
+bool memEquals(Uint8List x, Uint8List y) {
+  if (identical(x, y)) return true;
+  if (x.lengthInBytes != y.lengthInBytes) return false;
+
+  var words = x.lengthInBytes ~/ 8; // number of full words
+  var xW = x.buffer.asUint64List(0, words);
+  var yW = y.buffer.asUint64List(0, words);
+
+  // compare words
+  for (var i = 0; i < xW.length; i += 1) {
+    if (xW[i] != yW[i]) return false;
+  }
+
+  // compare remaining bytes
+  for (var i = words * 8; i < x.lengthInBytes; i += 1) {
+    if (x[i] != y[i]) return false;
+  }
+
+  return true; // no diff, they are equal
 }
 
 /// A base type for the supported geospatial shapes.
