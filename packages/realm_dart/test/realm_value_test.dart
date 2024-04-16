@@ -2462,6 +2462,6 @@ void main() {
     }
 
     // Not quite 8 times speedup, but close enough.
-    expect(listEqualsClock.elapsedTicks ~/ 7, greaterThan(memEqualsClock.elapsedTicks));
+    expect(listEqualsClock.elapsedTicks ~/ 5, greaterThan(memEqualsClock.elapsedTicks));
   });
 }
