@@ -280,19 +280,12 @@ class RealmValue {
   operator ==(Object other) {
     if (identical(this, other)) return true;
     final v = value;
-
     if (other is RealmValue) {
       final ov = other.value;
-      if (identical(v, ov)) return true;
-
-      if (v is Uint8List && ov is Uint8List) {
-        return memEquals(v, ov);
-      }
-
+      if (v is Uint8List && ov is Uint8List) return memEquals(v, ov); // special case binary data
       return type == other.type && v == ov;
     }
-
-    return v == other;
+    return v == other; // asymmetric comparison for convenience
   }
 
   @override
