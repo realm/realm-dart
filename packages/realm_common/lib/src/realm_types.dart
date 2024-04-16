@@ -278,20 +278,13 @@ class RealmValue {
 
   @override
   operator ==(Object other) {
-    // TODO(kn):
-    // Should we not start by testing for identical? Will break current
-    // test, but I think the tests are wrong
-    //if (identical(this, other)) return true;
-
-    // We always return false when comparing two RealmValue collections.
-    if (type.isCollection) {
-      return false;
-    }
-
+    if (identical(this, other)) return true;
     final v = value;
 
     if (other is RealmValue) {
       final ov = other.value;
+      if (identical(v, ov)) return true;
+
       if (v is Uint8List && ov is Uint8List) {
         return memEquals(v, ov);
       }
