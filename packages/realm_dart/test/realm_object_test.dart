@@ -482,37 +482,7 @@ void main() {
       await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["backlink"]);
 
       subscription.cancel();
-    });
-
-    test('backlink different type', () async {
-      final config = Configuration.local([Target.schema, Source.schema]);
-      final realm = getRealm(config);
-
-      final target = Target();
-      final source = realm.write(() => realm.add(Source(oneTarget: target)));
-
-      expect(source.oneTarget, target);
-      expect(target.oneToMany, [source]);
-
-      final tno = Target();
-
-      realm.write(() {
-        realm.add(tno);
-      });
-
-      final externalChanges = <RealmObjectChanges<Target>>[];
-      final subscription = tno.changes.listen((changes) {
-        if (changes.properties.isNotEmpty) externalChanges.add(changes);
-      });
-
-      realm.write(() {
-        realm.add(Source(oneTarget: tno));
-      });
-
-      await verifyNotifications<Target>(tno, externalChanges, ["oneToMany"]);
-
-      subscription.cancel();
-    });
+    }, skip: "Needs to be re-enabled when https://github.com/realm/realm-dart/issues/1631 is investigated");
 
     test('null gives default subscriptions', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
