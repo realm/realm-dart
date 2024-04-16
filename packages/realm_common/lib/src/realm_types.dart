@@ -6,7 +6,6 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
-import 'package:collection/collection.dart';
 
 Type _typeOf<T>() => T;
 

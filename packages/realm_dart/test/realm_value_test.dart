@@ -1,13 +1,16 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:test/test.dart' hide test, throws;
+import 'package:collection/collection.dart';
+import 'package:realm_common/realm_common.dart' show memEquals;
 import 'package:realm_dart/realm.dart';
+import 'package:test/test.dart' hide test, throws;
 
-import 'test.dart';
 import 'session_test.dart' show validateSessionStates;
+import 'test.dart';
 
 part 'realm_value_test.realm.dart';
 
@@ -60,7 +63,7 @@ void main() {
       ObjectId.fromHexString('64c13ab08edf48a008793cac'),
       Uuid.fromString('7a459a5e-5eb6-45f6-9b72-8f794e324105'),
       Decimal128.fromDouble(128.128),
-      Uint8List.fromList([1, 2, 0])
+      Uint8List.fromList(List.generate(21, (index) => index)), // 21 % 8 != 0 so not a multiple of 8 bytes
     ];
 
     for (final x in primitiveValues) {
@@ -2417,5 +2420,48 @@ void main() {
       expect(result.type, RealmValueType.nullValue);
       expect(result.value, isNull);
     });
+  });
+
+  test('memEquals', () {
+    const samples = 100;
+    const max = 100000;
+    const half = max ~/ 2;
+    final listEquals = ListEquality<int>().equals;
+
+    final memEqualsClock = Stopwatch();
+    final listEqualsClock = Stopwatch();
+    for (int i = 0; i < samples; i++) {
+      final rnd = Random(i);
+      final length = rnd.nextInt(half) + half; // 50-100 KB.
+      final list = List.generate(length, (index) => index)..shuffle(rnd);
+      final bin1 = Uint8List.fromList(list);
+      final bin2 = Uint8List.fromList(list);
+
+      // Check correctness.
+      expect(identical(bin1, bin2), isFalse); // Different instances.
+      expect(listEquals(bin1, bin2), isTrue); // Sanity check.
+      expect(memEquals(bin1, bin2), isTrue); // Check correctness.
+      expect(RealmValue.from(bin1), RealmValue.from(bin2));
+
+      // Measure performance.
+      listEqualsClock.start();
+      final resultListEquals = listEquals(bin1, bin2);
+      listEqualsClock.stop();
+
+      memEqualsClock.start();
+      final resultMemEquals = memEquals(bin1, bin2);
+      memEqualsClock.stop();
+
+      expect(resultListEquals, resultMemEquals); // Sanity check.
+
+      bin2[rnd.nextInt(bin2.length)]--; // Change one byte.
+
+      expect(listEquals(bin1, bin2), isFalse); // Sanity check.
+      expect(memEquals(bin1, bin2), isFalse); // Check correctness.
+      expect(RealmValue.from(bin1), isNot(RealmValue.from(bin2)));
+    }
+
+    // Not quite 8 times speedup, but close enough.
+    expect(listEqualsClock.elapsedTicks ~/ 7, greaterThan(memEqualsClock.elapsedTicks));
   });
 }
