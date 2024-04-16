@@ -10,10 +10,11 @@
 
 ### Fixed
 * Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
-* Backlinks mistakenly included in EJson serialization. ([Issue #1616](https://github.com/realm/realm-dart/issues/1616))
+* Backlinks mistakenly included in EJson serialization. (Issue [#1616](https://github.com/realm/realm-dart/issues/1616))
 * Fix an assertion failure "m_lock_info && m_lock_info->m_file.get_path() == m_filename" that appears to be related to opening a Realm while the file is in the process of being closed on another thread. (Core 14.5.0)
 * Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included). (Core 14.5.0)
 * Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
+* Comparing RealmValue containing a collection to itself would return false. Semantics changed to ensure reference equality always imply equality. (Issue [[#1632](https://github.com/realm/realm-dart/issues/1632)])
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
