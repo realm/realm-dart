@@ -7,6 +7,7 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
+import 'session_test.dart' show validateSessionStates;
 
 part 'realm_value_test.realm.dart';
 
@@ -15,30 +16,41 @@ class _TuckedIn {
   int x = 42;
 }
 
-@RealmModel()
-class _AnythingGoes {
-  @Indexed()
-  late RealmValue oneAny;
-  late List<RealmValue> manyAny;
-  late Map<String, RealmValue> dictOfAny;
-  late Set<RealmValue> setOfAny;
-}
-
-@RealmModel()
-class _Stuff {
-  int i = 42;
-}
-
 void main() {
   setupTests();
 
   Realm getMixedRealm() {
-    final config = Configuration.local([AnythingGoes.schema, Stuff.schema, TuckedIn.schema]);
+    final config = Configuration.local([ObjectWithRealmValue.schema, ObjectWithInt.schema, TuckedIn.schema]);
     return getRealm(config);
   }
 
+  Future<Realm> logInAndGetSyncedRealm(AppConfiguration appConfig, ObjectId differentiator) async {
+    final realm = await getIntegrationRealm(appConfig: appConfig, differentiator: differentiator);
+    realm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(realm.query<ObjectWithRealmValue>(r'differentiator = $0', [differentiator]));
+      mutableSubscriptions.add(realm.query<ObjectWithInt>(r'differentiator = $0', [differentiator]));
+    });
+    await realm.subscriptions.waitForSynchronization();
+
+    return realm;
+  }
+
+  Future<(Realm, Realm)> logInAndGetSyncedRealms(AppConfiguration appConfig, ObjectId differentiator) async {
+    final realm1 = await logInAndGetSyncedRealm(appConfig, differentiator);
+    final realm2 = await logInAndGetSyncedRealm(appConfig, differentiator);
+    expect(realm1.all<ObjectWithRealmValue>().isEmpty, true);
+    expect(realm2.all<ObjectWithRealmValue>().isEmpty, true);
+
+    return (realm1, realm2);
+  }
+
+  Future<void> waitForSynchronization({required Realm uploadRealm, required Realm downloadRealm}) async {
+    await uploadRealm.syncSession.waitForUpload();
+    await downloadRealm.syncSession.waitForDownload();
+  }
+
   group('RealmValue', () {
-    final primitiveValues = <Object?>[
+    final primitiveValues = [
       null,
       true,
       'text',
@@ -54,10 +66,28 @@ void main() {
     for (final x in primitiveValues) {
       test('Roundtrip ${x.runtimeType} $x', () {
         final realm = getMixedRealm();
-        final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(x))));
+        final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(x))));
         expect(something.oneAny.value.runtimeType, x.runtimeType);
         expect(something.oneAny.value, x);
         expect(something.oneAny, RealmValue.from(x));
+      });
+
+      baasTest('Roundtrip ${x.runtimeType} $x', (appConfig) async {
+        final differentiator = ObjectId();
+        final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+        // Add object in first realm.
+        final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(x));
+        realm1.write(() => realm1.add(object1));
+
+        await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+        // Check object values in second realm.
+        final object2 = realm2.all<ObjectWithRealmValue>().single;
+        expect(object2.id, object1.id);
+        expect(object2.oneAny.value.runtimeType, x.runtimeType);
+        expect(object2.oneAny.value, x);
+        expect(object2.oneAny, RealmValue.from(x));
       });
 
       final queryArg = RealmValue.from(x);
@@ -66,12 +96,12 @@ void main() {
         realm.write(() {
           // Add all values, we're going to query for just one of them.
           for (final v in primitiveValues) {
-            realm.add(AnythingGoes(oneAny: RealmValue.from(v)));
+            realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(v)));
           }
-          realm.add(AnythingGoes(oneAny: RealmValue.from(Stuff())));
+          realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(ObjectWithInt(ObjectId()))));
         });
 
-        final matches = realm.query<AnythingGoes>(r'oneAny.@type == $0', [queryArg.type]);
+        final matches = realm.query<ObjectWithRealmValue>(r'oneAny.@type == $0', [queryArg.type]);
         expect(matches.length, 1);
         expect(matches.single.oneAny.value, x);
         expect(matches.single.oneAny.type, queryArg.type);
@@ -80,42 +110,72 @@ void main() {
     }
 
     test('Roundtrip object', () {
-      final stuff = Stuff(i: 123);
       final realm = getMixedRealm();
-      final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(stuff))));
-      expect(something.oneAny.value.runtimeType, Stuff);
-      expect(something.oneAny.as<Stuff>().i, 123);
+      final child = ObjectWithInt(ObjectId(), i: 123);
+      final parent = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(child))));
+      expect(parent.oneAny.value.runtimeType, ObjectWithInt);
+      expect(parent.oneAny.as<ObjectWithInt>().i, 123);
+    });
+
+    baasTest('Roundtrip object', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final child1 = ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123);
+      final parent1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(child1));
+      realm1.write(() => realm1.add(parent1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check object values in second realm.
+      expect(realm2.all<ObjectWithInt>().single.i, 123);
+      final parent2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(parent2.id, parent1.id);
+
+      expect(parent2.oneAny.value.runtimeType, ObjectWithInt);
+      final child2 = parent2.oneAny.as<ObjectWithInt>();
+      expect(child2.i, 123);
+
+      // Update child object in second realm.
+      const newValue = 456;
+      realm2.write(() => child2.i = newValue);
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Check updated object in first realm.
+      expect(parent1.oneAny.as<ObjectWithInt>().i, newValue);
     });
 
     test('Query @type == object', () {
       final realm = getMixedRealm();
       realm.write(() {
         for (final v in primitiveValues) {
-          realm.add(AnythingGoes(oneAny: RealmValue.from(v)));
+          realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(v)));
         }
 
-        realm.add(AnythingGoes(oneAny: RealmValue.from(Stuff(i: 123))));
+        realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(ObjectWithInt(ObjectId(), i: 123))));
       });
 
-      final matches = realm.query<AnythingGoes>(r'oneAny.@type == $0', [RealmValueType.object]);
+      final matches = realm.query<ObjectWithRealmValue>(r'oneAny.@type == $0', [RealmValueType.object]);
       expect(matches.length, 1);
-      expect(matches.single.oneAny.as<Stuff>().i, 123);
+      expect(matches.single.oneAny.as<ObjectWithInt>().i, 123);
       expect(matches.single.oneAny.type, RealmValueType.object);
     });
 
     test('Illegal value', () {
       final realm = getMixedRealm();
-      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(realm)))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(realm)))), throwsArgumentError);
     });
 
     test('Embedded object not allowed in RealmValue', () {
       final realm = getMixedRealm();
-      expect(() => realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
+      expect(() => realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(TuckedIn())))), throwsArgumentError);
     });
 
     for (final x in primitiveValues) {
       test('Switch $x', () {
-        final something = AnythingGoes(oneAny: RealmValue.from(x));
+        final something = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
 
         switch (something.oneAny.type) {
@@ -135,7 +195,7 @@ void main() {
             expect(value, isA<double>());
             break;
           case RealmValueType.object:
-            expect(value is AnythingGoes || value is Stuff, true);
+            expect(value is ObjectWithRealmValue || value is ObjectWithInt, true);
             break;
           case RealmValueType.dateTime:
             expect(value, isA<DateTime>());
@@ -161,7 +221,7 @@ void main() {
 
     for (final x in primitiveValues) {
       test('If-is $x', () {
-        final something = AnythingGoes(oneAny: RealmValue.from(x));
+        final something = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(x));
         final value = something.oneAny.value;
         final type = something.oneAny.type;
         if (value == null) {
@@ -184,9 +244,9 @@ void main() {
           expect(type, RealmValueType.decimal);
         } else if (value is Uint8List) {
           expect(type, RealmValueType.binary);
-        } else if (value is AnythingGoes) {
+        } else if (value is ObjectWithRealmValue) {
           expect(type, RealmValueType.object);
-        } else if (value is Stuff) {
+        } else if (value is ObjectWithInt) {
           expect(type, RealmValueType.object);
         } else {
           fail('$value not handled correctly in if-is');
@@ -196,30 +256,31 @@ void main() {
 
     test('Unknown schema for RealmValue.value after bad migration', () {
       {
-        final config = Configuration.local([AnythingGoes.schema, Stuff.schema], schemaVersion: 0);
+        final config = Configuration.local([ObjectWithRealmValue.schema, ObjectWithInt.schema], schemaVersion: 0);
         Realm.deleteRealm(config.path);
         final realm = Realm(config);
 
-        final something = realm.write(() => realm.add(AnythingGoes(oneAny: RealmValue.realmObject(Stuff()))));
+        final object = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.realmObject(ObjectWithInt(ObjectId())));
+        final something = realm.write(() => realm.add(object));
         expect(something.oneAny, isA<RealmValue>());
-        expect(something.oneAny.value, isA<Stuff>());
-        expect(something.oneAny.as<Stuff>().i, 42);
+        expect(something.oneAny.value, isA<ObjectWithInt>());
+        expect(something.oneAny.as<ObjectWithInt>().i, 42);
 
         realm.close();
       }
 
-      // From here on Stuff is unknown
+      // From here on ObjectWithInt is unknown
       final config = Configuration.local(
-        [AnythingGoes.schema],
+        [ObjectWithRealmValue.schema],
         schemaVersion: 1,
         migrationCallback: (migration, oldSchemaVersion) {
-          // forget to handle RealmValue pointing to Stuff
+          // forget to handle RealmValue pointing to ObjectWithInt
         },
       );
       final realm = getRealm(config);
 
-      final something = realm.all<AnythingGoes>()[0];
-      // something.oneAny points to a Stuff, but that is not known, so returns null.
+      final something = realm.all<ObjectWithRealmValue>()[0];
+      // something.oneAny points to a ObjectWithInt, but that is not known, so returns null.
       // A better option would be to return a DynamicRealmObject, but c-api does
       // not currently allow this.
       expect(something.oneAny, const RealmValue.nullValue()); // at least we don't crash :-)
@@ -227,76 +288,114 @@ void main() {
   });
 
   group('List<RealmValue>', () {
-    final now = DateTime.now().toUtc();
-    final values = <Object?>[
-      null,
-      true,
-      'text',
-      42,
-      3.14,
-      AnythingGoes(),
-      Stuff(),
-      now,
-      ObjectId.fromTimestamp(now),
-      Uuid.v4(),
-      Decimal128.fromInt(128),
-    ];
+    final differentiator = ObjectId();
+    List<Object?> getValues() {
+      final now = DateTime.now().toUtc();
+      return [
+        null,
+        true,
+        'text',
+        42,
+        3.14,
+        ObjectWithRealmValue(ObjectId(), differentiator: differentiator),
+        ObjectWithInt(ObjectId(), differentiator: differentiator),
+        now,
+        ObjectId.fromTimestamp(now),
+        Uuid.v4(),
+        Decimal128.fromInt(128),
+      ];
+    }
 
     test('Roundtrip', () {
+      final values = getValues();
       final realm = getMixedRealm();
-      final something = realm.write(() => realm.add(AnythingGoes(manyAny: values.map(RealmValue.from))));
+      final something = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: values.map(RealmValue.from))));
       expect(something.manyAny.map((e) => e.value), values);
       expect(something.manyAny, values.map(RealmValue.from));
     });
+
+    baasTest('Roundtrip', (appConfig) async {
+      final values = getValues();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, manyAny: values.map(RealmValue.from));
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check object values in second realm.
+      expect(realm2.all<ObjectWithInt>().single.i, 42);
+      expect(realm2.all<ObjectWithRealmValue>().length, 2);
+      final object2 = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object1.id]).single;
+      expect(object2.manyAny.length, values.length);
+      expect(object2.manyAny[0].value, values[0]);
+
+      // Add new item in second realm.
+      const newValue = 'new value';
+      realm2.write(() => object2.manyAny.add(RealmValue.from(newValue)));
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Check new item in first realm.
+      expect(object1.manyAny.length, values.length + 1);
+      expect(object1.manyAny.last.value, newValue);
+    });
+
+    test('Query with list of realm values in arguments', () {
+      final values = getValues();
+      final realm = getMixedRealm();
+      final realmValues = values.map(RealmValue.from);
+      realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), manyAny: realmValues, oneAny: realmValues.last)));
+
+      var results = realm.query<ObjectWithRealmValue>("manyAny IN \$0", [values]);
+      expect(results.first.manyAny, realmValues);
+
+      results = realm.query<ObjectWithRealmValue>("oneAny IN \$0", [values]);
+      expect(results.first.oneAny, realmValues.last);
+    });
   });
 
-  test('Query with list of realm values in arguments', () {
-    final now = DateTime.now().toUtc();
-    final values = <Object?>[
-      null,
-      true,
-      'text',
-      42,
-      3.14,
-      AnythingGoes(),
-      Stuff(),
-      now,
-      ObjectId.fromTimestamp(now),
-      Uuid.v4(),
-      Decimal128.fromInt(128),
-    ];
-    final realm = getMixedRealm();
-    final realmValues = values.map(RealmValue.from);
-    realm.write(() => realm.add(AnythingGoes(manyAny: realmValues, oneAny: realmValues.last)));
+  group('Set<RealmValue>', () {
+    final numericValues = [RealmValue.int(0), RealmValue.double(0.0), RealmValue.bool(false), RealmValue.decimal128(Decimal128.zero), RealmValue.nullValue()];
 
-    var results = realm.query<AnythingGoes>("manyAny IN \$0", [values]);
-    expect(results.first.manyAny, realmValues);
+    test('With numeric values', () {
+      final realm = getMixedRealm();
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(numericValues));
 
-    results = realm.query<AnythingGoes>("oneAny IN \$0", [values]);
-    expect(results.first.oneAny, realmValues.last);
-  });
+      expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
+    });
 
-  test('Set<RealmValue> with numeric values', () {
-    final realm = getMixedRealm();
-    final values = [RealmValue.int(0), RealmValue.double(0.0), RealmValue.bool(false), RealmValue.decimal128(Decimal128.zero), RealmValue.nullValue()];
-    final obj = realm.write(() => realm.add(AnythingGoes())..setOfAny.addAll(values));
+    baasTest('With numeric values', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
 
-    expect(obj.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
-  });
+      // Add object in first realm.
+      final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator);
+      realm1.write(() => realm1.add(object1)..setOfAny.addAll(numericValues));
 
-  test('Set<RealmValue> removes duplicates', () {
-    final realm = getMixedRealm();
-    final values = [
-      RealmValue.int(1),
-      RealmValue.nullValue(),
-      RealmValue.double(2.0),
-      RealmValue.string('abc'),
-      RealmValue.nullValue(),
-      RealmValue.string('abc')
-    ];
-    final obj = realm.write(() => realm.add(AnythingGoes())..setOfAny.addAll(values));
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
 
-    expect(obj.setOfAny, unorderedMatches([RealmValue.int(1), RealmValue.double(2.0), RealmValue.nullValue(), RealmValue.string('abc')]));
+      // Check object values in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.setOfAny, unorderedMatches([RealmValue.int(0), RealmValue.bool(false), RealmValue.nullValue()]));
+    });
+
+    test('Removes duplicates', () {
+      final realm = getMixedRealm();
+      final values = [
+        RealmValue.int(1),
+        RealmValue.nullValue(),
+        RealmValue.double(2.0),
+        RealmValue.string('abc'),
+        RealmValue.nullValue(),
+        RealmValue.string('abc')
+      ];
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId()))..setOfAny.addAll(values));
+
+      expect(obj.setOfAny, unorderedMatches([RealmValue.int(1), RealmValue.double(2.0), RealmValue.nullValue(), RealmValue.string('abc')]));
+    });
   });
 
   group('Collections in RealmValue', () {
@@ -332,7 +431,7 @@ void main() {
       final list = RealmValue.list([RealmValue.from(5)]);
       final map = RealmValue.map({'a': RealmValue.from('abc')});
 
-      final obj = AnythingGoes();
+      final obj = ObjectWithRealmValue(ObjectId());
       expect(() => obj.setOfAny.add(list), throws<RealmStateError>());
       expect(() => obj.setOfAny.add(map), throws<RealmStateError>());
 
@@ -348,7 +447,11 @@ void main() {
       final realm = getMixedRealm();
       final list = RealmValue.from([5]);
 
-      final obj = AnythingGoes(oneAny: list, manyAny: [list], dictOfAny: {'value': list});
+      final obj = ObjectWithRealmValue(ObjectId(),
+        oneAny: list,
+        manyAny: [list],
+        dictOfAny: {'value': list});
+
       expect(obj.oneAny.value, isA<List<RealmValue>>());
       expect(obj.oneAny.asList().length, 1);
       expect(obj.oneAny.asList().single.value, 5);
@@ -365,7 +468,7 @@ void main() {
         realm.add(obj);
       });
 
-      final foundObj = realm.all<AnythingGoes>().single;
+      final foundObj = realm.all<ObjectWithRealmValue>().single;
       expect(foundObj.oneAny.value, isA<List<RealmValue>>());
       expect(foundObj.oneAny.asList().length, 1);
       expect(foundObj.oneAny.asList()[0].value, 5);
@@ -389,11 +492,56 @@ void main() {
       expect(obj.dictOfAny['value']!.asList()[1].value, 'abc');
     });
 
+    baasTest('List get and set', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final list = RealmValue.from([5]);
+      final object1 = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: list,
+        manyAny: [list],
+        dictOfAny: {'value': list});
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check object values in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.oneAny.value, isA<List<RealmValue>>());
+      expect(object2.oneAny.asList().length, 1);
+      expect(object2.oneAny.asList().single.value, 5);
+
+      expect(object2.manyAny[0].value, isA<List<RealmValue>>());
+      expect(object2.manyAny[0].asList().length, 1);
+      expect(object2.manyAny[0].asList().single.value, 5);
+
+      expect(object2.dictOfAny['value']!.value, isA<List<RealmValue>>());
+      expect(object2.dictOfAny['value']!.asList().length, 1);
+      expect(object2.dictOfAny['value']!.asList().single.value, 5);
+
+      // Add new items in second realm.
+      realm2.write(() {
+        object2.oneAny.asList().add(RealmValue.from('abc'));
+        object2.manyAny[0].asList().add(RealmValue.from('abc'));
+        object2.dictOfAny['value']!.asList().add(RealmValue.from('abc'));
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Check new items in first realm.
+      expect(object1.oneAny.asList()[1].value, 'abc');
+      expect(object1.manyAny[0].asList()[1].value, 'abc');
+      expect(object1.dictOfAny['value']!.asList()[1].value, 'abc');
+    });
+
     test('Map get and set', () {
       final realm = getMixedRealm();
       final map = RealmValue.from({'foo': 5});
 
-      final obj = AnythingGoes(oneAny: map, manyAny: [map], dictOfAny: {'value': map});
+      final obj = ObjectWithRealmValue(ObjectId(), oneAny: map, manyAny: [map], dictOfAny: {'value': map});
       expect(obj.oneAny.value, isA<Map<String, RealmValue>>());
       expect(obj.oneAny.asMap().length, 1);
       expect(obj.oneAny.asMap()['foo']!.value, 5);
@@ -410,7 +558,7 @@ void main() {
         realm.add(obj);
       });
 
-      final foundObj = realm.all<AnythingGoes>().single;
+      final foundObj = realm.all<ObjectWithRealmValue>().single;
       expect(foundObj.oneAny.value, isA<Map<String, RealmValue>>());
       expect(foundObj.oneAny.asMap().length, 1);
       expect(foundObj.oneAny.asMap()['foo']!.value, 5);
@@ -434,15 +582,60 @@ void main() {
       expect(obj.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
     });
 
+    baasTest('Map get and set', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final map = RealmValue.from({'foo': 5});
+      final object1 = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: map,
+        manyAny: [map],
+        dictOfAny: {'value': map});
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check object values in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object1.oneAny.value, isA<Map<String, RealmValue>>());
+      expect(object1.oneAny.asMap().length, 1);
+      expect(object1.oneAny.asMap()['foo']!.value, 5);
+
+      expect(object1.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expect(object1.manyAny[0].asMap().length, 1);
+      expect(object1.manyAny[0].asMap()['foo']!.value, 5);
+
+      expect(object1.dictOfAny['value']!.value, isA<Map<String, RealmValue>>());
+      expect(object1.dictOfAny['value']!.asMap().length, 1);
+      expect(object1.dictOfAny['value']!.asMap()['foo']!.value, 5);
+
+      // Add new items in second realm.
+      realm2.write(() {
+        object2.oneAny.asMap()['bar'] = RealmValue.from('abc');
+        object2.manyAny[0].asMap()['bar'] = RealmValue.from('abc');
+        object2.dictOfAny['value']!.asMap()['bar'] = RealmValue.from('abc');
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Check new items in first realm.
+      expect(object1.oneAny.asMap()['bar']!.value, 'abc');
+      expect(object1.manyAny[0].asMap()['bar']!.value, 'abc');
+      expect(object1.dictOfAny['value']!.asMap()['bar']!.value, 'abc');
+    });
+
     for (var isManaged in [true, false]) {
       final managedString = isManaged ? 'managed' : 'unmanaged';
       RealmValue persistIfNecessary(RealmValue rv, Realm realm) {
         if (isManaged) {
           realm.write(() {
-            realm.add(AnythingGoes(oneAny: rv));
+            realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv));
           });
 
-          return realm.all<AnythingGoes>().first.oneAny;
+          return realm.all<ObjectWithRealmValue>().first.oneAny;
         }
 
         return rv;
@@ -456,9 +649,8 @@ void main() {
         }
       }
 
-      test('List when $managedString works with all types', () {
-        final realm = getMixedRealm();
-        final originalList = [
+      List<Object?> getListAllTypes({ObjectId? differentiator}) {
+        return [
           null,
           1,
           true,
@@ -469,10 +661,15 @@ void main() {
           ObjectId.fromHexString('5f63e882536de46d71877979'),
           Uuid.fromString('3809d6d9-7618-4b3d-8044-2aa35fd02f31'),
           Uint8List.fromList([1, 2, 0]),
-          Stuff(i: 123),
+          ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123),
           [5, 'abc'],
           {'int': -10, 'string': 'abc'}
         ];
+      }
+
+      test('List when $managedString works with all types', () {
+        final realm = getMixedRealm();
+        final originalList = getListAllTypes();
         final foundValue = persistIfNecessary(RealmValue.from(originalList), realm);
         expect(foundValue.value, isA<List<RealmValue>>());
         expect(foundValue.type, RealmValueType.list);
@@ -487,9 +684,9 @@ void main() {
         }
 
         final storedObj = foundList[primitiveCount];
-        expect(storedObj.value, isA<Stuff>());
-        expect(storedObj.as<Stuff>().isManaged, isManaged);
-        expect(storedObj.as<Stuff>().i, 123);
+        expect(storedObj.value, isA<ObjectWithInt>());
+        expect(storedObj.as<ObjectWithInt>().isManaged, isManaged);
+        expect(storedObj.as<ObjectWithInt>().i, 123);
 
         final storedList = foundList[primitiveCount + 1];
         expectMatches(storedList, [5, 'abc']);
@@ -499,9 +696,74 @@ void main() {
         expect(storedDict.asMap()['non-existent'], null);
       });
 
+      // This test only needs to run once, but it's placed
+      // here to be collocated with the above test.
+      if (isManaged) {
+        baasTest('List works with all types', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          // Add object in first realm.
+          final originalList = getListAllTypes(differentiator: differentiator);
+          final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalList));
+          realm1.write(() => realm1.add(object1));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.id, object1.id);
+
+          final foundValue = object2.oneAny;
+          expect(foundValue.value, isA<List<RealmValue>>());
+          expect(foundValue.type, RealmValueType.list);
+
+          final foundList = foundValue.asList();
+          expect(foundList.length, originalList.length);
+
+          // Last 3 elements are objects/collections, so they are treated specially.
+          final primitiveCount = originalList.length - 3;
+          for (var i = 0; i < primitiveCount; i++) {
+            expect(foundList[i].value, originalList[i]);
+          }
+
+          final storedObjIndex = primitiveCount;
+          final storedObj = foundList[storedObjIndex];
+          expect(storedObj.value, isA<ObjectWithInt>());
+          expect(storedObj.as<ObjectWithInt>().isManaged, true);
+          expect(storedObj.as<ObjectWithInt>().i, 123);
+
+          final storedListIndex = primitiveCount + 1;
+          final storedList = foundList[storedListIndex];
+          expectMatches(storedList, [5, 'abc']);
+
+          final storedDictIndex = primitiveCount + 2;
+          final storedDict = foundList[storedDictIndex];
+          expectMatches(storedDict, {'int': -10, 'string': 'abc'});
+          expect(storedDict.asMap()['non-existent'], null);
+
+          // Update and add items in second realm.
+          realm2.write(() {
+            storedObj.as<ObjectWithInt>().i = 456;
+            storedList.asList()[0] = RealmValue.from('updated');
+            storedList.asList().add(RealmValue.from('new-value'));
+            storedDict.asMap()['string'] = RealmValue.from('updated');
+            storedDict.asMap()['new-value'] = RealmValue.from('new-value');
+          });
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check updated items in first realm.
+          final list = object1.oneAny.asList();
+          expect(list[storedObjIndex].as<ObjectWithInt>().i, 456);
+          expectMatches(list[storedListIndex], ['updated', 'abc', 'new-value']);
+          expectMatches(list[storedDictIndex], {'int': -10, 'string': 'updated', 'new-value': 'new-value'});
+        });
+      }
+
       test('List when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(oneAny: RealmValue.from([true, 5.3]));
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from([true, 5.3]));
         if (isManaged) {
           realm.write(() => realm.add(obj));
         }
@@ -510,6 +772,7 @@ void main() {
         expectMatches(obj.oneAny, [true, 5.3]);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(['foo']));
+        expectMatches(obj.oneAny, ['foo']);
 
         writeIfNecessary(realm, () => obj.oneAny = RealmValue.from(999));
         expectMatches(obj.oneAny, 999);
@@ -518,9 +781,48 @@ void main() {
         expectMatches(obj.oneAny, {'int': -100});
       });
 
-      test('Map when $managedString works with all types', () {
-        final realm = getMixedRealm();
-        final originalMap = {
+      if (isManaged) {
+        baasTest('List can be reassigned', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          // Add object in first realm.
+          final object1 = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from([true, 5.3]));
+          realm1.write(() => realm1.add(object1));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.oneAny.type, RealmValueType.list);
+          expectMatches(object2.oneAny, [true, 5.3]);
+
+          // Reassign value in second realm.
+          realm2.write(() => object2.oneAny = RealmValue.from(['foo']));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check and reassign new value in first realm.
+          expectMatches(object1.oneAny, ['foo']);
+          realm1.write(() => object1.oneAny = RealmValue.from(999));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check and reassign new value in second realm.
+          expectMatches(object2.oneAny, 999);
+          realm2.write(() => object2.oneAny = RealmValue.from({'int': -100}));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check new value in first realm.
+          expectMatches(object2.oneAny, {'int': -100});
+        });
+      }
+
+      Map<String, Object?> getDictAllTypes({ObjectId? differentiator}) {
+        return {
           'primitive_null': null,
           'primitive_int': 1,
           'primitive_bool': true,
@@ -531,10 +833,15 @@ void main() {
           'primitive_objectId': ObjectId.fromHexString('5f63e882536de46d71877979'),
           'primitive_uuid': Uuid.fromString('3809d6d9-7618-4b3d-8044-2aa35fd02f31'),
           'primitive_binary': Uint8List.fromList([1, 2, 0]),
-          'object': Stuff(i: 123),
+          'object': ObjectWithInt(ObjectId(), differentiator: differentiator, i: 123),
           'list': [5, 'abc'],
           'map': {'int': -10, 'string': 'abc'}
         };
+      }
+
+      test('Map when $managedString works with all types', () {
+        final realm = getMixedRealm();
+        final originalMap = getDictAllTypes();
         final foundValue = persistIfNecessary(RealmValue.from(originalMap), realm);
         expect(foundValue.value, isA<Map<String, RealmValue>>());
         expect(foundValue.type, RealmValueType.map);
@@ -542,14 +849,15 @@ void main() {
         final foundMap = foundValue.asMap();
         expect(foundMap.length, foundMap.length);
 
-        for (var key in originalMap.keys.where((k) => k.startsWith('primitive_'))) {
+        final primitiveKeys = originalMap.keys.where((k) => k.startsWith('primitive_'));
+        for (var key in primitiveKeys) {
           expect(foundMap[key]!.value, originalMap[key]);
         }
 
         final storedObj = foundMap['object']!;
-        expect(storedObj.value, isA<Stuff>());
-        expect(storedObj.as<Stuff>().isManaged, isManaged);
-        expect(storedObj.as<Stuff>().i, 123);
+        expect(storedObj.value, isA<ObjectWithInt>());
+        expect(storedObj.as<ObjectWithInt>().isManaged, isManaged);
+        expect(storedObj.as<ObjectWithInt>().i, 123);
 
         final storedList = foundMap['list']!;
         expectMatches(storedList, [5, 'abc']);
@@ -558,9 +866,69 @@ void main() {
         expectMatches(storedDict, {'int': -10, 'string': 'abc'});
       });
 
+      // This test only needs to run once, but it's placed
+      // here to be collocated with the above test.
+      if (isManaged) {
+        baasTest('Map works with all types', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          // Add object in first realm.
+          final originalMap = getDictAllTypes(differentiator: differentiator);
+          final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(originalMap));
+          realm1.write(() => realm1.add(object1));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.id, object1.id);
+
+          final foundValue = object2.oneAny;
+          expect(foundValue.value, isA<Map<String, RealmValue>>());
+          expect(foundValue.type, RealmValueType.map);
+
+          final foundMap = foundValue.asMap();
+          expect(foundMap.length, foundMap.length);
+
+          final primitiveKeys = originalMap.keys.where((k) => k.startsWith('primitive_'));
+          for (var key in primitiveKeys) {
+            expect(foundMap[key]!.value, originalMap[key]);
+          }
+
+          final storedObj = foundMap['object']!;
+          expect(storedObj.value, isA<ObjectWithInt>());
+          expect(storedObj.as<ObjectWithInt>().isManaged, isManaged);
+          expect(storedObj.as<ObjectWithInt>().i, 123);
+
+          final storedList = foundMap['list']!;
+          expectMatches(storedList, [5, 'abc']);
+
+          final storedDict = foundMap['map']!;
+          expectMatches(storedDict, {'int': -10, 'string': 'abc'});
+
+          // Update and add items in second realm.
+          realm2.write(() {
+            storedObj.as<ObjectWithInt>().i = 456;
+            storedList.asList()[0] = RealmValue.from('updated');
+            storedList.asList().add(RealmValue.from('new-value'));
+            storedDict.asMap()['string'] = RealmValue.from('updated');
+            storedDict.asMap()['new-value'] = RealmValue.from('new-value');
+          });
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check updated items in first realm.
+          final map = object1.oneAny.asMap();
+          expect(map['object']?.as<ObjectWithInt>().i, 456);
+          expectMatches(map['list']!, ['updated', 'abc', 'new-value']);
+          expectMatches(map['map']!, {'int': -10, 'string': 'updated', 'new-value': 'new-value'});
+        });
+      }
+
       test('Map when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
         if (isManaged) {
           realm.write(() => realm.add(obj));
         }
@@ -578,9 +946,49 @@ void main() {
         expectMatches(obj.oneAny, [1.23456789]);
       });
 
+      if (isManaged) {
+        baasTest('Map can be reassigned', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          // Add object in first realm.
+          final object1 = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from({'bool': true, 'double': 5.3}));
+          realm1.write(() => realm1.add(object1));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.oneAny.type, RealmValueType.map);
+          expectMatches(object2.oneAny, {'bool': true, 'double': 5.3});
+
+          // Reassign value in second realm.
+          realm2.write(() => object2.oneAny = RealmValue.from({'newKey': 'new value'}));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check and reassign new value in first realm.
+          expectMatches(object1.oneAny, {'newKey': 'new value'});
+          realm1.write(() => object1.oneAny = RealmValue.from(999));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check and reassign new value in second realm.
+          expectMatches(object2.oneAny, 999);
+          realm2.write(() => object2.oneAny = RealmValue.from([1.23456789]));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check new value in first realm.
+          expectMatches(object1.oneAny, [1.23456789]);
+        });
+      }
+
       test('Map inside list when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           true,
           {'foo': 'bar'},
@@ -611,22 +1019,74 @@ void main() {
           5.3,
           {'new': 5}
         ]);
-
-        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
-        // writeIfNecessary(realm, () {
-        //   list[1] = list[1];
-        // });
-        // expectMatches(obj.oneAny, [
-        //   true,
-        //   {'new': 5},
-        //   5.3,
-        //   {'new': 5}
-        // ]);
       });
+
+      if (isManaged) {
+        baasTest('Map inside list can be reassigned', (appConfig) async {
+          final differentiator = ObjectId();
+          final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+          // Add object in first realm.
+          final object1 = ObjectWithRealmValue(ObjectId(),
+            differentiator: differentiator,
+            oneAny: RealmValue.from([true, {'foo': 'bar'}, 5.3]));
+          realm1.write(() => realm1.add(object1));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check object values in second realm.
+          final object2 = realm2.all<ObjectWithRealmValue>().single;
+          expect(object2.oneAny.type, RealmValueType.list);
+          expectMatches(object2.oneAny, [true, {'foo': 'bar'}, 5.3]);
+
+          final syncedList = object2.oneAny.asList();
+          expect(syncedList[1].type, RealmValueType.map);
+
+          // Reassign map in second realm.
+          realm2.write(() => syncedList[1] = RealmValue.from({'new': 5}));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check and reassign new value in first realm.
+          expectMatches(object1.oneAny, [true, {'new': 5}, 5.3]);
+          final list = object1.oneAny.asList();
+          realm1.write(() => list[1] = RealmValue.from([1.23456789]));
+
+          await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+          // Check and reassign new value in second realm.
+          expectMatches(object2.oneAny, [true, [1.23456789], 5.3]);
+          realm2.write(() => syncedList[1] = RealmValue.from(999));
+
+          await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+          // Check new value in first realm.
+          expectMatches(object1.oneAny, [true, 999, 5.3]);
+        });
+      }
+
+      // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+      test('Map inside list when $managedString can self-assign', () {
+        final realm = getMixedRealm();
+        final originalList = [true, {'foo': 'bar'}, 5.3];
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalList));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final list = obj.oneAny.asList();
+
+        expect(list[1].type, RealmValueType.map);
+
+        writeIfNecessary(realm, () {
+          list[1] = list[1];
+        });
+        expectMatches(obj.oneAny, originalList);
+      }, skip: true);
 
       test('Map inside map when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from({
           'a': 5,
           'b': {'foo': 'bar'}
@@ -655,21 +1115,33 @@ void main() {
           'b': {'new': 5},
           'c': {'new': 5},
         });
-
-        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
-        // writeIfNecessary(realm, () {
-        //   map['a'] = map['a'];
-        // });
-        // expectMatches(obj.oneAny, {
-        //   'a': 5,
-        //   'b': {'new': 5},
-        //   'c': {'new': 5},
-        // });
       });
+
+      // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+      test('Map inside map when $managedString can self-assign', () {
+        final realm = getMixedRealm();
+        final originalMap = {
+          'a': 5,
+          'b': {'foo': 'bar'}
+        };
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalMap));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final map = obj.oneAny.asMap();
+
+        expect(map['b']!.type, RealmValueType.map);
+
+        writeIfNecessary(realm, () {
+          map['b'] = map['b']!;
+        });
+        expectMatches(obj.oneAny, originalMap);
+      }, skip: true);
 
       test('List inside list when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           true,
           ['foo'],
@@ -700,22 +1172,30 @@ void main() {
           5.3,
           [5, true]
         ]);
-
-        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
-        // writeIfNecessary(realm, () {
-        //   list[1] = list[1];
-        // });
-        // expectMatches(obj.oneAny, [
-        //   true,
-        //   [5, true],
-        //   5.3,
-        //   [5, true]
-        // ]);
       });
+
+      // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+      test('List inside list when $managedString can self-assign', () {
+        final realm = getMixedRealm();
+        final originalList = [true, ['foo'], 5.3];
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalList));
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final list = obj.oneAny.asList();
+
+        expect(list[1].type, RealmValueType.list);
+
+        writeIfNecessary(realm, () {
+          list[1] = list[1];
+        });
+        expectMatches(obj.oneAny, originalList);
+      }, skip: true);
 
       test('List inside map when $managedString can be reassigned', () {
         final realm = getMixedRealm();
-        final obj = AnythingGoes(
+        final obj = ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from({
           'a': 5,
           'b': ['foo']
@@ -744,39 +1224,33 @@ void main() {
           'b': [999, true],
           'c': [999, true]
         });
-
-        // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
-        // writeIfNecessary(realm, () {
-        //   map['a'] = map['a'];
-        // });
-        // expectMatches(obj.oneAny, {
-        //   'a': 5,
-        //   'b': [999, true],
-        //   'c': [999, true]
-        // });
       });
 
-      test('RealmValue when $managedString can store complex struct', () {
+      // TODO: Self-assignment - this doesn't work due to https://github.com/realm/realm-core/issues/7422
+      test('List inside map when $managedString can self-assign', () {
         final realm = getMixedRealm();
-        final rv = persistIfNecessary(
-            RealmValue.from([
-              {'0_bool': true, '0_double': 5.3},
-              {
-                '1_int': 5,
-                '1_map': {
-                  '2_decimal': Decimal128.fromDouble(0.1),
-                  '2_list': [
-                    'bla bla',
-                    {
-                      '3_dict': {'4_string': 'abc'}
-                    }
-                  ]
-                }
-              }
-            ]),
-            realm);
+        final originalMap = {
+          'a': 5,
+          'b': ['foo']
+        };
+        final obj = ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalMap));
 
-        expectMatches(rv, [
+        if (isManaged) {
+          realm.write(() => realm.add(obj));
+        }
+
+        final map = obj.oneAny.asMap();
+
+        expect(map['b']!.type, RealmValueType.list);
+
+        writeIfNecessary(realm, () {
+          map['b'] = map['b']!;
+        });
+        expectMatches(obj.oneAny, originalMap);
+      }, skip: true);
+
+      group('Complex structs', () {
+        final originalList = [
           {'0_bool': true, '0_double': 5.3},
           {
             '1_int': 5,
@@ -790,37 +1264,235 @@ void main() {
               ]
             }
           }
-        ]);
+        ];
 
-        writeIfNecessary(realm, () {
-          rv.asList().removeAt(0);
-        });
+        test('RealmValue when $managedString can store complex struct', () {
+          final realm = getMixedRealm();
+          final rv = persistIfNecessary(RealmValue.from(originalList), realm);
 
-        expectMatches(rv, [
-          {
-            '1_int': 5,
-            '1_map': {
-              '2_decimal': Decimal128.fromDouble(0.1),
-              '2_list': [
-                'bla bla',
-                {
-                  '3_dict': {'4_string': 'abc'}
-                }
-              ]
+          expectMatches(rv, originalList);
+
+          writeIfNecessary(realm, () {
+            rv.asList().removeAt(0);
+          });
+
+          expectMatches(rv, [
+            {
+              '1_int': 5,
+              '1_map': {
+                '2_decimal': Decimal128.fromDouble(0.1),
+                '2_list': [
+                  'bla bla',
+                  {
+                    '3_dict': {'4_string': 'abc'}
+                  }
+                ]
+              }
             }
-          }
-        ]);
+          ]);
 
-        writeIfNecessary(realm, () {
-          rv.asList()[0].asMap()['1_double'] = RealmValue.double(5.5);
-          rv.asList()[0].asMap().remove('1_map');
-          rv.asList().add(RealmValue.bool(true));
+          writeIfNecessary(realm, () {
+            rv.asList()[0].asMap()['1_double'] = RealmValue.double(5.5);
+            rv.asList()[0].asMap().remove('1_map');
+            rv.asList().add(RealmValue.bool(true));
+          });
+
+          expectMatches(rv, [
+            {'1_int': 5, '1_double': 5.5},
+            true
+          ]);
         });
 
-        expectMatches(rv, [
-          {'1_int': 5, '1_double': 5.5},
-          true
-        ]);
+        test('RealmValue list when $managedString can remove nested collections', () {
+          final realm = getMixedRealm();
+
+          final listWithMap = [
+            {
+              '1_map': {
+                '2_string': 'map value'
+              },
+              '1_list': ['list value']
+            }
+          ];
+          final rv = persistIfNecessary(RealmValue.from(listWithMap), realm);
+
+          expectMatches(rv, listWithMap);
+
+          writeIfNecessary(realm, () {
+            rv.asList()[0].asMap().remove('1_list');
+            rv.asList()[0].asMap().remove('1_map');
+          });
+
+          expect(rv.asList()[0].asMap().isEmpty, true);
+        });
+
+        test('RealmValue map when $managedString can remove nested collections', () {
+          final realm = getMixedRealm();
+
+          final mapWithMap = {
+            '1_map': {
+              '2_map': {
+                '3_string': 'map value'
+              },
+              '2_list': ['list value']
+            }
+          };
+          final rv = persistIfNecessary(RealmValue.from(mapWithMap), realm);
+
+          expectMatches(rv, mapWithMap);
+
+          writeIfNecessary(realm, () {
+            rv.asMap()['1_map']!.asMap().remove('2_map');
+            rv.asMap()['1_map']!.asMap().remove('2_list');
+          });
+
+          expect(rv.asMap()['1_map']!.asMap().isEmpty, true);
+        });
+
+        if (isManaged) {
+          baasTest('RealmValue can store complex struct', (appConfig) async {
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
+            final object1 = ObjectWithRealmValue(ObjectId(),
+              differentiator: differentiator,
+              oneAny: RealmValue.from(originalList));
+            realm1.write(() => realm1.add(object1));
+
+            await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+            // Check object values in second realm.
+            final object2 = realm2.all<ObjectWithRealmValue>().single;
+            expectMatches(object2.oneAny, originalList);
+
+            // Remove list item in second realm.
+            realm2.write(() => object2.oneAny.asList().removeAt(0));
+
+            await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+            // Check list in first realm.
+            expectMatches(object1.oneAny, [
+              {
+                '1_int': 5,
+                '1_map': {
+                  '2_decimal': Decimal128.fromDouble(0.1),
+                  '2_list': [
+                    'bla bla',
+                    {
+                      '3_dict': {'4_string': 'abc'}
+                    }
+                  ]
+                }
+              }
+            ]);
+
+            // Make updates in first realm.
+            realm1.write(() {
+              final list = object1.oneAny.asList();
+              list[0].asMap()['1_double'] = RealmValue.double(5.5);
+              list.add(RealmValue.bool(true));
+            });
+
+            await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+            // Check updated list in second realm.
+            expectMatches(object2.oneAny, [
+              {
+                '1_int': 5,
+                '1_map': {
+                  '2_decimal': Decimal128.fromDouble(0.1),
+                  '2_list': [
+                    'bla bla',
+                    {
+                      '3_dict': {'4_string': 'abc'}
+                    }
+                  ]
+                },
+                '1_double': 5.5
+              },
+              true
+            ]);
+          });
+
+          // Skipped until this is fixed: https://github.com/realm/realm-core/issues/7573
+          baasTest('RealmValue list can remove nested collections', (appConfig) async {
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
+            final listWithMap = [
+              {
+                '1_map': {
+                  '2_string': 'map value'
+                },
+                '1_list': ['list value']
+              }
+            ];
+            final object1 = ObjectWithRealmValue(ObjectId(),
+              differentiator: differentiator,
+              oneAny: RealmValue.from(listWithMap));
+            realm1.write(() => realm1.add(object1));
+
+            await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+            // Check object values in second realm.
+            final object2 = realm2.all<ObjectWithRealmValue>().single;
+            expectMatches(object2.oneAny, listWithMap);
+
+            // Remove nested map and list in second realm.
+            realm2.write(() {
+              // TODO: Committing these removals will cause termination:
+              //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
+              object2.oneAny.asList()[0].asMap().remove('1_map');
+              object2.oneAny.asList()[0].asMap().remove('1_list');
+            });
+
+            await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+            // Check object in first realm.
+            expect(object1.oneAny.asList()[0].asMap().isEmpty, true);
+          }, skip: true);
+
+          // Skipped until this is fixed: https://github.com/realm/realm-core/issues/7573
+          baasTest('RealmValue map can remove nested collections', (appConfig) async {
+            final differentiator = ObjectId();
+            final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+            // Add object in first realm.
+            final mapWithMap = {
+              '1_map': {
+                '2_map': {
+                  '3_string': 'map value'
+                },
+                '2_list': ['list value']
+              }
+            };
+            final object1 = ObjectWithRealmValue(ObjectId(),
+              differentiator: differentiator,
+              oneAny: RealmValue.from(mapWithMap));
+            realm1.write(() => realm1.add(object1));
+
+            await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+            // Check object values in second realm.
+            final object2 = realm2.all<ObjectWithRealmValue>().single;
+            expectMatches(object2.oneAny, mapWithMap);
+
+            // Remove nested map and list in second realm.
+            realm2.write(() {
+              // TODO: Committing these removals will cause termination:
+              //       libc++abi: terminating due to uncaught exception of type realm::StaleAccessor: This collection is no more
+              object2.oneAny.asMap()['1_map']!.asMap().remove('2_map');
+              object2.oneAny.asMap()['1_map']!.asMap().remove('2_list');
+            });
+
+            await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+            // Check object in first realm.
+            expect(object1.oneAny.asMap()['1_map']!.asMap().isEmpty, true);
+          }, skip: true);
+        }
       });
     }
 
@@ -828,7 +1500,7 @@ void main() {
       final realm = getMixedRealm();
       final originalList = [1];
       final managedValue = realm.write(() {
-        return realm.add(AnythingGoes(oneAny: RealmValue.from(originalList))).oneAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalList))).oneAny;
       });
 
       final unmanagedValue = RealmValue.from(originalList);
@@ -855,7 +1527,7 @@ void main() {
       final realm = getMixedRealm();
       final originalList = [1];
       final managedList = realm.write(() {
-        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalList)])).manyAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), manyAny: [RealmValue.from(originalList)])).manyAny;
       });
 
       final unmanagedList = [RealmValue.from(originalList)];
@@ -882,7 +1554,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'foo': 1};
       final managedList = realm.write(() {
-        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalMap)])).manyAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), manyAny: [RealmValue.from(originalMap)])).manyAny;
       });
 
       final unmanagedList = [RealmValue.from(originalMap)];
@@ -909,7 +1581,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'foo': 'bar'};
       final managedValue = realm.write(() {
-        return realm.add(AnythingGoes(oneAny: RealmValue.from(originalMap))).oneAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), oneAny: RealmValue.from(originalMap))).oneAny;
       });
 
       final unmanagedValue = RealmValue.from(originalMap);
@@ -936,7 +1608,7 @@ void main() {
       final realm = getMixedRealm();
       final originalList = [1];
       final managedMap = realm.write(() {
-        return realm.add(AnythingGoes(dictOfAny: {'foo': RealmValue.from(originalList)})).dictOfAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), dictOfAny: {'foo': RealmValue.from(originalList)})).dictOfAny;
       });
 
       final unmanagedMap = {'foo': RealmValue.from(originalList)};
@@ -960,7 +1632,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'bar': 1};
       final managedMap = realm.write(() {
-        return realm.add(AnythingGoes(dictOfAny: {'foo': RealmValue.from(originalMap)})).dictOfAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), dictOfAny: {'foo': RealmValue.from(originalMap)})).dictOfAny;
       });
 
       final unmanagedMap = {'foo': RealmValue.from(originalMap)};
@@ -984,7 +1656,7 @@ void main() {
       final realm = getMixedRealm();
       final originalMap = {'foo': 1};
       final managedList = realm.write(() {
-        return realm.add(AnythingGoes(manyAny: [RealmValue.from(originalMap)])).manyAny;
+        return realm.add(ObjectWithRealmValue(ObjectId(), manyAny: [RealmValue.from(originalMap)])).manyAny;
       });
 
       final unmanagedList = [RealmValue.from(originalMap)];
@@ -1017,7 +1689,7 @@ void main() {
       final list = [RealmValue.bool(true), RealmValue.string('abc')];
       final rv = RealmValue.list(list);
       final realm = getMixedRealm();
-      final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv)));
       expect(identical(obj.oneAny.asList(), list), false);
     });
 
@@ -1031,17 +1703,270 @@ void main() {
       final map = {'bool': RealmValue.bool(true), 'str': RealmValue.string('abc')};
       final rv = RealmValue.map(map);
       final realm = getMixedRealm();
-      final obj = realm.write(() => realm.add(AnythingGoes(oneAny: rv)));
+      final obj = realm.write(() => realm.add(ObjectWithRealmValue(ObjectId(), oneAny: rv)));
       expect(identical(obj.oneAny.asMap(), map), false);
+    });
+
+    baasTest('List has conflicting writes resolved', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final originalList = ['original 0', 'original 1', 'original 2'];
+      final rvList = RealmValue.from(originalList);
+      final object1 = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: rvList,
+        manyAny: [rvList],
+        dictOfAny: {'key': rvList});
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check synced object in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.oneAny.value, isA<List<RealmValue>>());
+      expectMatches(object2.oneAny, originalList);
+
+      expect(object2.manyAny[0].value, isA<List<RealmValue>>());
+      expectMatches(object2.manyAny[0], originalList);
+
+      expect(object2.dictOfAny['key']!.value, isA<List<RealmValue>>());
+      expectMatches(object2.dictOfAny['key']!, originalList);
+
+      // Pause sessions and do conflicting writes.
+      realm1.syncSession.pause();
+      realm2.syncSession.pause();
+      await validateSessionStates("State after pause", realm1.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+      await validateSessionStates("State after pause", realm2.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+
+      // Realm1 changes: update type at index0, update at index 1, remove at index 2.
+      realm1.write(() {
+        object1.oneAny.asList()[0] = RealmValue.from(['updated str->lst (index 0) - realm1']);
+        object1.oneAny.asList()[1] = RealmValue.from('updated str->str (index 1) - realm1');
+        object1.oneAny.asList().removeAt(2);
+
+        object1.manyAny[0].asList()[0] = RealmValue.from(['updated str->lst (index 0) - realm1']);
+        object1.manyAny[0].asList()[1] = RealmValue.from('updated str->str (index 1) - realm1');
+        object1.manyAny[0].asList().removeAt(2);
+
+        object1.dictOfAny['key']!.asList()[0] = RealmValue.from(['updated str->lst (index 0) - realm1']);
+        object1.dictOfAny['key']!.asList()[1] = RealmValue.from('updated str->str (index 1) - realm1');
+        object1.dictOfAny['key']!.asList().removeAt(2);
+      });
+
+      // Realm2 changes: update type at index0, update at index 1, update at index 2, add at end (index 3).
+      realm2.write(() {
+        object2.oneAny.asList()[0] = RealmValue.from({'key': 'updated str->map (index 0) - realm2'});
+        object2.oneAny.asList()[1] = RealmValue.from('updated str->str (index 1) - realm2');
+        object2.oneAny.asList()[2] = RealmValue.from('updated str->str (index 2) - realm2');
+        object2.oneAny.asList().add(RealmValue.from('added str (index 3) - realm2'));
+
+        object2.manyAny[0].asList()[0] = RealmValue.from({'key': 'updated str->map (index 0) - realm2'});
+        object2.manyAny[0].asList()[1] = RealmValue.from('updated str->str (index 1) - realm2');
+        object2.manyAny[0].asList()[2] = RealmValue.from('updated str->str (index 2) - realm2');
+        object2.manyAny[0].asList().add(RealmValue.from('added str (index 3) - realm2'));
+
+        object2.dictOfAny['key']!.asList()[0] = RealmValue.from({'key': 'updated str->map (index 0) - realm2'});
+        object2.dictOfAny['key']!.asList()[1] = RealmValue.from('updated str->str (index 1) - realm2');
+        object2.dictOfAny['key']!.asList()[2] = RealmValue.from('updated str->str (index 2) - realm2');
+        object2.dictOfAny['key']!.asList().add(RealmValue.from('added str (index 3) - realm2'));
+      });
+
+      // Resume sessions and check resolution.
+      realm1.syncSession.resume();
+      realm2.syncSession.resume();
+      await validateSessionStates("State after resume", realm1.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+      await validateSessionStates("State after resume", realm2.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Update of type at index 0 in realm2 should have won.
+      expect(object1.oneAny.asList()[0].value, object2.oneAny.asList()[0].value);
+      expect(object1.oneAny.asList()[0].value, isA<Map<String, RealmValue>>());
+      expectMatches(object1.oneAny.asList()[0], {'key': 'updated str->map (index 0) - realm2'});
+
+      expect(object1.manyAny[0].asList()[0].value, object2.manyAny[0].asList()[0].value);
+      expect(object1.manyAny[0].asList()[0].value, isA<Map<String, RealmValue>>());
+      expectMatches(object1.manyAny[0].asList()[0], {'key': 'updated str->map (index 0) - realm2'});
+
+      expect(object1.dictOfAny['key']!.asList()[0].value, object2.dictOfAny['key']!.asList()[0].value);
+      expect(object1.dictOfAny['key']!.asList()[0].value, isA<Map<String, RealmValue>>());
+      expectMatches(object1.dictOfAny['key']!.asList()[0], {'key': 'updated str->map (index 0) - realm2'});
+
+      // Update at index 1 in realm2 should have won.
+      expect(object1.oneAny.asList()[1].value, object2.oneAny.asList()[1].value);
+      expect(object1.oneAny.asList()[1].value, 'updated str->str (index 1) - realm2');
+
+      expect(object1.manyAny[0].asList()[1].value, object2.manyAny[0].asList()[1].value);
+      expect(object1.manyAny[0].asList()[1].value, 'updated str->str (index 1) - realm2');
+
+      expect(object1.dictOfAny['key']!.asList()[1].value, object2.dictOfAny['key']!.asList()[1].value);
+      expect(object1.dictOfAny['key']!.asList()[1].value, 'updated str->str (index 1) - realm2');
+
+      // Removal at index 2 in realm1 should have won over update in realm2.
+      expect(object1.oneAny.asList().contains(RealmValue.from('updated str->str (index 2) - realm2')), false);
+      expect(object2.oneAny.asList().contains(RealmValue.from('updated str->str (index 2) - realm2')), false);
+
+      expect(object1.manyAny[0].asList().contains(RealmValue.from('updated str->str (index 2) - realm2')), false);
+      expect(object2.manyAny[0].asList().contains(RealmValue.from('updated str->str (index 2) - realm2')), false);
+
+      expect(object1.dictOfAny['key']!.asList().contains(RealmValue.from('updated str->str (index 2) - realm2')), false);
+      expect(object2.dictOfAny['key']!.asList().contains(RealmValue.from('updated str->str (index 2) - realm2')), false);
+
+      // Adding at index 3 in realm2 should have resolved to adding at index 2.
+      expect(object1.oneAny.asList()[2].value, object2.oneAny.asList()[2].value);
+      expect(object1.oneAny.asList()[2].value, 'added str (index 3) - realm2');
+
+      expect(object1.manyAny[0].asList()[2].value, object2.manyAny[0].asList()[2].value);
+      expect(object1.manyAny[0].asList()[2].value, 'added str (index 3) - realm2');
+
+      expect(object1.dictOfAny['key']!.asList()[2].value, object2.dictOfAny['key']!.asList()[2].value);
+      expect(object1.dictOfAny['key']!.asList()[2].value, 'added str (index 3) - realm2');
+    });
+
+    baasTest('Map has conflicting writes resolved', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final originalMap = {
+        'key0': 'original 0',
+        'key1': 'original 1',
+        'key2': 'original 2'
+      };
+      final rvMap = RealmValue.from(originalMap);
+      final object1 = ObjectWithRealmValue(ObjectId(),
+        differentiator: differentiator,
+        oneAny: rvMap,
+        manyAny: [rvMap],
+        dictOfAny: {'key': rvMap});
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Check synced object in second realm.
+      final object2 = realm2.all<ObjectWithRealmValue>().single;
+      expect(object2.id, object1.id);
+      expect(object2.oneAny.value, isA<Map<String, RealmValue>>());
+      expectMatches(object2.oneAny, originalMap);
+
+      expect(object2.manyAny[0].value, isA<Map<String, RealmValue>>());
+      expectMatches(object2.manyAny[0], originalMap);
+
+      expect(object2.dictOfAny['key']!.value, isA<Map<String, RealmValue>>());
+      expectMatches(object2.dictOfAny['key']!, originalMap);
+
+      // Pause sessions and do conflicting writes.
+      realm1.syncSession.pause();
+      realm2.syncSession.pause();
+      await validateSessionStates("State after pause", realm1.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+      await validateSessionStates("State after pause", realm2.syncSession,
+        expectedSessionState: SessionState.inactive, expectedConnectionState: ConnectionState.disconnected);
+
+      // Realm1 changes: update type at key0, update at key1, remove at key2.
+      realm1.write(() {
+        object1.oneAny.asMap()['key0'] = RealmValue.from(['updated str->lst (key0) - realm1']);
+        object1.oneAny.asMap()['key1'] = RealmValue.from('updated str->str (key1) - realm1');
+        object1.oneAny.asMap().remove('key2');
+
+        object1.manyAny[0].asMap()['key0'] = RealmValue.from(['updated str->lst (key0) - realm1']);
+        object1.manyAny[0].asMap()['key1'] = RealmValue.from('updated str->str (key1) - realm1');
+        object1.manyAny[0].asMap().remove('key2');
+
+        object1.dictOfAny['key']!.asMap()['key0'] = RealmValue.from(['updated str->lst (key0) - realm1']);
+        object1.dictOfAny['key']!.asMap()['key1'] = RealmValue.from('updated str->str (key1) - realm1');
+        object1.dictOfAny['key']!.asMap().remove('key2');
+      });
+
+      // Realm2 changes: update type at key0, update at key1, update at key2, add key3.
+      realm2.write(() {
+        object2.oneAny.asMap()['key0'] = RealmValue.from({'key': 'updated str->map (key0) - realm2'});
+        object2.oneAny.asMap()['key1'] = RealmValue.from('updated str->str (key1) - realm2');
+        object2.oneAny.asMap()['key2'] = RealmValue.from('updated str->str (key2) - realm2');
+        object2.oneAny.asMap()['key3'] = RealmValue.from('added str (key3) - realm2');
+
+        object2.manyAny[0].asMap()['key0'] = RealmValue.from({'key': 'updated str->map (key0) - realm2'});
+        object2.manyAny[0].asMap()['key1'] = RealmValue.from('updated str->str (key1) - realm2');
+        object2.manyAny[0].asMap()['key2'] = RealmValue.from('updated str->str (key2) - realm2');
+        object2.manyAny[0].asMap()['key3'] = RealmValue.from('added str (key3) - realm2');
+
+        object2.dictOfAny['key']!.asMap()['key0'] = RealmValue.from({'key': 'updated str->map (key0) - realm2'});
+        object2.dictOfAny['key']!.asMap()['key1'] = RealmValue.from('updated str->str (key1) - realm2');
+        object2.dictOfAny['key']!.asMap()['key2'] = RealmValue.from('updated str->str (key2) - realm2');
+        object2.dictOfAny['key']!.asMap()['key3'] = RealmValue.from('added str (key3) - realm2');
+      });
+
+      // Resume sessions and check resolution.
+      realm1.syncSession.resume();
+      realm2.syncSession.resume();
+      await validateSessionStates("State after resume", realm1.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+      await validateSessionStates("State after resume", realm2.syncSession,
+        expectedSessionState: SessionState.active, expectedConnectionState: ConnectionState.connected);
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+
+      // Update of type at key0 in realm2 should have won.
+      expect(object1.oneAny.asMap()['key0']!.value, object2.oneAny.asMap()['key0']!.value);
+      expect(object1.oneAny.asMap()['key0']!.value, isA<Map<String, RealmValue>>());
+      expectMatches(object1.oneAny.asMap()['key0']!, {'key': 'updated str->map (key0) - realm2'});
+
+      expect(object1.manyAny[0].asMap()['key0']!.value, object2.manyAny[0].asMap()['key0']!.value);
+      expect(object1.manyAny[0].asMap()['key0']!.value, isA<Map<String, RealmValue>>());
+      expectMatches(object1.manyAny[0].asMap()['key0']!, {'key': 'updated str->map (key0) - realm2'});
+
+      expect(object1.dictOfAny['key']!.asMap()['key0']!.value, object2.dictOfAny['key']!.asMap()['key0']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key0']!.value, isA<Map<String, RealmValue>>());
+      expectMatches(object1.dictOfAny['key']!.asMap()['key0']!, {'key': 'updated str->map (key0) - realm2'});
+
+      // Update at key1 in realm2 should have won.
+      expect(object1.oneAny.asMap()['key1']!.value, object2.oneAny.asMap()['key1']!.value);
+      expect(object1.oneAny.asMap()['key1']!.value, 'updated str->str (key1) - realm2');
+
+      expect(object1.manyAny[0].asMap()['key1']!.value, object2.manyAny[0].asMap()['key1']!.value);
+      expect(object1.manyAny[0].asMap()['key1']!.value, 'updated str->str (key1) - realm2');
+
+      expect(object1.dictOfAny['key']!.asMap()['key1']!.value, object2.dictOfAny['key']!.asMap()['key1']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key1']!.value, 'updated str->str (key1) - realm2');
+
+      // Update at key2 in realm2 (last writer) should have won over "removal" in realm1
+      // due to OT acting on two updates (the removal being a `KeyErased` update).
+      expect(object1.oneAny.asMap()['key2']!.value, object2.oneAny.asMap()['key2']!.value);
+      expect(object1.oneAny.asMap()['key2']!.value, 'updated str->str (key2) - realm2');
+
+      expect(object1.manyAny[0].asMap()['key2']!.value, object2.manyAny[0].asMap()['key2']!.value);
+      expect(object1.manyAny[0].asMap()['key2']!.value, 'updated str->str (key2) - realm2');
+
+      expect(object1.dictOfAny['key']!.asMap()['key2']!.value, object2.dictOfAny['key']!.asMap()['key2']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key2']!.value, 'updated str->str (key2) - realm2');
+
+      // Adding key3 in realm2 should have resolved to the same thing.
+      expect(object1.oneAny.asMap()['key3']!.value, object2.oneAny.asMap()['key3']!.value);
+      expect(object1.oneAny.asMap()['key3']!.value, 'added str (key3) - realm2');
+
+      expect(object1.manyAny[0].asMap()['key3']!.value, object2.manyAny[0].asMap()['key3']!.value);
+      expect(object1.manyAny[0].asMap()['key3']!.value, 'added str (key3) - realm2');
+
+      expect(object1.dictOfAny['key']!.asMap()['key3']!.value, object2.dictOfAny['key']!.asMap()['key3']!.value);
+      expect(object1.dictOfAny['key']!.asMap()['key3']!.value, 'added str (key3) - realm2');
     });
 
     test('Notifications', () async {
       final realm = getMixedRealm();
-      final obj = AnythingGoes(
+      final obj = ObjectWithRealmValue(ObjectId(),
           oneAny: RealmValue.from([
         5,
         {
-          'foo': 'bar',
+          'string': 'bar',
           'list': [10]
         }
       ]));
@@ -1050,7 +1975,8 @@ void main() {
         realm.add(obj);
       });
 
-      final List<RealmObjectChanges<AnythingGoes>> parentChanges = [];
+      // Add listeners.
+      final List<RealmObjectChanges<ObjectWithRealmValue>> parentChanges = [];
       final subscription = obj.changes.listen((event) {
         parentChanges.add(event);
       });
@@ -1071,12 +1997,14 @@ void main() {
       listChanges.clear();
       mapChanges.clear();
 
+      // Add item to list.
       realm.write(() {
         obj.oneAny.asList().add(RealmValue.bool(true));
       });
 
       await Future<void>.delayed(Duration(milliseconds: 20));
 
+      // Expect listeners to be fired.
       expect(parentChanges, hasLength(1));
       expect(parentChanges[0].properties, ['oneAny']);
 
@@ -1089,6 +2017,7 @@ void main() {
 
       expect(mapChanges, hasLength(0));
 
+      // Update and add entry in nested dictionary.
       realm.write(() {
         obj.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
         obj.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
@@ -1096,6 +2025,7 @@ void main() {
 
       await Future<void>.delayed(Duration(milliseconds: 20));
 
+      // Expect listeners to be fired.
       expect(parentChanges, hasLength(2));
       expect(parentChanges[1].properties, ['oneAny']);
 
@@ -1113,29 +2043,59 @@ void main() {
       expect(mapChanges[0].isCleared, false);
       expect(mapChanges[0].isCollectionDeleted, false);
 
+      // Remove entry in nested dictionary.
+      realm.write(() {
+        obj.oneAny.asList()[1].asMap().remove('string');
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired.
+      expect(parentChanges, hasLength(3));
+      expect(parentChanges[2].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(3));
+      expect(listChanges[2].inserted, isEmpty);
+      expect(listChanges[2].deleted, isEmpty);
+      expect(listChanges[2].modified, [1]);
+      expect(listChanges[2].isCleared, false);
+      expect(listChanges[2].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(2));
+      expect(mapChanges[1].modified, isEmpty);
+      expect(mapChanges[1].inserted, isEmpty);
+      expect(mapChanges[1].deleted, ['string']);
+      expect(mapChanges[1].isCleared, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+
+      // Remove dictionary from list.
       realm.write(() {
         obj.oneAny.asList().removeAt(1);
       });
 
       await Future<void>.delayed(Duration(milliseconds: 20));
 
-      expect(parentChanges, hasLength(3));
-      expect(parentChanges[2].properties, ['oneAny']);
+      // Expect listeners to be fired.
+      expect(parentChanges, hasLength(4));
+      expect(parentChanges[3].properties, ['oneAny']);
 
-      expect(listChanges, hasLength(3));
-      expect(listChanges[2].inserted, isEmpty);
-      expect(listChanges[2].deleted, [1]);
-      expect(listChanges[2].modified, isEmpty);
-      expect(listChanges[2].isCleared, false);
-      expect(listChanges[2].isCollectionDeleted, false);
+      expect(listChanges, hasLength(4));
+      expect(listChanges[3].inserted, isEmpty);
+      expect(listChanges[3].deleted, [1]);
+      expect(listChanges[3].modified, isEmpty);
+      expect(listChanges[3].isCleared, false);
+      expect(listChanges[3].isCollectionDeleted, false);
 
-      expect(mapChanges, hasLength(2));
-      expect(mapChanges[1].isCollectionDeleted, true);
+      expect(mapChanges, hasLength(3));
+      expect(mapChanges[2].isCollectionDeleted, true);
 
+      // Cancel subscriptions.
       subscription.cancel();
       listSubscription.cancel();
       mapSubscription.cancel();
 
+      // Overwrite list with primitive.
       realm.write(() {
         obj.oneAny = RealmValue.bool(false);
       });
@@ -1143,33 +2103,191 @@ void main() {
       await Future<void>.delayed(Duration(milliseconds: 20));
 
       // Subscriptions have been canceled - shouldn't get more notifications
+      expect(parentChanges, hasLength(4));
+      expect(listChanges, hasLength(4));
+      expect(mapChanges, hasLength(3));
+    });
+
+    baasTest('Notifications', (appConfig) async {
+      final differentiator = ObjectId();
+      final (realm1, realm2) = await logInAndGetSyncedRealms(appConfig, differentiator);
+
+      // Add object in first realm.
+      final list = [
+        5,
+        {
+          'string': 'bar',
+          'list': [10]
+        }
+      ];
+      final object1 = ObjectWithRealmValue(ObjectId(), differentiator: differentiator, oneAny: RealmValue.from(list));
+      realm1.write(() => realm1.add(object1));
+
+      await waitForSynchronization(uploadRealm: realm1, downloadRealm: realm2);
+
+      // Add listeners in first realm.
+      final List<RealmObjectChanges<ObjectWithRealmValue>> parentChanges = [];
+      final subscription = object1.changes.listen((event) {
+        parentChanges.add(event);
+      });
+
+      final List<RealmListChanges<RealmValue>> listChanges = [];
+      final listSubscription = object1.oneAny.asList().changes.listen((event) {
+        listChanges.add(event);
+      });
+
+      final List<RealmMapChanges<RealmValue>> mapChanges = [];
+      final mapSubscription = object1.oneAny.asList()[1].asMap().changes.listen((event) {
+        mapChanges.add(event);
+      });
+
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      parentChanges.clear();
+      listChanges.clear();
+      mapChanges.clear();
+
+      // Get object in second realm.
+      final object2 = realm2.query<ObjectWithRealmValue>(r'_id == $0', [object1.id]).single;
+
+      // Add item to list in second realm.
+      realm2.write(() {
+        object2.oneAny.asList().add(RealmValue.bool(true));
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(1));
+      expect(parentChanges[0].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(1));
+      expect(listChanges[0].inserted, [2]);
+      expect(listChanges[0].deleted, isEmpty);
+      expect(listChanges[0].modified, isEmpty);
+      expect(listChanges[0].isCleared, false);
+      expect(listChanges[0].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(0));
+
+      // Update and add entry in nested dictionary in second realm.
+      realm2.write(() {
+        object2.oneAny.asList()[1].asMap()['list'] = RealmValue.from([10]);
+        object2.oneAny.asList()[1].asMap()['new-value'] = RealmValue.from({'foo': 'bar'});
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(2));
+      expect(parentChanges[1].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(2));
+      expect(listChanges[1].inserted, isEmpty);
+      expect(listChanges[1].deleted, isEmpty);
+      expect(listChanges[1].modified, [1]);
+      expect(listChanges[1].isCleared, false);
+      expect(listChanges[1].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(1));
+      expect(mapChanges[0].modified, ['list']);
+      expect(mapChanges[0].inserted, ['new-value']);
+      expect(mapChanges[0].deleted, isEmpty);
+      expect(mapChanges[0].isCleared, false);
+      expect(mapChanges[0].isCollectionDeleted, false);
+
+      // Remove entry in nested dictionary in second realm.
+      realm2.write(() {
+        object2.oneAny.asList()[1].asMap().remove('string');
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
       expect(parentChanges, hasLength(3));
+      expect(parentChanges[2].properties, ['oneAny']);
+
       expect(listChanges, hasLength(3));
+      expect(listChanges[2].inserted, isEmpty);
+      expect(listChanges[2].deleted, isEmpty);
+      expect(listChanges[2].modified, [1]);
+      expect(listChanges[2].isCleared, false);
+      expect(listChanges[2].isCollectionDeleted, false);
+
       expect(mapChanges, hasLength(2));
+      expect(mapChanges[1].modified, isEmpty);
+      expect(mapChanges[1].inserted, isEmpty);
+      expect(mapChanges[1].deleted, ['string']);
+      expect(mapChanges[1].isCleared, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+      expect(mapChanges[1].isCollectionDeleted, false);
+
+      // Remove dictionary from list in second realm.
+      realm2.write(() {
+        object2.oneAny.asList().removeAt(1);
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Expect listeners to be fired in first realm.
+      expect(parentChanges, hasLength(4));
+      expect(parentChanges[3].properties, ['oneAny']);
+
+      expect(listChanges, hasLength(4));
+      expect(listChanges[3].inserted, isEmpty);
+      expect(listChanges[3].deleted, [1]);
+      expect(listChanges[3].modified, isEmpty);
+      expect(listChanges[3].isCleared, false);
+      expect(listChanges[3].isCollectionDeleted, false);
+
+      expect(mapChanges, hasLength(3));
+      expect(mapChanges[2].isCollectionDeleted, true);
+
+      // Cancel subscriptions.
+      subscription.cancel();
+      listSubscription.cancel();
+      mapSubscription.cancel();
+
+      // Overwrite list with primitive in second realm.
+      realm2.write(() {
+        object2.oneAny = RealmValue.bool(false);
+      });
+
+      await waitForSynchronization(uploadRealm: realm2, downloadRealm: realm1);
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      // Subscriptions have been canceled - shouldn't get more notifications.
+      expect(parentChanges, hasLength(4));
+      expect(listChanges, hasLength(4));
+      expect(mapChanges, hasLength(3));
     });
 
     test('Queries', () {
       final realm = getMixedRealm();
 
-      late AnythingGoes first;
-      late AnythingGoes second;
-      late AnythingGoes third;
+      late ObjectWithRealmValue first;
+      late ObjectWithRealmValue second;
+      late ObjectWithRealmValue third;
 
       realm.write(() {
-        first = realm.add(AnythingGoes(
+        first = realm.add(ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           1,
           'a',
           {'foo': 'bar'}
         ])));
 
-        second = realm.add(AnythingGoes(
+        second = realm.add(ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           2,
           {'foo': 'baz'}
         ])));
 
-        third = realm.add(AnythingGoes(
+        third = realm.add(ObjectWithRealmValue(ObjectId(),
             oneAny: RealmValue.from([
           3,
           'c',
@@ -1181,25 +2299,25 @@ void main() {
         ])));
       });
 
-      final listElementQuery = realm.query<AnythingGoes>('oneAny[0] < 3');
+      final listElementQuery = realm.query<ObjectWithRealmValue>('oneAny[0] < 3');
       expect(listElementQuery, unorderedMatches([first, second]));
 
-      final listLengthQuery = realm.query<AnythingGoes>('oneAny.@size > 3');
+      final listLengthQuery = realm.query<ObjectWithRealmValue>('oneAny.@size > 3');
       expect(listLengthQuery, unorderedMatches([third]));
 
-      final listStarQuery = realm.query<AnythingGoes>('oneAny[*] == 3.4');
+      final listStarQuery = realm.query<ObjectWithRealmValue>('oneAny[*] == 3.4');
       expect(listStarQuery, unorderedMatches([third]));
 
-      final typeQuery = realm.query<AnythingGoes>("oneAny[2].@type == 'dictionary'");
+      final typeQuery = realm.query<ObjectWithRealmValue>("oneAny[2].@type == 'dictionary'");
       expect(typeQuery, unorderedMatches([first, third]));
 
-      final dictionaryInListQuery = realm.query<AnythingGoes>("oneAny[*].foo BEGINSWITH 'ba'");
+      final dictionaryInListQuery = realm.query<ObjectWithRealmValue>("oneAny[*].foo BEGINSWITH 'ba'");
       expect(dictionaryInListQuery, unorderedMatches([first, second]));
 
-      final dictionaryKeysQuery = realm.query<AnythingGoes>("oneAny[*].foo.@keys == 'child'");
+      final dictionaryKeysQuery = realm.query<ObjectWithRealmValue>("oneAny[*].foo.@keys == 'child'");
       expect(dictionaryKeysQuery, unorderedMatches([third]));
 
-      final noMatchesQuery = realm.query<AnythingGoes>("oneAny[*].bar == 9");
+      final noMatchesQuery = realm.query<ObjectWithRealmValue>("oneAny[*].bar == 9");
       expect(noMatchesQuery, isEmpty);
     });
   });

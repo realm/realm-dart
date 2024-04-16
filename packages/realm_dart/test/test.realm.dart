@@ -3809,3 +3809,229 @@ class Symmetric extends _Symmetric
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
+
+class ObjectWithRealmValue extends _ObjectWithRealmValue
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ObjectWithRealmValue(
+    ObjectId id, {
+    ObjectId? differentiator,
+    RealmValue oneAny = const RealmValue.nullValue(),
+    Iterable<RealmValue> manyAny = const [],
+    Map<String, RealmValue> dictOfAny = const {},
+    Set<RealmValue> setOfAny = const {},
+  }) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'differentiator', differentiator);
+    RealmObjectBase.set(this, 'oneAny', oneAny);
+    RealmObjectBase.set<RealmList<RealmValue>>(
+        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
+  }
+
+  ObjectWithRealmValue._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
+  @override
+  set differentiator(ObjectId? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
+
+  @override
+  RealmValue get oneAny =>
+      RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
+  @override
+  set oneAny(RealmValue value) => RealmObjectBase.set(this, 'oneAny', value);
+
+  @override
+  RealmList<RealmValue> get manyAny =>
+      RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
+  @override
+  set manyAny(covariant RealmList<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<RealmValue> get dictOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'dictOfAny')
+          as RealmMap<RealmValue>;
+  @override
+  set dictOfAny(covariant RealmMap<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<RealmValue> get setOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'setOfAny') as RealmSet<RealmValue>;
+  @override
+  set setOfAny(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithRealmValue>(this);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithRealmValue>(this, keyPaths);
+
+  @override
+  ObjectWithRealmValue freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithRealmValue>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'oneAny': oneAny.toEJson(),
+      'manyAny': manyAny.toEJson(),
+      'dictOfAny': dictOfAny.toEJson(),
+      'setOfAny': setOfAny.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithRealmValue value) => value.toEJson();
+  static ObjectWithRealmValue _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'oneAny': EJsonValue oneAny,
+        'manyAny': EJsonValue manyAny,
+        'dictOfAny': EJsonValue dictOfAny,
+        'setOfAny': EJsonValue setOfAny,
+      } =>
+        ObjectWithRealmValue(
+          fromEJson(id),
+          differentiator: fromEJson(differentiator),
+          oneAny: fromEJson(oneAny),
+          manyAny: fromEJson(manyAny),
+          dictOfAny: fromEJson(dictOfAny),
+          setOfAny: fromEJson(setOfAny),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ObjectWithRealmValue._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, ObjectWithRealmValue, 'ObjectWithRealmValue', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('oneAny', RealmPropertyType.mixed,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('manyAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('dictOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('setOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class ObjectWithInt extends _ObjectWithInt
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  ObjectWithInt(
+    ObjectId id, {
+    ObjectId? differentiator,
+    int i = 42,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<ObjectWithInt>({
+        'i': 42,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'differentiator', differentiator);
+    RealmObjectBase.set(this, 'i', i);
+  }
+
+  ObjectWithInt._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
+  @override
+  set differentiator(ObjectId? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
+
+  @override
+  int get i => RealmObjectBase.get<int>(this, 'i') as int;
+  @override
+  set i(int value) => RealmObjectBase.set(this, 'i', value);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithInt>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithInt>(this);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithInt>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithInt>(this, keyPaths);
+
+  @override
+  ObjectWithInt freeze() => RealmObjectBase.freezeObject<ObjectWithInt>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'i': i.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithInt value) => value.toEJson();
+  static ObjectWithInt _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'i': EJsonValue i,
+      } =>
+        ObjectWithInt(
+          fromEJson(id),
+          differentiator: fromEJson(differentiator),
+          i: fromEJson(i),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ObjectWithInt._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, ObjectWithInt, 'ObjectWithInt', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('i', RealmPropertyType.int),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}

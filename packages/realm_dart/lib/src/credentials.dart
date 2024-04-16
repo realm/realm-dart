@@ -9,7 +9,7 @@ import 'app.dart';
 import 'user.dart';
 
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.
-/// [Authentication Providers Docs](https://docs.mongodb.com/realm/authentication/providers/)
+/// [Authentication Providers Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/#authentication-providers)
 /// {@category Application}
 enum AuthProviderType {
   /// For authenticating without credentials.
@@ -61,7 +61,7 @@ class Credentials implements Finalizable {
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
   /// Setting [reuseCredentials] to `false` will create a new anonymous user, upon [App.logIn].
-  /// [Anonymous Authentication Docs](https://docs.mongodb.com/realm/authentication/anonymous)
+  /// [Anonymous Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/anonymous/#anonymous-authentication)
   Credentials.anonymous({bool reuseCredentials = true}) : _handle = realmCore.createAppCredentialsAnonymous(reuseCredentials);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Google account using an id token.
@@ -70,11 +70,11 @@ class Credentials implements Finalizable {
   /// Returns a [Credentials] object that can be used to authenticate a user with their email and password.
   /// A user can login with email and password only after they have registered their account and verified their
   /// email.
-  /// [Email/Password Authentication Docs](https://docs.mongodb.com/realm/authentication/email-password)
+  /// [Email/Password Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/email-password/#email-password-authentication)
   Credentials.emailPassword(String email, String password) : _handle = realmCore.createAppCredentialsEmailPassword(email, password);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a custom JWT.
-  /// [Custom-JWT Authentication Docs](https://docs.mongodb.com/realm/authentication/custom-jwt)
+  /// [Custom-JWT Authentication Docs](https://www.mongodb.com/docs/atlas/app-services/authentication/custom-jwt/#custom-jwt-authentication)
   Credentials.jwt(String token) : _handle = realmCore.createAppCredentialsJwt(token);
 
   /// Returns a [Credentials] object that can be used to authenticate a user with a Facebook account.

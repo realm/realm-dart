@@ -6,6 +6,19 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+Future<void> validateSessionStates(String validationName, Session session,
+    {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
+  if (expectedSessionState != null) {
+    await waitForCondition(() => session.state.name == expectedSessionState.name,
+        message: 'Expected ${session.state} to equal $expectedSessionState. Validation: $validationName', timeout: const Duration(seconds: 15));
+  }
+
+  if (expectedConnectionState != null) {
+    await waitForCondition(() => session.connectionState.name == expectedConnectionState.name,
+        message: 'Expected ${session.connectionState} to equal $expectedConnectionState. Validation: $validationName', timeout: const Duration(seconds: 15));
+  }
+}
+
 void main() {
   setupTests();
 
@@ -24,8 +37,7 @@ void main() {
   });
 
   baasTest('SyncSession.user returns a valid user', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 
@@ -36,8 +48,7 @@ void main() {
   });
 
   baasTest('SyncSession when isolate is torn down does not crash', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
 
     // Don't use getRealm because we want the Realm to survive
@@ -45,19 +56,6 @@ void main() {
 
     expect(realm.syncSession, isNotNull);
   });
-
-  Future<void> validateSessionStates(String validationName, Session session,
-      {SessionState? expectedSessionState, ConnectionState? expectedConnectionState}) async {
-    if (expectedSessionState != null) {
-      await waitForCondition(() => session.state.name == expectedSessionState.name,
-          message: 'Expected ${session.state} to equal $expectedSessionState. Validation: $validationName', timeout: const Duration(seconds: 15));
-    }
-
-    if (expectedConnectionState != null) {
-      await waitForCondition(() => session.connectionState.name == expectedConnectionState.name,
-          message: 'Expected ${session.connectionState} to equal $expectedConnectionState. Validation: $validationName', timeout: const Duration(seconds: 15));
-    }
-  }
 
   baasTest('SyncSession.pause/resume', (configuration) async {
     final realm = await getIntegrationRealm();
@@ -304,8 +302,7 @@ void main() {
   });
 
   baasTest('SyncSession when Realm is closed gets closed as well', (configuration) async {
-    final app = App(configuration);
-    final user = await getIntegrationUser(app);
+    final user = await getIntegrationUser(appConfig: configuration);
     final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
 

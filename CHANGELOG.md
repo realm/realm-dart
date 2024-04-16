@@ -17,18 +17,25 @@
   person.changesFor(["age", "friends"]).listen( .... )
   ```
 * Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
+* Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
+* The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
 
 ### Fixed
 * Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
 * Backlinks mistakenly included in EJson serialization. ([Issue #1616](https://github.com/realm/realm-dart/issues/1616))
+* Fix an assertion failure "m_lock_info && m_lock_info->m_file.get_path() == m_filename" that appears to be related to opening a Realm while the file is in the process of being closed on another thread. (Core 14.5.0)
+* Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included). (Core 14.5.0)
+* Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
 
 ### Compatibility
-* Realm Studio: 13.0.0 or later.
+* Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core 14.4.1.
+* Using Core 14.5.0.
 
 ## 2.0.0 (2024-03-20)
+
+**Note**: Using the newly added support for collections in `RealmValue` with Atlas Device Sync is currently in private preview. Reach out to the support team if you need it enabled for your app. Rolling it out across all apps is expected to happen in late April 2024.
 
 ### Breaking Changes
 * `RealmValue.type` is now an enum of type `RealmValueType` rather than `Type`. If you need the runtime type of the value wrapped in `RealmValue`, use `RealmValue.value.runtimeType`. (Issue [#1505](https://github.com/realm/realm-dart/issues/1505))
@@ -183,7 +190,7 @@
 * Fixed conflict resolution bug which may result in an crash when the AddInteger instruction on Mixed properties is merged against updates to a non-integer type. (Core v14.3.0)
 
 ### Compatibility
-* Realm Studio: 14.0.0 or later.
+* Realm Studio: 15.0.0 or later.
 * Fileformat: Generates files with format v24. Reads and automatically upgrade from fileformat v10. If you want to upgrade from an earlier file format version you will have to use RealmCore v13.x.y or earlier.
 
 ### Internal
