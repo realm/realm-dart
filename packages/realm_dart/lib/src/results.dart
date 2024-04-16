@@ -48,7 +48,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
       late RealmObjectMetadata targetMetadata;
       late Type type;
       if (T == RealmValue) {
-        (type, targetMetadata) = realm.metadata.getByClassKey(value.getClassKey());
+        (type, targetMetadata) = realm.metadata.getByClassKey(value.classKey);
       } else {
         targetMetadata = _metadata!;
         type = T;

@@ -158,11 +158,11 @@ class RealmCoreAccessor implements RealmAccessor {
           if (propertyMeta.propertyType == RealmPropertyType.linkingObjects) {
             final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
             final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
-            final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
+            final handle = object.handle.getBacklinks(sourceMeta.classKey, sourceProperty.key);
             return RealmResultsInternal.create<T>(handle, object.realm, sourceMeta);
           }
 
-          final handle = realmCore.getListProperty(object, propertyMeta.key);
+          final handle = object.handle.getList(propertyMeta.key);
           final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
 
           if (propertyMeta.propertyType == RealmPropertyType.mixed) {
@@ -186,7 +186,7 @@ class RealmCoreAccessor implements RealmAccessor {
           }
           return object.realm.createList<T>(handle, listMetadata);
         case RealmCollectionType.set:
-          final handle = realmCore.getSetProperty(object, propertyMeta.key);
+          final handle = object.handle.getSet(propertyMeta.key);
           final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
           if (setMetadata != null && _isTypeGenericObject<T>()) {
             switch (setMetadata.schema.baseType) {
@@ -203,7 +203,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
           return object.realm.createSet<T>(handle, setMetadata);
         case RealmCollectionType.map:
-          final handle = realmCore.getMapProperty(object, propertyMeta.key);
+          final handle = object.handle.getMap(propertyMeta.key);
           final mapMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
 
           if (propertyMeta.propertyType == RealmPropertyType.mixed) {
@@ -227,7 +227,7 @@ class RealmCoreAccessor implements RealmAccessor {
           }
           return object.realm.createMap<T>(handle, mapMetadata);
         default:
-          var value = realmCore.getProperty(object, propertyMeta.key);
+          var value = object.handle.getValue(object.realm, propertyMeta.key);
 
           if (value is ObjectHandle) {
             final meta = object.realm.metadata;
@@ -237,7 +237,7 @@ class RealmCoreAccessor implements RealmAccessor {
             late RealmObjectMetadata targetMetadata;
 
             if (propertyMeta.propertyType == RealmPropertyType.mixed) {
-              (type, targetMetadata) = meta.getByClassKey(value.getClassKey());
+              (type, targetMetadata) = meta.getByClassKey(value.classKey);
             } else {
               // If we have an object but the user called the API without providing a generic
               // arg, we construct a RealmObject since we don't know the type of the object.
@@ -264,12 +264,12 @@ class RealmCoreAccessor implements RealmAccessor {
     final propertyMeta = metadata[name];
     try {
       if (value is RealmValue && value.type.isCollection) {
-        realmCore.objectSetCollection(object, propertyMeta.key, value);
+        object.handle.setCollection(object.realm, propertyMeta.key, value);
         return;
       }
 
       if (value is RealmList) {
-        final handle = realmCore.getListProperty(object, propertyMeta.key);
+        final handle = object.handle.getList(propertyMeta.key);
         if (update) {
           handle.clear();
         }
@@ -282,7 +282,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
       //TODO: set from ManagedRealmList is not supported yet
       if (value is RealmSet) {
-        final handle = realmCore.getSetProperty(object, propertyMeta.key);
+        final handle = object.handle.getSet(propertyMeta.key);
         if (update) {
           handle.clear();
         }
@@ -302,7 +302,7 @@ class RealmCoreAccessor implements RealmAccessor {
       }
 
       if (value is RealmMap) {
-        final handle = realmCore.getMapProperty(object, propertyMeta.key);
+        final handle = object.handle.getMap(propertyMeta.key);
         if (update) {
           handle.clear();
         }
@@ -326,13 +326,13 @@ class RealmCoreAccessor implements RealmAccessor {
       object.realm.addUnmanagedRealmObjectFromValue(value, update);
 
       if (propertyMeta.isPrimaryKey && !isInMigration) {
-        final currentValue = realmCore.getProperty(object, propertyMeta.key);
+        final currentValue = object.handle.getValue(object.realm, propertyMeta.key);
         if (currentValue != value) {
           throw RealmException("Primary key cannot be changed (original value: '$currentValue', supplied value: '$value')");
         }
       }
 
-      realmCore.setProperty(object, propertyMeta.key, value, isDefault);
+      object.handle.setValue(propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata._realmObjectTypeName}.$name Error: $e");
     }
@@ -476,7 +476,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   /// will throw an exception.
   /// The Object is not valid if its [Realm] is closed or object is deleted.
   /// Unmanaged objects are always considered valid.
-  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
+  bool get isValid => isManaged ? handle.isValid : true;
 
   /// Allows listening for property changes on this Realm object.
   ///
@@ -598,7 +598,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
       throw RealmError(
           "Property $T.$propertyName is a link property that links to ${sourceProperty.objectType} which is different from the type of the current object, which is $runtimeType.");
     }
-    final handle = realmCore.getBacklinks(this, sourceMeta.classKey, sourceProperty.key);
+    final handle = this.handle.getBacklinks(sourceMeta.classKey, sourceProperty.key);
     return RealmResultsInternal.create<T>(handle, realm, sourceMeta);
   }
 
@@ -774,7 +774,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject, this, keyPaths);
+    return realmObject.handle.subscribeForNotifications(this, keyPaths);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {

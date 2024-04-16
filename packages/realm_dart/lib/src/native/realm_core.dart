@@ -522,12 +522,6 @@ class _RealmCore {
     realmLib.realm_scheduler_perform_work(queuePointer);
   }
 
-  RealmHandle openRealm(Configuration config) {
-    final configHandle = ConfigHandle(config);
-    final realmPtr = invokeGetPointer(() => realmLib.realm_open(configHandle.pointer), "Error opening realm at path ${config.path}");
-    return RealmHandle._(realmPtr);
-  }
-
   RealmAsyncOpenTaskHandle createRealmAsyncOpenTask(FlexibleSyncConfiguration config) {
     final configHandle = ConfigHandle(config);
     final asyncOpenTaskPtr = invokeGetPointer(() => realmLib.realm_open_synchronized(configHandle.pointer), "Error opening realm at path ${config.path}");
@@ -718,29 +712,6 @@ class _RealmCore {
     });
   }
 
-  Object? getProperty(RealmObjectBase object, int propertyKey) {
-    return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_get_value(object.handle.pointer, propertyKey, realm_value));
-      return realm_value.toDartValue(object.realm, () => realmLib.realm_get_list(object.handle.pointer, propertyKey),
-          () => realmLib.realm_get_dictionary(object.handle.pointer, propertyKey));
-    });
-  }
-
-  void setProperty(RealmObjectBase object, int propertyKey, Object? value, bool isDefault) {
-    using((Arena arena) {
-      final realm_value = _toRealmValue(value, arena);
-      invokeGetBool(() => realmLib.realm_set_value(object.handle.pointer, propertyKey, realm_value.ref, isDefault));
-    });
-  }
-
-  void objectSetCollection(RealmObjectBase object, int propertyKey, RealmValue value) {
-    _createCollection(object.realm, value, () => realmLib.realm_set_list(object.handle.pointer, propertyKey),
-        () => realmLib.realm_set_dictionary(object.handle.pointer, propertyKey));
-  }
-
-  String objectToString(RealmObjectBase object) => object.handle.objectToString();
-
   // For debugging
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
@@ -888,26 +859,6 @@ class _RealmCore {
     return ObjectHandle._(pointer, realm.handle);
   }
 
-  ListHandle getListProperty(RealmObjectBase object, int propertyKey) {
-    final pointer = invokeGetPointer(() => realmLib.realm_get_list(object.handle.pointer, propertyKey));
-    return ListHandle._(pointer, object.realm.handle);
-  }
-
-  ResultsHandle getBacklinks(RealmObjectBase object, int sourceTableKey, int propertyKey) {
-    final pointer = invokeGetPointer(() => realmLib.realm_get_backlinks(object.handle.pointer, sourceTableKey, propertyKey));
-    return ResultsHandle._(pointer, object.realm.handle);
-  }
-
-  SetHandle getSetProperty(RealmObjectBase object, int propertyKey) {
-    final pointer = invokeGetPointer(() => realmLib.realm_get_set(object.handle.pointer, propertyKey));
-    return SetHandle._(pointer, object.realm.handle);
-  }
-
-  MapHandle getMapProperty(RealmObjectBase object, int propertyKey) {
-    final pointer = invokeGetPointer(() => realmLib.realm_get_dictionary(object.handle.pointer, propertyKey));
-    return MapHandle._(pointer, object.realm.handle);
-  }
-
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
     return realmLib.realm_equals(first.pointer.cast(), second.pointer.cast());
   }
@@ -925,10 +876,6 @@ class _RealmCore {
     return hashCode;
   }
 
-  bool objectIsValid(RealmObjectBase object) {
-    return realmLib.realm_object_is_valid(object.handle.pointer);
-  }
-
   RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
     final pointer = invokeGetPointer(() => realmLib.realm_results_add_notification_callback(
           results.handle.pointer,
@@ -939,39 +886,6 @@ class _RealmCore {
         ));
 
     return RealmNotificationTokenHandle._(pointer, results.realm.handle);
-  }
-
-  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller, [List<String>? keyPaths]) {
-    return using((Arena arena) {
-      final kpNative = buildAndVerifyKeyPath(object, keyPaths);
-      final pointer = invokeGetPointer(() => realmLib.realm_object_add_notification_callback(
-            object.handle._pointer,
-            controller.toPersistentHandle(),
-            realmLib.addresses.realm_dart_delete_persistent_handle,
-            kpNative,
-            Pointer.fromFunction(object_change_callback),
-          ));
-
-      return RealmNotificationTokenHandle._(pointer, object.realm.handle);
-    });
-  }
-
-  Pointer<realm_key_path_array> buildAndVerifyKeyPath(RealmObjectBase object, [List<String>? keyPaths]) {
-    return using((Arena arena) {
-      if (keyPaths == null) {
-        return nullptr;
-      }
-
-      final length = keyPaths.length;
-      final keypathsNative = arena<Pointer<Char>>(length);
-      final classKey = object.realm.metadata.getByName(object.objectSchema.name).classKey;
-
-      for (int i = 0; i < length; i++) {
-        keypathsNative[i] = keyPaths[i].toCharPtr(arena);
-      }
-
-      return invokeGetPointer(() => realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
-    });
   }
 
   UserNotificationTokenHandle subscribeUserNotifications(UserNotificationsController controller) {
@@ -1111,14 +1025,6 @@ class _RealmCore {
   }
 
   ResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) => realmResults.handle.resolveIn(frozenRealm.handle);
-
-  ObjectHandle? resolveObject(RealmObjectBase object, Realm frozenRealm) {
-    return using((Arena arena) {
-      final resultPtr = arena<Pointer<realm_object>>();
-      invokeGetBool(() => realmLib.realm_object_resolve_in(object.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : ObjectHandle._(resultPtr.value, frozenRealm.handle);
-    });
-  }
 
   ListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
     return using((Arena arena) {

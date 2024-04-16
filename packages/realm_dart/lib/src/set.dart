@@ -161,7 +161,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {
-          (type, targetMetadata) = realm.metadata.getByClassKey(value.getClassKey());
+          (type, targetMetadata) = realm.metadata.getByClassKey(value.classKey);
         } else {
           targetMetadata = _metadata!; // will be null for RealmValue, so defer until here
           type = T;

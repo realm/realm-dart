@@ -97,7 +97,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {
-          (type, targetMetadata) = realm.metadata.getByClassKey(value.getClassKey());
+          (type, targetMetadata) = realm.metadata.getByClassKey(value.classKey);
         } else {
           targetMetadata = _metadata!;
           type = T;

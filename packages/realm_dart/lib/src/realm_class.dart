@@ -198,7 +198,7 @@ class Realm implements Finalizable {
 
   static RealmHandle _openRealm(Configuration config) {
     _ensureDirectory(config);
-    return realmCore.openRealm(config);
+    return RealmHandle.open(config);
   }
 
   static void _ensureDirectory(Configuration config) {
@@ -780,8 +780,8 @@ extension RealmInternal on Realm {
   /// This should only be used for testing
   RealmResults<T> allEmbedded<T extends EmbeddedObject>() {
     final metadata = _metadata.getByType(T);
-    final handle = this.handle.findAll(metadata.classKey);
-    return RealmResultsInternal.create<T>(handle, this, metadata);
+    final resultsHandle = handle.findAll(metadata.classKey);
+    return RealmResultsInternal.create<T>(resultsHandle, this, metadata);
   }
 
   T? resolveObject<T extends RealmObjectBase>(T object) {
@@ -793,23 +793,23 @@ extension RealmInternal on Realm {
       throw RealmStateError("Can't resolve invalidated (deleted) objects");
     }
 
-    final handle = realmCore.resolveObject(object, this);
-    if (handle == null) {
+    final newHandle = object.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
     final metadata = (object.accessor as RealmCoreAccessor).metadata;
 
-    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata, _isInMigration)) as T;
+    return RealmObjectInternal.create(T, this, newHandle, RealmCoreAccessor(metadata, _isInMigration)) as T;
   }
 
   RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
-    final handle = realmCore.resolveList(list, this);
-    if (handle == null) {
+    final resultHandle = realmCore.resolveList(list, this);
+    if (resultHandle == null) {
       return null;
     }
 
-    return createList<T>(handle, list.metadata);
+    return createList<T>(resultHandle, list.metadata);
   }
 
   RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {

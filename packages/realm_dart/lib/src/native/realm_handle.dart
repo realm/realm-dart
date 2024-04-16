@@ -12,6 +12,12 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   RealmHandle._unowned(super.pointer) : super.unowned();
 
+  factory RealmHandle.open(Configuration config) {
+    final configHandle = ConfigHandle(config);
+    final realmPtr = invokeGetPointer(() => realmLib.realm_open(configHandle.pointer), 'Error opening realm at path ${config.path}');
+    return RealmHandle._(realmPtr);
+  }
+
   int addChild(RootedHandleBase child) {
     final id = _counter++;
     _children[id] = WeakReference(child);
