@@ -20,7 +20,7 @@ enum ObjectType {
   /// to query or modify it.
   asymmetricObject('AsymmetricObject', 2);
 
-  const ObjectType([this._className = 'Unknown', this._flags = -1]);
+  const ObjectType(this._className, this._flags);
 
   final String _className;
   final int _flags;
