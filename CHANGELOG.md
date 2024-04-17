@@ -15,12 +15,15 @@
 * Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included). (Core 14.5.0)
 * Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
 * Comparing RealmValue containing a collection to itself would return false. Semantics changed to ensure reference equality always imply equality. (Issue [[#1632](https://github.com/realm/realm-dart/issues/1632)])
+* Clearing a nested collection could end with a crash (Core 14.15.1)
+* Removing nested collections in RealmValue for synced realms throws (Core 14.15.1)
+
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core 14.5.0.
+* Using Core 14.5.1.
 
 ## 2.0.0 (2024-03-20)
 
