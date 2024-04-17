@@ -16,7 +16,7 @@
 * Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
 * Comparing RealmValue containing a collection to itself would return false. Semantics changed to ensure reference equality always imply equality. (Issue [[#1632](https://github.com/realm/realm-dart/issues/1632)])
 * Clearing a nested collection could end with a crash (Core 14.15.1)
-* Removing nested collections in Mixed for synced realms throws (Core 14.15.1)
+* Removing nested collections in RealmValue for synced realms throws (Core 14.15.1)
 
 
 ### Compatibility
