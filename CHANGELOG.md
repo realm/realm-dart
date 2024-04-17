@@ -6,6 +6,7 @@
 * Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
 * The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
 * Don't ignore private fields on realm models. (Issue [#1367](https://github.com/realm/realm-dart/issues/1367))
+* Improve performance of `RealmValue.operator==` when containing binary data. (PR [#1628](https://github.com/realm/realm-dart/pull/1628))
 
 ### Fixed
 * Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
