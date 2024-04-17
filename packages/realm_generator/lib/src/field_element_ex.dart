@@ -69,8 +69,8 @@ extension FieldElementEx on FieldElement {
         return null;
       }
 
-      if (ignoredInfo != null || isPrivate) {
-        // skip ignored and private fields
+      if (ignoredInfo != null) {
+        // skip ignored fields
         return null;
       }
 
