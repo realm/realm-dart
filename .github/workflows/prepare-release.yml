@@ -37,7 +37,7 @@ jobs:
         run: dart pub global activate melos
 
       - name: Update pubspec.yaml files
-        run: REALM_VERSION=${{ inputs.version}} melos run update:version:realm
+        run: REALM_VERSION=${{ steps.update-changelog.outputs.new-version }} melos run update:version:realm
 
       - name: Update realm.podspec
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
