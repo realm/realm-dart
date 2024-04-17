@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 2.1.0 (2024-04-17)
 
 ### Enhancements
 * Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
