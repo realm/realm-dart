@@ -1,5 +1,9 @@
 name: ejson_analyzer
-description: A starting point for Dart libraries or applications.
+description: >-
+  Common analysis code for EJSON packages.
+
+  BSON is a binary format used to store JSON-like documents efficiently.
+  EJSON extends JSON defining how all BSON types should be represented in JSON.
 
 version: 0.3.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_analyzer
