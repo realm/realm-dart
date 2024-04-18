@@ -45,7 +45,7 @@ class RealmModelInfo {
       }
 
       bool required(RealmFieldInfo f) => f.isRequired || f.isPrimaryKey;
-      bool usePositional(RealmFieldInfo f) => config.ctorStyle == CtorStyle.allNamed ? false : required(f);
+      bool usePositional(RealmFieldInfo f) => config.ctorStyle != CtorStyle.allNamed && required(f);
       String paramName(RealmFieldInfo f) => usePositional(f) ? f.name : f.name.nonPrivate();
       final positional = allSettable.where(usePositional);
       final named = allSettable.except(usePositional);
