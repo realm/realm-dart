@@ -42,6 +42,11 @@ class WithPrivateFields extends _WithPrivateFields
       RealmObjectBase.getChanges<WithPrivateFields>(this);
 
   @override
+  Stream<RealmObjectChanges<WithPrivateFields>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<WithPrivateFields>(this, keyPaths);
+
+  @override
   WithPrivateFields freeze() =>
       RealmObjectBase.freezeObject<WithPrivateFields>(this);
 
