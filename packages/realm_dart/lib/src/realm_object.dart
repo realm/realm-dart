@@ -768,7 +768,8 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
       if (keyPaths.any((element) => element.isEmpty)) {
         throw RealmException("It is not allowed to have empty key paths.");
       }
-      realmCore.buildAndVerifyKeyPath(realmObject, keyPaths);
+      // throw early if the key paths are invalid
+      realmObject.handle.buildAndVerifyKeyPath(keyPaths);
     }
   }
 
