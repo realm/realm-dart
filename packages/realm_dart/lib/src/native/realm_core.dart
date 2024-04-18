@@ -1799,16 +1799,37 @@ class _RealmCore {
     return RealmNotificationTokenHandle._(pointer, list.realm.handle);
   }
 
-  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller) {
-    final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
-          object.handle._pointer,
-          controller.toPersistentHandle(),
-          _realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(object_change_callback),
-        ));
+  RealmNotificationTokenHandle subscribeObjectNotifications(RealmObjectBase object, NotificationsController controller, [List<String>? keyPaths]) {
+    return using((Arena arena) {
+      final kpNative = buildAndVerifyKeyPath(object, keyPaths);
+      final pointer = _realmLib.invokeGetPointer(() => _realmLib.realm_object_add_notification_callback(
+            object.handle._pointer,
+            controller.toPersistentHandle(),
+            _realmLib.addresses.realm_dart_delete_persistent_handle,
+            kpNative,
+            Pointer.fromFunction(object_change_callback),
+          ));
 
-    return RealmNotificationTokenHandle._(pointer, object.realm.handle);
+      return RealmNotificationTokenHandle._(pointer, object.realm.handle);
+    });
+  }
+
+  Pointer<realm_key_path_array> buildAndVerifyKeyPath(RealmObjectBase object, [List<String>? keyPaths]) {
+    return using((Arena arena) {
+      if (keyPaths == null) {
+        return nullptr;
+      }
+
+      final length = keyPaths.length;
+      final keypathsNative = arena<Pointer<Char>>(length);
+      final classKey = object.realm.metadata.getByName(object.objectSchema.name).classKey;
+
+      for (int i = 0; i < length; i++) {
+        keypathsNative[i] = keyPaths[i].toCharPtr(arena);
+      }
+
+      return _realmLib.invokeGetPointer(() => _realmLib.realm_create_key_path_array(object.realm.handle._pointer, classKey, length, keypathsNative));
+    });
   }
 
   RealmNotificationTokenHandle subscribeMapNotifications(RealmMap map, NotificationsController controller) {

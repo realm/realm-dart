@@ -39,6 +39,10 @@ class MappedToo extends _MappedToo
       RealmObjectBase.getChanges<MappedToo>(this);
 
   @override
+  Stream<RealmObjectChanges<MappedToo>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<MappedToo>(this, keyPaths);
+
+  @override
   MappedToo freeze() => RealmObjectBase.freezeObject<MappedToo>(this);
 
   EJsonValue toEJson() {

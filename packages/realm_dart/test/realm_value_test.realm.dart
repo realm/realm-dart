@@ -34,6 +34,10 @@ class TuckedIn extends _TuckedIn
       RealmObjectBase.getChanges<TuckedIn>(this);
 
   @override
+  Stream<RealmObjectChanges<TuckedIn>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<TuckedIn>(this, keyPaths);
+
+  @override
   TuckedIn freeze() => RealmObjectBase.freezeObject<TuckedIn>(this);
 
   EJsonValue toEJson() {

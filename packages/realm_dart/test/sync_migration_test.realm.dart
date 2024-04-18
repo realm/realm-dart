@@ -111,6 +111,11 @@ class NullablesV0 extends _NullablesV0
       RealmObjectBase.getChanges<NullablesV0>(this);
 
   @override
+  Stream<RealmObjectChanges<NullablesV0>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullablesV0>(this, keyPaths);
+
+  @override
   NullablesV0 freeze() => RealmObjectBase.freezeObject<NullablesV0>(this);
 
   EJsonValue toEJson() {
@@ -298,6 +303,11 @@ class NullablesV1 extends _NullablesV1
   @override
   Stream<RealmObjectChanges<NullablesV1>> get changes =>
       RealmObjectBase.getChanges<NullablesV1>(this);
+
+  @override
+  Stream<RealmObjectChanges<NullablesV1>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullablesV1>(this, keyPaths);
 
   @override
   NullablesV1 freeze() => RealmObjectBase.freezeObject<NullablesV1>(this);

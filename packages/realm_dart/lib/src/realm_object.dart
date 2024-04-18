@@ -476,15 +476,44 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   /// Unmanaged objects are always considered valid.
   bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
 
-  /// Allows listening for property changes on this Realm object
+  /// Allows listening for property changes on this Realm object.
   ///
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   ///
   /// If the object is not managed a [RealmStateError] is thrown.
   Stream<RealmObjectChanges<RealmObjectBase>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
+  /// Allows listening for property changes on this Realm object using the specified list of key paths.
+  /// The key paths indicates which changes in properties should raise a notification.
+  ///
+  /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
+  ///
+  /// If the object is not managed a [RealmStateError] is thrown.
+  ///
+  /// Example
+  /// ``` dart
+  /// @RealmModel()
+  /// class _Person {
+  ///   late String name;
+  ///   late int age;
+  ///   late List<_Person> friends;
+  /// }
+  ///
+  /// // ....
+  ///
+  /// // Only changes to person.age and person.friends will raise a notification
+  /// person.changesFor(["age", "friends"]).listen( .... )
+  /// ```
+  Stream<RealmObjectChanges<RealmObjectBase>> changesFor([List<String>? keyPaths]) =>
+      throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObjectBase>(T object) {
+    return getChangesFor<T>(object, null);
+  }
+
+  /// @nodoc
+  static Stream<RealmObjectChanges<T>> getChangesFor<T extends RealmObjectBase>(T object, [List<String>? keyPaths]) {
     if (!object.isManaged) {
       throw RealmStateError("Object is not managed");
     }
@@ -493,7 +522,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
       throw RealmStateError('Object is frozen and cannot emit changes.');
     }
 
-    final controller = RealmObjectNotificationsController<T>(object);
+    final controller = RealmObjectNotificationsController<T>(object, keyPaths);
     return controller.createStream();
   }
 
@@ -701,7 +730,10 @@ class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
   /// The property names that have changed.
   List<String> get properties {
     final propertyKeys = realmCore.getObjectChangesProperties(_handle);
-    return object.realm.getPropertyNames(object.runtimeType, propertyKeys);
+    return object.realm
+        .getPropertyNames(object.runtimeType, propertyKeys)
+        .map((e) => object.objectSchema.firstWhere((element) => element.mapTo == e || element.name == e).name)
+        .toList();
   }
 
   const RealmObjectChanges._(this._handle, this.object);
@@ -719,12 +751,22 @@ extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChange
 class RealmObjectNotificationsController<T extends RealmObjectBase> extends NotificationsController {
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  RealmObjectNotificationsController(this.realmObject);
+  RealmObjectNotificationsController(this.realmObject, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+
+      if (keyPaths.any((element) => element.isEmpty)) {
+        throw RealmException("It is not allowed to have empty key paths.");
+      }
+      realmCore.buildAndVerifyKeyPath(realmObject, keyPaths);
+    }
+  }
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject, this);
+    return realmCore.subscribeObjectNotifications(realmObject, this, keyPaths);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {

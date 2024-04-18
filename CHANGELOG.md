@@ -16,6 +16,20 @@
 
 ### Enhancements
 * Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
+* Added support for specifying key paths when listening to notifications on an object with the `RealmObject.changesFor([List<String>? keyPaths])` method. The key paths indicates which changes in properties should raise a notification.
+  ```dart
+  @RealmModel()
+  class _Person {
+    late String name;
+    late int age;
+    late List<_Person> friends;
+  }
+
+  // ....
+
+  // Only changes to person.age and person.friends will raise a notification
+  person.changesFor(["age", "friends"]).listen( .... )
+  ```
 * Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
 * Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
 * The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
