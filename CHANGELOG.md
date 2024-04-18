@@ -1,7 +1,25 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Allow configuration of generator per model class. Currently support specifying the constructor style to use. 
+  ```dart
+  const config = GeneratorConfig(ctorStyle: CtorStyle.allNamed);
+  const realmModel = RealmModel.using(baseType: ObjectType.realmObject, generatorConfig: config);
+
+  @realmModel
+  class _Person {
+    late String name;
+    int age = 42;
+  }
+  ```
+  will generate a constructor like:
+  ```dart
+  Person({
+    required String name,
+    int age = 42,
+  }) { ... }
+  ```
+  (Issue [#292](https://github.com/realm/realm-dart/issues/292))
 
 ### Fixed
 * None
