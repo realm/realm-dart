@@ -21,8 +21,16 @@ class RealmModelInfo {
   final String realmName;
   final List<RealmFieldInfo> fields;
   final ObjectType baseType;
+  final GeneratorConfig config;
 
-  const RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
+  const RealmModelInfo(
+    this.name,
+    this.modelName,
+    this.realmName,
+    this.fields,
+    this.baseType,
+    this.config,
+  );
 
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
@@ -37,7 +45,7 @@ class RealmModelInfo {
       }
 
       bool required(RealmFieldInfo f) => f.isRequired || f.isPrimaryKey;
-      bool usePositional(RealmFieldInfo f) => required(f);
+      bool usePositional(RealmFieldInfo f) => config.ctorStyle == CtorStyle.allNamed ? false : required(f);
       String paramName(RealmFieldInfo f) => usePositional(f) ? f.name : f.name.nonPrivate();
       final positional = allSettable.where(usePositional);
       final named = allSettable.except(usePositional);
@@ -51,12 +59,12 @@ class RealmModelInfo {
           yield* named.map((f) {
             final requiredPrefix = required(f) ? 'required ' : '';
             final param = paramName(f);
-            final collectionPrefix = switch(f) {
+            final collectionPrefix = switch (f) {
               _ when f.isDartCoreList => 'Iterable<',
               _ when f.isDartCoreSet => 'Set<',
               _ when f.isDartCoreMap => 'Map<String,',
               _ => '',
-            }; 
+            };
             final typePrefix = f.isRealmCollection ? '$collectionPrefix${f.type.basicMappedName}>' : f.mappedTypeName;
             return '$requiredPrefix$typePrefix $param${f.initializer},';
           });
