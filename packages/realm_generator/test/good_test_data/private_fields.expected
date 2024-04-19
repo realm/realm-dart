@@ -13,7 +13,7 @@ class WithPrivateFields extends _WithPrivateFields
 
   WithPrivateFields(
     String _plain, {
-    int _withDefault = 0,
+    int withDefault = 0,
   }) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<WithPrivateFields>({
@@ -21,7 +21,7 @@ class WithPrivateFields extends _WithPrivateFields
       });
     }
     RealmObjectBase.set(this, '_plain', _plain);
-    RealmObjectBase.set(this, '_withDefault', _withDefault);
+    RealmObjectBase.set(this, '_withDefault', withDefault);
   }
 
   WithPrivateFields._();
