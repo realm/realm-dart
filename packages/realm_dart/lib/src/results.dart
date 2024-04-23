@@ -42,7 +42,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity imple
       throw RangeError.range(index, 0, length - 1);
     }
 
-    var value = realmCore.resultsGetElementAt(this, _skipOffset + index);
+    var value = handle.elementAt(realm, _skipOffset + index);
 
     if (value is ObjectHandle) {
       late RealmObjectMetadata targetMetadata;
@@ -314,7 +314,7 @@ class ResultsNotificationsController<T extends Object?> extends NotificationsCon
 
   @override
   RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeResultsNotifications(results, this);
+    return results.handle.subscribeForNotifications(this);
   }
 
   Stream<RealmResultsChanges<T>> createStream() {

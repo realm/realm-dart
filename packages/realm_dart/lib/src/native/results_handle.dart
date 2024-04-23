@@ -81,14 +81,28 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     return ResultsHandle._(ptr, realmHandle);
   }
 
-/*
-  Object? resultsGetElementAt(int index) {
+  Object? elementAt(Realm realm, int index) {
     return using((Arena arena) {
       final realmValue = arena<realm_value_t>();
       invokeGetBool(() => realmLib.realm_results_get(pointer, index, realmValue));
-      return realmValue.toDartValue(results.realm, () => realmLib.realm_results_get_list(pointer, index),
-          () => realmLib.realm_results_get_dictionary(pointer, index));
+      return realmValue.toDartValue(
+        realm,
+        () => realmLib.realm_results_get_list(pointer, index),
+        () => realmLib.realm_results_get_dictionary(pointer, index),
+      );
     });
   }
-*/
+
+  RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
+    final ptr = invokeGetPointer(
+      () => realmLib.realm_results_add_notification_callback(
+        pointer,
+        controller.toPersistentHandle(),
+        realmLib.addresses.realm_dart_delete_persistent_handle,
+        nullptr,
+        Pointer.fromFunction(collection_change_callback),
+      ),
+    );
+    return RealmNotificationTokenHandle._(ptr, _root);
+  }
 }

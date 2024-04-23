@@ -739,15 +739,6 @@ class _RealmCore {
     });
   }
 
-  Object? resultsGetElementAt(RealmResults results, int index) {
-    return using((Arena arena) {
-      final realm_value = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_results_get(results.handle.pointer, index, realm_value));
-      return realm_value.toDartValue(results.realm, () => realmLib.realm_results_get_list(results.handle.pointer, index),
-          () => realmLib.realm_results_get_dictionary(results.handle.pointer, index));
-    });
-  }
-
   CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
     return using((arena) {
       final out_num_deletions = arena<Size>();
@@ -874,18 +865,6 @@ class _RealmCore {
     hashCode = (hashCode * -1521134295) + link.classKey;
     hashCode = (hashCode * -1521134295) + link.targetKey;
     return hashCode;
-  }
-
-  RealmNotificationTokenHandle subscribeResultsNotifications(RealmResults results, NotificationsController controller) {
-    final pointer = invokeGetPointer(() => realmLib.realm_results_add_notification_callback(
-          results.handle.pointer,
-          controller.toPersistentHandle(),
-          realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(collection_change_callback),
-        ));
-
-    return RealmNotificationTokenHandle._(pointer, results.realm.handle);
   }
 
   UserNotificationTokenHandle subscribeUserNotifications(UserNotificationsController controller) {
