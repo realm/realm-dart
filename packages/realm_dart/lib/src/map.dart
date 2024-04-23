@@ -221,7 +221,7 @@ extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   ///
   /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
-    final handle = realmCore.queryMap(asManaged(), query, arguments);
+    final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, metadata);
   }
 }

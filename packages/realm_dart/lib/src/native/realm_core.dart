@@ -1,8 +1,6 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-// ignore_for_file: non_constant_identifier_names
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
@@ -715,29 +713,6 @@ class _RealmCore {
   // For debugging
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
-
-  ResultsHandle queryMap(ManagedRealmMap target, String query, List<Object?> args) {
-    return using((arena) {
-      final length = args.length;
-      final argsPointer = arena<realm_query_arg_t>(length);
-      for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
-      }
-
-      final results = target.handle.values;
-      final queryHandle = QueryHandle._(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse_for_results(
-              results.pointer,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
-          target.realm.handle);
-      return queryHandle.findAll();
-    });
-  }
 
   CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
     return using((arena) {

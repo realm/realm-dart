@@ -120,6 +120,28 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  ResultsHandle query(String query, List<Object?> args) {
+    return using((arena) {
+      final length = args.length;
+      final argsPointer = arena<realm_query_arg_t>(length);
+      for (var i = 0; i < length; ++i) {
+        _intoRealmQueryArg(args[i], argsPointer + i, arena);
+      }
+
+      final queryHandle = QueryHandle._(
+          invokeGetPointer(
+            () => realmLib.realm_query_parse_for_results(
+              values.pointer,
+              query.toCharPtr(arena),
+              length,
+              argsPointer,
+            ),
+          ),
+          _root);
+      return queryHandle.findAll();
+    });
+  }
+
   RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(() => realmLib.realm_dictionary_add_notification_callback(
           pointer,
