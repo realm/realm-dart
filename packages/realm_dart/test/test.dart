@@ -676,7 +676,7 @@ Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<
 }
 
 extension RealmObjectTest on RealmObjectBase {
-  String toJson() => this.handle.objectToString();
+  String toJson() => handle.objectToString();
 }
 
 extension on int {

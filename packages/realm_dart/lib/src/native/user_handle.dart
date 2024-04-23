@@ -208,4 +208,16 @@ class UserHandle extends HandleBase<realm_user> {
       return completer.future;
     });
   }
+
+  UserNotificationTokenHandle subscribeForNotifications(UserNotificationsController controller) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(user_change_callback);
+    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
+    final notificationToken = realmLib.realm_sync_user_on_state_change_register_callback(
+      pointer,
+      realmLib.addresses.realm_dart_user_change_callback,
+      userdata.cast(),
+      realmLib.addresses.realm_dart_userdata_async_free,
+    );
+    return UserNotificationTokenHandle._(notificationToken);
+  }
 }

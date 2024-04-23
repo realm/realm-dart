@@ -867,18 +867,6 @@ class _RealmCore {
     return hashCode;
   }
 
-  UserNotificationTokenHandle subscribeUserNotifications(UserNotificationsController controller) {
-    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(user_change_callback);
-    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final notification_token = realmLib.realm_sync_user_on_state_change_register_callback(
-      controller.user.handle.pointer,
-      realmLib.addresses.realm_dart_user_change_callback,
-      userdata.cast(),
-      realmLib.addresses.realm_dart_userdata_async_free,
-    );
-    return UserNotificationTokenHandle._(notification_token);
-  }
-
   RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
     final pointer = invokeGetPointer(() => realmLib.realm_add_schema_changed_callback(realm.handle.pointer, Pointer.fromFunction(schema_change_callback),
         realm.toPersistentHandle(), realmLib.addresses.realm_dart_delete_persistent_handle));

@@ -170,7 +170,7 @@ class UserNotificationsController implements Finalizable {
       throw RealmStateError("User notifications subscription already started");
     }
 
-    tokenHandle = realmCore.subscribeUserNotifications(this);
+    tokenHandle = user.handle.subscribeForNotifications(this);
   }
 
   void stop() {
