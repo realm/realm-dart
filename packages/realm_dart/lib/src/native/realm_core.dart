@@ -867,13 +867,6 @@ class _RealmCore {
     return hashCode;
   }
 
-  RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
-    final pointer = invokeGetPointer(() => realmLib.realm_add_schema_changed_callback(realm.handle.pointer, Pointer.fromFunction(schema_change_callback),
-        realm.toPersistentHandle(), realmLib.addresses.realm_dart_delete_persistent_handle));
-
-    return RealmCallbackTokenHandle._(pointer, realm.handle);
-  }
-
   bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
     return realmLib.realm_object_changes_is_deleted(handle.pointer);
   }
@@ -1093,10 +1086,6 @@ class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
-}
-
-class UserNotificationTokenHandle extends HandleBase<realm_app_user_subscription_token> {
-  UserNotificationTokenHandle._(Pointer<realm_app_user_subscription_token> pointer) : super(pointer, 32);
 }
 
 class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {

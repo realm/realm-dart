@@ -283,4 +283,16 @@ class RealmHandle extends HandleBase<shared_realm> {
       return tableDeleted.value;
     });
   }
+
+  RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
+    final ptr = invokeGetPointer(
+      () => realmLib.realm_add_schema_changed_callback(
+        pointer,
+        Pointer.fromFunction(schema_change_callback),
+        realm.toPersistentHandle(),
+        realmLib.addresses.realm_dart_delete_persistent_handle,
+      ),
+    );
+    return RealmCallbackTokenHandle._(ptr, this);
+  }
 }

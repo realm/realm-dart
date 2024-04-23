@@ -221,3 +221,7 @@ class UserHandle extends HandleBase<realm_user> {
     return UserNotificationTokenHandle._(notificationToken);
   }
 }
+
+class UserNotificationTokenHandle extends HandleBase<realm_sync_user_subscription_token> {
+  UserNotificationTokenHandle._(Pointer<realm_sync_user_subscription_token> pointer) : super(pointer, 32);
+}

@@ -141,7 +141,7 @@ class Realm implements Finalizable {
     // schema, so even if we subscribe, we wouldn't be able to see the updates.
     if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
       // TODO: enable once https://github.com/realm/realm-core/issues/7426 is fixed.
-      // _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+      //_schemaCallbackHandle = handle!.subscribeForSchemaNotifications(this);
       _schemaCallbackHandle = null;
     } else {
       _schemaCallbackHandle = null;
