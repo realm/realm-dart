@@ -142,6 +142,14 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  MapHandle? resolveIn(RealmHandle frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_dictionary>>();
+      invokeGetBool(() => realmLib.realm_dictionary_resolve_in(pointer, frozenRealm.pointer, resultPtr));
+      return resultPtr == nullptr ? null : MapHandle._(resultPtr.value, _root);
+    });
+  }
+
   RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(() => realmLib.realm_dictionary_add_notification_callback(
           pointer,

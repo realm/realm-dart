@@ -97,6 +97,14 @@ class SetHandle extends RootedHandleBase<realm_set> {
     invokeGetBool(() => realmLib.realm_set_remove_all(pointer));
   }
 
+  SetHandle? resolveIn(RealmHandle frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_set>>();
+      invokeGetBool(() => realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr));
+      return resultPtr == nullptr ? null : SetHandle._(resultPtr.value, _root);
+    });
+  }
+
   RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(() => realmLib.realm_set_add_notification_callback(
           pointer,

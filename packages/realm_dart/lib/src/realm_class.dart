@@ -804,35 +804,35 @@ extension RealmInternal on Realm {
   }
 
   RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
-    final resultHandle = realmCore.resolveList(list, this);
-    if (resultHandle == null) {
+    final newHandle = list.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
-    return createList<T>(resultHandle, list.metadata);
+    return createList<T>(newHandle, list.metadata);
   }
 
   RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
-    final handle = realmCore.resolveResults(results, this);
-    return RealmResultsInternal.create<T>(handle, this, results.metadata);
+    final newHandle = results.handle.resolveIn(handle);
+    return RealmResultsInternal.create<T>(newHandle, this, results.metadata);
   }
 
   RealmSet<T>? resolveSet<T extends Object?>(ManagedRealmSet<T> set) {
-    final handle = realmCore.resolveSet(set, this);
-    if (handle == null) {
+    final newHandle = set.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
-    return createSet<T>(handle, set.metadata);
+    return createSet<T>(newHandle, set.metadata);
   }
 
   RealmMap<T>? resolveMap<T extends Object?>(ManagedRealmMap map) {
-    final handle = realmCore.resolveMap(map, this);
-    if (handle == null) {
+    final newHandle = map.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
-    return createMap<T>(handle, map.metadata);
+    return createMap<T>(newHandle, map.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);

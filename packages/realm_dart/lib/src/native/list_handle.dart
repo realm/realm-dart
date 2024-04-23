@@ -65,6 +65,14 @@ class ListHandle extends CollectionHandleBase<realm_list> {
     });
   }
 
+  ListHandle? resolveIn(RealmHandle frozenRealm) {
+    return using((Arena arena) {
+      final resultPtr = arena<Pointer<realm_list>>();
+      invokeGetBool(() => realmLib.realm_list_resolve_in(pointer, frozenRealm.pointer, resultPtr));
+      return resultPtr == nullptr ? null : ListHandle._(resultPtr.value, _root);
+    });
+  }
+
   // TODO: Consider splitting into two methods
   void addOrUpdateAt(int index, Object? value, bool insert) {
     using((Arena arena) {

@@ -764,32 +764,6 @@ class _RealmCore {
     }
   }
 
-  ResultsHandle resolveResults(RealmResults realmResults, Realm frozenRealm) => realmResults.handle.resolveIn(frozenRealm.handle);
-
-  ListHandle? resolveList(ManagedRealmList list, Realm frozenRealm) {
-    return using((Arena arena) {
-      final resultPtr = arena<Pointer<realm_list>>();
-      invokeGetBool(() => realmLib.realm_list_resolve_in(list.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : ListHandle._(resultPtr.value, frozenRealm.handle);
-    });
-  }
-
-  SetHandle? resolveSet(ManagedRealmSet set, Realm frozenRealm) {
-    return using((Arena arena) {
-      final resultPtr = arena<Pointer<realm_set>>();
-      invokeGetBool(() => realmLib.realm_set_resolve_in(set.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : SetHandle._(resultPtr.value, frozenRealm.handle);
-    });
-  }
-
-  MapHandle? resolveMap(ManagedRealmMap map, Realm frozenRealm) {
-    return using((Arena arena) {
-      final resultPtr = arena<Pointer<realm_dictionary>>();
-      invokeGetBool(() => realmLib.realm_dictionary_resolve_in(map.handle.pointer, frozenRealm.handle.pointer, resultPtr));
-      return resultPtr == nullptr ? null : MapHandle._(resultPtr.value, frozenRealm.handle);
-    });
-  }
-
   static void _call_app_function_callback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
     final Completer<String> completer = userdata.toObject();
 
