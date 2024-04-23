@@ -40,7 +40,7 @@ class ConfigHandle extends HandleBase<realm_config> {
         if (config.initialDataCallback != null) {
           realmLib.realm_config_set_data_initialization_function(
             configHandle.pointer,
-            Pointer.fromFunction(initial_data_callback, false),
+            Pointer.fromFunction(_initialDataCallback, false),
             config.toPersistentHandle(),
             realmLib.addresses.realm_dart_delete_persistent_handle,
           );
@@ -56,7 +56,7 @@ class ConfigHandle extends HandleBase<realm_config> {
         if (config.shouldCompactCallback != null) {
           realmLib.realm_config_set_should_compact_on_launch_function(
             configHandle.pointer,
-            Pointer.fromFunction(should_compact_callback, false),
+            Pointer.fromFunction(_shouldCompactCallback, false),
             config.toPersistentHandle(),
             realmLib.addresses.realm_dart_delete_persistent_handle,
           );
@@ -64,7 +64,7 @@ class ConfigHandle extends HandleBase<realm_config> {
         if (config.migrationCallback != null) {
           realmLib.realm_config_set_migration_function(
             configHandle.pointer,
-            Pointer.fromFunction(migration_callback, false),
+            Pointer.fromFunction(_migrationCallback, false),
             config.toPersistentHandle(),
             realmLib.addresses.realm_dart_delete_persistent_handle,
           );
@@ -104,7 +104,7 @@ class ConfigHandle extends HandleBase<realm_config> {
           if (config.shouldCompactCallback != null) {
             realmLib.realm_config_set_should_compact_on_launch_function(
               configHandle.pointer,
-              Pointer.fromFunction(should_compact_callback, false),
+              Pointer.fromFunction(_shouldCompactCallback, false),
               config.toPersistentHandle(),
               realmLib.addresses.realm_dart_delete_persistent_handle,
             );
@@ -154,4 +154,84 @@ void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle
       afterRealm.handle.release();
     }
   }, unlockCallbackFunc);
+}
+
+bool _shouldCompactCallback(Pointer<Void> userdata, int totalSize, int usedSize) {
+  final config = userdata.toObject();
+
+  if (config is LocalConfiguration) {
+    return config.shouldCompactCallback!(totalSize, usedSize);
+  } else if (config is FlexibleSyncConfiguration) {
+    return config.shouldCompactCallback!(totalSize, usedSize);
+  }
+
+  return false;
+}
+
+bool _migrationCallback(Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
+  final oldHandle = RealmHandle._unowned(oldRealmHandle);
+  final newHandle = RealmHandle._unowned(newRealmHandle);
+  try {
+    final LocalConfiguration config = userdata.toObject();
+
+    final oldSchemaVersion = realmLib.realm_get_schema_version(oldRealmHandle);
+    final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
+    final oldRealm = RealmInternal.getUnowned(oldConfig, oldHandle, isInMigration: true);
+
+    final newRealm = RealmInternal.getUnowned(config, newHandle, isInMigration: true);
+
+    final migration = MigrationInternal.create(RealmInternal.getMigrationRealm(oldRealm), newRealm, SchemaHandle.unowned(schema));
+    config.migrationCallback!(migration, oldSchemaVersion);
+    return true;
+  } catch (ex) {
+    realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+  } finally {
+    oldHandle.release();
+    newHandle.release();
+  }
+
+  return false;
+}
+
+void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
+  final syncConfig = userdata as FlexibleSyncConfiguration;
+  // TODO: Take the app from the session instead of from syncConfig after fixing issue https://github.com/realm/realm-dart/issues/633
+  final syncError = SyncErrorInternal.createSyncError(error.toDart(), app: syncConfig.user.app);
+
+  if (syncError is ClientResetError) {
+    syncConfig.clientResetHandler.onManualReset?.call(syncError);
+    return;
+  }
+
+  syncConfig.syncErrorHandler(syncError);
+}
+
+void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmPtr, Pointer<Void> unlockCallbackFunc) {
+  _guardSynchronousCallback(() async {
+    final syncConfig = userdata as FlexibleSyncConfiguration;
+    var beforeResetCallback = syncConfig.clientResetHandler.onBeforeReset!;
+
+    final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmPtr));
+    try {
+      await beforeResetCallback(realm);
+    } finally {
+      realm.handle.release();
+    }
+  }, unlockCallbackFunc);
+}
+
+bool _initialDataCallback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
+  final realmHandle = RealmHandle._unowned(realmPtr);
+  try {
+    final LocalConfiguration config = userdata.toObject();
+    final realm = RealmInternal.getUnowned(config, realmHandle);
+    config.initialDataCallback!(realm);
+    return true;
+  } catch (ex) {
+    realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
+  } finally {
+    realmHandle.release();
+  }
+
+  return false;
 }

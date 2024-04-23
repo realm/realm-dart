@@ -91,4 +91,52 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
       completer.complete();
     }
   }
+
+  SyncSessionNotificationTokenHandle subscribeForConnectionStateNotifications(SessionConnectionStateController controller) {
+    final callback = Pointer.fromFunction<Void Function(Handle, Int32, Int32)>(_onConnectionStateChange);
+    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
+    final ptr = invokeGetPointer(
+      () => realmLib.realm_sync_session_register_connection_state_change_callback(
+        pointer,
+        realmLib.addresses.realm_dart_sync_connection_state_changed_callback,
+        userdata.cast(),
+        realmLib.addresses.realm_dart_userdata_async_free,
+      ),
+    );
+    return SyncSessionNotificationTokenHandle._(ptr);
+  }
+
+  SyncSessionNotificationTokenHandle subscribeForProgressNotifications(
+    ProgressDirection direction,
+    ProgressMode mode,
+    SessionProgressNotificationsController controller,
+  ) {
+    final isStreaming = mode == ProgressMode.reportIndefinitely;
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
+    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
+    final tokenPtr = invokeGetPointer(() => realmLib.realm_sync_session_register_progress_notifier(
+        pointer,
+        realmLib.addresses.realm_dart_sync_progress_callback,
+        direction.index,
+        isStreaming,
+        userdata.cast(),
+        realmLib.addresses.realm_dart_userdata_async_free));
+    return SyncSessionNotificationTokenHandle._(tokenPtr);
+  }
+}
+
+class SyncSessionNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {
+  SyncSessionNotificationTokenHandle._(Pointer<realm_sync_session_connection_state_notification_token> pointer) : super(pointer, 32);
+}
+
+void _onConnectionStateChange(Object userdata, int oldState, int newState) {
+  final controller = userdata as SessionConnectionStateController;
+
+  controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
+}
+
+void _syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
+  final controller = userdata as ProgressNotificationsController;
+
+  controller.onProgress(transferred, transferable);
 }

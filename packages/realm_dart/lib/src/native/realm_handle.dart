@@ -87,7 +87,7 @@ class RealmHandle extends HandleBase<shared_realm> {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
+        _intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle._(
           invokeGetPointer(
@@ -293,11 +293,20 @@ class RealmHandle extends HandleBase<shared_realm> {
     final ptr = invokeGetPointer(
       () => realmLib.realm_add_schema_changed_callback(
         pointer,
-        Pointer.fromFunction(schema_change_callback),
+        Pointer.fromFunction(_schemaChangeCallback),
         realm.toPersistentHandle(),
         realmLib.addresses.realm_dart_delete_persistent_handle,
       ),
     );
     return RealmCallbackTokenHandle._(ptr, this);
+  }
+}
+
+void _schemaChangeCallback(Pointer<Void> userdata, Pointer<realm_schema> data) {
+  final Realm realm = userdata.toObject();
+  try {
+    realm.updateSchema();
+  } catch (e) {
+    Realm.logger.log(LogLevel.error, 'Failed to update Realm schema: $e');
   }
 }

@@ -152,86 +152,6 @@ void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void>
   }
 }
 
-bool should_compact_callback(Pointer<Void> userdata, int totalSize, int usedSize) {
-  final config = userdata.toObject();
-
-  if (config is LocalConfiguration) {
-    return config.shouldCompactCallback!(totalSize, usedSize);
-  } else if (config is FlexibleSyncConfiguration) {
-    return config.shouldCompactCallback!(totalSize, usedSize);
-  }
-
-  return false;
-}
-
-bool migration_callback(Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
-  final oldHandle = RealmHandle._unowned(oldRealmHandle);
-  final newHandle = RealmHandle._unowned(newRealmHandle);
-  try {
-    final LocalConfiguration config = userdata.toObject();
-
-    final oldSchemaVersion = realmLib.realm_get_schema_version(oldRealmHandle);
-    final oldConfig = Configuration.local([], path: config.path, isReadOnly: true, schemaVersion: oldSchemaVersion);
-    final oldRealm = RealmInternal.getUnowned(oldConfig, oldHandle, isInMigration: true);
-
-    final newRealm = RealmInternal.getUnowned(config, newHandle, isInMigration: true);
-
-    final migration = MigrationInternal.create(RealmInternal.getMigrationRealm(oldRealm), newRealm, SchemaHandle.unowned(schema));
-    config.migrationCallback!(migration, oldSchemaVersion);
-    return true;
-  } catch (ex) {
-    realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
-  } finally {
-    oldHandle.release();
-    newHandle.release();
-  }
-
-  return false;
-}
-
-void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> session, realm_sync_error error) {
-  final syncConfig = userdata as FlexibleSyncConfiguration;
-  // TODO: Take the app from the session instead of from syncConfig after fixing issue https://github.com/realm/realm-dart/issues/633
-  final syncError = SyncErrorInternal.createSyncError(error.toDart(), app: syncConfig.user.app);
-
-  if (syncError is ClientResetError) {
-    syncConfig.clientResetHandler.onManualReset?.call(syncError);
-    return;
-  }
-
-  syncConfig.syncErrorHandler(syncError);
-}
-
-void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmHandle, Pointer<Void> unlockCallbackFunc) {
-  _guardSynchronousCallback(() async {
-    final syncConfig = userdata as FlexibleSyncConfiguration;
-    var beforeResetCallback = syncConfig.clientResetHandler.onBeforeReset!;
-
-    final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmHandle));
-    try {
-      await beforeResetCallback(realm);
-    } finally {
-      realm.handle.release();
-    }
-  }, unlockCallbackFunc);
-}
-
-bool initial_data_callback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
-  final realmHandle = RealmHandle._unowned(realmPtr);
-  try {
-    final LocalConfiguration config = userdata.toObject();
-    final realm = RealmInternal.getUnowned(config, realmHandle);
-    config.initialDataCallback!(realm);
-    return true;
-  } catch (ex) {
-    realmLib.realm_register_user_code_callback_error(ex.toPersistentHandle());
-  } finally {
-    realmHandle.release();
-  }
-
-  return false;
-}
-
 Pointer<Void> _createAsyncUserCallbackUserdata(Completer<void> completer) {
   final callback = Pointer.fromFunction<
       Void Function(
@@ -410,65 +330,6 @@ void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));
-  }
-}
-
-void object_change_callback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
-  final NotificationsController controller = userdata.toObject();
-
-  if (data == nullptr) {
-    controller.onError(RealmError("Invalid notifications data received"));
-    return;
-  }
-
-  try {
-    final clonedData = realmLib.realm_clone(data.cast());
-    if (clonedData == nullptr) {
-      controller.onError(RealmError("Error while cloning notifications data"));
-      return;
-    }
-
-    final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
-    controller.onChanges(changesHandle);
-  } catch (e) {
-    controller.onError(RealmError("Error handling change notifications. Error: $e"));
-  }
-}
-
-void map_change_callback(Pointer<Void> userdata, Pointer<realm_dictionary_changes> data) {
-  final NotificationsController controller = userdata.toObject();
-
-  if (data == nullptr) {
-    controller.onError(RealmError("Invalid notifications data received"));
-    return;
-  }
-
-  try {
-    final clonedData = realmLib.realm_clone(data.cast());
-    if (clonedData == nullptr) {
-      controller.onError(RealmError("Error while cloning notifications data"));
-      return;
-    }
-
-    final changesHandle = RealmMapChangesHandle._(clonedData.cast());
-    controller.onChanges(changesHandle);
-  } catch (e) {
-    controller.onError(RealmError("Error handling change notifications. Error: $e"));
-  }
-}
-
-void user_change_callback(Object userdata, int data) {
-  final controller = userdata as UserNotificationsController;
-
-  controller.onUserChanged();
-}
-
-void schema_change_callback(Pointer<Void> userdata, Pointer<realm_schema> data) {
-  final Realm realm = userdata.toObject();
-  try {
-    realm.updateSchema();
-  } catch (e) {
-    Realm.logger.log(LogLevel.error, 'Failed to update Realm schema: $e');
   }
 }
 
@@ -862,45 +723,6 @@ class _RealmCore {
     realmLib.realm_clear_cached_apps();
   }
 
-  RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterProgressNotifier(
-      Session session, ProgressDirection direction, ProgressMode mode, SessionProgressNotificationsController controller) {
-    final isStreaming = mode == ProgressMode.reportIndefinitely;
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
-    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final tokenPtr = invokeGetPointer(() => realmLib.realm_sync_session_register_progress_notifier(
-        session.handle.pointer,
-        realmLib.addresses.realm_dart_sync_progress_callback,
-        direction.index,
-        isStreaming,
-        userdata.cast(),
-        realmLib.addresses.realm_dart_userdata_async_free));
-    return RealmSyncSessionConnectionStateNotificationTokenHandle._(tokenPtr);
-  }
-
-  static void _syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
-    final controller = userdata as ProgressNotificationsController;
-
-    controller.onProgress(transferred, transferable);
-  }
-
-  RealmSyncSessionConnectionStateNotificationTokenHandle sessionRegisterConnectionStateNotifier(Session session, SessionConnectionStateController controller) {
-    final callback = Pointer.fromFunction<Void Function(Handle, Int32, Int32)>(_onConnectionStateChange);
-    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final notification_token = realmLib.realm_sync_session_register_connection_state_change_callback(
-      session.handle.pointer,
-      realmLib.addresses.realm_dart_sync_connection_state_changed_callback,
-      userdata.cast(),
-      realmLib.addresses.realm_dart_userdata_async_free,
-    );
-    return RealmSyncSessionConnectionStateNotificationTokenHandle._(notification_token);
-  }
-
-  static void _onConnectionStateChange(Object userdata, int oldState, int newState) {
-    final controller = userdata as SessionConnectionStateController;
-
-    controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
-  }
-
   String _getAppDirectoryFromPlugin() {
     assert(isFlutterPlatform);
 
@@ -1044,10 +866,6 @@ class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
-}
-
-class RealmSyncSessionConnectionStateNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {
-  RealmSyncSessionConnectionStateNotificationTokenHandle._(Pointer<realm_sync_session_connection_state_notification_token> pointer) : super(pointer, 32);
 }
 
 class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {

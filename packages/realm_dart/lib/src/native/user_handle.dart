@@ -179,14 +179,16 @@ class UserHandle extends HandleBase<realm_user> {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
 
-      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_disable_apikey(
-            app.pointer,
-            pointer,
-            nativeId.ref,
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
+      invokeGetBool(
+        () => realmLib.realm_app_user_apikey_provider_client_disable_apikey(
+          app.pointer,
+          pointer,
+          nativeId.ref,
+          realmLib.addresses.realm_dart_void_completion_callback,
+          _createAsyncCallbackUserdata(completer),
+          realmLib.addresses.realm_dart_userdata_async_free,
+        ),
+      );
 
       return completer.future;
     });
@@ -196,21 +198,24 @@ class UserHandle extends HandleBase<realm_user> {
     return using((Arena arena) {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
-      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_enable_apikey(
-            app.pointer,
-            pointer,
-            nativeId.ref,
-            realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          ));
-
+      
+      invokeGetBool(
+        () => realmLib.realm_app_user_apikey_provider_client_enable_apikey(
+          app.pointer,
+          pointer,
+          nativeId.ref,
+          realmLib.addresses.realm_dart_void_completion_callback,
+          _createAsyncCallbackUserdata(completer),
+          realmLib.addresses.realm_dart_userdata_async_free,
+        ),
+      );
+      
       return completer.future;
     });
   }
 
   UserNotificationTokenHandle subscribeForNotifications(UserNotificationsController controller) {
-    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(user_change_callback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(_userChangeCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
     final notificationToken = realmLib.realm_sync_user_on_state_change_register_callback(
       pointer,
@@ -224,4 +229,10 @@ class UserHandle extends HandleBase<realm_user> {
 
 class UserNotificationTokenHandle extends HandleBase<realm_sync_user_subscription_token> {
   UserNotificationTokenHandle._(Pointer<realm_sync_user_subscription_token> pointer) : super(pointer, 32);
+}
+
+void _userChangeCallback(Object userdata, int data) {
+  final controller = userdata as UserNotificationsController;
+
+  controller.onUserChanged();
 }

@@ -23,8 +23,6 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
     });
   }
 
-
-
   int get classKey => realmLib.realm_object_get_table(pointer);
 
   bool get isValid => realmLib.realm_object_is_valid(pointer);
@@ -111,7 +109,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
             controller.toPersistentHandle(),
             realmLib.addresses.realm_dart_delete_persistent_handle,
             kpNative,
-            Pointer.fromFunction(object_change_callback),
+            Pointer.fromFunction(_objectChangeCallback),
           ));
 
       return RealmNotificationTokenHandle._(ptr, _root);
@@ -134,5 +132,27 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
       // call to classKey getter involves a native call, which is not ideal
       return invokeGetPointer(() => realmLib.realm_create_key_path_array(_root.pointer, classKey, length, keypathsNative));
     });
+  }
+}
+
+void _objectChangeCallback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {
+  final NotificationsController controller = userdata.toObject();
+
+  if (data == nullptr) {
+    controller.onError(RealmError("Invalid notifications data received"));
+    return;
+  }
+
+  try {
+    final clonedData = realmLib.realm_clone(data.cast());
+    if (clonedData == nullptr) {
+      controller.onError(RealmError("Error while cloning notifications data"));
+      return;
+    }
+
+    final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
+    controller.onChanges(changesHandle);
+  } catch (e) {
+    controller.onError(RealmError("Error handling change notifications. Error: $e"));
   }
 }

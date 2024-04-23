@@ -148,8 +148,30 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
           controller.toPersistentHandle(),
           realmLib.addresses.realm_dart_delete_persistent_handle,
           nullptr,
-          Pointer.fromFunction(map_change_callback),
+          Pointer.fromFunction(_mapChangeCallback),
         ));
     return RealmNotificationTokenHandle._(ptr, _root);
+  }
+}
+
+void _mapChangeCallback(Pointer<Void> userdata, Pointer<realm_dictionary_changes> data) {
+  final NotificationsController controller = userdata.toObject();
+
+  if (data == nullptr) {
+    controller.onError(RealmError("Invalid notifications data received"));
+    return;
+  }
+
+  try {
+    final clonedData = realmLib.realm_clone(data.cast());
+    if (clonedData == nullptr) {
+      controller.onError(RealmError("Error while cloning notifications data"));
+      return;
+    }
+
+    final changesHandle = RealmMapChangesHandle._(clonedData.cast());
+    controller.onChanges(changesHandle);
+  } catch (e) {
+    controller.onError(RealmError("Error handling change notifications. Error: $e"));
   }
 }

@@ -131,7 +131,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   final ProgressDirection _direction;
   final ProgressMode _mode;
 
-  RealmSyncSessionConnectionStateNotificationTokenHandle? _tokenHandle;
+  SyncSessionNotificationTokenHandle? _tokenHandle;
   late final StreamController<SyncProgress> _streamController;
 
   SessionProgressNotificationsController(this._session, this._direction, this._mode);
@@ -154,7 +154,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
     if (_tokenHandle != null) {
       throw RealmStateError("Session progress subscription already started.");
     }
-    _tokenHandle = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this);
+    _tokenHandle = _session.handle.subscribeForProgressNotifications(_direction, _mode, this);
   }
 
   void _stop() {
@@ -167,7 +167,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
 class SessionConnectionStateController {
   final Session _session;
   late final StreamController<ConnectionStateChange> _streamController;
-  RealmSyncSessionConnectionStateNotificationTokenHandle? _token;
+  SyncSessionNotificationTokenHandle? _token;
 
   SessionConnectionStateController(this._session);
 
@@ -184,7 +184,7 @@ class SessionConnectionStateController {
     if (_token != null) {
       throw RealmStateError("Session connection state subscription already started");
     }
-    _token = realmCore.sessionRegisterConnectionStateNotifier(_session, this);
+    _token = _session.handle.subscribeForConnectionStateNotifications(this);
   }
 
   void _stop() {
