@@ -7,16 +7,19 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
-import 'package:realm_dart/src/logging.dart';
-export 'package:test/test.dart';
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:realm_dart/src/configuration.dart';
+import 'package:realm_dart/src/logging.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/realm_object.dart';
 import 'package:test/test.dart';
 
 import 'baas_helper.dart';
+
+export 'package:test/test.dart';
 
 export 'baas_helper.dart' show AppName;
 
