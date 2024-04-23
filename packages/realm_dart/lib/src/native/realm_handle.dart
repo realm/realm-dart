@@ -284,6 +284,11 @@ class RealmHandle extends HandleBase<shared_realm> {
     });
   }
 
+  ObjectHandle _getObject(int classKey, int objectKey) {
+    final ptr = invokeGetPointer(() => realmLib.realm_get_object(pointer, classKey, objectKey));
+    return ObjectHandle._(ptr, this);
+  }
+
   RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
     final ptr = invokeGetPointer(
       () => realmLib.realm_add_schema_changed_callback(

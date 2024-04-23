@@ -11,6 +11,20 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
     return ObjectHandle._(objectPtr, _root);
   }
 
+  (ObjectHandle, int) get parent {
+    return using((Arena arena) {
+      final parentPtr = arena<Pointer<realm_object>>();
+      final classKeyPtr = arena<Uint32>();
+      invokeGetBool(() => realmLib.realm_object_get_parent(pointer, parentPtr, classKeyPtr));
+
+      final handle = ObjectHandle._(parentPtr.value, _root);
+
+      return (handle, classKeyPtr.value);
+    });
+  }
+
+
+
   int get classKey => realmLib.realm_object_get_table(pointer);
 
   bool get isValid => realmLib.realm_object_is_valid(pointer);

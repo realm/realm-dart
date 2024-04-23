@@ -698,18 +698,6 @@ class _RealmCore {
     return result;
   }
 
-  (ObjectHandle, int) getEmbeddedParent(EmbeddedObject obj) {
-    return using((Arena arena) {
-      final parentPtr = arena<Pointer<realm_object>>();
-      final classKeyPtr = arena<Uint32>();
-      invokeGetBool(() => realmLib.realm_object_get_parent(obj.handle.pointer, parentPtr, classKeyPtr));
-
-      final handle = ObjectHandle._(parentPtr.value, obj.realm.handle);
-
-      return (handle, classKeyPtr.value);
-    });
-  }
-
   // For debugging
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
@@ -818,11 +806,6 @@ class _RealmCore {
   _RealmLinkHandle _getObjectAsLink(RealmObjectBase object) {
     final realmLink = realmLib.realm_object_as_link(object.handle.pointer);
     return _RealmLinkHandle._(realmLink);
-  }
-
-  ObjectHandle _getObject(Realm realm, int classKey, int objectKey) {
-    final pointer = invokeGetPointer(() => realmLib.realm_get_object(realm.handle.pointer, classKey, objectKey));
-    return ObjectHandle._(pointer, realm.handle);
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
@@ -1261,7 +1244,7 @@ extension on realm_value_t {
         final objectKey = values.link.target;
         final classKey = values.link.target_table;
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
-        return realmCore._getObject(realm, classKey, objectKey);
+        return realm.handle._getObject(classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         return Uint8List.fromList(values.binary.data.asTypedList(values.binary.size));
       case realm_value_type.RLM_TYPE_TIMESTAMP:
