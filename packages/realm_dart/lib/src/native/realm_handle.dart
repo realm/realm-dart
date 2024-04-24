@@ -44,7 +44,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ObjectHandle createWithPrimaryKey(int classKey, Object? primaryKey) {
     return using((Arena arena) {
-      final realmValue = _toRealmValue(primaryKey, arena);
+      final realmValue = toRealmValue(primaryKey, arena);
       final realmPtr = invokeGetPointer(() => realmLib.realm_object_create_with_primary_key(pointer, classKey, realmValue.ref));
       return ObjectHandle._(realmPtr, this);
     });
@@ -57,7 +57,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ObjectHandle getOrCreateWithPrimaryKey(int classKey, Object? primaryKey) {
     return using((Arena arena) {
-      final realmValue = _toRealmValue(primaryKey, arena);
+      final realmValue = toRealmValue(primaryKey, arena);
       final didCreate = arena<Bool>();
       final realmPtr = invokeGetPointer(() => realmLib.realm_object_get_or_create_with_primary_key(
             pointer,
@@ -87,7 +87,7 @@ class RealmHandle extends HandleBase<shared_realm> {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer + i, arena);
+        intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle._(
           invokeGetPointer(
@@ -254,7 +254,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ObjectHandle? find(int classKey, Object? primaryKey) {
     return using((Arena arena) {
-      final realmValue = _toRealmValue(primaryKey, arena);
+      final realmValue = toRealmValue(primaryKey, arena);
       final ptr = realmLib.realm_object_find_with_primary_key(pointer, classKey, realmValue.ref, nullptr);
       if (ptr == nullptr) {
         return null;

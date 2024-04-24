@@ -141,7 +141,7 @@ String getBundleId() {
   return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
 }
 
-void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
+void guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
   Pointer<Void> user_error = nullptr;
   try {
     await callback();
@@ -152,13 +152,13 @@ void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void>
   }
 }
 
-Pointer<Void> _createAsyncUserCallbackUserdata(Completer<void> completer) {
+Pointer<Void> createAsyncUserCallbackUserdata(Completer<void> completer) {
   final callback = Pointer.fromFunction<
       Void Function(
         Pointer<Void>,
         Pointer<realm_user>,
         Pointer<realm_app_error>,
-      )>(_app_user_completion_callback);
+      )>(appUserCompletionCallback);
 
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
@@ -169,7 +169,7 @@ Pointer<Void> _createAsyncUserCallbackUserdata(Completer<void> completer) {
   return userdata.cast();
 }
 
-void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
+void appApiKeyCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
   final Completer<ApiKey> completer = userdata.toObject();
   if (error != nullptr) {
     completer.completeWithAppError(error);
@@ -178,7 +178,7 @@ void _app_api_key_completion_callback(Pointer<Void> userdata, Pointer<realm_app_
   completer.complete(apiKey.ref.toDart());
 }
 
-void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
+void appApiKeyArrayCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
   final Completer<List<ApiKey>> completer = userdata.toObject();
 
   if (error != nullptr) {
@@ -194,7 +194,7 @@ void _app_api_key_array_completion_callback(Pointer<Void> userdata, Pointer<real
   completer.complete(result);
 }
 
-void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+void appUserCompletionCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
   final Completer<UserHandle> completer = userdata.toObject();
 
   if (error != nullptr) {
@@ -211,7 +211,7 @@ void _app_user_completion_callback(Pointer<Void> userdata, Pointer<realm_user> u
   completer.complete(UserHandle._(user.cast()));
 }
 
-void _void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+void voidCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
   final Completer<void> completer = userdata.toObject();
 
   if (error != nullptr) {
@@ -222,12 +222,12 @@ void _void_completion_callback(Pointer<Void> userdata, Pointer<realm_app_error> 
   completer.complete();
 }
 
-Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
+Pointer<Void> createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
   final callback = Pointer.fromFunction<
       Void Function(
         Pointer<Void>,
         Pointer<realm_app_error>,
-      )>(_void_completion_callback);
+      )>(voidCompletionCallback);
 
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
@@ -238,13 +238,13 @@ Pointer<Void> _createAsyncCallbackUserdata<T extends Function>(Completer<void> c
   return userdata.cast();
 }
 
-Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
+Pointer<Void> createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
   final callback = Pointer.fromFunction<
       Void Function(
         Pointer<Void>,
         Pointer<realm_app_user_apikey>,
         Pointer<realm_app_error>,
-      )>(_app_api_key_completion_callback);
+      )>(appApiKeyCompletionCallback);
 
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
@@ -255,14 +255,14 @@ Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<A
   return userdata.cast();
 }
 
-Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Completer<List<ApiKey>> completer) {
+Pointer<Void> createAsyncApikeyListCallbackUserdata<T extends Function>(Completer<List<ApiKey>> completer) {
   final callback = Pointer.fromFunction<
       Void Function(
         Pointer<Void>,
         Pointer<realm_app_user_apikey>,
         Size count,
         Pointer<realm_app_error>,
-      )>(_app_api_key_array_completion_callback);
+      )>(appApiKeyArrayCompletionCallback);
 
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
@@ -273,7 +273,7 @@ Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Complet
   return userdata.cast();
 }
 
-void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
+void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
   CollectionHandleBase? collectionHandle;
   try {
     switch (value.collectionType) {
@@ -311,7 +311,7 @@ void _createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functi
   }
 }
 
-void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
+void collectionChangeCallback(Pointer<Void> userdata, Pointer<realm_collection_changes> data) {
   final NotificationsController controller = userdata.toObject();
 
   if (data == nullptr) {
@@ -331,6 +331,18 @@ void collection_change_callback(Pointer<Void> userdata, Pointer<realm_collection
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));
   }
+}
+
+void callAppFunctionCallback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
+  final Completer<String> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  final stringResponse = response.cast<Utf8>().toRealmDartString()!;
+  completer.complete(stringResponse);
 }
 
 // All access to Realm Core functionality goes through this class
@@ -391,7 +403,7 @@ class _RealmCore {
     final completer = CancellableCompleter<RealmHandle>(cancellationToken);
     if (!completer.isCancelled) {
       final callback =
-          Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(_openRealmAsyncCallback);
+          Pointer.fromFunction<Void Function(Handle, Pointer<realm_thread_safe_reference> realm, Pointer<realm_async_error_t> error)>(openRealmAsyncCallback);
       final userData = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle.pointer);
       realmLib.realm_async_open_task_start(
         handle.pointer,
@@ -403,7 +415,7 @@ class _RealmCore {
     return completer.future;
   }
 
-  static void _openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
+  static void openRealmAsyncCallback(Object userData, Pointer<realm_thread_safe_reference> realmSafePtr, Pointer<realm_async_error_t> error) {
     return using((Arena arena) {
       final completer = userData as CancellableCompleter<RealmHandle>;
       if (completer.isCancelled) {
@@ -440,14 +452,14 @@ class _RealmCore {
 
   RealmSchema readSchema(Realm realm) {
     return using((Arena arena) {
-      return _readSchema(realm, arena);
+      return _readSchema(realm.handle, arena);
     });
   }
 
-  RealmSchema _readSchema(Realm realm, Arena arena, {int expectedSize = 10}) {
+  RealmSchema _readSchema(RealmHandle realm, Arena arena, {int expectedSize = 10}) {
     final classesPtr = arena<Uint32>(expectedSize);
     final actualCount = arena<Size>();
-    invokeGetBool(() => realmLib.realm_get_class_keys(realm.handle.pointer, classesPtr, expectedSize, actualCount));
+    invokeGetBool(() => realmLib.realm_get_class_keys(realm.pointer, classesPtr, expectedSize, actualCount));
     if (expectedSize < actualCount.value) {
       arena.free(classesPtr);
       return _readSchema(realm, arena, expectedSize: actualCount.value);
@@ -457,7 +469,7 @@ class _RealmCore {
     for (var i = 0; i < actualCount.value; i++) {
       final classInfo = arena<realm_class_info>();
       final classKey = classesPtr.elementAt(i).value;
-      invokeGetBool(() => realmLib.realm_get_class(realm.handle.pointer, classKey, classInfo));
+      invokeGetBool(() => realmLib.realm_get_class(realm.pointer, classKey, classInfo));
 
       final name = classInfo.ref.name.cast<Utf8>().toDartString();
       final baseType = ObjectType.values.firstWhere((element) => element.flags == classInfo.ref.flags,
@@ -470,10 +482,10 @@ class _RealmCore {
     return RealmSchema(schemas);
   }
 
-  SchemaObject _getSchemaForClassKey(Realm realm, int classKey, String name, ObjectType baseType, Arena arena, {int expectedSize = 10}) {
+  SchemaObject _getSchemaForClassKey(RealmHandle realm, int classKey, String name, ObjectType baseType, Arena arena, {int expectedSize = 10}) {
     final actualCount = arena<Size>();
     final propertiesPtr = arena<realm_property_info>(expectedSize);
-    invokeGetBool(() => realmLib.realm_get_class_properties(realm.handle.pointer, classKey, propertiesPtr, expectedSize, actualCount));
+    invokeGetBool(() => realmLib.realm_get_class_properties(realm.pointer, classKey, propertiesPtr, expectedSize, actualCount));
 
     if (expectedSize < actualCount.value) {
       // The supplied array was too small - resize it
@@ -764,25 +776,13 @@ class _RealmCore {
     }
   }
 
-  static void _call_app_function_callback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
-    final Completer<String> completer = userdata.toObject();
-
-    if (error != nullptr) {
-      completer.completeWithAppError(error);
-      return;
-    }
-
-    final stringResponse = response.cast<Utf8>().toRealmDartString()!;
-    completer.complete(stringResponse);
-  }
-
-  Pointer<Void> _createAsyncFunctionCallbackUserdata(Completer<String> completer) {
+  Pointer<Void> createAsyncFunctionCallbackUserdata(Completer<String> completer) {
     final callback = Pointer.fromFunction<
         Void Function(
           Pointer<Void>,
           Pointer<Char>,
           Pointer<realm_app_error>,
-        )>(_call_app_function_callback);
+        )>(callAppFunctionCallback);
 
     final userdata = realmLib.realm_dart_userdata_async_new(
       completer,
@@ -803,7 +803,7 @@ class _RealmCore {
             argsAsJSON?.toCharPtr(arena) ?? nullptr,
             nullptr,
             realmLib.addresses.realm_dart_return_string_callback,
-            _createAsyncFunctionCallbackUserdata(completer),
+            createAsyncFunctionCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
       return completer.future;
@@ -892,48 +892,48 @@ extension _StringEx on String {
   }
 }
 
-Pointer<realm_value_t> _toRealmValue(Object? value, Allocator allocator) {
+Pointer<realm_value_t> toRealmValue(Object? value, Allocator allocator) {
   final realm_value = allocator<realm_value_t>();
   if (value is RealmValue && value.type.isCollection) {
     throw RealmError(
         "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
   }
-  _intoRealmValue(value, realm_value.ref, allocator);
+  intoRealmValue(value, realm_value.ref, allocator);
   return realm_value;
 }
 
 const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 
-void _intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
+void intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
   if (value is Iterable) {
     realm_query_arg.ref.nb_args = value.length;
     realm_query_arg.ref.is_list = true;
     realm_query_arg.ref.arg = allocator<realm_value>(value.length);
     int i = 0;
     for (var item in value) {
-      _intoRealmValue(item, realm_query_arg.ref.arg[i], allocator);
+      intoRealmValue(item, realm_query_arg.ref.arg[i], allocator);
       i++;
     }
   } else {
     realm_query_arg.ref.arg = allocator<realm_value_t>();
     realm_query_arg.ref.nb_args = 1;
     realm_query_arg.ref.is_list = false;
-    _intoRealmValueHack(value, realm_query_arg.ref.arg.ref, allocator);
+    intoRealmValueHack(value, realm_query_arg.ref.arg.ref, allocator);
   }
 }
 
-void _intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
+void intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
   if (value is GeoShape) {
-    _intoRealmValue(value.toString(), realm_value, allocator);
+    intoRealmValue(value.toString(), realm_value, allocator);
   } else if (value is RealmValueType) {
-    _intoRealmValue(value.toQueryArgString(), realm_value, allocator);
+    intoRealmValue(value.toQueryArgString(), realm_value, allocator);
   } else {
-    _intoRealmValue(value, realm_value, allocator);
+    intoRealmValue(value, realm_value, allocator);
   }
 }
 
-void _intoRealmValue(Object? value, realm_value realm_value, Allocator allocator) {
+void intoRealmValue(Object? value, realm_value realm_value, Allocator allocator) {
   if (value == null) {
     realm_value.type = realm_value_type.RLM_TYPE_NULL;
   } else if (value is RealmObjectBase) {
@@ -996,7 +996,7 @@ void _intoRealmValue(Object? value, realm_value realm_value, Allocator allocator
     } else if (value.type == Map<String, RealmValue>) {
       realm_value.type = realm_value_type.RLM_TYPE_DICTIONARY;
     } else {
-      return _intoRealmValue(value.value, realm_value, allocator);
+      return intoRealmValue(value.value, realm_value, allocator);
     }
   } else {
     throw RealmException("Property type ${value.runtimeType} not supported");

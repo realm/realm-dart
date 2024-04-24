@@ -98,7 +98,7 @@ class UserHandle extends HandleBase<realm_user> {
         pointer,
         credentials.pointer,
         realmLib.addresses.realm_dart_user_completion_callback,
-        _createAsyncUserCallbackUserdata(completer),
+        createAsyncUserCallbackUserdata(completer),
         realmLib.addresses.realm_dart_userdata_async_free,
       ),
       "Link credentials failed",
@@ -116,7 +116,7 @@ class UserHandle extends HandleBase<realm_user> {
           pointer,
           namePtr,
           realmLib.addresses.realm_dart_apikey_callback,
-          _createAsyncApikeyCallbackUserdata(completer),
+          createAsyncApikeyCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         ),
       );
@@ -134,7 +134,7 @@ class UserHandle extends HandleBase<realm_user> {
             pointer,
             nativeId.ref,
             realmLib.addresses.realm_dart_apikey_callback,
-            _createAsyncApikeyCallbackUserdata(completer),
+            createAsyncApikeyCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
@@ -149,7 +149,7 @@ class UserHandle extends HandleBase<realm_user> {
             app.pointer,
             pointer,
             realmLib.addresses.realm_dart_apikey_list_callback,
-            _createAsyncApikeyListCallbackUserdata(completer),
+            createAsyncApikeyListCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
@@ -166,7 +166,7 @@ class UserHandle extends HandleBase<realm_user> {
             pointer,
             nativeId.ref,
             realmLib.addresses.realm_dart_void_completion_callback,
-            _createAsyncCallbackUserdata(completer),
+            createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
@@ -185,7 +185,7 @@ class UserHandle extends HandleBase<realm_user> {
           pointer,
           nativeId.ref,
           realmLib.addresses.realm_dart_void_completion_callback,
-          _createAsyncCallbackUserdata(completer),
+          createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         ),
       );
@@ -205,7 +205,7 @@ class UserHandle extends HandleBase<realm_user> {
           pointer,
           nativeId.ref,
           realmLib.addresses.realm_dart_void_completion_callback,
-          _createAsyncCallbackUserdata(completer),
+          createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         ),
       );

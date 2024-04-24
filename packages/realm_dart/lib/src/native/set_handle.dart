@@ -16,7 +16,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer + i, arena);
+        intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle._(
           invokeGetPointer(
@@ -34,7 +34,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
 
   bool insert(Object? value) {
     return using((Arena arena) {
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       final outIndex = arena<Size>();
       final outInserted = arena<Bool>();
       invokeGetBool(() => realmLib.realm_set_insert(pointer, realmValue.ref, outIndex, outInserted));
@@ -59,7 +59,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   bool find(Object? value) {
     return using((Arena arena) {
       // TODO: how should this behave for collections
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       final outIndex = arena<Size>();
       final outFound = arena<Bool>();
       invokeGetBool(() => realmLib.realm_set_find(pointer, realmValue.ref, outIndex, outFound));
@@ -70,7 +70,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   bool remove(Object? value) {
     return using((Arena arena) {
       // TODO: do we support sets containing mixed collections
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       final outErased = arena<Bool>();
       invokeGetBool(() => realmLib.realm_set_erase(pointer, realmValue.ref, outErased));
       return outErased.value;
@@ -111,7 +111,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
           controller.toPersistentHandle(),
           realmLib.addresses.realm_dart_delete_persistent_handle,
           nullptr,
-          Pointer.fromFunction(collection_change_callback),
+          Pointer.fromFunction(collectionChangeCallback),
         ));
     return RealmNotificationTokenHandle._(ptr, _root);
   }

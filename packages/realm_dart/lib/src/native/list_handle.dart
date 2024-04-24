@@ -39,7 +39,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
       final outFound = arena<Bool>();
 
       // TODO: how should this behave for collections
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       invokeGetBool(
         () => realmLib.realm_list_find(
           pointer,
@@ -76,14 +76,14 @@ class ListHandle extends CollectionHandleBase<realm_list> {
   // TODO: Consider splitting into two methods
   void addOrUpdateAt(int index, Object? value, bool insert) {
     using((Arena arena) {
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       invokeGetBool(() => (insert ? realmLib.realm_list_insert : realmLib.realm_list_set)(pointer, index, realmValue.ref));
     });
   }
 
   // TODO: avoid taking the [realm] parameter
   void addOrUpdateCollectionAt(Realm realm, int index, RealmValue value, bool insert) {
-    _createCollection(realm, value, () => (insert ? realmLib.realm_list_insert_list : realmLib.realm_list_set_list)(pointer, index),
+    createCollection(realm, value, () => (insert ? realmLib.realm_list_insert_list : realmLib.realm_list_set_list)(pointer, index),
         () => (insert ? realmLib.realm_list_insert_dictionary : realmLib.realm_list_set_dictionary)(pointer, index));
   }
 
@@ -102,7 +102,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer + i, arena);
+        intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle._(
           invokeGetPointer(
@@ -124,7 +124,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
           controller.toPersistentHandle(),
           realmLib.addresses.realm_dart_delete_persistent_handle,
           nullptr,
-          Pointer.fromFunction(collection_change_callback),
+          Pointer.fromFunction(collectionChangeCallback),
         ));
     return RealmNotificationTokenHandle._(ptr, _root);
   }

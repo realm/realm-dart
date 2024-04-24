@@ -11,7 +11,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        _intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
+        intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
       }
       final queryHandle = QueryHandle._(
           invokeGetPointer(
@@ -33,7 +33,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
       final outFound = arena<Bool>();
 
       // TODO: how should this behave for collections
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       invokeGetBool(
         () => realmLib.realm_results_find(
           pointer,
@@ -100,7 +100,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
         controller.toPersistentHandle(),
         realmLib.addresses.realm_dart_delete_persistent_handle,
         nullptr,
-        Pointer.fromFunction(collection_change_callback),
+        Pointer.fromFunction(collectionChangeCallback),
       ),
     );
     return RealmNotificationTokenHandle._(ptr, _root);

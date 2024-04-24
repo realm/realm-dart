@@ -44,7 +44,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   // with setCollection?
   void setValue(int propertyKey, Object? value, bool isDefault) {
     using((Arena arena) {
-      final realmValue = _toRealmValue(value, arena);
+      final realmValue = toRealmValue(value, arena);
       invokeGetBool(
         () => realmLib.realm_set_value(
           pointer,
@@ -77,7 +77,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   }
 
   void setCollection(Realm realm, int propertyKey, RealmValue value) {
-    _createCollection(
+    createCollection(
       realm,
       value,
       () => realmLib.realm_set_list(pointer, propertyKey),
