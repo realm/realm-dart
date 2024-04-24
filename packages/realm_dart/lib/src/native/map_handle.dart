@@ -177,7 +177,7 @@ void _mapChangeCallback(Pointer<Void> userdata, Pointer<realm_dictionary_changes
       return;
     }
 
-    final changesHandle = RealmMapChangesHandle._(clonedData.cast());
+    final changesHandle = MapChangesHandle._(clonedData.cast());
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));

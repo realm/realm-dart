@@ -188,13 +188,10 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
 class RealmMapChanges<T extends Object?> {
   /// The collection being monitored for changes.
   final RealmMap<T> map;
+  final MapChangesHandle handle;
+  late final MapChanges _changes = handle.changes;
 
-  final RealmMapChangesHandle _handle;
-  MapChanges? _values;
-
-  RealmMapChanges._(this._handle, this.map);
-
-  MapChanges get _changes => _values ??= realmCore.getMapChanges(_handle);
+  RealmMapChanges._(this.handle, this.map);
 
   /// The keys of the map which have been removed.
   List<String> get deleted => _changes.deletions;
@@ -300,7 +297,7 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
 
   @override
   void onChanges(HandleBase changesHandle) {
-    if (changesHandle is! RealmMapChangesHandle) {
+    if (changesHandle is! MapChangesHandle) {
       throw RealmError("Invalid changes handle. RealmMapChangesHandle expected");
     }
 

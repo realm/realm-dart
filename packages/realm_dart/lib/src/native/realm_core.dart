@@ -22,17 +22,13 @@ import '../collections.dart';
 import '../configuration.dart';
 import '../credentials.dart';
 import '../init.dart';
-import '../list.dart';
 import '../logging.dart';
-import '../map.dart';
 import '../migration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../results.dart';
 import '../scheduler.dart';
 import '../session.dart';
-import '../set.dart';
-//import '../subscription.dart';
 import '../user.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
@@ -40,12 +36,14 @@ import 'realm_library.dart';
 
 // TODO: Use regular imports
 part 'app_handle.dart';
+part 'collection_changes_handle.dart';
 part 'config_handle.dart';
 part 'convert.dart';
 part 'credentials_handle.dart';
 part 'decimal128.dart';
 part 'error_handling.dart';
 part 'list_handle.dart';
+part 'map_changes_handle.dart';
 part 'map_handle.dart';
 part 'mutable_subscription_set_handle.dart';
 part 'object_handle.dart';
@@ -326,7 +324,7 @@ void collectionChangeCallback(Pointer<Void> userdata, Pointer<realm_collection_c
       return;
     }
 
-    final changesHandle = RealmCollectionChangesHandle._(clonedData.cast());
+    final changesHandle = CollectionChangesHandle._(clonedData.cast());
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));
@@ -575,107 +573,6 @@ class _RealmCore {
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
 
-  CollectionChanges getCollectionChanges(RealmCollectionChangesHandle changes) {
-    return using((arena) {
-      final out_num_deletions = arena<Size>();
-      final out_num_insertions = arena<Size>();
-      final out_num_modifications = arena<Size>();
-      final out_num_moves = arena<Size>();
-      final out_collection_cleared = arena<Bool>();
-      final out_collection_was_deleted = arena<Bool>();
-      realmLib.realm_collection_changes_get_num_changes(
-        changes.pointer,
-        out_num_deletions,
-        out_num_insertions,
-        out_num_modifications,
-        out_num_moves,
-        out_collection_cleared,
-        out_collection_was_deleted,
-      );
-
-      final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
-      final insertionCount = out_num_insertions != nullptr ? out_num_insertions.value : 0;
-      final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
-      var moveCount = out_num_moves != nullptr ? out_num_moves.value : 0;
-
-      final out_deletion_indexes = arena<Size>(deletionsCount);
-      final out_insertion_indexes = arena<Size>(insertionCount);
-      final out_modification_indexes = arena<Size>(modificationCount);
-      final out_modification_indexes_after = arena<Size>(modificationCount);
-      final out_moves = arena<realm_collection_move_t>(moveCount);
-
-      realmLib.realm_collection_changes_get_changes(
-        changes.pointer,
-        out_deletion_indexes,
-        deletionsCount,
-        out_insertion_indexes,
-        insertionCount,
-        out_modification_indexes,
-        modificationCount,
-        out_modification_indexes_after,
-        modificationCount,
-        out_moves,
-        moveCount,
-      );
-
-      var elementZero = out_moves.elementAt(0);
-      List<Move> moves = List.filled(moveCount, Move(elementZero.ref.from, elementZero.ref.to));
-      for (var i = 1; i < moveCount; i++) {
-        final movePtr = out_moves.elementAt(i);
-        moves[i] = Move(movePtr.ref.from, movePtr.ref.to);
-      }
-
-      return CollectionChanges(
-        out_deletion_indexes.toIntList(deletionsCount),
-        out_insertion_indexes.toIntList(insertionCount),
-        out_modification_indexes.toIntList(modificationCount),
-        out_modification_indexes_after.toIntList(modificationCount),
-        moves,
-        out_collection_cleared.value,
-        out_collection_was_deleted.value,
-      );
-    });
-  }
-
-  MapChanges getMapChanges(RealmMapChangesHandle changes) {
-    return using((arena) {
-      final out_num_deletions = arena<Size>();
-      final out_num_insertions = arena<Size>();
-      final out_num_modifications = arena<Size>();
-      final out_collection_was_deleted = arena<Bool>();
-      realmLib.realm_dictionary_get_changes(
-        changes.pointer,
-        out_num_deletions,
-        out_num_insertions,
-        out_num_modifications,
-        out_collection_was_deleted,
-      );
-
-      final deletionsCount = out_num_deletions != nullptr ? out_num_deletions.value : 0;
-      final insertionCount = out_num_insertions != nullptr ? out_num_insertions.value : 0;
-      final modificationCount = out_num_modifications != nullptr ? out_num_modifications.value : 0;
-
-      final out_deletion_indexes = arena<realm_value>(deletionsCount);
-      final out_insertion_indexes = arena<realm_value>(insertionCount);
-      final out_modification_indexes = arena<realm_value>(modificationCount);
-      final out_collection_was_cleared = arena<Bool>();
-
-      realmLib.realm_dictionary_get_changed_keys(
-        changes.pointer,
-        out_deletion_indexes,
-        out_num_deletions,
-        out_insertion_indexes,
-        out_num_insertions,
-        out_modification_indexes,
-        out_num_modifications,
-        out_collection_was_cleared,
-      );
-
-      return MapChanges(out_deletion_indexes.toStringList(deletionsCount), out_insertion_indexes.toStringList(insertionCount),
-          out_modification_indexes.toStringList(modificationCount), out_collection_was_cleared.value, out_collection_was_deleted.value);
-    });
-  }
-
   _RealmLinkHandle _getObjectAsLink(RealmObjectBase object) {
     final realmLink = realmLib.realm_object_as_link(object.handle.pointer);
     return _RealmLinkHandle._(realmLink);
@@ -840,14 +737,6 @@ class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
   RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
-}
-
-class RealmCollectionChangesHandle extends HandleBase<realm_collection_changes> {
-  RealmCollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
-}
-
-class RealmMapChangesHandle extends HandleBase<realm_dictionary_changes> {
-  RealmMapChangesHandle._(Pointer<realm_dictionary_changes> pointer) : super(pointer, 256);
 }
 
 class RealmObjectChangesHandle extends HandleBase<realm_object_changes> {
