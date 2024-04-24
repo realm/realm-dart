@@ -45,12 +45,12 @@ Pod::Spec.new do |s|
   s.license                   = { :file => '../LICENSE' }
   s.author                    = { 'Realm' => 'help@realm.io' }
   s.source                    = { :path => '.' }
-  s.source_files               = 'Classes/**/*'
+  s.source_files              = 'Classes/**/*'
   s.dependency                  'FlutterMacOS'
 
   s.platform                  = :osx, '10.11'
-  s.compiler_flags             = "-DBUNDLE_ID='\"#{bundleId}\"'"
-  s.pod_target_xcconfig        = { 'DEFINES_MODULE' => 'YES' }
+  s.compiler_flags            = "-DBUNDLE_ID='\"#{bundleId}\"'"
+  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version             = '5.0'
   s.vendored_libraries        = "#{realmLibName}"
   s.prepare_command           = "touch #{realmPackageDir}/librealm_dart.dylib" #librealm_dart.dylib is needed before the build is started
@@ -65,4 +65,5 @@ Pod::Spec.new do |s|
                                     :execution_position => :before_compile
                                   }
                                 ]
+  s.resource_bundles          = { 'realm_privacy' => [ 'Resources/PrivacyInfo.xcprivacy' ] }
 end

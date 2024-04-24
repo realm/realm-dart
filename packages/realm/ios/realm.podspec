@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
   s.vendored_frameworks       = 'realm_dart.xcframework'
   s.dependency                  'Flutter'
   s.platform                  = :ios, '8.0'
-  s.compiler_flags             = "-DBUNDLE_ID='\"#{bundleId}\"'"
+  s.compiler_flags            = "-DBUNDLE_ID='\"#{bundleId}\"'"
   s.library                   = 'c++', 'z', 'compression'
 
   s.swift_version             = '5.0'
@@ -63,4 +63,5 @@ Pod::Spec.new do |s|
                                     :execution_position => :before_compile
                                   }
                                 ]
+  s.resource_bundles          = { 'realm_privacy' => [ 'Resources/PrivacyInfo.xcprivacy' ] }
 end
