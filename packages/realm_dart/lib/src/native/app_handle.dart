@@ -117,12 +117,12 @@ class AppHandle extends HandleBase<realm_app> {
     return realmLib.realm_app_get_app_id(pointer).cast<Utf8>().toRealmDartString()!;
   }
 
-  Future<UserHandle> logIn(Credentials credentials) async {
+  Future<UserHandle> logIn(CredentialsHandle credentials) async {
     final completer = Completer<UserHandle>();
     invokeGetBool(
       () => realmLib.realm_app_log_in_with_credentials(
         pointer,
-        credentials.handle.pointer,
+        credentials.pointer,
         realmLib.addresses.realm_dart_user_completion_callback,
         createAsyncUserCallbackUserdata(completer),
         realmLib.addresses.realm_dart_userdata_async_free,

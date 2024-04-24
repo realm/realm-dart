@@ -176,7 +176,7 @@ class App implements Finalizable {
 
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {
-    var userHandle = await handle.logIn(credentials);
+    var userHandle = await handle.logIn(credentials.handle);
     return UserInternal.create(userHandle, this);
   }
 
