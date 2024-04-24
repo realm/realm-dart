@@ -4,7 +4,7 @@ description: A simple command-line application using Realm Dart SDK.
 publish_to: none
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.3.0
 
 dependencies:
   realm_dart:
