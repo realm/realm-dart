@@ -22,13 +22,16 @@
   (Issue [#292](https://github.com/realm/realm-dart/issues/292))
 
 ### Fixed
-* None
+* Avoid: Attempt to execute code removed by Dart AOT compiler (TFA). (Issue [#1647](https://github.com/realm/realm-dart/issues/1647))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
 * Using Core x.y.z.
+* Flutter: ^3.19.0
+* Dart: ^3.3.0
+
 
 ## 2.1.0 (2024-04-17)
 
