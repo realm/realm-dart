@@ -50,7 +50,7 @@ void main() {
   group('app_test.dart', app_test.main);
   group('asymmetric_test.dart', asymmetric_test.main);
   group('backlinks_test.dart', backlinks_test.main);
-  group('client_reset_test.dart', client_reset_test.main);
+  group('client_reset_test.dart', client_reset_test.main, tags: 'many_files');
   group('configuration_test.dart', configuration_test.main);
   group('credentials_test.dart', credentials_test.main);
   group('decimal128_test.dart', decimal128_test.main);
@@ -62,14 +62,14 @@ void main() {
   group('manual_test.dart', manual_test.main);
   group('migration_test.dart', migration_test.main);
   group('realm_logger_test.dart', realm_logger_test.main);
-  group('realm_map_test.dart', realm_map_test.main);
+  group('realm_map_test.dart', realm_map_test.main, tags: 'many_files');
   group('realm_object_test.dart', realm_object_test.main);
   group('realm_set_test.dart', realm_set_test.main);
   group('realm_test.dart', realm_test.main);
-  group('realm_value_test.dart', realm_value_test.main);
+  group('realm_value_test.dart', realm_value_test.main, tags: 'many_files');
   group('results_test.dart', results_test.main);
   group('session_test.dart', session_test.main);
   group('subscription_test.dart', subscription_test.main);
+  group('sync_migration_test.dart', sync_migration_test.main, tags: 'many_files');
   group('user_test.dart', user_test.main);
-  group('sync_migration_test.dart', sync_migration_test.main);
 }

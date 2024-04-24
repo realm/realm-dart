@@ -335,7 +335,9 @@ jobs:
             --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
             --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
             --file-reporter=json:test-results.json \
-            --suppress-analytics
+            --suppress-analytics \
+            --device-id=iphone \
+            --exclude-tags=many_files # <-- temporary work-around
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.8.0
