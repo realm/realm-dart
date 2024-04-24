@@ -4,6 +4,8 @@
 import 'dart:core';
 import 'dart:ffi';
 
+import 'package:realm_dart/src/results.dart';
+
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 
@@ -122,7 +124,7 @@ sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable 
   /// Finds an existing [Subscription] in this set by its query
   ///
   /// The [query] is represented by the corresponding [RealmResults] object.
-  Subscription? find<T extends RealmObject>(RealmResults<T> query) => _handle.findByResults(query).convert(Subscription._);
+  Subscription? find<T extends RealmObject>(RealmResults<T> query) => _handle.findByResults(query.handle).convert(Subscription._);
 
   /// Finds an existing [Subscription] in this set by name.
   Subscription? findByName(String name) => _handle.findByName(name).convert(Subscription._);
@@ -244,13 +246,13 @@ final class MutableSubscriptionSet extends SubscriptionSet {
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
   /// {@category Sync}
   Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) =>
-      Subscription._(_handle.insertOrAssignSubscription(query, name, update));
+      Subscription._(_handle.insertOrAssignSubscription(query.handle, name, update));
 
   /// Removes the [subscription] from the set, if it exists.
   bool remove(Subscription subscription) => _handle.erase(subscription._handle);
 
   /// Removes the [query] from the set, if it exists.
-  bool removeByQuery<T extends RealmObject>(RealmResults<T> query) => _handle.eraseByResults(query);
+  bool removeByQuery<T extends RealmObject>(RealmResults<T> query) => _handle.eraseByResults(query.handle);
 
   /// Removes the subscription from the set that matches by [name], if it exists.
   bool removeByName(String name) => _handle.eraseByName(name);

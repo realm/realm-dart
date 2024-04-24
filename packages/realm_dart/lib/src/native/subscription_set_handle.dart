@@ -31,10 +31,10 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
     });
   }
 
-  SubscriptionHandle? findByResults(RealmResults results) {
+  SubscriptionHandle? findByResults(ResultsHandle results) {
     final result = realmLib.realm_sync_find_subscription_by_results(
       pointer,
-      results.handle.pointer,
+      results.pointer,
     );
     return result.convert(SubscriptionHandle._);
   }

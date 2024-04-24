@@ -49,6 +49,13 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     realmLib.realm_sync_session_resume(pointer);
   }
 
+  void raiseError(int errorCode, bool isFatal) {
+    using((arena) {
+      final message = "Simulated session error".toCharPtr(arena);
+      realmLib.realm_sync_session_handle_error_for_testing(pointer, errorCode, message, isFatal);
+    });
+  }
+
   Future<void> waitForUpload([CancellationToken? cancellationToken]) {
     final completer = CancellableCompleter<void>(cancellationToken);
     if (!completer.isCancelled) {

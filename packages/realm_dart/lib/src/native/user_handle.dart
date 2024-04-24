@@ -41,7 +41,7 @@ class UserHandle extends HandleBase<realm_user> {
 
     final result = <UserIdentity>[];
     for (var i = 0; i < actualCount.value; i++) {
-      final identity = identitiesPtr.elementAt(i).ref;
+      final identity = (identitiesPtr + i).ref;
 
       result.add(UserIdentityInternal.create(
           identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));

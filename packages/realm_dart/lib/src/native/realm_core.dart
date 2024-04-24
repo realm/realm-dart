@@ -26,7 +26,6 @@ import '../logging.dart';
 import '../migration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
-import '../results.dart';
 import '../scheduler.dart';
 import '../session.dart';
 import '../user.dart';
@@ -140,13 +139,13 @@ String getBundleId() {
 }
 
 void guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
-  Pointer<Void> user_error = nullptr;
+  Pointer<Void> userError = nullptr;
   try {
     await callback();
   } catch (error) {
-    user_error = error.toPersistentHandle();
+    userError = error.toPersistentHandle();
   } finally {
-    realmLib.realm_dart_invoke_unlock_callback(user_error, unlockCallbackFunc);
+    realmLib.realm_dart_invoke_unlock_callback(userError, unlockCallbackFunc);
   }
 }
 
@@ -379,13 +378,6 @@ class _RealmCore {
   //   realmLib.realm_dart_gc();
   // }
 
-  void raiseError(Session session, int errorCode, bool isFatal) {
-    using((arena) {
-      final message = "Simulated session error".toCharPtr(arena);
-      realmLib.realm_sync_session_handle_error_for_testing(session.handle.pointer, errorCode, message, isFatal);
-    });
-  }
-
   void invokeScheduler(int workQueue) {
     final queuePointer = Pointer<realm_work_queue>.fromAddress(workQueue);
     realmLib.realm_scheduler_perform_work(queuePointer);
@@ -517,8 +509,8 @@ class _RealmCore {
 
   void deleteRealmFiles(String path) {
     using((Arena arena) {
-      final realm_deleted = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_delete_files(path.toCharPtr(arena), realm_deleted), "Error deleting realm at path $path");
+      final realmDeleted = arena<Bool>();
+      invokeGetBool(() => realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted), "Error deleting realm at path $path");
     });
   }
 
@@ -603,10 +595,10 @@ class _RealmCore {
     return using((arena) {
       final count = realmLib.realm_object_changes_get_num_modified_properties(handle.pointer);
 
-      final out_modified = arena<realm_property_key_t>(count);
-      realmLib.realm_object_changes_get_modified_properties(handle.pointer, out_modified, count);
+      final outModified = arena<realm_property_key_t>(count);
+      realmLib.realm_object_changes_get_modified_properties(handle.pointer, outModified, count);
 
-      return out_modified.asTypedList(count).toList();
+      return outModified.asTypedList(count).toList();
     });
   }
 
@@ -622,9 +614,9 @@ class _RealmCore {
 
   AppHandle? getApp(String id, String? baseUrl) {
     return using((arena) {
-      final out_app = arena<Pointer<realm_app>>();
-      invokeGetBool(() => realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), out_app));
-      return out_app.value == nullptr ? null : AppHandle._(out_app.value);
+      final outApp = arena<Pointer<realm_app>>();
+      invokeGetBool(() => realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), outApp));
+      return outApp.value == nullptr ? null : AppHandle._(outApp.value);
     });
   }
 
@@ -716,9 +708,9 @@ class _RealmCore {
   List<String> getAllCategoryNames() {
     return using((arena) {
       final count = realmLib.realm_get_category_names(0, nullptr);
-      final out_values = arena<Pointer<Char>>(count);
-      realmLib.realm_get_category_names(count, out_values);
-      return [for (int i = 0; i < count; i++) out_values[i].cast<Utf8>().toDartString()];
+      final outValues = arena<Pointer<Char>>(count);
+      realmLib.realm_get_category_names(count, outValues);
+      return [for (int i = 0; i < count; i++) outValues[i].cast<Utf8>().toDartString()];
     });
   }
 }
@@ -773,94 +765,94 @@ extension _StringEx on String {
   }
 
   Pointer<realm_string_t> toRealmString(Allocator allocator) {
-    final realm_string = allocator<realm_string_t>();
+    final realmString = allocator<realm_string_t>();
     final units = utf8.encode(this);
-    realm_string.ref.data = units.toCharPtr(allocator).cast();
-    realm_string.ref.size = units.length;
-    return realm_string;
+    realmString.ref.data = units.toCharPtr(allocator).cast();
+    realmString.ref.size = units.length;
+    return realmString;
   }
 }
 
 Pointer<realm_value_t> toRealmValue(Object? value, Allocator allocator) {
-  final realm_value = allocator<realm_value_t>();
+  final realmValue = allocator<realm_value_t>();
   if (value is RealmValue && value.type.isCollection) {
     throw RealmError(
         "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
   }
-  intoRealmValue(value, realm_value.ref, allocator);
-  return realm_value;
+  intoRealmValue(value, realmValue.ref, allocator);
+  return realmValue;
 }
 
 const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 
-void intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realm_query_arg, Allocator allocator) {
+void intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realmQueryArg, Allocator allocator) {
   if (value is Iterable) {
-    realm_query_arg.ref.nb_args = value.length;
-    realm_query_arg.ref.is_list = true;
-    realm_query_arg.ref.arg = allocator<realm_value>(value.length);
+    realmQueryArg.ref.nb_args = value.length;
+    realmQueryArg.ref.is_list = true;
+    realmQueryArg.ref.arg = allocator<realm_value>(value.length);
     int i = 0;
     for (var item in value) {
-      intoRealmValue(item, realm_query_arg.ref.arg[i], allocator);
+      intoRealmValue(item, realmQueryArg.ref.arg[i], allocator);
       i++;
     }
   } else {
-    realm_query_arg.ref.arg = allocator<realm_value_t>();
-    realm_query_arg.ref.nb_args = 1;
-    realm_query_arg.ref.is_list = false;
-    intoRealmValueHack(value, realm_query_arg.ref.arg.ref, allocator);
+    realmQueryArg.ref.arg = allocator<realm_value_t>();
+    realmQueryArg.ref.nb_args = 1;
+    realmQueryArg.ref.is_list = false;
+    intoRealmValueHack(value, realmQueryArg.ref.arg.ref, allocator);
   }
 }
 
-void intoRealmValueHack(Object? value, realm_value realm_value, Allocator allocator) {
+void intoRealmValueHack(Object? value, realm_value realmValue, Allocator allocator) {
   if (value is GeoShape) {
-    intoRealmValue(value.toString(), realm_value, allocator);
+    intoRealmValue(value.toString(), realmValue, allocator);
   } else if (value is RealmValueType) {
-    intoRealmValue(value.toQueryArgString(), realm_value, allocator);
+    intoRealmValue(value.toQueryArgString(), realmValue, allocator);
   } else {
-    intoRealmValue(value, realm_value, allocator);
+    intoRealmValue(value, realmValue, allocator);
   }
 }
 
-void intoRealmValue(Object? value, realm_value realm_value, Allocator allocator) {
+void intoRealmValue(Object? value, realm_value realmValue, Allocator allocator) {
   if (value == null) {
-    realm_value.type = realm_value_type.RLM_TYPE_NULL;
+    realmValue.type = realm_value_type.RLM_TYPE_NULL;
   } else if (value is RealmObjectBase) {
     // when converting a RealmObjectBase to realm_value.link we assume the object is managed
     final link = realmCore._getObjectAsLink(value);
-    realm_value.values.link.target = link.targetKey;
-    realm_value.values.link.target_table = link.classKey;
-    realm_value.type = realm_value_type.RLM_TYPE_LINK;
+    realmValue.values.link.target = link.targetKey;
+    realmValue.values.link.target_table = link.classKey;
+    realmValue.type = realm_value_type.RLM_TYPE_LINK;
   } else if (value is int) {
-    realm_value.values.integer = value;
-    realm_value.type = realm_value_type.RLM_TYPE_INT;
+    realmValue.values.integer = value;
+    realmValue.type = realm_value_type.RLM_TYPE_INT;
   } else if (value is bool) {
-    realm_value.values.boolean = value;
-    realm_value.type = realm_value_type.RLM_TYPE_BOOL;
+    realmValue.values.boolean = value;
+    realmValue.type = realm_value_type.RLM_TYPE_BOOL;
   } else if (value is String) {
     String string = value;
     final units = utf8.encode(string);
     final result = allocator<Uint8>(units.length);
     final Uint8List nativeString = result.asTypedList(units.length);
     nativeString.setAll(0, units);
-    realm_value.values.string.data = result.cast();
-    realm_value.values.string.size = units.length;
-    realm_value.type = realm_value_type.RLM_TYPE_STRING;
+    realmValue.values.string.data = result.cast();
+    realmValue.values.string.size = units.length;
+    realmValue.type = realm_value_type.RLM_TYPE_STRING;
   } else if (value is double) {
-    realm_value.values.dnum = value;
-    realm_value.type = realm_value_type.RLM_TYPE_DOUBLE;
+    realmValue.values.dnum = value;
+    realmValue.type = realm_value_type.RLM_TYPE_DOUBLE;
   } else if (value is ObjectId) {
     final bytes = value.bytes;
     for (var i = 0; i < 12; i++) {
-      realm_value.values.object_id.bytes[i] = bytes[i];
+      realmValue.values.object_id.bytes[i] = bytes[i];
     }
-    realm_value.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+    realmValue.type = realm_value_type.RLM_TYPE_OBJECT_ID;
   } else if (value is Uuid) {
     final bytes = value.bytes.asUint8List();
     for (var i = 0; i < 16; i++) {
-      realm_value.values.uuid.bytes[i] = bytes[i];
+      realmValue.values.uuid.bytes[i] = bytes[i];
     }
-    realm_value.type = realm_value_type.RLM_TYPE_UUID;
+    realmValue.type = realm_value_type.RLM_TYPE_UUID;
   } else if (value is DateTime) {
     final microseconds = value.toUtc().microsecondsSinceEpoch;
     final seconds = microseconds ~/ _microsecondsPerSecond;
@@ -868,24 +860,24 @@ void intoRealmValue(Object? value, realm_value realm_value, Allocator allocator)
     if (microseconds < 0 && nanoseconds != 0) {
       nanoseconds = nanoseconds - _nanosecondsPerMicrosecond * _microsecondsPerSecond;
     }
-    realm_value.values.timestamp.seconds = seconds;
-    realm_value.values.timestamp.nanoseconds = nanoseconds;
-    realm_value.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+    realmValue.values.timestamp.seconds = seconds;
+    realmValue.values.timestamp.nanoseconds = nanoseconds;
+    realmValue.type = realm_value_type.RLM_TYPE_TIMESTAMP;
   } else if (value is Decimal128) {
-    realm_value.values.decimal128 = value.value;
-    realm_value.type = realm_value_type.RLM_TYPE_DECIMAL128;
+    realmValue.values.decimal128 = value.value;
+    realmValue.type = realm_value_type.RLM_TYPE_DECIMAL128;
   } else if (value is Uint8List) {
-    realm_value.type = realm_value_type.RLM_TYPE_BINARY;
-    realm_value.values.binary.size = value.length;
-    realm_value.values.binary.data = allocator<Uint8>(value.length);
-    realm_value.values.binary.data.asTypedList(value.length).setAll(0, value);
+    realmValue.type = realm_value_type.RLM_TYPE_BINARY;
+    realmValue.values.binary.size = value.length;
+    realmValue.values.binary.data = allocator<Uint8>(value.length);
+    realmValue.values.binary.data.asTypedList(value.length).setAll(0, value);
   } else if (value is RealmValue) {
     if (value.type == List<RealmValue>) {
-      realm_value.type = realm_value_type.RLM_TYPE_LIST;
+      realmValue.type = realm_value_type.RLM_TYPE_LIST;
     } else if (value.type == Map<String, RealmValue>) {
-      realm_value.type = realm_value_type.RLM_TYPE_DICTIONARY;
+      realmValue.type = realm_value_type.RLM_TYPE_DICTIONARY;
     } else {
-      return intoRealmValue(value.value, realm_value, allocator);
+      return intoRealmValue(value.value, realmValue, allocator);
     }
   } else {
     throw RealmException("Property type ${value.runtimeType} not supported");
@@ -987,8 +979,8 @@ extension on Pointer<realm_value> {
   List<String> toStringList(int count) {
     final result = List.filled(count, '');
     for (var i = 0; i < count; i++) {
-      final str_value = elementAt(i).ref.values.string;
-      result[i] = str_value.data.cast<Utf8>().toRealmDartString(length: str_value.size)!;
+      final strValue = elementAt(i).ref.values.string;
+      result[i] = strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
     }
 
     return result;
@@ -1082,9 +1074,9 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
     for (int i = 0; i < length; i++) {
       final compensatingWrite = this[i];
       final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
-      final object_name = compensatingWrite.object_name.cast<Utf8>().toDartString();
-      final primary_key = compensatingWrite.primary_key.toPrimitiveValue();
-      compensatingWrites.add(CompensatingWriteInfo(object_name, reason, RealmValue.from(primary_key)));
+      final objectName = compensatingWrite.object_name.cast<Utf8>().toDartString();
+      final primaryKey = compensatingWrite.primary_key.toPrimitiveValue();
+      compensatingWrites.add(CompensatingWriteInfo(objectName, reason, RealmValue.from(primaryKey)));
     }
     return compensatingWrites;
   }

@@ -113,9 +113,7 @@ extension SessionInternal on Session {
     return _handle;
   }
 
-  void raiseError(int errorCode, bool isFatal) {
-    realmCore.raiseError(this, errorCode, isFatal);
-  }
+  void raiseError(int errorCode, bool isFatal) => handle.raiseError(errorCode, isFatal);
 
   static SyncProgress createSyncProgress(int transferredBytes, int transferableBytes) =>
       SyncProgress._(progressEstimate: SyncProgress._calculateProgress(transferred: transferredBytes, transferable: transferableBytes));
