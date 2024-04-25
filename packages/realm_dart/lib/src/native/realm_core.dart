@@ -268,7 +268,7 @@ class _RealmCore {
   static late final _RealmCore _instance;
 
   _RealmCore() {
-    // This disables creation of a second _RealmCore instance effectivelly making `realmCore` global variable readonly
+    // This disables creation of a second _RealmCore instance effectively making `realmCore` global variable readonly
     _instance = this;
 
     // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
@@ -370,7 +370,7 @@ class _RealmCore {
     final schemas = <SchemaObject>[];
     for (var i = 0; i < actualCount.value; i++) {
       final classInfo = arena<realm_class_info>();
-      final classKey = classesPtr.elementAt(i).value;
+      final classKey = (classesPtr + i).value;
       invokeGetBool(() => realmLib.realm_get_class(realm.pointer, classKey, classInfo));
 
       final name = classInfo.ref.name.cast<Utf8>().toDartString();
@@ -397,7 +397,7 @@ class _RealmCore {
 
     final result = <SchemaProperty>[];
     for (var i = 0; i < actualCount.value; i++) {
-      final property = propertiesPtr.elementAt(i).ref.toSchemaProperty();
+      final property = (propertiesPtr + i).ref.toSchemaProperty();
       result.add(property);
     }
 
@@ -460,7 +460,7 @@ class _RealmCore {
     propertyCount = propertyCountPtr.value;
     Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
     for (var i = 0; i < propertyCount; i++) {
-      final property = propertiesPtr.elementAt(i);
+      final property = propertiesPtr + i;
       final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
       final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
       final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
@@ -661,6 +661,7 @@ extension StringEx on String {
     return realmString;
   }
 }
+
 extension NullableObjectEx on Object? {
   Pointer<realm_value_t> toNative(Allocator allocator) {
     final self = this;
@@ -763,9 +764,9 @@ void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator)
     realmValue.values.binary.data = allocator<Uint8>(value.length);
     realmValue.values.binary.data.asTypedList(value.length).setAll(0, value);
   } else if (value is RealmValue) {
-    if (value.type == List<RealmValue>) {
+    if (value is List<RealmValue>) {
       realmValue.type = realm_value_type.RLM_TYPE_LIST;
-    } else if (value.type == Map<String, RealmValue>) {
+    } else if (value is Map<String, RealmValue>) {
       realmValue.type = realm_value_type.RLM_TYPE_DICTIONARY;
     } else {
       return _intoRealmValue(value.value, realmValue, allocator);
@@ -786,7 +787,7 @@ extension PointerRealmValueEx on Pointer<realm_value_t> {
   List<String> toStringList(int count) {
     final result = List.filled(count, '');
     for (var i = 0; i < count; i++) {
-      final strValue = elementAt(i).ref.values.string;
+      final strValue = (this + i).ref.values.string;
       result[i] = strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
     }
 
@@ -817,7 +818,7 @@ extension RealmValueEx on realm_value_t {
         }
         final objectKey = values.link.target;
         final classKey = values.link.target_table;
-        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
+        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temporary workaround to avoid crash on assertion
         return realm.handle.getObject(classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         return Uint8List.fromList(values.binary.data.asTypedList(values.binary.size));
@@ -868,9 +869,9 @@ extension ArrayUint8Ex on Array<Uint8> {
 
 extension PointerSizeEx on Pointer<Size> {
   List<int> toIntList(int count) {
-    List<int> result = List.filled(count, elementAt(0).value);
+    List<int> result = List.filled(count, value);
     for (var i = 1; i < count; i++) {
-      result[i] = elementAt(i).value;
+      result[i] = (this + i).value;
     }
     return result;
   }
