@@ -323,6 +323,10 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 }
 
+class CallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
+  CallbackTokenHandle(Pointer<realm_callback_token> pointer, RealmHandle root) : super(root, pointer, 32);
+}
+
 void _schemaChangeCallback(Pointer<Void> userdata, Pointer<realm_schema> data) {
   final Realm realm = userdata.toObject();
   try {

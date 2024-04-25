@@ -728,17 +728,17 @@ class UserCallbackException extends RealmException {
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
 class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
   // ignore: unused_field
-  final RealmObjectChangesHandle _handle;
+  final ObjectChangesHandle _handle;
 
   /// The realm object being monitored for changes.
   final T object;
 
   /// `True` if the object was deleted.
-  bool get isDeleted => realmCore.getObjectChangesIsDeleted(_handle);
+  bool get isDeleted => _handle.isDeleted;
 
   /// The property names that have changed.
   List<String> get properties {
-    final propertyKeys = realmCore.getObjectChangesProperties(_handle);
+    final propertyKeys = _handle.properties;
     return object.realm
         .getPropertyNames(object, propertyKeys)
         .map((e) => object.objectSchema.firstWhere((element) => element.mapTo == e || element.name == e).name)
@@ -775,7 +775,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
   }
 
   @override
-  RealmNotificationTokenHandle subscribe() {
+  NotificationTokenHandle subscribe() {
     return realmObject.handle.subscribeForNotifications(this, keyPaths);
   }
 
@@ -786,7 +786,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 
   @override
   void onChanges(HandleBase changesHandle) {
-    if (changesHandle is! RealmObjectChangesHandle) {
+    if (changesHandle is! ObjectChangesHandle) {
       throw RealmError("Invalid changes handle. RealmObjectChangesHandle expected");
     }
 

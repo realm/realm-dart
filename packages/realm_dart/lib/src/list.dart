@@ -338,7 +338,7 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
   ListNotificationsController(this.list);
 
   @override
-  RealmNotificationTokenHandle subscribe() {
+  NotificationTokenHandle subscribe() {
     return list.handle.subscribeForNotifications(this);
   }
 

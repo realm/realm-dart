@@ -133,7 +133,7 @@ class UserHandle extends HandleBase<realm_user> {
           pointer,
           namePtr,
           realmLib.addresses.realm_dart_apikey_callback,
-          createAsyncApikeyCallbackUserdata(completer),
+          _createAsyncApikeyCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         ),
       );
@@ -151,7 +151,7 @@ class UserHandle extends HandleBase<realm_user> {
             pointer,
             nativeId.ref,
             realmLib.addresses.realm_dart_apikey_callback,
-            createAsyncApikeyCallbackUserdata(completer),
+            _createAsyncApikeyCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
@@ -166,7 +166,7 @@ class UserHandle extends HandleBase<realm_user> {
             app.pointer,
             pointer,
             realmLib.addresses.realm_dart_apikey_list_callback,
-            createAsyncApikeyListCallbackUserdata(completer),
+            _createAsyncApikeyListCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           ));
 
@@ -252,4 +252,64 @@ void _userChangeCallback(Object userdata, int data) {
   final controller = userdata as UserNotificationsController;
 
   controller.onUserChanged();
+}
+
+Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_app_user_apikey>,
+        Pointer<realm_app_error>,
+      )>(_appApiKeyCompletionCallback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+void _appApiKeyCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
+  final Completer<ApiKey> completer = userdata.toObject();
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+  completer.complete(apiKey.ref.toDart());
+}
+
+Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Completer<List<ApiKey>> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_app_user_apikey>,
+        Size count,
+        Pointer<realm_app_error>,
+      )>(_appApiKeyArrayCompletionCallback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+void _appApiKeyArrayCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
+  final Completer<List<ApiKey>> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  final result = <ApiKey>[];
+  for (var i = 0; i < size; i++) {
+    result.add(apiKey[i].toDart());
+  }
+
+  completer.complete(result);
 }

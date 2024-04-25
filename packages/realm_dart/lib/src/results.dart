@@ -316,7 +316,7 @@ class ResultsNotificationsController<T extends Object?> extends NotificationsCon
   ResultsNotificationsController(this.results);
 
   @override
-  RealmNotificationTokenHandle subscribe() {
+  NotificationTokenHandle subscribe() {
     return results.handle.subscribeForNotifications(this);
   }
 

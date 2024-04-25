@@ -117,7 +117,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
-  RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(() => realmLib.realm_set_add_notification_callback(
           pointer,
           controller.toPersistentHandle(),
@@ -125,6 +125,6 @@ class SetHandle extends RootedHandleBase<realm_set> {
           nullptr,
           Pointer.fromFunction(collectionChangeCallback),
         ));
-    return RealmNotificationTokenHandle(ptr, root);
+    return NotificationTokenHandle(ptr, root);
   }
 }

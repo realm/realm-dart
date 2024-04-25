@@ -164,7 +164,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
-  RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(() => realmLib.realm_dictionary_add_notification_callback(
           pointer,
           controller.toPersistentHandle(),
@@ -172,7 +172,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
           nullptr,
           Pointer.fromFunction(_mapChangeCallback),
         ));
-    return RealmNotificationTokenHandle(ptr, root);
+    return NotificationTokenHandle(ptr, root);
   }
 }
 

@@ -341,7 +341,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   RealmSetNotificationsController(this.set);
 
   @override
-  RealmNotificationTokenHandle subscribe() {
+  NotificationTokenHandle subscribe() {
     return set.handle.subscribeForNotifications(this);
   }
 

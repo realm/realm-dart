@@ -146,31 +146,6 @@ Pointer<Void> createAsyncUserCallbackUserdata(Completer<void> completer) {
   return userdata.cast();
 }
 
-void appApiKeyCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, Pointer<realm_app_error> error) {
-  final Completer<ApiKey> completer = userdata.toObject();
-  if (error != nullptr) {
-    completer.completeWithAppError(error);
-    return;
-  }
-  completer.complete(apiKey.ref.toDart());
-}
-
-void appApiKeyArrayCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_user_apikey> apiKey, int size, Pointer<realm_app_error> error) {
-  final Completer<List<ApiKey>> completer = userdata.toObject();
-
-  if (error != nullptr) {
-    completer.completeWithAppError(error);
-    return;
-  }
-
-  final result = <ApiKey>[];
-  for (var i = 0; i < size; i++) {
-    result.add(apiKey[i].toDart());
-  }
-
-  completer.complete(result);
-}
-
 void appUserCompletionCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
   final Completer<UserHandle> completer = userdata.toObject();
 
@@ -205,41 +180,6 @@ Pointer<Void> createAsyncCallbackUserdata<T extends Function>(Completer<void> co
         Pointer<Void>,
         Pointer<realm_app_error>,
       )>(voidCompletionCallback);
-
-  final userdata = realmLib.realm_dart_userdata_async_new(
-    completer,
-    callback.cast(),
-    scheduler.handle.pointer,
-  );
-
-  return userdata.cast();
-}
-
-Pointer<Void> createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
-  final callback = Pointer.fromFunction<
-      Void Function(
-        Pointer<Void>,
-        Pointer<realm_app_user_apikey>,
-        Pointer<realm_app_error>,
-      )>(appApiKeyCompletionCallback);
-
-  final userdata = realmLib.realm_dart_userdata_async_new(
-    completer,
-    callback.cast(),
-    scheduler.handle.pointer,
-  );
-
-  return userdata.cast();
-}
-
-Pointer<Void> createAsyncApikeyListCallbackUserdata<T extends Function>(Completer<List<ApiKey>> completer) {
-  final callback = Pointer.fromFunction<
-      Void Function(
-        Pointer<Void>,
-        Pointer<realm_app_user_apikey>,
-        Size count,
-        Pointer<realm_app_error>,
-      )>(appApiKeyArrayCompletionCallback);
 
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
@@ -355,13 +295,13 @@ class _RealmCore {
     realmLib.realm_scheduler_perform_work(queuePointer);
   }
 
-  RealmAsyncOpenTaskHandle createRealmAsyncOpenTask(FlexibleSyncConfiguration config) {
+  AsyncOpenTaskHandle createRealmAsyncOpenTask(FlexibleSyncConfiguration config) {
     final configHandle = ConfigHandle.from(config);
     final asyncOpenTaskPtr = invokeGetPointer(() => realmLib.realm_open_synchronized(configHandle.pointer), "Error opening realm at path ${config.path}");
-    return RealmAsyncOpenTaskHandle(asyncOpenTaskPtr);
+    return AsyncOpenTaskHandle(asyncOpenTaskPtr);
   }
 
-  Future<RealmHandle> openRealmAsync(RealmAsyncOpenTaskHandle handle, CancellationToken? cancellationToken) {
+  Future<RealmHandle> openRealmAsync(AsyncOpenTaskHandle handle, CancellationToken? cancellationToken) {
     final completer = CancellableCompleter<RealmHandle>(cancellationToken);
     if (!completer.isCancelled) {
       final callback =
@@ -395,12 +335,12 @@ class _RealmCore {
     });
   }
 
-  void cancelOpenRealmAsync(RealmAsyncOpenTaskHandle handle) {
+  void cancelOpenRealmAsync(AsyncOpenTaskHandle handle) {
     realmLib.realm_async_open_task_cancel(handle.pointer);
   }
 
-  RealmAsyncOpenTaskProgressNotificationTokenHandle realmAsyncOpenRegisterAsyncOpenProgressNotifier(
-      RealmAsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
+  AsyncOpenTaskProgressNotificationTokenHandle realmAsyncOpenRegisterAsyncOpenProgressNotifier(
+      AsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
     final tokenPtr = invokeGetPointer(() => realmLib.realm_async_open_task_register_download_progress_notifier(
@@ -409,7 +349,7 @@ class _RealmCore {
           userdata.cast(),
           realmLib.addresses.realm_dart_userdata_async_free,
         ));
-    return RealmAsyncOpenTaskProgressNotificationTokenHandle(tokenPtr);
+    return AsyncOpenTaskProgressNotificationTokenHandle(tokenPtr);
   }
 
   RealmSchema readSchema(Realm realm) {
@@ -559,21 +499,6 @@ class _RealmCore {
     return hashCode;
   }
 
-  bool getObjectChangesIsDeleted(RealmObjectChangesHandle handle) {
-    return realmLib.realm_object_changes_is_deleted(handle.pointer);
-  }
-
-  List<int> getObjectChangesProperties(RealmObjectChangesHandle handle) {
-    return using((arena) {
-      final count = realmLib.realm_object_changes_get_num_modified_properties(handle.pointer);
-
-      final outModified = arena<realm_property_key_t>(count);
-      realmLib.realm_object_changes_get_modified_properties(handle.pointer, outModified, count);
-
-      return outModified.asTypedList(count).toList();
-    });
-  }
-
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
       realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
@@ -695,24 +620,16 @@ class _RealmLinkHandle {
         classKey = link.target_table;
 }
 
-class CallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
-  CallbackTokenHandle(Pointer<realm_callback_token> pointer, RealmHandle root) : super(root, pointer, 32);
+class NotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
+  NotificationTokenHandle(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
-class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
-  RealmNotificationTokenHandle(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
+class AsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
+  AsyncOpenTaskHandle(Pointer<realm_async_open_task_t> pointer) : super(pointer, 32);
 }
 
-class RealmObjectChangesHandle extends HandleBase<realm_object_changes> {
-  RealmObjectChangesHandle(Pointer<realm_object_changes> pointer) : super(pointer, 256);
-}
-
-class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
-  RealmAsyncOpenTaskHandle(Pointer<realm_async_open_task_t> pointer) : super(pointer, 32);
-}
-
-class RealmAsyncOpenTaskProgressNotificationTokenHandle extends HandleBase<realm_async_open_task_progress_notification_token_t> {
-  RealmAsyncOpenTaskProgressNotificationTokenHandle(Pointer<realm_async_open_task_progress_notification_token_t> pointer) : super(pointer, 40);
+class AsyncOpenTaskProgressNotificationTokenHandle extends HandleBase<realm_async_open_task_progress_notification_token_t> {
+  AsyncOpenTaskProgressNotificationTokenHandle(Pointer<realm_async_open_task_progress_notification_token_t> pointer) : super(pointer, 40);
 }
 
 extension ListEx on List<int> {

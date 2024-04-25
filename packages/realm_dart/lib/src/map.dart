@@ -289,7 +289,7 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
   MapNotificationsController(this.map);
 
   @override
-  RealmNotificationTokenHandle subscribe() {
+  NotificationTokenHandle subscribe() {
     return map.handle.subscribeForNotifications(this);
   }
 

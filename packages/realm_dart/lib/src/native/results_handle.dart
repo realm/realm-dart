@@ -105,7 +105,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     });
   }
 
-  RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     final ptr = invokeGetPointer(
       () => realmLib.realm_results_add_notification_callback(
         pointer,
@@ -115,6 +115,6 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
         Pointer.fromFunction(collectionChangeCallback),
       ),
     );
-    return RealmNotificationTokenHandle(ptr, root);
+    return NotificationTokenHandle(ptr, root);
   }
 }

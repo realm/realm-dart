@@ -1,13 +1,13 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
 import '../realm_dart.dart'; // TODO: Remove this import
 import 'error_handling.dart';
+import 'handle_base.dart';
 import 'list_handle.dart';
 import 'map_handle.dart';
 import 'realm_bindings.dart';
@@ -116,7 +116,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
     });
   }
 
-  RealmNotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]) {
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]) {
     return using((Arena arena) {
       final kpNative = buildAndVerifyKeyPath(keyPaths);
       final ptr = invokeGetPointer(() => realmLib.realm_object_add_notification_callback(
@@ -127,7 +127,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
             Pointer.fromFunction(_objectChangeCallback),
           ));
 
-      return RealmNotificationTokenHandle(ptr, root);
+      return NotificationTokenHandle(ptr, root);
     });
   }
 
@@ -165,9 +165,28 @@ void _objectChangeCallback(Pointer<Void> userdata, Pointer<realm_object_changes>
       return;
     }
 
-    final changesHandle = RealmObjectChangesHandle(clonedData.cast());
+    final changesHandle = ObjectChangesHandle(clonedData.cast());
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));
+  }
+}
+
+class ObjectChangesHandle extends HandleBase<realm_object_changes> {
+  ObjectChangesHandle(Pointer<realm_object_changes> pointer) : super(pointer, 256);
+
+  bool get isDeleted {
+    return realmLib.realm_object_changes_is_deleted(pointer);
+  }
+
+  List<int> get properties {
+    return using((arena) {
+      final count = realmLib.realm_object_changes_get_num_modified_properties(pointer);
+
+      final outModified = arena<realm_property_key_t>(count);
+      realmLib.realm_object_changes_get_modified_properties(pointer, outModified, count);
+
+      return outModified.asTypedList(count).toList();
+    });
   }
 }

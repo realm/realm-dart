@@ -862,9 +862,9 @@ extension RealmInternal on Realm {
 
 /// @nodoc
 abstract class NotificationsController implements Finalizable {
-  RealmNotificationTokenHandle? handle;
+  NotificationTokenHandle? handle;
 
-  RealmNotificationTokenHandle subscribe();
+  NotificationTokenHandle subscribe();
   void onChanges(HandleBase changesHandle);
   void onError(RealmError error);
 
@@ -1027,8 +1027,8 @@ typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
 /// @nodoc
 class RealmAsyncOpenProgressNotificationsController implements ProgressNotificationsController {
-  final RealmAsyncOpenTaskHandle _handle;
-  RealmAsyncOpenTaskProgressNotificationTokenHandle? _tokenHandle;
+  final AsyncOpenTaskHandle _handle;
+  AsyncOpenTaskProgressNotificationTokenHandle? _tokenHandle;
   late final StreamController<SyncProgress> _streamController;
 
   RealmAsyncOpenProgressNotificationsController._(this._handle);
