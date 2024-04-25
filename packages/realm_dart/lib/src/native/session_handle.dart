@@ -1,13 +1,28 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:cancellation_token/cancellation_token.dart';
+import 'package:ffi/ffi.dart';
+
+import '../realm_dart.dart';
+import '../scheduler.dart';
+import '../session.dart'; // TODO: Remove this import
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'rooted_handle.dart';
+import 'user_handle.dart';
 
 class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   @override
   bool get shouldRoot => true;
 
-  SessionHandle._(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
+  SessionHandle(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
 
   String get path {
     return realmLib.realm_sync_session_get_file_path(pointer).cast<Utf8>().toRealmDartString()!;
@@ -19,7 +34,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   }
 
   UserHandle get user {
-    return UserHandle._(realmLib.realm_sync_session_get_user(pointer));
+    return UserHandle(realmLib.realm_sync_session_get_user(pointer));
   }
 
   SessionState get state {
@@ -110,7 +125,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
         realmLib.addresses.realm_dart_userdata_async_free,
       ),
     );
-    return SyncSessionNotificationTokenHandle._(ptr);
+    return SyncSessionNotificationTokenHandle(ptr);
   }
 
   SyncSessionNotificationTokenHandle subscribeForProgressNotifications(
@@ -119,7 +134,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     SessionProgressNotificationsController controller,
   ) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
     final tokenPtr = invokeGetPointer(() => realmLib.realm_sync_session_register_progress_notifier(
         pointer,
@@ -128,12 +143,12 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
         isStreaming,
         userdata.cast(),
         realmLib.addresses.realm_dart_userdata_async_free));
-    return SyncSessionNotificationTokenHandle._(tokenPtr);
+    return SyncSessionNotificationTokenHandle(tokenPtr);
   }
 }
 
 class SyncSessionNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {
-  SyncSessionNotificationTokenHandle._(Pointer<realm_sync_session_connection_state_notification_token> pointer) : super(pointer, 32);
+  SyncSessionNotificationTokenHandle(Pointer<realm_sync_session_connection_state_notification_token> pointer) : super(pointer, 32);
 }
 
 void _onConnectionStateChange(Object userdata, int oldState, int newState) {
@@ -142,7 +157,7 @@ void _onConnectionStateChange(Object userdata, int oldState, int newState) {
   controller.onConnectionStateChange(ConnectionState.values[oldState], ConnectionState.values[newState]);
 }
 
-void _syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
+void syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
   final controller = userdata as ProgressNotificationsController;
 
   controller.onProgress(transferred, transferable);

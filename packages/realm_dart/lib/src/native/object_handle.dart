@@ -1,14 +1,29 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../realm_dart.dart'; // TODO: Remove this import
+import 'error_handling.dart';
+import 'list_handle.dart';
+import 'map_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'results_handle.dart';
+import 'rooted_handle.dart';
+import 'set_handle.dart';
 
 class ObjectHandle extends RootedHandleBase<realm_object> {
-  ObjectHandle._(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
+  ObjectHandle(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
 
   ObjectHandle createEmbedded(int propertyKey) {
     final objectPtr = invokeGetPointer(() => realmLib.realm_set_embedded(pointer, propertyKey));
-    return ObjectHandle._(objectPtr, _root);
+    return ObjectHandle(objectPtr, root);
   }
 
   (ObjectHandle, int) get parent {
@@ -17,7 +32,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
       final classKeyPtr = arena<Uint32>();
       invokeGetBool(() => realmLib.realm_object_get_parent(pointer, parentPtr, classKeyPtr));
 
-      final handle = ObjectHandle._(parentPtr.value, _root);
+      final handle = ObjectHandle(parentPtr.value, root);
 
       return (handle, classKeyPtr.value);
     });
@@ -58,22 +73,22 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
 
   ListHandle getList(int propertyKey) {
     final ptr = invokeGetPointer(() => realmLib.realm_get_list(pointer, propertyKey));
-    return ListHandle._(ptr, _root);
+    return ListHandle(ptr, root);
   }
 
   SetHandle getSet(int propertyKey) {
     final ptr = invokeGetPointer(() => realmLib.realm_get_set(pointer, propertyKey));
-    return SetHandle._(ptr, _root);
+    return SetHandle(ptr, root);
   }
 
   MapHandle getMap(int propertyKey) {
     final ptr = invokeGetPointer(() => realmLib.realm_get_dictionary(pointer, propertyKey));
-    return MapHandle._(ptr, _root);
+    return MapHandle(ptr, root);
   }
 
   ResultsHandle getBacklinks(int sourceTableKey, int propertyKey) {
     final ptr = invokeGetPointer(() => realmLib.realm_get_backlinks(pointer, sourceTableKey, propertyKey));
-    return ResultsHandle._(ptr, _root);
+    return ResultsHandle(ptr, root);
   }
 
   void setCollection(Realm realm, int propertyKey, RealmValue value) {
@@ -97,7 +112,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_object>>();
       invokeGetBool(() => realmLib.realm_object_resolve_in(pointer, frozenRealm.pointer, resultPtr));
-      return resultPtr == nullptr ? null : ObjectHandle._(resultPtr.value, frozenRealm);
+      return resultPtr == nullptr ? null : ObjectHandle(resultPtr.value, frozenRealm);
     });
   }
 
@@ -112,7 +127,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
             Pointer.fromFunction(_objectChangeCallback),
           ));
 
-      return RealmNotificationTokenHandle._(ptr, _root);
+      return RealmNotificationTokenHandle(ptr, root);
     });
   }
 
@@ -130,7 +145,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
       }
       // TODO(kn):
       // call to classKey getter involves a native call, which is not ideal
-      return invokeGetPointer(() => realmLib.realm_create_key_path_array(_root.pointer, classKey, length, keypathsNative));
+      return invokeGetPointer(() => realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative));
     });
   }
 }
@@ -150,7 +165,7 @@ void _objectChangeCallback(Pointer<Void> userdata, Pointer<realm_object_changes>
       return;
     }
 
-    final changesHandle = RealmObjectChangesHandle._(clonedData.cast());
+    final changesHandle = RealmObjectChangesHandle(clonedData.cast());
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));

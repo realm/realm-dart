@@ -1,10 +1,19 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../collections.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart';
+import 'realm_library.dart';
 
 class MapChangesHandle extends HandleBase<realm_dictionary_changes> {
-  MapChangesHandle._(Pointer<realm_dictionary_changes> pointer) : super(pointer, 256);
+  MapChangesHandle(Pointer<realm_dictionary_changes> pointer) : super(pointer, 256);
 
   MapChanges get changes {
     return using((arena) {

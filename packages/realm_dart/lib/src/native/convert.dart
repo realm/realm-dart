@@ -1,7 +1,9 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'handle_base.dart';
 
 extension PointerEx<T extends NativeType> on Pointer<T> {
   Pointer<T>? get nullPtrAsNull => this == nullptr ? null : this;

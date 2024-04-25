@@ -14,7 +14,12 @@ import 'list.dart';
 import 'logging.dart';
 import 'map.dart';
 import 'native/handle_base.dart';
+import 'native/list_handle.dart';
+import 'native/map_handle.dart';
+import 'native/object_handle.dart';
 import 'native/realm_core.dart';
+import 'native/realm_handle.dart';
+import 'native/set_handle.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
@@ -84,7 +89,8 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExte
 export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
-export 'native/realm_core.dart' show Decimal128, encryptionKeySize;
+export 'native/realm_core.dart' show encryptionKeySize;
+export 'native/decimal128.dart' show Decimal128;
 export 'realm_object.dart'
     show
         AsymmetricObject,
@@ -111,7 +117,7 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
-  late final RealmCallbackTokenHandle? _schemaCallbackHandle;
+  late final CallbackTokenHandle? _schemaCallbackHandle;
   final List<StreamController<RealmSchemaChanges>> _schemaChangeListeners = [];
 
   /// An object encompassing this `Realm` instance's dynamic API.

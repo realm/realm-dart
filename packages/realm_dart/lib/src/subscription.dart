@@ -4,10 +4,12 @@
 import 'dart:core';
 import 'dart:ffi';
 
-import 'package:realm_dart/src/results.dart';
-
-import 'native/realm_core.dart';
+import 'native/convert.dart';
+import 'native/mutable_subscription_set_handle.dart';
+import 'native/subscription_handle.dart';
+import 'native/subscription_set_handle.dart';
 import 'realm_class.dart';
+import 'results.dart';
 
 /// A class representing a single query subscription. The server will continuously
 /// evaluate the query that the app subscribed to and will send data

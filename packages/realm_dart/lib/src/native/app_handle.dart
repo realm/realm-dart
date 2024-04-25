@@ -1,13 +1,34 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
+import 'dart:isolate';
+
+import 'package:ffi/ffi.dart';
+import 'package:realm_dart/src/native/convert.dart';
+
+import '../app.dart'; // TODO: Remove this import
+import '../init.dart';
+import '../logging.dart';
+import '../realm_class.dart'; // TODO: Remove this import
+import '../scheduler.dart';
+import 'credentials_handle.dart';
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_library.dart';
+import 'user_handle.dart';
 
 class AppHandle extends HandleBase<realm_app> {
-  AppHandle._(Pointer<realm_app> pointer) : super(pointer, 16);
+  AppHandle(Pointer<realm_app> pointer) : super(pointer, 16);
 
   static bool _firstTime = true;
-  factory AppHandle(AppConfiguration configuration) {
+  factory AppHandle.from(AppConfiguration configuration) {
     // to avoid caching apps across hot restarts we clear the cache on the first
     // time the ctor is called in the root isolate.
     if (_firstTime && _isRootIsolate) {
@@ -18,11 +39,11 @@ class AppHandle extends HandleBase<realm_app> {
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     final syncClientConfigHandle = _createSyncClientConfig(configuration);
     final realmAppPtr = invokeGetPointer(() => realmLib.realm_app_create_cached(appConfigHandle.pointer, syncClientConfigHandle.pointer));
-    return AppHandle._(realmAppPtr);
+    return AppHandle(realmAppPtr);
   }
 
   UserHandle? get currentUser {
-    return realmLib.realm_app_get_current_user(pointer).convert(UserHandle._);
+    return realmLib.realm_app_get_current_user(pointer).convert(UserHandle.new);
   }
 
   List<UserHandle> get users => using((arena) => _getUsers(arena));
@@ -40,7 +61,7 @@ class AppHandle extends HandleBase<realm_app> {
 
     final result = <UserHandle>[];
     for (var i = 0; i < actualCount.value; i++) {
-      result.add(UserHandle._((usersPtr + i).value));
+      result.add(UserHandle((usersPtr + i).value));
     }
 
     return result;
@@ -317,13 +338,13 @@ class AppHandle extends HandleBase<realm_app> {
 final bool _isRootIsolate = Isolate.current.debugName == 'main';
 
 class _HttpTransportHandle extends HandleBase<realm_http_transport> {
-  _HttpTransportHandle._(Pointer<realm_http_transport> pointer) : super(pointer, 24);
+  _HttpTransportHandle(Pointer<realm_http_transport> pointer) : super(pointer, 24);
 }
 
 _HttpTransportHandle _createHttpTransport(HttpClient httpClient) {
   final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_requestCallback);
   final requestCallbackUserdata = realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle.pointer);
-  return _HttpTransportHandle._(realmLib.realm_http_transport_new(
+  return _HttpTransportHandle(realmLib.realm_http_transport_new(
     realmLib.addresses.realm_dart_http_request_callback,
     requestCallbackUserdata.cast(),
     realmLib.addresses.realm_dart_userdata_async_free,
@@ -371,26 +392,26 @@ Future<void> _requestCallbackAsync(
   await using((arena) async {
     final responsePointer = arena<realm_http_response>();
     final responseRef = responsePointer.ref;
-    final method = _HttpMethod.values[requestMethod];
+    final method = HttpMethod.values[requestMethod];
 
     try {
       // Build request
       late HttpClientRequest request;
 
       switch (method) {
-        case _HttpMethod.delete:
+        case HttpMethod.delete:
           request = await client.deleteUrl(url);
           break;
-        case _HttpMethod.put:
+        case HttpMethod.put:
           request = await client.putUrl(url);
           break;
-        case _HttpMethod.patch:
+        case HttpMethod.patch:
           request = await client.patchUrl(url);
           break;
-        case _HttpMethod.post:
+        case HttpMethod.post:
           request = await client.postUrl(url);
           break;
-        case _HttpMethod.get:
+        case HttpMethod.get:
           request = await client.getUrl(url);
           break;
       }
@@ -438,16 +459,16 @@ Future<void> _requestCallbackAsync(
         }
       });
 
-      responseRef.custom_status_code = _CustomErrorCode.noError.code;
+      responseRef.custom_status_code = CustomErrorCode.noError.code;
     } on SocketException catch (socketEx) {
       Realm.logger.log(LogLevel.warn, "HTTP Transport: SocketException executing ${method.name} $url: $socketEx");
-      responseRef.custom_status_code = _CustomErrorCode.timeout.code;
+      responseRef.custom_status_code = CustomErrorCode.timeout.code;
     } on HttpException catch (httpEx) {
       Realm.logger.log(LogLevel.warn, "HTTP Transport: HttpException executing ${method.name} $url: $httpEx");
-      responseRef.custom_status_code = _CustomErrorCode.unknownHttp.code;
+      responseRef.custom_status_code = CustomErrorCode.unknownHttp.code;
     } catch (ex) {
       Realm.logger.log(LogLevel.error, "HTTP Transport: Exception executing ${method.name} $url: $ex");
-      responseRef.custom_status_code = _CustomErrorCode.unknown.code;
+      responseRef.custom_status_code = CustomErrorCode.unknown.code;
     } finally {
       realmLib.realm_http_transport_complete_request(requestContext, responsePointer);
     }
@@ -455,12 +476,12 @@ Future<void> _requestCallbackAsync(
 }
 
 class _SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
-  _SyncClientConfigHandle._(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
+  _SyncClientConfigHandle(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
 }
 
 _SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) {
   return using((arena) {
-    final handle = _SyncClientConfigHandle._(realmLib.realm_sync_client_config_new());
+    final handle = _SyncClientConfigHandle(realmLib.realm_sync_client_config_new());
 
     realmLib.realm_sync_client_config_set_base_file_path(handle.pointer, configuration.baseFilePath.path.toCharPtr(arena));
     realmLib.realm_sync_client_config_set_metadata_mode(handle.pointer, configuration.metadataPersistenceMode.index);
@@ -473,13 +494,13 @@ _SyncClientConfigHandle _createSyncClientConfig(AppConfiguration configuration) 
 }
 
 class _AppConfigHandle extends HandleBase<realm_app_config> {
-  _AppConfigHandle._(Pointer<realm_app_config> pointer) : super(pointer, 8);
+  _AppConfigHandle(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
 _AppConfigHandle _createAppConfig(AppConfiguration configuration, _HttpTransportHandle httpTransport) {
   return using((arena) {
     final appId = configuration.appId.toCharPtr(arena);
-    final handle = _AppConfigHandle._(realmLib.realm_app_config_new(appId, httpTransport.pointer));
+    final handle = _AppConfigHandle(realmLib.realm_app_config_new(appId, httpTransport.pointer));
 
     realmLib.realm_app_config_set_platform_version(handle.pointer, Platform.operatingSystemVersion.toCharPtr(arena));
 

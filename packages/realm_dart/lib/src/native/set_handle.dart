@@ -1,14 +1,26 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../realm_dart.dart'; // TODO: remove this import
+import 'error_handling.dart';
+import 'query_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'results_handle.dart';
+import 'rooted_handle.dart';
 
 class SetHandle extends RootedHandleBase<realm_set> {
-  SetHandle._(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
+  SetHandle(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 
   ResultsHandle get asResults {
     final ptr = invokeGetPointer(() => realmLib.realm_set_to_results(pointer));
-    return ResultsHandle._(ptr, _root);
+    return ResultsHandle(ptr, root);
   }
 
   ResultsHandle query(String query, List<Object?> args) {
@@ -18,7 +30,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
       for (var i = 0; i < length; ++i) {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
-      final queryHandle = QueryHandle._(
+      final queryHandle = QueryHandle(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_set(
               pointer,
@@ -27,7 +39,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
               argsPointer,
             ),
           ),
-          _root);
+          root);
       return queryHandle.findAll();
     });
   }
@@ -101,7 +113,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_set>>();
       invokeGetBool(() => realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr));
-      return resultPtr == nullptr ? null : SetHandle._(resultPtr.value, _root);
+      return resultPtr == nullptr ? null : SetHandle(resultPtr.value, root);
     });
   }
 
@@ -113,6 +125,6 @@ class SetHandle extends RootedHandleBase<realm_set> {
           nullptr,
           Pointer.fromFunction(collectionChangeCallback),
         ));
-    return RealmNotificationTokenHandle._(ptr, _root);
+    return RealmNotificationTokenHandle(ptr, root);
   }
 }

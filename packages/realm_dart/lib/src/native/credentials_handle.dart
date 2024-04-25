@@ -1,55 +1,64 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../credentials.dart'; // TODO: Remove this import
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_library.dart';
 
 class CredentialsHandle extends HandleBase<realm_app_credentials> {
-  CredentialsHandle._(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
+  CredentialsHandle(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 
   factory CredentialsHandle.anonymous(bool reuseCredentials) {
-    return CredentialsHandle._(realmLib.realm_app_credentials_new_anonymous(reuseCredentials));
+    return CredentialsHandle(realmLib.realm_app_credentials_new_anonymous(reuseCredentials));
   }
 
   factory CredentialsHandle.emailPassword(String email, String password) {
     return using((arena) {
       final emailPtr = email.toCharPtr(arena);
       final passwordPtr = password.toRealmString(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_email_password(emailPtr, passwordPtr.ref));
     });
   }
 
   factory CredentialsHandle.jwt(String token) {
     return using((arena) {
       final tokenPtr = token.toCharPtr(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_jwt(tokenPtr));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_jwt(tokenPtr));
     });
   }
 
   factory CredentialsHandle.apple(String idToken) {
     return using((arena) {
       final idTokenPtr = idToken.toCharPtr(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_apple(idTokenPtr));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_apple(idTokenPtr));
     });
   }
 
   factory CredentialsHandle.facebook(String accessToken) {
     return using((arena) {
       final accessTokenPtr = accessToken.toCharPtr(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_facebook(accessTokenPtr));
     });
   }
 
   factory CredentialsHandle.googleIdToken(String idToken) {
     return using((arena) {
       final idTokenPtr = idToken.toCharPtr(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_google_id_token(idTokenPtr));
     });
   }
 
   factory CredentialsHandle.googleAuthCode(String authCode) {
     return using((arena) {
       final authCodePtr = authCode.toCharPtr(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_google_auth_code(authCodePtr));
     });
   }
 
@@ -57,14 +66,14 @@ class CredentialsHandle extends HandleBase<realm_app_credentials> {
     return using((arena) {
       final payloadPtr = payload.toCharPtr(arena);
       final credentialsPtr = invokeGetPointer(() => realmLib.realm_app_credentials_new_function(payloadPtr));
-      return CredentialsHandle._(credentialsPtr);
+      return CredentialsHandle(credentialsPtr);
     });
   }
 
   factory CredentialsHandle.apiKey(String key) {
     return using((arena) {
       final keyPtr = key.toCharPtr(arena);
-      return CredentialsHandle._(realmLib.realm_app_credentials_new_api_key(keyPtr));
+      return CredentialsHandle(realmLib.realm_app_credentials_new_api_key(keyPtr));
     });
   }
 

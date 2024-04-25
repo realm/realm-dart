@@ -1,18 +1,33 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../configuration.dart'; // TODO: Remove this import
+import '../migration.dart'; // TODO: Remove this import
+import '../realm_class.dart'; // TODO: Remove this import
+import '../scheduler.dart'; // TODO: Remove this import
+import '../user.dart'; // TODO: Remove this import
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart';
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'schema_handle.dart'; // TODO: Remove this import
 
 class ConfigHandle extends HandleBase<realm_config> {
-  ConfigHandle._(Pointer<realm_config> pointer) : super(pointer, 512);
+  ConfigHandle(Pointer<realm_config> pointer) : super(pointer, 512);
 
-  factory ConfigHandle(Configuration config) {
+  factory ConfigHandle.from(Configuration config) {
     return using((Arena arena) {
       final configPtr = realmLib.realm_config_new();
-      final configHandle = ConfigHandle._(configPtr);
+      final configHandle = ConfigHandle(configPtr);
 
       if (config.schemaObjects.isNotEmpty) {
-        final schemaHandle = SchemaHandle(config.schemaObjects);
+        final schemaHandle = SchemaHandle.from(config.schemaObjects);
         realmLib.realm_config_set_schema(configHandle.pointer, schemaHandle.pointer);
       }
 
@@ -143,9 +158,9 @@ void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle
       return;
     }
 
-    final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(beforeHandle));
+    final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle.unowned(beforeHandle));
     final realmPtr = invokeGetPointer(() => realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle.pointer));
-    final afterRealm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmPtr));
+    final afterRealm = RealmInternal.getUnowned(syncConfig, RealmHandle.unowned(realmPtr));
 
     try {
       return await afterResetCallback(beforeRealm, afterRealm);
@@ -169,8 +184,8 @@ bool _shouldCompactCallback(Pointer<Void> userdata, int totalSize, int usedSize)
 }
 
 bool _migrationCallback(Pointer<Void> userdata, Pointer<shared_realm> oldRealmHandle, Pointer<shared_realm> newRealmHandle, Pointer<realm_schema> schema) {
-  final oldHandle = RealmHandle._unowned(oldRealmHandle);
-  final newHandle = RealmHandle._unowned(newRealmHandle);
+  final oldHandle = RealmHandle.unowned(oldRealmHandle);
+  final newHandle = RealmHandle.unowned(newRealmHandle);
   try {
     final LocalConfiguration config = userdata.toObject();
 
@@ -211,7 +226,7 @@ void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmPtr, P
     final syncConfig = userdata as FlexibleSyncConfiguration;
     var beforeResetCallback = syncConfig.clientResetHandler.onBeforeReset!;
 
-    final realm = RealmInternal.getUnowned(syncConfig, RealmHandle._unowned(realmPtr));
+    final realm = RealmInternal.getUnowned(syncConfig, RealmHandle.unowned(realmPtr));
     try {
       await beforeResetCallback(realm);
     } finally {
@@ -221,7 +236,7 @@ void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmPtr, P
 }
 
 bool _initialDataCallback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr) {
-  final realmHandle = RealmHandle._unowned(realmPtr);
+  final realmHandle = RealmHandle.unowned(realmPtr);
   try {
     final LocalConfiguration config = userdata.toObject();
     final realm = RealmInternal.getUnowned(config, realmHandle);

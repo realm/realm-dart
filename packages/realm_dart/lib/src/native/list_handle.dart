@@ -1,16 +1,29 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../realm_dart.dart';
+import 'error_handling.dart';
+import 'object_handle.dart';
+import 'query_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'results_handle.dart';
+import 'rooted_handle.dart';
 
 class ListHandle extends CollectionHandleBase<realm_list> {
-  ListHandle._(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
+  ListHandle(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);
 
   bool get isValid => realmLib.realm_list_is_valid(pointer);
 
   ResultsHandle asResults() {
     final ptr = invokeGetPointer(() => realmLib.realm_list_to_results(pointer));
-    return ResultsHandle._(ptr, _root);
+    return ResultsHandle(ptr, root);
   }
 
   int get size {
@@ -69,7 +82,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_list>>();
       invokeGetBool(() => realmLib.realm_list_resolve_in(pointer, frozenRealm.pointer, resultPtr));
-      return resultPtr == nullptr ? null : ListHandle._(resultPtr.value, _root);
+      return resultPtr == nullptr ? null : ListHandle(resultPtr.value, root);
     });
   }
 
@@ -89,12 +102,12 @@ class ListHandle extends CollectionHandleBase<realm_list> {
 
   ObjectHandle setEmbeddedAt(int index) {
     final ptr = invokeGetPointer(() => realmLib.realm_list_set_embedded(pointer, index));
-    return ObjectHandle._(ptr, _root);
+    return ObjectHandle(ptr, root);
   }
 
   ObjectHandle insertEmbeddedAt(int index) {
     final ptr = invokeGetPointer(() => realmLib.realm_list_insert_embedded(pointer, index));
-    return ObjectHandle._(ptr, _root);
+    return ObjectHandle(ptr, root);
   }
 
   ResultsHandle query(String query, List<Object?> args) {
@@ -104,7 +117,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
       for (var i = 0; i < length; ++i) {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
-      final queryHandle = QueryHandle._(
+      final queryHandle = QueryHandle(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_list(
               pointer,
@@ -113,7 +126,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
               argsPointer,
             ),
           ),
-          _root);
+          root);
       return queryHandle.findAll();
     });
   }
@@ -126,6 +139,6 @@ class ListHandle extends CollectionHandleBase<realm_list> {
           nullptr,
           Pointer.fromFunction(collectionChangeCallback),
         ));
-    return RealmNotificationTokenHandle._(ptr, _root);
+    return RealmNotificationTokenHandle(ptr, root);
   }
 }

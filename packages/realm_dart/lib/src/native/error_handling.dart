@@ -1,7 +1,14 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../realm_object.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart';
+import 'realm_library.dart';
 
 void invokeGetBool(bool Function() callback, [String? errorMessage]) {
   bool success = callback();
@@ -52,7 +59,7 @@ Never throwLastError([String? errorMessage]) {
   });
 }
 
-extension on realm_error {
+extension RealmErrorEx on realm_error {
   LastError toDart() {
     final message = this.message.cast<Utf8>().toRealmDartString();
     return LastError(error, message, user_code_error.toUserCodeError());

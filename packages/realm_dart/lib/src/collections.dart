@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:ffi';
+import 'native/collection_changes_handle.dart';
 import 'native/realm_core.dart';
 
 /// Contains index information about objects that moved within the same collection.

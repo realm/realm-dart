@@ -1,21 +1,42 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:async';
+import 'dart:ffi';
+
+import 'package:cancellation_token/cancellation_token.dart';
+import 'package:ffi/ffi.dart';
+
+import '../logging.dart';
+import '../realm_class.dart';
+import 'config_handle.dart';
+import 'convert.dart';
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'object_handle.dart';
+import 'query_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart';
+import 'realm_library.dart';
+import 'results_handle.dart';
+import 'rooted_handle.dart';
+import 'schema_handle.dart';
+import 'session_handle.dart';
+import 'subscription_set_handle.dart';
 
 class RealmHandle extends HandleBase<shared_realm> {
   int _counter = 0;
 
   final Map<int, WeakReference<RootedHandleBase>> _children = {};
 
-  RealmHandle._(Pointer<shared_realm> pointer) : super(pointer, 24);
+  RealmHandle(Pointer<shared_realm> pointer) : super(pointer, 24);
 
-  RealmHandle._unowned(super.pointer) : super.unowned();
+  RealmHandle.unowned(super.pointer) : super.unowned();
 
   factory RealmHandle.open(Configuration config) {
-    final configHandle = ConfigHandle(config);
+    final configHandle = ConfigHandle.from(config);
     final realmPtr = invokeGetPointer(() => realmLib.realm_open(configHandle.pointer), 'Error opening realm at path ${config.path}');
-    return RealmHandle._(realmPtr);
+    return RealmHandle(realmPtr);
   }
 
   int addChild(RootedHandleBase child) {
@@ -46,13 +67,13 @@ class RealmHandle extends HandleBase<shared_realm> {
     return using((Arena arena) {
       final realmValue = toRealmValue(primaryKey, arena);
       final realmPtr = invokeGetPointer(() => realmLib.realm_object_create_with_primary_key(pointer, classKey, realmValue.ref));
-      return ObjectHandle._(realmPtr, this);
+      return ObjectHandle(realmPtr, this);
     });
   }
 
   ObjectHandle create(int classKey) {
     final realmPtr = invokeGetPointer(() => realmLib.realm_object_create(pointer, classKey));
-    return ObjectHandle._(realmPtr, this);
+    return ObjectHandle(realmPtr, this);
   }
 
   ObjectHandle getOrCreateWithPrimaryKey(int classKey, Object? primaryKey) {
@@ -65,7 +86,7 @@ class RealmHandle extends HandleBase<shared_realm> {
             realmValue.ref,
             didCreate,
           ));
-      return ObjectHandle._(realmPtr, this);
+      return ObjectHandle(realmPtr, this);
     });
   }
 
@@ -78,7 +99,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void writeCopy(Configuration config) {
-    final configHandle = ConfigHandle(config);
+    final configHandle = ConfigHandle.from(config);
     invokeGetBool(() => realmLib.realm_convert_with_config(pointer, configHandle.pointer, false));
   }
 
@@ -89,7 +110,7 @@ class RealmHandle extends HandleBase<shared_realm> {
       for (var i = 0; i < length; ++i) {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
-      final queryHandle = QueryHandle._(
+      final queryHandle = QueryHandle(
           invokeGetPointer(
             () => realmLib.realm_query_parse(
               pointer,
@@ -104,10 +125,10 @@ class RealmHandle extends HandleBase<shared_realm> {
     });
   }
 
-  RealmHandle freeze() => RealmHandle._(invokeGetPointer(() => realmLib.realm_freeze(pointer)));
+  RealmHandle freeze() => RealmHandle(invokeGetPointer(() => realmLib.realm_freeze(pointer)));
 
   SessionHandle getSession() {
-    return SessionHandle._(invokeGetPointer(() => realmLib.realm_sync_session_get(pointer)), this);
+    return SessionHandle(invokeGetPointer(() => realmLib.realm_sync_session_get(pointer)), this);
   }
 
   bool get isFrozen {
@@ -115,7 +136,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   SubscriptionSetHandle get subscriptions {
-    return SubscriptionSetHandle._(invokeGetPointer(() => realmLib.realm_sync_get_active_subscription_set(pointer)), this);
+    return SubscriptionSetHandle(invokeGetPointer(() => realmLib.realm_sync_get_active_subscription_set(pointer)), this);
   }
 
   void disableAutoRefreshForTesting() {
@@ -249,7 +270,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ResultsHandle findAll(int classKey) {
     final ptr = invokeGetPointer(() => realmLib.realm_object_find_all(pointer, classKey));
-    return ResultsHandle._(ptr, this);
+    return ResultsHandle(ptr, this);
   }
 
   ObjectHandle? find(int classKey, Object? primaryKey) {
@@ -259,14 +280,14 @@ class RealmHandle extends HandleBase<shared_realm> {
       if (ptr == nullptr) {
         return null;
       }
-      return ObjectHandle._(ptr, this);
+      return ObjectHandle(ptr, this);
     });
   }
 
   ObjectHandle? findExisting(int classKey, ObjectHandle other) {
     final key = realmLib.realm_object_get_key(other.pointer);
     final ptr = invokeGetPointer(() => realmLib.realm_get_object(pointer, classKey, key));
-    return ptr.convert((p) => ObjectHandle._(p, this));
+    return ptr.convert((p) => ObjectHandle(p, this));
   }
 
   void renameProperty(String objectType, String oldName, String newName, SchemaHandle schema) {
@@ -284,12 +305,12 @@ class RealmHandle extends HandleBase<shared_realm> {
     });
   }
 
-  ObjectHandle _getObject(int classKey, int objectKey) {
+  ObjectHandle getObject(int classKey, int objectKey) {
     final ptr = invokeGetPointer(() => realmLib.realm_get_object(pointer, classKey, objectKey));
-    return ObjectHandle._(ptr, this);
+    return ObjectHandle(ptr, this);
   }
 
-  RealmCallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
+  CallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
     final ptr = invokeGetPointer(
       () => realmLib.realm_add_schema_changed_callback(
         pointer,
@@ -298,7 +319,7 @@ class RealmHandle extends HandleBase<shared_realm> {
         realmLib.addresses.realm_dart_delete_persistent_handle,
       ),
     );
-    return RealmCallbackTokenHandle._(ptr, this);
+    return CallbackTokenHandle(ptr, this);
   }
 }
 

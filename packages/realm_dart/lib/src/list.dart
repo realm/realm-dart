@@ -9,7 +9,10 @@ import 'dart:ffi';
 import 'package:collection/collection.dart' as collection;
 
 import 'collections.dart';
+import 'native/collection_changes_handle.dart';
 import 'native/handle_base.dart';
+import 'native/list_handle.dart';
+import 'native/object_handle.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';

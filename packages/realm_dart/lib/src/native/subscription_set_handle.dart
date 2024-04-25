@@ -1,13 +1,30 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:cancellation_token/cancellation_token.dart';
+import 'package:ffi/ffi.dart';
+import 'package:realm_dart/src/native/convert.dart';
+
+import '../realm_dart.dart';
+import '../scheduler.dart';
+import '../subscription.dart';
+import 'error_handling.dart';
+import 'mutable_subscription_set_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'results_handle.dart';
+import 'rooted_handle.dart';
+import 'subscription_handle.dart';
 
 class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> {
   @override
   bool get shouldRoot => true;
 
-  SubscriptionSetHandle._(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
+  SubscriptionSetHandle(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
 
   void refresh() => invokeGetBool(() => realmLib.realm_sync_subscription_set_refresh(pointer));
 
@@ -19,7 +36,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
     return message.convert(RealmException.new);
   }
 
-  SubscriptionHandle operator [](int index) => SubscriptionHandle._(invokeGetPointer(() => realmLib.realm_sync_subscription_at(pointer, index)));
+  SubscriptionHandle operator [](int index) => SubscriptionHandle(invokeGetPointer(() => realmLib.realm_sync_subscription_at(pointer, index)));
 
   SubscriptionHandle? findByName(String name) {
     return using((arena) {
@@ -27,7 +44,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
         pointer,
         name.toCharPtr(arena),
       );
-      return result.convert(SubscriptionHandle._);
+      return result.convert(SubscriptionHandle.new);
     });
   }
 
@@ -36,7 +53,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
       pointer,
       results.pointer,
     );
-    return result.convert(SubscriptionHandle._);
+    return result.convert(SubscriptionHandle.new);
   }
 
   int get version => realmLib.realm_sync_subscription_set_version(pointer);
@@ -44,7 +61,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
   SubscriptionSetState get state => SubscriptionSetState.values[realmLib.realm_sync_subscription_set_state(pointer)];
 
   MutableSubscriptionSetHandle toMutable() =>
-      MutableSubscriptionSetHandle._(invokeGetPointer(() => realmLib.realm_sync_make_subscription_set_mutable(pointer)), _root);
+      MutableSubscriptionSetHandle(invokeGetPointer(() => realmLib.realm_sync_make_subscription_set_mutable(pointer)), root);
 
   static void _stateChangeCallback(Object userdata, int state) {
     final completer = userdata as CancellableCompleter<SubscriptionSetState>;

@@ -1,19 +1,31 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../realm_dart.dart';
+import 'error_handling.dart';
+import 'object_handle.dart';
+import 'query_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart';
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'rooted_handle.dart';
 
 class ResultsHandle extends RootedHandleBase<realm_results> {
-  ResultsHandle._(Pointer<realm_results> pointer, RealmHandle root) : super(root, pointer, 872);
+  ResultsHandle(Pointer<realm_results> pointer, RealmHandle root) : super(root, pointer, 872);
 
   ResultsHandle queryResults(String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
       final argsPointer = arena<realm_query_arg_t>(length);
       for (var i = 0; i < length; ++i) {
-        intoRealmQueryArg(args[i], argsPointer.elementAt(i), arena);
+        intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
-      final queryHandle = QueryHandle._(
+      final queryHandle = QueryHandle(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_results(
               pointer,
@@ -22,7 +34,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
               argsPointer,
             ),
           ),
-          _root);
+          root);
       return queryHandle.findAll();
     });
   }
@@ -48,7 +60,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
 
   ObjectHandle getObjectAt(int index) {
     final objectPointer = invokeGetPointer(() => realmLib.realm_results_get_object(pointer, index));
-    return ObjectHandle._(objectPointer, _root);
+    return ObjectHandle(objectPointer, root);
   }
 
   int get count {
@@ -73,12 +85,12 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
 
   ResultsHandle snapshot() {
     final resultsPointer = invokeGetPointer(() => realmLib.realm_results_snapshot(pointer));
-    return ResultsHandle._(resultsPointer, _root);
+    return ResultsHandle(resultsPointer, root);
   }
 
   ResultsHandle resolveIn(RealmHandle realmHandle) {
     final ptr = invokeGetPointer(() => realmLib.realm_results_resolve_in(pointer, realmHandle.pointer));
-    return ResultsHandle._(ptr, realmHandle);
+    return ResultsHandle(ptr, realmHandle);
   }
 
   Object? elementAt(Realm realm, int index) {
@@ -103,6 +115,6 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
         Pointer.fromFunction(collectionChangeCallback),
       ),
     );
-    return RealmNotificationTokenHandle._(ptr, _root);
+    return RealmNotificationTokenHandle(ptr, root);
   }
 }

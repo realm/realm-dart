@@ -1,10 +1,24 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../realm_dart.dart'; // TODO: remove this import
+import 'error_handling.dart';
+import 'map_changes_handle.dart';
+import 'object_handle.dart';
+import 'query_handle.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: remove this import
+import 'realm_handle.dart';
+import 'realm_library.dart';
+import 'results_handle.dart';
+import 'rooted_handle.dart';
 
 class MapHandle extends CollectionHandleBase<realm_dictionary> {
-  MapHandle._(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
+  MapHandle(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
 
   int get size {
     return using((Arena arena) {
@@ -54,13 +68,13 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
       final outSize = arena<Size>();
       final outKeys = arena<Pointer<realm_results>>();
       invokeGetBool(() => realmLib.realm_dictionary_get_keys(pointer, outSize, outKeys));
-      return ResultsHandle._(outKeys.value, _root);
+      return ResultsHandle(outKeys.value, root);
     });
   }
 
   ResultsHandle get values {
     final ptr = invokeGetPointer(() => realmLib.realm_dictionary_to_results(pointer));
-    return ResultsHandle._(ptr, _root);
+    return ResultsHandle(ptr, root);
   }
 
   bool containsKey(String key) {
@@ -88,7 +102,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     return using((Arena arena) {
       final keyNative = toRealmValue(key, arena);
       final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(pointer, keyNative.ref));
-      return ObjectHandle._(ptr, _root);
+      return ObjectHandle(ptr, root);
     });
   }
 
@@ -128,7 +142,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
 
-      final queryHandle = QueryHandle._(
+      final queryHandle = QueryHandle(
           invokeGetPointer(
             () => realmLib.realm_query_parse_for_results(
               values.pointer,
@@ -137,7 +151,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
               argsPointer,
             ),
           ),
-          _root);
+          root);
       return queryHandle.findAll();
     });
   }
@@ -146,7 +160,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_dictionary>>();
       invokeGetBool(() => realmLib.realm_dictionary_resolve_in(pointer, frozenRealm.pointer, resultPtr));
-      return resultPtr == nullptr ? null : MapHandle._(resultPtr.value, _root);
+      return resultPtr == nullptr ? null : MapHandle(resultPtr.value, root);
     });
   }
 
@@ -158,7 +172,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
           nullptr,
           Pointer.fromFunction(_mapChangeCallback),
         ));
-    return RealmNotificationTokenHandle._(ptr, _root);
+    return RealmNotificationTokenHandle(ptr, root);
   }
 }
 
@@ -177,7 +191,7 @@ void _mapChangeCallback(Pointer<Void> userdata, Pointer<realm_dictionary_changes
       return;
     }
 
-    final changesHandle = MapChangesHandle._(clonedData.cast());
+    final changesHandle = MapChangesHandle(clonedData.cast());
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));

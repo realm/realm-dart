@@ -1,14 +1,24 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+import 'package:realm_common/realm_common.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+
+import '../configuration.dart';
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_library.dart';
 
 class SchemaHandle extends HandleBase<realm_schema> {
-  SchemaHandle._(Pointer<realm_schema> pointer) : super(pointer, 24);
+  SchemaHandle(Pointer<realm_schema> pointer) : super(pointer, 24);
 
   SchemaHandle.unowned(super.pointer) : super.unowned();
 
-  factory SchemaHandle(Iterable<SchemaObject> schema) {
+  factory SchemaHandle.from(Iterable<SchemaObject> schema) {
     return using((Arena arena) {
       final classCount = schema.length;
 
@@ -17,7 +27,7 @@ class SchemaHandle extends HandleBase<realm_schema> {
 
       for (var i = 0; i < classCount; i++) {
         final schemaObject = schema.elementAt(i);
-        final classInfo = schemaClasses.elementAt(i).ref;
+        final classInfo = (schemaClasses + i).ref;
         final propertiesCount = schemaObject.length;
         final computedCount = schemaObject.where((p) => p.isComputed).length;
         final persistedCount = propertiesCount - computedCount;
@@ -26,14 +36,14 @@ class SchemaHandle extends HandleBase<realm_schema> {
         classInfo.primary_key = "".toCharPtr(arena);
         classInfo.num_properties = persistedCount;
         classInfo.num_computed_properties = computedCount;
-        classInfo.key = _RealmCore.RLM_INVALID_CLASS_KEY;
+        classInfo.key = RLM_INVALID_CLASS_KEY;
         classInfo.flags = schemaObject.baseType.flags;
 
         final properties = arena<realm_property_info_t>(propertiesCount);
 
         for (var j = 0; j < propertiesCount; j++) {
           final schemaProperty = schemaObject[j];
-          final propInfo = properties.elementAt(j).ref;
+          final propInfo = (properties + j).ref;
           propInfo.name = schemaProperty.mapTo.toCharPtr(arena);
           propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
@@ -64,11 +74,19 @@ class SchemaHandle extends HandleBase<realm_schema> {
         }
 
         schemaProperties[i] = properties;
-        schemaProperties.elementAt(i).value = properties;
+        (schemaProperties + i).value = properties;
       }
 
       final schemaPtr = invokeGetPointer(() => realmLib.realm_schema_new(schemaClasses, classCount, schemaProperties));
-      return SchemaHandle._(schemaPtr);
+      return SchemaHandle(schemaPtr);
     });
   }
 }
+
+// From realm.h. Currently not exported from the shared library
+// ignore: unused_field, constant_identifier_names
+const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
+// ignore: unused_field, constant_identifier_names
+const int RLM_INVALID_PROPERTY_KEY = -1;
+// ignore: unused_field, constant_identifier_names
+const int RLM_INVALID_OBJECT_KEY = -1;

@@ -1,10 +1,18 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../collections.dart'; // TODO: Remove this import
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_library.dart';
 
 class CollectionChangesHandle extends HandleBase<realm_collection_changes> {
-  CollectionChangesHandle._(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
+  CollectionChangesHandle(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 
   CollectionChanges get changes {
     return using((arena) {

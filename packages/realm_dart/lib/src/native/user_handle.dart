@@ -1,13 +1,30 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-part of 'realm_core.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:ffi';
+
+import 'package:ffi/ffi.dart';
+
+import '../credentials.dart'; // TODO: Remove this import
+import '../realm_dart.dart'; // TODO: Remove this import
+import '../scheduler.dart';
+import '../user.dart'; // TODO: Remove this import
+import 'app_handle.dart';
+import 'convert.dart';
+import 'credentials_handle.dart';
+import 'error_handling.dart';
+import 'handle_base.dart';
+import 'realm_bindings.dart';
+import 'realm_core.dart';
+import 'realm_library.dart'; // TODO: Remove this import
 
 class UserHandle extends HandleBase<realm_user> {
-  UserHandle._(Pointer<realm_user> pointer) : super(pointer, 24);
+  UserHandle(Pointer<realm_user> pointer) : super(pointer, 24);
 
   AppHandle get app {
-    return realmLib.realm_user_get_app(pointer).convert(AppHandle._) ??
+    return realmLib.realm_user_get_app(pointer).convert(AppHandle.new) ??
         (throw RealmException('User does not have an associated app. This is likely due to the user being logged out.'));
   }
 
@@ -198,7 +215,7 @@ class UserHandle extends HandleBase<realm_user> {
     return using((Arena arena) {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
-      
+
       invokeGetBool(
         () => realmLib.realm_app_user_apikey_provider_client_enable_apikey(
           app.pointer,
@@ -209,7 +226,7 @@ class UserHandle extends HandleBase<realm_user> {
           realmLib.addresses.realm_dart_userdata_async_free,
         ),
       );
-      
+
       return completer.future;
     });
   }
@@ -223,12 +240,12 @@ class UserHandle extends HandleBase<realm_user> {
       userdata.cast(),
       realmLib.addresses.realm_dart_userdata_async_free,
     );
-    return UserNotificationTokenHandle._(notificationToken);
+    return UserNotificationTokenHandle(notificationToken);
   }
 }
 
-class UserNotificationTokenHandle extends HandleBase<realm_sync_user_subscription_token> {
-  UserNotificationTokenHandle._(Pointer<realm_sync_user_subscription_token> pointer) : super(pointer, 32);
+class UserNotificationTokenHandle extends HandleBase<realm_app_user_subscription_token> {
+  UserNotificationTokenHandle(Pointer<realm_app_user_subscription_token> pointer) : super(pointer, 32);
 }
 
 void _userChangeCallback(Object userdata, int data) {

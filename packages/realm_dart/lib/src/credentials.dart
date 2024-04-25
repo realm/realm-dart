@@ -4,8 +4,9 @@
 import 'dart:convert';
 import 'dart:ffi';
 
-import 'native/realm_core.dart';
 import 'app.dart';
+import 'native/convert.dart';
+import 'native/credentials_handle.dart';
 import 'user.dart';
 
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.

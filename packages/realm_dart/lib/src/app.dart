@@ -12,6 +12,7 @@ import 'package:path/path.dart' as path;
 import '../realm.dart';
 import 'credentials.dart';
 import 'logging.dart';
+import 'native/app_handle.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
 
@@ -171,7 +172,7 @@ class App implements Finalizable {
 
   static AppHandle _createApp(AppConfiguration configuration) {
     configuration.baseFilePath.createSync(recursive: true);
-    return AppHandle(configuration);
+    return AppHandle.from(configuration);
   }
 
   /// Logs in a user with the given credentials.

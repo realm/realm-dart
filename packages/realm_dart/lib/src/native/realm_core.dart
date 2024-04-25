@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -14,48 +13,29 @@ import 'package:crypto/crypto.dart';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
-import 'package:realm_common/realm_common.dart' as common show Decimal128;
 import 'package:realm_common/realm_common.dart' hide Decimal128;
 
 import '../app.dart';
-import '../collections.dart';
 import '../configuration.dart';
-import '../credentials.dart';
 import '../init.dart';
-import '../logging.dart';
-import '../migration.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import '../scheduler.dart';
-import '../session.dart';
 import '../user.dart';
+import 'app_handle.dart';
+import 'collection_changes_handle.dart';
+import 'config_handle.dart';
+import 'decimal128.dart';
+import 'error_handling.dart';
 import 'handle_base.dart';
+import 'list_handle.dart';
+import 'map_handle.dart';
 import 'realm_bindings.dart';
+import 'realm_handle.dart';
 import 'realm_library.dart';
-
-// TODO: Use regular imports
-part 'app_handle.dart';
-part 'collection_changes_handle.dart';
-part 'config_handle.dart';
-part 'convert.dart';
-part 'credentials_handle.dart';
-part 'decimal128.dart';
-part 'error_handling.dart';
-part 'list_handle.dart';
-part 'map_changes_handle.dart';
-part 'map_handle.dart';
-part 'mutable_subscription_set_handle.dart';
-part 'object_handle.dart';
-part 'query_handle.dart';
-part 'realm_handle.dart';
-part 'results_handle.dart';
-part 'rooted_handle.dart';
-part 'schema_handle.dart';
-part 'session_handle.dart';
-part 'set_handle.dart';
-part 'subscription_handle.dart';
-part 'subscription_set_handle.dart';
-part 'user_handle.dart';
+import 'rooted_handle.dart';
+import 'session_handle.dart';
+import 'user_handle.dart';
 
 final _pluginLib = () {
   if (!isFlutterPlatform) {
@@ -205,7 +185,7 @@ void appUserCompletionCallback(Pointer<Void> userdata, Pointer<realm_user> user,
     return;
   }
 
-  completer.complete(UserHandle._(user.cast()));
+  completer.complete(UserHandle(user.cast()));
 }
 
 void voidCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
@@ -276,7 +256,7 @@ void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functio
     switch (value.collectionType) {
       case RealmCollectionType.list:
         final listPointer = invokeGetPointer(createList);
-        final listHandle = ListHandle._(listPointer, realm.handle);
+        final listHandle = ListHandle(listPointer, realm.handle);
         collectionHandle = listHandle;
 
         final list = realm.createList<RealmValue>(listHandle, null);
@@ -289,7 +269,7 @@ void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functio
         }
       case RealmCollectionType.map:
         final mapPointer = invokeGetPointer(createMap);
-        final mapHandle = MapHandle._(mapPointer, realm.handle);
+        final mapHandle = MapHandle(mapPointer, realm.handle);
         collectionHandle = mapHandle;
 
         final map = realm.createMap<RealmValue>(mapHandle, null);
@@ -323,7 +303,7 @@ void collectionChangeCallback(Pointer<Void> userdata, Pointer<realm_collection_c
       return;
     }
 
-    final changesHandle = CollectionChangesHandle._(clonedData.cast());
+    final changesHandle = CollectionChangesHandle(clonedData.cast());
     controller.onChanges(changesHandle);
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));
@@ -344,14 +324,6 @@ void callAppFunctionCallback(Pointer<Void> userdata, Pointer<Char> response, Poi
 
 // All access to Realm Core functionality goes through this class
 class _RealmCore {
-  // From realm.h. Currently not exported from the shared library
-  // ignore: unused_field, constant_identifier_names
-  static const int RLM_INVALID_CLASS_KEY = 0x7FFFFFFF;
-  // ignore: unused_field, constant_identifier_names
-  static const int RLM_INVALID_PROPERTY_KEY = -1;
-  // ignore: unused_field, constant_identifier_names
-  static const int RLM_INVALID_OBJECT_KEY = -1;
-
   // ignore: unused_field
   static late final _RealmCore _instance;
 
@@ -384,9 +356,9 @@ class _RealmCore {
   }
 
   RealmAsyncOpenTaskHandle createRealmAsyncOpenTask(FlexibleSyncConfiguration config) {
-    final configHandle = ConfigHandle(config);
+    final configHandle = ConfigHandle.from(config);
     final asyncOpenTaskPtr = invokeGetPointer(() => realmLib.realm_open_synchronized(configHandle.pointer), "Error opening realm at path ${config.path}");
-    return RealmAsyncOpenTaskHandle._(asyncOpenTaskPtr);
+    return RealmAsyncOpenTaskHandle(asyncOpenTaskPtr);
   }
 
   Future<RealmHandle> openRealmAsync(RealmAsyncOpenTaskHandle handle, CancellationToken? cancellationToken) {
@@ -419,7 +391,7 @@ class _RealmCore {
       }
 
       final realmPtr = invokeGetPointer(() => realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle.pointer));
-      completer.complete(RealmHandle._(realmPtr));
+      completer.complete(RealmHandle(realmPtr));
     });
   }
 
@@ -429,7 +401,7 @@ class _RealmCore {
 
   RealmAsyncOpenTaskProgressNotificationTokenHandle realmAsyncOpenRegisterAsyncOpenProgressNotifier(
       RealmAsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
-    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(_syncProgressCallback);
+    final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
     final tokenPtr = invokeGetPointer(() => realmLib.realm_async_open_task_register_download_progress_notifier(
           handle.pointer,
@@ -437,7 +409,7 @@ class _RealmCore {
           userdata.cast(),
           realmLib.addresses.realm_dart_userdata_async_free,
         ));
-    return RealmAsyncOpenTaskProgressNotificationTokenHandle._(tokenPtr);
+    return RealmAsyncOpenTaskProgressNotificationTokenHandle(tokenPtr);
   }
 
   RealmSchema readSchema(Realm realm) {
@@ -567,7 +539,7 @@ class _RealmCore {
 
   _RealmLinkHandle _getObjectAsLink(RealmObjectBase object) {
     final realmLink = realmLib.realm_object_as_link(object.handle.pointer);
-    return _RealmLinkHandle._(realmLink);
+    return _RealmLinkHandle(realmLink);
   }
 
   bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
@@ -616,7 +588,7 @@ class _RealmCore {
     return using((arena) {
       final outApp = arena<Pointer<realm_app>>();
       invokeGetBool(() => realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), outApp));
-      return outApp.value == nullptr ? null : AppHandle._(outApp.value);
+      return outApp.value == nullptr ? null : AppHandle(outApp.value);
     });
   }
 
@@ -718,32 +690,32 @@ class _RealmCore {
 class _RealmLinkHandle {
   final int targetKey;
   final int classKey;
-  _RealmLinkHandle._(realm_link_t link)
+  _RealmLinkHandle(realm_link_t link)
       : targetKey = link.target,
         classKey = link.target_table;
 }
 
-class RealmCallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
-  RealmCallbackTokenHandle._(Pointer<realm_callback_token> pointer, RealmHandle root) : super(root, pointer, 32);
+class CallbackTokenHandle extends RootedHandleBase<realm_callback_token> {
+  CallbackTokenHandle(Pointer<realm_callback_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
 class RealmNotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
-  RealmNotificationTokenHandle._(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
+  RealmNotificationTokenHandle(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 
 class RealmObjectChangesHandle extends HandleBase<realm_object_changes> {
-  RealmObjectChangesHandle._(Pointer<realm_object_changes> pointer) : super(pointer, 256);
+  RealmObjectChangesHandle(Pointer<realm_object_changes> pointer) : super(pointer, 256);
 }
 
 class RealmAsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
-  RealmAsyncOpenTaskHandle._(Pointer<realm_async_open_task_t> pointer) : super(pointer, 32);
+  RealmAsyncOpenTaskHandle(Pointer<realm_async_open_task_t> pointer) : super(pointer, 32);
 }
 
 class RealmAsyncOpenTaskProgressNotificationTokenHandle extends HandleBase<realm_async_open_task_progress_notification_token_t> {
-  RealmAsyncOpenTaskProgressNotificationTokenHandle._(Pointer<realm_async_open_task_progress_notification_token_t> pointer) : super(pointer, 40);
+  RealmAsyncOpenTaskProgressNotificationTokenHandle(Pointer<realm_async_open_task_progress_notification_token_t> pointer) : super(pointer, 40);
 }
 
-extension on List<int> {
+extension ListEx on List<int> {
   Pointer<Char> toCharPtr(Allocator allocator) {
     return toUint8Ptr(allocator).cast();
   }
@@ -758,7 +730,7 @@ extension on List<int> {
   }
 }
 
-extension _StringEx on String {
+extension StringEx on String {
   Pointer<Char> toCharPtr(Allocator allocator) {
     final units = utf8.encode(this);
     return units.toCharPtr(allocator).cast();
@@ -884,16 +856,26 @@ void intoRealmValue(Object? value, realm_value realmValue, Allocator allocator) 
   }
 }
 
-extension on Pointer<realm_value_t> {
+extension PointerRealmValueEx on Pointer<realm_value_t> {
   Object? toDartValue(Realm realm, Pointer<realm_list_t> Function()? getList, Pointer<realm_dictionary_t> Function()? getMap) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
     return ref.toDartValue(realm: realm, getList: getList, getMap: getMap);
   }
+
+  List<String> toStringList(int count) {
+    final result = List.filled(count, '');
+    for (var i = 0; i < count; i++) {
+      final strValue = elementAt(i).ref.values.string;
+      result[i] = strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
+    }
+
+    return result;
+  }
 }
 
-extension on realm_value_t {
+extension RealmValueEx on realm_value_t {
   Object? toPrimitiveValue() => toDartValue(realm: null, getList: null, getMap: null);
 
   Object? toDartValue({required Realm? realm, required Pointer<realm_list_t> Function()? getList, required Pointer<realm_dictionary_t> Function()? getMap}) {
@@ -917,7 +899,7 @@ extension on realm_value_t {
         final objectKey = values.link.target;
         final classKey = values.link.target_table;
         if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temprorary workaround to avoid crash on assertion
-        return realm.handle._getObject(classKey, objectKey);
+        return realm.handle.getObject(classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
         return Uint8List.fromList(values.binary.data.asTypedList(values.binary.size));
       case realm_value_type.RLM_TYPE_TIMESTAMP:
@@ -939,7 +921,7 @@ extension on realm_value_t {
         }
 
         final listPointer = invokeGetPointer(() => getList());
-        final listHandle = ListHandle._(listPointer, realm.handle);
+        final listHandle = ListHandle(listPointer, realm.handle);
         return realm.createList<RealmValue>(listHandle, null);
       case realm_value_type.RLM_TYPE_DICTIONARY:
         if (getMap == null || realm == null) {
@@ -947,7 +929,7 @@ extension on realm_value_t {
         }
 
         final mapPointer = invokeGetPointer(() => getMap());
-        final mapHandle = MapHandle._(mapPointer, realm.handle);
+        final mapHandle = MapHandle(mapPointer, realm.handle);
         return realm.createMap<RealmValue>(mapHandle, null);
       default:
         throw RealmException("realm_value_type $type not supported");
@@ -955,7 +937,7 @@ extension on realm_value_t {
   }
 }
 
-extension on Array<Uint8> {
+extension ArrayUint8Ex on Array<Uint8> {
   List<int> toList(int count) {
     final result = <int>[];
     for (var i = 0; i < count; i++) {
@@ -965,7 +947,7 @@ extension on Array<Uint8> {
   }
 }
 
-extension on Pointer<Size> {
+extension PointerSizeEx on Pointer<Size> {
   List<int> toIntList(int count) {
     List<int> result = List.filled(count, elementAt(0).value);
     for (var i = 1; i < count; i++) {
@@ -975,19 +957,7 @@ extension on Pointer<Size> {
   }
 }
 
-extension on Pointer<realm_value> {
-  List<String> toStringList(int count) {
-    final result = List.filled(count, '');
-    for (var i = 0; i < count; i++) {
-      final strValue = elementAt(i).ref.values.string;
-      result[i] = strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
-    }
-
-    return result;
-  }
-}
-
-extension on Pointer<Void> {
+extension PointerVoidEx on Pointer<Void> {
   T toObject<T extends Object>() {
     assert(this != nullptr, "Pointer<Void> is null");
 
@@ -1008,7 +978,7 @@ extension on Pointer<Void> {
   }
 }
 
-extension on Pointer<Utf8> {
+extension PointerUtf8Ex on Pointer<Utf8> {
   String? toRealmDartString({bool treatEmptyAsNull = false, int? length, bool freeRealmMemory = false}) {
     if (this == nullptr) {
       return null;
@@ -1029,7 +999,7 @@ extension on Pointer<Utf8> {
   }
 }
 
-extension on realm_sync_error {
+extension RealmSyncErrorEx on realm_sync_error {
   SyncErrorDetails toDart() {
     final message = status.message.cast<Utf8>().toRealmDartString()!;
     final userInfoMap = user_info_map.toDart(user_info_length);
@@ -1049,7 +1019,7 @@ extension on realm_sync_error {
   }
 }
 
-extension on Pointer<realm_sync_error_user_info> {
+extension PointerRealmSyncErrorUserInfoEx on Pointer<realm_sync_error_user_info> {
   Map<String, String>? toDart(int length) {
     if (this == nullptr) {
       return null;
@@ -1065,7 +1035,7 @@ extension on Pointer<realm_sync_error_user_info> {
   }
 }
 
-extension on Pointer<realm_sync_error_compensating_write_info> {
+extension PointerRealmSyncErrorCompensatingWriteInfoEx on Pointer<realm_sync_error_compensating_write_info> {
   List<CompensatingWriteInfo>? toList(int length) {
     if (this == nullptr || length == 0) {
       return null;
@@ -1082,7 +1052,7 @@ extension on Pointer<realm_sync_error_compensating_write_info> {
   }
 }
 
-extension on Pointer<realm_error_t> {
+extension PointerRealmErrorEx on Pointer<realm_error_t> {
   SyncError toDart() {
     final message = ref.message.cast<Utf8>().toDartString();
     final details = SyncErrorDetails(message, ref.error, ref.user_code_error.toUserCodeError());
@@ -1090,13 +1060,13 @@ extension on Pointer<realm_error_t> {
   }
 }
 
-extension on Object {
+extension ObjectEx on Object {
   Pointer<Void> toPersistentHandle() {
     return realmLib.realm_dart_object_to_persistent_handle(this);
   }
 }
 
-extension on List<UserState> {
+extension ListUserStateEx on List<UserState> {
   UserState fromIndex(int index) {
     if (!UserState.values.any((value) => value.index == index)) {
       throw RealmError("Unknown user state $index");
@@ -1106,7 +1076,7 @@ extension on List<UserState> {
   }
 }
 
-extension on realm_property_info {
+extension RealmPropertyInfoEx on realm_property_info {
   SchemaProperty toSchemaProperty() {
     final linkTarget = link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
     return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
@@ -1117,7 +1087,7 @@ extension on realm_property_info {
   }
 }
 
-extension<T> on Completer<T> {
+extension CompleterEx<T> on Completer<T> {
   void completeWithAppError(Pointer<realm_app_error> error) {
     final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
     final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
@@ -1125,17 +1095,17 @@ extension<T> on Completer<T> {
   }
 }
 
-enum _CustomErrorCode {
+enum CustomErrorCode {
   noError(0),
   unknownHttp(998),
   unknown(999),
   timeout(1000);
 
   final int code;
-  const _CustomErrorCode(this.code);
+  const CustomErrorCode(this.code);
 }
 
-enum _HttpMethod {
+enum HttpMethod {
   get,
   post,
   patch,
@@ -1143,17 +1113,17 @@ enum _HttpMethod {
   delete,
 }
 
-extension on realm_timestamp_t {
+extension RealmTimestampEx on realm_timestamp_t {
   DateTime toDart() {
     return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000, isUtc: true);
   }
 }
 
-extension on realm_string_t {
+extension RealmStringEx on realm_string_t {
   String? toDart() => data.cast<Utf8>().toRealmDartString();
 }
 
-extension on ObjectId {
+extension ObjectIdEx on ObjectId {
   Pointer<realm_object_id> toNative(Allocator allocator) {
     final result = allocator<realm_object_id>();
     for (var i = 0; i < 12; i++) {
@@ -1163,7 +1133,7 @@ extension on ObjectId {
   }
 }
 
-extension on realm_object_id {
+extension RealmObjectIdEx on realm_object_id {
   ObjectId toDart() {
     final buffer = Uint8List(12);
     for (int i = 0; i < 12; ++i) {
@@ -1173,7 +1143,7 @@ extension on realm_object_id {
   }
 }
 
-extension on realm_app_user_apikey {
+extension RealmAppUserApikeyEx on realm_app_user_apikey {
   ApiKey toDart() => UserInternal.createApiKey(
         id.toDart(),
         name.cast<Utf8>().toDartString(),
@@ -1218,7 +1188,7 @@ class SyncErrorDetails {
   });
 }
 
-extension on RealmValueType {
+extension RealmValueTypeEx on RealmValueType {
   String toQueryArgString() {
     return switch (this) {
       RealmValueType.nullValue => 'null',

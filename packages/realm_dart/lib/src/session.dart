@@ -3,11 +3,11 @@
 
 import 'dart:async';
 import 'dart:ffi';
-import '../realm.dart';
-import 'native/realm_core.dart';
-import 'user.dart';
 
+import '../realm.dart';
 import '../src/native/realm_bindings.dart';
+import 'native/session_handle.dart';
+import 'user.dart';
 
 /// An object encapsulating a synchronization session. Sessions represent the
 /// communication between the client (and a local Realm file on disk), and the

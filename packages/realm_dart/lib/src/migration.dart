@@ -1,9 +1,9 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'native/schema_handle.dart';
 import 'realm_class.dart';
-import 'native/realm_core.dart';
-import './realm_object.dart';
+import 'realm_object.dart';
 
 /// A [Migration] object is passed to you when you migrate your database from one version
 /// to another. It contains the properties for the Realm before and after the migration.
