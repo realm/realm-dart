@@ -59,7 +59,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   // with setCollection?
   void setValue(int propertyKey, Object? value, bool isDefault) {
     using((Arena arena) {
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       invokeGetBool(
         () => realmLib.realm_set_value(
           pointer,

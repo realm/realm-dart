@@ -46,7 +46,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
 
   bool insert(Object? value) {
     return using((Arena arena) {
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       final outIndex = arena<Size>();
       final outInserted = arena<Bool>();
       invokeGetBool(() => realmLib.realm_set_insert(pointer, realmValue.ref, outIndex, outInserted));
@@ -71,7 +71,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   bool find(Object? value) {
     return using((Arena arena) {
       // TODO: how should this behave for collections
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       final outIndex = arena<Size>();
       final outFound = arena<Bool>();
       invokeGetBool(() => realmLib.realm_set_find(pointer, realmValue.ref, outIndex, outFound));
@@ -82,7 +82,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   bool remove(Object? value) {
     return using((Arena arena) {
       // TODO: do we support sets containing mixed collections
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       final outErased = arena<Bool>();
       invokeGetBool(() => realmLib.realm_set_erase(pointer, realmValue.ref, outErased));
       return outErased.value;

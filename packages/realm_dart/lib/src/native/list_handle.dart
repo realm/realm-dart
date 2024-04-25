@@ -52,7 +52,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
       final outFound = arena<Bool>();
 
       // TODO: how should this behave for collections
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       invokeGetBool(
         () => realmLib.realm_list_find(
           pointer,
@@ -89,7 +89,7 @@ class ListHandle extends CollectionHandleBase<realm_list> {
   // TODO: Consider splitting into two methods
   void addOrUpdateAt(int index, Object? value, bool insert) {
     using((Arena arena) {
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       invokeGetBool(() => (insert ? realmLib.realm_list_insert : realmLib.realm_list_set)(pointer, index, realmValue.ref));
     });
   }

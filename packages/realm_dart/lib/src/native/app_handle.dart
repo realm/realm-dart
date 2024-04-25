@@ -11,7 +11,6 @@ import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 import 'package:realm_dart/src/native/convert.dart';
 
-import '../app.dart'; // TODO: Remove this import
 import '../init.dart';
 import '../logging.dart';
 import '../realm_class.dart'; // TODO: Remove this import

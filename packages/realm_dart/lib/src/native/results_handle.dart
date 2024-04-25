@@ -45,7 +45,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
       final outFound = arena<Bool>();
 
       // TODO: how should this behave for collections
-      final realmValue = toRealmValue(value, arena);
+      final realmValue = value.toNative(arena);
       invokeGetBool(
         () => realmLib.realm_results_find(
           pointer,

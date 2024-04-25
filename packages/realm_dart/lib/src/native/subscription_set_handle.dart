@@ -9,7 +9,6 @@ import 'package:realm_dart/src/native/convert.dart';
 
 import '../realm_dart.dart';
 import '../scheduler.dart';
-import '../subscription.dart';
 import 'error_handling.dart';
 import 'mutable_subscription_set_handle.dart';
 import 'realm_bindings.dart';

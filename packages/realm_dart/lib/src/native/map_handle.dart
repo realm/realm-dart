@@ -30,7 +30,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
 
   bool remove(String key) {
     return using((Arena arena) {
-      final keyNative = toRealmValue(key, arena);
+      final keyNative = key.toNative(arena);
       final outErased = arena<Bool>();
       invokeGetBool(() => realmLib.realm_dictionary_erase(pointer, keyNative.ref, outErased));
       return outErased.value;
@@ -40,7 +40,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
   // TODO: avoid taking the [realm] parameter
   Object? find(Realm realm, String key) {
     return using((Arena arena) {
-      final keyNative = toRealmValue(key, arena);
+      final keyNative = key.toNative(arena);
       final outValue = arena<realm_value_t>();
       final outFound = arena<Bool>();
       invokeGetBool(() => realmLib.realm_dictionary_find(pointer, keyNative.ref, outValue, outFound));
@@ -79,7 +79,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
 
   bool containsKey(String key) {
     return using((Arena arena) {
-      final keyNative = toRealmValue(key, arena);
+      final keyNative = key.toNative(arena);
       final found = arena<Bool>();
       invokeGetBool(() => realmLib.realm_dictionary_contains_key(pointer, keyNative.ref, found));
       return found.value;
@@ -89,7 +89,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
   int indexOf(Object? value) {
     return using((Arena arena) {
       // TODO: how should this behave for collections
-      final valueNative = toRealmValue(value, arena);
+      final valueNative = value.toNative(arena);
       final index = arena<Size>();
       invokeGetBool(() => realmLib.realm_dictionary_contains_value(pointer, valueNative.ref, index));
       return index.value;
@@ -100,7 +100,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
 
   ObjectHandle insertEmbedded(String key) {
     return using((Arena arena) {
-      final keyNative = toRealmValue(key, arena);
+      final keyNative = key.toNative(arena);
       final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(pointer, keyNative.ref));
       return ObjectHandle(ptr, root);
     });
@@ -108,8 +108,8 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
 
   void insert(String key, Object? value) {
     using((Arena arena) {
-      final keyNative = toRealmValue(key, arena);
-      final valueNative = toRealmValue(value, arena);
+      final keyNative = key.toNative(arena);
+      final valueNative = value.toNative(arena);
       invokeGetBool(
         () => realmLib.realm_dictionary_insert(
           pointer,
@@ -124,7 +124,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
 
   void insertCollection(Realm realm, String key, RealmValue value) {
     using((Arena arena) {
-      final keyNative = toRealmValue(key, arena);
+      final keyNative = key.toNative(arena);
       createCollection(
         realm,
         value,

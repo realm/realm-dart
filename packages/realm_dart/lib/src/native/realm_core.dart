@@ -661,15 +661,17 @@ extension StringEx on String {
     return realmString;
   }
 }
-
-Pointer<realm_value_t> toRealmValue(Object? value, Allocator allocator) {
-  final realmValue = allocator<realm_value_t>();
-  if (value is RealmValue && value.type.isCollection) {
-    throw RealmError(
-        "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
+extension NullableObjectEx on Object? {
+  Pointer<realm_value_t> toNative(Allocator allocator) {
+    final self = this;
+    final realmValue = allocator<realm_value_t>();
+    if (self is RealmValue && self.type.isCollection) {
+      throw RealmError(
+          "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
+    }
+    _intoRealmValue(self, realmValue.ref, allocator);
+    return realmValue;
   }
-  intoRealmValue(value, realmValue.ref, allocator);
-  return realmValue;
 }
 
 const int _microsecondsPerSecond = 1000 * 1000;
@@ -682,28 +684,28 @@ void intoRealmQueryArg(Object? value, Pointer<realm_query_arg_t> realmQueryArg, 
     realmQueryArg.ref.arg = allocator<realm_value>(value.length);
     int i = 0;
     for (var item in value) {
-      intoRealmValue(item, realmQueryArg.ref.arg[i], allocator);
+      _intoRealmValue(item, realmQueryArg.ref.arg[i], allocator);
       i++;
     }
   } else {
     realmQueryArg.ref.arg = allocator<realm_value_t>();
     realmQueryArg.ref.nb_args = 1;
     realmQueryArg.ref.is_list = false;
-    intoRealmValueHack(value, realmQueryArg.ref.arg.ref, allocator);
+    _intoRealmValueHack(value, realmQueryArg.ref.arg.ref, allocator);
   }
 }
 
-void intoRealmValueHack(Object? value, realm_value realmValue, Allocator allocator) {
+void _intoRealmValueHack(Object? value, realm_value realmValue, Allocator allocator) {
   if (value is GeoShape) {
-    intoRealmValue(value.toString(), realmValue, allocator);
+    _intoRealmValue(value.toString(), realmValue, allocator);
   } else if (value is RealmValueType) {
-    intoRealmValue(value.toQueryArgString(), realmValue, allocator);
+    _intoRealmValue(value.toQueryArgString(), realmValue, allocator);
   } else {
-    intoRealmValue(value, realmValue, allocator);
+    _intoRealmValue(value, realmValue, allocator);
   }
 }
 
-void intoRealmValue(Object? value, realm_value realmValue, Allocator allocator) {
+void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator) {
   if (value == null) {
     realmValue.type = realm_value_type.RLM_TYPE_NULL;
   } else if (value is RealmObjectBase) {
@@ -766,7 +768,7 @@ void intoRealmValue(Object? value, realm_value realmValue, Allocator allocator) 
     } else if (value.type == Map<String, RealmValue>) {
       realmValue.type = realm_value_type.RLM_TYPE_DICTIONARY;
     } else {
-      return intoRealmValue(value.value, realmValue, allocator);
+      return _intoRealmValue(value.value, realmValue, allocator);
     }
   } else {
     throw RealmException("Property type ${value.runtimeType} not supported");

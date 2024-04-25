@@ -655,7 +655,7 @@ class ClientResetError extends SyncError {
       throw RealmException("Missing `originalFilePath`");
     }
 
-    return _app!.handle.immediatelyRunFileActions(originalFilePath!);
+    return _app.handle.immediatelyRunFileActions(originalFilePath!);
   }
 }
 

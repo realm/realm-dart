@@ -65,7 +65,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ObjectHandle createWithPrimaryKey(int classKey, Object? primaryKey) {
     return using((Arena arena) {
-      final realmValue = toRealmValue(primaryKey, arena);
+      final realmValue = primaryKey.toNative(arena);
       final realmPtr = invokeGetPointer(() => realmLib.realm_object_create_with_primary_key(pointer, classKey, realmValue.ref));
       return ObjectHandle(realmPtr, this);
     });
@@ -78,7 +78,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ObjectHandle getOrCreateWithPrimaryKey(int classKey, Object? primaryKey) {
     return using((Arena arena) {
-      final realmValue = toRealmValue(primaryKey, arena);
+      final realmValue = primaryKey.toNative(arena);
       final didCreate = arena<Bool>();
       final realmPtr = invokeGetPointer(() => realmLib.realm_object_get_or_create_with_primary_key(
             pointer,
@@ -275,7 +275,7 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   ObjectHandle? find(int classKey, Object? primaryKey) {
     return using((Arena arena) {
-      final realmValue = toRealmValue(primaryKey, arena);
+      final realmValue = primaryKey.toNative(arena);
       final ptr = realmLib.realm_object_find_with_primary_key(pointer, classKey, realmValue.ref, nullptr);
       if (ptr == nullptr) {
         return null;
