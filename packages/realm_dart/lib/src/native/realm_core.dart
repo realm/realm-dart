@@ -13,7 +13,6 @@ import 'package:crypto/crypto.dart';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
-import 'package:realm_common/realm_common.dart' hide Decimal128;
 
 import '../app.dart';
 import '../configuration.dart';
@@ -352,72 +351,7 @@ class _RealmCore {
     return AsyncOpenTaskProgressNotificationTokenHandle(tokenPtr);
   }
 
-  RealmSchema readSchema(Realm realm) {
-    return using((Arena arena) {
-      return _readSchema(realm.handle, arena);
-    });
-  }
-
-  RealmSchema _readSchema(RealmHandle realm, Arena arena, {int expectedSize = 10}) {
-    final classesPtr = arena<Uint32>(expectedSize);
-    final actualCount = arena<Size>();
-    invokeGetBool(() => realmLib.realm_get_class_keys(realm.pointer, classesPtr, expectedSize, actualCount));
-    if (expectedSize < actualCount.value) {
-      arena.free(classesPtr);
-      return _readSchema(realm, arena, expectedSize: actualCount.value);
-    }
-
-    final schemas = <SchemaObject>[];
-    for (var i = 0; i < actualCount.value; i++) {
-      final classInfo = arena<realm_class_info>();
-      final classKey = (classesPtr + i).value;
-      invokeGetBool(() => realmLib.realm_get_class(realm.pointer, classKey, classInfo));
-
-      final name = classInfo.ref.name.cast<Utf8>().toDartString();
-      final baseType = ObjectType.values.firstWhere((element) => element.flags == classInfo.ref.flags,
-          orElse: () => throw RealmError('No object type found for flags ${classInfo.ref.flags}'));
-      final schema =
-          _getSchemaForClassKey(realm, classKey, name, baseType, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
-      schemas.add(schema);
-    }
-
-    return RealmSchema(schemas);
-  }
-
-  SchemaObject _getSchemaForClassKey(RealmHandle realm, int classKey, String name, ObjectType baseType, Arena arena, {int expectedSize = 10}) {
-    final actualCount = arena<Size>();
-    final propertiesPtr = arena<realm_property_info>(expectedSize);
-    invokeGetBool(() => realmLib.realm_get_class_properties(realm.pointer, classKey, propertiesPtr, expectedSize, actualCount));
-
-    if (expectedSize < actualCount.value) {
-      // The supplied array was too small - resize it
-      arena.free(propertiesPtr);
-      return _getSchemaForClassKey(realm, classKey, name, baseType, arena, expectedSize: actualCount.value);
-    }
-
-    final result = <SchemaProperty>[];
-    for (var i = 0; i < actualCount.value; i++) {
-      final property = (propertiesPtr + i).ref.toSchemaProperty();
-      result.add(property);
-    }
-
-    late Type type;
-    switch (baseType) {
-      case ObjectType.realmObject:
-        type = RealmObject;
-        break;
-      case ObjectType.embeddedObject:
-        type = EmbeddedObject;
-        break;
-      case ObjectType.asymmetricObject:
-        type = AsymmetricObject;
-        break;
-      default:
-        throw RealmError('$baseType is not supported yet');
-    }
-
-    return SchemaObject(baseType, type, name, result);
-  }
+  RealmSchema readSchema(Realm realm) => realm.handle.readSchema();
 
   void deleteRealmFiles(String path) {
     using((Arena arena) {
@@ -426,52 +360,9 @@ class _RealmCore {
     });
   }
 
-  RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) {
-    return using((Arena arena) {
-      final found = arena<Bool>();
-      final classInfo = arena<realm_class_info_t>();
-      invokeGetBool(() => realmLib.realm_find_class(realm.handle.pointer, schema.name.toCharPtr(arena), found, classInfo),
-          "Error getting class ${schema.name} from realm at ${realm.config.path}");
+  RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) => realm.handle.getObjectMetadata(schema);
 
-      if (!found.value) {
-        throwLastError("Class ${schema.name} not found in ${realm.config.path}");
-      }
-
-      final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertiesMetadata(realm, classInfo.ref.key, primaryKey, arena));
-    });
-  }
-
-  Map<String, RealmPropertyMetadata> getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName) {
-    return using((Arena arena) {
-      return _getPropertiesMetadata(realm, classKey, primaryKeyName, arena);
-    });
-  }
-
-  Map<String, RealmPropertyMetadata> _getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName, Arena arena) {
-    final propertyCountPtr = arena<Size>();
-    invokeGetBool(() => realmLib.realm_get_property_keys(realm.handle.pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
-
-    var propertyCount = propertyCountPtr.value;
-    final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-    invokeGetBool(() => realmLib.realm_get_class_properties(realm.handle.pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr),
-        "Error getting class properties.");
-
-    propertyCount = propertyCountPtr.value;
-    Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
-    for (var i = 0; i < propertyCount; i++) {
-      final property = propertiesPtr + i;
-      final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
-      final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
-      final isPrimaryKey = propertyName == primaryKeyName;
-      final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
-          isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
-      result[propertyName] = propertyMeta;
-    }
-    return result;
-  }
+  Map<String, RealmPropertyMetadata> getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName) => realm.handle.getPropertiesMetadata(classKey, primaryKeyName);
 
   // For debugging
   // ignore: unused_element

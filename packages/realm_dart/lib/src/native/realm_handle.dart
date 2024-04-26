@@ -6,9 +6,11 @@ import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:ffi/ffi.dart';
+import 'package:realm_common/realm_common.dart';
 
 import '../logging.dart';
 import '../realm_class.dart';
+import '../realm_object.dart';
 import 'config_handle.dart';
 import 'convert.dart';
 import 'error_handling.dart';
@@ -320,6 +322,119 @@ class RealmHandle extends HandleBase<shared_realm> {
       ),
     );
     return CallbackTokenHandle(ptr, this);
+  }
+
+  RealmSchema readSchema() {
+    return using((Arena arena) {
+      return _readSchema(arena);
+    });
+  }
+
+  RealmSchema _readSchema(Arena arena, {int expectedSize = 10}) {
+    final classesPtr = arena<Uint32>(expectedSize);
+    final actualCount = arena<Size>();
+    invokeGetBool(() => realmLib.realm_get_class_keys(pointer, classesPtr, expectedSize, actualCount));
+    if (expectedSize < actualCount.value) {
+      arena.free(classesPtr);
+      return _readSchema(arena, expectedSize: actualCount.value);
+    }
+
+    final schemas = <SchemaObject>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      final classInfo = arena<realm_class_info>();
+      final classKey = (classesPtr + i).value;
+      invokeGetBool(() => realmLib.realm_get_class(pointer, classKey, classInfo));
+
+      final name = classInfo.ref.name.cast<Utf8>().toDartString();
+      final baseType = ObjectType.values.firstWhere((element) => element.flags == classInfo.ref.flags,
+          orElse: () => throw RealmError('No object type found for flags ${classInfo.ref.flags}'));
+      final schema = _getSchemaForClassKey(classKey, name, baseType, arena, expectedSize: classInfo.ref.num_properties + classInfo.ref.num_computed_properties);
+      schemas.add(schema);
+    }
+
+    return RealmSchema(schemas);
+  }
+
+  SchemaObject _getSchemaForClassKey(int classKey, String name, ObjectType baseType, Arena arena, {int expectedSize = 10}) {
+    final actualCount = arena<Size>();
+    final propertiesPtr = arena<realm_property_info>(expectedSize);
+    invokeGetBool(() => realmLib.realm_get_class_properties(pointer, classKey, propertiesPtr, expectedSize, actualCount));
+
+    if (expectedSize < actualCount.value) {
+      // The supplied array was too small - resize it
+      arena.free(propertiesPtr);
+      return _getSchemaForClassKey(classKey, name, baseType, arena, expectedSize: actualCount.value);
+    }
+
+    final result = <SchemaProperty>[];
+    for (var i = 0; i < actualCount.value; i++) {
+      final property = (propertiesPtr + i).ref.toSchemaProperty();
+      result.add(property);
+    }
+
+    late Type type;
+    switch (baseType) {
+      case ObjectType.realmObject:
+        type = RealmObject;
+        break;
+      case ObjectType.embeddedObject:
+        type = EmbeddedObject;
+        break;
+      case ObjectType.asymmetricObject:
+        type = AsymmetricObject;
+        break;
+      default:
+        throw RealmError('$baseType is not supported yet');
+    }
+
+    return SchemaObject(baseType, type, name, result);
+  }
+
+  Map<String, RealmPropertyMetadata> getPropertiesMetadata(int classKey, String? primaryKeyName) {
+    return using((Arena arena) {
+      return _getPropertiesMetadata(classKey, primaryKeyName, arena);
+    });
+  }
+
+  RealmObjectMetadata getObjectMetadata(SchemaObject schema) {
+    return using((Arena arena) {
+      final found = arena<Bool>();
+      final classInfo = arena<realm_class_info_t>();
+      invokeGetBool(() => realmLib.realm_find_class(pointer, schema.name.toCharPtr(arena), found, classInfo));
+          // "Error getting class ${schema.name} from realm at ${realm.config.path}");
+
+      if (!found.value) {
+        throwLastError(); //"Class ${schema.name} not found in ${realm.config.path}");
+      }
+
+      final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertiesMetadata(classInfo.ref.key, primaryKey, arena));
+    });
+  }
+
+  Map<String, RealmPropertyMetadata> _getPropertiesMetadata(int classKey, String? primaryKeyName, Arena arena) {
+    final propertyCountPtr = arena<Size>();
+    invokeGetBool(() => realmLib.realm_get_property_keys(pointer, classKey, nullptr, 0, propertyCountPtr), "Error getting property count");
+
+    var propertyCount = propertyCountPtr.value;
+    final propertiesPtr = arena<realm_property_info_t>(propertyCount);
+    invokeGetBool(
+        () => realmLib.realm_get_class_properties(pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr), "Error getting class properties.");
+
+    propertyCount = propertyCountPtr.value;
+    Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};
+    for (var i = 0; i < propertyCount; i++) {
+      final property = propertiesPtr + i;
+      final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
+      final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
+      final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+      final isPrimaryKey = propertyName == primaryKeyName;
+      final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
+          isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
+      result[propertyName] = propertyMeta;
+    }
+    return result;
   }
 }
 
