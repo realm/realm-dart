@@ -26,14 +26,14 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse_for_results(
-              pointer,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
+          realmLib
+              .realm_query_parse_for_results(
+                pointer,
+                query.toCharPtr(arena),
+                length,
+                argsPointer,
+              )
+              .raiseIfNull(),
           root);
       return queryHandle.findAll();
     });
@@ -46,27 +46,27 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
 
       // TODO: how should this behave for collections
       final realmValue = value.toNative(arena);
-      invokeGetBool(
-        () => realmLib.realm_results_find(
-          pointer,
-          realmValue,
-          outIndex,
-          outFound,
-        ),
-      );
+      realmLib
+          .realm_results_find(
+            pointer,
+            realmValue,
+            outIndex,
+            outFound,
+          )
+          .raiseIfFalse();
       return outFound.value ? outIndex.value : -1;
     });
   }
 
   ObjectHandle getObjectAt(int index) {
-    final objectPointer = invokeGetPointer(() => realmLib.realm_results_get_object(pointer, index));
+    final objectPointer = realmLib.realm_results_get_object(pointer, index).raiseIfNull();
     return ObjectHandle(objectPointer, root);
   }
 
   int get count {
     return using((Arena arena) {
       final countPtr = arena<Size>();
-      invokeGetBool(() => realmLib.realm_results_count(pointer, countPtr));
+      realmLib.realm_results_count(pointer, countPtr).raiseIfFalse();
       return countPtr.value;
     });
   }
@@ -74,29 +74,29 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
   bool isValid() {
     return using((arena) {
       final isValid = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_results_is_valid(pointer, isValid));
+      realmLib.realm_results_is_valid(pointer, isValid).raiseIfFalse();
       return isValid.value;
     });
   }
 
   void deleteAll() {
-    invokeGetBool(() => realmLib.realm_results_delete_all(pointer));
+    realmLib.realm_results_delete_all(pointer).raiseIfFalse();
   }
 
   ResultsHandle snapshot() {
-    final resultsPointer = invokeGetPointer(() => realmLib.realm_results_snapshot(pointer));
+    final resultsPointer = realmLib.realm_results_snapshot(pointer).raiseIfNull();
     return ResultsHandle(resultsPointer, root);
   }
 
   ResultsHandle resolveIn(RealmHandle realmHandle) {
-    final ptr = invokeGetPointer(() => realmLib.realm_results_resolve_in(pointer, realmHandle.pointer));
+    final ptr = realmLib.realm_results_resolve_in(pointer, realmHandle.pointer).raiseIfNull();
     return ResultsHandle(ptr, realmHandle);
   }
 
   Object? elementAt(Realm realm, int index) {
     return using((Arena arena) {
       final realmValue = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_results_get(pointer, index, realmValue));
+      realmLib.realm_results_get(pointer, index, realmValue).raiseIfFalse();
       return realmValue.toDartValue(
         realm,
         () => realmLib.realm_results_get_list(pointer, index),
@@ -106,15 +106,15 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
   }
 
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    final ptr = invokeGetPointer(
-      () => realmLib.realm_results_add_notification_callback(
-        pointer,
-        controller.toPersistentHandle(),
-        realmLib.addresses.realm_dart_delete_persistent_handle,
-        nullptr,
-        Pointer.fromFunction(collectionChangeCallback),
-      ),
-    );
+    final ptr = realmLib
+        .realm_results_add_notification_callback(
+          pointer,
+          controller.toPersistentHandle(),
+          realmLib.addresses.realm_dart_delete_persistent_handle,
+          nullptr,
+          Pointer.fromFunction(collectionChangeCallback),
+        )
+        .raiseIfNull();
     return NotificationTokenHandle(ptr, root);
   }
 }

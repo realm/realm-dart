@@ -194,7 +194,7 @@ void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functio
   try {
     switch (value.collectionType) {
       case RealmCollectionType.list:
-        final listPointer = invokeGetPointer(createList);
+        final listPointer = createList().raiseIfNull();
         final listHandle = ListHandle(listPointer, realm.handle);
         collectionHandle = listHandle;
 
@@ -207,7 +207,7 @@ void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functio
           list.add(item);
         }
       case RealmCollectionType.map:
-        final mapPointer = invokeGetPointer(createMap);
+        final mapPointer = createMap().raiseIfNull();
         final mapHandle = MapHandle(mapPointer, realm.handle);
         collectionHandle = mapHandle;
 
@@ -296,7 +296,7 @@ class _RealmCore {
 
   AsyncOpenTaskHandle createRealmAsyncOpenTask(FlexibleSyncConfiguration config) {
     final configHandle = ConfigHandle.from(config);
-    final asyncOpenTaskPtr = invokeGetPointer(() => realmLib.realm_open_synchronized(configHandle.pointer), "Error opening realm at path ${config.path}");
+    final asyncOpenTaskPtr = realmLib.realm_open_synchronized(configHandle.pointer).raiseIfNull("Error opening realm at path ${config.path}");
     return AsyncOpenTaskHandle(asyncOpenTaskPtr);
   }
 
@@ -329,7 +329,7 @@ class _RealmCore {
         return;
       }
 
-      final realmPtr = invokeGetPointer(() => realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle.pointer));
+      final realmPtr = realmLib.realm_from_thread_safe_reference(realmSafePtr, scheduler.handle.pointer).raiseIfNull();
       completer.complete(RealmHandle(realmPtr));
     });
   }
@@ -342,12 +342,12 @@ class _RealmCore {
       AsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final tokenPtr = invokeGetPointer(() => realmLib.realm_async_open_task_register_download_progress_notifier(
+    final tokenPtr = realmLib.realm_async_open_task_register_download_progress_notifier(
           handle.pointer,
           realmLib.addresses.realm_dart_sync_progress_callback,
           userdata.cast(),
           realmLib.addresses.realm_dart_userdata_async_free,
-        ));
+        ).raiseIfNull();
     return AsyncOpenTaskProgressNotificationTokenHandle(tokenPtr);
   }
 
@@ -356,7 +356,7 @@ class _RealmCore {
   void deleteRealmFiles(String path) {
     using((Arena arena) {
       final realmDeleted = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted), "Error deleting realm at path $path");
+       realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted).raiseIfFalse("Error deleting realm at path $path");
     });
   }
 
@@ -403,7 +403,7 @@ class _RealmCore {
   AppHandle? getApp(String id, String? baseUrl) {
     return using((arena) {
       final outApp = arena<Pointer<realm_app>>();
-      invokeGetBool(() => realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), outApp));
+       realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), outApp).raiseIfFalse();
       return outApp.value == nullptr ? null : AppHandle(outApp.value);
     });
   }
@@ -473,7 +473,7 @@ class _RealmCore {
   Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
     return using((arena) {
       final completer = Completer<String>();
-      invokeGetBool(() => realmLib.realm_app_call_function(
+      realmLib.realm_app_call_function(
             app.handle.pointer,
             user.handle.pointer,
             functionName.toCharPtr(arena),
@@ -482,7 +482,7 @@ class _RealmCore {
             realmLib.addresses.realm_dart_return_string_callback,
             createAsyncFunctionCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
-          ));
+          ).raiseIfFalse();
       return completer.future;
     });
   }
@@ -731,7 +731,7 @@ extension RealmValueEx on realm_value_t {
           throw RealmException('toDartValue called with a list argument but without a list getter');
         }
 
-        final listPointer = invokeGetPointer(() => getList());
+        final listPointer = getList().raiseIfNull();
         final listHandle = ListHandle(listPointer, realm.handle);
         return realm.createList<RealmValue>(listHandle, null);
       case realm_value_type.RLM_TYPE_DICTIONARY:
@@ -739,7 +739,7 @@ extension RealmValueEx on realm_value_t {
           throw RealmException('toDartValue called with a list argument but without a list getter');
         }
 
-        final mapPointer = invokeGetPointer(() => getMap());
+        final mapPointer = getMap().raiseIfNull();
         final mapHandle = MapHandle(mapPointer, realm.handle);
         return realm.createMap<RealmValue>(mapHandle, null);
       default:

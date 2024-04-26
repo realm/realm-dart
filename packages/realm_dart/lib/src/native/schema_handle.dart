@@ -77,7 +77,7 @@ class SchemaHandle extends HandleBase<realm_schema> {
         (schemaProperties + i).value = properties;
       }
 
-      final schemaPtr = invokeGetPointer(() => realmLib.realm_schema_new(schemaClasses, classCount, schemaProperties));
+      final schemaPtr = realmLib.realm_schema_new(schemaClasses, classCount, schemaProperties).raiseIfNull();
       return SchemaHandle(schemaPtr);
     });
   }

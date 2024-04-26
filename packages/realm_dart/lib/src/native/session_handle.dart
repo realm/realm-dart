@@ -117,14 +117,14 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   SyncSessionNotificationTokenHandle subscribeForConnectionStateNotifications(SessionConnectionStateController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Int32, Int32)>(_onConnectionStateChange);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final ptr = invokeGetPointer(
-      () => realmLib.realm_sync_session_register_connection_state_change_callback(
-        pointer,
-        realmLib.addresses.realm_dart_sync_connection_state_changed_callback,
-        userdata.cast(),
-        realmLib.addresses.realm_dart_userdata_async_free,
-      ),
-    );
+    final ptr = realmLib
+        .realm_sync_session_register_connection_state_change_callback(
+          pointer,
+          realmLib.addresses.realm_dart_sync_connection_state_changed_callback,
+          userdata.cast(),
+          realmLib.addresses.realm_dart_userdata_async_free,
+        )
+        .raiseIfNull();
     return SyncSessionNotificationTokenHandle(ptr);
   }
 
@@ -136,13 +136,10 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final tokenPtr = invokeGetPointer(() => realmLib.realm_sync_session_register_progress_notifier(
-        pointer,
-        realmLib.addresses.realm_dart_sync_progress_callback,
-        direction.index,
-        isStreaming,
-        userdata.cast(),
-        realmLib.addresses.realm_dart_userdata_async_free));
+    final tokenPtr = realmLib
+        .realm_sync_session_register_progress_notifier(pointer, realmLib.addresses.realm_dart_sync_progress_callback, direction.index, isStreaming,
+            userdata.cast(), realmLib.addresses.realm_dart_userdata_async_free)
+        .raiseIfNull();
     return SyncSessionNotificationTokenHandle(tokenPtr);
   }
 }

@@ -5,24 +5,21 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
-import '../realm_object.dart';
+import '../realm_object.dart'; // TODO: Remove this import
 import 'realm_bindings.dart';
 import 'realm_core.dart';
 import 'realm_library.dart';
 
-void invokeGetBool(bool Function() callback, [String? errorMessage]) {
-  bool success = callback();
-  if (!success) {
-    throwLastError(errorMessage);
-  }
+extension PointerEx<T extends NativeType> on Pointer<T> {
+  Pointer<T> raiseIfNull([String? message]) => this == nullptr ? throwLastError(message) : this;
 }
 
-Pointer<T> invokeGetPointer<T extends NativeType>(Pointer<T> Function() callback, [String? errorMessage]) {
-  final result = callback();
-  if (result == nullptr) {
-    throwLastError(errorMessage);
+extension BoolEx on bool {
+  void raiseIfFalse([String? message]) {
+    if (!this) {
+      throwLastError(message);
+    }
   }
-  return result;
 }
 
 class LastError {

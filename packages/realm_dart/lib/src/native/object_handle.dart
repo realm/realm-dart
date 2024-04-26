@@ -22,7 +22,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   ObjectHandle(Pointer<realm_object> pointer, RealmHandle root) : super(root, pointer, 112);
 
   ObjectHandle createEmbedded(int propertyKey) {
-    final objectPtr = invokeGetPointer(() => realmLib.realm_set_embedded(pointer, propertyKey));
+    final objectPtr = realmLib.realm_set_embedded(pointer, propertyKey).raiseIfNull();
     return ObjectHandle(objectPtr, root);
   }
 
@@ -30,7 +30,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
     return using((Arena arena) {
       final parentPtr = arena<Pointer<realm_object>>();
       final classKeyPtr = arena<Uint32>();
-      invokeGetBool(() => realmLib.realm_object_get_parent(pointer, parentPtr, classKeyPtr));
+      realmLib.realm_object_get_parent(pointer, parentPtr, classKeyPtr).raiseIfFalse();
 
       final handle = ObjectHandle(parentPtr.value, root);
 
@@ -46,7 +46,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   Object? getValue(Realm realm, int propertyKey) {
     return using((Arena arena) {
       final realmValue = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_get_value(pointer, propertyKey, realmValue));
+      realmLib.realm_get_value(pointer, propertyKey, realmValue).raiseIfFalse();
       return realmValue.toDartValue(
         realm,
         () => realmLib.realm_get_list(pointer, propertyKey),
@@ -60,34 +60,34 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   void setValue(int propertyKey, Object? value, bool isDefault) {
     using((Arena arena) {
       final realmValue = value.toNative(arena);
-      invokeGetBool(
-        () => realmLib.realm_set_value(
-          pointer,
-          propertyKey,
-          realmValue.ref,
-          isDefault,
-        ),
-      );
+      realmLib
+          .realm_set_value(
+            pointer,
+            propertyKey,
+            realmValue.ref,
+            isDefault,
+          )
+          .raiseIfFalse();
     });
   }
 
   ListHandle getList(int propertyKey) {
-    final ptr = invokeGetPointer(() => realmLib.realm_get_list(pointer, propertyKey));
+    final ptr = realmLib.realm_get_list(pointer, propertyKey).raiseIfNull();
     return ListHandle(ptr, root);
   }
 
   SetHandle getSet(int propertyKey) {
-    final ptr = invokeGetPointer(() => realmLib.realm_get_set(pointer, propertyKey));
+    final ptr = realmLib.realm_get_set(pointer, propertyKey).raiseIfNull();
     return SetHandle(ptr, root);
   }
 
   MapHandle getMap(int propertyKey) {
-    final ptr = invokeGetPointer(() => realmLib.realm_get_dictionary(pointer, propertyKey));
+    final ptr = realmLib.realm_get_dictionary(pointer, propertyKey).raiseIfNull();
     return MapHandle(ptr, root);
   }
 
   ResultsHandle getBacklinks(int sourceTableKey, int propertyKey) {
-    final ptr = invokeGetPointer(() => realmLib.realm_get_backlinks(pointer, sourceTableKey, propertyKey));
+    final ptr = realmLib.realm_get_backlinks(pointer, sourceTableKey, propertyKey).raiseIfNull();
     return ResultsHandle(ptr, root);
   }
 
@@ -105,13 +105,13 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   }
 
   void delete() {
-    invokeGetBool(() => realmLib.realm_object_delete(pointer));
+    realmLib.realm_object_delete(pointer).raiseIfFalse();
   }
 
   ObjectHandle? resolveIn(RealmHandle frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_object>>();
-      invokeGetBool(() => realmLib.realm_object_resolve_in(pointer, frozenRealm.pointer, resultPtr));
+      realmLib.realm_object_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseIfFalse();
       return resultPtr == nullptr ? null : ObjectHandle(resultPtr.value, frozenRealm);
     });
   }
@@ -119,13 +119,15 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]) {
     return using((Arena arena) {
       final kpNative = buildAndVerifyKeyPath(keyPaths);
-      final ptr = invokeGetPointer(() => realmLib.realm_object_add_notification_callback(
+      final ptr = realmLib
+          .realm_object_add_notification_callback(
             pointer,
             controller.toPersistentHandle(),
             realmLib.addresses.realm_dart_delete_persistent_handle,
             kpNative,
             Pointer.fromFunction(_objectChangeCallback),
-          ));
+          )
+          .raiseIfNull();
 
       return NotificationTokenHandle(ptr, root);
     });
@@ -145,7 +147,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
       }
       // TODO(kn):
       // call to classKey getter involves a native call, which is not ideal
-      return invokeGetPointer(() => realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative));
+      return realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative).raiseIfNull();
     });
   }
 }

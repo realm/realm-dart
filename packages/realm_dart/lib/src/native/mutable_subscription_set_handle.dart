@@ -20,7 +20,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
 
   Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super.pointer.cast();
 
-  SubscriptionSetHandle commit() => SubscriptionSetHandle(invokeGetPointer(() => realmLib.realm_sync_subscription_set_commit(_mutablePointer)), root);
+  SubscriptionSetHandle commit() => SubscriptionSetHandle(realmLib.realm_sync_subscription_set_commit(_mutablePointer).raiseIfNull(), root);
 
   SubscriptionHandle insertOrAssignSubscription(ResultsHandle results, String? name, bool update) {
     if (!update) {
@@ -31,15 +31,15 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
     return using((arena) {
       final outIndex = arena<Size>();
       final outInserted = arena<Bool>();
-      invokeGetBool(
-        () => realmLib.realm_sync_subscription_set_insert_or_assign_results(
-          _mutablePointer,
-          results.pointer,
-          name?.toCharPtr(arena) ?? nullptr,
-          outIndex,
-          outInserted,
-        ),
-      );
+      realmLib
+          .realm_sync_subscription_set_insert_or_assign_results(
+            _mutablePointer,
+            results.pointer,
+            name?.toCharPtr(arena) ?? nullptr,
+            outIndex,
+            outInserted,
+          )
+          .raiseIfFalse();
       return this[outIndex.value];
     });
   }
@@ -47,13 +47,13 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
   bool erase(SubscriptionHandle subscription) {
     return using((arena) {
       final outErased = arena<Bool>();
-      invokeGetBool(
-        () => realmLib.realm_sync_subscription_set_erase_by_id(
-          _mutablePointer,
-          subscription.id.toNative(arena),
-          outErased,
-        ),
-      );
+      realmLib
+          .realm_sync_subscription_set_erase_by_id(
+            _mutablePointer,
+            subscription.id.toNative(arena),
+            outErased,
+          )
+          .raiseIfFalse();
       return outErased.value;
     });
   }
@@ -61,13 +61,13 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
   bool eraseByName(String name) {
     return using((arena) {
       final outErased = arena<Bool>();
-      invokeGetBool(
-        () => realmLib.realm_sync_subscription_set_erase_by_name(
-          _mutablePointer,
-          name.toCharPtr(arena),
-          outErased,
-        ),
-      );
+      realmLib
+          .realm_sync_subscription_set_erase_by_name(
+            _mutablePointer,
+            name.toCharPtr(arena),
+            outErased,
+          )
+          .raiseIfFalse();
       return outErased.value;
     });
   }
@@ -75,16 +75,16 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
   bool eraseByResults(ResultsHandle results) {
     return using((arena) {
       final outErased = arena<Bool>();
-      invokeGetBool(
-        () => realmLib.realm_sync_subscription_set_erase_by_results(
-          _mutablePointer,
-          results.pointer,
-          outErased,
-        ),
-      );
+      realmLib
+          .realm_sync_subscription_set_erase_by_results(
+            _mutablePointer,
+            results.pointer,
+            outErased,
+          )
+          .raiseIfFalse();
       return outErased.value;
     });
   }
 
-  void clear() => invokeGetBool(() => realmLib.realm_sync_subscription_set_clear(_mutablePointer));
+  void clear() => realmLib.realm_sync_subscription_set_clear(_mutablePointer).raiseIfFalse();
 }

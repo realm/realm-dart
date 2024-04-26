@@ -23,7 +23,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
   int get size {
     return using((Arena arena) {
       final outSize = arena<Size>();
-      invokeGetBool(() => realmLib.realm_dictionary_size(pointer, outSize));
+      realmLib.realm_dictionary_size(pointer, outSize).raiseIfFalse();
       return outSize.value;
     });
   }
@@ -32,7 +32,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     return using((Arena arena) {
       final keyNative = key.toNative(arena);
       final outErased = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_dictionary_erase(pointer, keyNative.ref, outErased));
+      realmLib.realm_dictionary_erase(pointer, keyNative.ref, outErased).raiseIfFalse();
       return outErased.value;
     });
   }
@@ -43,7 +43,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
       final keyNative = key.toNative(arena);
       final outValue = arena<realm_value_t>();
       final outFound = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_dictionary_find(pointer, keyNative.ref, outValue, outFound));
+      realmLib.realm_dictionary_find(pointer, keyNative.ref, outValue, outFound).raiseIfFalse();
       if (outFound.value) {
         return outValue.toDartValue(
           realm,
@@ -60,20 +60,20 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
   }
 
   void clear() {
-    invokeGetBool(() => realmLib.realm_dictionary_clear(pointer));
+    realmLib.realm_dictionary_clear(pointer).raiseIfFalse();
   }
 
   ResultsHandle get keys {
     return using((Arena arena) {
       final outSize = arena<Size>();
       final outKeys = arena<Pointer<realm_results>>();
-      invokeGetBool(() => realmLib.realm_dictionary_get_keys(pointer, outSize, outKeys));
+      realmLib.realm_dictionary_get_keys(pointer, outSize, outKeys).raiseIfFalse();
       return ResultsHandle(outKeys.value, root);
     });
   }
 
   ResultsHandle get values {
-    final ptr = invokeGetPointer(() => realmLib.realm_dictionary_to_results(pointer));
+    final ptr = realmLib.realm_dictionary_to_results(pointer).raiseIfNull();
     return ResultsHandle(ptr, root);
   }
 
@@ -81,7 +81,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     return using((Arena arena) {
       final keyNative = key.toNative(arena);
       final found = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_dictionary_contains_key(pointer, keyNative.ref, found));
+      realmLib.realm_dictionary_contains_key(pointer, keyNative.ref, found).raiseIfFalse();
       return found.value;
     });
   }
@@ -91,7 +91,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
       // TODO: how should this behave for collections
       final valueNative = value.toNative(arena);
       final index = arena<Size>();
-      invokeGetBool(() => realmLib.realm_dictionary_contains_value(pointer, valueNative.ref, index));
+      realmLib.realm_dictionary_contains_value(pointer, valueNative.ref, index).raiseIfFalse();
       return index.value;
     });
   }
@@ -101,7 +101,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
   ObjectHandle insertEmbedded(String key) {
     return using((Arena arena) {
       final keyNative = key.toNative(arena);
-      final ptr = invokeGetPointer(() => realmLib.realm_dictionary_insert_embedded(pointer, keyNative.ref));
+      final ptr = realmLib.realm_dictionary_insert_embedded(pointer, keyNative.ref).raiseIfNull();
       return ObjectHandle(ptr, root);
     });
   }
@@ -110,15 +110,15 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     using((Arena arena) {
       final keyNative = key.toNative(arena);
       final valueNative = value.toNative(arena);
-      invokeGetBool(
-        () => realmLib.realm_dictionary_insert(
-          pointer,
-          keyNative.ref,
-          valueNative.ref,
-          nullptr,
-          nullptr,
-        ),
-      );
+      realmLib
+          .realm_dictionary_insert(
+            pointer,
+            keyNative.ref,
+            valueNative.ref,
+            nullptr,
+            nullptr,
+          )
+          .raiseIfFalse();
     });
   }
 
@@ -143,14 +143,14 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
       }
 
       final queryHandle = QueryHandle(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse_for_results(
-              values.pointer,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
+          realmLib
+              .realm_query_parse_for_results(
+                values.pointer,
+                query.toCharPtr(arena),
+                length,
+                argsPointer,
+              )
+              .raiseIfNull(),
           root);
       return queryHandle.findAll();
     });
@@ -159,19 +159,21 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
   MapHandle? resolveIn(RealmHandle frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_dictionary>>();
-      invokeGetBool(() => realmLib.realm_dictionary_resolve_in(pointer, frozenRealm.pointer, resultPtr));
+      realmLib.realm_dictionary_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseIfFalse();
       return resultPtr == nullptr ? null : MapHandle(resultPtr.value, root);
     });
   }
 
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    final ptr = invokeGetPointer(() => realmLib.realm_dictionary_add_notification_callback(
+    final ptr = realmLib
+        .realm_dictionary_add_notification_callback(
           pointer,
           controller.toPersistentHandle(),
           realmLib.addresses.realm_dart_delete_persistent_handle,
           nullptr,
           Pointer.fromFunction(_mapChangeCallback),
-        ));
+        )
+        .raiseIfNull();
     return NotificationTokenHandle(ptr, root);
   }
 }

@@ -19,7 +19,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   SetHandle(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 
   ResultsHandle get asResults {
-    final ptr = invokeGetPointer(() => realmLib.realm_set_to_results(pointer));
+    final ptr = realmLib.realm_set_to_results(pointer).raiseIfNull();
     return ResultsHandle(ptr, root);
   }
 
@@ -31,14 +31,14 @@ class SetHandle extends RootedHandleBase<realm_set> {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle(
-          invokeGetPointer(
-            () => realmLib.realm_query_parse_for_set(
-              pointer,
-              query.toCharPtr(arena),
-              length,
-              argsPointer,
-            ),
-          ),
+          realmLib
+              .realm_query_parse_for_set(
+                pointer,
+                query.toCharPtr(arena),
+                length,
+                argsPointer,
+              )
+              .raiseIfNull(),
           root);
       return queryHandle.findAll();
     });
@@ -49,7 +49,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
       final realmValue = value.toNative(arena);
       final outIndex = arena<Size>();
       final outInserted = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_set_insert(pointer, realmValue.ref, outIndex, outInserted));
+       realmLib.realm_set_insert(pointer, realmValue.ref, outIndex, outInserted).raiseIfFalse();
       return outInserted.value;
     });
   }
@@ -58,7 +58,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   Object? elementAt(Realm realm, int index) {
     return using((Arena arena) {
       final realmValue = arena<realm_value_t>();
-      invokeGetBool(() => realmLib.realm_set_get(pointer, index, realmValue));
+       realmLib.realm_set_get(pointer, index, realmValue).raiseIfFalse();
       final result = realmValue.toDartValue(
         realm,
         () => throw RealmException('Sets cannot contain collections'),
@@ -74,7 +74,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
       final realmValue = value.toNative(arena);
       final outIndex = arena<Size>();
       final outFound = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_set_find(pointer, realmValue.ref, outIndex, outFound));
+       realmLib.realm_set_find(pointer, realmValue.ref, outIndex, outFound).raiseIfFalse();
       return outFound.value;
     });
   }
@@ -84,19 +84,19 @@ class SetHandle extends RootedHandleBase<realm_set> {
       // TODO: do we support sets containing mixed collections
       final realmValue = value.toNative(arena);
       final outErased = arena<Bool>();
-      invokeGetBool(() => realmLib.realm_set_erase(pointer, realmValue.ref, outErased));
+       realmLib.realm_set_erase(pointer, realmValue.ref, outErased).raiseIfFalse();
       return outErased.value;
     });
   }
 
   void clear() {
-    invokeGetBool(() => realmLib.realm_set_clear(pointer));
+     realmLib.realm_set_clear(pointer).raiseIfFalse();
   }
 
   int get size {
     return using((Arena arena) {
       final outSize = arena<Size>();
-      invokeGetBool(() => realmLib.realm_set_size(pointer, outSize));
+       realmLib.realm_set_size(pointer, outSize).raiseIfFalse();
       return outSize.value;
     });
   }
@@ -106,25 +106,27 @@ class SetHandle extends RootedHandleBase<realm_set> {
   }
 
   void deleteAll() {
-    invokeGetBool(() => realmLib.realm_set_remove_all(pointer));
+     realmLib.realm_set_remove_all(pointer).raiseIfFalse();
   }
 
   SetHandle? resolveIn(RealmHandle frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_set>>();
-      invokeGetBool(() => realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr));
+       realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseIfFalse();
       return resultPtr == nullptr ? null : SetHandle(resultPtr.value, root);
     });
   }
 
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    final ptr = invokeGetPointer(() => realmLib.realm_set_add_notification_callback(
+    final ptr = realmLib
+        .realm_set_add_notification_callback(
           pointer,
           controller.toPersistentHandle(),
           realmLib.addresses.realm_dart_delete_persistent_handle,
           nullptr,
           Pointer.fromFunction(collectionChangeCallback),
-        ));
+        )
+        .raiseIfNull();
     return NotificationTokenHandle(ptr, root);
   }
 }

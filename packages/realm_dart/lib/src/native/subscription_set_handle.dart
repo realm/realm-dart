@@ -25,7 +25,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
 
   SubscriptionSetHandle(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
 
-  void refresh() => invokeGetBool(() => realmLib.realm_sync_subscription_set_refresh(pointer));
+  void refresh() =>  realmLib.realm_sync_subscription_set_refresh(pointer).raiseIfFalse();
 
   int get size => realmLib.realm_sync_subscription_set_size(pointer);
 
@@ -35,7 +35,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
     return message.convert(RealmException.new);
   }
 
-  SubscriptionHandle operator [](int index) => SubscriptionHandle(invokeGetPointer(() => realmLib.realm_sync_subscription_at(pointer, index)));
+  SubscriptionHandle operator [](int index) => SubscriptionHandle(realmLib.realm_sync_subscription_at(pointer, index).raiseIfNull());
 
   SubscriptionHandle? findByName(String name) {
     return using((arena) {
@@ -59,8 +59,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
 
   SubscriptionSetState get state => SubscriptionSetState.values[realmLib.realm_sync_subscription_set_state(pointer)];
 
-  MutableSubscriptionSetHandle toMutable() =>
-      MutableSubscriptionSetHandle(invokeGetPointer(() => realmLib.realm_sync_make_subscription_set_mutable(pointer)), root);
+  MutableSubscriptionSetHandle toMutable() => MutableSubscriptionSetHandle(realmLib.realm_sync_make_subscription_set_mutable(pointer).raiseIfNull(), root);
 
   static void _stateChangeCallback(Object userdata, int state) {
     final completer = userdata as CancellableCompleter<SubscriptionSetState>;

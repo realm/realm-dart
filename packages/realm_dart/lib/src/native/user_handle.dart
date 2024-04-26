@@ -34,7 +34,7 @@ class UserHandle extends HandleBase<realm_user> {
   }
 
   String get id {
-    final idPtr = invokeGetPointer(() => realmLib.realm_user_get_identity(pointer), "Error while getting user id");
+    final idPtr = realmLib.realm_user_get_identity(pointer).raiseIfNull("Error while getting user id");
     final userId = idPtr.cast<Utf8>().toDartString();
     return userId;
   }
@@ -48,7 +48,7 @@ class UserHandle extends HandleBase<realm_user> {
   List<UserIdentity> _userGetIdentities(Arena arena, {int expectedSize = 2}) {
     final actualCount = arena<Size>();
     final identitiesPtr = arena<realm_user_identity_t>(expectedSize);
-    invokeGetBool(() => realmLib.realm_user_get_all_identities(pointer, identitiesPtr, expectedSize, actualCount));
+     realmLib.realm_user_get_all_identities(pointer, identitiesPtr, expectedSize, actualCount).raiseIfFalse();
 
     if (expectedSize < actualCount.value) {
       // The supplied array was too small - resize it
@@ -68,32 +68,32 @@ class UserHandle extends HandleBase<realm_user> {
   }
 
   Future<void> logOut() async {
-    invokeGetBool(() => realmLib.realm_user_log_out(pointer), "Logout failed");
+     realmLib.realm_user_log_out(pointer).raiseIfFalse("Logout failed");
   }
 
   String? get deviceId {
-    final deviceId = invokeGetPointer(() => realmLib.realm_user_get_device_id(pointer));
+    final deviceId = realmLib.realm_user_get_device_id(pointer).raiseIfNull();
     return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
   }
 
   UserProfile get profileData {
-    final data = invokeGetPointer(() => realmLib.realm_user_get_profile_data(pointer));
+    final data = realmLib.realm_user_get_profile_data(pointer).raiseIfNull();
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
   }
 
   String get refreshToken {
-    final token = invokeGetPointer(() => realmLib.realm_user_get_refresh_token(pointer));
+    final token = realmLib.realm_user_get_refresh_token(pointer).raiseIfNull();
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   String get accessToken {
-    final token = invokeGetPointer(() => realmLib.realm_user_get_access_token(pointer));
+    final token = realmLib.realm_user_get_access_token(pointer).raiseIfNull();
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   String get path {
-    final syncConfigPtr = invokeGetPointer(() => realmLib.realm_flx_sync_config_new(pointer));
+    final syncConfigPtr = realmLib.realm_flx_sync_config_new(pointer).raiseIfNull();
     try {
       final path = realmLib.realm_app_sync_client_get_default_file_path_for_realm(syncConfigPtr, nullptr);
       return path.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
@@ -109,17 +109,14 @@ class UserHandle extends HandleBase<realm_user> {
 
   Future<UserHandle> linkCredentials(AppHandle app, CredentialsHandle credentials) {
     final completer = Completer<UserHandle>();
-    invokeGetBool(
-      () => realmLib.realm_app_link_user(
+    realmLib.realm_app_link_user(
         app.pointer,
         pointer,
         credentials.pointer,
         realmLib.addresses.realm_dart_user_completion_callback,
         createAsyncUserCallbackUserdata(completer),
         realmLib.addresses.realm_dart_userdata_async_free,
-      ),
-      "Link credentials failed",
-    );
+      ).raiseIfFalse("Link credentials failed");
     return completer.future;
   }
 
@@ -127,16 +124,14 @@ class UserHandle extends HandleBase<realm_user> {
     return using((Arena arena) {
       final namePtr = name.toCharPtr(arena);
       final completer = Completer<ApiKey>();
-      invokeGetBool(
-        () => realmLib.realm_app_user_apikey_provider_client_create_apikey(
+      realmLib.realm_app_user_apikey_provider_client_create_apikey(
           app.pointer,
           pointer,
           namePtr,
           realmLib.addresses.realm_dart_apikey_callback,
           _createAsyncApikeyCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
-        ),
-      );
+        ).raiseIfFalse();
 
       return completer.future;
     });
@@ -146,14 +141,14 @@ class UserHandle extends HandleBase<realm_user> {
     return using((Arena arena) {
       final completer = Completer<ApiKey>();
       final nativeId = id.toNative(arena);
-      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_fetch_apikey(
+      realmLib.realm_app_user_apikey_provider_client_fetch_apikey(
             app.pointer,
             pointer,
             nativeId.ref,
             realmLib.addresses.realm_dart_apikey_callback,
             _createAsyncApikeyCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
-          ));
+          ).raiseIfFalse();
 
       return completer.future;
     });
@@ -162,13 +157,13 @@ class UserHandle extends HandleBase<realm_user> {
   Future<List<ApiKey>> fetchAllApiKeys(AppHandle app) {
     return using((Arena arena) {
       final completer = Completer<List<ApiKey>>();
-      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_fetch_apikeys(
+      realmLib.realm_app_user_apikey_provider_client_fetch_apikeys(
             app.pointer,
             pointer,
             realmLib.addresses.realm_dart_apikey_list_callback,
             _createAsyncApikeyListCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
-          ));
+          ).raiseIfFalse();
 
       return completer.future;
     });
@@ -178,14 +173,14 @@ class UserHandle extends HandleBase<realm_user> {
     return using((Arena arena) {
       final completer = Completer<void>();
       final nativeId = id.toNative(arena);
-      invokeGetBool(() => realmLib.realm_app_user_apikey_provider_client_delete_apikey(
+      realmLib.realm_app_user_apikey_provider_client_delete_apikey(
             app.pointer,
             pointer,
             nativeId.ref,
             realmLib.addresses.realm_dart_void_completion_callback,
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
-          ));
+          ).raiseIfFalse();
 
       return completer.future;
     });
@@ -196,16 +191,14 @@ class UserHandle extends HandleBase<realm_user> {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
 
-      invokeGetBool(
-        () => realmLib.realm_app_user_apikey_provider_client_disable_apikey(
+      realmLib.realm_app_user_apikey_provider_client_disable_apikey(
           app.pointer,
           pointer,
           nativeId.ref,
           realmLib.addresses.realm_dart_void_completion_callback,
           createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
-        ),
-      );
+        ).raiseIfFalse();
 
       return completer.future;
     });
@@ -216,16 +209,14 @@ class UserHandle extends HandleBase<realm_user> {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
 
-      invokeGetBool(
-        () => realmLib.realm_app_user_apikey_provider_client_enable_apikey(
+      realmLib.realm_app_user_apikey_provider_client_enable_apikey(
           app.pointer,
           pointer,
           nativeId.ref,
           realmLib.addresses.realm_dart_void_completion_callback,
           createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
-        ),
-      );
+        ).raiseIfFalse();
 
       return completer.future;
     });
