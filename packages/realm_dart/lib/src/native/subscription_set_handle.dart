@@ -25,7 +25,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
 
   SubscriptionSetHandle(Pointer<realm_flx_sync_subscription_set> pointer, RealmHandle root) : super(root, pointer, 128);
 
-  void refresh() =>  realmLib.realm_sync_subscription_set_refresh(pointer).raiseIfFalse();
+  void refresh() => realmLib.realm_sync_subscription_set_refresh(pointer).raiseIfFalse();
 
   int get size => realmLib.realm_sync_subscription_set_size(pointer);
 

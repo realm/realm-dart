@@ -342,27 +342,23 @@ class _RealmCore {
       AsyncOpenTaskHandle handle, RealmAsyncOpenProgressNotificationsController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
     final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
-    final tokenPtr = realmLib.realm_async_open_task_register_download_progress_notifier(
+    final tokenPtr = realmLib
+        .realm_async_open_task_register_download_progress_notifier(
           handle.pointer,
           realmLib.addresses.realm_dart_sync_progress_callback,
           userdata.cast(),
           realmLib.addresses.realm_dart_userdata_async_free,
-        ).raiseIfNull();
+        )
+        .raiseIfNull();
     return AsyncOpenTaskProgressNotificationTokenHandle(tokenPtr);
   }
-
-  RealmSchema readSchema(Realm realm) => realm.handle.readSchema();
 
   void deleteRealmFiles(String path) {
     using((Arena arena) {
       final realmDeleted = arena<Bool>();
-       realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted).raiseIfFalse("Error deleting realm at path $path");
+      realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted).raiseIfFalse("Error deleting realm at path $path");
     });
   }
-
-  RealmObjectMetadata getObjectMetadata(Realm realm, SchemaObject schema) => realm.handle.getObjectMetadata(schema);
-
-  Map<String, RealmPropertyMetadata> getPropertiesMetadata(Realm realm, int classKey, String? primaryKeyName) => realm.handle.getPropertiesMetadata(classKey, primaryKeyName);
 
   // For debugging
   // ignore: unused_element
@@ -403,7 +399,7 @@ class _RealmCore {
   AppHandle? getApp(String id, String? baseUrl) {
     return using((arena) {
       final outApp = arena<Pointer<realm_app>>();
-       realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), outApp).raiseIfFalse();
+      realmLib.realm_app_get_cached(id.toCharPtr(arena), baseUrl == null ? nullptr : baseUrl.toCharPtr(arena), outApp).raiseIfFalse();
       return outApp.value == nullptr ? null : AppHandle(outApp.value);
     });
   }
@@ -473,7 +469,8 @@ class _RealmCore {
   Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
     return using((arena) {
       final completer = Completer<String>();
-      realmLib.realm_app_call_function(
+      realmLib
+          .realm_app_call_function(
             app.handle.pointer,
             user.handle.pointer,
             functionName.toCharPtr(arena),
@@ -482,7 +479,8 @@ class _RealmCore {
             realmLib.addresses.realm_dart_return_string_callback,
             createAsyncFunctionCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
-          ).raiseIfFalse();
+          )
+          .raiseIfFalse();
       return completer.future;
     });
   }

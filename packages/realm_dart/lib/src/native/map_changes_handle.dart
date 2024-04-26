@@ -1,7 +1,6 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';

@@ -299,8 +299,7 @@ extension RealmListInternal<T extends Object?> on RealmList<T> {
           throw RealmError("Can't add to list an embedded object that is already managed");
         }
 
-        final objHandle =
-            insert || index >= length ? handle.insertEmbeddedAt(index) : handle.setEmbeddedAt(index);
+        final objHandle = insert || index >= length ? handle.insertEmbeddedAt(index) : handle.setEmbeddedAt(index);
         realm.manageEmbedded(objHandle, value);
         return;
       }

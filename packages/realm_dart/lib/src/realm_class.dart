@@ -215,8 +215,8 @@ class Realm implements Finalizable {
   }
 
   void _populateMetadata() {
-    schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c)));
+    schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : handle.readSchema();
+    _metadata = RealmMetadata._(schema.map((c) => handle.getObjectMetadata(c)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -627,7 +627,7 @@ class Realm implements Finalizable {
   }
 
   void _updateSchema() {
-    final newSchema = realmCore.readSchema(this);
+    final newSchema = handle.readSchema();
     for (final listener in _schemaChangeListeners) {
       listener.add(RealmSchemaChanges._(schema, newSchema));
     }
@@ -636,11 +636,11 @@ class Realm implements Finalizable {
       final existing = schema.firstWhereOrNull((s) => s.name == schemaObject.name);
       if (existing == null) {
         schema.add(schemaObject);
-        final meta = realmCore.getObjectMetadata(this, schemaObject);
+        final meta = handle.getObjectMetadata(schemaObject);
         metadata._add(meta);
       } else if (schemaObject.length > existing.length) {
         final existingMeta = metadata.getByName(schemaObject.name);
-        final propertyMeta = realmCore.getPropertiesMetadata(this, existingMeta.classKey, existingMeta.primaryKey);
+        final propertyMeta = handle.getPropertiesMetadata(existingMeta.classKey, existingMeta.primaryKey);
         for (final property in schemaObject) {
           final existingProp = existing.firstWhereOrNull((e) => e.mapTo == property.mapTo);
           if (existingProp == null) {

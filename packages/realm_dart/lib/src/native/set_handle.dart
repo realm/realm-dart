@@ -49,7 +49,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
       final realmValue = value.toNative(arena);
       final outIndex = arena<Size>();
       final outInserted = arena<Bool>();
-       realmLib.realm_set_insert(pointer, realmValue.ref, outIndex, outInserted).raiseIfFalse();
+      realmLib.realm_set_insert(pointer, realmValue.ref, outIndex, outInserted).raiseIfFalse();
       return outInserted.value;
     });
   }
@@ -58,7 +58,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   Object? elementAt(Realm realm, int index) {
     return using((Arena arena) {
       final realmValue = arena<realm_value_t>();
-       realmLib.realm_set_get(pointer, index, realmValue).raiseIfFalse();
+      realmLib.realm_set_get(pointer, index, realmValue).raiseIfFalse();
       final result = realmValue.toDartValue(
         realm,
         () => throw RealmException('Sets cannot contain collections'),
@@ -74,7 +74,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
       final realmValue = value.toNative(arena);
       final outIndex = arena<Size>();
       final outFound = arena<Bool>();
-       realmLib.realm_set_find(pointer, realmValue.ref, outIndex, outFound).raiseIfFalse();
+      realmLib.realm_set_find(pointer, realmValue.ref, outIndex, outFound).raiseIfFalse();
       return outFound.value;
     });
   }
@@ -84,19 +84,19 @@ class SetHandle extends RootedHandleBase<realm_set> {
       // TODO: do we support sets containing mixed collections
       final realmValue = value.toNative(arena);
       final outErased = arena<Bool>();
-       realmLib.realm_set_erase(pointer, realmValue.ref, outErased).raiseIfFalse();
+      realmLib.realm_set_erase(pointer, realmValue.ref, outErased).raiseIfFalse();
       return outErased.value;
     });
   }
 
   void clear() {
-     realmLib.realm_set_clear(pointer).raiseIfFalse();
+    realmLib.realm_set_clear(pointer).raiseIfFalse();
   }
 
   int get size {
     return using((Arena arena) {
       final outSize = arena<Size>();
-       realmLib.realm_set_size(pointer, outSize).raiseIfFalse();
+      realmLib.realm_set_size(pointer, outSize).raiseIfFalse();
       return outSize.value;
     });
   }
@@ -106,13 +106,13 @@ class SetHandle extends RootedHandleBase<realm_set> {
   }
 
   void deleteAll() {
-     realmLib.realm_set_remove_all(pointer).raiseIfFalse();
+    realmLib.realm_set_remove_all(pointer).raiseIfFalse();
   }
 
   SetHandle? resolveIn(RealmHandle frozenRealm) {
     return using((Arena arena) {
       final resultPtr = arena<Pointer<realm_set>>();
-       realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseIfFalse();
+      realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseIfFalse();
       return resultPtr == nullptr ? null : SetHandle(resultPtr.value, root);
     });
   }

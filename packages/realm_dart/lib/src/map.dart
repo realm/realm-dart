@@ -252,8 +252,7 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 
   static RealmMap<T> createFromMap<T>(Map<String, T> map) => UnmanagedRealmMap._(map);
 
-  static RealmMap<T> create<T extends Object?>(MapHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
-      ManagedRealmMap<T>._(handle, realm, metadata);
+  static RealmMap<T> create<T extends Object?>(MapHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmMap<T>._(handle, realm, metadata);
 
   static void setValue(MapHandle handle, Realm realm, String key, Object? value, {bool update = false}) {
     try {

@@ -12,7 +12,6 @@ import '../logging.dart';
 import '../realm_class.dart';
 import '../realm_object.dart';
 import 'config_handle.dart';
-import 'convert.dart';
 import 'error_handling.dart';
 import 'handle_base.dart';
 import 'object_handle.dart';

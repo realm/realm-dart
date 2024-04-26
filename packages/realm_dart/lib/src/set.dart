@@ -295,8 +295,7 @@ extension RealmSetInternal<T extends Object?> on RealmSet<T> {
     return result;
   }
 
-  static RealmSet<T> create<T extends Object?>(SetHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
-      ManagedRealmSet<T>._(handle, realm, metadata);
+  static RealmSet<T> create<T extends Object?>(SetHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmSet<T>._(handle, realm, metadata);
 }
 
 class _RealmSetIterator<T extends Object?> implements Iterator<T> {

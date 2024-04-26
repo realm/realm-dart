@@ -86,11 +86,11 @@ enum RealmCollectionType {
   map;
 
   String get plural => switch (this) {
-      RealmCollectionType.list => 'lists',
-      RealmCollectionType.set => 'sets',
-      RealmCollectionType.map => 'maps',
-      _ => 'none'
-    };
+        RealmCollectionType.list => 'lists',
+        RealmCollectionType.set => 'sets',
+        RealmCollectionType.map => 'maps',
+        _ => 'none',
+      };
 }
 
 /// A base class of all Realm errors.
