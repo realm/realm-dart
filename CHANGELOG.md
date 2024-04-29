@@ -20,6 +20,7 @@
   }) { ... }
   ```
   (Issue [#292](https://github.com/realm/realm-dart/issues/292))
+* Add privacy manifest to apple binaries. (Issue [#1551](https://github.com/realm/realm-dart/issues/1551))
 
 ### Fixed
 * Avoid: Attempt to execute code removed by Dart AOT compiler (TFA). (Issue [#1647](https://github.com/realm/realm-dart/issues/1647))
