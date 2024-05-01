@@ -218,6 +218,9 @@ class App implements Finalizable {
   }
 
   /// Returns the current value of the base URL used to communicate with the server.
+  ///
+  /// If an [updateBaseUrl] operation is currently in progress, this value will not
+  /// be updated with the new value until that operation has completed.
   @experimental
   Uri get baseUrl {
     return Uri.parse(realmCore.getBaseUrl(this));
