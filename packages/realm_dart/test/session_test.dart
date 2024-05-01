@@ -201,11 +201,9 @@ void main() {
     }
 
     final uploadData = subscribeToProgress(realmA, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
+    final downloadData = subscribeToProgress(realmB, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
 
     await realmA.syncSession.waitForUpload();
-
-    // Subscribe immediately after the upload to ensure we get the entire upload message as progress notifications
-    final downloadData = subscribeToProgress(realmB, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
 
     await validateData(uploadData, expectDone: true);
 
