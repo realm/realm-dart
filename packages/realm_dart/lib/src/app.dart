@@ -227,6 +227,10 @@ class App implements Finalizable {
   /// used for communicating with the server. If set to `null`, the app will revert to the default
   /// base url.
   ///
+  /// If this operation fails, the app will continue to use the original base URL. If another [App]
+  /// operation is started while this function is in progress, that request will use the original
+  /// base URL location information.
+  ///
   /// The App will revert to using the value in [AppConfiguration] when it is restarted.
   @experimental
   Future<void> updateBaseUrl(Uri? baseUrl) async {
