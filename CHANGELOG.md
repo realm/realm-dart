@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 2.2.0 (2024-05-01)
 
 ### Enhancements
 * Allow configuration of generator per model class. Currently support specifying the constructor style to use.
