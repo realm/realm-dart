@@ -25,12 +25,20 @@
 ### Fixed
 * Avoid: Attempt to execute code removed by Dart AOT compiler (TFA). (Issue [#1647](https://github.com/realm/realm-dart/issues/1647))
 * Fixed nullability annotations for the experimental API `App.baseUrl` and `App.updateBaseUrl`. The former is guaranteed not to be `null`, while the latter will now accept a `null` argument, in which case the base url will be restored to its default value. (Issue [#1523](https://github.com/realm/realm-dart/issues/1523))
+* `App.users` included logged out users only if they were logged out while the App instance existed. It now always includes all logged out users. (Core 14.6.0)
+* Fixed several issues around encrypted file portability (copying a "bundled" encrypted Realm from one device to another): (Core 14.6.0)
+  * Fixed `Assertion failed: new_size % (1ULL << m_page_shift) == 0` when opening an encrypted Realm less than 64Mb that was generated on a platform with a different page size than the current platform.
+  * Fixed a `DecryptionFailed` exception thrown when opening a small (<4k of data) Realm generated on a device with a page size of 4k if it was bundled and opened on a device with a larger page size.
+  * Fixed an issue during a subsequent open of an encrypted Realm for some rare allocation patterns when the top ref was within ~50 bytes of the end of a page. This could manifest as a DecryptionFailed exception or as an assertion: `encrypted_file_mapping.hpp:183: Assertion failed: local_ndx < m_page_state.size()`.
+* Schema initialization could hit an assertion failure if the sync client applied a downloaded changeset while the Realm file was in the process of being opened. (Core 14.6.0)
+* Improve perfomance of "chained OR equality" queries for UUID/ObjectId types and RQL parsed "IN" queries on string/int/uuid/objectid types. (Core 14.6.0)
+* Fixed a bug when running a IN query (or a query of the pattern `x == 1 OR x == 2 OR x == 3`) when evaluating on a string property with an empty string in the search condition. Matches with an empty string would have been evaluated as if searching for a null string instead. (Core 14.6.1)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.6.1.
 * Flutter: ^3.19.0
 * Dart: ^3.3.0
 
