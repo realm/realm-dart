@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Allow configuration of generator per model class. Currently support specifying the constructor style to use. 
+* Allow configuration of generator per model class. Currently support specifying the constructor style to use.
   ```dart
   const config = GeneratorConfig(ctorStyle: CtorStyle.allNamed);
   const realmModel = RealmModel.using(baseType: ObjectType.realmObject, generatorConfig: config);
@@ -24,6 +24,7 @@
 
 ### Fixed
 * Avoid: Attempt to execute code removed by Dart AOT compiler (TFA). (Issue [#1647](https://github.com/realm/realm-dart/issues/1647))
+* Fixed nullability annotations for the experimental API `App.baseUrl` and `App.updateBaseUrl`. The former is guaranteed not to be `null`, while the latter will now accept a `null` argument, in which case the base url will be restored to its default value. (Issue [#1523](https://github.com/realm/realm-dart/issues/1523))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
