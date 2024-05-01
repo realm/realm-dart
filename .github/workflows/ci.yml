@@ -51,7 +51,7 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: macos-latest
+      runner: macos-12
       binary: ios
       build: '["ios-device", "ios-simulator", "ios-catalyst"]'
 
@@ -231,7 +231,7 @@ jobs:
     secrets: inherit
     with:
       os: macos
-      runner: macos-13 # workaround to: https://github.com/flutter/flutter/issues/118469 latest is still macos-12 ¯\_(ツ)_/¯
+      runner: macos-latest
       differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
   cleanup-cluster-flutter-macos:
@@ -281,7 +281,7 @@ jobs:
       differentiator: fi${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-ios:
-    runs-on: macos-latest
+    runs-on: macos-12
     name: Flutter Tests iOS
     timeout-minutes: 45
     needs:

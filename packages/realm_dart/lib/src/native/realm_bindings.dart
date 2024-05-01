@@ -175,6 +175,25 @@ class RealmLibrary {
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
+  ffi.Pointer<realm_sync_client_config_t>
+      realm_app_config_get_sync_client_config(
+    ffi.Pointer<realm_app_config_t> arg0,
+  ) {
+    return _realm_app_config_get_sync_client_config(
+      arg0,
+    );
+  }
+
+  late final _realm_app_config_get_sync_client_configPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_sync_client_config_t> Function(
+                  ffi.Pointer<realm_app_config_t>)>>(
+      'realm_app_config_get_sync_client_config');
+  late final _realm_app_config_get_sync_client_config =
+      _realm_app_config_get_sync_client_configPtr.asFunction<
+          ffi.Pointer<realm_sync_client_config_t> Function(
+              ffi.Pointer<realm_app_config_t>)>();
+
   /// Create a new app configuration.
   ///
   /// @param app_id The MongoDB Realm app id.
@@ -196,6 +215,25 @@ class RealmLibrary {
   late final _realm_app_config_new = _realm_app_config_newPtr.asFunction<
       ffi.Pointer<realm_app_config_t> Function(
           ffi.Pointer<ffi.Char>, ffi.Pointer<realm_http_transport_t>)>();
+
+  void realm_app_config_set_base_file_path(
+    ffi.Pointer<realm_app_config_t> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+  ) {
+    return _realm_app_config_set_base_file_path(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_config_set_base_file_pathPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<ffi.Char>)>>('realm_app_config_set_base_file_path');
+  late final _realm_app_config_set_base_file_path =
+      _realm_app_config_set_base_file_pathPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
   void realm_app_config_set_base_url(
     ffi.Pointer<realm_app_config_t> arg0,
@@ -330,6 +368,44 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
+  void realm_app_config_set_metadata_encryption_key(
+    ffi.Pointer<realm_app_config_t> arg0,
+    ffi.Pointer<ffi.Uint8> arg1,
+  ) {
+    return _realm_app_config_set_metadata_encryption_key(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_config_set_metadata_encryption_keyPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Uint8>)>>(
+      'realm_app_config_set_metadata_encryption_key');
+  late final _realm_app_config_set_metadata_encryption_key =
+      _realm_app_config_set_metadata_encryption_keyPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Uint8>)>();
+
+  void realm_app_config_set_metadata_mode(
+    ffi.Pointer<realm_app_config_t> arg0,
+    int arg1,
+  ) {
+    return _realm_app_config_set_metadata_mode(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_config_set_metadata_modePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Int32)>>('realm_app_config_set_metadata_mode');
+  late final _realm_app_config_set_metadata_mode =
+      _realm_app_config_set_metadata_modePtr
+          .asFunction<void Function(ffi.Pointer<realm_app_config_t>, int)>();
+
   void realm_app_config_set_platform_version(
     ffi.Pointer<realm_app_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
@@ -387,48 +463,61 @@ class RealmLibrary {
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
 
-  /// Create realm_app_t* instance given a valid realm configuration and sync client configuration.
+  void realm_app_config_set_security_access_group(
+    ffi.Pointer<realm_app_config_t> arg0,
+    ffi.Pointer<ffi.Char> arg1,
+  ) {
+    return _realm_app_config_set_security_access_group(
+      arg0,
+      arg1,
+    );
+  }
+
+  late final _realm_app_config_set_security_access_groupPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(
+                  ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>>(
+      'realm_app_config_set_security_access_group');
+  late final _realm_app_config_set_security_access_group =
+      _realm_app_config_set_security_access_groupPtr.asFunction<
+          void Function(
+              ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
+  /// Create realm_app_t* instance given a valid realm app configuration.
   ///
   /// @return A non-null pointer if no error occurred.
   ffi.Pointer<realm_app_t> realm_app_create(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<realm_sync_client_config_t> arg1,
   ) {
     return _realm_app_create(
       arg0,
-      arg1,
     );
   }
 
   late final _realm_app_createPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Pointer<realm_sync_client_config_t>)>>('realm_app_create');
+          ffi.Pointer<realm_app_t> Function(
+              ffi.Pointer<realm_app_config_t>)>>('realm_app_create');
   late final _realm_app_create = _realm_app_createPtr.asFunction<
-      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
-          ffi.Pointer<realm_sync_client_config_t>)>();
+      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>)>();
 
-  /// Create cached realm_app_t* instance given a valid realm configuration and sync client configuration.
+  /// Create cached realm_app_t* instance given a valid realm app configuration.
   ///
   /// @return A non-null pointer if no error occurred.
   ffi.Pointer<realm_app_t> realm_app_create_cached(
     ffi.Pointer<realm_app_config_t> arg0,
-    ffi.Pointer<realm_sync_client_config_t> arg1,
   ) {
     return _realm_app_create_cached(
       arg0,
-      arg1,
     );
   }
 
   late final _realm_app_create_cachedPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
-                  ffi.Pointer<realm_sync_client_config_t>)>>(
-      'realm_app_create_cached');
+      ffi.NativeFunction<
+          ffi.Pointer<realm_app_t> Function(
+              ffi.Pointer<realm_app_config_t>)>>('realm_app_create_cached');
   late final _realm_app_create_cached = _realm_app_create_cachedPtr.asFunction<
-      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>,
-          ffi.Pointer<realm_sync_client_config_t>)>();
+      ffi.Pointer<realm_app_t> Function(ffi.Pointer<realm_app_config_t>)>();
 
   ffi.Pointer<realm_app_credentials_t> realm_app_credentials_new_anonymous(
     bool reuse_credentials,
@@ -1413,31 +1502,24 @@ class RealmLibrary {
   /// Switches the active user with the specified one. The user must exist in the list of all users who have logged into
   /// this application.
   /// @param app ptr to realm_app
-  /// @param user ptr to current user
-  /// @param new_user ptr to the new user to switch
+  /// @param user ptr to user to set as current.
   /// @return True if no error has been recorded, False otherwise
   bool realm_app_switch_user(
     ffi.Pointer<realm_app_t> app,
     ffi.Pointer<realm_user_t> user,
-    ffi.Pointer<ffi.Pointer<realm_user_t>> new_user,
   ) {
     return _realm_app_switch_user(
       app,
       user,
-      new_user,
     );
   }
 
   late final _realm_app_switch_userPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<realm_app_t>,
-                  ffi.Pointer<realm_user_t>,
-                  ffi.Pointer<ffi.Pointer<realm_user_t>>)>>(
-      'realm_app_switch_user');
+      ffi.NativeFunction<
+          ffi.Bool Function(ffi.Pointer<realm_app_t>,
+              ffi.Pointer<realm_user_t>)>>('realm_app_switch_user');
   late final _realm_app_switch_user = _realm_app_switch_userPtr.asFunction<
-      bool Function(ffi.Pointer<realm_app_t>, ffi.Pointer<realm_user_t>,
-          ffi.Pointer<ffi.Pointer<realm_user_t>>)>();
+      bool Function(ffi.Pointer<realm_app_t>, ffi.Pointer<realm_user_t>)>();
 
   /// Get the default realm file path based on the user and partition value in the config.
   ///
@@ -9280,26 +9362,6 @@ class RealmLibrary {
   late final _realm_sync_client_config_new = _realm_sync_client_config_newPtr
       .asFunction<ffi.Pointer<realm_sync_client_config_t> Function()>();
 
-  void realm_sync_client_config_set_base_file_path(
-    ffi.Pointer<realm_sync_client_config_t> arg0,
-    ffi.Pointer<ffi.Char> arg1,
-  ) {
-    return _realm_sync_client_config_set_base_file_path(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_sync_client_config_set_base_file_pathPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-                  ffi.Pointer<ffi.Char>)>>(
-      'realm_sync_client_config_set_base_file_path');
-  late final _realm_sync_client_config_set_base_file_path =
-      _realm_sync_client_config_set_base_file_pathPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Pointer<ffi.Char>)>();
-
   void realm_sync_client_config_set_connect_timeout(
     ffi.Pointer<realm_sync_client_config_t> arg0,
     int arg1,
@@ -9414,44 +9476,6 @@ class RealmLibrary {
           'realm_sync_client_config_set_max_resumption_delay_interval');
   late final _realm_sync_client_config_set_max_resumption_delay_interval =
       _realm_sync_client_config_set_max_resumption_delay_intervalPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
-
-  void realm_sync_client_config_set_metadata_encryption_key(
-    ffi.Pointer<realm_sync_client_config_t> arg0,
-    ffi.Pointer<ffi.Uint8> arg1,
-  ) {
-    return _realm_sync_client_config_set_metadata_encryption_key(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_sync_client_config_set_metadata_encryption_keyPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-                  ffi.Pointer<ffi.Uint8>)>>(
-      'realm_sync_client_config_set_metadata_encryption_key');
-  late final _realm_sync_client_config_set_metadata_encryption_key =
-      _realm_sync_client_config_set_metadata_encryption_keyPtr.asFunction<
-          void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Pointer<ffi.Uint8>)>();
-
-  void realm_sync_client_config_set_metadata_mode(
-    ffi.Pointer<realm_sync_client_config_t> arg0,
-    int arg1,
-  ) {
-    return _realm_sync_client_config_set_metadata_mode(
-      arg0,
-      arg1,
-    );
-  }
-
-  late final _realm_sync_client_config_set_metadata_modePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Int32)>>('realm_sync_client_config_set_metadata_mode');
-  late final _realm_sync_client_config_set_metadata_mode =
-      _realm_sync_client_config_set_metadata_modePtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
 
   void realm_sync_client_config_set_multiplex_sessions(
@@ -11318,7 +11342,7 @@ class RealmLibrary {
               ffi.Pointer<realm_flx_sync_subscription_t>)>();
 
   /// @return a notification token object. Dispose it to stop receiving notifications.
-  ffi.Pointer<realm_sync_user_subscription_token_t>
+  ffi.Pointer<realm_app_user_subscription_token_t>
       realm_sync_user_on_state_change_register_callback(
     ffi.Pointer<realm_user_t> arg0,
     realm_sync_on_user_state_changed_t arg1,
@@ -11335,7 +11359,7 @@ class RealmLibrary {
 
   late final _realm_sync_user_on_state_change_register_callbackPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Pointer<realm_sync_user_subscription_token_t> Function(
+              ffi.Pointer<realm_app_user_subscription_token_t> Function(
                   ffi.Pointer<realm_user_t>,
                   realm_sync_on_user_state_changed_t,
                   ffi.Pointer<ffi.Void>,
@@ -11343,7 +11367,7 @@ class RealmLibrary {
       'realm_sync_user_on_state_change_register_callback');
   late final _realm_sync_user_on_state_change_register_callback =
       _realm_sync_user_on_state_change_register_callbackPtr.asFunction<
-          ffi.Pointer<realm_sync_user_subscription_token_t> Function(
+          ffi.Pointer<realm_app_user_subscription_token_t> Function(
               ffi.Pointer<realm_user_t>,
               realm_sync_on_user_state_changed_t,
               ffi.Pointer<ffi.Void>,
@@ -11543,7 +11567,7 @@ class RealmLibrary {
 
   /// Return the identiy for the user passed as argument
   /// @param user ptr to the user for which the identiy has to be retrieved
-  /// @return a ptr to the identity string
+  /// @return a ptr to the identity string. This must be manually released with realm_free().
   ffi.Pointer<ffi.Char> realm_user_get_identity(
     ffi.Pointer<realm_user_t> user,
   ) {
@@ -11953,8 +11977,6 @@ final class realm_app_error extends ffi.Struct {
 /// Pointers to this struct and its pointer members are only valid inside the scope
 /// of the callback they were passed to.
 typedef realm_app_error_t = realm_app_error;
-
-/// App
 typedef realm_app_t = realm_app;
 
 final class realm_app_user_apikey extends ffi.Struct {
@@ -11986,6 +12008,10 @@ typedef Dartrealm_app_user_completion_func_tFunction = void Function(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_user_t> user,
     ffi.Pointer<realm_app_error_t> error);
+
+final class realm_app_user_subscription_token extends ffi.Opaque {}
+
+typedef realm_app_user_subscription_token_t = realm_app_user_subscription_token;
 
 /// Generic completion callback for asynchronous Realm App operations.
 ///
@@ -12265,9 +12291,9 @@ abstract class realm_errno {
   static const int RLM_ERR_CUSTOM_ERROR = 4000;
   static const int RLM_ERR_CLIENT_USER_NOT_FOUND = 4100;
   static const int RLM_ERR_CLIENT_USER_NOT_LOGGED_IN = 4101;
-  static const int RLM_ERR_CLIENT_APP_DEALLOCATED = 4102;
   static const int RLM_ERR_CLIENT_REDIRECT_ERROR = 4103;
   static const int RLM_ERR_CLIENT_TOO_MANY_REDIRECTS = 4104;
+  static const int RLM_ERR_CLIENT_USER_ALREADY_NAMED = 4105;
   static const int RLM_ERR_BAD_TOKEN = 4200;
   static const int RLM_ERR_MALFORMED_JSON = 4201;
   static const int RLM_ERR_MISSING_JSON_KEY = 4202;
@@ -12894,13 +12920,13 @@ final class realm_sync_client_config extends ffi.Opaque {}
 
 typedef realm_sync_client_config_t = realm_sync_client_config;
 
-/// Sync
 abstract class realm_sync_client_metadata_mode {
   static const int RLM_SYNC_CLIENT_METADATA_MODE_PLAINTEXT = 0;
   static const int RLM_SYNC_CLIENT_METADATA_MODE_ENCRYPTED = 1;
   static const int RLM_SYNC_CLIENT_METADATA_MODE_DISABLED = 2;
 }
 
+/// Sync
 abstract class realm_sync_client_reconnect_mode {
   static const int RLM_SYNC_CLIENT_RECONNECT_MODE_NORMAL = 0;
   static const int RLM_SYNC_CLIENT_RECONNECT_MODE_TESTING = 1;
@@ -13007,6 +13033,14 @@ final class realm_sync_error_user_info extends ffi.Struct {
 }
 
 typedef realm_sync_error_user_info_t = realm_sync_error_user_info;
+
+abstract class realm_sync_file_action {
+  static const int RLM_SYNC_FILE_ACTION_DELETE_REALM = 0;
+  static const int RLM_SYNC_FILE_ACTION_BACK_UP_THEN_DELETE_REALM = 1;
+}
+
+final class realm_sync_manager extends ffi.Opaque {}
+
 typedef realm_sync_on_subscription_state_changed_t = ffi.Pointer<
     ffi.NativeFunction<realm_sync_on_subscription_state_changed_tFunction>>;
 typedef realm_sync_on_subscription_state_changed_tFunction = ffi.Void Function(
@@ -13212,11 +13246,6 @@ typedef Dartrealm_sync_ssl_verify_func_tFunction = bool Function(
     int preverify_ok,
     int depth);
 
-final class realm_sync_user_subscription_token extends ffi.Opaque {}
-
-typedef realm_sync_user_subscription_token_t
-    = realm_sync_user_subscription_token;
-
 /// Callback function invoked by the sync session once it has uploaded or download
 /// all available changesets. See @a realm_sync_session_wait_for_upload and
 /// @a realm_sync_session_wait_for_download.
@@ -13265,6 +13294,7 @@ abstract class realm_user_state {
   static const int RLM_USER_STATE_REMOVED = 2;
 }
 
+/// App
 typedef realm_user_t = realm_user;
 
 final class realm_uuid extends ffi.Struct {

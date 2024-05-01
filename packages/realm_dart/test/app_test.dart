@@ -168,7 +168,7 @@ void main() {
 
     final user = await app.logIn(Credentials.anonymous());
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    expect(app.users, [user1, user]);
+    expect(app.users, {user1, user});
   });
 
   baasTest('App delete user', (configuration) async {

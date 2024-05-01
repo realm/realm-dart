@@ -1328,17 +1328,18 @@ void main() {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
+    int count = 0;
     double progress = -1;
-    final completer = Completer<void>();
+
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
+      count++;
       progress = syncProgress.progressEstimate;
-      if (syncProgress.progressEstimate == 1.0) {
-        completer.complete();
-      }
     });
-    completer.future.timeout(Duration(milliseconds: 300), onTimeout: () => throw Exception("onProgressCallback did not happen."));
+
     expect(syncedRealm.isClosed, false);
-    expect(progress, greaterThan(-1));
+    // Semantics of onProgressCallback changed with https://github.com/realm/realm-core/issues/7452
+    expect(count, 0);
+    expect(progress, -1);
   });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
