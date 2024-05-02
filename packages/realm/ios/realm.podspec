@@ -37,12 +37,7 @@ Pod::Spec.new do |s|
   s.library                   = 'c++', 'z', 'compression'
 
   s.swift_version             = '5.0'
-  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES',
-                                  'HEADER_SEARCH_PATHS' => [
-                                    '"$(PODS_TARGET_SRCROOT)/Classes"',
-                                  ],
-                                  'FRAMEWORK_SEARCH_PATHS' => '"$(PODS_TARGET_SRCROOT)/**"'
-                                }
+  s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES' }
                                 #Use --debug to debug the install command on both prepare_command and script_phase below
   s.prepare_command           = "source \"#{project_dir}/Flutter/flutter_export_environment.sh\" && cd \"$FLUTTER_APPLICATION_PATH\" && \"$FLUTTER_ROOT/bin/dart\" run realm install --target-os-type ios"
   s.script_phases             = [
