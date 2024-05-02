@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* `realm_privacy` bundle mistakenly included an exe-file preventing app store submissions. (Issue [#1656](https://github.com/realm/realm-dart/issues/1656))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
