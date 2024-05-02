@@ -38,13 +38,6 @@ Pod::Spec.new do |s|
 
   s.swift_version             = '5.0'
   s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES',
-                                  'CURRENT_PROJECT_VERSION' => s.version,
-                                  'VERSIONING_SYSTEM' => 'apple-generic',
-                                  'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
-                                  'CLANG_CXX_LIBRARY' => 'libc++',
-                                  # Flutter.framework does not contain a i386 slice.
-                                  # Only x86_64 simulators are supported. Using EXCLUDED_ARCHS to exclude i386 arch.
-                                  'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386',
                                   'HEADER_SEARCH_PATHS' => [
                                     '"$(PODS_TARGET_SRCROOT)/Classes"',
                                   ],
