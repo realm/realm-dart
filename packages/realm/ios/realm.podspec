@@ -63,5 +63,5 @@ Pod::Spec.new do |s|
                                     :execution_position => :before_compile
                                   }
                                 ]
-  s.resource_bundles          = { 'realm_privacy' => [ 'Resources/PrivacyInfo.xcprivacy' ] }
+  s.resources                 = 'Resources/PrivacyInfo.xcprivacy'
 end
