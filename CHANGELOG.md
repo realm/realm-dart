@@ -1,7 +1,4 @@
-## vNext (TBD)
-
-### Enhancements
-* None
+## 2.2.1 (2024-05-02)
 
 ### Fixed
 * `realm_privacy` bundle mistakenly included an exe-file preventing app store submissions. (Issue [#1656](https://github.com/realm/realm-dart/issues/1656))
