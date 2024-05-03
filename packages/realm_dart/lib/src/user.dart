@@ -356,7 +356,7 @@ class FunctionsClient {
   Future<dynamic> call(String name, [List<Object?> functionArgs = const []]) async {
     _user._ensureLoggedIn('call Atlas function');
     final args = jsonEncode(functionArgs);
-    final response = await realmCore.callAppFunction(_user.app, _user, name, args);
+    final response = await _user.app.handle.callAppFunction(_user.handle, name, args);
     return jsonDecode(response);
   }
 }

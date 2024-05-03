@@ -34,7 +34,6 @@ import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'rooted_handle.dart';
 import 'session_handle.dart';
-import 'user_handle.dart';
 
 final _pluginLib = () {
   if (!isFlutterPlatform) {
@@ -128,67 +127,6 @@ void guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> 
   }
 }
 
-Pointer<Void> createAsyncUserCallbackUserdata(Completer<void> completer) {
-  final callback = Pointer.fromFunction<
-      Void Function(
-        Pointer<Void>,
-        Pointer<realm_user>,
-        Pointer<realm_app_error>,
-      )>(appUserCompletionCallback);
-
-  final userdata = realmLib.realm_dart_userdata_async_new(
-    completer,
-    callback.cast(),
-    scheduler.handle.pointer,
-  );
-
-  return userdata.cast();
-}
-
-void appUserCompletionCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
-  final Completer<UserHandle> completer = userdata.toObject();
-
-  if (error != nullptr) {
-    completer.completeWithAppError(error);
-    return;
-  }
-
-  user = realmLib.realm_clone(user.cast()).cast(); // take an extra reference to the user object
-  if (user == nullptr) {
-    completer.completeError(RealmException("Error while cloning user object."));
-    return;
-  }
-
-  completer.complete(UserHandle(user.cast()));
-}
-
-void voidCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
-  final Completer<void> completer = userdata.toObject();
-
-  if (error != nullptr) {
-    completer.completeWithAppError(error);
-    return;
-  }
-
-  completer.complete();
-}
-
-Pointer<Void> createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
-  final callback = Pointer.fromFunction<
-      Void Function(
-        Pointer<Void>,
-        Pointer<realm_app_error>,
-      )>(voidCompletionCallback);
-
-  final userdata = realmLib.realm_dart_userdata_async_new(
-    completer,
-    callback.cast(),
-    scheduler.handle.pointer,
-  );
-
-  return userdata.cast();
-}
-
 void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
   CollectionHandleBase? collectionHandle;
   try {
@@ -247,18 +185,6 @@ void collectionChangeCallback(Pointer<Void> userdata, Pointer<realm_collection_c
   } catch (e) {
     controller.onError(RealmError("Error handling change notifications. Error: $e"));
   }
-}
-
-void callAppFunctionCallback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
-  final Completer<String> completer = userdata.toObject();
-
-  if (error != nullptr) {
-    completer.completeWithAppError(error);
-    return;
-  }
-
-  final stringResponse = response.cast<Utf8>().toRealmDartString()!;
-  completer.complete(stringResponse);
 }
 
 // All access to Realm Core functionality goes through this class
@@ -447,42 +373,6 @@ class _RealmCore {
     } catch (e) {
       throw RealmException('Cannot get app directory. Error: $e');
     }
-  }
-
-  Pointer<Void> createAsyncFunctionCallbackUserdata(Completer<String> completer) {
-    final callback = Pointer.fromFunction<
-        Void Function(
-          Pointer<Void>,
-          Pointer<Char>,
-          Pointer<realm_app_error>,
-        )>(callAppFunctionCallback);
-
-    final userdata = realmLib.realm_dart_userdata_async_new(
-      completer,
-      callback.cast(),
-      scheduler.handle.pointer,
-    );
-
-    return userdata.cast();
-  }
-
-  Future<String> callAppFunction(App app, User user, String functionName, String? argsAsJSON) {
-    return using((arena) {
-      final completer = Completer<String>();
-      realmLib
-          .realm_app_call_function(
-            app.handle.pointer,
-            user.handle.pointer,
-            functionName.toCharPtr(arena),
-            argsAsJSON?.toCharPtr(arena) ?? nullptr,
-            nullptr,
-            realmLib.addresses.realm_dart_return_string_callback,
-            createAsyncFunctionCallbackUserdata(completer),
-            realmLib.addresses.realm_dart_userdata_async_free,
-          )
-          .raiseIfFalse();
-      return completer.future;
-    });
   }
 
   void setLogLevel(LogLevel level, {required LogCategory category}) {

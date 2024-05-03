@@ -487,7 +487,7 @@ Pointer<Void> createAsyncFunctionCallbackUserdata(Completer<String> completer) {
         Pointer<Void>,
         Pointer<Char>,
         Pointer<realm_app_error>,
-      )>(callAppFunctionCallback);
+      )>(_callAppFunctionCallback);
 
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
@@ -496,6 +496,45 @@ Pointer<Void> createAsyncFunctionCallbackUserdata(Completer<String> completer) {
   );
 
   return userdata.cast();
+}
+
+void _callAppFunctionCallback(Pointer<Void> userdata, Pointer<Char> response, Pointer<realm_app_error> error) {
+  final Completer<String> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  final stringResponse = response.cast<Utf8>().toRealmDartString()!;
+  completer.complete(stringResponse);
+}
+
+Pointer<Void> createAsyncCallbackUserdata<T extends Function>(Completer<void> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_app_error>,
+      )>(_voidCompletionCallback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+void _voidCompletionCallback(Pointer<Void> userdata, Pointer<realm_app_error> error) {
+  final Completer<void> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  completer.complete();
 }
 
 class _AppConfigHandle extends HandleBase<realm_app_config> {

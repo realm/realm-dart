@@ -259,6 +259,40 @@ void _userChangeCallback(Object userdata, int data) {
   controller.onUserChanged();
 }
 
+Pointer<Void> createAsyncUserCallbackUserdata(Completer<void> completer) {
+  final callback = Pointer.fromFunction<
+      Void Function(
+        Pointer<Void>,
+        Pointer<realm_user>,
+        Pointer<realm_app_error>,
+      )>(_appUserCompletionCallback);
+
+  final userdata = realmLib.realm_dart_userdata_async_new(
+    completer,
+    callback.cast(),
+    scheduler.handle.pointer,
+  );
+
+  return userdata.cast();
+}
+
+void _appUserCompletionCallback(Pointer<Void> userdata, Pointer<realm_user> user, Pointer<realm_app_error> error) {
+  final Completer<UserHandle> completer = userdata.toObject();
+
+  if (error != nullptr) {
+    completer.completeWithAppError(error);
+    return;
+  }
+
+  user = realmLib.realm_clone(user.cast()).cast(); // take an extra reference to the user object
+  if (user == nullptr) {
+    completer.completeError(RealmException("Error while cloning user object."));
+    return;
+  }
+
+  completer.complete(UserHandle(user.cast()));
+}
+
 Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<ApiKey> completer) {
   final callback = Pointer.fromFunction<
       Void Function(
