@@ -77,4 +77,12 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
       _tearDownFinalizationTrace(this, pointer);
     }
   }
+
+  @override
+  // ignore: hash_and_equals
+  bool operator ==(Object other) => other is HandleBase<T>
+      ? pointer == other.pointer
+          ? true
+          : realmLib.realm_equals(pointer.cast(), other.pointer.cast())
+      : false;
 }

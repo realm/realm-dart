@@ -518,7 +518,7 @@ class Realm implements Finalizable {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Realm) return false;
-    return realmCore.realmEquals(this, other);
+    return handle == other.handle;
   }
 
   /// The logger that will emit log messages from the database and sync operations.

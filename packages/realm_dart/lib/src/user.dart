@@ -7,7 +7,6 @@ import 'dart:ffi';
 
 import 'app.dart';
 import 'credentials.dart';
-import 'native/realm_core.dart';
 import 'native/user_handle.dart';
 import 'realm_class.dart';
 
@@ -146,7 +145,7 @@ class User {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! User) return false;
-    return realmCore.userEquals(this, other);
+    return handle == other.handle;
   }
 
   void _ensureLoggedIn([String clarification = 'perform this action']) {

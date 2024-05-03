@@ -457,10 +457,10 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
     if (other is! RealmObjectBase) return false;
     if (!isManaged || !other.isManaged) return false;
 
-    return realmCore.objectEquals(this, other);
+    return handle == other.handle;
   }
 
-  late final int _managedHashCode = realmCore.objectGetHashCode(this);
+  late final int _managedHashCode = handle.hashCode;
 
   @override
   int get hashCode {

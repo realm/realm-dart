@@ -42,6 +42,11 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
 
   bool get isValid => realmLib.realm_object_is_valid(pointer);
 
+  Link get asLink {
+    final realmLink = realmLib.realm_object_as_link(pointer);
+    return Link(realmLink);
+  }
+
   // TODO: avoid taking the [realm] parameter
   Object? getValue(Realm realm, int propertyKey) {
     return using((Arena arena) {
@@ -150,6 +155,18 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
       return realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative).raiseIfNull();
     });
   }
+
+  @override
+  // equals handled by HandleBase<T>
+  // ignore: hash_and_equals
+  int get hashCode => asLink.hash;
+}
+
+extension type Link(realm_link_t link) {
+  int get targetKey => link.target;
+  int get classKey => link.target_table;
+
+  int get hash => Object.hash(targetKey, classKey);
 }
 
 void _objectChangeCallback(Pointer<Void> userdata, Pointer<realm_object_changes> data) {

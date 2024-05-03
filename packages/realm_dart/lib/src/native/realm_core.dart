@@ -290,28 +290,6 @@ class _RealmCore {
   // ignore: unused_element
   int get _threadId => realmLib.realm_dart_get_thread_id();
 
-  _RealmLinkHandle _getObjectAsLink(RealmObjectBase object) {
-    final realmLink = realmLib.realm_object_as_link(object.handle.pointer);
-    return _RealmLinkHandle(realmLink);
-  }
-
-  bool _equals<T extends NativeType>(HandleBase<T> first, HandleBase<T> second) {
-    return realmLib.realm_equals(first.pointer.cast(), second.pointer.cast());
-  }
-
-  bool objectEquals(RealmObjectBase first, RealmObjectBase second) => _equals(first.handle, second.handle);
-  bool realmEquals(Realm first, Realm second) => _equals(first.handle, second.handle);
-  bool userEquals(User first, User second) => _equals(first.handle, second.handle);
-
-  int objectGetHashCode(RealmObjectBase value) {
-    final link = realmCore._getObjectAsLink(value);
-
-    var hashCode = -986587137;
-    hashCode = (hashCode * -1521134295) + link.classKey;
-    hashCode = (hashCode * -1521134295) + link.targetKey;
-    return hashCode;
-  }
-
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
       realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
@@ -389,14 +367,6 @@ class _RealmCore {
       return [for (int i = 0; i < count; i++) outValues[i].cast<Utf8>().toDartString()];
     });
   }
-}
-
-class _RealmLinkHandle {
-  final int targetKey;
-  final int classKey;
-  _RealmLinkHandle(realm_link_t link)
-      : targetKey = link.target,
-        classKey = link.target_table;
 }
 
 class NotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
@@ -490,7 +460,7 @@ void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator)
     realmValue.type = realm_value_type.RLM_TYPE_NULL;
   } else if (value is RealmObjectBase) {
     // when converting a RealmObjectBase to realm_value.link we assume the object is managed
-    final link = realmCore._getObjectAsLink(value);
+    final link = value.handle.asLink;
     realmValue.values.link.target = link.targetKey;
     realmValue.values.link.target_table = link.classKey;
     realmValue.type = realm_value_type.RLM_TYPE_LINK;
