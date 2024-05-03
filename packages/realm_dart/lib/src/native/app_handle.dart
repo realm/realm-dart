@@ -35,8 +35,7 @@ class AppHandle extends HandleBase<realm_app> {
     }
     final httpTransportHandle = _createHttpTransport(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
-    final appPtr = realmLib.realm_app_create_cached(appConfigHandle.pointer).raiseIfNull();
-    return AppHandle(appPtr);
+    return AppHandle(realmLib.realm_app_create_cached(appConfigHandle.pointer));
   }
 
   UserHandle? get currentUser {
@@ -48,7 +47,7 @@ class AppHandle extends HandleBase<realm_app> {
   List<UserHandle> _getUsers(Arena arena, {int expectedSize = 2}) {
     final actualCount = arena<Size>();
     final usersPtr = arena<Pointer<realm_user>>(expectedSize);
-    realmLib.realm_app_get_all_users(pointer, usersPtr, expectedSize, actualCount).raiseIfFalse();
+    realmLib.realm_app_get_all_users(pointer, usersPtr, expectedSize, actualCount).raiseLastErrorIfFalse();
 
     if (expectedSize < actualCount.value) {
       // The supplied array was too small - resize it
@@ -74,7 +73,7 @@ class AppHandle extends HandleBase<realm_app> {
           createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         )
-        .raiseIfFalse("Remove user failed");
+        .raiseLastErrorIfFalse("Remove user failed");
     return completer.future;
   }
 
@@ -85,7 +84,7 @@ class AppHandle extends HandleBase<realm_app> {
             pointer,
             user.pointer,
           )
-          .raiseIfFalse("Switch user failed");
+          .raiseLastErrorIfFalse("Switch user failed");
     });
   }
 
@@ -107,7 +106,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse("Update base URL failed");
+          .raiseLastErrorIfFalse("Update base URL failed");
     });
     return completer.future;
   }
@@ -122,7 +121,7 @@ class AppHandle extends HandleBase<realm_app> {
           createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         )
-        .raiseIfFalse("Refresh custom data failed");
+        .raiseLastErrorIfFalse("Refresh custom data failed");
     return completer.future;
   }
 
@@ -140,7 +139,7 @@ class AppHandle extends HandleBase<realm_app> {
           createAsyncUserCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         )
-        .raiseIfFalse("Login failed");
+        .raiseLastErrorIfFalse("Login failed");
     return await completer.future;
   }
 
@@ -156,7 +155,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return completer.future;
   }
@@ -173,7 +172,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return await completer.future;
   }
@@ -189,7 +188,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return completer.future;
   }
@@ -207,7 +206,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return completer.future;
   }
@@ -223,7 +222,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return completer.future;
   }
@@ -241,7 +240,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return completer.future;
   }
@@ -257,7 +256,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
     return completer.future;
   }
@@ -272,7 +271,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse("Logout failed");
+          .raiseLastErrorIfFalse("Logout failed");
     } else {
       realmLib
           .realm_app_log_out(
@@ -282,7 +281,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse("Logout failed");
+          .raiseLastErrorIfFalse("Logout failed");
     }
     return completer.future;
   }
@@ -297,7 +296,7 @@ class AppHandle extends HandleBase<realm_app> {
           createAsyncCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         )
-        .raiseIfFalse("Delete user failed");
+        .raiseLastErrorIfFalse("Delete user failed");
     return completer.future;
   }
 
@@ -310,7 +309,7 @@ class AppHandle extends HandleBase<realm_app> {
             realmPath.toCharPtr(arena),
             didRun,
           )
-          .raiseIfFalse("An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
+          .raiseLastErrorIfFalse("An error occurred while resetting the Realm. Check if the file is in use: '$realmPath'");
       return didRun.value;
     });
   }
@@ -329,7 +328,7 @@ class AppHandle extends HandleBase<realm_app> {
             createAsyncFunctionCallbackUserdata(completer),
             realmLib.addresses.realm_dart_userdata_async_free,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
       return completer.future;
     });
   }

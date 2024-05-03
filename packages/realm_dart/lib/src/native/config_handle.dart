@@ -4,13 +4,13 @@
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
+import 'package:realm_dart/src/native/error_handling.dart';
 
 import '../configuration.dart'; // TODO: Remove this import
 import '../migration.dart'; // TODO: Remove this import
 import '../realm_class.dart'; // TODO: Remove this import
 import '../scheduler.dart'; // TODO: Remove this import
 import '../user.dart'; // TODO: Remove this import
-import 'error_handling.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_core.dart';
@@ -22,9 +22,8 @@ class ConfigHandle extends HandleBase<realm_config> {
   ConfigHandle(Pointer<realm_config> pointer) : super(pointer, 512);
 
   factory ConfigHandle.from(Configuration config) {
-    return using((Arena arena) {
-      final configPtr = realmLib.realm_config_new();
-      final configHandle = ConfigHandle(configPtr);
+    return using((arena) {
+      final configHandle = ConfigHandle(realmLib.realm_config_new());
 
       if (config.schemaObjects.isNotEmpty) {
         final schemaHandle = SchemaHandle.from(config.schemaObjects);
@@ -88,7 +87,7 @@ class ConfigHandle extends HandleBase<realm_config> {
         realmLib.realm_config_set_in_memory(configHandle.pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
         realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
-        final syncConfigPtr = realmLib.realm_flx_sync_config_new(config.user.handle.pointer).raiseIfNull();
+        final syncConfigPtr = realmLib.realm_flx_sync_config_new(config.user.handle.pointer)..raiseLastErrorIfNull();
         try {
           realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
@@ -125,17 +124,17 @@ class ConfigHandle extends HandleBase<realm_config> {
             );
           }
 
-          realmLib.realm_config_set_sync_config(configPtr, syncConfigPtr);
+          realmLib.realm_config_set_sync_config(configHandle.pointer, syncConfigPtr);
         } finally {
           realmLib.realm_release(syncConfigPtr.cast());
         }
       } else if (config is DisconnectedSyncConfiguration) {
         realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
-        realmLib.realm_config_set_force_sync_history(configPtr, true);
+        realmLib.realm_config_set_force_sync_history(configHandle.pointer, true);
       }
 
       if (config.encryptionKey != null) {
-        realmLib.realm_config_set_encryption_key(configPtr, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
+        realmLib.realm_config_set_encryption_key(configHandle.pointer, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
       }
 
       // For sync and for dynamic Realms, we need to have a complete view of the schema in Core.
@@ -159,8 +158,12 @@ void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle
     }
 
     final beforeRealm = RealmInternal.getUnowned(syncConfig, RealmHandle.unowned(beforeHandle));
-    final realmPtr = realmLib.realm_from_thread_safe_reference(afterReference, scheduler.handle.pointer).raiseIfNull();
-    final afterRealm = RealmInternal.getUnowned(syncConfig, RealmHandle.unowned(realmPtr));
+    final afterRealm = RealmInternal.getUnowned(
+        syncConfig,
+        RealmHandle.unowned(realmLib.realm_from_thread_safe_reference(
+          afterReference,
+          scheduler.handle.pointer,
+        )));
 
     try {
       return await afterResetCallback(beforeRealm, afterRealm);

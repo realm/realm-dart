@@ -20,7 +20,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
 
   Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super.pointer.cast();
 
-  SubscriptionSetHandle commit() => SubscriptionSetHandle(realmLib.realm_sync_subscription_set_commit(_mutablePointer).raiseIfNull(), root);
+  SubscriptionSetHandle commit() => SubscriptionSetHandle(realmLib.realm_sync_subscription_set_commit(_mutablePointer), root);
 
   SubscriptionHandle insertOrAssignSubscription(ResultsHandle results, String? name, bool update) {
     if (!update) {
@@ -39,7 +39,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
             outIndex,
             outInserted,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
       return this[outIndex.value];
     });
   }
@@ -53,7 +53,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
             subscription.id.toNative(arena),
             outErased,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
       return outErased.value;
     });
   }
@@ -67,7 +67,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
             name.toCharPtr(arena),
             outErased,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
       return outErased.value;
     });
   }
@@ -81,10 +81,10 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
             results.pointer,
             outErased,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
       return outErased.value;
     });
   }
 
-  void clear() => realmLib.realm_sync_subscription_set_clear(_mutablePointer).raiseIfFalse();
+  void clear() => realmLib.realm_sync_subscription_set_clear(_mutablePointer).raiseLastErrorIfFalse();
 }

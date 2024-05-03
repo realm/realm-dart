@@ -26,21 +26,20 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle(
-          realmLib
-              .realm_query_parse_for_results(
-                pointer,
-                query.toCharPtr(arena),
-                length,
-                argsPointer,
-              )
-              .raiseIfNull(),
-          root);
+        realmLib.realm_query_parse_for_results(
+          pointer,
+          query.toCharPtr(arena),
+          length,
+          argsPointer,
+        ),
+        root,
+      );
       return queryHandle.findAll();
     });
   }
 
   int find(Object? value) {
-    return using((Arena arena) {
+    return using((arena) {
       final outIndex = arena<Size>();
       final outFound = arena<Bool>();
 
@@ -53,20 +52,19 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
             outIndex,
             outFound,
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
       return outFound.value ? outIndex.value : -1;
     });
   }
 
   ObjectHandle getObjectAt(int index) {
-    final objectPointer = realmLib.realm_results_get_object(pointer, index).raiseIfNull();
-    return ObjectHandle(objectPointer, root);
+    return ObjectHandle(realmLib.realm_results_get_object(pointer, index), root);
   }
 
   int get count {
-    return using((Arena arena) {
+    return using((arena) {
       final countPtr = arena<Size>();
-      realmLib.realm_results_count(pointer, countPtr).raiseIfFalse();
+      realmLib.realm_results_count(pointer, countPtr).raiseLastErrorIfFalse();
       return countPtr.value;
     });
   }
@@ -74,29 +72,27 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
   bool isValid() {
     return using((arena) {
       final isValid = arena<Bool>();
-      realmLib.realm_results_is_valid(pointer, isValid).raiseIfFalse();
+      realmLib.realm_results_is_valid(pointer, isValid).raiseLastErrorIfFalse();
       return isValid.value;
     });
   }
 
   void deleteAll() {
-    realmLib.realm_results_delete_all(pointer).raiseIfFalse();
+    realmLib.realm_results_delete_all(pointer).raiseLastErrorIfFalse();
   }
 
   ResultsHandle snapshot() {
-    final resultsPointer = realmLib.realm_results_snapshot(pointer).raiseIfNull();
-    return ResultsHandle(resultsPointer, root);
+    return ResultsHandle(realmLib.realm_results_snapshot(pointer), root);
   }
 
   ResultsHandle resolveIn(RealmHandle realmHandle) {
-    final ptr = realmLib.realm_results_resolve_in(pointer, realmHandle.pointer).raiseIfNull();
-    return ResultsHandle(ptr, realmHandle);
+    return ResultsHandle(realmLib.realm_results_resolve_in(pointer, realmHandle.pointer), realmHandle);
   }
 
   Object? elementAt(Realm realm, int index) {
-    return using((Arena arena) {
+    return using((arena) {
       final realmValue = arena<realm_value_t>();
-      realmLib.realm_results_get(pointer, index, realmValue).raiseIfFalse();
+      realmLib.realm_results_get(pointer, index, realmValue).raiseLastErrorIfFalse();
       return realmValue.toDartValue(
         realm,
         () => realmLib.realm_results_get_list(pointer, index),
@@ -106,15 +102,15 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
   }
 
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    final ptr = realmLib
-        .realm_results_add_notification_callback(
-          pointer,
-          controller.toPersistentHandle(),
-          realmLib.addresses.realm_dart_delete_persistent_handle,
-          nullptr,
-          Pointer.fromFunction(collectionChangeCallback),
-        )
-        .raiseIfNull();
-    return NotificationTokenHandle(ptr, root);
+    return NotificationTokenHandle(
+      realmLib.realm_results_add_notification_callback(
+        pointer,
+        controller.toPersistentHandle(),
+        realmLib.addresses.realm_dart_delete_persistent_handle,
+        nullptr,
+        Pointer.fromFunction(collectionChangeCallback),
+      ),
+      root,
+    );
   }
 }

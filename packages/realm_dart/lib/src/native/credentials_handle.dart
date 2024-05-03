@@ -6,7 +6,6 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
 import '../credentials.dart'; // TODO: Remove this import
-import 'error_handling.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_core.dart'; // TODO: Remove this import
@@ -65,8 +64,7 @@ class CredentialsHandle extends HandleBase<realm_app_credentials> {
   factory CredentialsHandle.function(String payload) {
     return using((arena) {
       final payloadPtr = payload.toCharPtr(arena);
-      final credentialsPtr = realmLib.realm_app_credentials_new_function(payloadPtr).raiseIfNull();
-      return CredentialsHandle(credentialsPtr);
+      return CredentialsHandle(realmLib.realm_app_credentials_new_function(payloadPtr));
     });
   }
 

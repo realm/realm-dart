@@ -3,6 +3,8 @@
 
 import 'dart:ffi';
 
+import 'package:realm_dart/src/native/error_handling.dart';
+
 import 'realm_library.dart';
 
 // Flag to enable trace on finalization.
@@ -41,6 +43,7 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
   void keepAlive() {}
 
   HandleBase(this.pointer, int size) : isUnowned = false {
+    pointer.raiseLastErrorIfNull();
     _finalizableHandle = realmLib.realm_attach_finalizer(this, pointer.cast(), size);
 
     if (_enableFinalizerTrace) {
@@ -48,7 +51,9 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
     }
   }
 
-  HandleBase.unowned(this.pointer) : isUnowned = true;
+  HandleBase.unowned(this.pointer) : isUnowned = true {
+    pointer.raiseLastErrorIfNull();
+  }
 
   @override
   String toString() => "${pointer.toString()} value=${pointer.cast<IntPtr>().value}${isUnowned ? ' (unowned)' : ''}";

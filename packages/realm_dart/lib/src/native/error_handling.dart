@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 
@@ -11,13 +12,17 @@ import 'realm_core.dart';
 import 'realm_library.dart';
 
 extension PointerEx<T extends NativeType> on Pointer<T> {
-  Pointer<T> raiseIfNull([String? message]) => this == nullptr ? throwLastError(message) : this;
+  void raiseLastErrorIfNull([String? message]) {
+    if (this == nullptr) {
+      raiseLastError(message);
+    }
+  }
 }
 
 extension BoolEx on bool {
-  void raiseIfFalse([String? message]) {
+  void raiseLastErrorIfFalse([String? message]) {
     if (!this) {
-      throwLastError(message);
+      raiseLastError(message);
     }
   }
 }
@@ -39,9 +44,11 @@ LastError? getLastError(Allocator allocator) {
   return success ? error.ref.toDart() : null;
 }
 
-Never throwLastError([String? errorMessage]) {
-  using((Arena arena) {
+Never raiseLastError([String? errorMessage]) {
+  using((arena) {
     final lastError = getLastError(arena);
+    //raise(lastError);
+
     if (lastError?.userError != null) {
       throw UserCallbackException(lastError!.userError!);
     }

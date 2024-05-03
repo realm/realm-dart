@@ -3,7 +3,6 @@
 
 import 'dart:ffi';
 
-import 'error_handling.dart';
 import 'realm_bindings.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
@@ -15,8 +14,7 @@ class QueryHandle extends RootedHandleBase<realm_query> {
 
   ResultsHandle findAll() {
     try {
-      final resultsPointer = realmLib.realm_query_find_all(pointer).raiseIfNull();
-      return ResultsHandle(resultsPointer, root);
+      return ResultsHandle(realmLib.realm_query_find_all(pointer), root);
     } finally {
       release();
     }

@@ -36,8 +36,8 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   factory RealmHandle.open(Configuration config) {
     final configHandle = ConfigHandle.from(config);
-    final realmPtr = realmLib.realm_open(configHandle.pointer).raiseIfNull('Error opening realm at path ${config.path}');
-    return RealmHandle(realmPtr);
+    return RealmHandle(realmLib.realm_open(configHandle.pointer) //
+      ..raiseLastErrorIfNull('Error opening realm at path ${config.path}'));
   }
 
   int addChild(RootedHandleBase child) {
@@ -65,45 +65,43 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   ObjectHandle createWithPrimaryKey(int classKey, Object? primaryKey) {
-    return using((Arena arena) {
+    return using((arena) {
       final realmValue = primaryKey.toNative(arena);
-      final realmPtr = realmLib.realm_object_create_with_primary_key(pointer, classKey, realmValue.ref).raiseIfNull();
-      return ObjectHandle(realmPtr, this);
+      return ObjectHandle(realmLib.realm_object_create_with_primary_key(pointer, classKey, realmValue.ref), this);
     });
   }
 
   ObjectHandle create(int classKey) {
-    final realmPtr = realmLib.realm_object_create(pointer, classKey).raiseIfNull();
-    return ObjectHandle(realmPtr, this);
+    return ObjectHandle(realmLib.realm_object_create(pointer, classKey), this);
   }
 
   ObjectHandle getOrCreateWithPrimaryKey(int classKey, Object? primaryKey) {
-    return using((Arena arena) {
+    return using((arena) {
       final realmValue = primaryKey.toNative(arena);
       final didCreate = arena<Bool>();
-      final realmPtr = realmLib
-          .realm_object_get_or_create_with_primary_key(
-            pointer,
-            classKey,
-            realmValue.ref,
-            didCreate,
-          )
-          .raiseIfNull();
-      return ObjectHandle(realmPtr, this);
+      return ObjectHandle(
+        realmLib.realm_object_get_or_create_with_primary_key(
+          pointer,
+          classKey,
+          realmValue.ref,
+          didCreate,
+        ),
+        this,
+      );
     });
   }
 
   bool compact() {
     return using((arena) {
       final outDidCompact = arena<Bool>();
-      realmLib.realm_compact(pointer, outDidCompact).raiseIfFalse();
+      realmLib.realm_compact(pointer, outDidCompact).raiseLastErrorIfFalse();
       return outDidCompact.value;
     });
   }
 
   void writeCopy(Configuration config) {
     final configHandle = ConfigHandle.from(config);
-    realmLib.realm_convert_with_config(pointer, configHandle.pointer, false).raiseIfFalse();
+    realmLib.realm_convert_with_config(pointer, configHandle.pointer, false).raiseLastErrorIfFalse();
   }
 
   ResultsHandle queryClass(int classKey, String query, List<Object?> args) {
@@ -114,24 +112,23 @@ class RealmHandle extends HandleBase<shared_realm> {
         intoRealmQueryArg(args[i], argsPointer + i, arena);
       }
       final queryHandle = QueryHandle(
-          realmLib
-              .realm_query_parse(
-                pointer,
-                classKey,
-                query.toCharPtr(arena),
-                length,
-                argsPointer,
-              )
-              .raiseIfNull(),
-          this);
+        realmLib.realm_query_parse(
+          pointer,
+          classKey,
+          query.toCharPtr(arena),
+          length,
+          argsPointer,
+        ),
+        this,
+      );
       return queryHandle.findAll();
     });
   }
 
-  RealmHandle freeze() => RealmHandle(realmLib.realm_freeze(pointer).raiseIfNull());
+  RealmHandle freeze() => RealmHandle(realmLib.realm_freeze(pointer));
 
   SessionHandle getSession() {
-    return SessionHandle(realmLib.realm_sync_session_get(pointer).raiseIfNull(), this);
+    return SessionHandle(realmLib.realm_sync_session_get(pointer), this);
   }
 
   bool get isFrozen {
@@ -139,7 +136,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   SubscriptionSetHandle get subscriptions {
-    return SubscriptionSetHandle(realmLib.realm_sync_get_active_subscription_set(pointer).raiseIfNull(), this);
+    return SubscriptionSetHandle(realmLib.realm_sync_get_active_subscription_set(pointer), this);
   }
 
   void disableAutoRefreshForTesting() {
@@ -147,7 +144,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void close() {
-    realmLib.realm_close(pointer).raiseIfFalse("Realm close failed");
+    realmLib.realm_close(pointer).raiseLastErrorIfFalse("Realm close failed");
   }
 
   bool get isClosed {
@@ -155,11 +152,11 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void beginWrite() {
-    realmLib.realm_begin_write(pointer).raiseIfFalse("Could not begin write");
+    realmLib.realm_begin_write(pointer).raiseLastErrorIfFalse("Could not begin write");
   }
 
   void commitWrite() {
-    realmLib.realm_commit(pointer).raiseIfFalse("Could not commit write");
+    realmLib.realm_commit(pointer).raiseLastErrorIfFalse("Could not commit write");
   }
 
   Future<void> beginWriteAsync(CancellationToken? ct) {
@@ -181,7 +178,7 @@ class RealmHandle extends HandleBase<shared_realm> {
               true,
               transactionId,
             )
-            .raiseIfFalse();
+            .raiseLastErrorIfFalse();
         id = transactionId.value;
       });
     }
@@ -207,7 +204,7 @@ class RealmHandle extends HandleBase<shared_realm> {
               false,
               transactionId,
             )
-            .raiseIfFalse();
+            .raiseLastErrorIfFalse();
         id = transactionId.value;
       });
     }
@@ -215,9 +212,9 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   bool _cancelAsync(int cancellationId) {
-    return using((Arena arena) {
+    return using((arena) {
       final didCancel = arena<Bool>();
-      realmLib.realm_async_cancel(pointer, cancellationId, didCancel).raiseIfFalse();
+      realmLib.realm_async_cancel(pointer, cancellationId, didCancel).raiseLastErrorIfFalse();
       return didCancel.value;
     });
   }
@@ -241,13 +238,13 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void rollbackWrite() {
-    realmLib.realm_rollback(pointer).raiseIfFalse("Could not rollback write");
+    realmLib.realm_rollback(pointer).raiseLastErrorIfFalse("Could not rollback write");
   }
 
   bool refresh() {
-    return using((Arena arena) {
+    return using((arena) {
       final didRefresh = arena<Bool>();
-      realmLib.realm_refresh(pointer, didRefresh).raiseIfFalse("Could not refresh");
+      realmLib.realm_refresh(pointer, didRefresh).raiseLastErrorIfFalse("Could not refresh");
       return didRefresh.value;
     });
   }
@@ -276,30 +273,29 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   ResultsHandle findAll(int classKey) {
-    final ptr = realmLib.realm_object_find_all(pointer, classKey).raiseIfNull();
-    return ResultsHandle(ptr, this);
+    return ResultsHandle(realmLib.realm_object_find_all(pointer, classKey), this);
   }
 
   ObjectHandle? find(int classKey, Object? primaryKey) {
-    return using((Arena arena) {
+    return using((arena) {
       final realmValue = primaryKey.toNative(arena);
       final found = arena<Bool>();
       final ptr = realmLib.realm_object_find_with_primary_key(pointer, classKey, realmValue.ref, found);
       if (!found.value) {
+        assert(ptr == nullptr); // If not found, the pointer should be null. Otherwise we have a leak
         return null;
       }
-      return ObjectHandle(ptr.raiseIfNull(), this);
+      return ObjectHandle(ptr, this);
     });
   }
 
   ObjectHandle? findExisting(int classKey, ObjectHandle other) {
     final key = realmLib.realm_object_get_key(other.pointer);
-    final ptr = realmLib.realm_get_object(pointer, classKey, key).raiseIfNull();
-    return ObjectHandle(ptr, this);
+    return ObjectHandle(realmLib.realm_get_object(pointer, classKey, key), this);
   }
 
   void renameProperty(String objectType, String oldName, String newName, SchemaHandle schema) {
-    using((Arena arena) {
+    using((arena) {
       realmLib
           .realm_schema_rename_property(
             pointer,
@@ -308,37 +304,36 @@ class RealmHandle extends HandleBase<shared_realm> {
             oldName.toCharPtr(arena),
             newName.toCharPtr(arena),
           )
-          .raiseIfFalse();
+          .raiseLastErrorIfFalse();
     });
   }
 
   bool deleteType(String objectType) {
-    return using((Arena arena) {
+    return using((arena) {
       final tableDeleted = arena<Bool>();
-      realmLib.realm_remove_table(pointer, objectType.toCharPtr(arena), tableDeleted).raiseIfFalse();
+      realmLib.realm_remove_table(pointer, objectType.toCharPtr(arena), tableDeleted).raiseLastErrorIfFalse();
       return tableDeleted.value;
     });
   }
 
   ObjectHandle getObject(int classKey, int objectKey) {
-    final ptr = realmLib.realm_get_object(pointer, classKey, objectKey).raiseIfNull();
-    return ObjectHandle(ptr, this);
+    return ObjectHandle(realmLib.realm_get_object(pointer, classKey, objectKey), this);
   }
 
   CallbackTokenHandle subscribeForSchemaNotifications(Realm realm) {
-    final ptr = realmLib
-        .realm_add_schema_changed_callback(
-          pointer,
-          Pointer.fromFunction(_schemaChangeCallback),
-          realm.toPersistentHandle(),
-          realmLib.addresses.realm_dart_delete_persistent_handle,
-        )
-        .raiseIfNull();
-    return CallbackTokenHandle(ptr, this);
+    return CallbackTokenHandle(
+      realmLib.realm_add_schema_changed_callback(
+        pointer,
+        Pointer.fromFunction(_schemaChangeCallback),
+        realm.toPersistentHandle(),
+        realmLib.addresses.realm_dart_delete_persistent_handle,
+      ),
+      this,
+    );
   }
 
   RealmSchema readSchema() {
-    return using((Arena arena) {
+    return using((arena) {
       return _readSchema(arena);
     });
   }
@@ -346,7 +341,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   RealmSchema _readSchema(Arena arena, {int expectedSize = 10}) {
     final classesPtr = arena<Uint32>(expectedSize);
     final actualCount = arena<Size>();
-    realmLib.realm_get_class_keys(pointer, classesPtr, expectedSize, actualCount).raiseIfFalse();
+    realmLib.realm_get_class_keys(pointer, classesPtr, expectedSize, actualCount).raiseLastErrorIfFalse();
     if (expectedSize < actualCount.value) {
       arena.free(classesPtr);
       return _readSchema(arena, expectedSize: actualCount.value);
@@ -356,7 +351,7 @@ class RealmHandle extends HandleBase<shared_realm> {
     for (var i = 0; i < actualCount.value; i++) {
       final classInfo = arena<realm_class_info>();
       final classKey = (classesPtr + i).value;
-      realmLib.realm_get_class(pointer, classKey, classInfo).raiseIfFalse();
+      realmLib.realm_get_class(pointer, classKey, classInfo).raiseLastErrorIfFalse();
 
       final name = classInfo.ref.name.cast<Utf8>().toDartString();
       final baseType = ObjectType.values.firstWhere((element) => element.flags == classInfo.ref.flags,
@@ -371,7 +366,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   SchemaObject _getSchemaForClassKey(int classKey, String name, ObjectType baseType, Arena arena, {int expectedSize = 10}) {
     final actualCount = arena<Size>();
     final propertiesPtr = arena<realm_property_info>(expectedSize);
-    realmLib.realm_get_class_properties(pointer, classKey, propertiesPtr, expectedSize, actualCount).raiseIfFalse();
+    realmLib.realm_get_class_properties(pointer, classKey, propertiesPtr, expectedSize, actualCount).raiseLastErrorIfFalse();
 
     if (expectedSize < actualCount.value) {
       // The supplied array was too small - resize it
@@ -404,20 +399,20 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   Map<String, RealmPropertyMetadata> getPropertiesMetadata(int classKey, String? primaryKeyName) {
-    return using((Arena arena) {
+    return using((arena) {
       return _getPropertiesMetadata(classKey, primaryKeyName, arena);
     });
   }
 
   RealmObjectMetadata getObjectMetadata(SchemaObject schema) {
-    return using((Arena arena) {
+    return using((arena) {
       final found = arena<Bool>();
       final classInfo = arena<realm_class_info_t>();
-      realmLib.realm_find_class(pointer, schema.name.toCharPtr(arena), found, classInfo).raiseIfFalse();
+      realmLib.realm_find_class(pointer, schema.name.toCharPtr(arena), found, classInfo).raiseLastErrorIfFalse();
       // "Error getting class ${schema.name} from realm at ${realm.config.path}");
 
       if (!found.value) {
-        throwLastError(); //"Class ${schema.name} not found in ${realm.config.path}");
+        raiseLastError(); //"Class ${schema.name} not found in ${realm.config.path}");
       }
 
       final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
@@ -427,11 +422,13 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   Map<String, RealmPropertyMetadata> _getPropertiesMetadata(int classKey, String? primaryKeyName, Arena arena) {
     final propertyCountPtr = arena<Size>();
-    realmLib.realm_get_property_keys(pointer, classKey, nullptr, 0, propertyCountPtr).raiseIfFalse("Error getting property count");
+    realmLib.realm_get_property_keys(pointer, classKey, nullptr, 0, propertyCountPtr).raiseLastErrorIfFalse("Error getting property count");
 
     var propertyCount = propertyCountPtr.value;
     final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-    realmLib.realm_get_class_properties(pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr).raiseIfFalse("Error getting class properties.");
+    realmLib
+        .realm_get_class_properties(pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr)
+        .raiseLastErrorIfFalse("Error getting class properties.");
 
     propertyCount = propertyCountPtr.value;
     Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};

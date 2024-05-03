@@ -8,7 +8,6 @@ import 'package:realm_common/realm_common.dart';
 import 'package:realm_dart/src/native/realm_core.dart';
 
 import '../configuration.dart';
-import 'error_handling.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
@@ -19,7 +18,7 @@ class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle.unowned(super.pointer) : super.unowned();
 
   factory SchemaHandle.from(Iterable<SchemaObject> schema) {
-    return using((Arena arena) {
+    return using((arena) {
       final classCount = schema.length;
 
       final schemaClasses = arena<realm_class_info_t>(classCount);
@@ -77,8 +76,7 @@ class SchemaHandle extends HandleBase<realm_schema> {
         (schemaProperties + i).value = properties;
       }
 
-      final schemaPtr = realmLib.realm_schema_new(schemaClasses, classCount, schemaProperties).raiseIfNull();
-      return SchemaHandle(schemaPtr);
+      return SchemaHandle(realmLib.realm_schema_new(schemaClasses, classCount, schemaProperties));
     });
   }
 }
