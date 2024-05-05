@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Private fields did not work with default values. (Issue [#1663](https://github.com/realm/realm-dart/issues/1663))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
