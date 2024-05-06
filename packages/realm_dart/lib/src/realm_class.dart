@@ -750,8 +750,8 @@ extension RealmInternal on Realm {
     return RealmMapInternal.create<T>(handle, this, metadata);
   }
 
-  List<String> getPropertyNames(Type type, List<int> propertyKeys) {
-    final metadata = _metadata.getByType(type);
+  List<String> getPropertyNames(RealmObjectBase obj, List<int> propertyKeys) {
+    final metadata = _metadata.tryGetByType(obj.runtimeType) ?? _metadata.getByName(obj.objectSchema.name);
     final result = <String>[];
     for (var key in propertyKeys) {
       final name = metadata.getPropertyName(key);
@@ -906,6 +906,8 @@ class RealmMetadata {
 
     return metadata;
   }
+
+  RealmObjectMetadata? tryGetByType(Type type) => _typeMap[type];
 
   RealmObjectMetadata getByName(String type) {
     var metadata = _stringMap[type];

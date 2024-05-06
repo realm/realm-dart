@@ -834,6 +834,115 @@ void main() {
         });
       }
     });
+
+    group('.changes when isDynamic=$isDynamic', () {
+      test('Returns stream for objects', () async {
+        final config = Configuration.local(
+            [ObjectWithEmbedded.schema, AllTypesEmbedded.schema, RecursiveEmbedded1.schema, RecursiveEmbedded2.schema, RecursiveEmbedded3.schema]);
+
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(ObjectWithEmbedded('abc', recursiveObject: RecursiveEmbedded1('child 1')));
+        });
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final toplevelChanges = <RealmObjectChanges<RealmObject>>[];
+        final embeddedChanges = <RealmObjectChanges<EmbeddedObject>>[];
+        final topLevel = dynamicRealm.dynamic.all(ObjectWithEmbedded.schema.name).single;
+        final embedded = topLevel.dynamic.get<EmbeddedObject?>('recursiveObject')!;
+
+        final topLevelSubscription = topLevel.changes.listen((event) {
+          toplevelChanges.add(event);
+        });
+
+        final embeddedSubscription = embedded.changes.listen((event) {
+          embeddedChanges.add(event);
+        });
+
+        final newUuid = Uuid.v4();
+        dynamicRealm.write(() {
+          topLevel.dynamic.set('differentiator', newUuid);
+          embedded.dynamic.set('value', 'updated child 1');
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
+
+        expect(topLevel.dynamic.get<Uuid?>('differentiator'), newUuid);
+        expect(embedded.dynamic.get<String>('value'), 'updated child 1');
+
+        expect(toplevelChanges, hasLength(2));
+        expect(toplevelChanges[0].properties, isEmpty); // First notification is delivered with empty properties
+        expect(toplevelChanges[1].object, topLevel);
+        expect(toplevelChanges[1].properties, hasLength(1));
+        expect(toplevelChanges[1].properties[0], 'differentiator');
+
+        expect(embeddedChanges, hasLength(2));
+        expect(embeddedChanges[0].properties, isEmpty); // First notification is delivered with empty properties
+        expect(embeddedChanges[1].object, embedded);
+        expect(embeddedChanges[1].properties, hasLength(1));
+        expect(embeddedChanges[1].properties[0], 'value');
+
+        topLevelSubscription.cancel();
+        embeddedSubscription.cancel();
+      });
+
+      test('Returns stream for collection of primitives', () async {
+        final config = Configuration.local([AllCollections.schema]);
+        final staticRealm = getRealm(config);
+        staticRealm.write(() {
+          staticRealm.add(_getPopulatedAllCollections());
+        });
+
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+        final obj = dynamicRealm.dynamic.all(AllCollections.schema.name).single;
+
+        final listChanges = <RealmListChanges<String>>[];
+        final setChanges = <RealmSetChanges<double>>[];
+        final mapChanges = <RealmMapChanges<Uuid?>>[];
+
+        final list = obj.dynamic.getList<String>('stringList');
+        final listSub = list.changes.listen((event) {
+          listChanges.add(event);
+        });
+
+        final set = obj.dynamic.getSet<double>('doubleSet');
+        final setSub = set.changes.listen((event) {
+          setChanges.add(event);
+        });
+
+        final map = obj.dynamic.getMap<Uuid?>('nullableUuidMap');
+        final mapSub = map.changes.listen((event) {
+          mapChanges.add(event);
+        });
+
+        dynamicRealm.write(() {
+          list[0] = 'new string';
+          set.clear();
+          map['new map value'] = null;
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
+
+        expect(listChanges, hasLength(2));
+        expect(listChanges[1].inserted, isEmpty);
+        expect(listChanges[1].deleted, isEmpty);
+        expect(listChanges[1].modified, [0]);
+
+        expect(setChanges, hasLength(2));
+        expect(setChanges[1].deleted, [0, 1]);
+        expect(setChanges[1].inserted, isEmpty);
+        expect(setChanges[1].modified, isEmpty);
+
+        expect(mapChanges, hasLength(2));
+        expect(mapChanges[1].inserted, ['new map value']);
+        expect(mapChanges[1].deleted, isEmpty);
+        expect(mapChanges[1].modified, isEmpty);
+
+        listSub.cancel();
+        setSub.cancel();
+        mapSub.cancel();
+      });
+    });
   }
 
   test('RealmObject.dynamic.get when static can get all property types', () {
