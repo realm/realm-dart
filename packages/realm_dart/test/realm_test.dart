@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:math';
 
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
@@ -1071,7 +1072,7 @@ void main() {
     expect(realm2.all<Person>().length, 0);
   });
 
-  test("Realm.writeAsync with multiple transactions doesnt't deadlock", () async {
+  test("Realm.writeAsync with multiple transactions doesn't deadlock", () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final t1 = await realm.beginWriteAsync();
     realm.add(Person('Marco'));
@@ -1198,6 +1199,75 @@ void main() {
 
     await expectLater(realm.beginWriteAsync(token), throwsA(isA<CancelledException>()));
     expect(realm.isInTransaction, false);
+  });
+
+  test('Realm.writeAsync with async callback', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+
+    await realm.writeAsync(() async {
+      await Future<void>.delayed(Duration(milliseconds: 10));
+      realm.add(Person('John'));
+    });
+
+    expect(realm.all<Person>().length, 1);
+    expect(realm.isInTransaction, false);
+  });
+
+  test('Realm.writeAsync concurrent transaction are queued', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final john = Person('John');
+    final jane = Person('Jane');
+
+    await expectLater(
+      Future.wait([
+        realm.writeAsync(() async {
+          await Future<void>.delayed(Duration(milliseconds: 100));
+          return realm.add(john);
+        }),
+        realm.writeAsync(() async => realm.add(jane)),
+      ]),
+      completion([john, jane]),
+    );
+    expect(realm.all<Person>().length, 2); // both transactions are committed
+    expect(realm.all<Person>(), [john, jane]); // and order is preserved
+  });
+
+  test('Realm.writeAsync concurrent transactions fails independently', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final john = Person('John');
+    final jane = Person('Jane');
+
+    await expectLater(
+      Future.wait(
+        eagerError: false,
+        [
+          realm.writeAsync(() async {
+            realm.add(john);
+            throw Exception(); // fail transaction and roll back
+          }),
+          realm.writeAsync(() async => realm.add(jane)),
+        ],
+      ),
+      throwsException,
+    );
+    expect(realm.all<Person>().length, 1); // only first transaction is rolled back
+    expect(realm.all<Person>(), [jane]); // second transaction is committed
+  });
+
+  test('Realm.writeAsync is not re-entrant', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    final john = Person('John');
+
+    final ct = TimeoutCancellationToken(const Duration(milliseconds: 100));
+    await expectLater(
+      realm.writeAsync(() async {
+        realm.add(john);
+        // this would deadlock, if not for the timeout
+        await realm.writeAsync(() {}, ct);
+      }),
+      throwsA(isA<TimeoutException>()),
+    );
+    expect(realm.all<Person>().length, 0); // everything is rolled back
   });
 
   test('Transaction.commitAsync with a canceled token throws', () async {
