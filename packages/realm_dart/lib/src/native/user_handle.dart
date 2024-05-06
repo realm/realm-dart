@@ -13,11 +13,11 @@ import '../scheduler.dart';
 import '../user.dart'; // TODO: Remove this import
 import 'app_handle.dart';
 import 'convert.dart';
+import 'convert_native.dart';
 import 'credentials_handle.dart';
 import 'error_handling.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart';
 import 'realm_library.dart'; // TODO: Remove this import
 
 class UserHandle extends HandleBase<realm_user> {

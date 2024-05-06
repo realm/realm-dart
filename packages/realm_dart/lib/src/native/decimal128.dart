@@ -8,8 +8,8 @@ import 'package:ffi/ffi.dart';
 import 'package:realm_common/realm_common.dart' as common;
 
 import 'realm_bindings.dart';
-import 'realm_core.dart'; // TODO: Remove this import
 import 'realm_library.dart';
+import 'to_native.dart';
 
 /// A 128-bit decimal floating point number.
 class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {

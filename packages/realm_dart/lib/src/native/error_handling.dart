@@ -6,8 +6,8 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
 import '../realm_object.dart'; // TODO: Remove this import
+import 'from_native.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart';
 import 'realm_library.dart';
 
 extension PointerEx<T extends NativeType> on Pointer<T> {

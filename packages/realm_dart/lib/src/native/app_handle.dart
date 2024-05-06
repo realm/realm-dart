@@ -14,6 +14,7 @@ import '../logging.dart';
 import '../realm_class.dart'; // TODO: Remove this import
 import '../scheduler.dart';
 import 'convert.dart';
+import 'convert_native.dart';
 import 'credentials_handle.dart';
 import 'error_handling.dart';
 import 'handle_base.dart';

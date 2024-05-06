@@ -12,9 +12,9 @@ import '../migration.dart'; // TODO: Remove this import
 import '../realm_class.dart'; // TODO: Remove this import
 import '../scheduler.dart'; // TODO: Remove this import
 import '../user.dart'; // TODO: Remove this import
+import 'convert_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'schema_handle.dart'; // TODO: Remove this import

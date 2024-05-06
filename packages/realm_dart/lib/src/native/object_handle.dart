@@ -6,6 +6,7 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
 import '../realm_dart.dart'; // TODO: Remove this import
+import 'convert_native.dart';
 import 'error_handling.dart';
 import 'handle_base.dart';
 import 'list_handle.dart';

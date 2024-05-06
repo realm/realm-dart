@@ -6,9 +6,9 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
 import '../collections.dart'; // TODO: Remove this import
+import 'from_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart'; // TODO: Remove this import
 import 'realm_library.dart';
 
 class CollectionChangesHandle extends HandleBase<realm_collection_changes> {

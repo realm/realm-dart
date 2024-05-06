@@ -4,9 +4,9 @@
 import 'dart:ffi';
 
 import '../realm_class.dart'; // TODO: Remove this import
+import 'from_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart'; // TODO: Remove this import
 import 'realm_library.dart';
 
 class SubscriptionHandle extends HandleBase<realm_flx_sync_subscription> {

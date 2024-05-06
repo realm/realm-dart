@@ -11,6 +11,7 @@ import 'package:path/path.dart' as _path;
 import 'app.dart';
 import 'init.dart';
 import 'logging.dart';
+import 'native/from_native.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'user.dart';

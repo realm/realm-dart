@@ -5,12 +5,13 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 import 'package:realm_common/realm_common.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 
 import '../configuration.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
+import 'to_native.dart';
+
 
 class SchemaHandle extends HandleBase<realm_schema> {
   SchemaHandle(Pointer<realm_schema> pointer) : super(pointer, 24);

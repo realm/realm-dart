@@ -6,6 +6,7 @@ import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 
 import '../realm_dart.dart'; // TODO: remove this import
+import 'convert_native.dart';
 import 'error_handling.dart';
 import 'map_changes_handle.dart';
 import 'notification_token_handle.dart';

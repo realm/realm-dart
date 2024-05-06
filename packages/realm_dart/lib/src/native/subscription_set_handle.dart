@@ -5,14 +5,14 @@ import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:ffi/ffi.dart';
-import 'package:realm_dart/src/native/convert.dart';
 
 import '../realm_dart.dart';
 import '../scheduler.dart';
+import 'convert.dart';
+import 'convert_native.dart';
 import 'error_handling.dart';
 import 'mutable_subscription_set_handle.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart'; // TODO: Remove this import
 import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'results_handle.dart';

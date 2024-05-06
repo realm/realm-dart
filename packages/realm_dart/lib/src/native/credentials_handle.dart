@@ -8,8 +8,8 @@ import 'package:ffi/ffi.dart';
 import '../credentials.dart'; // TODO: Remove this import
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart'; // TODO: Remove this import
 import 'realm_library.dart';
+import 'to_native.dart';
 
 class CredentialsHandle extends HandleBase<realm_app_credentials> {
   CredentialsHandle(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
