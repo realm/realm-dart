@@ -38,6 +38,20 @@ class AppHandle extends HandleBase<realm_app> {
     return AppHandle(realmLib.realm_app_create_cached(appConfigHandle.pointer));
   }
 
+  static AppHandle? get(String id, String? baseUrl) {
+    return using((arena) {
+      final outApp = arena<Pointer<realm_app>>();
+      realmLib
+          .realm_app_get_cached(
+            id.toCharPtr(arena),
+            baseUrl == null ? nullptr : baseUrl.toCharPtr(arena),
+            outApp,
+          )
+          .raiseLastErrorIfFalse();
+      return outApp.value.convert(AppHandle.new);
+    });
+  }
+
   UserHandle? get currentUser {
     return realmLib.realm_app_get_current_user(pointer).convert(UserHandle.new);
   }

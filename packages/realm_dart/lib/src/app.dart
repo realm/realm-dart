@@ -164,7 +164,7 @@ class App implements Finalizable {
   /// on the main isolate. If an App hasn't been already constructed with the same id, will return null. This method is safe to call
   /// on a background isolate.
   static App? getById(String id, {Uri? baseUrl}) {
-    final handle = realmCore.getApp(id, baseUrl?.toString());
+    final handle = AppHandle.get(id, baseUrl?.toString());
     return handle == null ? null : App._(handle);
   }
 

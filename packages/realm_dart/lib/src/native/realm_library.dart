@@ -19,5 +19,6 @@ final realmLib = () {
         isFlutterPlatform ? bugInTheSdkMessage : "Did you forget to run `dart run realm_dart install` after upgrading the realm_dart package?";
     throw RealmError('Realm SDK package version does not match the native library version ($libraryVersion != $nativeLibraryVersion). $additionMessage');
   }
+  result.realm_dart_init_debug_logger();
   return result;
 }();

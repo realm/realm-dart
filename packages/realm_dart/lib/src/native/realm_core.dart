@@ -12,7 +12,6 @@ import 'package:crypto/crypto.dart';
 import 'package:ffi/ffi.dart' hide StringUtf8Pointer, StringUtf16Pointer;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
-import 'package:realm_dart/src/native/convert.dart';
 
 import '../app.dart';
 import '../configuration.dart';
@@ -21,7 +20,6 @@ import '../realm_class.dart';
 import '../realm_object.dart';
 import '../scheduler.dart';
 import '../user.dart';
-import 'app_handle.dart';
 import 'collection_changes_handle.dart';
 import 'decimal128.dart';
 import 'error_handling.dart';
@@ -112,17 +110,6 @@ String getBundleId() {
   return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
 }
 
-void guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
-  Pointer<Void> userError = nullptr;
-  try {
-    await callback();
-  } catch (error) {
-    userError = error.toPersistentHandle();
-  } finally {
-    realmLib.realm_dart_invoke_unlock_callback(userError, unlockCallbackFunc);
-  }
-}
-
 void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
   CollectionHandleBase? collectionHandle;
   try {
@@ -192,8 +179,6 @@ class _RealmCore {
 
     // This prevents reentrance if `realmCore` global variable is accessed during _RealmCore construction
     realmCore = this;
-
-    realmLib.realm_dart_init_debug_logger();
   }
 
   void loggerAttach() {
@@ -233,20 +218,6 @@ class _RealmCore {
 
   String getDefaultBaseUrl() {
     return realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
-  }
-
-  AppHandle? getApp(String id, String? baseUrl) {
-    return using((arena) {
-      final outApp = arena<Pointer<realm_app>>();
-      realmLib
-          .realm_app_get_cached(
-            id.toCharPtr(arena),
-            baseUrl == null ? nullptr : baseUrl.toCharPtr(arena),
-            outApp,
-          )
-          .raiseLastErrorIfFalse();
-      return outApp.value.convert(AppHandle.new);
-    });
   }
 
   void clearCachedApps() {

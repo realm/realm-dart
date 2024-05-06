@@ -1,6 +1,7 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
@@ -149,7 +150,7 @@ class ConfigHandle extends HandleBase<realm_config> {
 
 void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle, Pointer<realm_thread_safe_reference> afterReference, bool didRecover,
     Pointer<Void> unlockCallbackFunc) {
-  guardSynchronousCallback(() async {
+  _guardSynchronousCallback(() async {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     final afterResetCallback = didRecover ? syncConfig.clientResetHandler.onAfterRecovery : syncConfig.clientResetHandler.onAfterDiscard;
 
@@ -225,7 +226,7 @@ void _syncErrorHandlerCallback(Object userdata, Pointer<realm_sync_session> sess
 }
 
 void _syncBeforeResetCallback(Object userdata, Pointer<shared_realm> realmPtr, Pointer<Void> unlockCallbackFunc) {
-  guardSynchronousCallback(() async {
+  _guardSynchronousCallback(() async {
     final syncConfig = userdata as FlexibleSyncConfiguration;
     var beforeResetCallback = syncConfig.clientResetHandler.onBeforeReset!;
 
@@ -252,4 +253,15 @@ bool _initialDataCallback(Pointer<Void> userdata, Pointer<shared_realm> realmPtr
   }
 
   return false;
+}
+
+void _guardSynchronousCallback(FutureOr<void> Function() callback, Pointer<Void> unlockCallbackFunc) async {
+  Pointer<Void> userError = nullptr;
+  try {
+    await callback();
+  } catch (error) {
+    userError = error.toPersistentHandle();
+  } finally {
+    realmLib.realm_dart_invoke_unlock_callback(userError, unlockCallbackFunc);
+  }
 }
