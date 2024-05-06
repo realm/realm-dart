@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
-import 'package:realm_dart/src/app.dart';
 
 import '../credentials.dart'; // TODO: Remove this import
 import '../realm_dart.dart'; // TODO: Remove this import

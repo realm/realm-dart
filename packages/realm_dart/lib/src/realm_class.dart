@@ -13,9 +13,11 @@ import 'configuration.dart';
 import 'list.dart';
 import 'logging.dart';
 import 'map.dart';
+import 'native/async_open_task_handle.dart';
 import 'native/handle_base.dart';
 import 'native/list_handle.dart';
 import 'native/map_handle.dart';
+import 'native/notification_token_handle.dart';
 import 'native/object_handle.dart';
 import 'native/realm_core.dart';
 import 'native/realm_handle.dart';
@@ -179,7 +181,7 @@ class Realm implements Finalizable {
 
     _ensureDirectory(config);
 
-    final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
+    final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
     return await CancellableFuture.from<Realm>(() async {
       if (cancellationToken != null && cancellationToken.isCancelled) {
         throw cancellationToken.exception!;
@@ -194,12 +196,12 @@ class Realm implements Finalizable {
 
       late final RealmHandle realmHandle;
       try {
-        realmHandle = await realmCore.openRealmAsync(asyncOpenHandle, cancellationToken);
+        realmHandle = await asyncOpenHandle.openAsync(cancellationToken);
         return Realm._(config, realmHandle);
       } finally {
         await progressSubscription?.cancel();
       }
-    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
+    }, cancellationToken, onCancel: () => asyncOpenHandle.cancel());
   }
 
   static RealmHandle _openRealm(Configuration config) {
@@ -1048,7 +1050,7 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
       throw RealmStateError("Progress subscription already started.");
     }
 
-    _tokenHandle = realmCore.realmAsyncOpenRegisterAsyncOpenProgressNotifier(_handle, this);
+    _tokenHandle = _handle.registerProgressNotifier(this);
   }
 
   void _stop() {

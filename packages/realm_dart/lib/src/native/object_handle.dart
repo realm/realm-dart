@@ -10,6 +10,7 @@ import 'error_handling.dart';
 import 'handle_base.dart';
 import 'list_handle.dart';
 import 'map_handle.dart';
+import 'notification_token_handle.dart';
 import 'realm_bindings.dart';
 import 'realm_core.dart'; // TODO: Remove this import
 import 'realm_handle.dart';

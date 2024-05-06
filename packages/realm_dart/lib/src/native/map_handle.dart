@@ -8,6 +8,7 @@ import 'package:ffi/ffi.dart';
 import '../realm_dart.dart'; // TODO: remove this import
 import 'error_handling.dart';
 import 'map_changes_handle.dart';
+import 'notification_token_handle.dart';
 import 'object_handle.dart';
 import 'query_handle.dart';
 import 'realm_bindings.dart';
