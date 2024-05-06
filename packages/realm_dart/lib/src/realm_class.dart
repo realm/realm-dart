@@ -387,11 +387,10 @@ class Realm {
 
   /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
   /// lock and committing the transaction will be done asynchronously.
-  Future<T> writeAsync<T>(T Function() writeCallback, [CancellationToken? cancellationToken]) async {
+  Future<T> writeAsync<T>(FutureOr<T> Function() writeCallback, [CancellationToken? cancellationToken]) async {
     final transaction = await beginWriteAsync(cancellationToken);
-
     try {
-      T result = writeCallback();
+      T result = await writeCallback();
       await transaction.commitAsync(cancellationToken);
       return result;
     } catch (e) {
