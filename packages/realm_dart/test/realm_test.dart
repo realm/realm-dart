@@ -1270,6 +1270,11 @@ void main() {
     expect(realm.all<Person>().length, 0); // everything is rolled back
   });
 
+  test('Realm.write with async callback', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    expect(() => realm.write(() async {}), throwsA(isA<AssertionError>()));
+  });
+
   test('Transaction.commitAsync with a canceled token throws', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
 

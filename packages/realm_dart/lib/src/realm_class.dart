@@ -355,11 +355,14 @@ class Realm {
   /// Checks whether the `Realm` is in write transaction.
   bool get isInTransaction => handle.isWritable;
 
+  bool _isSubtype<S, T>() => <S>[] is List<T>;
+
   /// Synchronously calls the provided callback inside a write transaction.
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   T write<T>(T Function() writeCallback) {
+    assert(!_isSubtype<T, Future>(), 'writeAsync should be used for async operations');
     final transaction = beginWrite();
 
     try {
