@@ -134,6 +134,8 @@ class _AllTypes {
   late int? nullableIntProp;
   late Decimal128? nullableDecimalProp;
   late Uint8List? nullableBinaryProp;
+
+  late RealmValue realmValueProp;
 }
 
 @RealmModel()

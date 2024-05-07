@@ -860,6 +860,7 @@ class AllTypes extends _AllTypes
     int? nullableIntProp,
     Decimal128? nullableDecimalProp,
     Uint8List? nullableBinaryProp,
+    RealmValue realmValueProp = const RealmValue.nullValue(),
   }) {
     RealmObjectBase.set(this, 'stringProp', stringProp);
     RealmObjectBase.set(this, 'boolProp', boolProp);
@@ -879,6 +880,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
     RealmObjectBase.set(this, 'nullableDecimalProp', nullableDecimalProp);
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
+    RealmObjectBase.set(this, 'realmValueProp', realmValueProp);
   }
 
   AllTypes._();
@@ -1004,6 +1006,13 @@ class AllTypes extends _AllTypes
       RealmObjectBase.set(this, 'nullableBinaryProp', value);
 
   @override
+  RealmValue get realmValueProp =>
+      RealmObjectBase.get<RealmValue>(this, 'realmValueProp') as RealmValue;
+  @override
+  set realmValueProp(RealmValue value) =>
+      RealmObjectBase.set(this, 'realmValueProp', value);
+
+  @override
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObjectBase.getChanges<AllTypes>(this);
 
@@ -1034,6 +1043,7 @@ class AllTypes extends _AllTypes
       'nullableIntProp': nullableIntProp.toEJson(),
       'nullableDecimalProp': nullableDecimalProp.toEJson(),
       'nullableBinaryProp': nullableBinaryProp.toEJson(),
+      'realmValueProp': realmValueProp.toEJson(),
     };
   }
 
@@ -1059,6 +1069,7 @@ class AllTypes extends _AllTypes
         'nullableIntProp': EJsonValue nullableIntProp,
         'nullableDecimalProp': EJsonValue nullableDecimalProp,
         'nullableBinaryProp': EJsonValue nullableBinaryProp,
+        'realmValueProp': EJsonValue realmValueProp,
       } =>
         AllTypes(
           fromEJson(stringProp),
@@ -1079,6 +1090,7 @@ class AllTypes extends _AllTypes
           nullableIntProp: fromEJson(nullableIntProp),
           nullableDecimalProp: fromEJson(nullableDecimalProp),
           nullableBinaryProp: fromEJson(nullableBinaryProp),
+          realmValueProp: fromEJson(realmValueProp),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -1114,6 +1126,7 @@ class AllTypes extends _AllTypes
           optional: true),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
+      SchemaProperty('realmValueProp', RealmPropertyType.mixed, optional: true),
     ]);
   }();
 

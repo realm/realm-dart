@@ -246,7 +246,7 @@ class RealmCoreAccessor implements RealmAccessor {
             value = object.realm.createObject(type, value, targetMetadata);
           }
 
-          if (T == RealmValue) {
+          if (T == RealmValue || (propertyMeta.propertyType == RealmPropertyType.mixed && _isTypeGenericObject<T>())) {
             value = RealmValue.from(value);
           }
 

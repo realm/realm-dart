@@ -115,7 +115,8 @@ void main() {
       nullableObjectIdProp: objectId,
       nullableUuidProp: uuid,
       nullableIntProp: 123,
-      nullableDecimalProp: Decimal128.fromDouble(4242));
+      nullableDecimalProp: Decimal128.fromDouble(4242),
+      realmValueProp: RealmValue.from('value'));
 
   AllTypes _getEmptyAllTypes() => AllTypes('', false, DateTime(0).toUtc(), 0, objectId, uuid, 0, Decimal128.zero, Uint8List(16));
 
@@ -205,6 +206,9 @@ void main() {
     expect(actual.dynamic.get<Decimal128?>('nullableDecimalProp'), expected.nullableDecimalProp);
     expect(actual.dynamic.get('nullableDecimalProp'), expected.nullableDecimalProp);
 
+    expect(actual.dynamic.get<RealmValue>('realmValueProp'), expected.realmValueProp);
+    expect(actual.dynamic.get('realmValueProp'), expected.realmValueProp);
+
     dynamic actualDynamic = actual;
     expect(actualDynamic.stringProp, expected.stringProp);
     expect(actualDynamic.nullableStringProp, expected.nullableStringProp);
@@ -222,6 +226,7 @@ void main() {
     expect(actualDynamic.nullableIntProp, expected.nullableIntProp);
     expect(actualDynamic.decimalProp, expected.decimalProp);
     expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
+    expect(actualDynamic.realmValueProp, expected.realmValueProp);
   }
 
   void _validateDynamicSetters(RealmObject actual, AllTypes expected) {
@@ -249,6 +254,8 @@ void main() {
 
       actual.dynamic.set('decimalProp', Decimal128.fromDouble(500));
       actual.dynamic.set('nullableDecimalProp', Decimal128.infinity);
+
+      actual.dynamic.set('realmValueProp', RealmValue.from([true, 5]));
     });
 
     expect(actual.dynamic.get('stringProp'), isNot(expected.stringProp));
@@ -267,6 +274,7 @@ void main() {
     expect(actual.dynamic.get('nullableIntProp'), isNot(expected.nullableIntProp));
     expect(actual.dynamic.get('decimalProp'), isNot(expected.decimalProp));
     expect(actual.dynamic.get('nullableDecimalProp'), isNot(expected.nullableDecimalProp));
+    expect(actual.dynamic.get('realmValueProp'), isNot(expected.realmValueProp));
 
     dynamic actualDynamic = actual;
 
@@ -287,6 +295,7 @@ void main() {
       actualDynamic.nullableIntProp = expected.nullableIntProp;
       actualDynamic.decimalProp = expected.decimalProp;
       actualDynamic.nullableDecimalProp = expected.nullableDecimalProp;
+      actualDynamic.realmValueProp = expected.realmValueProp;
     });
 
     expect(actualDynamic.stringProp, expected.stringProp);
@@ -305,6 +314,7 @@ void main() {
     expect(actualDynamic.nullableIntProp, expected.nullableIntProp);
     expect(actualDynamic.decimalProp, expected.decimalProp);
     expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
+    expect(actualDynamic.realmValueProp, expected.realmValueProp);
   }
 
   void _validateDynamicCollections(RealmObject actual, AllCollections expected) {
