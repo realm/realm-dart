@@ -3,9 +3,9 @@
 
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
-import '../realm_object.dart'; // TODO: Remove this import
+import '../realm_object.dart';
 import 'from_native.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';

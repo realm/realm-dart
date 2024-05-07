@@ -4,7 +4,7 @@
 import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
 import '../realm_dart.dart';
 import '../scheduler.dart';

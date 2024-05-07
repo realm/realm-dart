@@ -3,12 +3,12 @@
 
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'package:realm_dart/src/native/from_native.dart';
 
 import '../collections.dart';
+import 'ffi.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart';
 import 'realm_library.dart';
 
 class MapChangesHandle extends HandleBase<realm_dictionary_changes> {

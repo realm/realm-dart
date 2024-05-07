@@ -3,7 +3,7 @@
 
 import 'dart:ffi';
 
-import '../realm_class.dart'; // TODO: Remove this import
+import '../realm_class.dart';
 import 'from_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';

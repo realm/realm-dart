@@ -63,6 +63,7 @@ export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfigurat
 export 'collections.dart' show Move;
 export "configuration.dart"
     show
+        encryptionKeySize,
         AfterResetCallback,
         BeforeResetCallback,
         ClientResetCallback,
@@ -91,7 +92,6 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExte
 export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
-export 'native/realm_core.dart' show encryptionKeySize;
 export 'native/decimal128.dart' show Decimal128;
 export 'realm_object.dart'
     show

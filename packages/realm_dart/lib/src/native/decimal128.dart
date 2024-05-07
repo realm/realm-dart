@@ -4,7 +4,7 @@
 import 'dart:convert';
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 import 'package:realm_common/realm_common.dart' as common;
 
 import 'realm_bindings.dart';

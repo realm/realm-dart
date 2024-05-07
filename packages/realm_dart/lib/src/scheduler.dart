@@ -1,12 +1,10 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
-import 'package:realm_dart/src/logging.dart';
 
-import 'native/realm_core.dart';
+import 'package:realm_dart/src/logging.dart';
 
 import 'native/scheduler_handle.dart';
 import 'realm_class.dart';

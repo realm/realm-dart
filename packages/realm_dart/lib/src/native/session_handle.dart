@@ -4,11 +4,11 @@
 import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
 import '../realm_dart.dart';
 import '../scheduler.dart';
-import '../session.dart'; // TODO: Remove this import
+import '../session.dart';
 import 'convert_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
@@ -16,7 +16,6 @@ import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'rooted_handle.dart';
 import 'user_handle.dart';
-
 
 class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   @override

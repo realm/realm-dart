@@ -4,20 +4,20 @@
 import 'dart:async';
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 import 'package:realm_dart/src/native/error_handling.dart';
 
-import '../configuration.dart'; // TODO: Remove this import
-import '../migration.dart'; // TODO: Remove this import
-import '../realm_class.dart'; // TODO: Remove this import
-import '../scheduler.dart'; // TODO: Remove this import
-import '../user.dart'; // TODO: Remove this import
+import '../configuration.dart';
+import '../migration.dart';
+import '../realm_class.dart';
+import '../scheduler.dart';
+import '../user.dart';
 import 'convert_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
-import 'schema_handle.dart'; // TODO: Remove this import
+import 'schema_handle.dart';
 
 class ConfigHandle extends HandleBase<realm_config> {
   ConfigHandle(Pointer<realm_config> pointer) : super(pointer, 512);
@@ -134,8 +134,9 @@ class ConfigHandle extends HandleBase<realm_config> {
         realmLib.realm_config_set_force_sync_history(configHandle.pointer, true);
       }
 
-      if (config.encryptionKey != null) {
-        realmLib.realm_config_set_encryption_key(configHandle.pointer, config.encryptionKey!.toUint8Ptr(arena), encryptionKeySize);
+      final key = config.encryptionKey;
+      if (key != null) {
+        realmLib.realm_config_set_encryption_key(configHandle.pointer, key.toUint8Ptr(arena), key.length);
       }
 
       // For sync and for dynamic Realms, we need to have a complete view of the schema in Core.

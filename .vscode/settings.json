@@ -169,6 +169,4 @@
     "__verbose_abort": "cpp"
   },
   "cmake.sourceDirectory": "${workspaceFolder}/packages/realm_dart",
-    "dart.flutterSdkPath": "/Users/kasper/.puro/envs/stable/flutter",
-    "dart.sdkPath": "/Users/kasper/.puro/envs/stable/flutter/bin/cache/dart-sdk"
 }

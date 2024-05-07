@@ -7,11 +7,11 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
 import '../init.dart';
 import '../logging.dart';
-import '../realm_class.dart'; // TODO: Remove this import
+import '../realm_class.dart';
 import '../scheduler.dart';
 import 'convert.dart';
 import 'convert_native.dart';
@@ -19,7 +19,7 @@ import 'credentials_handle.dart';
 import 'error_handling.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart'; // TODO: Remove this import
+import 'realm_core.dart';
 import 'realm_library.dart';
 import 'user_handle.dart';
 
@@ -565,10 +565,10 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, _HttpTransport
     realmLib.realm_app_config_set_sdk(handle.pointer, 'Dart'.toCharPtr(arena));
     realmLib.realm_app_config_set_sdk_version(handle.pointer, libraryVersion.toCharPtr(arena));
 
-    final deviceName = getDeviceName();
+    final deviceName = realmCore.getDeviceName();
     realmLib.realm_app_config_set_device_name(handle.pointer, deviceName.toCharPtr(arena));
 
-    final deviceVersion = getDeviceVersion();
+    final deviceVersion = realmCore.getDeviceVersion();
     realmLib.realm_app_config_set_device_version(handle.pointer, deviceVersion.toCharPtr(arena));
 
     realmLib.realm_app_config_set_framework_name(handle.pointer, (isFlutterPlatform ? 'Flutter' : 'Dart VM').toCharPtr(arena));
@@ -578,7 +578,7 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, _HttpTransport
 
     realmLib.realm_app_config_set_default_request_timeout(handle.pointer, configuration.defaultRequestTimeout.inMilliseconds);
 
-    realmLib.realm_app_config_set_bundle_id(handle.pointer, getBundleId().toCharPtr(arena));
+    realmLib.realm_app_config_set_bundle_id(handle.pointer, realmCore.getBundleId().toCharPtr(arena));
 
     realmLib.realm_app_config_set_base_file_path(handle.pointer, configuration.baseFilePath.path.toCharPtr(arena));
     realmLib.realm_app_config_set_metadata_mode(handle.pointer, configuration.metadataPersistenceMode.index);

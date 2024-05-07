@@ -5,7 +5,7 @@ import 'dart:async';
 import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 import 'package:realm_common/realm_common.dart';
 
 import '../logging.dart';

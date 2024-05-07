@@ -5,12 +5,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
-import '../credentials.dart'; // TODO: Remove this import
-import '../realm_dart.dart'; // TODO: Remove this import
+import '../credentials.dart';
+import '../realm_dart.dart';
 import '../scheduler.dart';
-import '../user.dart'; // TODO: Remove this import
+import '../user.dart';
 import 'app_handle.dart';
 import 'convert.dart';
 import 'convert_native.dart';
@@ -18,7 +18,7 @@ import 'credentials_handle.dart';
 import 'error_handling.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
-import 'realm_library.dart'; // TODO: Remove this import
+import 'realm_library.dart';
 
 class UserHandle extends HandleBase<realm_user> {
   UserHandle(Pointer<realm_user> pointer) : super(pointer, 24);

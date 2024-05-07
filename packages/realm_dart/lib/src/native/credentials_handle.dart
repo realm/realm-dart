@@ -3,9 +3,9 @@
 
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
-import '../credentials.dart'; // TODO: Remove this import
+import '../credentials.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';

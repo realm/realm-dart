@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 import 'package:realm_dart/src/native/error_handling.dart';
 import 'package:realm_dart/src/native/realm_bindings.dart';
 

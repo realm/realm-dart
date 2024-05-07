@@ -3,9 +3,9 @@
 
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
-import '../collections.dart'; // TODO: Remove this import
+import '../collections.dart';
 import 'from_native.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';

@@ -3,7 +3,7 @@
 
 import 'dart:ffi';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
 import '../realm_dart.dart';
 import 'convert_native.dart';
@@ -12,7 +12,6 @@ import 'notification_token_handle.dart';
 import 'object_handle.dart';
 import 'query_handle.dart';
 import 'realm_bindings.dart';
-import 'realm_core.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'rooted_handle.dart';

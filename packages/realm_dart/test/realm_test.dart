@@ -1846,8 +1846,8 @@ void main() {
       matcher = isEmpty;
     }
 
-    expect(getDeviceName(), matcher);
-    expect(getDeviceVersion(), matcher);
+    expect(realmCore.getDeviceName(), matcher);
+    expect(realmCore.getDeviceVersion(), matcher);
   });
 
   test('Realm path with unicode symbols', () {

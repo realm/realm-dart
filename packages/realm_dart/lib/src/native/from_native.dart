@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ffi/ffi.dart';
+import 'ffi.dart';
 
 import '../app.dart';
 import '../configuration.dart';
@@ -336,4 +336,23 @@ class SyncErrorDetails {
     this.backupFilePath,
     this.compensatingWrites,
   });
+}
+
+extension PointerRealmValueEx on Pointer<realm_value_t> {
+  Object? toDartValue(Realm realm, Pointer<realm_list_t> Function()? getList, Pointer<realm_dictionary_t> Function()? getMap) {
+    if (this == nullptr) {
+      throw RealmException("Can not convert nullptr realm_value to Dart value");
+    }
+    return ref.toDartValue(realm: realm, getList: getList, getMap: getMap);
+  }
+
+  List<String> toStringList(int count) {
+    final result = List.filled(count, '');
+    for (var i = 0; i < count; i++) {
+      final strValue = (this + i).ref.values.string;
+      result[i] = strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
+    }
+
+    return result;
+  }
 }

@@ -14,4 +14,9 @@ class SchedulerHandle extends HandleBase<realm_scheduler> {
     final schedulerPtr = realmLib.realm_dart_create_scheduler(isolateId, sendPort);
     return SchedulerHandle._(schedulerPtr);
   }
+
+  void invoke(int workQueue) {
+    final queuePointer = Pointer<realm_work_queue>.fromAddress(workQueue);
+    realmLib.realm_scheduler_perform_work(queuePointer);
+  }
 }

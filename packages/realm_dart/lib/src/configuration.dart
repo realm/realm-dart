@@ -16,6 +16,8 @@ import 'native/realm_core.dart';
 import 'realm_class.dart';
 import 'user.dart';
 
+const encryptionKeySize = 64;
+
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
 ///
