@@ -381,7 +381,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   }
 
   /// @nodoc
-  static void set<T extends Object>(RealmObjectBase object, String name, T? value, {bool update = false}) {
+  static void set<T extends Object?>(RealmObjectBase object, String name, T value, {bool update = false}) {
     object._accessor.set(object, name, value, update: update);
   }
 
@@ -838,7 +838,7 @@ class DynamicRealmObject {
 
   /// Sets a property by its name. The supplied [value] must be assignable
   /// to the property type, otherwise an exception will be thrown.
-  void set<T extends Object>(String name, T? value) {
+  void set<T extends Object?>(String name, T value) {
     _validatePropertyType<T>(name, RealmCollectionType.none, relaxedNullability: true);
     RealmObjectBase.set(_obj, name, value);
   }
@@ -890,7 +890,7 @@ class DynamicRealmObject {
           // argument).
         } else {
           throw RealmException(
-              "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
+              "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument supplied is $T.");
         }
       }
 

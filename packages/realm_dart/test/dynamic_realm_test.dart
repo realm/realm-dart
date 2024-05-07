@@ -224,6 +224,89 @@ void main() {
     expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
   }
 
+  void _validateDynamicSetters(RealmObject actual, AllTypes expected) {
+    actual.realm.write(() {
+      actual.dynamic.set('stringProp', 'updated abc');
+      actual.dynamic.set('nullableStringProp', 'updated abc');
+
+      actual.dynamic.set('boolProp', false);
+      actual.dynamic.set('nullableBoolProp', false);
+
+      actual.dynamic.set('dateProp', DateTime(1999));
+      actual.dynamic.set('nullableDateProp', DateTime(1999));
+
+      actual.dynamic.set('doubleProp', -999.111);
+      actual.dynamic.set('nullableDoubleProp', 111.999);
+
+      actual.dynamic.set('objectIdProp', ObjectId());
+      actual.dynamic.set('nullableObjectIdProp', ObjectId());
+
+      actual.dynamic.set('uuidProp', Uuid.v4());
+      actual.dynamic.set('nullableUuidProp', Uuid.v4());
+
+      actual.dynamic.set('intProp', 42);
+      actual.dynamic.set('nullableIntProp', -42);
+
+      actual.dynamic.set('decimalProp', Decimal128.fromDouble(500));
+      actual.dynamic.set('nullableDecimalProp', Decimal128.infinity);
+    });
+
+    expect(actual.dynamic.get('stringProp'), isNot(expected.stringProp));
+    expect(actual.dynamic.get('nullableStringProp'), isNot(expected.nullableStringProp));
+    expect(actual.dynamic.get('boolProp'), isNot(expected.boolProp));
+    expect(actual.dynamic.get('nullableBoolProp'), isNot(expected.nullableBoolProp));
+    expect(actual.dynamic.get('dateProp'), isNot(expected.dateProp));
+    expect(actual.dynamic.get('nullableDateProp'), isNot(expected.nullableDateProp));
+    expect(actual.dynamic.get('doubleProp'), isNot(expected.doubleProp));
+    expect(actual.dynamic.get('nullableDoubleProp'), isNot(expected.nullableDoubleProp));
+    expect(actual.dynamic.get('objectIdProp'), isNot(expected.objectIdProp));
+    expect(actual.dynamic.get('nullableObjectIdProp'), isNot(expected.nullableObjectIdProp));
+    expect(actual.dynamic.get('uuidProp'), isNot(expected.uuidProp));
+    expect(actual.dynamic.get('nullableUuidProp'), isNot(expected.nullableUuidProp));
+    expect(actual.dynamic.get('intProp'), isNot(expected.intProp));
+    expect(actual.dynamic.get('nullableIntProp'), isNot(expected.nullableIntProp));
+    expect(actual.dynamic.get('decimalProp'), isNot(expected.decimalProp));
+    expect(actual.dynamic.get('nullableDecimalProp'), isNot(expected.nullableDecimalProp));
+
+    dynamic actualDynamic = actual;
+
+    actual.realm.write(() {
+      actualDynamic.stringProp = expected.stringProp;
+      actualDynamic.nullableStringProp = expected.nullableStringProp;
+      actualDynamic.boolProp = expected.boolProp;
+      actualDynamic.nullableBoolProp = expected.nullableBoolProp;
+      actualDynamic.dateProp = expected.dateProp;
+      actualDynamic.nullableDateProp = expected.nullableDateProp;
+      actualDynamic.doubleProp = expected.doubleProp;
+      actualDynamic.nullableDoubleProp = expected.nullableDoubleProp;
+      actualDynamic.objectIdProp = expected.objectIdProp;
+      actualDynamic.nullableObjectIdProp = expected.nullableObjectIdProp;
+      actualDynamic.uuidProp = expected.uuidProp;
+      actualDynamic.nullableUuidProp = expected.nullableUuidProp;
+      actualDynamic.intProp = expected.intProp;
+      actualDynamic.nullableIntProp = expected.nullableIntProp;
+      actualDynamic.decimalProp = expected.decimalProp;
+      actualDynamic.nullableDecimalProp = expected.nullableDecimalProp;
+    });
+
+    expect(actualDynamic.stringProp, expected.stringProp);
+    expect(actualDynamic.nullableStringProp, expected.nullableStringProp);
+    expect(actualDynamic.boolProp, expected.boolProp);
+    expect(actualDynamic.nullableBoolProp, expected.nullableBoolProp);
+    expect(actualDynamic.dateProp, expected.dateProp);
+    expect(actualDynamic.nullableDateProp, expected.nullableDateProp);
+    expect(actualDynamic.doubleProp, expected.doubleProp);
+    expect(actualDynamic.nullableDoubleProp, expected.nullableDoubleProp);
+    expect(actualDynamic.objectIdProp, expected.objectIdProp);
+    expect(actualDynamic.nullableObjectIdProp, expected.nullableObjectIdProp);
+    expect(actualDynamic.uuidProp, expected.uuidProp);
+    expect(actualDynamic.nullableUuidProp, expected.nullableUuidProp);
+    expect(actualDynamic.intProp, expected.intProp);
+    expect(actualDynamic.nullableIntProp, expected.nullableIntProp);
+    expect(actualDynamic.decimalProp, expected.decimalProp);
+    expect(actualDynamic.nullableDecimalProp, expected.nullableDecimalProp);
+  }
+
   void _validateDynamicCollections(RealmObject actual, AllCollections expected) {
     dynamic actualDynamic = actual;
 
@@ -576,8 +659,8 @@ void main() {
       });
     });
 
-    group('RealmObject.dynamic.get when isDynamic=$isDynamic', () {
-      test('gets all property types', () {
+    group('RealmObject.dynamic.get/set when isDynamic=$isDynamic', () {
+      test('works for all property types', () {
         final config = Configuration.local([AllTypes.schema]);
         final staticRealm = getRealm(config);
 
@@ -597,9 +680,10 @@ void main() {
 
         _validateDynamic(obj1, _getPopulatedAllTypes());
         _validateDynamic(obj2, _getEmptyAllTypes());
+        _validateDynamicSetters(obj1, _getPopulatedAllTypes());
       });
 
-      test('gets normal links', () {
+      test('works for normal links', () {
         final config = Configuration.local([LinksClass.schema]);
         final staticRealm = getRealm(config);
 
@@ -633,6 +717,22 @@ void main() {
         expect(dynamicObj2.link.id, uuid1);
 
         assertSchemaMatches(dynamicObj2.link.objectSchema as SchemaObject, LinksClass.schema);
+
+        dynamicRealm.write(() {
+          obj1.dynamic.set('link', obj1);
+          obj2.dynamic.set('link', null);
+        });
+
+        expect(obj1.dynamic.get('link'), obj1);
+        expect(obj2.dynamic.get('link'), isNull);
+
+        dynamicRealm.write(() {
+          dynamicObj1.link = null;
+          dynamicObj2.link = obj1;
+        });
+
+        expect(dynamicObj1.link, isNull);
+        expect(dynamicObj2.link, obj1);
       });
 
       test('fails with non-existent property', () {
@@ -647,6 +747,11 @@ void main() {
         dynamic dynamicObj = obj;
         expect(() => obj.dynamic.get('i-dont-exist'), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
         expect(() => dynamicObj.idontexist, throws<RealmException>("Property idontexist does not exist on class AllTypes"));
+
+        dynamicRealm.write(() {
+          expect(() => obj.dynamic.set('i-dont-exist', true), throws<RealmException>("Property 'i-dont-exist' does not exist on class 'AllTypes'"));
+          expect(() => dynamicObj.idontexist = 5, throws<RealmException>("Property idontexist does not exist on class AllTypes"));
+        });
       });
 
       test('fails with wrong type', () {
@@ -670,10 +775,34 @@ void main() {
                 "Property 'nullableStringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
 
         expect(() => obj.dynamic.get<int>('nullableIntProp'),
-            throws<RealmException>("Property 'nullableIntProp' on class 'AllTypes' is nullable but the generic argument passed to get<T> is int."));
+            throws<RealmException>("Property 'nullableIntProp' on class 'AllTypes' is nullable but the generic argument supplied is int."));
 
         expect(() => obj.dynamic.get<int?>('intProp'),
-            throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the generic argument passed to get<T> is int?."));
+            throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the generic argument supplied is int?."));
+
+        dynamic dynamicObj = obj;
+        dynamicRealm.write(() {
+          expect(
+              () => obj.dynamic.set('stringProp', 5),
+              throws<RealmException>(
+                  "Property 'stringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
+
+          expect(
+              () => obj.dynamic.set<int?>('nullableStringProp', 5),
+              throws<RealmException>(
+                  "Property 'nullableStringProp' on class 'AllTypes' is not the correct type. Expected 'RealmPropertyType.int', got 'RealmPropertyType.string'."));
+
+          expect(() => obj.dynamic.set<int?>('intProp', null),
+              throws<RealmException>("Property 'intProp' on class 'AllTypes' is required but the generic argument supplied is int?."));
+
+          expect(() => dynamicObj.stringProp = true, throws<RealmException>("Type mismatch for property 'AllTypes.stringProp'"));
+          expect(() => dynamicObj.nullableStringProp = 5, throws<RealmException>("Type mismatch for property 'AllTypes.nullableStringProp'"));
+          expect(() => dynamicObj.intProp = null, throws<RealmException>("Invalid null value for non-nullable property 'AllTypes.intProp'"));
+
+          // Passing a non-null value to nullable property should be fine
+          expect(() => obj.dynamic.set<int>('nullableIntProp', 999), returnsNormally);
+          expect(() => dynamicObj.nullableIntProp = 1000, returnsNormally);
+        });
       });
 
       test('fails on collection properties', () {
@@ -699,6 +828,22 @@ void main() {
             () => obj.dynamic.get<String?>('stringList'),
             throws<RealmException>(
                 "Property 'stringList' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+
+        dynamic dynamicObj = obj;
+        dynamicRealm.write(() {
+          expect(
+              () => obj.dynamic.set('stringList', 5),
+              throws<RealmException>(
+                  "Property 'stringList' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+
+          expect(
+              () => obj.dynamic.set('stringList', null),
+              throws<RealmException>(
+                  "Property 'stringList' on class 'AllCollections' is 'RealmCollectionType.list' but the method used to access it expected 'RealmCollectionType.none'."));
+
+          expect(() => dynamicObj.stringList = 5, throws<RealmException>("Type mismatch for property 'AllCollections.stringList'"));
+          expect(() => dynamicObj.stringList = null, throws<RealmException>("Type mismatch for property 'AllCollections.stringList'"));
+        });
       });
     });
 
