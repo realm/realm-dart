@@ -965,6 +965,29 @@ class DynamicRealm {
     final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
     return RealmObjectInternal.create(RealmObject, _realm, handle, accessor) as RealmObject;
   }
+
+  /// Creates a managed RealmObject with the specified [className] and [primaryKey].
+  RealmObject create(String className, {Object? primaryKey}) {
+    final metadata = _realm._metadata.getByName(className);
+
+    RealmObjectHandle handle;
+    if (metadata.primaryKey != null) {
+      if (primaryKey == null) {
+        throw RealmError("The class $className has primary key defined, but you didn't pass one");
+      }
+
+      handle = realmCore.createRealmObjectWithPrimaryKey(_realm, metadata.classKey, primaryKey);
+    } else {
+      if (primaryKey != null) {
+        throw RealmError("The class $className doesn't have primary key defined, but you passed $primaryKey");
+      }
+
+      handle = realmCore.createRealmObject(_realm, metadata.classKey);
+    }
+
+    final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
+    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor) as RealmObject;
+  }
 }
 
 /// A class used during a migration callback. It exposes a set of dynamic API as

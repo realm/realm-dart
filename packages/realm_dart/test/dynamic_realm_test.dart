@@ -942,6 +942,69 @@ void main() {
         setSub.cancel();
         mapSub.cancel();
       });
+
+      test('Returns stream for collection of objects', () async {
+        final config = Configuration.local([LinksClass.schema]);
+        final staticRealm = getRealm(config);
+
+        final uuid1 = Uuid.v4();
+        final uuid2 = Uuid.v4();
+
+        staticRealm.write(() {
+          final obj1 = staticRealm.add(LinksClass(uuid1));
+          staticRealm.add(LinksClass(uuid2, list: [obj1, obj1], linksSet: {obj1}, map: {'a': obj1, 'b': obj1}));
+        });
+
+        final dynamicRealm = _getDynamicRealm(staticRealm);
+
+        final obj = dynamicRealm.dynamic.find(LinksClass.schema.name, uuid2)!;
+
+        final listChanges = <RealmListChanges<RealmObject>>[];
+        final setChanges = <RealmSetChanges<RealmObject>>[];
+        final mapChanges = <RealmMapChanges<RealmObject?>>[];
+
+        final list = obj.dynamic.getList<RealmObject>('list');
+        final listSub = list.changes.listen((event) {
+          listChanges.add(event);
+        });
+
+        final set = obj.dynamic.getSet<RealmObject>('linksSet');
+        final setSub = set.changes.listen((event) {
+          setChanges.add(event);
+        });
+
+        final map = obj.dynamic.getMap<RealmObject?>('map');
+        final mapSub = map.changes.listen((event) {
+          mapChanges.add(event);
+        });
+
+        dynamicRealm.write(() {
+          list[0] = dynamicRealm.dynamic.create(LinksClass.schema.name, primaryKey: Uuid.v4());
+          set.clear();
+          map['new map value'] = null;
+        });
+
+        await Future<void>.delayed(Duration(milliseconds: 20));
+
+        expect(listChanges, hasLength(2));
+        expect(listChanges[1].inserted, isEmpty);
+        expect(listChanges[1].deleted, isEmpty);
+        expect(listChanges[1].modified, [0]);
+
+        expect(setChanges, hasLength(2));
+        expect(setChanges[1].deleted, [0]);
+        expect(setChanges[1].inserted, isEmpty);
+        expect(setChanges[1].modified, isEmpty);
+
+        expect(mapChanges, hasLength(2));
+        expect(mapChanges[1].inserted, ['new map value']);
+        expect(mapChanges[1].deleted, isEmpty);
+        expect(mapChanges[1].modified, isEmpty);
+
+        listSub.cancel();
+        setSub.cancel();
+        mapSub.cancel();
+      });
     });
   }
 
