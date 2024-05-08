@@ -6,6 +6,7 @@
 
 ### Fixed
 * Listening for `.changes` on a dynamic object (obtained via the `realm.dynamic` API) no longer throws. (Issue [#1668](https://github.com/realm/realm-dart/issues/1668))
+* Private fields did not work with default values. (Issue [#1663](https://github.com/realm/realm-dart/issues/1663))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.

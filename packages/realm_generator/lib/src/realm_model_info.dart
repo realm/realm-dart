@@ -146,7 +146,7 @@ class RealmModelInfo {
           yield '} => $name(';
           {
             yield* positional.map((f) => 'fromEJson(${f.name}),');
-            yield* named.map((f) => '${f.name}: fromEJson(${f.name}),');
+            yield* named.map((f) => '${paramName(f)}: fromEJson(${f.name}),');
           }
           yield '),';
           yield '_ => raiseInvalidEJson(ejson),';
