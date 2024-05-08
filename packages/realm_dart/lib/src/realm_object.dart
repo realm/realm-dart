@@ -381,7 +381,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   }
 
   /// @nodoc
-  static void set<T extends Object?>(RealmObjectBase object, String name, T value, {bool update = false}) {
+  static void set<T>(RealmObjectBase object, String name, T value, {bool update = false}) {
     object._accessor.set(object, name, value, update: update);
   }
 
