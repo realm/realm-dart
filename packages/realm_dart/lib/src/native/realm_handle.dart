@@ -36,8 +36,9 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   factory RealmHandle.open(Configuration config) {
     final configHandle = ConfigHandle.from(config);
-    return RealmHandle(realmLib.realm_open(configHandle.pointer) //
-      ..raiseLastErrorIfNull('Error opening realm at path ${config.path}'));
+    return RealmHandle(realmLib
+        .realm_open(configHandle.pointer) //
+        .raiseLastErrorIfNull());
   }
 
   int addChild(RootedHandleBase child) {
@@ -144,7 +145,7 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void close() {
-    realmLib.realm_close(pointer).raiseLastErrorIfFalse("Realm close failed");
+    realmLib.realm_close(pointer).raiseLastErrorIfFalse();
   }
 
   bool get isClosed {
@@ -152,11 +153,11 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void beginWrite() {
-    realmLib.realm_begin_write(pointer).raiseLastErrorIfFalse("Could not begin write");
+    realmLib.realm_begin_write(pointer).raiseLastErrorIfFalse();
   }
 
   void commitWrite() {
-    realmLib.realm_commit(pointer).raiseLastErrorIfFalse("Could not commit write");
+    realmLib.realm_commit(pointer).raiseLastErrorIfFalse();
   }
 
   Future<void> beginWriteAsync(CancellationToken? ct) {
@@ -238,13 +239,13 @@ class RealmHandle extends HandleBase<shared_realm> {
   }
 
   void rollbackWrite() {
-    realmLib.realm_rollback(pointer).raiseLastErrorIfFalse("Could not rollback write");
+    realmLib.realm_rollback(pointer).raiseLastErrorIfFalse();
   }
 
   bool refresh() {
     return using((arena) {
       final didRefresh = arena<Bool>();
-      realmLib.realm_refresh(pointer, didRefresh).raiseLastErrorIfFalse("Could not refresh");
+      realmLib.realm_refresh(pointer, didRefresh).raiseLastErrorIfFalse();
       return didRefresh.value;
     });
   }
@@ -252,15 +253,13 @@ class RealmHandle extends HandleBase<shared_realm> {
   Future<bool> refreshAsync() async {
     final completer = Completer<bool>();
     final callback = Pointer.fromFunction<Void Function(Pointer<Void>)>(_realmRefreshAsyncCallback);
-    Pointer<Void> completerPtr = realmLib.realm_dart_object_to_persistent_handle(completer);
-    Pointer<realm_refresh_callback_token> result =
-        realmLib.realm_add_realm_refresh_callback(pointer, callback.cast(), completerPtr, realmLib.addresses.realm_dart_delete_persistent_handle);
+    final completerPtr = realmLib.realm_dart_object_to_persistent_handle(completer);
+    final result = realmLib.realm_add_realm_refresh_callback(pointer, callback.cast(), completerPtr, realmLib.addresses.realm_dart_delete_persistent_handle);
 
     if (result == nullptr) {
-      return Future<bool>.value(false);
+      return false;
     }
-
-    return completer.future;
+    return await completer.future;
   }
 
   static void _realmRefreshAsyncCallback(Pointer<Void> userdata) {
@@ -409,12 +408,6 @@ class RealmHandle extends HandleBase<shared_realm> {
       final found = arena<Bool>();
       final classInfo = arena<realm_class_info_t>();
       realmLib.realm_find_class(pointer, schema.name.toCharPtr(arena), found, classInfo).raiseLastErrorIfFalse();
-      // "Error getting class ${schema.name} from realm at ${realm.config.path}");
-
-      if (!found.value) {
-        raiseLastError(); //"Class ${schema.name} not found in ${realm.config.path}");
-      }
-
       final primaryKey = classInfo.ref.primary_key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
       return RealmObjectMetadata(schema, classInfo.ref.key, _getPropertiesMetadata(classInfo.ref.key, primaryKey, arena));
     });
@@ -422,13 +415,11 @@ class RealmHandle extends HandleBase<shared_realm> {
 
   Map<String, RealmPropertyMetadata> _getPropertiesMetadata(int classKey, String? primaryKeyName, Arena arena) {
     final propertyCountPtr = arena<Size>();
-    realmLib.realm_get_property_keys(pointer, classKey, nullptr, 0, propertyCountPtr).raiseLastErrorIfFalse("Error getting property count");
+    realmLib.realm_get_property_keys(pointer, classKey, nullptr, 0, propertyCountPtr).raiseLastErrorIfFalse();
 
     var propertyCount = propertyCountPtr.value;
     final propertiesPtr = arena<realm_property_info_t>(propertyCount);
-    realmLib
-        .realm_get_class_properties(pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr)
-        .raiseLastErrorIfFalse("Error getting class properties.");
+    realmLib.realm_get_class_properties(pointer, classKey, propertiesPtr, propertyCount, propertyCountPtr).raiseLastErrorIfFalse();
 
     propertyCount = propertyCountPtr.value;
     Map<String, RealmPropertyMetadata> result = <String, RealmPropertyMetadata>{};

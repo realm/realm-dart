@@ -4,6 +4,7 @@
 import 'dart:ffi';
 
 import '../realm_dart.dart';
+import 'collection_handle_base.dart';
 import 'convert_native.dart';
 import 'error_handling.dart';
 import 'ffi.dart';
@@ -14,7 +15,6 @@ import 'realm_bindings.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'results_handle.dart';
-import 'rooted_handle.dart';
 
 class ListHandle extends CollectionHandleBase<realm_list> {
   ListHandle(Pointer<realm_list> pointer, RealmHandle root) : super(root, pointer, 88);

@@ -3,21 +3,19 @@
 
 import 'dart:ffi';
 
-import 'ffi.dart';
-
 import '../realm_dart.dart';
+import 'collection_handle_base.dart';
 import 'convert_native.dart';
 import 'error_handling.dart';
+import 'ffi.dart';
 import 'map_changes_handle.dart';
 import 'notification_token_handle.dart';
 import 'object_handle.dart';
 import 'query_handle.dart';
 import 'realm_bindings.dart';
-// TODO: remove this import
 import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'results_handle.dart';
-import 'rooted_handle.dart';
 
 class MapHandle extends CollectionHandleBase<realm_dictionary> {
   MapHandle(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size

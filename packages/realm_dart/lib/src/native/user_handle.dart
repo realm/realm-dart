@@ -34,7 +34,7 @@ class UserHandle extends HandleBase<realm_user> {
   }
 
   String get id {
-    final idPtr = realmLib.realm_user_get_identity(pointer)..raiseLastErrorIfNull("Error while getting user id");
+    final idPtr = realmLib.realm_user_get_identity(pointer).raiseLastErrorIfNull();
     final userId = idPtr.cast<Utf8>().toDartString();
     return userId;
   }
@@ -68,32 +68,32 @@ class UserHandle extends HandleBase<realm_user> {
   }
 
   Future<void> logOut() async {
-    realmLib.realm_user_log_out(pointer).raiseLastErrorIfFalse("Logout failed");
+    realmLib.realm_user_log_out(pointer).raiseLastErrorIfFalse();
   }
 
   String? get deviceId {
-    final deviceId = realmLib.realm_user_get_device_id(pointer)..raiseLastErrorIfNull();
+    final deviceId = realmLib.realm_user_get_device_id(pointer).raiseLastErrorIfNull();
     return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
   }
 
   UserProfile get profileData {
-    final data = realmLib.realm_user_get_profile_data(pointer)..raiseLastErrorIfNull();
+    final data = realmLib.realm_user_get_profile_data(pointer).raiseLastErrorIfNull();
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
   }
 
   String get refreshToken {
-    final token = realmLib.realm_user_get_refresh_token(pointer)..raiseLastErrorIfNull();
+    final token = realmLib.realm_user_get_refresh_token(pointer).raiseLastErrorIfNull();
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   String get accessToken {
-    final token = realmLib.realm_user_get_access_token(pointer)..raiseLastErrorIfNull();
+    final token = realmLib.realm_user_get_access_token(pointer).raiseLastErrorIfNull();
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
   String get path {
-    final syncConfigPtr = realmLib.realm_flx_sync_config_new(pointer)..raiseLastErrorIfNull();
+    final syncConfigPtr = realmLib.realm_flx_sync_config_new(pointer).raiseLastErrorIfNull();
     try {
       final path = realmLib.realm_app_sync_client_get_default_file_path_for_realm(syncConfigPtr, nullptr);
       return path.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
@@ -118,7 +118,7 @@ class UserHandle extends HandleBase<realm_user> {
           createAsyncUserCallbackUserdata(completer),
           realmLib.addresses.realm_dart_userdata_async_free,
         )
-        .raiseLastErrorIfFalse("Link credentials failed");
+        .raiseLastErrorIfFalse();
     return completer.future;
   }
 

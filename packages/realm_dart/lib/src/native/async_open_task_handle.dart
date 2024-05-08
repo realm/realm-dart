@@ -18,7 +18,7 @@ class AsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> {
 
   factory AsyncOpenTaskHandle.from(FlexibleSyncConfiguration config) {
     final configHandle = ConfigHandle.from(config);
-    final asyncOpenTaskPtr = realmLib.realm_open_synchronized(configHandle.pointer)..raiseLastErrorIfNull("Error opening realm at path ${config.path}");
+    final asyncOpenTaskPtr = realmLib.realm_open_synchronized(configHandle.pointer).raiseLastErrorIfNull();
     return AsyncOpenTaskHandle(asyncOpenTaskPtr);
   }
 

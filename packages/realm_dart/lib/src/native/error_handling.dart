@@ -11,17 +11,18 @@ import 'realm_bindings.dart';
 import 'realm_library.dart';
 
 extension PointerEx<T extends NativeType> on Pointer<T> {
-  void raiseLastErrorIfNull([String? message]) {
+  Pointer<T> raiseLastErrorIfNull() {
     if (this == nullptr) {
-      raiseLastError(message);
+      _raiseLastError();
     }
+    return this;
   }
 }
 
 extension BoolEx on bool {
-  void raiseLastErrorIfFalse([String? message]) {
+  void raiseLastErrorIfFalse() {
     if (!this) {
-      raiseLastError(message);
+      _raiseLastError();
     }
   }
 }
@@ -37,17 +38,15 @@ class LastError {
   String toString() => "${message ?? 'No message'}. Error code: $code.";
 }
 
-LastError? getLastError(Allocator allocator) {
+LastError? _getLastError(Allocator allocator) {
   final error = allocator<realm_error_t>();
   final success = realmLib.realm_get_last_error(error);
   return success ? error.ref.toDart() : null;
 }
 
-Never raiseLastError([String? errorMessage]) {
+Never _raiseLastError([String? errorMessage]) {
   using((arena) {
-    final lastError = getLastError(arena);
-    //raise(lastError);
-
+    final lastError = _getLastError(arena);
     if (lastError?.userError != null) {
       throw UserCallbackException(lastError!.userError!);
     }

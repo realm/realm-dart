@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
 
+import 'package:realm_dart/src/native/realm_library.dart';
+
 import '../realm_dart.dart';
 import '../realm_object.dart';
 import 'decimal128.dart';
@@ -42,8 +44,7 @@ extension NullableObjectEx on Object? {
     final self = this;
     final realmValue = allocator<realm_value_t>();
     if (self is RealmValue && self.type.isCollection) {
-      throw RealmError(
-          "Don't use _toPrimitiveValue if the value may contain collections. Use storeValue instead. This is a bug in the Realm Flutter SDK and should be reported to https://github.com/realm/realm-dart/issues/new");
+      throw RealmError("Don't use toNative if the value may contain collections. $bugInTheSdkMessage");
     }
     _intoRealmValue(self, realmValue.ref, allocator);
     return realmValue;

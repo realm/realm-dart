@@ -3,11 +3,11 @@
 
 import 'dart:ffi';
 
-import 'ffi.dart';
-
 import '../realm_dart.dart';
+import 'collection_handle_base.dart';
 import 'convert_native.dart';
 import 'error_handling.dart';
+import 'ffi.dart';
 import 'handle_base.dart';
 import 'list_handle.dart';
 import 'map_handle.dart';
@@ -147,7 +147,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> {
       }
       // TODO(kn):
       // call to classKey getter involves a native call, which is not ideal
-      return realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative)..raiseLastErrorIfNull();
+      return realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative).raiseLastErrorIfNull();
     });
   }
 

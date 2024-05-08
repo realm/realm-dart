@@ -42,7 +42,7 @@ final _pluginLib = () {
 
 class RealmCore {
   RealmCore._();
-  
+
   // For debugging
   int get threadId => realmLib.realm_dart_get_thread_id();
 
@@ -58,7 +58,7 @@ class RealmCore {
   void deleteRealmFiles(String path) {
     using((arena) {
       final realmDeleted = arena<Bool>();
-      realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted).raiseLastErrorIfFalse("Error deleting realm at path $path");
+      realmLib.realm_delete_files(path.toCharPtr(arena), realmDeleted).raiseLastErrorIfFalse();
     });
   }
 
@@ -134,7 +134,7 @@ class RealmCore {
     const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
   }
-  
+
   String getDefaultBaseUrl() {
     return realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
   }

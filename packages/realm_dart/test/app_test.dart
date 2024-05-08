@@ -299,7 +299,7 @@ void main() {
     expect(app.currentUser, user2);
     expect(
       () => app.switchUser(user1),
-      throws<RealmException>("Switch user failed. User is no longer valid or is logged out"),
+      throws<RealmException>("User is no longer valid or is logged out"),
     );
   });
 

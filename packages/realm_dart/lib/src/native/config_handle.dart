@@ -88,7 +88,7 @@ class ConfigHandle extends HandleBase<realm_config> {
         realmLib.realm_config_set_in_memory(configHandle.pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
         realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
-        final syncConfigPtr = realmLib.realm_flx_sync_config_new(config.user.handle.pointer)..raiseLastErrorIfNull();
+        final syncConfigPtr = realmLib.realm_flx_sync_config_new(config.user.handle.pointer).raiseLastErrorIfNull();
         try {
           realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
@@ -168,7 +168,8 @@ void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle
         )));
 
     try {
-      return await afterResetCallback(beforeRealm, afterRealm);
+      await afterResetCallback(beforeRealm, afterRealm);
+      return;
     } finally {
       beforeRealm.handle.release();
       afterRealm.handle.release();
