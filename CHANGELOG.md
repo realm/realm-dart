@@ -1,16 +1,23 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Nested collections have full support for automatic client reset. (Core 14.7.0)
 
 ### Fixed
 * Private fields did not work with default values. (Issue [#1663](https://github.com/realm/realm-dart/issues/1663))
+
+* Having links in a nested collections would leave the file inconsistent if the top object is removed. (Core 14.7.0)
+
+* Accessing App.currentUser from within a notification produced by App.switchUser() (which includes notifications for a newly logged in user) would deadlock. (Core 14.7.0)
+
+* Inserting the same typed link to the same key in a dictionary more than once would incorrectly create multiple backlinks to the object. This did not appear to cause any crashes later, but would have affecting explicit backlink count queries (eg: `...@links.@count`) and possibly notifications. (Core 14.7.0)
+
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.7.0.
 
 ## 2.2.1 (2024-05-02)
 
