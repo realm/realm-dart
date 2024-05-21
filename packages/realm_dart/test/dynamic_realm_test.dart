@@ -230,6 +230,8 @@ void main() {
   }
 
   void _validateDynamicSetters(RealmObject actual, AllTypes expected) {
+    final oid = ObjectId();
+    final uuid = Uuid.v4();
     actual.realm.write(() {
       actual.dynamic.set('stringProp', 'updated abc');
       actual.dynamic.set('nullableStringProp', 'updated abc');
@@ -237,17 +239,17 @@ void main() {
       actual.dynamic.set('boolProp', false);
       actual.dynamic.set('nullableBoolProp', false);
 
-      actual.dynamic.set('dateProp', DateTime(1999));
-      actual.dynamic.set('nullableDateProp', DateTime(1999));
+      actual.dynamic.set('dateProp', DateTime.utc(1999));
+      actual.dynamic.set('nullableDateProp', DateTime.utc(1999));
 
       actual.dynamic.set('doubleProp', -999.111);
       actual.dynamic.set('nullableDoubleProp', 111.999);
 
-      actual.dynamic.set('objectIdProp', ObjectId());
-      actual.dynamic.set('nullableObjectIdProp', ObjectId());
+      actual.dynamic.set('objectIdProp', oid);
+      actual.dynamic.set('nullableObjectIdProp', oid);
 
-      actual.dynamic.set('uuidProp', Uuid.v4());
-      actual.dynamic.set('nullableUuidProp', Uuid.v4());
+      actual.dynamic.set('uuidProp', uuid);
+      actual.dynamic.set('nullableUuidProp', uuid);
 
       actual.dynamic.set('intProp', 42);
       actual.dynamic.set('nullableIntProp', -42);
@@ -258,23 +260,23 @@ void main() {
       actual.dynamic.set('realmValueProp', RealmValue.from([true, 5]));
     });
 
-    expect(actual.dynamic.get('stringProp'), isNot(expected.stringProp));
-    expect(actual.dynamic.get('nullableStringProp'), isNot(expected.nullableStringProp));
-    expect(actual.dynamic.get('boolProp'), isNot(expected.boolProp));
-    expect(actual.dynamic.get('nullableBoolProp'), isNot(expected.nullableBoolProp));
-    expect(actual.dynamic.get('dateProp'), isNot(expected.dateProp));
-    expect(actual.dynamic.get('nullableDateProp'), isNot(expected.nullableDateProp));
-    expect(actual.dynamic.get('doubleProp'), isNot(expected.doubleProp));
-    expect(actual.dynamic.get('nullableDoubleProp'), isNot(expected.nullableDoubleProp));
-    expect(actual.dynamic.get('objectIdProp'), isNot(expected.objectIdProp));
-    expect(actual.dynamic.get('nullableObjectIdProp'), isNot(expected.nullableObjectIdProp));
-    expect(actual.dynamic.get('uuidProp'), isNot(expected.uuidProp));
-    expect(actual.dynamic.get('nullableUuidProp'), isNot(expected.nullableUuidProp));
-    expect(actual.dynamic.get('intProp'), isNot(expected.intProp));
-    expect(actual.dynamic.get('nullableIntProp'), isNot(expected.nullableIntProp));
-    expect(actual.dynamic.get('decimalProp'), isNot(expected.decimalProp));
-    expect(actual.dynamic.get('nullableDecimalProp'), isNot(expected.nullableDecimalProp));
-    expect(actual.dynamic.get('realmValueProp'), isNot(expected.realmValueProp));
+    expect(actual.dynamic.get('stringProp'), 'updated abc');
+    expect(actual.dynamic.get('nullableStringProp'), 'updated abc');
+    expect(actual.dynamic.get('boolProp'), false);
+    expect(actual.dynamic.get('nullableBoolProp'), false);
+    expect(actual.dynamic.get('dateProp'), DateTime.utc(1999));
+    expect(actual.dynamic.get('nullableDateProp'), DateTime.utc(1999));
+    expect(actual.dynamic.get('doubleProp'), -999.111);
+    expect(actual.dynamic.get('nullableDoubleProp'), 111.999);
+    expect(actual.dynamic.get('objectIdProp'), oid);
+    expect(actual.dynamic.get('nullableObjectIdProp'), oid);
+    expect(actual.dynamic.get('uuidProp'), uuid);
+    expect(actual.dynamic.get('nullableUuidProp'), uuid);
+    expect(actual.dynamic.get('intProp'), 42);
+    expect(actual.dynamic.get('nullableIntProp'), -42);
+    expect(actual.dynamic.get('decimalProp'), Decimal128.fromDouble(500));
+    expect(actual.dynamic.get('nullableDecimalProp'), Decimal128.infinity);
+    expect(actual.dynamic.get<RealmValue>('realmValueProp').asList().map((e) => e.value), [true, 5]);
 
     dynamic actualDynamic = actual;
 
