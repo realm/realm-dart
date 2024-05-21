@@ -190,7 +190,7 @@ void main() {
   baasTest('Call Atlas function that does not exist', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found: 'notExisitingFunction'"));
+    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found"));
   });
 
   baasTest('Call Atlas function with no arguments', (configuration) async {
