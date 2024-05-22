@@ -29,6 +29,7 @@
 
 ### Internal
 * Using Core 14.6.2.
+* Drop build of `x86` android slice. (Issue [#1670](https://github.com/realm/realm-dart/issues/1670))
 
 ## 2.2.0 (2024-05-01)
 
