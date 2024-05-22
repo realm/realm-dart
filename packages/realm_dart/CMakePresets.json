@@ -88,14 +88,6 @@
       }
     },
     {
-      "name": "android-x86",
-      "displayName": "Android x86",
-      "inherits": "android",
-      "cacheVariables": {
-        "CMAKE_ANDROID_ARCH_ABI": "x86"
-      }
-    },
-    {
       "name": "android-x86_64",
       "displayName": "Android x86_64",
       "inherits": "android",
@@ -136,12 +128,6 @@
       "name": "windows",
       "configurePreset": "windows",
       "displayName": "x64",
-      "configuration": "Debug"
-    },
-    {
-      "name": "android-x86",
-      "configurePreset": "android-x86",
-      "displayName": "x86",
       "configuration": "Debug"
     },
     {

@@ -45,7 +45,7 @@ jobs:
     with:
      runner: ubuntu-20.04
      binary: android
-     build: '["android-x86", "android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
+     build: '["android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 
   build-ios:
     name: Build IOS
