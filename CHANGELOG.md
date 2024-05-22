@@ -8,6 +8,7 @@
 
 ### Fixed
 * Private fields did not work with default values. (Issue [#1663](https://github.com/realm/realm-dart/issues/1663))
+* Invoke scheduler callback on Zone.current. (Issue [#1676](https://github.com/realm/realm-dart/issues/1676))
 
 * Having links in a nested collections would leave the file inconsistent if the top object is removed. (Core 14.7.0)
 
