@@ -184,7 +184,13 @@ void main() {
     await app.deleteUser(user);
     expect(user.state, UserState.removed);
 
-    await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+    await expectLater(
+      () => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', equals('unauthorized'))
+          .having((e) => e.statusCode, 'statusCode', 401)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   });
 
   baasTest('Call Atlas function that does not exist', (configuration) async {
