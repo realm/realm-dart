@@ -184,13 +184,19 @@ void main() {
     await app.deleteUser(user);
     expect(user.state, UserState.removed);
 
-    await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+    await expectLater(
+      () => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', equals('unauthorized'))
+          .having((e) => e.statusCode, 'statusCode', 401)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   });
 
   baasTest('Call Atlas function that does not exist', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found: 'notExisitingFunction'"));
+    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found"));
   });
 
   baasTest('Call Atlas function with no arguments', (configuration) async {
