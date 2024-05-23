@@ -1,6 +1,7 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'package:realm_dart/src/logging.dart';
@@ -20,23 +21,34 @@ class Scheduler {
 
   Scheduler._() {
     _receivePortFinalizer.attach(this, _receivePort, detach: this);
-
-    _receivePort.handler = (dynamic message) {
-      if (message is List) {
-        // currently the only `message as List` is from the logger.
-        final category = LogCategory.fromString(message[0] as String);
-        final level = LogLevel.values[message[1] as int];
-        final text = message[2] as String;
-        Realm.logger.raise((category: category, level: level, message: text));
-      } else if (message is int) {
-        realmCore.invokeScheduler(message);
-      } else {
-        Realm.logger.log(LogLevel.error, 'Unexpected Scheduler message type: ${message.runtimeType} - $message');
-      }
-    };
-
+    // There be dragons here!!!
+    //
+    // As of Dart 3.4 (Flutter 3.22) we started seeing uncaught exceptions on
+    // the receivePort handler (issue #1676), stating that: 
+    // "argument value for 'return_value' is null" in 
+    // RealmLibrary.realm_scheduler_perform_work, but obviously a void method 
+    // don't return anything, so this is really a Dart issue.
+    //
+    // However, by ensuring the callback happens in the current zone (as it 
+    // rightfully should), and using bindUnaryCallbackGuarded, we can avoid 
+    // these.
+    _receivePort.handler = Zone.current.bindUnaryCallbackGuarded(_handle);
     final sendPort = _receivePort.sendPort;
     handle = realmCore.createScheduler(Isolate.current.hashCode, sendPort.nativePort);
+  }
+
+  void _handle(dynamic message) {
+    if (message is List) {
+      // currently the only `message as List` is from the logger.
+      final category = LogCategory.fromString(message[0] as String);
+      final level = LogLevel.values[message[1] as int];
+      final text = message[2] as String;
+      Realm.logger.raise((category: category, level: level, message: text));
+    } else if (message is int) {
+      realmCore.invokeScheduler(message);
+    } else {
+      Realm.logger.log(LogLevel.error, 'Unexpected Scheduler message type: ${message.runtimeType} - $message');
+    }
   }
 
   void stop() {
