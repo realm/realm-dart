@@ -4,15 +4,23 @@
 * Added support for creating and storing a RealmObject using the `Realm.dynamic` API: `realm.dynamic.create("Person", primaryKey: 123)`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
 * Added support for setting properties on a RealmObject using the dynamic API: `obj.dynamic.set("name", "Peter")`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
 * Listening for `.changes` on a dynamic object (obtained via the `realm.dynamic` API) no longer throws. (Issue [#1668](https://github.com/realm/realm-dart/issues/1668))
+* Nested collections have full support for automatic client reset. (Core 14.7.0)
 
 ### Fixed
 * Private fields did not work with default values. (Issue [#1663](https://github.com/realm/realm-dart/issues/1663))
+
+* Having links in a nested collections would leave the file inconsistent if the top object is removed. (Core 14.7.0)
+
+* Accessing App.currentUser from within a notification produced by App.switchUser() (which includes notifications for a newly logged in user) would deadlock. (Core 14.7.0)
+
+* Inserting the same typed link to the same key in a dictionary more than once would incorrectly create multiple backlinks to the object. This did not appear to cause any crashes later, but would have affecting explicit backlink count queries (eg: `...@links.@count`) and possibly notifications. (Core 14.7.0)
+
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.7.0.
 
 ## 2.2.1 (2024-05-02)
 
@@ -24,6 +32,7 @@
 
 ### Internal
 * Using Core 14.6.2.
+* Drop build of `x86` android slice. (Issue [#1670](https://github.com/realm/realm-dart/issues/1670))
 
 ## 2.2.0 (2024-05-01)
 
