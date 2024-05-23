@@ -45,7 +45,7 @@ class Scheduler {
       final text = message[2] as String;
       Realm.logger.raise((category: category, level: level, message: text));
     } else if (message is int) {
-      realmCore.invokeScheduler(message);
+      handle.invoke(message);
     } else {
       Realm.logger.log(LogLevel.error, 'Unexpected Scheduler message type: ${message.runtimeType} - $message');
     }
