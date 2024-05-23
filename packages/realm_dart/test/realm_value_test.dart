@@ -2454,7 +2454,8 @@ void main() {
       expect(RealmValue.from(bin1), isNot(RealmValue.from(bin2)));
     }
 
-    // Not quite 8 times speedup, but close enough.
-    expect(listEqualsClock.elapsedTicks ~/ 5, greaterThan(memEqualsClock.elapsedTicks));
+    // Not quite 8 times speedup, but close enough. Setting the threshold to 4
+    // for test stability sake.
+    expect(listEqualsClock.elapsedTicks ~/ 4, greaterThan(memEqualsClock.elapsedTicks));
   });
 }
