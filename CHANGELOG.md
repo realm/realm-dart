@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 2.3.0 (2024-05-23)
 
 ### Enhancements
 * Added support for creating and storing a RealmObject using the `Realm.dynamic` API: `realm.dynamic.create("Person", primaryKey: 123)`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
