@@ -1,6 +1,9 @@
 ## vNext (TBD)
 
 ### Enhancements
+* Added support for creating and storing a RealmObject using the `Realm.dynamic` API: `realm.dynamic.create("Person", primaryKey: 123)`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
+* Added support for setting properties on a RealmObject using the dynamic API: `obj.dynamic.set("name", "Peter")`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
+* Listening for `.changes` on a dynamic object (obtained via the `realm.dynamic` API) no longer throws. (Issue [#1668](https://github.com/realm/realm-dart/issues/1668))
 * Nested collections have full support for automatic client reset. (Core 14.7.0)
 
 ### Fixed

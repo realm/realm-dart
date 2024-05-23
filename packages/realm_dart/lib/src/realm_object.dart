@@ -246,7 +246,7 @@ class RealmCoreAccessor implements RealmAccessor {
             value = object.realm.createObject(type, value, targetMetadata);
           }
 
-          if (T == RealmValue) {
+          if (T == RealmValue || (propertyMeta.propertyType == RealmPropertyType.mixed && _isTypeGenericObject<T>())) {
             value = RealmValue.from(value);
           }
 
@@ -381,7 +381,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   }
 
   /// @nodoc
-  static void set<T extends Object>(RealmObjectBase object, String name, T? value, {bool update = false}) {
+  static void set<T>(RealmObjectBase object, String name, T value, {bool update = false}) {
     object._accessor.set(object, name, value, update: update);
   }
 
@@ -605,10 +605,16 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
 }
 
 /// @nodoc
-mixin RealmObject on RealmObjectBase implements RealmObjectMarker {}
+mixin RealmObject on RealmObjectBase implements RealmObjectMarker {
+  @override
+  Stream<RealmObjectChanges<RealmObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+}
 
 /// @nodoc
-mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {}
+mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {
+  @override
+  Stream<RealmObjectChanges<EmbeddedObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of EmbeddedObject");
+}
 
 /// Base for any object that can be persisted in a [Realm], but cannot be retrieved,
 /// hence cannot be modified.
@@ -731,7 +737,7 @@ class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
   List<String> get properties {
     final propertyKeys = realmCore.getObjectChangesProperties(_handle);
     return object.realm
-        .getPropertyNames(object.runtimeType, propertyKeys)
+        .getPropertyNames(object, propertyKeys)
         .map((e) => object.objectSchema.firstWhere((element) => element.mapTo == e || element.name == e).name)
         .toList();
   }
@@ -794,12 +800,18 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 class _ConcreteRealmObject with RealmEntity, RealmObjectBase, RealmObject {
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this)!; // _ConcreteRealmObject should only ever be created for managed objects
+
+  @override
+  Stream<RealmObjectChanges<RealmObject>> get changes => RealmObjectBase.getChanges<RealmObject>(this);
 }
 
 /// @nodoc
 class _ConcreteEmbeddedObject with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this)!; // _ConcreteEmbeddedObject should only ever be created for managed objects
+
+  @override
+  Stream<RealmObjectChanges<EmbeddedObject>> get changes => RealmObjectBase.getChanges<EmbeddedObject>(this);
 }
 
 // This is necessary whenever we need to pass T? as the type.
@@ -822,6 +834,13 @@ class DynamicRealmObject {
   T get<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.none);
     return RealmObjectBase.get<T>(_obj, name) as T;
+  }
+
+  /// Sets a property by its name. The supplied [value] must be assignable
+  /// to the property type, otherwise an exception will be thrown.
+  void set<T extends Object?>(String name, T value) {
+    _validatePropertyType<T>(name, RealmCollectionType.none, relaxedNullability: true);
+    RealmObjectBase.set(_obj, name, value);
   }
 
   /// Gets a list by the property name. If a generic type is specified, the property
@@ -848,7 +867,7 @@ class DynamicRealmObject {
     return RealmObjectBase.get<T>(_obj, name) as RealmMap<T>;
   }
 
-  RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
+  RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType, {bool relaxedNullability = false}) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
       final prop = accessor.metadata._propertyKeys[name];
@@ -864,8 +883,15 @@ class DynamicRealmObject {
       // If the user passed in a type argument, we should validate its nullability; if they invoked
       // the method without a type arg, we don't
       if (T != _typeOf<RealmValue>() && T != _typeOf<Object?>() && prop.isNullable != null is T) {
-        throw RealmException(
-            "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
+        if (relaxedNullability && prop.isNullable) {
+          // We're relaxing nullability requirements when setting a property - in that case, we accept
+          // a non-null generic type argument, even if the property is nullable to allow users to invoke
+          // .set without a generic argument (i.e. have the compiler infer the generic based on the value
+          // argument).
+        } else {
+          throw RealmException(
+              "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument supplied is $T.");
+        }
       }
 
       final targetType = _getPropertyType<T>();

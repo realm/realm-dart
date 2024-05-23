@@ -750,8 +750,8 @@ extension RealmInternal on Realm {
     return RealmMapInternal.create<T>(handle, this, metadata);
   }
 
-  List<String> getPropertyNames(Type type, List<int> propertyKeys) {
-    final metadata = _metadata.getByType(type);
+  List<String> getPropertyNames(RealmObjectBase obj, List<int> propertyKeys) {
+    final metadata = _metadata.tryGetByType(obj.runtimeType) ?? _metadata.getByName(obj.objectSchema.name);
     final result = <String>[];
     for (var key in propertyKeys) {
       final name = metadata.getPropertyName(key);
@@ -907,6 +907,8 @@ class RealmMetadata {
     return metadata;
   }
 
+  RealmObjectMetadata? tryGetByType(Type type) => _typeMap[type];
+
   RealmObjectMetadata getByName(String type) {
     var metadata = _stringMap[type];
     if (metadata == null) {
@@ -958,6 +960,29 @@ class DynamicRealm {
     final handle = realmCore.find(_realm, metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
+    }
+
+    final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
+    return RealmObjectInternal.create(RealmObject, _realm, handle, accessor) as RealmObject;
+  }
+
+  /// Creates a managed RealmObject with the specified [className] and [primaryKey].
+  RealmObject create(String className, {Object? primaryKey}) {
+    final metadata = _realm._metadata.getByName(className);
+
+    RealmObjectHandle handle;
+    if (metadata.primaryKey != null) {
+      if (primaryKey == null) {
+        throw RealmError("The class $className has primary key defined, but you didn't pass one");
+      }
+
+      handle = realmCore.createRealmObjectWithPrimaryKey(_realm, metadata.classKey, primaryKey);
+    } else {
+      if (primaryKey != null) {
+        throw RealmError("The class $className doesn't have primary key defined, but you passed $primaryKey");
+      }
+
+      handle = realmCore.createRealmObject(_realm, metadata.classKey);
     }
 
     final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
