@@ -68,7 +68,6 @@ enum OS {
 enum Target {
   androidArm(Architecture.arm, OS.android),
   androidArm64(Architecture.arm64, OS.android),
-  androidIA32(Architecture.ia32, OS.android),
   androidX64(Architecture.x64, OS.android), // only for emulator
   // androidRiscv64, // not supported by realm currently
   // fuchsiaArm64, // -"- etc.

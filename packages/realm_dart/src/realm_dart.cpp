@@ -35,12 +35,6 @@ std::string cpuArch = "arm64";
 #pragma message("Building arm64")
 #endif
 
-
-#if REALM_ARCHITECTURE_X86_32
-std::string cpuArch = "x86";
-#pragma message("Building x86")
-#endif
-
 #if REALM_ARCHITECTURE_X86_64
 std::string cpuArch = "x86_64";
 #pragma message("Building x64")
