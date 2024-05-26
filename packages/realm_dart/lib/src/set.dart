@@ -4,7 +4,6 @@
 import 'dart:core';
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ffi';
 
 import 'package:collection/collection.dart' as collection;
 
@@ -19,7 +18,7 @@ import 'collections.dart';
 import 'results.dart';
 
 /// RealmSet is a collection that contains no duplicate elements.
-abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity implements Finalizable {
+abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity {
   RealmObjectMetadata? _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.

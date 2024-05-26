@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
@@ -365,7 +364,7 @@ extension RealmEntityInternal on RealmEntity {
 ///
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
-mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizable {
+mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
   ObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObjectBase Function()> _factories = <Type, RealmObjectBase Function()>{
@@ -646,12 +645,6 @@ extension EmbeddedObjectExtension on EmbeddedObject {
 /// @nodoc
 //RealmObject package internal members
 extension RealmObjectInternal on RealmObjectBase {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _realm?.keepAlive();
-    _handle?.keepAlive();
-  }
-
   void manage(Realm realm, ObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
       //most certainly a bug hence we throw an Error
@@ -726,7 +719,7 @@ class UserCallbackException extends RealmException {
 }
 
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
-class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
+class RealmObjectChanges<T extends RealmObjectBase> {
   // ignore: unused_field
   final ObjectChangesHandle _handle;
 
@@ -749,12 +742,7 @@ class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
 }
 
 /// @nodoc
-extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChanges<T> {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-  }
-}
+extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChanges<T> {}
 
 /// @nodoc
 class RealmObjectNotificationsController<T extends RealmObjectBase> extends NotificationsController {

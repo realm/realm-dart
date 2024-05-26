@@ -3,7 +3,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'app.dart';
 import 'credentials.dart';
@@ -162,7 +161,7 @@ class User {
 }
 
 /// @nodoc
-class UserNotificationsController implements Finalizable {
+class UserNotificationsController {
   UserNotificationTokenHandle? tokenHandle;
 
   void start() {
@@ -367,12 +366,6 @@ extension UserIdentityInternal on UserIdentity {
 
 /// @nodoc
 extension UserInternal on User {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-    _app?.keepAlive();
-  }
-
   UserHandle get handle => _handle;
 
   static User create(UserHandle handle, [App? app]) => User._(handle, app);
