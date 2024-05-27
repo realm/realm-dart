@@ -326,11 +326,6 @@ jobs:
           ulimit -n
           ulimit -n 10240
 
-      - name: Select XCode for MacOS
-        run: |
-          xcodes installed
-          sudo xcodes select 15.3
-
       - name: Enable ccache
         run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
 
