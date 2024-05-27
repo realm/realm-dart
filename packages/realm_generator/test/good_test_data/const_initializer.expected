@@ -187,6 +187,11 @@ class ConstInitializer extends _ConstInitializer
       RealmObjectBase.getChanges<ConstInitializer>(this);
 
   @override
+  Stream<RealmObjectChanges<ConstInitializer>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ConstInitializer>(this, keyPaths);
+
+  @override
   ConstInitializer freeze() =>
       RealmObjectBase.freezeObject<ConstInitializer>(this);
 

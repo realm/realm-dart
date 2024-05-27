@@ -4,6 +4,7 @@
 import 'dart:math';
 
 import 'package:meta/meta.dart';
+import 'package:realm_dart/src/native/decimal128.dart';
 import 'package:test/expect.dart' hide throws;
 
 import 'package:realm_dart/src/native/realm_core.dart';

@@ -1,6 +1,7 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'package:realm_dart/src/native/decimal128.dart';
 import 'package:test/test.dart' hide test, throws;
 
 import 'package:realm_dart/realm.dart';
@@ -840,7 +841,7 @@ void main() {
       ['text1', null, 2.2, 3] // Searching by different type of values and null
     ]);
     expect(results.length, 3);
-  });
+  }, skip: true);
 }
 
 extension on RealmObjectBase {

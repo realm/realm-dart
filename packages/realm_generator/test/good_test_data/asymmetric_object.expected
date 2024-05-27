@@ -55,6 +55,10 @@ class Asymmetric extends _Asymmetric
       RealmObjectBase.getChanges<Asymmetric>(this);
 
   @override
+  Stream<RealmObjectChanges<Asymmetric>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Asymmetric>(this, keyPaths);
+
+  @override
   Asymmetric freeze() => RealmObjectBase.freezeObject<Asymmetric>(this);
 
   EJsonValue toEJson() {
@@ -88,8 +92,7 @@ class Asymmetric extends _Asymmetric
   static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
-        ObjectType.realmObject, Asymmetric, 'Asymmetric', [
+    return SchemaObject(ObjectType.realmObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('children', RealmPropertyType.object,
@@ -130,6 +133,10 @@ class Embedded extends _Embedded
   @override
   Stream<RealmObjectChanges<Embedded>> get changes =>
       RealmObjectBase.getChanges<Embedded>(this);
+
+  @override
+  Stream<RealmObjectChanges<Embedded>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Embedded>(this, keyPaths);
 
   @override
   Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);

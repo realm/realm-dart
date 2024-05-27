@@ -5,13 +5,13 @@ version: 2.0.0-alpha.2
 publish_to: "none"
 
 environment:
-  sdk: ^3.0.0
-  flutter: ^3.10.0
+  sdk: ^3.3.0
+  flutter: ^3.19.0
 
 dependencies:
   flutter:
     sdk: flutter
-  realm: ^2.0.0
+  realm: ^2.3.0
   characters: ^1.1.0
 
 dev_dependencies:

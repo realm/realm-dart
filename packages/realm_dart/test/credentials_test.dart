@@ -148,7 +148,13 @@ void main() {
     await authProvider.registerUser(username, strongPassword);
     await authProvider.callResetPasswordFunction(username, newPassword, functionArgs: <dynamic>['success']);
     await app.logIn(Credentials.emailPassword(username, newPassword));
-    await expectLater(() => app.logIn(Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+    await expectLater(
+      app.logIn(Credentials.emailPassword(username, strongPassword)),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', equals('unauthorized'))
+          .having((e) => e.statusCode, 'statusCode', 401)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   }, appName: AppName.autoConfirm);
 
   baasTest('Email/Password - call reset password function with no additional arguments', (configuration) async {
@@ -157,12 +163,16 @@ void main() {
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
     await authProvider.registerUser(username, strongPassword);
-    await expectLater(() async {
+    await expectLater(
       // Calling this function with no additional arguments fails for the test
       // because of the specific implementation of resetFunc in the cloud.
       // resetFunc returns status 'fail' in case no other status is passed.
-      return await authProvider.callResetPasswordFunction(username, newPassword);
-    }, throws<AppException>('failed to reset password for user "$username"'));
+      authProvider.callResetPasswordFunction(username, newPassword),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', contains('failed to reset password for user "$username"'))
+          .having((e) => e.statusCode, 'statusCode', 400)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   }, appName: AppName.autoConfirm);
 
   /// JWT Payload data
@@ -298,14 +308,26 @@ void main() {
     var token =
         "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzOTY4ODhhZjg3MjBiMzczZmYwNmEiLCJlbWFpbCI6Indvbmdfc2lnbml0dXJlX2tleUByZWFsbS5pbyIsImlhdCI6MTY2MDE0MjIxNSwiZXhwIjo0ODEzNzQyMjE1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.Af--ZUCL_KC7lAhrD_d1lq91O7qVwu7GqXifwxKojkLCkbjmAER9K2Xa7BPO8xNstFeX8m9uBo4BCD5B6XmngSmyCj5OZWdiG5LTR_uhA3MnpqcV3Vu40K4Yx8XrjPuCL39xVPnEfPKLGz5TjEcMLa8xMPqo51byX0q3mR2eSS4w1A7c5TiTNuQ23_SCO8aK95SyXwuUmU4mH0iR4sHPtf64WyoAXkx8w5twXExzky1_h473CwtAERdMsBhwz1YzFKP0kxU31pg5SRciF5Ly66sK1fSPTMQPuVdS_wKvAYll8_trWnWS83M3_PWs4UxzOdjSpoK0uqhN-_IC38YOGg";
     final credentials = Credentials.jwt(token);
-    await expectLater(() => app.logIn(credentials), throws<AppException>("crypto/rsa: verification error"));
+    await expectLater(
+      () => app.logIn(credentials),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', equals('unauthorized'))
+          .having((e) => e.statusCode, 'statusCode', 401)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   });
 
   baasTest('Facebook credentials - invalid or expired token', (configuration) async {
     final app = App(configuration);
     final accessToken = 'invalid or expired token';
     final credentials = Credentials.facebook(accessToken);
-    await expectLater(() => app.logIn(credentials), throws<AppException>("error fetching info from OAuth2 provider"));
+    await expectLater(
+      app.logIn(credentials),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', equals('unauthorized'))
+          .having((e) => e.statusCode, 'statusCode', 401)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   });
 
   baasTest('Function credentials - wrong payload', (configuration) {

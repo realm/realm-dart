@@ -7,11 +7,16 @@ import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
+
+import 'app.dart';
+import 'init.dart';
 import 'logging.dart';
+import 'native/from_native.dart';
 import 'native/realm_core.dart';
 import 'realm_class.dart';
-import 'init.dart';
 import 'user.dart';
+
+const encryptionKeySize = 64;
 
 /// The signature of a callback used to determine if compaction
 /// should be attempted.
@@ -225,8 +230,8 @@ abstract class Configuration implements Finalizable {
       return;
     }
 
-    if (key.length != realmCore.encryptionKeySize) {
-      throw RealmException("Wrong encryption key size (must be ${realmCore.encryptionKeySize}, but was ${key.length})");
+    if (key.length != encryptionKeySize) {
+      throw RealmException("Wrong encryption key size (must be $encryptionKeySize, but was ${key.length})");
     }
 
     int notAByteElement = key.firstWhere((e) => e > 255, orElse: () => -1);
@@ -368,7 +373,7 @@ class FlexibleSyncConfiguration extends Configuration {
   }) : super._();
 
   @override
-  String get _defaultPath => realmCore.getPathForUser(user);
+  String get _defaultPath => user.handle.path;
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
@@ -653,7 +658,7 @@ class ClientResetError extends SyncError {
       throw RealmException("Missing `originalFilePath`");
     }
 
-    return realmCore.immediatelyRunFileActions(_app!, originalFilePath!);
+    return _app.handle.resetRealm(originalFilePath!);
   }
 }
 

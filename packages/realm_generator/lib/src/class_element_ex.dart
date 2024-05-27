@@ -202,7 +202,19 @@ extension ClassElementEx on ClassElement {
         }
       }
 
-      return RealmModelInfo(name, modelName, realmName, mappedFields, objectType);
+      // Get the generator configuration
+      final index = realmModelInfo?.value.getField('generatorConfig')?.getField('ctorStyle')?.getField('index')?.toIntValue();
+      final ctorStyle = index != null ? CtorStyle.values[index] : CtorStyle.onlyOptionalNamed;
+      final config = GeneratorConfig(ctorStyle: ctorStyle);
+
+      return RealmModelInfo(
+        name,
+        modelName,
+        realmName,
+        mappedFields,
+        objectType,
+        config,
+      );
     } on InvalidGenerationSourceError catch (_) {
       rethrow;
     } catch (e, s) {

@@ -9,7 +9,6 @@ import 'dart:isolate';
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/native/realm_core.dart';
-import 'package:test/test.dart' hide test, throws;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -393,6 +392,9 @@ void main() {
     //Ensure the team exists in realm
     var teams = realm.all<Team>();
     expect(teams.length, 1);
+    expect(teams[0].players, newPlayers);
+    final allPersons = realm.all<Person>();
+    expect(allPersons.length, 3);
 
     //Delete team players
     realm.write(() => realm.deleteMany(teams[0].players));
@@ -401,7 +403,6 @@ void main() {
     expect(teams[0].players.length, 0);
 
     //Reload all persons from realm and ensure they are deleted
-    final allPersons = realm.all<Person>();
     expect(allPersons.length, 0);
   });
 
@@ -1819,7 +1820,7 @@ void main() {
     final results = realm.query<Person>(r"name == $0", [personName]);
 
     expect(realm.refresh(), false);
-    realmCore.realmDisableAutoRefreshForTesting(realm);
+    realm.disableAutoRefreshForTesting();
 
     ReceivePort receivePort = ReceivePort();
     Isolate.spawn((SendPort sendPort) async {

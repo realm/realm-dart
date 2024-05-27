@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:ffi';
-import 'native/realm_core.dart';
+import 'native/collection_changes_handle.dart';
 
 /// Contains index information about objects that moved within the same collection.
 class Move {
@@ -47,12 +47,10 @@ class MapChanges {
 
 /// Describes the changes in a Realm collection since the last time the notification callback was invoked.
 class RealmCollectionChanges implements Finalizable {
-  final RealmCollectionChangesHandle _handle;
-  CollectionChanges? _values;
+  final CollectionChangesHandle _handle;
+  late final CollectionChanges _changes = _handle.changes;
 
   RealmCollectionChanges(this._handle);
-
-  CollectionChanges get _changes => _values ??= realmCore.getCollectionChanges(_handle);
 
   /// The indexes in the previous version of the collection which have been removed from this one.
   List<int> get deleted => _changes.deletions;

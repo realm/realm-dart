@@ -20,10 +20,9 @@ enum ObjectType {
   /// to query or modify it.
   asymmetricObject('AsymmetricObject', 2);
 
-  const ObjectType([this._className = 'Unknown', this._flags = -1]);
+  const ObjectType(this._className, this._flags);
 
   final String _className;
-
   final int _flags;
 }
 
@@ -33,15 +32,49 @@ extension ObjectTypeInternal on ObjectType {
   String get className => _className;
 }
 
+/// An enum controlling the constructor type generated for a [RealmModel].
+enum CtorStyle {
+  /// Generate a constructor with only optional parameters named.
+  /// All required parameters will be positional.
+  /// This is the default, unless overridden in the build config.
+  onlyOptionalNamed,
+
+  /// Generate a constructor with all parameters named.
+  allNamed,
+}
+
+/// Class used to define the desired constructor behavior for a [RealmModel].
+///
+/// {@category Annotations}
+class GeneratorConfig {
+  /// The style to use for the generated constructor
+  final CtorStyle ctorStyle;
+
+  const GeneratorConfig({this.ctorStyle = CtorStyle.onlyOptionalNamed});
+}
+
 /// Annotation class used to define `Realm` data model classes and their properties
 ///
 /// {@category Annotations}
 class RealmModel {
-  /// The base type of the object
-  final ObjectType type;
+  /// The base type of the generated object class
+  final ObjectType baseType;
 
-  /// Creates a new instance of [RealmModel] specifying the desired base type.
-  const RealmModel([this.type = ObjectType.realmObject]);
+  /// The generator configuration to use for this model
+  final GeneratorConfig generatorConfig;
+
+  // NOTE: To avoid a breaking change, we keep this old constructor and add a new one
+  /// Creates a new instance of [RealmModel] optionally specifying the [baseType].
+  const RealmModel([
+    ObjectType baseType = ObjectType.realmObject,
+  ]) : this.using(baseType: baseType);
+
+  /// Creates a new instance of [RealmModel] optionally specifying the [baseType]
+  /// and [generatorConfig].
+  const RealmModel.using({
+    this.baseType = ObjectType.realmObject,
+    this.generatorConfig = const GeneratorConfig(),
+  });
 }
 
 /// MapTo annotation for class level and class member level.
@@ -96,12 +129,4 @@ class Backlink {
   /// The name of the field in the other class that links to this class.
   final Symbol fieldName;
   const Backlink(this.fieldName);
-}
-
-/// @nodoc
-class Tuple<T1, T2> {
-  T1 item1;
-  T2 item2;
-
-  Tuple(this.item1, this.item2);
 }

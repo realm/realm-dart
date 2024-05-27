@@ -33,6 +33,10 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Car>(this);
 
   @override
+  Stream<RealmObjectChanges<Car>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Car>(this, keyPaths);
+
+  @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
   EJsonValue toEJson() {
@@ -271,6 +275,11 @@ class TestRealmSets extends _TestRealmSets
   @override
   Stream<RealmObjectChanges<TestRealmSets>> get changes =>
       RealmObjectBase.getChanges<TestRealmSets>(this);
+
+  @override
+  Stream<RealmObjectChanges<TestRealmSets>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<TestRealmSets>(this, keyPaths);
 
   @override
   TestRealmSets freeze() => RealmObjectBase.freezeObject<TestRealmSets>(this);

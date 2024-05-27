@@ -53,7 +53,7 @@ jobs:
 
       - name: Downgrade XCode for MacOS
         if: matrix.build == 'macos'
-        run: sudo xcode-select -s /Applications/Xcode_14.0.1.app
+        run: sudo xcodes select 14.3.1
 
       - name: Build
         if: steps.check-cache.outputs.cache-hit != 'true'

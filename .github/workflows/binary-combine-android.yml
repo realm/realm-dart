@@ -9,11 +9,6 @@ jobs:
     timeout-minutes: 15
     runs-on:  ubuntu-latest
     steps:
-      - name: Fetch x86 build
-        uses: actions/download-artifact@v4
-        with:
-          name: librealm-android-x86
-          path: packages/realm_dart/binary/android
       - name: Fetch x86_64 build
         uses: actions/download-artifact@v4
         with:
@@ -41,7 +36,6 @@ jobs:
         uses: geekyeggo/delete-artifact@v4
         with:
           name: |
-            librealm-android-x86
             librealm-android-x86_64
             librealm-android-armeabi-v7a
             librealm-android-arm64-v8a

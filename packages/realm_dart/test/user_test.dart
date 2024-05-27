@@ -382,7 +382,7 @@ void main() {
     await expectLater(
         () => app.logIn(credentials),
         throwsA(isA<AppException>()
-            .having((e) => e.message, 'message', contains('invalid API key'))
+            .having((e) => e.message, 'message', equals('unauthorized'))
             .having((e) => e.statusCode, 'statusCode', 401)
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
 
@@ -405,7 +405,7 @@ void main() {
     await expectLater(
         () => app.logIn(credentials),
         throwsA(isA<AppException>()
-            .having((e) => e.message, 'message', contains('invalid API key'))
+            .having((e) => e.message, 'message', equals('unauthorized'))
             .having((e) => e.statusCode, 'statusCode', 401)
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
   });
@@ -452,7 +452,7 @@ void main() {
     await expectLater(
         () async => await app.logIn(credentials),
         throwsA(isA<AppException>()
-            .having((e) => e.message, 'message', 'invalid API key')
+            .having((e) => e.message, 'message', 'unauthorized')
             .having((e) => e.statusCode, 'statusCode', 401)
             .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))));
   });

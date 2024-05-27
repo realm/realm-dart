@@ -56,6 +56,10 @@ class Original extends $Original
       RealmObjectBase.getChanges<Original>(this);
 
   @override
+  Stream<RealmObjectChanges<Original>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Original>(this, keyPaths);
+
+  @override
   Original freeze() => RealmObjectBase.freezeObject<Original>(this);
 
   EJsonValue toEJson() {
@@ -86,8 +90,7 @@ class Original extends $Original
   static final schema = () {
     RealmObjectBase.registerFactory(Original._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
-        ObjectType.realmObject, Original, 'another type', [
+    return SchemaObject(ObjectType.realmObject, Original, 'another type', [
       SchemaProperty('primitiveProperty', RealmPropertyType.int,
           mapTo: 'remapped primitive'),
       SchemaProperty('objectProperty', RealmPropertyType.object,

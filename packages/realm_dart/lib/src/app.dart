@@ -7,11 +7,12 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as _path;
+import 'package:path/path.dart' as path;
 
 import '../realm.dart';
 import 'credentials.dart';
 import 'logging.dart';
+import 'native/app_handle.dart';
 import 'native/realm_core.dart';
 import 'user.dart';
 
@@ -125,7 +126,7 @@ class AppConfiguration {
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
-        baseFilePath = baseFilePath ?? Directory(_path.dirname(Configuration.defaultRealmPath)),
+        baseFilePath = baseFilePath ?? Directory(path.dirname(Configuration.defaultRealmPath)),
         httpClient = httpClient ?? _defaultClient {
     if (appId == '') {
       throw RealmException('Supplied appId must be a non-empty value');
@@ -144,7 +145,7 @@ class App implements Finalizable {
 
   /// The id of this application. This is the same as the appId in the [AppConfiguration] used to
   /// create this [App].
-  String get id => realmCore.appGetId(this);
+  String get id => handle.id;
 
   /// Create an app with a particular [AppConfiguration]. This constructor should only be used on the main isolate and,
   /// ideally, only once as soon as the app starts.
@@ -163,7 +164,7 @@ class App implements Finalizable {
   /// on the main isolate. If an App hasn't been already constructed with the same id, will return null. This method is safe to call
   /// on a background isolate.
   static App? getById(String id, {Uri? baseUrl}) {
-    final handle = realmCore.getApp(id, baseUrl?.toString());
+    final handle = AppHandle.get(id, baseUrl?.toString());
     return handle == null ? null : App._(handle);
   }
 
@@ -171,18 +172,18 @@ class App implements Finalizable {
 
   static AppHandle _createApp(AppConfiguration configuration) {
     configuration.baseFilePath.createSync(recursive: true);
-    return realmCore.createApp(configuration);
+    return AppHandle.from(configuration);
   }
 
   /// Logs in a user with the given credentials.
   Future<User> logIn(Credentials credentials) async {
-    var userHandle = await realmCore.logIn(this, credentials);
+    var userHandle = await handle.logIn(credentials.handle);
     return UserInternal.create(userHandle, this);
   }
 
   /// Gets the currently logged in [User]. If none exists, `null` is returned.
   User? get currentUser {
-    final userHandle = realmCore.getCurrentUser(_handle);
+    final userHandle = _handle.currentUser;
     if (userHandle == null) {
       return null;
     }
@@ -191,22 +192,22 @@ class App implements Finalizable {
 
   /// Gets all currently logged in users.
   Iterable<User> get users {
-    return realmCore.getUsers(this).map((handle) => UserInternal.create(handle, this));
+    return handle.users.map((handle) => UserInternal.create(handle, this));
   }
 
   /// Removes a [user] and their local data from the device. If the user is logged in, they will be logged out in the process.
   Future<void> removeUser(User user) async {
-    return await realmCore.removeUser(this, user);
+    return await handle.removeUser(user.handle);
   }
 
   /// Deletes a user and all its data from the device as well as the server.
   Future<void> deleteUser(User user) async {
-    return await realmCore.deleteUser(this, user);
+    return await handle.deleteUser(user.handle);
   }
 
   /// Switches the [currentUser] to the one specified in [user].
   void switchUser(User user) {
-    realmCore.switchUser(this, user);
+    handle.switchUser(user.handle);
   }
 
   /// Provide a hint to this app's sync client to reconnect.
@@ -214,22 +215,30 @@ class App implements Finalizable {
   ///
   /// The sync client will always attempt to reconnect eventually, this is just a hint.
   void reconnect() {
-    realmCore.reconnect(this);
+    handle.reconnect();
   }
 
   /// Returns the current value of the base URL used to communicate with the server.
+  ///
+  /// If an [updateBaseUrl] operation is currently in progress, this value will not
+  /// be updated with the new value until that operation has completed.
   @experimental
-  Uri? get baseUrl {
-    return Uri.tryParse(realmCore.getBaseUrl(this) ?? '');
+  Uri get baseUrl {
+    return Uri.parse(handle.baseUrl);
   }
 
   /// Temporarily overrides the [baseUrl] value from [AppConfiguration] with a new [baseUrl] value
-  /// used for communicating with the server.
+  /// used for communicating with the server. If set to `null`, the app will revert to the default
+  /// base url.
+  ///
+  /// If this operation fails, the app will continue to use the original base URL. If another [App]
+  /// operation is started while this function is in progress, that request will use the original
+  /// base URL location information.
   ///
   /// The App will revert to using the value in [AppConfiguration] when it is restarted.
   @experimental
-  Future<void> updateBaseUrl(Uri baseUrl) async {
-    return await realmCore.updateBaseUrl(this, baseUrl);
+  Future<void> updateBaseUrl(Uri? baseUrl) async {
+    return await handle.updateBaseUrl(baseUrl);
   }
 
   /// Returns an instance of [EmailPasswordAuthProvider]

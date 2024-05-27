@@ -1,24 +1,139 @@
 ## vNext (TBD)
 
 ### Enhancements
-* Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
-* Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
-* Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
-* The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
 * The download progress estimate reported by `Session.getProgressStream` will now return meaningful estimated values, while previously it always returned 1. (Issue [#1564](https://github.com/realm/realm-dart/issues/1564))
 
 ### Fixed
-* Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
-* Backlinks mistakenly included in EJson serialization. ([Issue #1616](https://github.com/realm/realm-dart/issues/1616))
-* Fix an assertion failure "m_lock_info && m_lock_info->m_file.get_path() == m_filename" that appears to be related to opening a Realm while the file is in the process of being closed on another thread. (Core 14.5.0)
-* Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included). (Core 14.5.0)
-* Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
+* None
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core 14.5.0.
+* Using Core x.y.z.
+
+## 2.3.0 (2024-05-23)
+
+### Enhancements
+* Added support for creating and storing a RealmObject using the `Realm.dynamic` API: `realm.dynamic.create("Person", primaryKey: 123)`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
+* Added support for setting properties on a RealmObject using the dynamic API: `obj.dynamic.set("name", "Peter")`. (PR [#1669](https://github.com/realm/realm-dart/pull/1669))
+* Listening for `.changes` on a dynamic object (obtained via the `realm.dynamic` API) no longer throws. (Issue [#1668](https://github.com/realm/realm-dart/issues/1668))
+* Nested collections have full support for automatic client reset. (Core 14.7.0)
+
+### Fixed
+* Private fields did not work with default values. (Issue [#1663](https://github.com/realm/realm-dart/issues/1663))
+* Invoke scheduler callback on Zone.current. (Issue [#1676](https://github.com/realm/realm-dart/issues/1676))
+
+* Having links in a nested collections would leave the file inconsistent if the top object is removed. (Core 14.7.0)
+
+* Accessing App.currentUser from within a notification produced by App.switchUser() (which includes notifications for a newly logged in user) would deadlock. (Core 14.7.0)
+
+* Inserting the same typed link to the same key in a dictionary more than once would incorrectly create multiple backlinks to the object. This did not appear to cause any crashes later, but would have affecting explicit backlink count queries (eg: `...@links.@count`) and possibly notifications. (Core 14.7.0)
+
+
+### Compatibility
+* Realm Studio: 15.0.0 or later.
+
+### Internal
+* Using Core 14.7.0.
+
+## 2.2.1 (2024-05-02)
+
+### Fixed
+* `realm_privacy` bundle mistakenly included an exe-file preventing app store submissions. (Issue [#1656](https://github.com/realm/realm-dart/issues/1656))
+
+### Compatibility
+* Realm Studio: 15.0.0 or later.
+
+### Internal
+* Using Core 14.6.2.
+* Drop build of `x86` android slice. (Issue [#1670](https://github.com/realm/realm-dart/issues/1670))
+
+## 2.2.0 (2024-05-01)
+
+### Enhancements
+* Allow configuration of generator per model class. Currently support specifying the constructor style to use.
+  ```dart
+  const config = GeneratorConfig(ctorStyle: CtorStyle.allNamed);
+  const realmModel = RealmModel.using(baseType: ObjectType.realmObject, generatorConfig: config);
+
+  @realmModel
+  class _Person {
+    late String name;
+    int age = 42;
+  }
+  ```
+  will generate a constructor like:
+  ```dart
+  Person({
+    required String name,
+    int age = 42,
+  }) { ... }
+  ```
+  (Issue [#292](https://github.com/realm/realm-dart/issues/292))
+* Add privacy manifest to apple binaries. (Issue [#1551](https://github.com/realm/realm-dart/issues/1551))
+
+### Fixed
+* Avoid: Attempt to execute code removed by Dart AOT compiler (TFA). (Issue [#1647](https://github.com/realm/realm-dart/issues/1647))
+* Fixed nullability annotations for the experimental API `App.baseUrl` and `App.updateBaseUrl`. The former is guaranteed not to be `null`, while the latter will now accept a `null` argument, in which case the base url will be restored to its default value. (Issue [#1523](https://github.com/realm/realm-dart/issues/1523))
+* `App.users` included logged out users only if they were logged out while the App instance existed. It now always includes all logged out users. (Core 14.6.0)
+* Fixed several issues around encrypted file portability (copying a "bundled" encrypted Realm from one device to another): (Core 14.6.0)
+  * Fixed `Assertion failed: new_size % (1ULL << m_page_shift) == 0` when opening an encrypted Realm less than 64Mb that was generated on a platform with a different page size than the current platform.
+  * Fixed a `DecryptionFailed` exception thrown when opening a small (<4k of data) Realm generated on a device with a page size of 4k if it was bundled and opened on a device with a larger page size.
+  * Fixed an issue during a subsequent open of an encrypted Realm for some rare allocation patterns when the top ref was within ~50 bytes of the end of a page. This could manifest as a DecryptionFailed exception or as an assertion: `encrypted_file_mapping.hpp:183: Assertion failed: local_ndx < m_page_state.size()`.
+* Schema initialization could hit an assertion failure if the sync client applied a downloaded changeset while the Realm file was in the process of being opened. (Core 14.6.0)
+* Improve performance of "chained OR equality" queries for UUID/ObjectId types and RQL parsed "IN" queries on string/int/uuid/objectid types. (Core 14.6.0)
+* Fixed a bug when running a IN query (or a query of the pattern `x == 1 OR x == 2 OR x == 3`) when evaluating on a string property with an empty string in the search condition. Matches with an empty string would have been evaluated as if searching for a null string instead. (Core 14.6.2)
+
+### Compatibility
+* Realm Studio: 15.0.0 or later.
+
+### Internal
+* Using Core 14.6.2.
+* Flutter: ^3.19.0
+* Dart: ^3.3.0
+
+
+## 2.1.0 (2024-04-17)
+
+### Enhancements
+* Improve file compaction performance on platforms with page sizes greater than 4k (for example arm64 Apple platforms) for files less than 256 pages in size (Core 14.4.0).
+* Added support for specifying key paths when listening to notifications on an object with the `RealmObject.changesFor([List<String>? keyPaths])` method. The key paths indicates which changes in properties should raise a notification.
+  ```dart
+  @RealmModel()
+  class _Person {
+    late String name;
+    late int age;
+    late List<_Person> friends;
+  }
+
+  // ....
+
+  // Only changes to person.age and person.friends will raise a notification
+  person.changesFor(["age", "friends"]).listen( .... )
+  ```
+* Add better hint to error message, if opening native library fails. (Issue [#1595](https://github.com/realm/realm-dart/issues/1595))
+* Added support for specifying schema version on `Configuration.flexibleSync`. This allows you to take advantage of an upcoming server-side feature that will allow schema migrations for synchronized Realms. (Issue [#1599](https://github.com/realm/realm-dart/issues/1599))
+* The default base url in `AppConfiguration` has been updated to point to `services.cloud.mongodb.com`. See https://www.mongodb.com/docs/atlas/app-services/domain-migration/ for more information. (Issue [#1549](https://github.com/realm/realm-dart/issues/1549))
+* Don't ignore private fields on realm models. (Issue [#1367](https://github.com/realm/realm-dart/issues/1367))
+* Improve performance of `RealmValue.operator==` when containing binary data. (PR [#1628](https://github.com/realm/realm-dart/pull/1628))
+
+### Fixed
+* Using valid const, but non-literal expressions, such as negation of numbers, as an initializer would fail. (Issue [#1606](https://github.com/realm/realm-dart/issues/1606))
+* Backlinks mistakenly included in EJson serialization. (Issue [#1616](https://github.com/realm/realm-dart/issues/1616))
+* Fix an assertion failure "m_lock_info && m_lock_info->m_file.get_path() == m_filename" that appears to be related to opening a Realm while the file is in the process of being closed on another thread. (Core 14.5.0)
+* Fixed diverging history due to a bug in the replication code when setting default null values (embedded objects included). (Core 14.5.0)
+* Null pointer exception may be triggered when logging out and async commits callbacks not executed. (Core 14.5.0)
+* Comparing RealmValue containing a collection to itself would return false. Semantics changed to ensure reference equality always imply equality. (Issue [[#1632](https://github.com/realm/realm-dart/issues/1632)])
+* Clearing a nested collection could end with a crash. (Core 14.5.1)
+* Removing nested collections in RealmValue for synced realms throws. (Core 14.5.1)
+* Fixed crash when integrating removal of already removed dictionary key. (Core 14.5.2)
+
+### Compatibility
+* Realm Studio: 15.0.0 or later.
+
+### Internal
+* Using Core 14.5.2.
 
 ## 2.0.0 (2024-03-20)
 
@@ -69,9 +184,9 @@
   ```
 * Removed `SchemaObject.properties` - instead, `SchemaObject` is now an iterable collection of `Property`. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 * `SyncProgress.transferredBytes` and `SyncProgress.transferableBytes` have been consolidated into `SyncProgress.progressEstimate`. The values reported previously were incorrect and did not accurately represent bytes either. The new field better conveys the uncertainty around the progress being reported. With this release, we're reporting accurate estimates for upload progress, but estimating downloads is still unreliable. A future server and SDK release will add better estimations for download progress. (Issue [#1562](https://github.com/realm/realm-dart/issues/1562))
-* `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is exlicitly given, then `RealmLogCategory.realm` is assumed.
+* `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is explicitly given, then `RealmLogCategory.realm` is assumed.
 
-  Also, note that setting a level is no longer local to the current isolate, but shared accross all isolates. At the core level there is just one process wide logger.
+  Also, note that setting a level is no longer local to the current isolate, but shared across all isolates. At the core level there is just one process wide logger.
 
   Categories form a hierarchy and setting the log level of a parent category will override the level of its children. The hierarchy is exposed in a type safe manner with:
   ```dart
@@ -813,7 +928,7 @@ class _Address {
 * Queries on results didn't filter the existing results. ([#908](https://github.com/realm/realm-dart/issues/908)).
   Example
   ```dart
-  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Persion object exists
+  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Person object exists
   ```
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
 * Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
@@ -976,7 +1091,7 @@ class _Address {
 
     ```dart
     final subscription = realm.all<Dog>().changes.listen((changes) {
-    changes.inserted // indexes of inserted ojbects
+    changes.inserted // indexes of inserted objects
     changes.modified // indexes of modified objects
     changes.deleted  // indexes of deleted objects
     changes.newModified // indexes of modified objects after deletions and insertions are accounted for.
@@ -1116,7 +1231,7 @@ Notes: This release is a prerelease version. All API's might change without warn
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
 ### Enhancements
-* Completеly rewritten from the ground up with sound null safety and using Dart FFI
+* Completely rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Fixed
 * Realm close stops internal scheduler.
@@ -1132,7 +1247,7 @@ Notes: This release is a prerelease version. All API's might change without warn
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
 ### Enhancements
-* Completеly rewritten from the ground up with sound null safety and using Dart FFI
+* Completely rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux

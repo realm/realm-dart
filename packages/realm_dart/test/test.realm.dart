@@ -26,6 +26,10 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Car>(this);
 
   @override
+  Stream<RealmObjectChanges<Car>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Car>(this, keyPaths);
+
+  @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
 
   EJsonValue toEJson() {
@@ -76,6 +80,10 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
       RealmObjectBase.getChanges<Person>(this);
+
+  @override
+  Stream<RealmObjectChanges<Person>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Person>(this, keyPaths);
 
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
@@ -143,6 +151,10 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Dog>> get changes =>
       RealmObjectBase.getChanges<Dog>(this);
+
+  @override
+  Stream<RealmObjectChanges<Dog>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Dog>(this, keyPaths);
 
   @override
   Dog freeze() => RealmObjectBase.freezeObject<Dog>(this);
@@ -223,6 +235,10 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Team>> get changes =>
       RealmObjectBase.getChanges<Team>(this);
+
+  @override
+  Stream<RealmObjectChanges<Team>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Team>(this, keyPaths);
 
   @override
   Team freeze() => RealmObjectBase.freezeObject<Team>(this);
@@ -308,6 +324,10 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Student>> get changes =>
       RealmObjectBase.getChanges<Student>(this);
+
+  @override
+  Stream<RealmObjectChanges<Student>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Student>(this, keyPaths);
 
   @override
   Student freeze() => RealmObjectBase.freezeObject<Student>(this);
@@ -411,6 +431,10 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<School>(this);
 
   @override
+  Stream<RealmObjectChanges<School>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<School>(this, keyPaths);
+
+  @override
   School freeze() => RealmObjectBase.freezeObject<School>(this);
 
   EJsonValue toEJson() {
@@ -496,6 +520,11 @@ class RemappedClass extends $RemappedClass
       RealmObjectBase.getChanges<RemappedClass>(this);
 
   @override
+  Stream<RealmObjectChanges<RemappedClass>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RemappedClass>(this, keyPaths);
+
+  @override
   RemappedClass freeze() => RealmObjectBase.freezeObject<RemappedClass>(this);
 
   EJsonValue toEJson() {
@@ -555,6 +584,10 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Task>> get changes =>
       RealmObjectBase.getChanges<Task>(this);
+
+  @override
+  Stream<RealmObjectChanges<Task>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Task>(this, keyPaths);
 
   @override
   Task freeze() => RealmObjectBase.freezeObject<Task>(this);
@@ -617,6 +650,10 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Product>> get changes =>
       RealmObjectBase.getChanges<Product>(this);
+
+  @override
+  Stream<RealmObjectChanges<Product>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Product>(this, keyPaths);
 
   @override
   Product freeze() => RealmObjectBase.freezeObject<Product>(this);
@@ -685,6 +722,10 @@ class Schedule extends _Schedule
   @override
   Stream<RealmObjectChanges<Schedule>> get changes =>
       RealmObjectBase.getChanges<Schedule>(this);
+
+  @override
+  Stream<RealmObjectChanges<Schedule>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Schedule>(this, keyPaths);
 
   @override
   Schedule freeze() => RealmObjectBase.freezeObject<Schedule>(this);
@@ -756,6 +797,10 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Foo>(this);
 
   @override
+  Stream<RealmObjectChanges<Foo>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Foo>(this, keyPaths);
+
+  @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
   EJsonValue toEJson() {
@@ -815,6 +860,7 @@ class AllTypes extends _AllTypes
     int? nullableIntProp,
     Decimal128? nullableDecimalProp,
     Uint8List? nullableBinaryProp,
+    RealmValue realmValueProp = const RealmValue.nullValue(),
   }) {
     RealmObjectBase.set(this, 'stringProp', stringProp);
     RealmObjectBase.set(this, 'boolProp', boolProp);
@@ -834,6 +880,7 @@ class AllTypes extends _AllTypes
     RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
     RealmObjectBase.set(this, 'nullableDecimalProp', nullableDecimalProp);
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
+    RealmObjectBase.set(this, 'realmValueProp', realmValueProp);
   }
 
   AllTypes._();
@@ -959,8 +1006,19 @@ class AllTypes extends _AllTypes
       RealmObjectBase.set(this, 'nullableBinaryProp', value);
 
   @override
+  RealmValue get realmValueProp =>
+      RealmObjectBase.get<RealmValue>(this, 'realmValueProp') as RealmValue;
+  @override
+  set realmValueProp(RealmValue value) =>
+      RealmObjectBase.set(this, 'realmValueProp', value);
+
+  @override
   Stream<RealmObjectChanges<AllTypes>> get changes =>
       RealmObjectBase.getChanges<AllTypes>(this);
+
+  @override
+  Stream<RealmObjectChanges<AllTypes>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AllTypes>(this, keyPaths);
 
   @override
   AllTypes freeze() => RealmObjectBase.freezeObject<AllTypes>(this);
@@ -985,6 +1043,7 @@ class AllTypes extends _AllTypes
       'nullableIntProp': nullableIntProp.toEJson(),
       'nullableDecimalProp': nullableDecimalProp.toEJson(),
       'nullableBinaryProp': nullableBinaryProp.toEJson(),
+      'realmValueProp': realmValueProp.toEJson(),
     };
   }
 
@@ -1010,6 +1069,7 @@ class AllTypes extends _AllTypes
         'nullableIntProp': EJsonValue nullableIntProp,
         'nullableDecimalProp': EJsonValue nullableDecimalProp,
         'nullableBinaryProp': EJsonValue nullableBinaryProp,
+        'realmValueProp': EJsonValue realmValueProp,
       } =>
         AllTypes(
           fromEJson(stringProp),
@@ -1030,6 +1090,7 @@ class AllTypes extends _AllTypes
           nullableIntProp: fromEJson(nullableIntProp),
           nullableDecimalProp: fromEJson(nullableDecimalProp),
           nullableBinaryProp: fromEJson(nullableBinaryProp),
+          realmValueProp: fromEJson(realmValueProp),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -1065,6 +1126,7 @@ class AllTypes extends _AllTypes
           optional: true),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
+      SchemaProperty('realmValueProp', RealmPropertyType.mixed, optional: true),
     ]);
   }();
 
@@ -1129,6 +1191,10 @@ class LinksClass extends _LinksClass
   @override
   Stream<RealmObjectChanges<LinksClass>> get changes =>
       RealmObjectBase.getChanges<LinksClass>(this);
+
+  @override
+  Stream<RealmObjectChanges<LinksClass>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<LinksClass>(this, keyPaths);
 
   @override
   LinksClass freeze() => RealmObjectBase.freezeObject<LinksClass>(this);
@@ -1694,6 +1760,11 @@ class AllCollections extends _AllCollections
       RealmObjectBase.getChanges<AllCollections>(this);
 
   @override
+  Stream<RealmObjectChanges<AllCollections>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AllCollections>(this, keyPaths);
+
+  @override
   AllCollections freeze() => RealmObjectBase.freezeObject<AllCollections>(this);
 
   EJsonValue toEJson() {
@@ -2058,6 +2129,11 @@ class NullableTypes extends _NullableTypes
       RealmObjectBase.getChanges<NullableTypes>(this);
 
   @override
+  Stream<RealmObjectChanges<NullableTypes>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableTypes>(this, keyPaths);
+
+  @override
   NullableTypes freeze() => RealmObjectBase.freezeObject<NullableTypes>(this);
 
   EJsonValue toEJson() {
@@ -2186,6 +2262,10 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Event>(this);
 
   @override
+  Stream<RealmObjectChanges<Event>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Event>(this, keyPaths);
+
+  @override
   Event freeze() => RealmObjectBase.freezeObject<Event>(this);
 
   EJsonValue toEJson() {
@@ -2281,6 +2361,10 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Party>> get changes =>
       RealmObjectBase.getChanges<Party>(this);
+
+  @override
+  Stream<RealmObjectChanges<Party>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Party>(this, keyPaths);
 
   @override
   Party freeze() => RealmObjectBase.freezeObject<Party>(this);
@@ -2383,6 +2467,10 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Friend>(this);
 
   @override
+  Stream<RealmObjectChanges<Friend>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Friend>(this, keyPaths);
+
+  @override
   Friend freeze() => RealmObjectBase.freezeObject<Friend>(this);
 
   EJsonValue toEJson() {
@@ -2460,6 +2548,10 @@ class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<When>(this);
 
   @override
+  Stream<RealmObjectChanges<When>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<When>(this, keyPaths);
+
+  @override
   When freeze() => RealmObjectBase.freezeObject<When>(this);
 
   EJsonValue toEJson() {
@@ -2533,6 +2625,10 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Player>(this);
 
   @override
+  Stream<RealmObjectChanges<Player>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Player>(this, keyPaths);
+
+  @override
   Player freeze() => RealmObjectBase.freezeObject<Player>(this);
 
   EJsonValue toEJson() {
@@ -2596,6 +2692,10 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Game>> get changes =>
       RealmObjectBase.getChanges<Game>(this);
+
+  @override
+  Stream<RealmObjectChanges<Game>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Game>(this, keyPaths);
 
   @override
   Game freeze() => RealmObjectBase.freezeObject<Game>(this);
@@ -2860,6 +2960,11 @@ class AllTypesEmbedded extends _AllTypesEmbedded
       RealmObjectBase.getChanges<AllTypesEmbedded>(this);
 
   @override
+  Stream<RealmObjectChanges<AllTypesEmbedded>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AllTypesEmbedded>(this, keyPaths);
+
+  @override
   AllTypesEmbedded freeze() =>
       RealmObjectBase.freezeObject<AllTypesEmbedded>(this);
 
@@ -3073,6 +3178,11 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
       RealmObjectBase.getChanges<ObjectWithEmbedded>(this);
 
   @override
+  Stream<RealmObjectChanges<ObjectWithEmbedded>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithEmbedded>(this, keyPaths);
+
+  @override
   ObjectWithEmbedded freeze() =>
       RealmObjectBase.freezeObject<ObjectWithEmbedded>(this);
 
@@ -3186,6 +3296,11 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
       RealmObjectBase.getChanges<RecursiveEmbedded1>(this);
 
   @override
+  Stream<RealmObjectChanges<RecursiveEmbedded1>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RecursiveEmbedded1>(this, keyPaths);
+
+  @override
   RecursiveEmbedded1 freeze() =>
       RealmObjectBase.freezeObject<RecursiveEmbedded1>(this);
 
@@ -3288,6 +3403,11 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
       RealmObjectBase.getChanges<RecursiveEmbedded2>(this);
 
   @override
+  Stream<RealmObjectChanges<RecursiveEmbedded2>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RecursiveEmbedded2>(this, keyPaths);
+
+  @override
   RecursiveEmbedded2 freeze() =>
       RealmObjectBase.freezeObject<RecursiveEmbedded2>(this);
 
@@ -3359,6 +3479,11 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
       RealmObjectBase.getChanges<RecursiveEmbedded3>(this);
 
   @override
+  Stream<RealmObjectChanges<RecursiveEmbedded3>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RecursiveEmbedded3>(this, keyPaths);
+
+  @override
   RecursiveEmbedded3 freeze() =>
       RealmObjectBase.freezeObject<RecursiveEmbedded3>(this);
 
@@ -3422,6 +3547,11 @@ class ObjectWithDecimal extends _ObjectWithDecimal
   @override
   Stream<RealmObjectChanges<ObjectWithDecimal>> get changes =>
       RealmObjectBase.getChanges<ObjectWithDecimal>(this);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithDecimal>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithDecimal>(this, keyPaths);
 
   @override
   ObjectWithDecimal freeze() =>
@@ -3502,6 +3632,10 @@ class Asymmetric extends _Asymmetric
   @override
   Stream<RealmObjectChanges<Asymmetric>> get changes =>
       RealmObjectBase.getChanges<Asymmetric>(this);
+
+  @override
+  Stream<RealmObjectChanges<Asymmetric>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Asymmetric>(this, keyPaths);
 
   @override
   Asymmetric freeze() => RealmObjectBase.freezeObject<Asymmetric>(this);
@@ -3585,6 +3719,10 @@ class Embedded extends _Embedded
       RealmObjectBase.getChanges<Embedded>(this);
 
   @override
+  Stream<RealmObjectChanges<Embedded>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Embedded>(this, keyPaths);
+
+  @override
   Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);
 
   EJsonValue toEJson() {
@@ -3647,6 +3785,10 @@ class Symmetric extends _Symmetric
       RealmObjectBase.getChanges<Symmetric>(this);
 
   @override
+  Stream<RealmObjectChanges<Symmetric>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Symmetric>(this, keyPaths);
+
+  @override
   Symmetric freeze() => RealmObjectBase.freezeObject<Symmetric>(this);
 
   EJsonValue toEJson() {
@@ -3674,6 +3816,232 @@ class Symmetric extends _Symmetric
     return SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class ObjectWithRealmValue extends _ObjectWithRealmValue
+    with RealmEntity, RealmObjectBase, RealmObject {
+  ObjectWithRealmValue(
+    ObjectId id, {
+    ObjectId? differentiator,
+    RealmValue oneAny = const RealmValue.nullValue(),
+    Iterable<RealmValue> manyAny = const [],
+    Map<String, RealmValue> dictOfAny = const {},
+    Set<RealmValue> setOfAny = const {},
+  }) {
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'differentiator', differentiator);
+    RealmObjectBase.set(this, 'oneAny', oneAny);
+    RealmObjectBase.set<RealmList<RealmValue>>(
+        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
+  }
+
+  ObjectWithRealmValue._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
+  @override
+  set differentiator(ObjectId? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
+
+  @override
+  RealmValue get oneAny =>
+      RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
+  @override
+  set oneAny(RealmValue value) => RealmObjectBase.set(this, 'oneAny', value);
+
+  @override
+  RealmList<RealmValue> get manyAny =>
+      RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
+  @override
+  set manyAny(covariant RealmList<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmMap<RealmValue> get dictOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'dictOfAny')
+          as RealmMap<RealmValue>;
+  @override
+  set dictOfAny(covariant RealmMap<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  RealmSet<RealmValue> get setOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'setOfAny') as RealmSet<RealmValue>;
+  @override
+  set setOfAny(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithRealmValue>(this);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithRealmValue>(this, keyPaths);
+
+  @override
+  ObjectWithRealmValue freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithRealmValue>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'oneAny': oneAny.toEJson(),
+      'manyAny': manyAny.toEJson(),
+      'dictOfAny': dictOfAny.toEJson(),
+      'setOfAny': setOfAny.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithRealmValue value) => value.toEJson();
+  static ObjectWithRealmValue _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'oneAny': EJsonValue oneAny,
+        'manyAny': EJsonValue manyAny,
+        'dictOfAny': EJsonValue dictOfAny,
+        'setOfAny': EJsonValue setOfAny,
+      } =>
+        ObjectWithRealmValue(
+          fromEJson(id),
+          differentiator: fromEJson(differentiator),
+          oneAny: fromEJson(oneAny),
+          manyAny: fromEJson(manyAny),
+          dictOfAny: fromEJson(dictOfAny),
+          setOfAny: fromEJson(setOfAny),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ObjectWithRealmValue._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, ObjectWithRealmValue, 'ObjectWithRealmValue', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('oneAny', RealmPropertyType.mixed,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('manyAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('dictOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('setOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}
+
+class ObjectWithInt extends _ObjectWithInt
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  ObjectWithInt(
+    ObjectId id, {
+    ObjectId? differentiator,
+    int i = 42,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<ObjectWithInt>({
+        'i': 42,
+      });
+    }
+    RealmObjectBase.set(this, '_id', id);
+    RealmObjectBase.set(this, 'differentiator', differentiator);
+    RealmObjectBase.set(this, 'i', i);
+  }
+
+  ObjectWithInt._();
+
+  @override
+  ObjectId get id => RealmObjectBase.get<ObjectId>(this, '_id') as ObjectId;
+  @override
+  set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
+
+  @override
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
+  @override
+  set differentiator(ObjectId? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
+
+  @override
+  int get i => RealmObjectBase.get<int>(this, 'i') as int;
+  @override
+  set i(int value) => RealmObjectBase.set(this, 'i', value);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithInt>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithInt>(this);
+
+  @override
+  Stream<RealmObjectChanges<ObjectWithInt>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithInt>(this, keyPaths);
+
+  @override
+  ObjectWithInt freeze() => RealmObjectBase.freezeObject<ObjectWithInt>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_id': id.toEJson(),
+      'differentiator': differentiator.toEJson(),
+      'i': i.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(ObjectWithInt value) => value.toEJson();
+  static ObjectWithInt _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_id': EJsonValue id,
+        'differentiator': EJsonValue differentiator,
+        'i': EJsonValue i,
+      } =>
+        ObjectWithInt(
+          fromEJson(id),
+          differentiator: fromEJson(differentiator),
+          i: fromEJson(i),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(ObjectWithInt._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, ObjectWithInt, 'ObjectWithInt', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('i', RealmPropertyType.int),
     ]);
   }();
 

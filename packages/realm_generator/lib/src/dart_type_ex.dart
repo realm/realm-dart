@@ -24,7 +24,7 @@ extension DartTypeEx on DartType {
     if (element == null) return null;
     final realmModelAnnotation = realmModelChecker.firstAnnotationOfExact(element!);
     if (realmModelAnnotation == null) return null; // not a RealmModel
-    final index = realmModelAnnotation.getField('type')!.getField('index')!.toIntValue()!;
+    final index = realmModelAnnotation.getField('baseType')!.getField('index')!.toIntValue()!;
     return ObjectType.values[index];
   }
 

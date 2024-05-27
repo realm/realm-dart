@@ -124,6 +124,10 @@ class LotsOfMaps extends _LotsOfMaps
       RealmObjectBase.getChanges<LotsOfMaps>(this);
 
   @override
+  Stream<RealmObjectChanges<LotsOfMaps>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<LotsOfMaps>(this, keyPaths);
+
+  @override
   LotsOfMaps freeze() => RealmObjectBase.freezeObject<LotsOfMaps>(this);
 
   EJsonValue toEJson() {
@@ -178,8 +182,7 @@ class LotsOfMaps extends _LotsOfMaps
   static final schema = () {
     RealmObjectBase.registerFactory(LotsOfMaps._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
-        ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
+    return SchemaObject(ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
           optional: true,
           linkTarget: 'Person',
@@ -228,6 +231,10 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Stream<RealmObjectChanges<Person>> get changes =>
       RealmObjectBase.getChanges<Person>(this);
+
+  @override
+  Stream<RealmObjectChanges<Person>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Person>(this, keyPaths);
 
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);

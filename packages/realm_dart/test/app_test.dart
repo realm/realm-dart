@@ -168,7 +168,7 @@ void main() {
 
     final user = await app.logIn(Credentials.anonymous());
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    expect(app.users, [user1, user]);
+    expect(app.users, {user1, user});
   });
 
   baasTest('App delete user', (configuration) async {
@@ -184,13 +184,19 @@ void main() {
     await app.deleteUser(user);
     expect(user.state, UserState.removed);
 
-    await expectLater(() => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)), throws<AppException>("invalid username/password"));
+    await expectLater(
+      () => loginWithRetry(app, Credentials.emailPassword(username, strongPassword)),
+      throwsA(isA<AppException>()
+          .having((e) => e.message, 'message', equals('unauthorized'))
+          .having((e) => e.statusCode, 'statusCode', 401)
+          .having((e) => e.linkToServerLogs, 'linkToServerLogs', contains('logs?co_id='))),
+    );
   });
 
   baasTest('Call Atlas function that does not exist', (configuration) async {
     final app = App(configuration);
     final user = await app.logIn(Credentials.anonymous());
-    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found: 'notExisitingFunction'"));
+    await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found"));
   });
 
   baasTest('Call Atlas function with no arguments', (configuration) async {
@@ -293,30 +299,23 @@ void main() {
     expect(app.currentUser, user2);
     expect(
       () => app.switchUser(user1),
-      throws<RealmException>("Switch user failed. User is no longer valid or is logged out"),
+      throws<RealmException>("User is no longer valid or is logged out"),
     );
   });
 
   baasTest('App get Base URL', (configuration) async {
     final app = App(configuration);
-    final credentials = Credentials.anonymous();
-    await app.logIn(credentials);
-    final baseUrl = app.baseUrl;
-    expect(baseUrl, isNotNull);
-    expect(baseUrl, configuration.baseUrl);
+    expect(app.baseUrl, configuration.baseUrl);
   });
 
-  baasTest('App update Base URL', (configuration) async {
-    final app = App(configuration);
-    final credentials = Credentials.anonymous();
-    await app.logIn(credentials);
-    final baseUrl = app.baseUrl;
-    expect(baseUrl, isNotNull);
+  baasTest('App update Base URL', (appConfig) async {
+    final config = await baasHelper!.getAppConfig(customBaseUrl: 'https://services.cloud.mongodb.com');
+    final app = App(config);
+    expect(app.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     // Set it to the same thing to confirm the function works, it's not actually going to update the location
-    await app.updateBaseUrl(baseUrl!);
-    final newBaseUrl = app.baseUrl;
-    expect(newBaseUrl, isNotNull);
-    expect(newBaseUrl, baseUrl);
+    await app.updateBaseUrl(Uri.parse(baasHelper!.baseUrl));
+    expect(app.baseUrl, appConfig.baseUrl);
+    expect(app.baseUrl, isNot(Uri.parse('https://services.cloud.mongodb.com')));
   });
 
   test('bundleId is salted, hashed and encoded', () {

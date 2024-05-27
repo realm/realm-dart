@@ -35,12 +35,6 @@ std::string cpuArch = "arm64";
 #pragma message("Building arm64")
 #endif
 
-
-#if REALM_ARCHITECTURE_X86_32
-std::string cpuArch = "x86";
-#pragma message("Building x86")
-#endif
-
 #if REALM_ARCHITECTURE_X86_64
 std::string cpuArch = "x86_64";
 #pragma message("Building x64")
@@ -86,7 +80,7 @@ RLM_API void realm_dart_invoke_unlock_callback(realm_userdata_t error, void* unl
 // Stamped into the library by the build system (see prepare-release.yml)
 // Keep this method as it is written and do not format it.
 // We have a github workflow that looks for and replaces this string as it is written here.
-RLM_API const char* realm_dart_library_version() { return "2.0.0"; }
+RLM_API const char* realm_dart_library_version() { return "2.3.0"; }
 
 //for debugging only
 // RLM_API void realm_dart_gc() {

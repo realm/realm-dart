@@ -11,14 +11,26 @@ extension<T> on Iterable<T> {
   Iterable<T> except(bool Function(T) test) => where((e) => !test(e));
 }
 
+extension on String {
+  String nonPrivate() => startsWith('_') ? substring(1) : this;
+}
+
 class RealmModelInfo {
   final String name;
   final String modelName;
   final String realmName;
   final List<RealmFieldInfo> fields;
   final ObjectType baseType;
+  final GeneratorConfig config;
 
-  const RealmModelInfo(this.name, this.modelName, this.realmName, this.fields, this.baseType);
+  const RealmModelInfo(
+    this.name,
+    this.modelName,
+    this.realmName,
+    this.fields,
+    this.baseType,
+    this.config,
+  );
 
   Iterable<String> toCode() sync* {
     yield 'class $name extends $modelName with RealmEntity, RealmObjectBase, ${baseType.className} {';
@@ -32,22 +44,29 @@ class RealmModelInfo {
         yield '';
       }
 
-      bool requiredCondition(RealmFieldInfo f) => f.isRequired || f.isPrimaryKey;
-      final required = allSettable.where(requiredCondition);
-      final notRequired = allSettable.except(requiredCondition);
+      bool required(RealmFieldInfo f) => f.isRequired || f.isPrimaryKey;
+      bool usePositional(RealmFieldInfo f) => config.ctorStyle != CtorStyle.allNamed && required(f);
+      String paramName(RealmFieldInfo f) => usePositional(f) ? f.name : f.name.nonPrivate();
+      final positional = allSettable.where(usePositional);
+      final named = allSettable.except(usePositional);
 
       // Constructor
       yield '$name(';
       {
-        yield* required.map((f) => '${f.mappedTypeName} ${f.name},');
-        if (notRequired.isNotEmpty) {
+        yield* positional.map((f) => '${f.mappedTypeName} ${paramName(f)},');
+        if (named.isNotEmpty) {
           yield '{';
-          yield* notRequired.map((f) {
-            if (f.isRealmCollection) {
-                final collectionPrefix = f.type.isDartCoreList ? 'Iterable<' : f.type.isDartCoreSet ? 'Set<' : 'Map<String, ';
-                return '$collectionPrefix${f.type.basicMappedName}> ${f.name}${f.initializer},';
-            }
-            return '${f.mappedTypeName} ${f.name}${f.initializer},';
+          yield* named.map((f) {
+            final requiredPrefix = required(f) ? 'required ' : '';
+            final param = paramName(f);
+            final collectionPrefix = switch (f) {
+              _ when f.isDartCoreList => 'Iterable<',
+              _ when f.isDartCoreSet => 'Set<',
+              _ when f.isDartCoreMap => 'Map<String,',
+              _ => '',
+            };
+            final typePrefix = f.isRealmCollection ? '$collectionPrefix${f.type.basicMappedName}>' : f.mappedTypeName;
+            return '$requiredPrefix$typePrefix $param${f.initializer},';
           });
           yield '}';
         }
@@ -63,13 +82,14 @@ class RealmModelInfo {
         }
 
         yield* allSettable.map((f) {
+          final param = paramName(f);
           if (f.type.isUint8List && f.hasDefaultValue) {
-            return "RealmObjectBase.set(this, '${f.realmName}', ${f.name} ?? ${f.fieldElement.initializerExpression});";
+            return "RealmObjectBase.set(this, '${f.realmName}', $param ?? ${f.fieldElement.initializerExpression});";
           }
           if (f.isRealmCollection) {
-            return "RealmObjectBase.set<${f.mappedTypeName}>(this, '${f.realmName}', ${f.mappedTypeName}(${f.name}));";
+            return "RealmObjectBase.set<${f.mappedTypeName}>(this, '${f.realmName}', ${f.mappedTypeName}($param));";
           }
-          return "RealmObjectBase.set(this, '${f.realmName}', ${f.name});";
+          return "RealmObjectBase.set(this, '${f.realmName}', $param);";
         });
       }
       yield '}';
@@ -86,6 +106,10 @@ class RealmModelInfo {
       // Changes
       yield '@override';
       yield 'Stream<RealmObjectChanges<$name>> get changes => RealmObjectBase.getChanges<$name>(this);';
+      yield '';
+
+      yield '@override';
+      yield 'Stream<RealmObjectChanges<$name>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<$name>(this, keyPaths);';
       yield '';
 
       // Freeze
@@ -121,8 +145,8 @@ class RealmModelInfo {
           }
           yield '} => $name(';
           {
-            yield* required.map((f) => 'fromEJson(${f.name}),');
-            yield* notRequired.map((f) => '${f.name}: fromEJson(${f.name}),');
+            yield* positional.map((f) => 'fromEJson(${f.name}),');
+            yield* named.map((f) => '${paramName(f)}: fromEJson(${f.name}),');
           }
           yield '),';
           yield '_ => raiseInvalidEJson(ejson),';

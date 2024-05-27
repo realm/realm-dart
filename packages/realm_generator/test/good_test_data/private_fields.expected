@@ -1,0 +1,87 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'private_fields.dart';
+
+// **************************************************************************
+// RealmObjectGenerator
+// **************************************************************************
+
+// ignore_for_file: type=lint
+class WithPrivateFields extends _WithPrivateFields
+    with RealmEntity, RealmObjectBase, RealmObject {
+  static var _defaultsSet = false;
+
+  WithPrivateFields(
+    String _plain, {
+    int withDefault = 0,
+  }) {
+    if (!_defaultsSet) {
+      _defaultsSet = RealmObjectBase.setDefaults<WithPrivateFields>({
+        '_withDefault': 0,
+      });
+    }
+    RealmObjectBase.set(this, '_plain', _plain);
+    RealmObjectBase.set(this, '_withDefault', withDefault);
+  }
+
+  WithPrivateFields._();
+
+  @override
+  String get _plain => RealmObjectBase.get<String>(this, '_plain') as String;
+  @override
+  set _plain(String value) => RealmObjectBase.set(this, '_plain', value);
+
+  @override
+  int get _withDefault => RealmObjectBase.get<int>(this, '_withDefault') as int;
+  @override
+  set _withDefault(int value) =>
+      RealmObjectBase.set(this, '_withDefault', value);
+
+  @override
+  Stream<RealmObjectChanges<WithPrivateFields>> get changes =>
+      RealmObjectBase.getChanges<WithPrivateFields>(this);
+
+  @override
+  Stream<RealmObjectChanges<WithPrivateFields>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<WithPrivateFields>(this, keyPaths);
+
+  @override
+  WithPrivateFields freeze() =>
+      RealmObjectBase.freezeObject<WithPrivateFields>(this);
+
+  EJsonValue toEJson() {
+    return <String, dynamic>{
+      '_plain': _plain.toEJson(),
+      '_withDefault': _withDefault.toEJson(),
+    };
+  }
+
+  static EJsonValue _toEJson(WithPrivateFields value) => value.toEJson();
+  static WithPrivateFields _fromEJson(EJsonValue ejson) {
+    return switch (ejson) {
+      {
+        '_plain': EJsonValue _plain,
+        '_withDefault': EJsonValue _withDefault,
+      } =>
+        WithPrivateFields(
+          fromEJson(_plain),
+          withDefault: fromEJson(_withDefault),
+        ),
+      _ => raiseInvalidEJson(ejson),
+    };
+  }
+
+  static final schema = () {
+    RealmObjectBase.registerFactory(WithPrivateFields._);
+    register(_toEJson, _fromEJson);
+    return SchemaObject(
+        ObjectType.realmObject, WithPrivateFields, 'WithPrivateFields', [
+      SchemaProperty('_plain', RealmPropertyType.string),
+      SchemaProperty('_withDefault', RealmPropertyType.int),
+    ]);
+  }();
+
+  @override
+  SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
+}

@@ -7,17 +7,19 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:logging/logging.dart';
+
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
-import 'package:realm_dart/src/logging.dart';
-import 'package:test/test.dart' hide test;
-import 'package:test/test.dart' as testing;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:realm_dart/src/configuration.dart';
+import 'package:realm_dart/src/logging.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/realm_object.dart';
+import 'package:test/test.dart';
 
 import 'baas_helper.dart';
+
+export 'package:test/test.dart';
 
 export 'baas_helper.dart' show AppName;
 
@@ -134,6 +136,8 @@ class _AllTypes {
   late int? nullableIntProp;
   late Decimal128? nullableDecimalProp;
   late Uint8List? nullableBinaryProp;
+
+  late RealmValue realmValueProp;
 }
 
 @RealmModel()
@@ -376,38 +380,43 @@ class _Symmetric {
   late ObjectId id;
 }
 
+@RealmModel()
+class _ObjectWithRealmValue {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId? differentiator;
+
+  @Indexed()
+  late RealmValue oneAny;
+  late List<RealmValue> manyAny;
+  late Map<String, RealmValue> dictOfAny;
+  late Set<RealmValue> setOfAny;
+}
+
+@RealmModel()
+class _ObjectWithInt {
+  @PrimaryKey()
+  @MapTo('_id')
+  late ObjectId id;
+  late ObjectId? differentiator;
+
+  int i = 42;
+}
+
 String? testName;
 final _openRealms = Queue<Realm>();
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
-final int encryptionKeySize = 64;
 
 const int maxInt = 9223372036854775807;
 const int minInt = -9223372036854775808;
 const int jsMaxInt = 9007199254740991;
 const int jsMinInt = -9007199254740991;
 
-//Overrides test method so we can filter tests
-void test(String name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {
-  if (testName != null && !name.contains(testName!)) {
-    return;
-  }
-
-  var timeout = 60;
-  assert(() {
-    if (Platform.environment['CI'] == null) {
-      timeout = Duration(minutes: 5).inSeconds;
-    }
-
-    return true;
-  }());
-
-  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform, timeout: Timeout(Duration(seconds: timeout)));
-}
-
 void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {
-  testing.test(name, testFunction, skip: "Test is disabled");
+  test(name, testFunction, skip: "Test is disabled");
 }
 
 BaasHelper? baasHelper;
@@ -418,7 +427,7 @@ void setupTests() {
 
     Realm.logger.setLogLevel(LogLevel.detail);
     Realm.logger.onRecord.listen((record) {
-      testing.printOnFailure('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
+      printOnFailure('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
     });
 
     // Enable this to print platform info, including current PID
@@ -577,7 +586,7 @@ Future<void> baasTest(
     baasHelper!.printSplunkLogLink(appName, baasHelper?.baseUrl);
     final config = await baasHelper!.getAppConfig(appName: appName);
     await testFunction(config);
-  }, skip: skip);
+  }, skip: skip, tags: 'baas');
 }
 
 dynamic shouldSkip(dynamic skip) {
@@ -593,6 +602,7 @@ dynamic shouldSkip(dynamic skip) {
 
 String getAutoverifiedEmail() => 'realm_tests_do_autoverify_${generateRandomEmail()}';
 
+/// Registers, logs in, and returns the new user.
 Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final email = getAutoverifiedEmail();
@@ -610,6 +620,10 @@ FlexibleSyncConfiguration getIntegrationConfig(User user) {
   return Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
 }
 
+/// Returns a synced realm after logging in a user.
+///
+/// A subscription for querying all [NullableTypes] objects containing
+/// the `differentiator` will be added if a `differentiator` is provided.
 Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
   app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app: app, appConfig: appConfig);
@@ -668,7 +682,7 @@ Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<
 }
 
 extension RealmObjectTest on RealmObjectBase {
-  String toJson() => realmCore.objectToString(this);
+  String toJson() => handle.objectToString();
 }
 
 extension on int {
@@ -747,6 +761,8 @@ List<SchemaObject> getSyncSchema() {
     Asymmetric.schema,
     Embedded.schema,
     Symmetric.schema,
+    ObjectWithRealmValue.schema,
+    ObjectWithInt.schema,
   ];
 }
 

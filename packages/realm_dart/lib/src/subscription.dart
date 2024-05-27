@@ -2,50 +2,53 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:core';
-import 'dart:collection';
 import 'dart:ffi';
 
-import 'native/realm_core.dart';
+import 'native/convert.dart';
+import 'native/mutable_subscription_set_handle.dart';
+import 'native/subscription_handle.dart';
+import 'native/subscription_set_handle.dart';
 import 'realm_class.dart';
+import 'results.dart';
 
 /// A class representing a single query subscription. The server will continuously
 /// evaluate the query that the app subscribed to and will send data
 /// that matches it as well as remove data that no longer does.
 /// {@category Sync}
-class Subscription implements Finalizable {
+final class Subscription implements Finalizable {
   final SubscriptionHandle _handle;
 
   Subscription._(this._handle);
 
-  late final ObjectId _id = realmCore.subscriptionId(this);
+  late final ObjectId _id = _handle.id;
 
   /// Name of the [Subscription], if one was provided at creation time.
-  String? get name => realmCore.subscriptionName(this);
+  String? get name => _handle.name;
 
   /// Class name of objects the [Subscription] refers to.
   ///
   /// If your types are remapped using [MapTo], the value
   /// returned will be the mapped-to value - i.e. the one that Realm uses internally
   /// rather than the name of the generated Dart class.
-  String get objectClassName => realmCore.subscriptionObjectClassName(this);
+  String get objectClassName => _handle.objectClassName;
 
   /// Query string that describes the [Subscription].
   ///
   /// Objects matched by the query will be sent to the device by the server.
-  String get queryString => realmCore.subscriptionQueryString(this);
+  String get queryString => _handle.queryString;
 
   /// Timestamp when this [Subscription] was created.
-  DateTime get createdAt => realmCore.subscriptionCreatedAt(this);
+  DateTime get createdAt => _handle.createdAt;
 
   /// Timestamp when this [Subscription] was last updated.
-  DateTime get updatedAt => realmCore.subscriptionUpdatedAt(this);
+  DateTime get updatedAt => _handle.updatedAt;
 
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Subscription) return false;
-    return realmCore.subscriptionEquals(this, other);
+    return _handle.equalTo(other._handle);
   }
 }
 
@@ -59,7 +62,7 @@ extension SubscriptionInternal on Subscription {
   ObjectId get id => _id;
 }
 
-class _SubscriptionIterator implements Iterator<Subscription> {
+final class _SubscriptionIterator implements Iterator<Subscription> {
   int _index = -1;
   final SubscriptionSet _subscriptions;
 
@@ -112,29 +115,25 @@ enum SubscriptionSetState {
 /// Realm is an expensive operation server-side, even if there's very little data that needs
 /// downloading.
 /// {@category Sync}
-abstract class SubscriptionSet with IterableMixin<Subscription> implements Finalizable {
+sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable {
   final Realm _realm;
-  SubscriptionSetHandle _handle;
+  SubscriptionSetHandle __handle;
+  SubscriptionSetHandle get _handle => __handle.nullPtrAsNull ?? (throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm'));
+  set _handle(SubscriptionSetHandle value) => __handle = value;
 
-  SubscriptionSet._(this._realm, this._handle);
+  SubscriptionSet._(this._realm, this.__handle);
 
   /// Finds an existing [Subscription] in this set by its query
   ///
   /// The [query] is represented by the corresponding [RealmResults] object.
-  Subscription? find<T extends RealmObject>(RealmResults<T> query) {
-    final result = realmCore.findSubscriptionByResults(this, query);
-    return result == null ? null : Subscription._(result);
-  }
+  Subscription? find<T extends RealmObject>(RealmResults<T> query) => _handle.findByResults(query.handle).convert(Subscription._);
 
   /// Finds an existing [Subscription] in this set by name.
-  Subscription? findByName(String name) {
-    final result = realmCore.findSubscriptionByName(this, name);
-    return result == null ? null : Subscription._(result);
-  }
+  Subscription? findByName(String name) => _handle.findByName(name).convert(Subscription._);
 
   Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state, [CancellationToken? cancellationToken]) async {
-    final result = await realmCore.waitForSubscriptionSetStateChange(this, state, cancellationToken);
-    realmCore.refreshSubscriptionSet(this);
+    final result = await _handle.waitForStateChange(state, cancellationToken);
+    _handle.refresh();
     return result;
   }
 
@@ -153,15 +152,15 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   }
 
   /// Returns the error if the subscription set is in the [SubscriptionSetState.error] state.
-  Exception? get error => realmCore.getSubscriptionSetError(this);
+  Exception? get error => _handle.error;
 
   @override
-  int get length => realmCore.getSubscriptionSetSize(this);
+  int get length => _handle.size;
 
   @override
   Subscription elementAt(int index) {
     RangeError.checkValidRange(index, null, length);
-    return Subscription._(realmCore.subscriptionAt(this, index));
+    return Subscription._(_handle[index]);
   }
 
   /// Gets the [Subscription] at the specified index in the set.
@@ -180,11 +179,11 @@ abstract class SubscriptionSet with IterableMixin<Subscription> implements Final
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action);
 
   /// Gets the version of the subscription set.
-  int get version => realmCore.subscriptionSetGetVersion(this);
+  int get version => _handle.version;
 
   /// Gets the state of the subscription set.
   SubscriptionSetState get state {
-    final state = realmCore.subscriptionSetGetState(this);
+    final state = _handle.state;
     switch (state) {
       case SubscriptionSetState._uncommitted:
       case SubscriptionSetState._bootstrapping:
@@ -202,42 +201,36 @@ extension SubscriptionSetInternal on SubscriptionSet {
     _handle.keepAlive();
   }
 
-  Realm get realm => _realm;
-  SubscriptionSetHandle get handle {
-    if (_handle.released) {
-      throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm');
-    }
-
-    return _handle;
-  }
+  SubscriptionSetHandle get handle => _handle;
 
   static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => ImmutableSubscriptionSet._(realm, handle);
 }
 
-class ImmutableSubscriptionSet extends SubscriptionSet {
+final class ImmutableSubscriptionSet extends SubscriptionSet {
   ImmutableSubscriptionSet._(super.realm, super.handle) : super._();
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
-    final mutableSubscriptions = MutableSubscriptionSet._(realm, realmCore.subscriptionSetMakeMutable(this));
-    final oldHandle = _handle;
+    final old = _handle;
+    final mutable = _handle.toMutable();
     try {
-      action(mutableSubscriptions);
-      _handle = realmCore.subscriptionSetCommit(mutableSubscriptions);
+      action(MutableSubscriptionSet._(_realm, mutable));
+      _handle = mutable.commit();
     } finally {
       // Release as early as possible, as we cannot start new update, until this is released!
-      mutableSubscriptions._handle.release();
-      oldHandle.release();
+      mutable.release();
+      old.release();
     }
   }
 }
 
 /// A mutable view to a [SubscriptionSet]. Obtained by calling [SubscriptionSet.update].
 /// {@category Sync}
-class MutableSubscriptionSet extends SubscriptionSet {
-  final MutableSubscriptionSetHandle _handle;
+final class MutableSubscriptionSet extends SubscriptionSet {
+  @override
+  MutableSubscriptionSetHandle get _handle => super._handle as MutableSubscriptionSetHandle;
 
-  MutableSubscriptionSet._(Realm realm, this._handle) : super._(realm, _handle);
+  MutableSubscriptionSet._(super.realm, MutableSubscriptionSetHandle super.handle) : super._();
 
   @override
   void update(void Function(MutableSubscriptionSet mutableSubscriptions) action) {
@@ -254,28 +247,21 @@ class MutableSubscriptionSet extends SubscriptionSet {
   /// If [update] is specified to `true`, then any existing query will be replaced.
   /// Otherwise a [RealmException] is thrown, in case of duplicates.
   /// {@category Sync}
-  Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) {
-    return Subscription._(realmCore.insertOrAssignSubscription(this, query, name, update));
-  }
+  Subscription add<T extends RealmObject>(RealmResults<T> query, {String? name, bool update = false}) =>
+      Subscription._(_handle.insertOrAssignSubscription(query.handle, name, update));
 
   /// Removes the [subscription] from the set, if it exists.
-  bool remove(Subscription subscription) {
-    return realmCore.eraseSubscriptionById(this, subscription);
-  }
+  bool remove(Subscription subscription) => _handle.erase(subscription._handle);
 
   /// Removes the [query] from the set, if it exists.
-  bool removeByQuery<T extends RealmObject>(RealmResults<T> query) {
-    return realmCore.eraseSubscriptionByResults(this, query);
-  }
+  bool removeByQuery<T extends RealmObject>(RealmResults<T> query) => _handle.eraseByResults(query.handle);
 
   /// Removes the subscription from the set that matches by [name], if it exists.
-  bool removeByName(String name) {
-    return realmCore.eraseSubscriptionByName(this, name);
-  }
+  bool removeByName(String name) => _handle.eraseByName(name);
 
   /// Removes the subscriptions from the set that matches by type, if it exists.
   bool removeByType<T extends RealmObject>() {
-    final name = realm.schema.singleWhere((e) => e.type == T).name;
+    final name = _realm.schema.singleWhere((e) => e.type == T).name;
     var result = false;
     for (var i = length - 1; i >= 0; i--) {
       // reverse iteration to avoid index shifting
@@ -298,11 +284,7 @@ class MutableSubscriptionSet extends SubscriptionSet {
         }
       }
     } else {
-      realmCore.clearSubscriptionSet(this);
+      _handle.clear();
     }
   }
-}
-
-extension MutableSubscriptionSetInternal on MutableSubscriptionSet {
-  MutableSubscriptionSetHandle get handle => _handle;
 }

@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
+import 'backlinks_test.dart';
 import 'test.dart';
 
 part 'realm_object_test.realm.dart';
@@ -74,8 +75,654 @@ class _BoolValue {
   late bool value;
 }
 
+@RealmModel()
+class _TestNotificationObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+
+  @MapTo("_remappedIntProperty")
+  late int? remappedIntProperty;
+
+  late _TestNotificationObject? link;
+
+  late _TestNotificationEmbeddedObject? embedded;
+
+  late List<_TestNotificationObject> listLinks;
+
+  late Set<_TestNotificationObject> setLinks;
+
+  late Map<String, _TestNotificationObject?> mapLinks;
+
+  @Backlink(#link)
+  late Iterable<_TestNotificationObject> backlink;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _TestNotificationEmbeddedObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+}
+
 void main() {
   setupTests();
+
+  group("RealmObject keypath filtering", () {
+    Future<void> verifyNotifications<T extends RealmObjectBase>(T obj, List<RealmObjectChanges<T>> changeList, List<String>? changedProperties,
+        {bool isDeleted = false}) async {
+      await Future<void>.delayed(Duration(milliseconds: 20));
+
+      if (changedProperties == null) {
+        expect(changeList, hasLength(0));
+        return;
+      }
+
+      expect(changeList, hasLength(1));
+      var changes = changeList[0];
+
+      if (isDeleted) {
+        expect(changes.isDeleted, isTrue);
+        return;
+      }
+
+      expect(changes.isDeleted, isFalse);
+      expect(changes.object, obj);
+      expect(changes.properties, unorderedEquals(changedProperties));
+      changeList.clear();
+    }
+
+    test('basic single keypath test', () async {
+      var config = Configuration.local([Dog.schema, Person.schema]);
+      var realm = getRealm(config);
+
+      final dog = Dog("Mario");
+
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      final externalChanges = <RealmObjectChanges<Dog>>[];
+      final subscription = dog.changesFor(["age"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        dog.age = 2;
+        dog.owner = Person("owner");
+      });
+
+      await verifyNotifications<Dog>(dog, externalChanges, ["age"]);
+      subscription.cancel();
+    });
+
+    test('basic multiple keypaths test', () async {
+      var config = Configuration.local([Dog.schema, Person.schema]);
+      var realm = getRealm(config);
+
+      final dog = Dog("Mario");
+
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      final externalChanges = <RealmObjectChanges<Dog>>[];
+      final subscription = dog.changesFor(["age", "owner"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        dog.age = 2;
+        dog.owner = Person("owner");
+      });
+
+      await verifyNotifications<Dog>(dog, externalChanges, ["age", "owner"]);
+      subscription.cancel();
+    });
+
+    test('empty keypath', () async {
+      var config = Configuration.local([Dog.schema, Person.schema]);
+      var realm = getRealm(config);
+
+      final dog = Dog("Mario");
+
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(() {
+        dog.changesFor([""]);
+      }, throws<RealmException>("It is not allowed to have empty key paths."));
+
+      expect(() {
+        dog.changesFor(["age", ""]);
+      }, throws<RealmException>("It is not allowed to have empty key paths."));
+    });
+
+    test('unknown keypath', () async {
+      var config = Configuration.local([Dog.schema, Person.schema]);
+      var realm = getRealm(config);
+
+      final dog = Dog("Mario");
+
+      realm.write(() {
+        realm.add(dog);
+      });
+
+      expect(() {
+        dog.changesFor(["unknown"]);
+      }, throws<RealmException>("Property 'unknown' in KeyPath 'unknown' is not a valid property in Dog."));
+
+      expect(() {
+        dog.changesFor(["age", "unknown"]);
+      }, throws<RealmException>("Property 'unknown' in KeyPath 'unknown' is not a valid property in Dog."));
+    });
+
+    test('embedded', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["embedded"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      // Property change
+      realm.write(() {
+        tno.embedded = TestNotificationEmbeddedObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["embedded"]);
+
+      // Nested property change -- should not raise
+      realm.write(() {
+        tno.embedded?.stringProperty = "NewVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('nested property on embedded', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["embedded.stringProperty"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      // Property change
+      realm.write(() {
+        tno.embedded = TestNotificationEmbeddedObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["embedded"]);
+
+      // Nested property change in keypath -- should raise
+      realm.write(() {
+        tno.embedded?.stringProperty = "NewVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["embedded"]);
+
+      // Nested property change not on keypath -- should not raise
+      realm.write(() {
+        tno.embedded?.intProperty = 23;
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('link', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["link"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      // Property change
+      realm.write(() {
+        tno.link = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      // Nested property change -- should not raise
+      realm.write(() {
+        tno.link?.stringProperty = "NewVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('nested property on link', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["link.stringProperty"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      // Top level property change
+      realm.write(() {
+        tno.link = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      // Nested property on keypath -- should raise
+      realm.write(() {
+        tno.link?.stringProperty = "NewVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      // Nested property not on keypath -- should not raise
+      realm.write(() {
+        tno.link?.intProperty = 23;
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('mappedProperty', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["remappedIntProperty"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        tno.remappedIntProperty = 23;
+        tno.stringProperty = "newVal";
+      });
+
+      // This fails because it's raising a notification for "_remappedIntProperty"
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["remappedIntProperty"]);
+
+      subscription.cancel();
+    });
+
+    test('collection top level', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["listLinks", "setLinks", "mapLinks"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      // Collection changes -- should raise
+      realm.write(() {
+        tno.listLinks.add(TestNotificationObject());
+        tno.setLinks.add(TestNotificationObject());
+        tno.mapLinks["test"] = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks"]);
+
+      // Nested properties -- should not raise
+      realm.write(() {
+        tno.listLinks[0].stringProperty = "newVal";
+        tno.setLinks.elementAt(0).stringProperty = "newVal";
+        tno.mapLinks["test"]?.stringProperty = "newVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('collection nested', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["listLinks.stringProperty", "setLinks.stringProperty", "mapLinks.stringProperty"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      // Collection changes -- should raise
+      realm.write(() {
+        tno.listLinks.add(TestNotificationObject());
+        tno.setLinks.add(TestNotificationObject());
+        tno.mapLinks["test"] = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks"]);
+
+      // Nested properties -- should raise
+      realm.write(() {
+        tno.listLinks[0].stringProperty = "newVal";
+        tno.setLinks.elementAt(0).stringProperty = "newVal";
+        tno.mapLinks["test"]?.stringProperty = "newVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks"]);
+
+      subscription.cancel();
+    });
+
+    test('backlink', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["backlink"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        realm.add(TestNotificationObject(link: tno));
+      });
+
+      expect(tno.backlink.length, 1);
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["backlink"]);
+
+      subscription.cancel();
+    }, skip: "Needs to be re-enabled when https://github.com/realm/realm-dart/issues/1631 is investigated");
+
+    test('null gives default subscriptions', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(null).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        tno.stringProperty = "test";
+        tno.intProperty = 23;
+        tno.link = TestNotificationObject();
+        tno.listLinks.add(TestNotificationObject());
+        tno.setLinks.add(TestNotificationObject());
+        tno.mapLinks["test"] = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "stringProperty", "intProperty", "link"]);
+
+      realm.write(() {
+        tno.link?.stringProperty = "test";
+        tno.listLinks[0].stringProperty = "newVal";
+        tno.setLinks.elementAt(0).stringProperty = "newVal";
+        tno.mapLinks["test"]?.stringProperty = "newVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('empty list gives default subscriptions', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor([]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        tno.stringProperty = "test";
+        tno.intProperty = 23;
+        tno.link = TestNotificationObject();
+        tno.listLinks.add(TestNotificationObject());
+        tno.setLinks.add(TestNotificationObject());
+        tno.mapLinks["test"] = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "stringProperty", "intProperty", "link"]);
+
+      realm.write(() {
+        tno.link?.stringProperty = "test";
+        tno.listLinks[0].stringProperty = "newVal";
+        tno.setLinks.elementAt(0).stringProperty = "newVal";
+        tno.mapLinks["test"]?.stringProperty = "newVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('wildcard', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["*"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        tno.stringProperty = "test";
+        tno.intProperty = 23;
+        tno.link = TestNotificationObject();
+        tno.listLinks.add(TestNotificationObject());
+        tno.setLinks.add(TestNotificationObject());
+        tno.mapLinks["test"] = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "stringProperty", "intProperty", "link"]);
+
+      // Deeper than the top level wildcard - should not raise
+      realm.write(() {
+        tno.listLinks[0].stringProperty = "newVal";
+        tno.setLinks.elementAt(0).stringProperty = "newVal";
+        tno.mapLinks["test"]?.stringProperty = "newVal";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
+
+      subscription.cancel();
+    });
+
+    test('nested wildcard', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["*.*"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        tno.stringProperty = "test";
+        tno.intProperty = 23;
+        tno.link = TestNotificationObject();
+        tno.listLinks.add(TestNotificationObject());
+        tno.setLinks.add(TestNotificationObject());
+        tno.mapLinks["test"] = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "stringProperty", "intProperty", "link"]);
+
+      realm.write(() {
+        tno.link?.stringProperty = "test";
+        tno.listLinks[0].stringProperty = "newVal";
+        tno.setLinks.elementAt(0).stringProperty = "newVal";
+        tno.mapLinks["test"]?.stringProperty = "newVal";
+
+        tno.link?.link = TestNotificationObject();
+        tno.link?.link?.link = TestNotificationObject();
+
+        tno.listLinks[0].link = TestNotificationObject();
+        tno.setLinks.elementAt(0).link = TestNotificationObject();
+        tno.mapLinks["test"]?.link = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "link"]);
+
+      realm.write(() {
+        tno.link?.link?.link?.stringProperty = "test";
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      subscription.cancel();
+    });
+
+    test('test nested wildcard', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["*.*"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      realm.write(() {
+        tno.link = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      realm.write(() {
+        tno.link?.link = TestNotificationObject();
+        tno.link?.link?.link = TestNotificationObject();
+        tno.link?.link?.link?.link = TestNotificationObject();
+        tno.link?.link?.link?.link?.link = TestNotificationObject();
+        tno.link?.link?.link?.link?.link?.link = TestNotificationObject();
+      });
+
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      realm.write(() {
+        tno.link?.link?.link?.link?.link?.link?.stringProperty = "test";
+      });
+
+      // Why is it still raising a notification for link?
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+
+      subscription.cancel();
+    });
+
+    test('subscribing multiple times merges keypaths', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final tno = TestNotificationObject();
+
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      final externalChanges = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription = tno.changesFor(["intProperty"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges.add(changes);
+      });
+
+      final externalChanges2 = <RealmObjectChanges<TestNotificationObject>>[];
+      final subscription2 = tno.changesFor(["stringProperty"]).listen((changes) {
+        if (changes.properties.isNotEmpty) externalChanges2.add(changes);
+      });
+
+      realm.write(() {
+        tno.intProperty = 23;
+        tno.stringProperty = "test";
+        tno.link = TestNotificationObject();
+      });
+
+      // Both of these fails because both "intProperty and "stringProperty" are reported as changed
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["intProperty", "stringProperty"]);
+
+      subscription.cancel();
+      subscription2.cancel();
+    });
+  });
 
   test('RealmObject get property', () {
     var config = Configuration.local([Car.schema]);
@@ -263,7 +910,7 @@ void main() {
         callNum++;
         expect(changes.isDeleted, true);
         expect(changes.object, dog);
-        expect(changes.properties, <String>[]);
+        expect(changes.properties.isEmpty, true);
       }
     });
 

@@ -3,11 +3,11 @@
 
 import 'dart:async';
 import 'dart:ffi';
-import '../realm.dart';
-import 'native/realm_core.dart';
-import 'user.dart';
 
+import '../realm.dart';
 import '../src/native/realm_bindings.dart';
+import 'native/session_handle.dart';
+import 'user.dart';
 
 /// An object encapsulating a synchronization session. Sessions represent the
 /// communication between the client (and a local Realm file on disk), and the
@@ -18,38 +18,38 @@ class Session implements Finalizable {
   final SessionHandle _handle;
 
   /// The on-disk path of the file backing the [Realm] this [Session] represents
-  String get realmPath => realmCore.sessionGetPath(this);
+  String get realmPath => handle.path;
 
   /// The session’s current state. This is different from [connectionState] since a
   /// session may be active, even if the connection is disconnected (e.g. due to the device
   /// being offline).
-  SessionState get state => realmCore.sessionGetState(this);
+  SessionState get state => handle.state;
 
   /// The session’s current connection state. This is the physical state of the connection
   /// and is different from the session's logical state, which is returned by [state].
-  ConnectionState get connectionState => realmCore.sessionGetConnectionState(this);
+  ConnectionState get connectionState => handle.connectionState;
 
   /// The [User] that owns the [Realm] this [Session] is synchronizing.
-  User get user => UserInternal.create(realmCore.sessionGetUser(this));
+  User get user => UserInternal.create(handle.user);
 
   Session._(this._handle);
 
   /// Pauses any synchronization with the server until the Realm is re-opened again
   /// after fully closing it or [resume] is called.
-  void pause() => realmCore.sessionPause(this);
+  void pause() => handle.pause();
 
   /// Attempts to resume the session and enable synchronization with the server.
   /// All sessions are active by default and calling this method is only necessary
   /// if [pause] was called previously.
-  void resume() => realmCore.sessionResume(this);
+  void resume() => handle.resume();
 
   /// Waits for the [Session] to finish all pending uploads.
   /// An optional [cancellationToken] can be used to cancel the wait operation.
-  Future<void> waitForUpload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForUpload(this, cancellationToken);
+  Future<void> waitForUpload([CancellationToken? cancellationToken]) => handle.waitForUpload(cancellationToken);
 
   /// Waits for the [Session] to finish all pending downloads.
   /// An optional [cancellationToken] can be used to cancel the wait operation.
-  Future<void> waitForDownload([CancellationToken? cancellationToken]) => realmCore.sessionWaitForDownload(this, cancellationToken);
+  Future<void> waitForDownload([CancellationToken? cancellationToken]) => handle.waitForDownload(cancellationToken);
 
   /// Gets a [Stream] of [SyncProgress] that can be used to track upload or download progress.
   Stream<SyncProgress> getProgressStream(ProgressDirection direction, ProgressMode mode) {
@@ -105,9 +105,7 @@ extension SessionInternal on Session {
     return _handle;
   }
 
-  void raiseError(int errorCode, bool isFatal) {
-    realmCore.raiseError(this, errorCode, isFatal);
-  }
+  void raiseError(int errorCode, bool isFatal) => handle.raiseError(errorCode, isFatal);
 
   static SyncProgress createSyncProgress(double progressEstimate) => SyncProgress(progressEstimate: progressEstimate);
 }
@@ -122,7 +120,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
   final ProgressDirection _direction;
   final ProgressMode _mode;
 
-  RealmSyncSessionConnectionStateNotificationTokenHandle? _tokenHandle;
+  SyncSessionNotificationTokenHandle? _tokenHandle;
   late final StreamController<SyncProgress> _streamController;
 
   SessionProgressNotificationsController(this._session, this._direction, this._mode);
@@ -145,7 +143,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
     if (_tokenHandle != null) {
       throw RealmStateError("Session progress subscription already started.");
     }
-    _tokenHandle = realmCore.sessionRegisterProgressNotifier(_session, _direction, _mode, this);
+    _tokenHandle = _session.handle.subscribeForProgressNotifications(_direction, _mode, this);
   }
 
   void _stop() {
@@ -158,7 +156,7 @@ class SessionProgressNotificationsController implements ProgressNotificationsCon
 class SessionConnectionStateController {
   final Session _session;
   late final StreamController<ConnectionStateChange> _streamController;
-  RealmSyncSessionConnectionStateNotificationTokenHandle? _token;
+  SyncSessionNotificationTokenHandle? _token;
 
   SessionConnectionStateController(this._session);
 
@@ -175,7 +173,7 @@ class SessionConnectionStateController {
     if (_token != null) {
       throw RealmStateError("Session connection state subscription already started");
     }
-    _token = realmCore.sessionRegisterConnectionStateNotifier(_session, this);
+    _token = _session.handle.subscribeForConnectionStateNotifications(this);
   }
 
   void _stop() {

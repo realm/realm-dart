@@ -38,6 +38,10 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
       RealmObjectBase.getChanges<Parent>(this);
 
   @override
+  Stream<RealmObjectChanges<Parent>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Parent>(this, keyPaths);
+
+  @override
   Parent freeze() => RealmObjectBase.freezeObject<Parent>(this);
 
   EJsonValue toEJson() {
@@ -114,6 +118,10 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   Stream<RealmObjectChanges<Child1>> get changes =>
       RealmObjectBase.getChanges<Child1>(this);
+
+  @override
+  Stream<RealmObjectChanges<Child1>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Child1>(this, keyPaths);
 
   @override
   Child1 freeze() => RealmObjectBase.freezeObject<Child1>(this);

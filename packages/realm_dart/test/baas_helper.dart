@@ -151,9 +151,9 @@ class BaasHelper {
     }
   }
 
-  Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
+  Future<String> createServerApiKey(App app, String name, {bool enabled = true}) {
     final baasApp = _baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
-    return await _baasClient.createApiKey(baasApp.appId, name, enabled);
+    return _baasClient.createApiKey(baasApp.appId, name, enabled);
   }
 
   static void throwIfSetupFailed() {
@@ -177,9 +177,10 @@ class BaasHelper {
     testing.printOnFailure("Splunk logs: $splunk");
   }
 
-  Future<AppConfiguration> getAppConfig({AppName appName = AppName.flexible}) => _getAppConfig(appName.name);
+  Future<AppConfiguration> getAppConfig({AppName appName = AppName.flexible, String? customBaseUrl}) =>
+      _getAppConfig(appName.name, customBaseUrl: customBaseUrl);
 
-  Future<AppConfiguration> _getAppConfig(String appName) async {
+  Future<AppConfiguration> _getAppConfig(String appName, {String? customBaseUrl}) async {
     final app = _baasApps[appName] ??
         _baasApps.values.firstWhere((element) => element.name == BaasClient.defaultAppName, orElse: () => throw RealmError("No BAAS apps"));
     if (app.error != null) {
@@ -189,7 +190,7 @@ class BaasHelper {
     final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
     return AppConfiguration(
       app.clientAppId,
-      baseUrl: Uri.parse(baseUrl),
+      baseUrl: Uri.parse(customBaseUrl ?? baseUrl),
       baseFilePath: temporaryDir,
       maxConnectionTimeout: Duration(minutes: 10),
       defaultRequestTimeout: Duration(minutes: 7),

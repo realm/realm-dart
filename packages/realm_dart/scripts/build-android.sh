@@ -21,11 +21,11 @@ fi
 # Start in the root directory of the project.
 cd "$(dirname "$0")/.."
 
-ABIS=(x86 x86_64 armeabi-v7a arm64-v8a)
+ABIS=(x86_64 armeabi-v7a arm64-v8a)
 
-# only building for x86 if no arguments
+# only building for arm64-v8a if no arguments
 if [ $# -eq 0 ]; then
-    ABIS=(x86)
+    ABIS=arm64-v8a)
 fi
 
 for abi in "${ABIS[@]}"; do

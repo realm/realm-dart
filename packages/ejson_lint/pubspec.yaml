@@ -1,11 +1,15 @@
 name: ejson_lint
-description: A starting point for Dart libraries or applications.
+description: >-
+  Lints for EJSON.
+
+  BSON is a binary format used to store JSON-like documents efficiently.
+  EJSON extends JSON defining how all BSON types should be represented in JSON.
 
 version: 0.3.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_lint
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.3.0
 
 dependencies:
   analyzer: ^6.0.0

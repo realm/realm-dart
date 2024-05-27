@@ -9,7 +9,10 @@ import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
 import 'list.dart';
-import 'native/realm_core.dart';
+import 'native/handle_base.dart';
+import 'native/notification_token_handle.dart';
+import 'native/object_handle.dart';
+import 'native/realm_library.dart';
 import 'realm_class.dart';
 import 'results.dart';
 import 'map.dart';
@@ -156,11 +159,11 @@ class RealmCoreAccessor implements RealmAccessor {
           if (propertyMeta.propertyType == RealmPropertyType.linkingObjects) {
             final sourceMeta = object.realm.metadata.getByName(propertyMeta.objectType!);
             final sourceProperty = sourceMeta[propertyMeta.linkOriginProperty!];
-            final handle = realmCore.getBacklinks(object, sourceMeta.classKey, sourceProperty.key);
+            final handle = object.handle.getBacklinks(sourceMeta.classKey, sourceProperty.key);
             return RealmResultsInternal.create<T>(handle, object.realm, sourceMeta);
           }
 
-          final handle = realmCore.getListProperty(object, propertyMeta.key);
+          final handle = object.handle.getList(propertyMeta.key);
           final listMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
 
           if (propertyMeta.propertyType == RealmPropertyType.mixed) {
@@ -184,7 +187,7 @@ class RealmCoreAccessor implements RealmAccessor {
           }
           return object.realm.createList<T>(handle, listMetadata);
         case RealmCollectionType.set:
-          final handle = realmCore.getSetProperty(object, propertyMeta.key);
+          final handle = object.handle.getSet(propertyMeta.key);
           final setMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
           if (setMetadata != null && _isTypeGenericObject<T>()) {
             switch (setMetadata.schema.baseType) {
@@ -201,7 +204,7 @@ class RealmCoreAccessor implements RealmAccessor {
 
           return object.realm.createSet<T>(handle, setMetadata);
         case RealmCollectionType.map:
-          final handle = realmCore.getMapProperty(object, propertyMeta.key);
+          final handle = object.handle.getMap(propertyMeta.key);
           final mapMetadata = propertyMeta.objectType == null ? null : object.realm.metadata.getByName(propertyMeta.objectType!);
 
           if (propertyMeta.propertyType == RealmPropertyType.mixed) {
@@ -225,9 +228,9 @@ class RealmCoreAccessor implements RealmAccessor {
           }
           return object.realm.createMap<T>(handle, mapMetadata);
         default:
-          var value = realmCore.getProperty(object, propertyMeta.key);
+          var value = object.handle.getValue(object.realm, propertyMeta.key);
 
-          if (value is RealmObjectHandle) {
+          if (value is ObjectHandle) {
             final meta = object.realm.metadata;
             final typeName = propertyMeta.objectType;
 
@@ -235,7 +238,7 @@ class RealmCoreAccessor implements RealmAccessor {
             late RealmObjectMetadata targetMetadata;
 
             if (propertyMeta.propertyType == RealmPropertyType.mixed) {
-              (type, targetMetadata) = meta.getByClassKey(realmCore.getClassKey(value));
+              (type, targetMetadata) = meta.getByClassKey(value.classKey);
             } else {
               // If we have an object but the user called the API without providing a generic
               // arg, we construct a RealmObject since we don't know the type of the object.
@@ -246,7 +249,7 @@ class RealmCoreAccessor implements RealmAccessor {
             value = object.realm.createObject(type, value, targetMetadata);
           }
 
-          if (T == RealmValue) {
+          if (T == RealmValue || (propertyMeta.propertyType == RealmPropertyType.mixed && _isTypeGenericObject<T>())) {
             value = RealmValue.from(value);
           }
 
@@ -262,14 +265,14 @@ class RealmCoreAccessor implements RealmAccessor {
     final propertyMeta = metadata[name];
     try {
       if (value is RealmValue && value.type.isCollection) {
-        realmCore.objectSetCollection(object, propertyMeta.key, value);
+        object.handle.setCollection(object.realm, propertyMeta.key, value);
         return;
       }
 
       if (value is RealmList) {
-        final handle = realmCore.getListProperty(object, propertyMeta.key);
+        final handle = object.handle.getList(propertyMeta.key);
         if (update) {
-          realmCore.listClear(handle);
+          handle.clear();
         }
 
         for (var i = 0; i < value.length; i++) {
@@ -280,9 +283,9 @@ class RealmCoreAccessor implements RealmAccessor {
 
       //TODO: set from ManagedRealmList is not supported yet
       if (value is RealmSet) {
-        final handle = realmCore.getSetProperty(object, propertyMeta.key);
+        final handle = object.handle.getSet(propertyMeta.key);
         if (update) {
-          realmCore.realmSetClear(handle);
+          handle.clear();
         }
 
         // TODO: use realmSetAssign when available in C-API
@@ -291,7 +294,7 @@ class RealmCoreAccessor implements RealmAccessor {
         for (var element in value) {
           object.realm.addUnmanagedRealmObjectFromValue(element, update);
 
-          final result = realmCore.realmSetInsert(handle, element);
+          final result = handle.insert(element);
           if (!result) {
             throw RealmException("Error while adding value $element in RealmSet");
           }
@@ -300,9 +303,9 @@ class RealmCoreAccessor implements RealmAccessor {
       }
 
       if (value is RealmMap) {
-        final handle = realmCore.getMapProperty(object, propertyMeta.key);
+        final handle = object.handle.getMap(propertyMeta.key);
         if (update) {
-          realmCore.mapClear(handle);
+          handle.clear();
         }
 
         for (var kvp in value.entries) {
@@ -316,7 +319,7 @@ class RealmCoreAccessor implements RealmAccessor {
           throw RealmError("Can't set an embedded object that is already managed");
         }
 
-        final handle = realmCore.createEmbeddedObject(object, propertyMeta.key);
+        final handle = object.handle.createEmbedded(propertyMeta.key);
         object.realm.manageEmbedded(handle, value, update: update);
         return;
       }
@@ -324,13 +327,13 @@ class RealmCoreAccessor implements RealmAccessor {
       object.realm.addUnmanagedRealmObjectFromValue(value, update);
 
       if (propertyMeta.isPrimaryKey && !isInMigration) {
-        final currentValue = realmCore.getProperty(object, propertyMeta.key);
+        final currentValue = object.handle.getValue(object.realm, propertyMeta.key);
         if (currentValue != value) {
           throw RealmException("Primary key cannot be changed (original value: '$currentValue', supplied value: '$value')");
         }
       }
 
-      realmCore.setProperty(object, propertyMeta.key, value, isDefault);
+      object.handle.setValue(propertyMeta.key, value, isDefault);
     } on Exception catch (e) {
       throw RealmException("Error setting property ${metadata._realmObjectTypeName}.$name Error: $e");
     }
@@ -363,7 +366,7 @@ extension RealmEntityInternal on RealmEntity {
 /// [RealmObject] should not be used directly as it is part of the generated class hierarchy. ex: `MyClass extends _MyClass with RealmObject`.
 /// {@category Realm}
 mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizable {
-  RealmObjectHandle? _handle;
+  ObjectHandle? _handle;
   RealmAccessor _accessor = RealmValuesAccessor();
   static final Map<Type, RealmObjectBase Function()> _factories = <Type, RealmObjectBase Function()>{
     // Register default factories for `RealmObject` and `RealmObject?`. Whenever the user
@@ -381,7 +384,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   }
 
   /// @nodoc
-  static void set<T extends Object>(RealmObjectBase object, String name, T? value, {bool update = false}) {
+  static void set<T>(RealmObjectBase object, String name, T value, {bool update = false}) {
     object._accessor.set(object, name, value, update: update);
   }
 
@@ -454,10 +457,10 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
     if (other is! RealmObjectBase) return false;
     if (!isManaged || !other.isManaged) return false;
 
-    return realmCore.objectEquals(this, other);
+    return handle == other.handle;
   }
 
-  late final int _managedHashCode = realmCore.objectGetHashCode(this);
+  late final int _managedHashCode = handle.hashCode;
 
   @override
   int get hashCode {
@@ -474,17 +477,46 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
   /// will throw an exception.
   /// The Object is not valid if its [Realm] is closed or object is deleted.
   /// Unmanaged objects are always considered valid.
-  bool get isValid => isManaged ? realmCore.objectIsValid(this) : true;
+  bool get isValid => isManaged ? handle.isValid : true;
 
-  /// Allows listening for property changes on this Realm object
+  /// Allows listening for property changes on this Realm object.
   ///
   /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
   ///
   /// If the object is not managed a [RealmStateError] is thrown.
   Stream<RealmObjectChanges<RealmObjectBase>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
 
+  /// Allows listening for property changes on this Realm object using the specified list of key paths.
+  /// The key paths indicates which changes in properties should raise a notification.
+  ///
+  /// Returns a [Stream] of [RealmObjectChanges<T>] that can be listened to.
+  ///
+  /// If the object is not managed a [RealmStateError] is thrown.
+  ///
+  /// Example
+  /// ``` dart
+  /// @RealmModel()
+  /// class _Person {
+  ///   late String name;
+  ///   late int age;
+  ///   late List<_Person> friends;
+  /// }
+  ///
+  /// // ....
+  ///
+  /// // Only changes to person.age and person.friends will raise a notification
+  /// person.changesFor(["age", "friends"]).listen( .... )
+  /// ```
+  Stream<RealmObjectChanges<RealmObjectBase>> changesFor([List<String>? keyPaths]) =>
+      throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+
   /// @nodoc
   static Stream<RealmObjectChanges<T>> getChanges<T extends RealmObjectBase>(T object) {
+    return getChangesFor<T>(object, null);
+  }
+
+  /// @nodoc
+  static Stream<RealmObjectChanges<T>> getChangesFor<T extends RealmObjectBase>(T object, [List<String>? keyPaths]) {
     if (!object.isManaged) {
       throw RealmStateError("Object is not managed");
     }
@@ -493,7 +525,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
       throw RealmStateError('Object is frozen and cannot emit changes.');
     }
 
-    final controller = RealmObjectNotificationsController<T>(object);
+    final controller = RealmObjectNotificationsController<T>(object, keyPaths);
     return controller.createStream();
   }
 
@@ -567,7 +599,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
       throw RealmError(
           "Property $T.$propertyName is a link property that links to ${sourceProperty.objectType} which is different from the type of the current object, which is $runtimeType.");
     }
-    final handle = realmCore.getBacklinks(this, sourceMeta.classKey, sourceProperty.key);
+    final handle = this.handle.getBacklinks(sourceMeta.classKey, sourceProperty.key);
     return RealmResultsInternal.create<T>(handle, realm, sourceMeta);
   }
 
@@ -576,10 +608,16 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker, Finalizab
 }
 
 /// @nodoc
-mixin RealmObject on RealmObjectBase implements RealmObjectMarker {}
+mixin RealmObject on RealmObjectBase implements RealmObjectMarker {
+  @override
+  Stream<RealmObjectChanges<RealmObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of RealmObject");
+}
 
 /// @nodoc
-mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {}
+mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {
+  @override
+  Stream<RealmObjectChanges<EmbeddedObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of EmbeddedObject");
+}
 
 /// Base for any object that can be persisted in a [Realm], but cannot be retrieved,
 /// hence cannot be modified.
@@ -599,9 +637,9 @@ extension EmbeddedObjectExtension on EmbeddedObject {
       return null;
     }
 
-    final parent = realmCore.getEmbeddedParent(this);
-    final (type, metadata) = realm.metadata.getByClassKey(parent.item2);
-    return realm.createObject(type, parent.item1, metadata);
+    final (parentHandle, classKey) = handle.parent;
+    final (type, metadata) = realm.metadata.getByClassKey(classKey);
+    return realm.createObject(type, parentHandle, metadata);
   }
 }
 
@@ -614,7 +652,7 @@ extension RealmObjectInternal on RealmObjectBase {
     _handle?.keepAlive();
   }
 
-  void manage(Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor, bool update) {
+  void manage(Realm realm, ObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
       //most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
@@ -630,7 +668,7 @@ extension RealmObjectInternal on RealmObjectBase {
     _accessor = accessor;
   }
 
-  static RealmObjectBase create(Type type, Realm realm, RealmObjectHandle handle, RealmCoreAccessor accessor) {
+  static RealmObjectBase create(Type type, Realm realm, ObjectHandle handle, RealmCoreAccessor accessor) {
     final object = RealmObjectBase.createObject(type, accessor.metadata);
     object._handle = handle;
     object._accessor = accessor;
@@ -638,7 +676,7 @@ extension RealmObjectInternal on RealmObjectBase {
     return object;
   }
 
-  RealmObjectHandle get handle {
+  ObjectHandle get handle {
     if (_handle?.released == true) {
       throw RealmClosedError('Cannot access an object that belongs to a closed Realm');
     }
@@ -690,18 +728,21 @@ class UserCallbackException extends RealmException {
 /// Describes the changes in on a single RealmObject since the last time the notification callback was invoked.
 class RealmObjectChanges<T extends RealmObjectBase> implements Finalizable {
   // ignore: unused_field
-  final RealmObjectChangesHandle _handle;
+  final ObjectChangesHandle _handle;
 
   /// The realm object being monitored for changes.
   final T object;
 
   /// `True` if the object was deleted.
-  bool get isDeleted => realmCore.getObjectChangesIsDeleted(_handle);
+  bool get isDeleted => _handle.isDeleted;
 
   /// The property names that have changed.
   List<String> get properties {
-    final propertyKeys = realmCore.getObjectChangesProperties(_handle);
-    return object.realm.getPropertyNames(object.runtimeType, propertyKeys);
+    final propertyKeys = _handle.properties;
+    return object.realm
+        .getPropertyNames(object, propertyKeys)
+        .map((e) => object.objectSchema.firstWhere((element) => element.mapTo == e || element.name == e).name)
+        .toList();
   }
 
   const RealmObjectChanges._(this._handle, this.object);
@@ -719,12 +760,23 @@ extension RealmObjectChangesInternal<T extends RealmObject> on RealmObjectChange
 class RealmObjectNotificationsController<T extends RealmObjectBase> extends NotificationsController {
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  RealmObjectNotificationsController(this.realmObject);
+  RealmObjectNotificationsController(this.realmObject, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+
+      if (keyPaths.any((element) => element.isEmpty)) {
+        throw RealmException("It is not allowed to have empty key paths.");
+      }
+      // throw early if the key paths are invalid
+      realmObject.handle.buildAndVerifyKeyPath(keyPaths);
+    }
+  }
 
   @override
-  RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeObjectNotifications(realmObject, this);
+  NotificationTokenHandle subscribe() {
+    return realmObject.handle.subscribeForNotifications(this, keyPaths);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {
@@ -734,7 +786,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 
   @override
   void onChanges(HandleBase changesHandle) {
-    if (changesHandle is! RealmObjectChangesHandle) {
+    if (changesHandle is! ObjectChangesHandle) {
       throw RealmError("Invalid changes handle. RealmObjectChangesHandle expected");
     }
 
@@ -752,12 +804,18 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
 class _ConcreteRealmObject with RealmEntity, RealmObjectBase, RealmObject {
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this)!; // _ConcreteRealmObject should only ever be created for managed objects
+
+  @override
+  Stream<RealmObjectChanges<RealmObject>> get changes => RealmObjectBase.getChanges<RealmObject>(this);
 }
 
 /// @nodoc
 class _ConcreteEmbeddedObject with RealmEntity, RealmObjectBase, EmbeddedObject {
   @override
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this)!; // _ConcreteEmbeddedObject should only ever be created for managed objects
+
+  @override
+  Stream<RealmObjectChanges<EmbeddedObject>> get changes => RealmObjectBase.getChanges<EmbeddedObject>(this);
 }
 
 // This is necessary whenever we need to pass T? as the type.
@@ -780,6 +838,13 @@ class DynamicRealmObject {
   T get<T extends Object?>(String name) {
     _validatePropertyType<T>(name, RealmCollectionType.none);
     return RealmObjectBase.get<T>(_obj, name) as T;
+  }
+
+  /// Sets a property by its name. The supplied [value] must be assignable
+  /// to the property type, otherwise an exception will be thrown.
+  void set<T extends Object?>(String name, T value) {
+    _validatePropertyType<T>(name, RealmCollectionType.none, relaxedNullability: true);
+    RealmObjectBase.set(_obj, name, value);
   }
 
   /// Gets a list by the property name. If a generic type is specified, the property
@@ -806,7 +871,7 @@ class DynamicRealmObject {
     return RealmObjectBase.get<T>(_obj, name) as RealmMap<T>;
   }
 
-  RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType) {
+  RealmPropertyMetadata? _validatePropertyType<T extends Object?>(String name, RealmCollectionType expectedCollectionType, {bool relaxedNullability = false}) {
     final accessor = _obj.accessor;
     if (accessor is RealmCoreAccessor) {
       final prop = accessor.metadata._propertyKeys[name];
@@ -822,8 +887,15 @@ class DynamicRealmObject {
       // If the user passed in a type argument, we should validate its nullability; if they invoked
       // the method without a type arg, we don't
       if (T != _typeOf<RealmValue>() && T != _typeOf<Object?>() && prop.isNullable != null is T) {
-        throw RealmException(
-            "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument passed to get<T> is $T.");
+        if (relaxedNullability && prop.isNullable) {
+          // We're relaxing nullability requirements when setting a property - in that case, we accept
+          // a non-null generic type argument, even if the property is nullable to allow users to invoke
+          // .set without a generic argument (i.e. have the compiler infer the generic based on the value
+          // argument).
+        } else {
+          throw RealmException(
+              "Property '$name' on class '${accessor.metadata.schema.name}' is ${prop.isNullable ? 'nullable' : 'required'} but the generic argument supplied is $T.");
+        }
       }
 
       final targetType = _getPropertyType<T>();
