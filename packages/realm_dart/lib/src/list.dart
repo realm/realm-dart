@@ -4,7 +4,6 @@
 import 'dart:core';
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ffi';
 
 import 'package:collection/collection.dart' as collection;
 
@@ -22,7 +21,7 @@ import 'results.dart';
 /// added to or deleted from the collection or from the Realm.
 ///
 /// {@category Realm}
-abstract class RealmList<T extends Object?> with RealmEntity implements List<T>, Finalizable {
+abstract class RealmList<T extends Object?> with RealmEntity implements List<T> {
   late final RealmObjectMetadata? _metadata;
 
   /// Gets a value indicating whether this collection is still valid to use.
@@ -255,15 +254,6 @@ extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
 
 /// @nodoc
 extension RealmListInternal<T extends Object?> on RealmList<T> {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    final self = this;
-    if (self is ManagedRealmList<T>) {
-      realm.keepAlive();
-      self._handle.keepAlive();
-    }
-  }
-
   ManagedRealmList<T> asManaged() => this is ManagedRealmList<T> ? this as ManagedRealmList<T> : throw RealmStateError('$this is not managed');
 
   ListHandle get handle {

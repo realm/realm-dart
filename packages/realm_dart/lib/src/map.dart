@@ -6,7 +6,6 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart' as collection;
 
-import 'dart:ffi';
 
 import 'collections.dart';
 import 'native/handle_base.dart';
@@ -19,7 +18,7 @@ import 'realm_class.dart';
 import 'results.dart';
 
 /// RealmMap is a collection that contains key-value pairs of <String, T>.
-abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<String, T>, Finalizable {
+abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<String, T> {
   /// Gets a value indicating whether this collection is still valid to use.
   ///
   /// Indicates whether the [Realm] instance hasn't been closed,
@@ -228,15 +227,6 @@ extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
 
 /// @nodoc
 extension RealmMapInternal<T extends Object?> on RealmMap<T> {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    final self = this;
-    if (self is ManagedRealmMap<T>) {
-      realm.keepAlive();
-      self._handle.keepAlive();
-    }
-  }
-
   ManagedRealmMap<T> asManaged() => this is ManagedRealmMap<T> ? this as ManagedRealmMap<T> : throw RealmStateError('$this is not managed');
 
   MapHandle get handle {

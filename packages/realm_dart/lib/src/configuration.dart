@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
@@ -69,7 +68,7 @@ typedef AfterResetCallback = FutureOr<void> Function(Realm beforeResetRealm, Rea
 
 /// Configuration used to create a `Realm` instance
 /// {@category Configuration}
-abstract class Configuration implements Finalizable {
+abstract class Configuration {
   /// The default realm filename to be used.
   static String get defaultRealmName => _path.basename(defaultRealmPath);
   static set defaultRealmName(String name) => defaultRealmPath = _path.join(_path.dirname(defaultRealmPath), _path.basename(name));
@@ -377,11 +376,6 @@ class FlexibleSyncConfiguration extends Configuration {
 }
 
 extension FlexibleSyncConfigurationInternal on FlexibleSyncConfiguration {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    user.keepAlive();
-  }
-
   SessionStopPolicy get sessionStopPolicy => _sessionStopPolicy;
   set sessionStopPolicy(SessionStopPolicy value) => _sessionStopPolicy = value;
 }

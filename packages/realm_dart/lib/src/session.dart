@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 
 import '../realm.dart';
 import '../src/native/realm_bindings.dart';
@@ -14,7 +13,7 @@ import 'user.dart';
 /// server. Sessions are always created by the SDK and vended out through various
 /// APIs. The lifespans of sessions associated with Realms are managed automatically.
 /// {@category Sync}
-class Session implements Finalizable {
+class Session {
   final SessionHandle _handle;
 
   /// The on-disk path of the file backing the [Realm] this [Session] represents
@@ -98,11 +97,6 @@ class ConnectionStateChange {
 }
 
 extension SessionInternal on Session {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-  }
-
   static Session create(SessionHandle handle) => Session._(handle);
 
   SessionHandle get handle {

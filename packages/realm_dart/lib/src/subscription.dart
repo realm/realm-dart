@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:core';
-import 'dart:ffi';
 
 import 'native/convert.dart';
 import 'native/mutable_subscription_set_handle.dart';
@@ -15,7 +14,7 @@ import 'results.dart';
 /// evaluate the query that the app subscribed to and will send data
 /// that matches it as well as remove data that no longer does.
 /// {@category Sync}
-final class Subscription implements Finalizable {
+final class Subscription {
   final SubscriptionHandle _handle;
 
   Subscription._(this._handle);
@@ -53,11 +52,6 @@ final class Subscription implements Finalizable {
 }
 
 extension SubscriptionInternal on Subscription {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-  }
-
   SubscriptionHandle get handle => _handle;
   ObjectId get id => _id;
 }
@@ -115,7 +109,7 @@ enum SubscriptionSetState {
 /// Realm is an expensive operation server-side, even if there's very little data that needs
 /// downloading.
 /// {@category Sync}
-sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable {
+sealed class SubscriptionSet with Iterable<Subscription> {
   final Realm _realm;
   SubscriptionSetHandle __handle;
   SubscriptionSetHandle get _handle => __handle.nullPtrAsNull ?? (throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm'));
@@ -195,12 +189,6 @@ sealed class SubscriptionSet with Iterable<Subscription> implements Finalizable 
 }
 
 extension SubscriptionSetInternal on SubscriptionSet {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _realm.keepAlive();
-    _handle.keepAlive();
-  }
-
   SubscriptionSetHandle get handle => _handle;
 
   static SubscriptionSet create(Realm realm, SubscriptionSetHandle handle) => ImmutableSubscriptionSet._(realm, handle);

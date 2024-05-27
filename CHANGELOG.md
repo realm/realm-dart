@@ -313,6 +313,7 @@
 
 ### Internal
 * Using Core 13.26.0-13-gd12c3
+* Drop work-around for pre-dart-2.19 bug. ([#1691](https://github.com/realm/realm-dart/pull/1691))
 
 ## 1.8.0 (2024-01-29)
 
