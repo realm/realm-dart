@@ -14,9 +14,9 @@ if("$ENV{REALM_USE_CCACHE}" STREQUAL "TRUE")
     include(src/realm.build.use.ccache.cmake)
 endif()
 
-message ("Realm Dart")
-message ("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
-message ("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
+message("Realm Dart")
+message("CMAKE_BINARY_DIR is ${CMAKE_BINARY_DIR}")
+message("PROJECT_SOURCE_DIR is ${PROJECT_SOURCE_DIR}")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED on)
@@ -34,6 +34,13 @@ if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
         UNICODE # prefer Unicode variants of Windows APIs over ANSI variants
         _UNICODE # prefer Unicode variants of C runtime APIs over ANSI variants
     )
+endif()
+
+if(APPLE)
+    # TODO: allow code signing once we setup certificates on CI.
+    # Otherwise, Xcode 15 will use an empty identifier, which will then be rejected when the app is submitted to the app store.
+    # See https://github.com/realm/realm-dart/issues/1679 for more details.
+    set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
 endif()
 
 set(_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING=1)
