@@ -265,7 +265,7 @@ enum HttpMethod {
 
 extension RealmTimestampEx on realm_timestamp_t {
   DateTime toDart() {
-    return DateTime.fromMicrosecondsSinceEpoch(seconds * 1000000 + nanoseconds ~/ 1000, isUtc: true);
+    return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ 1000, isUtc: true);
   }
 }
 

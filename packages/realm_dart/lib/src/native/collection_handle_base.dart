@@ -43,7 +43,7 @@ void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Functio
           map[kvp.key] = kvp.value;
         }
       default:
-        throw RealmStateError('_createCollection invoked with type that is not list or map.');
+        throw RealmStateError('createCollection invoked with type that is not list or map.');
     }
   } finally {
     collectionHandle?.release();

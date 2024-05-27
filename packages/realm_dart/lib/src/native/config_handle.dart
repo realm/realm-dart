@@ -51,7 +51,6 @@ class ConfigHandle extends HandleBase<realm_config> {
         realmLib.realm_config_set_max_number_of_active_versions(configHandle.pointer, config.maxNumberOfActiveVersions!);
       }
       if (config is LocalConfiguration) {
-        //realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
         if (config.initialDataCallback != null) {
           realmLib.realm_config_set_data_initialization_function(
             configHandle.pointer,
