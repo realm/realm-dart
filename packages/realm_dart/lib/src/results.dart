@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
 
@@ -19,7 +18,7 @@ import 'realm_object.dart';
 /// added to or deleted from the Realm that match the underlying query.
 ///
 /// {@category Realm}
-class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity implements Finalizable {
+class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity {
   final RealmObjectMetadata? _metadata;
   final ResultsHandle _handle;
   final int _skipOffset; // to support skip efficiently
@@ -278,11 +277,6 @@ extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
 /// @nodoc
 //RealmResults package internal members
 extension RealmResultsInternal on RealmResults {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-  }
-
   ResultsHandle get handle {
     if (_handle.released) {
       throw RealmClosedError('Cannot access Results that belongs to a closed Realm');

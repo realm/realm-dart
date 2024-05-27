@@ -4,13 +4,14 @@
 * The download progress estimate reported by `Session.getProgressStream` will now return meaningful estimated values, while previously it always returned 1. (Issue [#1564](https://github.com/realm/realm-dart/issues/1564))
 
 ### Fixed
-* None
+* Fixed an issue that would cause macOS apps to be rejected with `Invalid Code Signing Entitlements` error. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.7.0.
+* Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 
 ## 2.3.0 (2024-05-23)
 
@@ -313,6 +314,7 @@
 
 ### Internal
 * Using Core 13.26.0-13-gd12c3
+* Drop work-around for pre-dart-2.19 bug. ([#1691](https://github.com/realm/realm-dart/pull/1691))
 
 ## 1.8.0 (2024-01-29)
 

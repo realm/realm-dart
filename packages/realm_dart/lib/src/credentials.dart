@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'app.dart';
 import 'native/convert.dart';
@@ -57,7 +56,7 @@ extension AuthProviderTypeInternal on AuthProviderType {
 
 /// A class, representing the credentials used for authenticating a [User]
 /// {@category Application}
-class Credentials implements Finalizable {
+class Credentials {
   final CredentialsHandle _handle;
 
   /// Returns a [Credentials] object that can be used to authenticate an anonymous user.
@@ -100,18 +99,13 @@ class Credentials implements Finalizable {
 
 /// @nodoc
 extension CredentialsInternal on Credentials {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-  }
-
   CredentialsHandle get handle => _handle;
 }
 
 /// A class, encapsulating functionality for users, logged in with [Credentials.emailPassword()].
 /// It is always scoped to a particular app.
 /// {@category Application}
-class EmailPasswordAuthProvider implements Finalizable {
+class EmailPasswordAuthProvider {
   final App app;
 
   /// Create a new EmailPasswordAuthProvider for the [app]
@@ -160,10 +154,5 @@ class EmailPasswordAuthProvider implements Finalizable {
 }
 
 extension EmailPasswordAuthProviderInternal on EmailPasswordAuthProvider {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    app.keepAlive();
-  }
-
   static EmailPasswordAuthProvider create(App app) => EmailPasswordAuthProvider(app);
 }

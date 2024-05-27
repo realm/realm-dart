@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
@@ -116,7 +115,7 @@ export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, Fun
 /// A [Realm] instance represents a `Realm` database.
 ///
 /// {@category Realm}
-class Realm implements Finalizable {
+class Realm {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
@@ -727,15 +726,6 @@ class Transaction {
 
 /// @nodoc
 extension RealmInternal on Realm {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-    final c = config;
-    if (c is FlexibleSyncConfiguration) {
-      c.keepAlive();
-    }
-  }
-
   RealmHandle get handle {
     if (_handle.released) {
       throw RealmClosedError('Cannot access realm that has been closed');
@@ -864,7 +854,7 @@ extension RealmInternal on Realm {
 }
 
 /// @nodoc
-abstract class NotificationsController implements Finalizable {
+abstract class NotificationsController {
   NotificationTokenHandle? handle;
 
   NotificationTokenHandle subscribe();

@@ -1,7 +1,6 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:ffi';
 import 'native/collection_changes_handle.dart';
 
 /// Contains index information about objects that moved within the same collection.
@@ -46,7 +45,7 @@ class MapChanges {
 }
 
 /// Describes the changes in a Realm collection since the last time the notification callback was invoked.
-class RealmCollectionChanges implements Finalizable {
+class RealmCollectionChanges {
   final CollectionChangesHandle _handle;
   late final CollectionChanges _changes = _handle.changes;
 
@@ -73,10 +72,5 @@ class RealmCollectionChanges implements Finalizable {
 }
 
 extension RealmCollectionChangesInternal on RealmCollectionChanges {
-  @pragma('vm:never-inline')
-  void keepAlive() {
-    _handle.keepAlive();
-  }
-
   CollectionChanges get changes => _changes;
 }

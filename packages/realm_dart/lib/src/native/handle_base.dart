@@ -39,9 +39,6 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
   bool get released => pointer == nullptr;
   final bool isUnowned;
 
-  @pragma('vm:never-inline')
-  void keepAlive() {}
-
   HandleBase(this.pointer, int size) : isUnowned = false {
     pointer.raiseLastErrorIfNull();
     _finalizableHandle = realmLib.realm_attach_finalizer(this, pointer.cast(), size);
