@@ -37,6 +37,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "^Windows")
 endif()
 
 if(APPLE)
+    # TODO: allow code signing once we setup certificates on CI.
+    # Otherwise, Xcode 15 will use an empty identifier, which will then be rejected when the app is submitted to the app store.
+    # See https://github.com/realm/realm-dart/issues/1679 for more details.
     set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED NO)
 endif()
 
