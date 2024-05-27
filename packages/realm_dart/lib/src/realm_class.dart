@@ -30,6 +30,7 @@ export 'package:realm_common/realm_common.dart'
         GeoCircle,
         GeoDistance,
         GeoPoint,
+        GeoPolygon,
         GeoRing,
         GeoShape,
         Ignored,
