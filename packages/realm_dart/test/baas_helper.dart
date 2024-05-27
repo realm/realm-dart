@@ -151,9 +151,9 @@ class BaasHelper {
     }
   }
 
-  Future<String> createServerApiKey(App app, String name, {bool enabled = true}) async {
+  Future<String> createServerApiKey(App app, String name, {bool enabled = true}) {
     final baasApp = _baasApps.values.firstWhere((ba) => ba.clientAppId == app.id);
-    return await _baasClient.createApiKey(baasApp.appId, name, enabled);
+    return _baasClient.createApiKey(baasApp.appId, name, enabled);
   }
 
   static void throwIfSetupFailed() {

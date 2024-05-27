@@ -5,9 +5,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 
-import 'native/realm_core.dart';
+import 'app.dart';
+import 'credentials.dart';
+import 'native/user_handle.dart';
 import 'realm_class.dart';
-import './app.dart';
 
 /// Describes the changes to a [User] instance - for example when the access token is updated or the user state changes.
 /// Right now, this only conveys information that the user has changed, but in the future it will be enhanced by adding
@@ -33,7 +34,7 @@ class User {
   App get app {
     // The _app field may be null when we're retrieving a user from the session
     // rather than from the app.
-    return _app ??= AppInternal.create(realmCore.userGetApp(_handle));
+    return _app ??= AppInternal.create(_handle.app);
   }
 
   late final ApiKeyClient _apiKeys = ApiKeyClient._(this);
@@ -61,49 +62,49 @@ class User {
 
   /// The current state of this [User].
   UserState get state {
-    return realmCore.userGetState(this);
+    return handle.state;
   }
 
   /// Get this [User]'s id on MongoDB Atlas.
   String get id {
-    return realmCore.userGetId(this);
+    return handle.id;
   }
 
   /// Gets a collection of all identities associated with this [User].
   List<UserIdentity> get identities {
-    return realmCore.userGetIdentities(this);
+    return handle.identities;
   }
 
   /// Removes the [User]'s local credentials. This will also close any associated Sessions.
   Future<void> logOut() async {
-    return await realmCore.userLogOut(this);
+    return await handle.logOut();
   }
 
   /// Gets an unique identifier for the current device.
   String? get deviceId {
-    return realmCore.userGetDeviceId(this);
+    return handle.deviceId;
   }
 
   /// Gets the profile information for this [User].
   UserProfile get profile {
-    return realmCore.userGetProfileData(this);
+    return handle.profileData;
   }
 
   /// Gets the refresh token for this [User]. This is the user's credential for
   /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get refreshToken {
-    return realmCore.userGetRefreshToken(this);
+    return handle.refreshToken;
   }
 
   /// Gets the access token for this [User]. This is the user's credential for
   /// accessing [Atlas App Services](https://www.mongodb.com/docs/atlas/app-services/) and should be treated as sensitive data.
   String get accessToken {
-    return realmCore.userGetAccessToken(this);
+    return handle.accessToken;
   }
 
   /// The custom user data associated with this [User].
   dynamic get customData {
-    final data = realmCore.userGetCustomData(this);
+    final data = handle.customData;
     if (data == null) {
       return null;
     }
@@ -113,7 +114,7 @@ class User {
 
   /// Refreshes the custom data for a this [User].
   Future<dynamic> refreshCustomData() async {
-    await realmCore.userRefreshCustomData(app, this);
+    await app.handle.refreshCustomData(handle);
     return customData;
   }
 
@@ -135,7 +136,7 @@ class User {
   ///  await user.linkCredentials(Credentials.emailPassword("username", "password"));
   /// ```
   Future<User> linkCredentials(Credentials credentials) async {
-    final userHandle = await realmCore.userLinkCredentials(app, this, credentials);
+    final userHandle = await handle.linkCredentials(app.handle, credentials.handle);
     return UserInternal.create(userHandle, app);
   }
 
@@ -144,7 +145,7 @@ class User {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! User) return false;
-    return realmCore.userEquals(this, other);
+    return handle == other.handle;
   }
 
   void _ensureLoggedIn([String clarification = 'perform this action']) {
@@ -169,7 +170,7 @@ class UserNotificationsController implements Finalizable {
       throw RealmStateError("User notifications subscription already started");
     }
 
-    tokenHandle = realmCore.subscribeUserNotifications(this);
+    tokenHandle = user.handle.subscribeForNotifications(this);
   }
 
   void stop() {
@@ -275,42 +276,42 @@ class ApiKeyClient {
   Future<ApiKey> create(String name) async {
     _user._ensureLoggedIn('create an API key');
 
-    return realmCore.createApiKey(_user, name);
+    return _user.handle.createApiKey(_user.app.handle, name);
   }
 
   /// Fetches a specific API key by id.
   Future<ApiKey?> fetch(ObjectId id) {
     _user._ensureLoggedIn('fetch an API key');
 
-    return realmCore.fetchApiKey(_user, id).handle404();
+    return _user.handle.fetchApiKey(_user.app.handle, id).handle404();
   }
 
   /// Fetches all API keys associated with the user.
   Future<List<ApiKey>> fetchAll() async {
     _user._ensureLoggedIn('fetch all API keys');
 
-    return realmCore.fetchAllApiKeys(_user);
+    return _user.handle.fetchAllApiKeys(_user.app.handle);
   }
 
   /// Deletes a specific API key by id.
   Future<void> delete(ObjectId objectId) {
     _user._ensureLoggedIn('delete an API key');
 
-    return realmCore.deleteApiKey(_user, objectId).handle404();
+    return _user.handle.deleteApiKey(_user.app.handle, objectId).handle404();
   }
 
   /// Disables an API key by id.
   Future<void> disable(ObjectId objectId) {
     _user._ensureLoggedIn('disable an API key');
 
-    return realmCore.disableApiKey(_user, objectId).handle404(id: objectId);
+    return _user.handle.disableApiKey(_user.app.handle, objectId).handle404(id: objectId);
   }
 
   /// Enables an API key by id.
   Future<void> enable(ObjectId objectId) {
     _user._ensureLoggedIn('enable an API key');
 
-    return realmCore.enableApiKey(_user, objectId).handle404(id: objectId);
+    return _user.handle.enableApiKey(_user.app.handle, objectId).handle404(id: objectId);
   }
 }
 
@@ -354,7 +355,7 @@ class FunctionsClient {
   Future<dynamic> call(String name, [List<Object?> functionArgs = const []]) async {
     _user._ensureLoggedIn('call Atlas function');
     final args = jsonEncode(functionArgs);
-    final response = await realmCore.callAppFunction(_user.app, _user, name, args);
+    final response = await _user.app.handle.callAppFunction(_user.handle, name, args);
     return jsonDecode(response);
   }
 }

@@ -4,9 +4,7 @@
 // ignore_for_file: avoid_relative_lib_imports
 
 import 'package:collection/collection.dart';
-import 'dart:ffi';
 import 'dart:typed_data';
-import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
 import 'test.dart';

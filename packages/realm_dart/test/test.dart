@@ -7,17 +7,19 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:logging/logging.dart';
+
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
-import 'package:realm_dart/src/logging.dart';
-import 'package:test/test.dart' hide test;
-import 'package:test/test.dart' as testing;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:realm_dart/src/configuration.dart';
+import 'package:realm_dart/src/logging.dart';
+import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/realm_object.dart';
+import 'package:test/test.dart';
 
 import 'baas_helper.dart';
+
+export 'package:test/test.dart';
 
 export 'baas_helper.dart' show AppName;
 
@@ -407,33 +409,14 @@ final _openRealms = Queue<Realm>();
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
-final int encryptionKeySize = 64;
 
 const int maxInt = 9223372036854775807;
 const int minInt = -9223372036854775808;
 const int jsMaxInt = 9007199254740991;
 const int jsMinInt = -9007199254740991;
 
-//Overrides test method so we can filter tests
-void test(String name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {
-  if (testName != null && !name.contains(testName!)) {
-    return;
-  }
-
-  var timeout = 60;
-  assert(() {
-    if (Platform.environment['CI'] == null) {
-      timeout = Duration(minutes: 5).inSeconds;
-    }
-
-    return true;
-  }());
-
-  testing.test(name, testFunction, skip: skip, onPlatform: onPlatform, timeout: Timeout(Duration(seconds: timeout)));
-}
-
 void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<String, dynamic>? onPlatform}) {
-  testing.test(name, testFunction, skip: "Test is disabled");
+  test(name, testFunction, skip: "Test is disabled");
 }
 
 BaasHelper? baasHelper;
@@ -444,7 +427,7 @@ void setupTests() {
 
     Realm.logger.setLogLevel(LogLevel.detail);
     Realm.logger.onRecord.listen((record) {
-      testing.printOnFailure('${record.category} ${record.level.name}: ${record.message}');
+      printOnFailure('${record.category} ${record.level.name}: ${record.message}');
     });
 
     // Enable this to print platform info, including current PID
@@ -603,7 +586,7 @@ Future<void> baasTest(
     baasHelper!.printSplunkLogLink(appName, baasHelper?.baseUrl);
     final config = await baasHelper!.getAppConfig(appName: appName);
     await testFunction(config);
-  }, skip: skip);
+  }, skip: skip, tags: 'baas');
 }
 
 dynamic shouldSkip(dynamic skip) {
@@ -692,7 +675,7 @@ Future<T> waitForConditionWithResult<T>(FutureOr<T> Function() getter, FutureOr<
 }
 
 extension RealmObjectTest on RealmObjectBase {
-  String toJson() => realmCore.objectToString(this);
+  String toJson() => handle.objectToString();
 }
 
 extension on int {

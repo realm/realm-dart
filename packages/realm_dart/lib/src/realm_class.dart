@@ -13,7 +13,15 @@ import 'configuration.dart';
 import 'list.dart';
 import 'logging.dart';
 import 'map.dart';
+import 'native/async_open_task_handle.dart';
+import 'native/handle_base.dart';
+import 'native/list_handle.dart';
+import 'native/map_handle.dart';
+import 'native/notification_token_handle.dart';
+import 'native/object_handle.dart';
 import 'native/realm_core.dart';
+import 'native/realm_handle.dart';
+import 'native/set_handle.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
@@ -56,6 +64,7 @@ export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfigurat
 export 'collections.dart' show Move;
 export "configuration.dart"
     show
+        encryptionKeySize,
         AfterResetCallback,
         BeforeResetCallback,
         ClientResetCallback,
@@ -84,7 +93,7 @@ export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExte
 export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
-export 'native/realm_core.dart' show Decimal128;
+export 'native/decimal128.dart' show Decimal128;
 export 'realm_object.dart'
     show
         AsymmetricObject,
@@ -111,7 +120,7 @@ class Realm implements Finalizable {
   late final RealmMetadata _metadata;
   late final RealmHandle _handle;
   final bool _isInMigration;
-  late final RealmCallbackTokenHandle? _schemaCallbackHandle;
+  late final CallbackTokenHandle? _schemaCallbackHandle;
   final List<StreamController<RealmSchemaChanges>> _schemaChangeListeners = [];
 
   /// An object encompassing this `Realm` instance's dynamic API.
@@ -127,7 +136,7 @@ class Realm implements Finalizable {
 
   /// Gets a value indicating whether this [Realm] is frozen. Frozen Realms are immutable
   /// and will not update when writes are made to the database.
-  late final bool isFrozen = realmCore.isFrozen(this);
+  late final bool isFrozen = handle.isFrozen;
 
   /// Opens a `Realm` using a [Configuration] object.
   Realm(Configuration config) : this._(config);
@@ -141,7 +150,7 @@ class Realm implements Finalizable {
     // schema, so even if we subscribe, we wouldn't be able to see the updates.
     if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
       // TODO: enable once https://github.com/realm/realm-core/issues/7426 is fixed.
-      // _schemaCallbackHandle = realmCore.subscribeForSchemaNotifications(this);
+      //_schemaCallbackHandle = handle!.subscribeForSchemaNotifications(this);
       _schemaCallbackHandle = null;
     } else {
       _schemaCallbackHandle = null;
@@ -173,7 +182,7 @@ class Realm implements Finalizable {
 
     _ensureDirectory(config);
 
-    final asyncOpenHandle = realmCore.createRealmAsyncOpenTask(config);
+    final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
     return await CancellableFuture.from<Realm>(() async {
       if (cancellationToken != null && cancellationToken.isCancelled) {
         throw cancellationToken.exception!;
@@ -188,17 +197,17 @@ class Realm implements Finalizable {
 
       late final RealmHandle realmHandle;
       try {
-        realmHandle = await realmCore.openRealmAsync(asyncOpenHandle, cancellationToken);
+        realmHandle = await asyncOpenHandle.openAsync(cancellationToken);
         return Realm._(config, realmHandle);
       } finally {
         await progressSubscription?.cancel();
       }
-    }, cancellationToken, onCancel: () => realmCore.cancelOpenRealmAsync(asyncOpenHandle));
+    }, cancellationToken, onCancel: () => asyncOpenHandle.cancel());
   }
 
   static RealmHandle _openRealm(Configuration config) {
     _ensureDirectory(config);
-    return realmCore.openRealm(config);
+    return RealmHandle.open(config);
   }
 
   static void _ensureDirectory(Configuration config) {
@@ -209,8 +218,8 @@ class Realm implements Finalizable {
   }
 
   void _populateMetadata() {
-    schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : realmCore.readSchema(this);
-    _metadata = RealmMetadata._(schema.map((c) => realmCore.getObjectMetadata(this, c)));
+    schema = config.schemaObjects.isNotEmpty ? RealmSchema(config.schemaObjects) : handle.readSchema();
+    _metadata = RealmMetadata._(schema.map((c) => handle.getObjectMetadata(c)));
   }
 
   /// Deletes all files associated with a `Realm` located at given [path]
@@ -283,16 +292,16 @@ class Realm implements Finalizable {
     object.manage(this, handle, accessor, false);
   }
 
-  RealmObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
+  ObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
     final key = metadata.classKey;
     final primaryKey = metadata.primaryKey;
     if (primaryKey == null) {
-      return realmCore.createRealmObject(this, key);
+      return handle.create(key);
     }
     if (update) {
-      return realmCore.getOrCreateRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
+      return _handle.getOrCreateWithPrimaryKey(key, object.accessor.get(object, primaryKey));
     }
-    return realmCore.createRealmObjectWithPrimaryKey(this, key, object.accessor.get(object, primaryKey));
+    return _handle.createWithPrimaryKey(key, object.accessor.get(object, primaryKey));
   }
 
   /// Adds a collection [RealmObject]s to this `Realm`.
@@ -317,7 +326,7 @@ class Realm implements Finalizable {
 
     _ensureManagedByThis(object, 'delete object from Realm');
 
-    realmCore.deleteRealmObject(object);
+    object.handle.delete();
   }
 
   /// Deletes many [RealmObject]s from this `Realm`.
@@ -328,15 +337,15 @@ class Realm implements Finalizable {
     if (items is RealmResults<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
-      realmCore.resultsDeleteAll(items);
+      items.handle.deleteAll();
     } else if (items is ManagedRealmList<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
-      realmCore.listDeleteAll(items);
+      items.handle.deleteAll();
     } else if (items is ManagedRealmSet<T>) {
       _ensureManagedByThis(items, 'delete objects from Realm');
 
-      realmCore.realmSetRemoveAll(items);
+      items.handle.deleteAll();
     } else {
       for (T realmObject in items) {
         delete(realmObject);
@@ -345,7 +354,7 @@ class Realm implements Finalizable {
   }
 
   /// Checks whether the `Realm` is in write transaction.
-  bool get isInTransaction => realmCore.getIsWritable(this);
+  bool get isInTransaction => handle.isWritable;
 
   /// Synchronously calls the provided callback inside a write transaction.
   ///
@@ -366,14 +375,14 @@ class Realm implements Finalizable {
 
   /// Begins a write transaction for this [Realm].
   Transaction beginWrite() {
-    realmCore.beginWrite(this);
+    handle.beginWrite();
     return Transaction._(this);
   }
 
   /// Asynchronously begins a write transaction for this [Realm]. You can supply a
   /// [CancellationToken] to cancel the operation.
   Future<Transaction> beginWriteAsync([CancellationToken? cancellationToken]) async {
-    await realmCore.beginWriteAsync(this, cancellationToken);
+    await handle.beginWriteAsync(cancellationToken);
     return Transaction._(this);
   }
 
@@ -404,18 +413,18 @@ class Realm implements Finalizable {
     }
 
     _schemaCallbackHandle?.release();
-    realmCore.closeRealm(this);
+    handle.close();
     handle.release();
   }
 
   /// Checks whether the `Realm` is closed.
-  bool get isClosed => _handle.released || realmCore.isRealmClosed(this);
+  bool get isClosed => _handle.released || handle.isClosed;
 
   /// Fast lookup for a [RealmObject] with the specified [primaryKey].
   T? find<T extends RealmObject>(Object? primaryKey) {
     final metadata = _metadata.getByType(T);
 
-    final handle = realmCore.find(this, metadata.classKey, primaryKey);
+    final handle = _handle.find(metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
     }
@@ -430,7 +439,7 @@ class Realm implements Finalizable {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<T> all<T extends RealmObject>() {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.findAll(this, metadata.classKey);
+    final handle = this.handle.findAll(metadata.classKey);
     return RealmResultsInternal.create<T>(handle, this, metadata);
   }
 
@@ -440,8 +449,11 @@ class Realm implements Finalizable {
   /// and [Predicate Programming Guide.](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
   RealmResults<T> query<T extends RealmObject>(String query, [List<Object?> args = const []]) {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.queryClass(this, metadata.classKey, query, args);
-    return RealmResultsInternal.create<T>(handle, this, metadata);
+    return RealmResultsInternal.create<T>(
+      _handle.queryClass(metadata.classKey, query, args),
+      this,
+      metadata,
+    );
   }
 
   /// Deletes all [RealmObject]s of type `T` in the `Realm`
@@ -463,7 +475,7 @@ class Realm implements Finalizable {
       return this;
     }
 
-    return Realm._(config, realmCore.freeze(this));
+    return Realm._(config, handle.freeze());
   }
 
   WeakReference<SubscriptionSet>? _subscriptions;
@@ -477,8 +489,8 @@ class Realm implements Finalizable {
     var result = _subscriptions?.target;
 
     if (result == null || result.handle.released) {
-      result = SubscriptionSetInternal.create(this, realmCore.getSubscriptions(this));
-      realmCore.refreshSubscriptionSet(result);
+      result = SubscriptionSetInternal.create(this, handle.subscriptions);
+      result.handle.refresh();
       _subscriptions = WeakReference(result);
     }
 
@@ -497,7 +509,7 @@ class Realm implements Finalizable {
     var result = _syncSession?.target;
 
     if (result == null || result.handle.released) {
-      result = SessionInternal.create(realmCore.realmGetSession(this));
+      result = SessionInternal.create(handle.getSession());
       _syncSession = WeakReference(result);
     }
 
@@ -509,7 +521,7 @@ class Realm implements Finalizable {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     if (other is! Realm) return false;
-    return realmCore.realmEquals(this, other);
+    return handle == other.handle;
   }
 
   /// The logger that will emit log messages from the database and sync operations.
@@ -560,7 +572,7 @@ class Realm implements Finalizable {
       realm.syncSession.pause();
     }
     try {
-      return realmCore.compact(realm);
+      return realm.handle.compact();
     } finally {
       realm.close();
     }
@@ -580,7 +592,7 @@ class Realm implements Finalizable {
       throw RealmError("Copying a Realm is not allowed within a write transaction or during migration.");
     }
 
-    realmCore.writeCopy(this, config);
+    handle.writeCopy(config);
   }
 
   /// Update the `Realm` instance and outstanding objects to point to the most recent persisted version.
@@ -590,7 +602,7 @@ class Realm implements Finalizable {
   /// Typically you don't need to call this method since Realm has auto-refresh built-in.
   /// Note that this may return `true` even if no data has actually changed.
   bool refresh() {
-    return realmCore.realmRefresh(this);
+    return handle.refresh();
   }
 
   /// Returns a [Future] that will complete when the `Realm` is refreshed to the version which is the
@@ -598,7 +610,7 @@ class Realm implements Finalizable {
   ///
   /// Note that this may return `true` even if no data has actually changed.
   Future<bool> refreshAsync() async {
-    return realmCore.realmRefreshAsync(this);
+    return handle.refreshAsync();
   }
 
   /// Allows listening for schema changes on this Realm. Only dynamic and synchronized
@@ -618,7 +630,7 @@ class Realm implements Finalizable {
   }
 
   void _updateSchema() {
-    final newSchema = realmCore.readSchema(this);
+    final newSchema = handle.readSchema();
     for (final listener in _schemaChangeListeners) {
       listener.add(RealmSchemaChanges._(schema, newSchema));
     }
@@ -627,11 +639,11 @@ class Realm implements Finalizable {
       final existing = schema.firstWhereOrNull((s) => s.name == schemaObject.name);
       if (existing == null) {
         schema.add(schemaObject);
-        final meta = realmCore.getObjectMetadata(this, schemaObject);
+        final meta = handle.getObjectMetadata(schemaObject);
         metadata._add(meta);
       } else if (schemaObject.length > existing.length) {
         final existingMeta = metadata.getByName(schemaObject.name);
-        final propertyMeta = realmCore.getPropertiesMetadata(this, existingMeta.classKey, existingMeta.primaryKey);
+        final propertyMeta = handle.getPropertiesMetadata(existingMeta.classKey, existingMeta.primaryKey);
         for (final property in schemaObject) {
           final existingProp = existing.firstWhereOrNull((e) => e.mapTo == property.mapTo);
           if (existingProp == null) {
@@ -642,6 +654,8 @@ class Realm implements Finalizable {
       }
     }
   }
+
+  void disableAutoRefreshForTesting() => handle.disableAutoRefreshForTesting();
 }
 
 /// Describes the schema changes that occurred on a Realm
@@ -671,7 +685,7 @@ class Transaction {
   void commit() {
     final realm = _ensureOpen('commit');
 
-    realmCore.commitWrite(realm);
+    realm.handle.commitWrite();
 
     _closeTransaction();
   }
@@ -682,7 +696,7 @@ class Transaction {
   Future<void> commitAsync([CancellationToken? cancellationToken]) async {
     final realm = _ensureOpen('commitAsync');
 
-    await realmCore.commitWriteAsync(realm, cancellationToken);
+    await realm.handle.commitWriteAsync(cancellationToken);
 
     _closeTransaction();
   }
@@ -692,7 +706,7 @@ class Transaction {
     final realm = _ensureOpen('rollback');
 
     if (!realm.isClosed) {
-      realmCore.rollbackWrite(realm);
+      realm.handle.rollbackWrite();
     }
 
     _closeTransaction();
@@ -734,20 +748,20 @@ extension RealmInternal on Realm {
     return Realm._(config, handle, isInMigration);
   }
 
-  RealmObjectBase createObject(Type type, RealmObjectHandle handle, RealmObjectMetadata metadata) {
+  RealmObjectBase createObject(Type type, ObjectHandle handle, RealmObjectMetadata metadata) {
     final accessor = RealmCoreAccessor(metadata, _isInMigration);
     return RealmObjectInternal.create(type, this, handle, accessor);
   }
 
-  RealmList<T> createList<T extends Object?>(RealmListHandle handle, RealmObjectMetadata? metadata) {
+  RealmList<T> createList<T extends Object?>(ListHandle handle, RealmObjectMetadata? metadata) {
     return RealmListInternal.create<T>(handle, this, metadata);
   }
 
-  RealmSet<T> createSet<T extends Object?>(RealmSetHandle handle, RealmObjectMetadata? metadata) {
+  RealmSet<T> createSet<T extends Object?>(SetHandle handle, RealmObjectMetadata? metadata) {
     return RealmSetInternal.create<T>(handle, this, metadata);
   }
 
-  RealmMap<T> createMap<T extends Object?>(RealmMapHandle handle, RealmObjectMetadata? metadata) {
+  RealmMap<T> createMap<T extends Object?>(MapHandle handle, RealmObjectMetadata? metadata) {
     return RealmMapInternal.create<T>(handle, this, metadata);
   }
 
@@ -765,7 +779,7 @@ extension RealmInternal on Realm {
 
   RealmMetadata get metadata => _metadata;
 
-  void manageEmbedded(RealmObjectHandle handle, EmbeddedObject object, {bool update = false}) {
+  void manageEmbedded(ObjectHandle handle, EmbeddedObject object, {bool update = false}) {
     final metadata = _metadata.getByType(object.runtimeType);
 
     final accessor = RealmCoreAccessor(metadata, _isInMigration);
@@ -775,8 +789,8 @@ extension RealmInternal on Realm {
   /// This should only be used for testing
   RealmResults<T> allEmbedded<T extends EmbeddedObject>() {
     final metadata = _metadata.getByType(T);
-    final handle = realmCore.findAll(this, metadata.classKey);
-    return RealmResultsInternal.create<T>(handle, this, metadata);
+    final resultsHandle = handle.findAll(metadata.classKey);
+    return RealmResultsInternal.create<T>(resultsHandle, this, metadata);
   }
 
   T? resolveObject<T extends RealmObjectBase>(T object) {
@@ -788,46 +802,46 @@ extension RealmInternal on Realm {
       throw RealmStateError("Can't resolve invalidated (deleted) objects");
     }
 
-    final handle = realmCore.resolveObject(object, this);
-    if (handle == null) {
+    final newHandle = object.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
     final metadata = (object.accessor as RealmCoreAccessor).metadata;
 
-    return RealmObjectInternal.create(T, this, handle, RealmCoreAccessor(metadata, _isInMigration)) as T;
+    return RealmObjectInternal.create(T, this, newHandle, RealmCoreAccessor(metadata, _isInMigration)) as T;
   }
 
   RealmList<T>? resolveList<T extends Object?>(ManagedRealmList<T> list) {
-    final handle = realmCore.resolveList(list, this);
-    if (handle == null) {
+    final newHandle = list.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
-    return createList<T>(handle, list.metadata);
+    return createList<T>(newHandle, list.metadata);
   }
 
   RealmResults<T> resolveResults<T extends Object?>(RealmResults<T> results) {
-    final handle = realmCore.resolveResults(results, this);
-    return RealmResultsInternal.create<T>(handle, this, results.metadata);
+    final newHandle = results.handle.resolveIn(handle);
+    return RealmResultsInternal.create<T>(newHandle, this, results.metadata);
   }
 
   RealmSet<T>? resolveSet<T extends Object?>(ManagedRealmSet<T> set) {
-    final handle = realmCore.resolveSet(set, this);
-    if (handle == null) {
+    final newHandle = set.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
-    return createSet<T>(handle, set.metadata);
+    return createSet<T>(newHandle, set.metadata);
   }
 
   RealmMap<T>? resolveMap<T extends Object?>(ManagedRealmMap map) {
-    final handle = realmCore.resolveMap(map, this);
-    if (handle == null) {
+    final newHandle = map.handle.resolveIn(handle);
+    if (newHandle == null) {
       return null;
     }
 
-    return createMap<T>(handle, map.metadata);
+    return createMap<T>(newHandle, map.metadata);
   }
 
   static MigrationRealm getMigrationRealm(Realm realm) => MigrationRealm._(realm);
@@ -851,9 +865,9 @@ extension RealmInternal on Realm {
 
 /// @nodoc
 abstract class NotificationsController implements Finalizable {
-  RealmNotificationTokenHandle? handle;
+  NotificationTokenHandle? handle;
 
-  RealmNotificationTokenHandle subscribe();
+  NotificationTokenHandle subscribe();
   void onChanges(HandleBase changesHandle);
   void onError(RealmError error);
 
@@ -950,7 +964,7 @@ class DynamicRealm {
   /// The returned [RealmResults] allows iterating all the values without further filtering.
   RealmResults<RealmObject> all(String className) {
     final metadata = _realm._metadata.getByName(className);
-    final handle = realmCore.findAll(_realm, metadata.classKey);
+    final handle = _realm.handle.findAll(metadata.classKey);
     return RealmResultsInternal.create<RealmObject>(handle, _realm, metadata);
   }
 
@@ -958,7 +972,7 @@ class DynamicRealm {
   RealmObject? find(String className, Object primaryKey) {
     final metadata = _realm._metadata.getByName(className);
 
-    final handle = realmCore.find(_realm, metadata.classKey, primaryKey);
+    final handle = _realm.handle.find(metadata.classKey, primaryKey);
     if (handle == null) {
       return null;
     }
@@ -971,19 +985,19 @@ class DynamicRealm {
   RealmObject create(String className, {Object? primaryKey}) {
     final metadata = _realm._metadata.getByName(className);
 
-    RealmObjectHandle handle;
+    ObjectHandle handle;
     if (metadata.primaryKey != null) {
       if (primaryKey == null) {
         throw RealmError("The class $className has primary key defined, but you didn't pass one");
       }
 
-      handle = realmCore.createRealmObjectWithPrimaryKey(_realm, metadata.classKey, primaryKey);
+      handle = _realm._handle.createWithPrimaryKey(metadata.classKey, primaryKey);
     } else {
       if (primaryKey != null) {
         throw RealmError("The class $className doesn't have primary key defined, but you passed $primaryKey");
       }
 
-      handle = realmCore.createRealmObject(_realm, metadata.classKey);
+      handle = _realm._handle.create(metadata.classKey);
     }
 
     final accessor = RealmCoreAccessor(metadata, _realm._isInMigration);
@@ -1016,8 +1030,8 @@ typedef ProgressCallback = void Function(SyncProgress syncProgress);
 
 /// @nodoc
 class RealmAsyncOpenProgressNotificationsController implements ProgressNotificationsController {
-  final RealmAsyncOpenTaskHandle _handle;
-  RealmAsyncOpenTaskProgressNotificationTokenHandle? _tokenHandle;
+  final AsyncOpenTaskHandle _handle;
+  AsyncOpenTaskProgressNotificationTokenHandle? _tokenHandle;
   late final StreamController<SyncProgress> _streamController;
 
   RealmAsyncOpenProgressNotificationsController._(this._handle);
@@ -1037,7 +1051,7 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
       throw RealmStateError("Progress subscription already started.");
     }
 
-    _tokenHandle = realmCore.realmAsyncOpenRegisterAsyncOpenProgressNotifier(_handle, this);
+    _tokenHandle = _handle.registerProgressNotifier(this);
   }
 
   void _stop() {

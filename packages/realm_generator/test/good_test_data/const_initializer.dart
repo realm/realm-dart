@@ -13,7 +13,7 @@ class _ConstInitializer {
   int minusMinusOne = -(-1);
   int add = 1 + 1;
   int identifier = myConst;
-  
+
   double infinity = double.infinity;
   double nan = double.nan;
   double negativeInfinity = double.negativeInfinity;

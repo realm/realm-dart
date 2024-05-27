@@ -82,7 +82,7 @@
   * Fixed a `DecryptionFailed` exception thrown when opening a small (<4k of data) Realm generated on a device with a page size of 4k if it was bundled and opened on a device with a larger page size.
   * Fixed an issue during a subsequent open of an encrypted Realm for some rare allocation patterns when the top ref was within ~50 bytes of the end of a page. This could manifest as a DecryptionFailed exception or as an assertion: `encrypted_file_mapping.hpp:183: Assertion failed: local_ndx < m_page_state.size()`.
 * Schema initialization could hit an assertion failure if the sync client applied a downloaded changeset while the Realm file was in the process of being opened. (Core 14.6.0)
-* Improve perfomance of "chained OR equality" queries for UUID/ObjectId types and RQL parsed "IN" queries on string/int/uuid/objectid types. (Core 14.6.0)
+* Improve performance of "chained OR equality" queries for UUID/ObjectId types and RQL parsed "IN" queries on string/int/uuid/objectid types. (Core 14.6.0)
 * Fixed a bug when running a IN query (or a query of the pattern `x == 1 OR x == 2 OR x == 3`) when evaluating on a string property with an empty string in the search condition. Matches with an empty string would have been evaluated as if searching for a null string instead. (Core 14.6.2)
 
 ### Compatibility
@@ -184,9 +184,9 @@
   ```
 * Removed `SchemaObject.properties` - instead, `SchemaObject` is now an iterable collection of `Property`. (Issue [#1449](https://github.com/realm/realm-dart/issues/1449))
 * `SyncProgress.transferredBytes` and `SyncProgress.transferableBytes` have been consolidated into `SyncProgress.progressEstimate`. The values reported previously were incorrect and did not accurately represent bytes either. The new field better conveys the uncertainty around the progress being reported. With this release, we're reporting accurate estimates for upload progress, but estimating downloads is still unreliable. A future server and SDK release will add better estimations for download progress. (Issue [#1562](https://github.com/realm/realm-dart/issues/1562))
-* `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is exlicitly given, then `RealmLogCategory.realm` is assumed.
+* `Realm.logger` is no longer settable, and no longer implements `Logger` from package `logging`. In particular you can no longer call `Realm.logger.level =`. Instead you should call `Realm.logger.setLogLevel(RealmLogLevel level, {RealmLogCategory? category})` that takes an optional category. If no category is explicitly given, then `RealmLogCategory.realm` is assumed.
 
-  Also, note that setting a level is no longer local to the current isolate, but shared accross all isolates. At the core level there is just one process wide logger.
+  Also, note that setting a level is no longer local to the current isolate, but shared across all isolates. At the core level there is just one process wide logger.
 
   Categories form a hierarchy and setting the log level of a parent category will override the level of its children. The hierarchy is exposed in a type safe manner with:
   ```dart
@@ -928,7 +928,7 @@ class _Address {
 * Queries on results didn't filter the existing results. ([#908](https://github.com/realm/realm-dart/issues/908)).
   Example
   ```dart
-  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Persion object exists
+  expect(realm.query<Person>('FALSEPREDICATE').query('TRUEPREDICATE'), isEmpty); //<-- Fails if a Person object exists
   ```
 * Fixed copying of native structs for session errors and http requests. ([#924](https://github.com/realm/realm-dart/pull/924))
 * Fixed a crash when closing the SyncSession on App instance teardown. ([#5752](https://github.com/realm/realm-core/issues/5752))
@@ -1091,7 +1091,7 @@ class _Address {
 
     ```dart
     final subscription = realm.all<Dog>().changes.listen((changes) {
-    changes.inserted // indexes of inserted ojbects
+    changes.inserted // indexes of inserted objects
     changes.modified // indexes of modified objects
     changes.deleted  // indexes of deleted objects
     changes.newModified // indexes of modified objects after deletions and insertions are accounted for.
@@ -1231,7 +1231,7 @@ Notes: This release is a prerelease version. All API's might change without warn
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
 ### Enhancements
-* Completеly rewritten from the ground up with sound null safety and using Dart FFI
+* Completely rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Fixed
 * Realm close stops internal scheduler.
@@ -1247,7 +1247,7 @@ Notes: This release is a prerelease version. All API's might change without warn
 Notes: This release is a prerelease version. All API's might change without warning and no guarantees are given about stability.
 
 ### Enhancements
-* Completеly rewritten from the ground up with sound null safety and using Dart FFI
+* Completely rewritten from the ground up with sound null safety and using Dart FFI
 
 ### Compatibility
 * Dart ^2.15 on Windows, MacOS and Linux

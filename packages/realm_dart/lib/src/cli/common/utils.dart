@@ -20,7 +20,7 @@ extension StringEx on String {
 
 bool isRealmCI = Platform.environment['REALM_CI'] != null;
 
-FutureOr<T?> safe<T>(FutureOr<T> Function() f, {String message = 'Ignoring error', Function(Object e, StackTrace s)? onError}) async {
+FutureOr<T?> safe<T>(FutureOr<T> Function() f, {String message = 'Ignoring error', void Function(Object e, StackTrace s)? onError}) async {
   try {
     return await f();
   } catch (e, s) {

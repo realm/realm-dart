@@ -9,7 +9,11 @@ import 'package:collection/collection.dart' as collection;
 import 'dart:ffi';
 
 import 'collections.dart';
-import 'native/realm_core.dart';
+import 'native/handle_base.dart';
+import 'native/map_changes_handle.dart';
+import 'native/map_handle.dart';
+import 'native/notification_token_handle.dart';
+import 'native/object_handle.dart';
 import 'realm_object.dart';
 import 'realm_class.dart';
 import 'results.dart';
@@ -59,7 +63,7 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 }
 
 class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> implements RealmMap<T> {
-  final RealmMapHandle _handle;
+  final MapHandle _handle;
 
   late final RealmObjectMetadata? _metadata;
 
@@ -68,7 +72,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  int get length => realmCore.mapGetSize(handle);
+  int get length => handle.size;
 
   @override
   T? remove(Object? key) {
@@ -77,7 +81,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
     }
 
     final value = this[key];
-    if (realmCore.mapRemoveKey(handle, key)) {
+    if (handle.remove(key)) {
       return value;
     }
 
@@ -91,12 +95,12 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
     }
 
     try {
-      var value = realmCore.mapGetElement(this, key);
-      if (value is RealmObjectHandle) {
+      var value = handle.find(realm, key);
+      if (value is ObjectHandle) {
         late RealmObjectMetadata targetMetadata;
         late Type type;
         if (T == RealmValue) {
-          (type, targetMetadata) = realm.metadata.getByClassKey(realmCore.getClassKey(value));
+          (type, targetMetadata) = realm.metadata.getByClassKey(value.classKey);
         } else {
           targetMetadata = _metadata!;
           type = T;
@@ -126,10 +130,10 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   /// Removes all objects from this map; the length of the map becomes zero.
   /// The objects are not deleted from the realm, but are no longer referenced from this map.
   @override
-  void clear() => realmCore.mapClear(handle);
+  void clear() => handle.clear();
 
   @override
-  bool get isValid => realmCore.mapIsValid(this);
+  bool get isValid => handle.isValid;
 
   @override
   RealmMap<T> freeze() {
@@ -151,13 +155,13 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  Iterable<String> get keys => RealmResultsInternal.create<String>(realmCore.mapGetKeys(this), realm, null);
+  Iterable<String> get keys => RealmResultsInternal.create<String>(handle.keys, realm, null);
 
   @override
-  Iterable<T> get values => RealmResultsInternal.create<T>(realmCore.mapGetValues(this), realm, metadata);
+  Iterable<T> get values => RealmResultsInternal.create<T>(handle.values, realm, metadata);
 
   @override
-  bool containsKey(Object? key) => key is String && realmCore.mapContainsKey(this, key);
+  bool containsKey(Object? key) => key is String && handle.containsKey(key);
 
   @override
   bool containsValue(Object? value) {
@@ -179,7 +183,7 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
       }
     }
 
-    return realmCore.mapContainsValue(this, value);
+    return handle.containsValue(value);
   }
 }
 
@@ -187,13 +191,10 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
 class RealmMapChanges<T extends Object?> {
   /// The collection being monitored for changes.
   final RealmMap<T> map;
+  final MapChangesHandle handle;
+  late final MapChanges _changes = handle.changes;
 
-  final RealmMapChangesHandle _handle;
-  MapChanges? _values;
-
-  RealmMapChanges._(this._handle, this.map);
-
-  MapChanges get _changes => _values ??= realmCore.getMapChanges(_handle);
+  RealmMapChanges._(this.handle, this.map);
 
   /// The keys of the map which have been removed.
   List<String> get deleted => _changes.deletions;
@@ -220,7 +221,7 @@ extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   ///
   /// For more details about the syntax of the Realm Query Language, refer to the documentation: https://www.mongodb.com/docs/realm/realm-query-language/.
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
-    final handle = realmCore.queryMap(asManaged(), query, arguments);
+    final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, metadata);
   }
 }
@@ -238,7 +239,7 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 
   ManagedRealmMap<T> asManaged() => this is ManagedRealmMap<T> ? this as ManagedRealmMap<T> : throw RealmStateError('$this is not managed');
 
-  RealmMapHandle get handle {
+  MapHandle get handle {
     final result = asManaged()._handle;
     if (result.released) {
       throw RealmClosedError('Cannot access a map that belongs to a closed Realm');
@@ -251,29 +252,28 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 
   static RealmMap<T> createFromMap<T>(Map<String, T> map) => UnmanagedRealmMap._(map);
 
-  static RealmMap<T> create<T extends Object?>(RealmMapHandle handle, Realm realm, RealmObjectMetadata? metadata) =>
-      ManagedRealmMap<T>._(handle, realm, metadata);
+  static RealmMap<T> create<T extends Object?>(MapHandle handle, Realm realm, RealmObjectMetadata? metadata) => ManagedRealmMap<T>._(handle, realm, metadata);
 
-  static void setValue(RealmMapHandle handle, Realm realm, String key, Object? value, {bool update = false}) {
+  static void setValue(MapHandle handle, Realm realm, String key, Object? value, {bool update = false}) {
     try {
       if (value is EmbeddedObject) {
         if (value.isManaged) {
           throw RealmError("Can't add to map an embedded object that is already managed");
         }
 
-        final objHandle = realmCore.mapInsertEmbeddedObject(realm, handle, key);
+        final objHandle = handle.insertEmbedded(key);
         realm.manageEmbedded(objHandle, value);
         return;
       }
 
       if (value is RealmValue && value.type.isCollection) {
-        realmCore.mapInsertCollection(handle, realm, key, value);
+        handle.insertCollection(realm, key, value);
         return;
       }
 
       realm.addUnmanagedRealmObjectFromValue(value, update);
 
-      realmCore.mapInsertValue(handle, key, value);
+      handle.insert(key, value);
     } on Exception catch (e) {
       throw RealmException("Error setting value at key $key. Error: $e");
     }
@@ -288,8 +288,8 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
   MapNotificationsController(this.map);
 
   @override
-  RealmNotificationTokenHandle subscribe() {
-    return realmCore.subscribeMapNotifications(map, this);
+  NotificationTokenHandle subscribe() {
+    return map.handle.subscribeForNotifications(this);
   }
 
   Stream<RealmMapChanges<T>> createStream() {
@@ -299,7 +299,7 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
 
   @override
   void onChanges(HandleBase changesHandle) {
-    if (changesHandle is! RealmMapChangesHandle) {
+    if (changesHandle is! MapChangesHandle) {
       throw RealmError("Invalid changes handle. RealmMapChangesHandle expected");
     }
 
