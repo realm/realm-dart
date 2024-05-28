@@ -38,7 +38,7 @@ enum Architecture {
 enum iOSSdk {
   iPhoneOS('device'),
   iPhoneSimulator('simulator'),
-  ; // flutter doesn't support maccatalyst (yet?)
+  ; // flutter doesn't support catalyst (yet https://github.com/flutter/flutter/issues/33860?)
 
   final String? _cmakeName;
   String get cmakeName => _cmakeName ?? name;

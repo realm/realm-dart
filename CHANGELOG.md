@@ -12,6 +12,7 @@
 ### Internal
 * Using Core 14.7.0.
 * Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
+* Drop building xcframework for catalyst. (Issue [#1695](https://github.com/realm/realm-dart/issues/1695))
 
 ## 2.3.0 (2024-05-23)
 
