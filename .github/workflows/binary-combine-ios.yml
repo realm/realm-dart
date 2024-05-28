@@ -15,15 +15,11 @@ jobs:
         with:
           name: librealm-ios-device
           path: binary/ios
+
       - name: Fetch simulator build
         uses: actions/download-artifact@v4
         with:
           name: librealm-ios-simulator
-          path: binary/ios
-      - name: Fetch catalyst build
-        uses: actions/download-artifact@v4
-        with:
-          name: librealm-ios-catalyst
           path: binary/ios
 
       - name: Build .xcframework
@@ -31,7 +27,6 @@ jobs:
           xcodebuild -create-xcframework \
             -framework ./binary/ios/Release-iphoneos/realm_dart.framework \
             -framework ./binary/ios/Release-iphonesimulator/realm_dart.framework \
-            -framework ./binary/ios/Release-maccatalyst/realm_dart.framework \
             -output ./binary/ios/realm_dart.xcframework
           rm -rf ./binary/ios/Release-*
 
@@ -48,5 +43,4 @@ jobs:
           name: |
             librealm-ios-device
             librealm-ios-simulator
-            librealm-ios-catalyst
           failOnError: false

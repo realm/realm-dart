@@ -185,15 +185,6 @@
         "xcode_destination": "generic/platform=iOS Simulator"
       },
       "configuration": "Debug"
-    },
-    {
-      "name": "ios-catalyst",
-      "displayName": "Catalyst",
-      "inherits": "ios",
-      "environment": {
-        "xcode_destination": "generic/platform=macOS,variant=Mac Catalyst"
-      },
-      "configuration": "Debug"
     }
   ]
 }

@@ -53,7 +53,7 @@ jobs:
     with:
       runner: macos-12
       binary: ios
-      build: '["ios-device", "ios-simulator", "ios-catalyst"]'
+      build: '["ios-device", "ios-simulator"]'
 
   build-android-combined:
     name: Build combine Android
