@@ -302,7 +302,7 @@ jobs:
       differentiator: fi${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-ios:
-    runs-on: macos-14
+    runs-on: macos-12
     name: Flutter Tests iOS
     timeout-minutes: 45
     needs:
