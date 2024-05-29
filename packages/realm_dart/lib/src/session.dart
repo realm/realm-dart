@@ -4,8 +4,8 @@
 import 'dart:async';
 
 import '../realm.dart';
-import '../src/native/realm_bindings.dart';
-import 'native/session_handle.dart';
+import 'handles/realm_bindings.dart';
+import 'handles/session_handle.dart';
 import 'user.dart';
 
 /// An object encapsulating a synchronization session. Sessions represent the

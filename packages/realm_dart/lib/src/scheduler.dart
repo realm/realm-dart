@@ -7,7 +7,7 @@ import 'dart:isolate';
 
 import 'package:realm_dart/src/logging.dart';
 
-import 'native/scheduler_handle.dart';
+import 'handles/scheduler_handle.dart';
 import 'realm_class.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());

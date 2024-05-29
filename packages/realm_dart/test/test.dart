@@ -12,8 +12,8 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/configuration.dart';
+import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/logging.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
 import 'package:realm_dart/src/realm_object.dart';
 import 'package:test/test.dart';
 

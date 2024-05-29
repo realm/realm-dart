@@ -7,7 +7,7 @@ import 'package:test/test.dart' as testing;
 
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/cli/atlas_apps/baas_client.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/handles/realm_core.dart';
 
 export 'package:realm_dart/src/cli/atlas_apps/baas_client.dart' show AppName;
 

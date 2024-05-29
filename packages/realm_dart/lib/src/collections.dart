@@ -1,7 +1,7 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'native/collection_changes_handle.dart';
+import 'handles/collection_changes_handle.dart';
 
 /// Contains index information about objects that moved within the same collection.
 class Move {

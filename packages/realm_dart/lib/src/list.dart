@@ -1,18 +1,18 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:core';
 import 'dart:async';
 import 'dart:collection';
+import 'dart:core';
 
 import 'package:collection/collection.dart' as collection;
 
 import 'collections.dart';
-import 'native/collection_changes_handle.dart';
-import 'native/handle_base.dart';
-import 'native/list_handle.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
+import 'handles/collection_changes_handle.dart';
+import 'handles/handle_base.dart';
+import 'handles/list_handle.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_handle.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
 import 'results.dart';
