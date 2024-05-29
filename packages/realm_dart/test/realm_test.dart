@@ -1330,17 +1330,21 @@ void main() {
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
     double progressEstimate = -1;
-    final completer = Completer<void>();
+    bool progressReported = false;
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
       progressEstimate = syncProgress.progressEstimate;
-      if (syncProgress.progressEstimate == 1.0) {
-        completer.complete();
-      }
+      progressReported = true;
     });
-    await completer.future.timeout(Duration(milliseconds: 300), onTimeout: () => throw Exception("onProgressCallback did not happen."));
+
+    await Future<void>.delayed(Duration(milliseconds: 500));
+
     expect(syncedRealm.isClosed, false);
-    expect(progressEstimate, 1.0);
-  }, skip: "Doesn't currently work - TBD whether this is by design: https://mongodb.slack.com/archives/C05NGG2K4T1/p1716813181774029");
+
+    // For FLX realms with no subscriptions, the server won't report any progress before it resolves the
+    // Realm.open future.
+    expect(progressEstimate, -1);
+    expect(progressReported, false);
+  });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
     final app = App(appConfiguration);
