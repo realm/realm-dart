@@ -7,4 +7,4 @@ set -o pipefail
 cd "$(dirname "$0")/.."
 
 cmake --preset macos
-cmake --build --preset macos --config MinSizeRel -- -destination "generic/platform=macOS"
+cmake --build --preset macos --config Release -- -destination "generic/platform=macOS"

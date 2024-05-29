@@ -154,7 +154,7 @@
       "configurePreset": "macos",
       "nativeToolOptions": [
         "-destination",
-        "platform=macOS"
+        "generic/platform=macOS"
       ],
       "configuration": "Debug"
     },

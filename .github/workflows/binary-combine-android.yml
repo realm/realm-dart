@@ -14,11 +14,13 @@ jobs:
         with:
           name: librealm-android-x86_64
           path: packages/realm_dart/binary/android
+
       - name: Fetch armeabi-v7a build
         uses: actions/download-artifact@v4
         with:
           name: librealm-android-armeabi-v7a
           path: packages/realm_dart/binary/android
+
       - name: Fetch arm64-v8a build
         uses: actions/download-artifact@v4
         with:
