@@ -38,16 +38,17 @@ jobs:
         run: false # fail if arch is not as expected
         shell: bash
 
-      - name: Set RUNNER_OS
+      - id: runner_os_lowercase
         # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯ 
-        run: echo ${{ runner.os }} | awk '{print "RUNNER_OS=" tolower($0)}' >> $GITHUB_ENV
+        # use with steps.runner_os_lowercase.outputs.os
+        run: echo ${{ runner.os }} | awk '{print "os=" tolower($0)}' >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
         with:
-          name: librealm-${{ env.RUNNER_OS }}
-          path: packages/realm_dart/binary/${{ env.RUNNER_OS }}
+          name: librealm-${{ steps.runner_os_lowercase.outputs.os }}
+          path: packages/realm_dart/binary/${{ steps.runner_os_lowercase.outputs.os }}
 
       - name: Setup Dart SDK
         uses: dart-lang/setup-dart@main
