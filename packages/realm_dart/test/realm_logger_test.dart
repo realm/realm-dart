@@ -6,8 +6,7 @@ import 'dart:isolate';
 import 'package:logging/logging.dart' hide LogRecord;
 import 'package:logging/logging.dart' as logging show LogRecord;
 import 'package:realm_dart/src/logging.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
-import 'package:test/test.dart' hide test, throws;
+import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 

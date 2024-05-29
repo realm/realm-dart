@@ -10,9 +10,9 @@ import 'package:path/path.dart' as path;
 
 import '../realm.dart';
 import 'credentials.dart';
+import 'handles/app_handle.dart';
+import 'handles/realm_core.dart';
 import 'logging.dart';
-import 'native/app_handle.dart';
-import 'native/realm_core.dart';
 import 'user.dart';
 
 final _defaultClient = () {

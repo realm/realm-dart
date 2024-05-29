@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'app.dart';
 import 'credentials.dart';
-import 'native/user_handle.dart';
+import 'handles/user_handle.dart';
 import 'realm_class.dart';
 
 /// Describes the changes to a [User] instance - for example when the access token is updated or the user state changes.

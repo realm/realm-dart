@@ -7,14 +7,14 @@ import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
+import 'handles/handle_base.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_handle.dart';
+import 'handles/realm_library.dart';
 import 'list.dart';
-import 'native/handle_base.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
-import 'native/realm_library.dart';
+import 'map.dart';
 import 'realm_class.dart';
 import 'results.dart';
-import 'map.dart';
 
 typedef DartDynamic = dynamic;
 

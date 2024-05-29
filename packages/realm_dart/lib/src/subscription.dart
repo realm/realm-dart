@@ -3,10 +3,10 @@
 
 import 'dart:core';
 
-import 'native/convert.dart';
-import 'native/mutable_subscription_set_handle.dart';
-import 'native/subscription_handle.dart';
-import 'native/subscription_set_handle.dart';
+import 'handles/convert.dart';
+import 'handles/mutable_subscription_set_handle.dart';
+import 'handles/subscription_handle.dart';
+import 'handles/subscription_set_handle.dart';
 import 'realm_class.dart';
 import 'results.dart';
 

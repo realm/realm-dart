@@ -4,12 +4,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'package:test/expect.dart' hide throws;
-import 'package:path/path.dart' as path;
-import 'package:crypto/crypto.dart';
 
+import 'package:crypto/crypto.dart';
+import 'package:path/path.dart' as path;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/handles/realm_core.dart';
+
 import 'test.dart';
 
 void main() {

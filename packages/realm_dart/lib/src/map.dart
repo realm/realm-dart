@@ -6,15 +6,14 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart' as collection;
 
-
 import 'collections.dart';
-import 'native/handle_base.dart';
-import 'native/map_changes_handle.dart';
-import 'native/map_handle.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
-import 'realm_object.dart';
+import 'handles/handle_base.dart';
+import 'handles/map_changes_handle.dart';
+import 'handles/map_handle.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_handle.dart';
 import 'realm_class.dart';
+import 'realm_object.dart';
 import 'results.dart';
 
 /// RealmMap is a collection that contains key-value pairs of <String, T>.
