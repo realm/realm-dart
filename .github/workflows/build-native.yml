@@ -52,7 +52,7 @@ jobs:
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: Select XCode for MacOS
-        if: startsWith(inputs.runner, 'macos')
+        if: runner.os == 'macOS'
         run: |
           xcodes installed
           sudo xcodes select 15.4
