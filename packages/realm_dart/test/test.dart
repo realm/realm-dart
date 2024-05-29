@@ -430,6 +430,11 @@ void setupTests() {
       printOnFailure('${record.category} ${record.level.name}: ${record.message}');
     });
 
+    if (Platform.isIOS) {
+      final maxFiles = realmCore.setrlimit(1024);
+      print('Max files: $maxFiles');
+    }
+
     // Enable this to print platform info, including current PID
     _printPlatformInfo();
   });
