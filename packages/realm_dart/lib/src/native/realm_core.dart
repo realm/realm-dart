@@ -188,4 +188,8 @@ class RealmCore {
   String _getFilesPath() {
     return realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
   }
+
+  int setrlimit(int limit) {
+    return realmLib.realm_dart_setrlimit(limit);
+  }
 }

@@ -36,6 +36,9 @@ RLM_API const char* realm_dart_get_device_version();
 // implemented for Android only
 RLM_API const char* realm_dart_get_bundle_id();
 
+// implemented for iOS only
+RLM_API int realm_dart_setrlimit(int limit);
+
 RLM_API const char* realm_get_library_cpu_arch();
 
 typedef struct realm_dart_userdata_async* realm_dart_userdata_async_t;

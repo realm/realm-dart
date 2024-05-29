@@ -19,9 +19,10 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#include <string>
 #include "../realm_dart.h"
-#import <sys/utsname.h>
+#include <string>
+#include <sys/utsname.h>
+#include <sys/resource.h>
 
 static std::string filesDir;
 static std::string deviceModel;
@@ -48,7 +49,6 @@ std::string current_device_model()
     }
 }
 
-
 RLM_API const char* realm_dart_get_files_path() {
     if (filesDir == "") {
         filesDir = default_realm_file_directory();
@@ -73,4 +73,14 @@ RLM_API const char* realm_dart_get_device_version() {
     }
 
     return deviceVersion.c_str();
+}
+
+RLM_API int realm_dart_setrlimit(int limit) {
+    struct rlimit rlim;
+    if (limit > 0) {
+        rlim.rlim_cur = limit;
+        setrlimit(RLIMIT_NOFILE, &rlim);
+    }
+    getrlimit(RLIMIT_NOFILE, &rlim);
+    return rlim.rlim_cur;
 }

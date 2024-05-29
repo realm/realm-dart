@@ -3971,6 +3971,21 @@ class RealmLibrary {
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
+  /// implemented for iOS only
+  int realm_dart_setrlimit(
+    int limit,
+  ) {
+    return _realm_dart_setrlimit(
+      limit,
+    );
+  }
+
+  late final _realm_dart_setrlimitPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>(
+          'realm_dart_setrlimit');
+  late final _realm_dart_setrlimit =
+      _realm_dart_setrlimitPtr.asFunction<int Function(int)>();
+
   bool realm_dart_sync_after_reset_handler_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_t> before_realm,
@@ -11833,6 +11848,8 @@ class _SymbolAddresses {
           .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>
+      get realm_dart_setrlimit => _library._realm_dart_setrlimitPtr;
   ffi.Pointer<
       ffi.NativeFunction<
           ffi.Bool Function(
