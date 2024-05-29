@@ -114,6 +114,9 @@ class AppConfiguration {
   /// a more complex networking setup.
   final HttpClient httpClient;
 
+  /// TODO:
+  final bool useManagedWebsockets;
+
   /// Instantiates a new [AppConfiguration] with the specified appId.
   AppConfiguration(
     this.appId, {
@@ -124,6 +127,7 @@ class AppConfiguration {
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.maxConnectionTimeout = const Duration(minutes: 2),
     HttpClient? httpClient,
+    this.useManagedWebsockets = false,
   })  : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
         baseFilePath = baseFilePath ?? Directory(path.dirname(Configuration.defaultRealmPath)),
         httpClient = httpClient ?? _defaultClient {

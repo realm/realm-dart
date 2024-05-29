@@ -20,6 +20,7 @@ import 'realm_bindings.dart';
 import 'realm_core.dart';
 import 'realm_library.dart';
 import 'user_handle.dart';
+import 'sync_socket_handle.dart';
 
 class AppHandle extends HandleBase<realm_app> {
   AppHandle(Pointer<realm_app> pointer) : super(pointer, 16);
@@ -412,6 +413,11 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
 
     if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
       realmLib.realm_app_config_set_metadata_encryption_key(handle.pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
+    }
+
+    if (configuration.useManagedWebsockets) {
+      final syncClientConfig = realmLib.realm_app_config_get_sync_client_config(handle.pointer);
+      realmLib.realm_sync_client_config_set_sync_socket(syncClientConfig, SyncSocketHandle.create().pointer);
     }
 
     return handle;
