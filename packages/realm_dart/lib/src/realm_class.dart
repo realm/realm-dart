@@ -363,7 +363,7 @@ class Realm {
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   T write<T>(T Function() writeCallback) {
-    assert(!_isFuture<T>(), 'writeAsync should be used for async operations');
+    assert(!_isFuture<T>(), 'writeCallback must be synchronous');
     final transaction = beginWrite();
 
     try {
@@ -391,10 +391,11 @@ class Realm {
 
   /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
   /// lock and committing the transaction will be done asynchronously.
-  Future<T> writeAsync<T>(FutureOr<T> Function() writeCallback, [CancellationToken? cancellationToken]) async {
+  Future<T> writeAsync<T>(T Function() writeCallback, [CancellationToken? cancellationToken]) async {
+    assert(!_isFuture<T>(), 'writeCallback must be synchronous');
     final transaction = await beginWriteAsync(cancellationToken);
     try {
-      T result = await writeCallback();
+      T result = writeCallback();
       await transaction.commitAsync(cancellationToken);
       return result;
     } catch (e) {

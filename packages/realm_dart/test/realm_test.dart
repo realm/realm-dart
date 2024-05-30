@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:math';
 
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
@@ -1201,6 +1200,11 @@ void main() {
     expect(realm.isInTransaction, false);
   });
 
+  test('Realm.writeAsync with async callback fails with assert', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    await expectLater(realm.writeAsync(() async {}), throwsA(isA<AssertionError>()));
+  });
+
   test('Realm.writeAsync with async callback', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
 
@@ -1211,7 +1215,7 @@ void main() {
 
     expect(realm.all<Person>().length, 1);
     expect(realm.isInTransaction, false);
-  });
+  }, skip: 'async callbacks are explicitly prohibited for now');
 
   test('Realm.writeAsync concurrent transaction are queued', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
@@ -1230,7 +1234,7 @@ void main() {
     );
     expect(realm.all<Person>().length, 2); // both transactions are committed
     expect(realm.all<Person>(), [john, jane]); // and order is preserved
-  });
+  }, skip: 'async callbacks are explicitly prohibited for now');
 
   test('Realm.writeAsync concurrent transactions fails independently', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
@@ -1252,7 +1256,7 @@ void main() {
     );
     expect(realm.all<Person>().length, 1); // only first transaction is rolled back
     expect(realm.all<Person>(), [jane]); // second transaction is committed
-  });
+  }, skip: 'async callbacks are explicitly prohibited for now');
 
   test('Realm.writeAsync is not re-entrant', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
@@ -1268,7 +1272,7 @@ void main() {
       throwsA(isA<TimeoutException>()),
     );
     expect(realm.all<Person>().length, 0); // everything is rolled back
-  });
+  }, skip: 'async callbacks are explicitly prohibited for now');
 
   test('Realm.write with async callback', () {
     final realm = getRealm(Configuration.local([Person.schema]));
