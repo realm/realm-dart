@@ -3971,20 +3971,32 @@ class RealmLibrary {
   late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
       .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
-  /// implemented for iOS only
-  int realm_dart_setrlimit(
+  /// implemented for iOS only (for now - valid for all posix)
+  /// /**
+  ///  * Set the soft limit on number of open files
+  ///  * @param limit The requested limit. If less than zero no attempt is made.
+  ///  * @param[out] out_limit The actual limit set.
+  ///  *
+  ///  * @return true if no error occurred.
+  ///  *
+  ///  * @throws RLM_ERR_FILE_PERMISSION_DENIED if the operation was not permitted.
+  ///  */
+  bool realm_dart_set_and_get_rlimit(
     int limit,
+    ffi.Pointer<ffi.Long> out_limit,
   ) {
-    return _realm_dart_setrlimit(
+    return _realm_dart_set_and_get_rlimit(
       limit,
+      out_limit,
     );
   }
 
-  late final _realm_dart_setrlimitPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>(
-          'realm_dart_setrlimit');
-  late final _realm_dart_setrlimit =
-      _realm_dart_setrlimitPtr.asFunction<int Function(int)>();
+  late final _realm_dart_set_and_get_rlimitPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>>(
+      'realm_dart_set_and_get_rlimit');
+  late final _realm_dart_set_and_get_rlimit = _realm_dart_set_and_get_rlimitPtr
+      .asFunction<bool Function(int, ffi.Pointer<ffi.Long>)>();
 
   bool realm_dart_sync_after_reset_handler_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -11848,8 +11860,11 @@ class _SymbolAddresses {
           .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
           _library._realm_dart_scheduler_invokePtr;
-  ffi.Pointer<ffi.NativeFunction<ffi.Int Function(ffi.Int)>>
-      get realm_dart_setrlimit => _library._realm_dart_setrlimitPtr;
+  ffi.Pointer<
+          ffi
+          .NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>>
+      get realm_dart_set_and_get_rlimit =>
+          _library._realm_dart_set_and_get_rlimitPtr;
   ffi.Pointer<
       ffi.NativeFunction<
           ffi.Bool Function(

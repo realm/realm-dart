@@ -189,7 +189,11 @@ class RealmCore {
     return realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
   }
 
-  int setrlimit(int limit) {
-    return realmLib.realm_dart_setrlimit(limit);
+  int setAndGetRLimit(int limit) {
+    return using((arena) {
+      final outLimit = arena<Long>();
+      realmLib.realm_dart_set_and_get_rlimit(limit, outLimit).raiseLastErrorIfFalse();
+      return outLimit.value;
+    });
   }
 }

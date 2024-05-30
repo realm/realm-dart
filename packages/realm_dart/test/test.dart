@@ -431,7 +431,7 @@ void setupTests() {
     });
 
     if (Platform.isIOS) {
-      final maxFiles = realmCore.setrlimit(1024);
+      final maxFiles = realmCore.setAndGetRLimit(1024);
       print('Max files: $maxFiles');
     }
 

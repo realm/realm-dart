@@ -23,6 +23,8 @@
 #include <string>
 #include <sys/utsname.h>
 #include <sys/resource.h>
+#include <system_error>
+#include <realm/object-store/c_api/util.hpp>
 
 static std::string filesDir;
 static std::string deviceModel;
@@ -75,12 +77,32 @@ RLM_API const char* realm_dart_get_device_version() {
     return deviceVersion.c_str();
 }
 
-RLM_API int realm_dart_setrlimit(int limit) {
-    struct rlimit rlim;
-    if (limit > 0) {
-        rlim.rlim_cur = limit;
-        setrlimit(RLIMIT_NOFILE, &rlim);
+namespace {
+    using namespace realm::c_api;
+
+    rlimit get_rlimit() {
+        rlimit rlim;
+        int status = getrlimit(RLIMIT_NOFILE, &rlim);
+        if (status < 0)
+            throw std::system_error(errno, std::system_category(), "getrlimit() failed");
+        return rlim;
     }
-    getrlimit(RLIMIT_NOFILE, &rlim);
-    return rlim.rlim_cur;
+
+    long set_and_get_rlimit(long limit) {
+        if (limit > 0) {
+            auto rlim = get_rlimit();
+            rlim.rlim_cur = limit;
+            int status = setrlimit(RLIMIT_NOFILE, &rlim);
+            if (status < 0)
+                throw std::system_error(errno, std::system_category(), "setrlimit() failed");
+        }
+        return get_rlimit().rlim_cur;
+    }
+}
+
+RLM_API bool realm_dart_set_and_get_rlimit(long limit, long* out_limit) {
+    return wrap_err([&]() {
+        *out_limit = set_and_get_rlimit(limit);
+        return true;
+    });
 }
