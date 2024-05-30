@@ -5,6 +5,7 @@
 
 ### Fixed
 * Fixed an issue that would cause macOS apps to be rejected with `Invalid Code Signing Entitlements` error. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
+* Fixed a regression that makes it inconvenient to run unit tests using realm. (Issue [#1619](https://github.com/realm/realm-dart/issues/1619))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.

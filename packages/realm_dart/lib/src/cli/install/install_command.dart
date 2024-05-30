@@ -25,26 +25,34 @@ class InstallCommand extends Command<void> {
 
   late Options options;
 
-  bool get debug => options.debug;
+  late Pubspec pubspec;
+  late final debug = options.debug;
+  late final flavor = options.flavor!;
+  late final force = options.force; // not used!?!
+  late final targetOsType = options.targetOsType!;
 
   InstallCommand() {
-    populateOptionsParser(argParser);
+    pubspec = parsePubspec(File('pubspec.yaml'));
+    final defaultFlavor = pubspec.dependencies['flutter'] == null ? Flavor.dart : Flavor.flutter; // default depends on project type
+    populateOptionsParser(
+      argParser,
+      targetOsTypeDefaultOverride: Platform.operatingSystem.asTargetOsType,
+      flavorDefaultOverride: defaultFlavor,
+    );
   }
 
-  Directory getBinaryPath(Directory realmPackagePath, {required bool isFlutter}) {
-    if (isFlutter) {
-      final root = realmPackagePath.path;
-      return Directory(switch (options.targetOsType) {
-        TargetOsType.android => path.join(root, 'android', 'src', 'main', 'cpp', 'lib'),
-        TargetOsType.ios => path.join(root, 'ios'),
-        TargetOsType.macos => path.join(root, 'macos'),
-        TargetOsType.linux => path.join(root, 'linux', 'binary', 'linux'),
-        TargetOsType.windows => path.join(root, 'windows', 'binary', 'windows'),
-        _ => throw Exception('Unsupported target OS type for Flutter: ${options.targetOsType}')
-      });
-    }
-    // TODO: Should binaries not go into package also for Dart?
-    return Directory(path.join(Directory.current.absolute.path, 'binary', options.targetOsType!.name));
+  Directory getBinaryPath(Directory realmPackagePath, Flavor flavor) {
+    final root = realmPackagePath.path;
+    return switch (flavor) {
+      Flavor.dart => Directory(path.join(root, 'binary', targetOsType.name)),
+      Flavor.flutter => Directory(switch (targetOsType) {
+          TargetOsType.android => path.join(root, 'android', 'src', 'main', 'cpp', 'lib'),
+          TargetOsType.ios => path.join(root, 'ios'),
+          TargetOsType.macos => path.join(root, 'macos'),
+          TargetOsType.linux => path.join(root, 'linux', 'binary', 'linux'),
+          TargetOsType.windows => path.join(root, 'windows', 'binary', 'windows'),
+        }),
+    };
   }
 
   Future<bool> shouldSkipDownload(String binariesPath, String expectedVersion) async {
@@ -105,31 +113,29 @@ class InstallCommand extends Command<void> {
     if (packageConfig == null) {
       abort('Run `dart pub get`');
     }
-    final package = packageConfig.packages.where((p) => p.name == name).singleOrNull;
+    final package = packageConfig[name];
     if (package == null) {
       abort('$name package not found in dependencies. Add $name package to your pubspec.yaml');
     }
     return Directory.fromUri(package.root);
   }
 
-  Future<Pubspec> parsePubspec(File file) async {
+  Pubspec parsePubspec(File file) {
     try {
-      return Pubspec.parse(await file.readAsString(), sourceUrl: file.uri);
-    } on Exception catch (e) {
-      throw Exception('Error parsing package pubspec at ${file.parent}. Error $e');
+      return Pubspec.parse(file.readAsStringSync(), sourceUrl: file.uri);
+    } catch (e) {
+      abort('Error parsing package pubspec at ${file.parent}. Error $e');
     }
   }
 
   @override
   FutureOr<void> run() async {
-    final pubspec = await parsePubspec(File('pubspec.yaml'));
-    final flavor = pubspec.dependencies['flutter'] == null ? Flavor.dart : Flavor.flutter;
-
     options = parseOptionsResult(argResults!);
-    validateOptions(flavor);
 
     final flavorName = flavor.packageName;
     final realmDependency = pubspec.dependencyOverrides[flavorName] ?? pubspec.dependencies[flavorName];
+    print(pubspec.dependencyOverrides.values.join('\n'));
+    print(realmDependency);
     if (realmDependency is PathDependency) {
       print('Path dependency for $flavorName found. Skipping install of native lib (assuming local development)');
       return;
@@ -140,25 +146,15 @@ class InstallCommand extends Command<void> {
     }
 
     final realmPackagePath = await getPackagePath(flavorName);
-    final realmPubspec = await parsePubspec(File(path.join(realmPackagePath.path, "pubspec.yaml")));
+    final realmPubspec = parsePubspec(File(path.join(realmPackagePath.path, "pubspec.yaml")));
 
-    final binaryPath = getBinaryPath(realmPackagePath, isFlutter: flavor == Flavor.flutter);
+    final binaryPath = getBinaryPath(realmPackagePath, flavor);
     print(binaryPath);
-    final archiveName = '${options.targetOsType!.name}.tar.gz';
+    final archiveName = '${targetOsType.name}.tar.gz';
     await downloadAndExtractBinaries(binaryPath, realmPubspec.version!, archiveName);
 
     print('Realm install command finished.');
   }
-
-  void validateOptions(Flavor flavor) {
-    final targetOs = flavor == Flavor.dart ? getTargetOS() : options.targetOsType;
-    if (targetOs == null) {
-      abort('Target OS not specified');
-    }
-    options.targetOsType = targetOs;
-  }
-
-  TargetOsType getTargetOS() => Platform.operatingSystem.asTargetOsType ?? (throw UnsupportedError('Unsupported platform ${Platform.operatingSystem}'));
 
   Never abort(String error) {
     print(error);

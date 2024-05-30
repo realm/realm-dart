@@ -8,7 +8,10 @@ part 'options.g.dart';
 
 @CliOptions()
 class Options {
-  @CliOption(help: 'The target OS to install binaries for.', abbr: 't')
+  @CliOption(help: 'The flavor to install binaries for.', abbr: 'f', provideDefaultToOverride: true)
+  Flavor? flavor;
+
+  @CliOption(help: 'The target OS to install binaries for.', abbr: 't', provideDefaultToOverride: true)
   TargetOsType? targetOsType;
 
   // use to debug install command
@@ -23,6 +26,9 @@ class Options {
 
 String get usage => _$parserForOptions.usage;
 
-ArgParser populateOptionsParser(ArgParser p) => _$populateOptionsParser(p);
+ArgParser populateOptionsParser(ArgParser parser, {
+  TargetOsType? targetOsTypeDefaultOverride,
+  Flavor? flavorDefaultOverride,
+}) => _$populateOptionsParser(parser, targetOsTypeDefaultOverride: targetOsTypeDefaultOverride, flavorDefaultOverride: flavorDefaultOverride);
 
 Options parseOptionsResult(ArgResults results) => _$parseOptionsResult(results);
