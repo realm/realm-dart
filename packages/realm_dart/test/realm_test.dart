@@ -1071,7 +1071,7 @@ void main() {
     expect(realm2.all<Person>().length, 0);
   });
 
-  test("Realm.writeAsync with multiple transactions doesnt't deadlock", () async {
+  test("Realm.writeAsync with multiple transactions doesn't deadlock", () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final t1 = await realm.beginWriteAsync();
     realm.add(Person('Marco'));
@@ -1198,6 +1198,16 @@ void main() {
 
     await expectLater(realm.beginWriteAsync(token), throwsA(isA<CancelledException>()));
     expect(realm.isInTransaction, false);
+  });
+
+  test('Realm.writeAsync with async callback fails with assert', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    await expectLater(realm.writeAsync(() async {}), throwsA(isA<AssertionError>()));
+  });
+
+  test('Realm.write with async callback', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    expect(() => realm.write(() async {}), throwsA(isA<AssertionError>()));
   });
 
   test('Transaction.commitAsync with a canceled token throws', () async {
