@@ -3,7 +3,7 @@
 
 import 'dart:core';
 
-import 'handles/convert.dart';
+import 'convert.dart';
 import 'handles/mutable_subscription_set_handle.dart';
 import 'handles/subscription_handle.dart';
 import 'handles/subscription_set_handle.dart';
