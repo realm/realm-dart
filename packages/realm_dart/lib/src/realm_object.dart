@@ -11,7 +11,6 @@ import 'handles/handle_base.dart';
 import 'handles/notification_token_handle.dart';
 import 'handles/object_changes_handle.dart';
 import 'handles/object_handle.dart';
-import 'handles/realm_library.dart';
 import 'list.dart';
 import 'map.dart';
 import 'realm_class.dart';
@@ -543,7 +542,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
     if (invocation.isGetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError("Could not find symbol name for ${invocation.memberName}. $bugInTheSdkMessage");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}");
       }
 
       return get(this, name);
@@ -552,7 +551,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
     if (invocation.isSetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError("Could not find symbol name for ${invocation.memberName}. $bugInTheSdkMessage");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}");
       }
 
       return set(this, name, invocation.positionalArguments.single);
