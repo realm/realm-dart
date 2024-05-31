@@ -718,25 +718,23 @@ final class CompensatingWriteError extends SyncError {
 extension SyncErrorInternal on SyncError {
   static SyncError createSyncError(SyncErrorDetails error, {App? app}) {
     //Client reset can be requested with isClientResetRequested disregarding the ErrorCode
-    SyncErrorCode errorCode = SyncErrorCode.fromInt(error.code);
-
-    return switch (errorCode) {
+    return switch (error.code) {
       SyncErrorCode.autoClientResetFailed => ClientResetError._(
           error.message,
-          errorCode,
+          error.code,
           app,
           error.userError,
           originalFilePath: error.originalFilePath,
           backupFilePath: error.backupFilePath,
         ),
       SyncErrorCode.clientReset =>
-        ClientResetError._(error.message, errorCode, app, error.userError, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath),
+        ClientResetError._(error.message, error.code, app, error.userError, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath),
       SyncErrorCode.compensatingWrite => CompensatingWriteError._(
           error.message,
           error.userError,
           compensatingWrites: error.compensatingWrites,
         ),
-      _ => SyncError._(error.message, errorCode, error.userError),
+      _ => SyncError._(error.message, error.code, error.userError),
     };
   }
 }

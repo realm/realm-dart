@@ -255,14 +255,17 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
     }
   }
 
+  @override
   bool get isWritable {
     return realmLib.realm_is_writable(pointer);
   }
 
+  @override
   void rollbackWrite() {
     realmLib.realm_rollback(pointer).raiseLastErrorIfFalse();
   }
 
+  @override
   bool refresh() {
     return using((arena) {
       final didRefresh = arena<Bool>();

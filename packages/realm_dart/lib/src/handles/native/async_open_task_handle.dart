@@ -24,6 +24,7 @@ class AsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> implements
     return AsyncOpenTaskHandle(asyncOpenTaskPtr);
   }
 
+  @override
   Future<RealmHandle> openAsync(CancellationToken? cancellationToken) {
     final completer = CancellableCompleter<RealmHandle>(cancellationToken);
     if (!completer.isCancelled) {
@@ -40,10 +41,12 @@ class AsyncOpenTaskHandle extends HandleBase<realm_async_open_task_t> implements
     return completer.future;
   }
 
+  @override
   void cancel() {
     realmLib.realm_async_open_task_cancel(pointer);
   }
 
+  @override
   AsyncOpenTaskProgressNotificationTokenHandle registerProgressNotifier(
     RealmAsyncOpenProgressNotificationsController controller,
   ) {
