@@ -353,31 +353,6 @@ extension PlatformEx on Platform {
   }
 }
 
-/// @nodoc
-class SyncErrorDetails {
-  final String message;
-  final SyncErrorCode code;
-  final String? path;
-  final bool isFatal;
-  final bool isClientResetRequested;
-  final String? originalFilePath;
-  final String? backupFilePath;
-  final List<CompensatingWriteInfo>? compensatingWrites;
-  final Object? userError;
-
-  SyncErrorDetails(
-    this.message,
-    this.code,
-    this.userError, {
-    this.path,
-    this.isFatal = false,
-    this.isClientResetRequested = false,
-    this.originalFilePath,
-    this.backupFilePath,
-    this.compensatingWrites,
-  });
-}
-
 extension PointerRealmValueEx on Pointer<realm_value_t> {
   Object? toDartValue(Realm realm, Pointer<realm_list_t> Function()? getList, Pointer<realm_dictionary_t> Function()? getMap) {
     if (this == nullptr) {
