@@ -365,7 +365,6 @@ class Realm {
   T write<T>(T Function() writeCallback) {
     assert(!_isFuture<T>(), 'writeCallback must be synchronous');
     final transaction = beginWrite();
-
     try {
       T result = writeCallback();
       transaction.commit();

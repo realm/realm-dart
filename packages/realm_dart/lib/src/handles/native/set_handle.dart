@@ -16,13 +16,17 @@ import 'realm_library.dart';
 import 'results_handle.dart';
 import 'rooted_handle.dart';
 
-class SetHandle extends RootedHandleBase<realm_set> {
+import '../set_handle.dart' as intf;
+
+class SetHandle extends RootedHandleBase<realm_set> implements intf.SetHandle {
   SetHandle(Pointer<realm_set> pointer, RealmHandle root) : super(root, pointer, 96);
 
+  @override
   ResultsHandle get asResults {
     return ResultsHandle(realmLib.realm_set_to_results(pointer), root);
   }
 
+  @override
   ResultsHandle query(String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
@@ -43,6 +47,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
+  @override
   bool insert(Object? value) {
     return using((arena) {
       final realmValue = value.toNative(arena);
@@ -54,6 +59,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
   }
 
   // TODO: avoid taking the [realm] parameter
+  @override
   Object? elementAt(Realm realm, int index) {
     return using((arena) {
       final realmValue = arena<realm_value_t>();
@@ -67,6 +73,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
+  @override
   bool find(Object? value) {
     return using((arena) {
       // TODO: how should this behave for collections
@@ -78,6 +85,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
+  @override
   bool remove(Object? value) {
     return using((arena) {
       // TODO: do we support sets containing mixed collections
@@ -88,10 +96,12 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
+  @override
   void clear() {
     realmLib.realm_set_clear(pointer).raiseLastErrorIfFalse();
   }
 
+  @override
   int get size {
     return using((arena) {
       final outSize = arena<Size>();
@@ -100,15 +110,18 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
+  @override
   bool get isValid {
     return realmLib.realm_set_is_valid(pointer);
   }
 
+  @override
   void deleteAll() {
     realmLib.realm_set_remove_all(pointer).raiseLastErrorIfFalse();
   }
 
-  SetHandle? resolveIn(RealmHandle frozenRealm) {
+  @override
+  SetHandle? resolveIn(covariant RealmHandle frozenRealm) {
     return using((arena) {
       final resultPtr = arena<Pointer<realm_set>>();
       realmLib.realm_set_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseLastErrorIfFalse();
@@ -116,6 +129,7 @@ class SetHandle extends RootedHandleBase<realm_set> {
     });
   }
 
+  @override
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     return NotificationTokenHandle(
       realmLib.realm_set_add_notification_callback(

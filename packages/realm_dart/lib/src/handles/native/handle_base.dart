@@ -3,8 +3,12 @@
 
 import 'dart:ffi';
 
+import 'package:realm_dart/realm.dart';
+
 import 'error_handling.dart';
 import 'realm_library.dart';
+
+import '../handle_base.dart' as intf;
 
 // Flag to enable trace on finalization.
 //
@@ -32,33 +36,42 @@ void _tearDownFinalizationTrace(Object value, Object finalizationToken) {
   _traceFinalization(finalizationToken);
 }
 
-abstract class HandleBase<T extends NativeType> implements Finalizable {
+abstract class HandleBase<T extends NativeType> implements Finalizable, intf.HandleBase {
   late Pointer<Void> _finalizableHandle;
-  Pointer<T> pointer;
-  bool get released => pointer == nullptr;
-  final bool isUnowned;
-
-  HandleBase(this.pointer, int size) : isUnowned = false {
-    pointer.raiseLastErrorIfNull();
-    _finalizableHandle = realmLib.realm_attach_finalizer(this, pointer.cast(), size);
-
-    if (_enableFinalizerTrace) {
-      _setupFinalizationTrace(this, pointer);
-    }
-  }
-
-  HandleBase.unowned(this.pointer) : isUnowned = true {
-    pointer.raiseLastErrorIfNull();
+  Pointer<T> _pointer;
+  Pointer<T> get pointer {
+    if (released) throw RealmError('Trying to access a released handle');
+    return _pointer;
   }
 
   @override
-  String toString() => "${pointer.toString()} value=${pointer.cast<IntPtr>().value}${isUnowned ? ' (unowned)' : ''}";
+  bool get released => _pointer == nullptr;
+  @override
+  final bool isUnowned;
+
+  HandleBase(this._pointer, int size) : isUnowned = false {
+    _pointer.raiseLastErrorIfNull();
+    _finalizableHandle = realmLib.realm_attach_finalizer(this, pointer.cast(), size);
+
+    if (_enableFinalizerTrace) {
+      _setupFinalizationTrace(this, _pointer);
+    }
+  }
+
+  HandleBase.unowned(this._pointer) : isUnowned = true {
+    _pointer.raiseLastErrorIfNull();
+  }
+
+  @override
+  String toString() => "${_pointer.toString()} value=${_pointer.cast<IntPtr>().value}${isUnowned ? ' (unowned)' : ''}";
 
   /// @nodoc
   /// A method that will be invoked just before the handle is released. Allows to cleanup
   /// any custom data that inheritors are storing.
+  @override
   void releaseCore() {}
 
+  @override
   void release() {
     if (released) {
       return;
@@ -69,21 +82,21 @@ abstract class HandleBase<T extends NativeType> implements Finalizable {
     if (!isUnowned) {
       realmLib.realm_detach_finalizer(_finalizableHandle, this);
 
-      realmLib.realm_release(pointer.cast());
+      realmLib.realm_release(_pointer.cast());
     }
 
-    pointer = nullptr;
+    _pointer = nullptr;
 
     if (_enableFinalizerTrace) {
-      _tearDownFinalizationTrace(this, pointer);
+      _tearDownFinalizationTrace(this, _pointer);
     }
   }
 
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) => other is HandleBase<T>
-      ? pointer == other.pointer
+      ? _pointer == other._pointer
           ? true
-          : realmLib.realm_equals(pointer.cast(), other.pointer.cast())
+          : realmLib.realm_equals(_pointer.cast(), other._pointer.cast())
       : false;
 }

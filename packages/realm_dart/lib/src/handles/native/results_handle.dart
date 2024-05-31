@@ -16,9 +16,12 @@ import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'rooted_handle.dart';
 
-class ResultsHandle extends RootedHandleBase<realm_results> {
+import '../results_handle.dart' as intf;
+
+class ResultsHandle extends RootedHandleBase<realm_results> implements intf.ResultsHandle {
   ResultsHandle(Pointer<realm_results> pointer, RealmHandle root) : super(root, pointer, 872);
 
+  @override
   ResultsHandle queryResults(String query, List<Object> args) {
     return using((arena) {
       final length = args.length;
@@ -39,6 +42,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     });
   }
 
+  @override
   int find(Object? value) {
     return using((arena) {
       final outIndex = arena<Size>();
@@ -58,10 +62,12 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     });
   }
 
+  @override
   ObjectHandle getObjectAt(int index) {
     return ObjectHandle(realmLib.realm_results_get_object(pointer, index), root);
   }
 
+  @override
   int get count {
     return using((arena) {
       final countPtr = arena<Size>();
@@ -70,6 +76,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     });
   }
 
+  @override
   bool isValid() {
     return using((arena) {
       final isValid = arena<Bool>();
@@ -78,18 +85,22 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     });
   }
 
+  @override
   void deleteAll() {
     realmLib.realm_results_delete_all(pointer).raiseLastErrorIfFalse();
   }
 
+  @override
   ResultsHandle snapshot() {
     return ResultsHandle(realmLib.realm_results_snapshot(pointer), root);
   }
 
-  ResultsHandle resolveIn(RealmHandle realmHandle) {
+  @override
+  ResultsHandle resolveIn(covariant RealmHandle realmHandle) {
     return ResultsHandle(realmLib.realm_results_resolve_in(pointer, realmHandle.pointer), realmHandle);
   }
 
+  @override
   Object? elementAt(Realm realm, int index) {
     return using((arena) {
       final realmValue = arena<realm_value_t>();
@@ -102,6 +113,7 @@ class ResultsHandle extends RootedHandleBase<realm_results> {
     });
   }
 
+  @override
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     return NotificationTokenHandle(
       realmLib.realm_results_add_notification_callback(

@@ -7,19 +7,19 @@ import 'dart:io';
 
 import '../../logging.dart';
 import '../../realm_dart.dart';
-import '../../scheduler.dart';
 import 'convert_native.dart';
 import 'ffi.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
+import 'scheduler_handle.dart';
 
 class HttpTransportHandle extends HandleBase<realm_http_transport> {
   HttpTransportHandle(Pointer<realm_http_transport> pointer) : super(pointer, 24);
 
   factory HttpTransportHandle.from(HttpClient httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_requestCallback);
-    final requestCallbackUserdata = realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), scheduler.handle.pointer);
+    final requestCallbackUserdata = realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), schedulerHandle.pointer);
     return HttpTransportHandle(realmLib.realm_http_transport_new(
       realmLib.addresses.realm_dart_http_request_callback,
       requestCallbackUserdata.cast(),

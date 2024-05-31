@@ -3,11 +3,14 @@
 
 import 'dart:ffi';
 
+import '../../scheduler.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 
-class SchedulerHandle extends HandleBase<realm_scheduler> {
+import '../scheduler_handle.dart' as intf;
+
+class SchedulerHandle extends HandleBase<realm_scheduler> implements intf.SchedulerHandle {
   SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
 
   factory SchedulerHandle(int isolateId, int sendPort) {
@@ -15,8 +18,13 @@ class SchedulerHandle extends HandleBase<realm_scheduler> {
     return SchedulerHandle._(schedulerPtr);
   }
 
+  @override
   void invoke(int workQueue) {
     final queuePointer = Pointer<realm_work_queue>.fromAddress(workQueue);
     realmLib.realm_scheduler_perform_work(queuePointer);
   }
 }
+
+final schedulerHandle = scheduler.handle as SchedulerHandle;
+
+

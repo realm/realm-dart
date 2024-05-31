@@ -12,7 +12,9 @@ import 'realm_bindings.dart';
 import 'realm_library.dart';
 import 'to_native.dart';
 
-class SchemaHandle extends HandleBase<realm_schema> {
+import '../schema_handle.dart' as intf;
+
+class SchemaHandle extends HandleBase<realm_schema> implements intf.SchemaHandle {
   SchemaHandle(Pointer<realm_schema> pointer) : super(pointer, 24);
 
   SchemaHandle.unowned(super.pointer) : super.unowned();

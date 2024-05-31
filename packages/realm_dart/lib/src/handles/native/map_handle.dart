@@ -17,9 +17,12 @@ import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'results_handle.dart';
 
-class MapHandle extends CollectionHandleBase<realm_dictionary> {
+import '../map_handle.dart' as intf;
+
+class MapHandle extends CollectionHandleBase<realm_dictionary> implements intf.MapHandle {
   MapHandle(Pointer<realm_dictionary> pointer, RealmHandle root) : super(root, pointer, 96); // TODO: check size
 
+  @override
   int get size {
     return using((arena) {
       final outSize = arena<Size>();
@@ -28,6 +31,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   bool remove(String key) {
     return using((arena) {
       final keyNative = key.toNative(arena);
@@ -37,7 +41,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
-  // TODO: avoid taking the [realm] parameter
+  @override
   Object? find(Realm realm, String key) {
     return using((arena) {
       final keyNative = key.toNative(arena);
@@ -55,14 +59,17 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   bool get isValid {
     return realmLib.realm_dictionary_is_valid(pointer);
   }
 
+  @override
   void clear() {
     realmLib.realm_dictionary_clear(pointer).raiseLastErrorIfFalse();
   }
 
+  @override
   ResultsHandle get keys {
     return using((arena) {
       final outSize = arena<Size>();
@@ -72,10 +79,12 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   ResultsHandle get values {
     return ResultsHandle(realmLib.realm_dictionary_to_results(pointer), root);
   }
 
+  @override
   bool containsKey(String key) {
     return using((arena) {
       final keyNative = key.toNative(arena);
@@ -85,6 +94,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   int indexOf(Object? value) {
     return using((arena) {
       // TODO: how should this behave for collections
@@ -95,8 +105,10 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   bool containsValue(Object? value) => indexOf(value) > -1;
 
+  @override
   ObjectHandle insertEmbedded(String key) {
     return using((arena) {
       final keyNative = key.toNative(arena);
@@ -104,6 +116,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   void insert(String key, Object? value) {
     using((arena) {
       final keyNative = key.toNative(arena);
@@ -120,6 +133,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   void insertCollection(Realm realm, String key, RealmValue value) {
     using((arena) {
       final keyNative = key.toNative(arena);
@@ -132,6 +146,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   ResultsHandle query(String query, List<Object?> args) {
     return using((arena) {
       final length = args.length;
@@ -153,7 +168,8 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
-  MapHandle? resolveIn(RealmHandle frozenRealm) {
+  @override
+  MapHandle? resolveIn(covariant RealmHandle frozenRealm) {
     return using((arena) {
       final resultPtr = arena<Pointer<realm_dictionary>>();
       realmLib.realm_dictionary_resolve_in(pointer, frozenRealm.pointer, resultPtr).raiseLastErrorIfFalse();
@@ -161,6 +177,7 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> {
     });
   }
 
+  @override
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
     return NotificationTokenHandle(
       realmLib.realm_dictionary_add_notification_callback(

@@ -13,6 +13,7 @@ import 'decimal128.dart';
 import 'list_handle.dart';
 import 'map_handle.dart';
 import 'realm_bindings.dart';
+import 'realm_handle.dart';
 import 'realm_library.dart';
 
 // TODO: Duplicated in to_native.dart
@@ -64,14 +65,14 @@ extension RealmValueEx on realm_value_t {
           throw RealmException('toDartValue called with a list argument but without a list getter');
         }
 
-        final listHandle = ListHandle(getList(), realm.handle);
+        final listHandle = ListHandle(getList(), realm.handle as RealmHandle);
         return realm.createList<RealmValue>(listHandle, null);
       case realm_value_type.RLM_TYPE_DICTIONARY:
         if (getMap == null || realm == null) {
           throw RealmException('toDartValue called with a list argument but without a list getter');
         }
 
-        final mapHandle = MapHandle(getMap(), realm.handle);
+        final mapHandle = MapHandle(getMap(), realm.handle as RealmHandle);
         return realm.createMap<RealmValue>(mapHandle, null);
       default:
         throw RealmException("realm_value_type $type not supported");

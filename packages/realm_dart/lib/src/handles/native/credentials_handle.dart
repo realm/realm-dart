@@ -11,7 +11,9 @@ import 'realm_bindings.dart';
 import 'realm_library.dart';
 import 'to_native.dart';
 
-class CredentialsHandle extends HandleBase<realm_app_credentials> {
+import '../credentials_handle.dart' as intf;
+
+class CredentialsHandle extends HandleBase<realm_app_credentials> implements intf.CredentialsHandle {
   CredentialsHandle(Pointer<realm_app_credentials> pointer) : super(pointer, 16);
 
   factory CredentialsHandle.anonymous(bool reuseCredentials) {

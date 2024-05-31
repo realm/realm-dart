@@ -8,7 +8,9 @@ import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'rooted_handle.dart';
 
-class NotificationTokenHandle extends RootedHandleBase<realm_notification_token> {
+import '../notification_token_handle.dart' as intf;
+
+class NotificationTokenHandle extends RootedHandleBase<realm_notification_token> implements intf.NotificationTokenHandle {
   NotificationTokenHandle(Pointer<realm_notification_token> pointer, RealmHandle root) : super(root, pointer, 32);
 }
 

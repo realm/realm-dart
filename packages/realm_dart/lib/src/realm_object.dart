@@ -9,6 +9,7 @@ import 'package:realm_common/realm_common.dart';
 import 'configuration.dart';
 import 'handles/handle_base.dart';
 import 'handles/notification_token_handle.dart';
+import 'handles/object_changes_handle.dart';
 import 'handles/object_handle.dart';
 import 'handles/realm_library.dart';
 import 'list.dart';
@@ -175,6 +176,7 @@ class RealmCoreAccessor implements RealmAccessor {
           if (listMetadata != null && _isTypeGenericObject<T>()) {
             switch (listMetadata.schema.baseType) {
               case ObjectType.realmObject:
+                //ManagedRealmList<RealmObject>._(handle, object.realm, listMetadata);
                 return object.realm.createList<RealmObject>(handle, listMetadata);
               case ObjectType.embeddedObject:
                 return object.realm.createList<EmbeddedObject>(handle, listMetadata);
@@ -758,7 +760,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
         throw RealmException("It is not allowed to have empty key paths.");
       }
       // throw early if the key paths are invalid
-      realmObject.handle.buildAndVerifyKeyPath(keyPaths);
+      realmObject.handle.verifyKeyPath(keyPaths);
     }
   }
 

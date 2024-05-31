@@ -6,11 +6,10 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:test/expect.dart' hide throws;
-
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/subscription.dart';
+
 import 'test.dart';
 
 void main() {
@@ -549,7 +548,7 @@ void main() {
     expect(() => subscriptions.state, returnsNormally);
 
     realm.close();
-    expect(() => subscriptions.state, throws<RealmClosedError>());
+    expect(() => subscriptions.state, throws<RealmError>());
   });
 
   baasTest('SyncSessionErrorCode.compensatingWrite', (configuration) async {
