@@ -8,7 +8,6 @@ import 'dart:isolate';
 
 import '../../init.dart';
 import '../../realm_class.dart';
-import '../../scheduler.dart';
 import 'convert.dart';
 import 'convert_native.dart';
 import 'credentials_handle.dart';
@@ -19,9 +18,12 @@ import 'http_transport_handle.dart';
 import 'realm_bindings.dart';
 import 'realm_core.dart';
 import 'realm_library.dart';
+import 'scheduler_handle.dart';
 import 'user_handle.dart';
 
-class AppHandle extends HandleBase<realm_app> {
+import '../app_handle.dart' as intf;
+
+class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
   AppHandle(Pointer<realm_app> pointer) : super(pointer, 16);
 
   static bool _firstTime = true;
@@ -51,10 +53,12 @@ class AppHandle extends HandleBase<realm_app> {
     });
   }
 
+  @override
   UserHandle? get currentUser {
     return realmLib.realm_app_get_current_user(pointer).convert(UserHandle.new);
   }
 
+  @override
   List<UserHandle> get users => using((arena) => _getUsers(arena));
 
   List<UserHandle> _getUsers(Arena arena, {int expectedSize = 2}) {
@@ -76,7 +80,8 @@ class AppHandle extends HandleBase<realm_app> {
     return result;
   }
 
-  Future<void> removeUser(UserHandle user) {
+  @override
+  Future<void> removeUser(covariant UserHandle user) {
     final completer = Completer<void>();
     realmLib
         .realm_app_remove_user(
@@ -90,7 +95,8 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
-  void switchUser(UserHandle user) {
+  @override
+  void switchUser(covariant UserHandle user) {
     using((arena) {
       realmLib
           .realm_app_switch_user(
@@ -101,13 +107,16 @@ class AppHandle extends HandleBase<realm_app> {
     });
   }
 
+  @override
   void reconnect() => realmLib.realm_app_sync_client_reconnect(pointer);
 
+  @override
   String get baseUrl {
     final customDataPtr = realmLib.realm_app_get_base_url(pointer);
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
+  @override
   Future<void> updateBaseUrl(Uri? baseUrl) {
     final completer = Completer<void>();
     using((arena) {
@@ -124,7 +133,8 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
-  Future<void> refreshCustomData(UserHandle user) {
+  @override
+  Future<void> refreshCustomData(covariant UserHandle user) {
     final completer = Completer<void>();
     realmLib
         .realm_app_refresh_custom_data(
@@ -138,11 +148,13 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   String get id {
     return realmLib.realm_app_get_app_id(pointer).cast<Utf8>().toRealmDartString()!;
   }
 
-  Future<UserHandle> logIn(CredentialsHandle credentials) {
+  @override
+  Future<UserHandle> logIn(covariant CredentialsHandle credentials) {
     final completer = Completer<UserHandle>();
     realmLib
         .realm_app_log_in_with_credentials(
@@ -156,6 +168,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> registerUser(String email, String password) {
     final completer = Completer<void>();
     using((arena) {
@@ -173,6 +186,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> confirmUser(String token, String tokenId) {
     final completer = Completer<void>();
     using((arena) {
@@ -190,6 +204,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> resendConfirmation(String email) {
     final completer = Completer<void>();
     using((arena) {
@@ -206,6 +221,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> completeResetPassword(String password, String token, String tokenId) {
     final completer = Completer<void>();
     using((arena) {
@@ -224,6 +240,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> requestResetPassword(String email) {
     final completer = Completer<void>();
     using((arena) {
@@ -240,6 +257,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> callResetPasswordFunction(String email, String password, String? argsAsJSON) {
     final completer = Completer<void>();
     using((arena) {
@@ -258,6 +276,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   Future<void> retryCustomConfirmationFunction(String email) {
     final completer = Completer<void>();
     using((arena) {
@@ -274,7 +293,8 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
-  Future<void> deleteUser(UserHandle user) {
+  @override
+  Future<void> deleteUser(covariant UserHandle user) {
     final completer = Completer<void>();
     realmLib
         .realm_app_delete_user(
@@ -288,6 +308,7 @@ class AppHandle extends HandleBase<realm_app> {
     return completer.future;
   }
 
+  @override
   bool resetRealm(String realmPath) {
     return using((arena) {
       final didRun = arena<Bool>();
@@ -302,7 +323,8 @@ class AppHandle extends HandleBase<realm_app> {
     });
   }
 
-  Future<String> callAppFunction(UserHandle user, String functionName, String? argsAsJSON) {
+  @override
+  Future<String> callAppFunction(covariant UserHandle user, String functionName, String? argsAsJSON) {
     return using((arena) {
       final completer = Completer<String>();
       realmLib
@@ -333,7 +355,7 @@ Pointer<Void> createAsyncFunctionCallbackUserdata(Completer<String> completer) {
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
     callback.cast(),
-    scheduler.handle.pointer,
+    schedulerHandle.pointer,
   );
 
   return userdata.cast();
@@ -361,7 +383,7 @@ Pointer<Void> createAsyncCallbackUserdata(Completer<void> completer) {
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
     callback.cast(),
-    scheduler.handle.pointer,
+    schedulerHandle.pointer,
   );
 
   return userdata.cast();

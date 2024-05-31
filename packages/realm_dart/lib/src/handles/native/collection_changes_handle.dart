@@ -11,9 +11,12 @@ import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 
-class CollectionChangesHandle extends HandleBase<realm_collection_changes> {
+import '../collection_changes_handle.dart' as intf;
+
+class CollectionChangesHandle extends HandleBase<realm_collection_changes> implements intf.CollectionChangesHandle {
   CollectionChangesHandle(Pointer<realm_collection_changes> pointer) : super(pointer, 256);
 
+  @override
   CollectionChanges get changes {
     return using((arena) {
       final outNumDeletions = arena<Size>();

@@ -5,40 +5,44 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 
-import 'ffi.dart';
-
 import '../../credentials.dart';
 import '../../realm_dart.dart';
-import '../../scheduler.dart';
 import '../../user.dart';
+import '../user_handle.dart' as intf;
 import 'app_handle.dart';
 import 'convert.dart';
 import 'convert_native.dart';
 import 'credentials_handle.dart';
 import 'error_handling.dart';
+import 'ffi.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
+import 'scheduler_handle.dart';
 
-class UserHandle extends HandleBase<realm_user> {
+class UserHandle extends HandleBase<realm_user> implements intf.UserHandle {
   UserHandle(Pointer<realm_user> pointer) : super(pointer, 24);
 
+  @override
   AppHandle get app {
     return realmLib.realm_user_get_app(pointer).convert(AppHandle.new) ??
         (throw RealmException('User does not have an associated app. This is likely due to the user being logged out.'));
   }
 
+  @override
   UserState get state {
     final nativeUserState = realmLib.realm_user_get_state(pointer);
     return UserState.values.fromIndex(nativeUserState);
   }
 
+  @override
   String get id {
     final idPtr = realmLib.realm_user_get_identity(pointer).raiseLastErrorIfNull();
     final userId = idPtr.cast<Utf8>().toDartString();
     return userId;
   }
 
+  @override
   List<UserIdentity> get identities {
     return using((arena) {
       return _userGetIdentities(arena);
@@ -67,31 +71,37 @@ class UserHandle extends HandleBase<realm_user> {
     return result;
   }
 
+  @override
   Future<void> logOut() async {
     realmLib.realm_user_log_out(pointer).raiseLastErrorIfFalse();
   }
 
+  @override
   String? get deviceId {
     final deviceId = realmLib.realm_user_get_device_id(pointer).raiseLastErrorIfNull();
     return deviceId.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true, freeRealmMemory: true);
   }
 
+  @override
   UserProfile get profileData {
     final data = realmLib.realm_user_get_profile_data(pointer).raiseLastErrorIfNull();
     final dynamic profileData = jsonDecode(data.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!);
     return UserProfile(profileData as Map<String, dynamic>);
   }
 
+  @override
   String get refreshToken {
     final token = realmLib.realm_user_get_refresh_token(pointer).raiseLastErrorIfNull();
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
+  @override
   String get accessToken {
     final token = realmLib.realm_user_get_access_token(pointer).raiseLastErrorIfNull();
     return token.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!;
   }
 
+  @override
   String get path {
     final syncConfigPtr = realmLib.realm_flx_sync_config_new(pointer).raiseLastErrorIfNull();
     try {
@@ -102,12 +112,14 @@ class UserHandle extends HandleBase<realm_user> {
     }
   }
 
+  @override
   String? get customData {
     final customDataPtr = realmLib.realm_user_get_custom_data(pointer);
     return customDataPtr.cast<Utf8>().toRealmDartString(freeRealmMemory: true, treatEmptyAsNull: true);
   }
 
-  Future<UserHandle> linkCredentials(AppHandle app, CredentialsHandle credentials) {
+  @override
+  Future<UserHandle> linkCredentials(covariant AppHandle app, covariant CredentialsHandle credentials) {
     final completer = Completer<UserHandle>();
     realmLib
         .realm_app_link_user(
@@ -122,7 +134,8 @@ class UserHandle extends HandleBase<realm_user> {
     return completer.future;
   }
 
-  Future<ApiKey> createApiKey(AppHandle app, String name) {
+  @override
+  Future<ApiKey> createApiKey(covariant AppHandle app, String name) {
     return using((arena) {
       final namePtr = name.toCharPtr(arena);
       final completer = Completer<ApiKey>();
@@ -141,7 +154,8 @@ class UserHandle extends HandleBase<realm_user> {
     });
   }
 
-  Future<ApiKey> fetchApiKey(AppHandle app, ObjectId id) {
+  @override
+  Future<ApiKey> fetchApiKey(covariant AppHandle app, ObjectId id) {
     return using((arena) {
       final completer = Completer<ApiKey>();
       final nativeId = id.toNative(arena);
@@ -160,7 +174,8 @@ class UserHandle extends HandleBase<realm_user> {
     });
   }
 
-  Future<List<ApiKey>> fetchAllApiKeys(AppHandle app) {
+  @override
+  Future<List<ApiKey>> fetchAllApiKeys(covariant AppHandle app) {
     return using((arena) {
       final completer = Completer<List<ApiKey>>();
       realmLib
@@ -177,7 +192,8 @@ class UserHandle extends HandleBase<realm_user> {
     });
   }
 
-  Future<void> deleteApiKey(AppHandle app, ObjectId id) {
+  @override
+  Future<void> deleteApiKey(covariant AppHandle app, ObjectId id) {
     return using((arena) {
       final completer = Completer<void>();
       final nativeId = id.toNative(arena);
@@ -196,7 +212,8 @@ class UserHandle extends HandleBase<realm_user> {
     });
   }
 
-  Future<void> disableApiKey(AppHandle app, ObjectId objectId) {
+  @override
+  Future<void> disableApiKey(covariant AppHandle app, ObjectId objectId) {
     return using((arena) {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
@@ -216,7 +233,8 @@ class UserHandle extends HandleBase<realm_user> {
     });
   }
 
-  Future<void> enableApiKey(AppHandle app, ObjectId objectId) {
+  @override
+  Future<void> enableApiKey(covariant AppHandle app, ObjectId objectId) {
     return using((arena) {
       final completer = Completer<void>();
       final nativeId = objectId.toNative(arena);
@@ -236,9 +254,10 @@ class UserHandle extends HandleBase<realm_user> {
     });
   }
 
+  @override
   UserNotificationTokenHandle subscribeForNotifications(UserNotificationsController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(_userChangeCallback);
-    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
+    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), schedulerHandle.pointer);
     final notificationToken = realmLib.realm_sync_user_on_state_change_register_callback(
       pointer,
       realmLib.addresses.realm_dart_user_change_callback,
@@ -249,7 +268,7 @@ class UserHandle extends HandleBase<realm_user> {
   }
 }
 
-class UserNotificationTokenHandle extends HandleBase<realm_app_user_subscription_token> {
+class UserNotificationTokenHandle extends HandleBase<realm_app_user_subscription_token> implements intf.UserNotificationTokenHandle {
   UserNotificationTokenHandle(Pointer<realm_app_user_subscription_token> pointer) : super(pointer, 32);
 }
 
@@ -270,7 +289,7 @@ Pointer<Void> createAsyncUserCallbackUserdata(Completer<void> completer) {
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
     callback.cast(),
-    scheduler.handle.pointer,
+    schedulerHandle.pointer,
   );
 
   return userdata.cast();
@@ -304,7 +323,7 @@ Pointer<Void> _createAsyncApikeyCallbackUserdata<T extends Function>(Completer<A
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
     callback.cast(),
-    scheduler.handle.pointer,
+    schedulerHandle.pointer,
   );
 
   return userdata.cast();
@@ -331,7 +350,7 @@ Pointer<Void> _createAsyncApikeyListCallbackUserdata<T extends Function>(Complet
   final userdata = realmLib.realm_dart_userdata_async_new(
     completer,
     callback.cast(),
-    scheduler.handle.pointer,
+    schedulerHandle.pointer,
   );
 
   return userdata.cast();

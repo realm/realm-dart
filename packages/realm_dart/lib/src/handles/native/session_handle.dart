@@ -4,38 +4,43 @@
 import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
-import 'ffi.dart';
 
 import '../../realm_dart.dart';
-import '../../scheduler.dart';
 import '../../session.dart';
+import '../session_handle.dart' as intf;
 import 'convert_native.dart';
+import 'ffi.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
 import 'rooted_handle.dart';
+import 'scheduler_handle.dart';
 import 'user_handle.dart';
 
-class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
+class SessionHandle extends RootedHandleBase<realm_sync_session_t> implements intf.SessionHandle {
   @override
   bool get shouldRoot => true;
 
   SessionHandle(Pointer<realm_sync_session_t> pointer, RealmHandle root) : super(root, pointer, 24);
 
+  @override
   String get path {
     return realmLib.realm_sync_session_get_file_path(pointer).cast<Utf8>().toRealmDartString()!;
   }
 
+  @override
   ConnectionState get connectionState {
     final value = realmLib.realm_sync_session_get_connection_state(pointer);
     return ConnectionState.values[value];
   }
 
+  @override
   UserHandle get user {
     return UserHandle(realmLib.realm_sync_session_get_user(pointer));
   }
 
+  @override
   SessionState get state {
     final value = realmLib.realm_sync_session_get_state(pointer);
     return _convertCoreSessionState(value);
@@ -55,14 +60,17 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     }
   }
 
+  @override
   void pause() {
     realmLib.realm_sync_session_pause(pointer);
   }
 
+  @override
   void resume() {
     realmLib.realm_sync_session_resume(pointer);
   }
 
+  @override
   void raiseError(int errorCode, bool isFatal) {
     using((arena) {
       final message = "Simulated session error".toCharPtr(arena);
@@ -70,11 +78,12 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     });
   }
 
+  @override
   Future<void> waitForUpload([CancellationToken? cancellationToken]) {
     final completer = CancellableCompleter<void>(cancellationToken);
     if (!completer.isCancelled) {
       final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_waitCompletionCallback);
-      final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle.pointer);
+      final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), schedulerHandle.pointer);
       realmLib.realm_sync_session_wait_for_upload_completion(
         pointer,
         realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
@@ -85,11 +94,12 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     return completer.future;
   }
 
+  @override
   Future<void> waitForDownload([CancellationToken? cancellationToken]) {
     final completer = CancellableCompleter<void>(cancellationToken);
     if (!completer.isCancelled) {
       final callback = Pointer.fromFunction<Void Function(Handle, Pointer<realm_error_t>)>(_waitCompletionCallback);
-      final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), scheduler.handle.pointer);
+      final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), schedulerHandle.pointer);
       realmLib.realm_sync_session_wait_for_download_completion(
         pointer,
         realmLib.addresses.realm_dart_sync_wait_for_completion_callback,
@@ -113,9 +123,10 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     }
   }
 
+  @override
   SyncSessionNotificationTokenHandle subscribeForConnectionStateNotifications(SessionConnectionStateController controller) {
     final callback = Pointer.fromFunction<Void Function(Handle, Int32, Int32)>(_onConnectionStateChange);
-    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
+    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), schedulerHandle.pointer);
     return SyncSessionNotificationTokenHandle(
       realmLib.realm_sync_session_register_connection_state_change_callback(
         pointer,
@@ -126,6 +137,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
     );
   }
 
+  @override
   SyncSessionNotificationTokenHandle subscribeForProgressNotifications(
     ProgressDirection direction,
     ProgressMode mode,
@@ -133,7 +145,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   ) {
     final isStreaming = mode == ProgressMode.reportIndefinitely;
     final callback = Pointer.fromFunction<Void Function(Handle, Uint64, Uint64, Double)>(syncProgressCallback);
-    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), scheduler.handle.pointer);
+    final userdata = realmLib.realm_dart_userdata_async_new(controller, callback.cast(), schedulerHandle.pointer);
     return SyncSessionNotificationTokenHandle(
       realmLib.realm_sync_session_register_progress_notifier(
         pointer,
@@ -147,7 +159,8 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> {
   }
 }
 
-class SyncSessionNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token> {
+class SyncSessionNotificationTokenHandle extends HandleBase<realm_sync_session_connection_state_notification_token>
+    implements intf.SyncSessionNotificationTokenHandle {
   SyncSessionNotificationTokenHandle(Pointer<realm_sync_session_connection_state_notification_token> pointer) : super(pointer, 32);
 }
 

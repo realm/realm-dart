@@ -15,14 +15,18 @@ import 'results_handle.dart';
 import 'subscription_handle.dart';
 import 'subscription_set_handle.dart';
 
-class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
+import '../mutable_subscription_set_handle.dart' as intf;
+
+class MutableSubscriptionSetHandle extends SubscriptionSetHandle implements intf.MutableSubscriptionSetHandle {
   MutableSubscriptionSetHandle(Pointer<realm_flx_sync_mutable_subscription_set> pointer, RealmHandle root) : super(pointer.cast(), root);
 
   Pointer<realm_flx_sync_mutable_subscription_set> get _mutablePointer => super.pointer.cast();
 
+  @override
   SubscriptionSetHandle commit() => SubscriptionSetHandle(realmLib.realm_sync_subscription_set_commit(_mutablePointer), root);
 
-  SubscriptionHandle insertOrAssignSubscription(ResultsHandle results, String? name, bool update) {
+  @override
+  SubscriptionHandle insertOrAssignSubscription(covariant ResultsHandle results, String? name, bool update) {
     if (!update) {
       if (name != null && findByName(name) != null) {
         throw RealmException('Duplicate subscription with name: $name');
@@ -44,7 +48,8 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
     });
   }
 
-  bool erase(SubscriptionHandle subscription) {
+  @override
+  bool erase(covariant SubscriptionHandle subscription) {
     return using((arena) {
       final outErased = arena<Bool>();
       realmLib
@@ -58,6 +63,7 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
     });
   }
 
+  @override
   bool eraseByName(String name) {
     return using((arena) {
       final outErased = arena<Bool>();
@@ -72,7 +78,8 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
     });
   }
 
-  bool eraseByResults(ResultsHandle results) {
+  @override
+  bool eraseByResults(covariant ResultsHandle results) {
     return using((arena) {
       final outErased = arena<Bool>();
       realmLib
@@ -86,5 +93,11 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle {
     });
   }
 
+  @override
   void clear() => realmLib.realm_sync_subscription_set_clear(_mutablePointer).raiseLastErrorIfFalse();
+
+  @override
+  // Workaround for weird compiler bug
+  // ignore: unnecessary_overrides
+  SubscriptionHandle? findByResults(covariant ResultsHandle results) => super.findByResults(results);
 }

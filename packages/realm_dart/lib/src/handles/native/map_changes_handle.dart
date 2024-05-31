@@ -10,9 +10,12 @@ import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 
-class MapChangesHandle extends HandleBase<realm_dictionary_changes> {
+import '../map_changes_handle.dart' as intf;
+
+class MapChangesHandle extends HandleBase<realm_dictionary_changes> implements intf.MapChangesHandle {
   MapChangesHandle(Pointer<realm_dictionary_changes> pointer) : super(pointer, 256);
 
+  @override
   MapChanges get changes {
     return using((arena) {
       final outNumDeletions = arena<Size>();

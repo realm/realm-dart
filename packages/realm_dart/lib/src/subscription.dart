@@ -111,11 +111,9 @@ enum SubscriptionSetState {
 /// {@category Sync}
 sealed class SubscriptionSet with Iterable<Subscription> {
   final Realm _realm;
-  SubscriptionSetHandle __handle;
-  SubscriptionSetHandle get _handle => __handle.nullPtrAsNull ?? (throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm'));
-  set _handle(SubscriptionSetHandle value) => __handle = value;
+  SubscriptionSetHandle _handle;
 
-  SubscriptionSet._(this._realm, this.__handle);
+  SubscriptionSet._(this._realm, this._handle);
 
   /// Finds an existing [Subscription] in this set by its query
   ///

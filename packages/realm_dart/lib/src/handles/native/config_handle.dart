@@ -4,20 +4,20 @@
 import 'dart:async';
 import 'dart:ffi';
 
-import 'ffi.dart';
-import 'error_handling.dart';
-
 import '../../configuration.dart';
 import '../../migration.dart';
 import '../../realm_class.dart';
-import '../../scheduler.dart';
 import '../../user.dart';
 import 'convert_native.dart';
+import 'error_handling.dart';
+import 'ffi.dart';
 import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_handle.dart';
 import 'realm_library.dart';
+import 'scheduler_handle.dart';
 import 'schema_handle.dart';
+import 'user_handle.dart';
 
 class ConfigHandle extends HandleBase<realm_config> {
   ConfigHandle(Pointer<realm_config> pointer) : super(pointer, 512);
@@ -32,7 +32,7 @@ class ConfigHandle extends HandleBase<realm_config> {
       }
 
       realmLib.realm_config_set_path(configHandle.pointer, config.path.toCharPtr(arena));
-      realmLib.realm_config_set_scheduler(configHandle.pointer, scheduler.handle.pointer);
+      realmLib.realm_config_set_scheduler(configHandle.pointer, schedulerHandle.pointer);
 
       if (config.fifoFilesFallbackPath != null) {
         realmLib.realm_config_set_fifo_path(configHandle.pointer, config.fifoFilesFallbackPath!.toCharPtr(arena));
@@ -87,19 +87,19 @@ class ConfigHandle extends HandleBase<realm_config> {
         realmLib.realm_config_set_in_memory(configHandle.pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
         realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
-        final syncConfigPtr = realmLib.realm_flx_sync_config_new(config.user.handle.pointer).raiseLastErrorIfNull();
+        final syncConfigPtr = realmLib.realm_flx_sync_config_new((config.user.handle as UserHandle).pointer).raiseLastErrorIfNull();
         try {
           realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
           final errorHandlerCallback =
               Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
-          final errorHandlerUserdata = realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), scheduler.handle.pointer);
+          final errorHandlerUserdata = realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), schedulerHandle.pointer);
           realmLib.realm_sync_config_set_error_handler(syncConfigPtr, realmLib.addresses.realm_dart_sync_error_handler_callback, errorHandlerUserdata.cast(),
               realmLib.addresses.realm_dart_userdata_async_free);
 
           if (config.clientResetHandler.onBeforeReset != null) {
             final syncBeforeResetCallback = Pointer.fromFunction<Void Function(Handle, Pointer<shared_realm>, Pointer<Void>)>(_syncBeforeResetCallback);
-            final beforeResetUserdata = realmLib.realm_dart_userdata_async_new(config, syncBeforeResetCallback.cast(), scheduler.handle.pointer);
+            final beforeResetUserdata = realmLib.realm_dart_userdata_async_new(config, syncBeforeResetCallback.cast(), schedulerHandle.pointer);
 
             realmLib.realm_sync_config_set_before_client_reset_handler(syncConfigPtr, realmLib.addresses.realm_dart_sync_before_reset_handler_callback,
                 beforeResetUserdata.cast(), realmLib.addresses.realm_dart_userdata_async_free);
@@ -109,7 +109,7 @@ class ConfigHandle extends HandleBase<realm_config> {
             final syncAfterResetCallback =
                 Pointer.fromFunction<Void Function(Handle, Pointer<shared_realm>, Pointer<realm_thread_safe_reference>, Bool, Pointer<Void>)>(
                     _syncAfterResetCallback);
-            final afterResetUserdata = realmLib.realm_dart_userdata_async_new(config, syncAfterResetCallback.cast(), scheduler.handle.pointer);
+            final afterResetUserdata = realmLib.realm_dart_userdata_async_new(config, syncAfterResetCallback.cast(), schedulerHandle.pointer);
 
             realmLib.realm_sync_config_set_after_client_reset_handler(syncConfigPtr, realmLib.addresses.realm_dart_sync_after_reset_handler_callback,
                 afterResetUserdata.cast(), realmLib.addresses.realm_dart_userdata_async_free);
@@ -163,7 +163,7 @@ void _syncAfterResetCallback(Object userdata, Pointer<shared_realm> beforeHandle
         syncConfig,
         RealmHandle.unowned(realmLib.realm_from_thread_safe_reference(
           afterReference,
-          scheduler.handle.pointer,
+          schedulerHandle.pointer,
         )));
 
     try {
