@@ -8,7 +8,6 @@ import 'dart:ffi';
 import '../../credentials.dart';
 import '../../realm_dart.dart';
 import '../../user.dart';
-import '../user_handle.dart' as intf;
 import 'app_handle.dart';
 import 'convert.dart';
 import 'convert_native.dart';
@@ -19,6 +18,8 @@ import 'handle_base.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 import 'scheduler_handle.dart';
+
+import '../user_handle.dart' as intf;
 
 class UserHandle extends HandleBase<realm_user> implements intf.UserHandle {
   UserHandle(Pointer<realm_user> pointer) : super(pointer, 24);

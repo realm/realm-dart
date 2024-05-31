@@ -4,7 +4,6 @@
 import 'dart:async';
 
 import '../realm.dart';
-import 'handles/realm_bindings.dart';
 import 'handles/session_handle.dart';
 import 'user.dart';
 
@@ -232,65 +231,56 @@ enum ProgressMode {
 /// Error code enumeration, indicating the type of [SyncError].
 enum SyncErrorCode {
   /// Unrecognized error code. It usually indicates incompatibility between the App Services server and client SDK versions.
-  runtimeError(realm_errno.RLM_ERR_RUNTIME),
+  runtimeError,
 
   /// The partition value specified by the user is not valid - i.e. its the wrong type or is encoded incorrectly.
-  badPartitionValue(realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE),
+  badPartitionValue,
 
   /// A fundamental invariant in the communication between the client and the server was not upheld. This typically indicates
   /// a bug in the synchronization layer and should be reported at https://github.com/realm/realm-core/issues.
-  protocolInvariantFailed(realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED),
+  protocolInvariantFailed,
 
   /// The changeset is invalid.
-  badChangeset(realm_errno.RLM_ERR_BAD_CHANGESET),
+  badChangeset,
 
   /// The client attempted to create a subscription for a query is invalid/malformed.
-  invalidSubscriptionQuery(realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY),
+  invalidSubscriptionQuery,
 
   /// A client reset has occurred. This error code will only be reported via a [ClientResetError] and only
   /// in the case manual client reset handling is required - either via [ManualRecoveryHandler] or when
   /// `onManualReset` is invoked on one of the automatic client reset handlers.
-  clientReset(realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED),
+  clientReset,
 
   /// The client attempted to upload an invalid schema change - either an additive schema change
   /// when developer mode is <c>off</c> or a destructive schema change.
-  invalidSchemaChange(realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE),
+  invalidSchemaChange,
 
   /// Permission to Realm has been denied.
-  permissionDenied(realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED),
+  permissionDenied,
 
   /// The server permissions for this file have changed since the last time it was used.
-  serverPermissionsChanged(realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED),
+  serverPermissionsChanged,
 
   /// The user for this session doesn't match the user who originally created the file. This can happen
   /// if you explicitly specify the Realm file path in the configuration and you open the Realm first with
   /// user A, then with user B without changing the on-disk path.
-  userMismatch(realm_errno.RLM_ERR_SYNC_USER_MISMATCH),
+  userMismatch,
 
   /// Client attempted a write that is disallowed by permissions, or modifies an object
   /// outside the current query - this will result in a [CompensatingWriteError].
-  writeNotAllowed(realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED),
+  writeNotAllowed,
 
   /// Automatic client reset has failed. This will only be reported via [ClientResetError]
   /// when an automatic client reset handler was used but it failed to perform the client reset operation -
   /// typically due to a breaking schema change in the server schema or due to an exception occurring in the
   /// before or after client reset callbacks.
-  autoClientResetFailed(realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED),
+  autoClientResetFailed,
 
   /// The wrong sync type was used to connect to the server. This means that you're trying to connect
   /// to an app configured to use partition sync.
-  wrongSyncType(realm_errno.RLM_ERR_WRONG_SYNC_TYPE),
+  wrongSyncType,
 
   /// Client attempted a write that is disallowed by permissions, or modifies an
   /// object outside the current query, and the server undid the modification.
-  compensatingWrite(realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE);
-
-  static final Map<int, SyncErrorCode> _valuesMap = {for (var value in SyncErrorCode.values) value.code: value};
-
-  static SyncErrorCode fromInt(int code) {
-    return SyncErrorCode._valuesMap[code] ?? SyncErrorCode.runtimeError;
-  }
-
-  final int code;
-  const SyncErrorCode(this.code);
+  compensatingWrite;
 }

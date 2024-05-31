@@ -4,8 +4,9 @@
 import '../../realm.dart';
 
 import 'credentials_handle.dart';
-import 'native/app_handle.dart' if (dart.library.js_interop) 'web/app_handle.dart' as impl;
 import 'user_handle.dart';
+
+import 'native/app_handle.dart' if (dart.library.js_interop) 'web/app_handle.dart' as impl;
 
 abstract interface class AppHandle {
   factory AppHandle.from(AppConfiguration configuration) = impl.AppHandle.from;
