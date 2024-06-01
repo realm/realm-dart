@@ -764,13 +764,13 @@ List<SchemaObject> getSyncSchema() {
   ];
 }
 
-Future<bool> runWithRetries(bool Function() tester, {int retryDelay = 100, int attempts = 100}) async {
-  var success = tester();
+Future<bool> runWithRetries(FutureOr<bool> Function() tester, {int retryDelay = 100, int attempts = 100}) async {
+  var success = await tester();
   var timeout = retryDelay * attempts;
 
   while (!success && attempts > 0) {
     await Future<void>.delayed(Duration(milliseconds: retryDelay));
-    success = tester();
+    success = await tester();
     attempts--;
   }
 

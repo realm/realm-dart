@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:http/http.dart';
+
 import '../../logging.dart';
 import '../../realm_dart.dart';
 import 'convert_native.dart';
@@ -17,7 +19,7 @@ import 'scheduler_handle.dart';
 class HttpTransportHandle extends HandleBase<realm_http_transport> {
   HttpTransportHandle(Pointer<realm_http_transport> pointer) : super(pointer, 24);
 
-  factory HttpTransportHandle.from(HttpClient httpClient) {
+  factory HttpTransportHandle.from(Client httpClient) {
     final requestCallback = Pointer.fromFunction<Void Function(Handle, realm_http_request, Pointer<Void>)>(_requestCallback);
     final requestCallbackUserdata = realmLib.realm_dart_userdata_async_new(httpClient, requestCallback.cast(), schedulerHandle.pointer);
     return HttpTransportHandle(realmLib.realm_http_transport_new(
@@ -38,9 +40,9 @@ void _requestCallback(Object userData, realm_http_request request, Pointer<Void>
   // We cannot clone request on the native side with realm_clone,
   // since realm_http_request does not inherit from WrapC.
 
-  final client = userData as HttpClient;
+  final client = userData as Client;
 
-  client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
+  // client.connectionTimeout = Duration(milliseconds: request.timeout_ms);
 
   final url = Uri.parse(request.url.cast<Utf8>().toRealmDartString()!);
 
@@ -59,7 +61,7 @@ void _requestCallback(Object userData, realm_http_request request, Pointer<Void>
 }
 
 Future<void> _requestCallbackAsync(
-  HttpClient client,
+  Client client,
   int requestMethod,
   Uri url,
   String? body,
@@ -73,32 +75,13 @@ Future<void> _requestCallbackAsync(
 
     try {
       // Build request
-      late HttpClientRequest request;
-
-      switch (method) {
-        case HttpMethod.delete:
-          request = await client.deleteUrl(url);
-          break;
-        case HttpMethod.put:
-          request = await client.putUrl(url);
-          break;
-        case HttpMethod.patch:
-          request = await client.patchUrl(url);
-          break;
-        case HttpMethod.post:
-          request = await client.postUrl(url);
-          break;
-        case HttpMethod.get:
-          request = await client.getUrl(url);
-          break;
-      }
-
+      final request = Request(method.name, url);
       for (final header in headers.entries) {
-        request.headers.add(header.key, header.value);
+        request.headers[header.key] = header.value;
       }
 
       if (body != null) {
-        request.add(utf8.encode(body));
+        request.bodyBytes = utf8.encode(body);
       }
 
       Realm.logger.log(LogLevel.debug, "HTTP Transport: Executing ${method.name} $url");
@@ -106,34 +89,28 @@ Future<void> _requestCallbackAsync(
       final stopwatch = Stopwatch()..start();
 
       // Do the call..
-      final response = await request.close();
+      final response = await client.send(request);
 
       stopwatch.stop();
       Realm.logger.log(LogLevel.debug, "HTTP Transport: Executed ${method.name} $url: ${response.statusCode} in ${stopwatch.elapsedMilliseconds} ms");
 
-      final responseBody = await response.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
+      final responseBody = await response.stream.fold<List<int>>([], (acc, l) => acc..addAll(l)); // gather response
 
       // Report back to core
       responseRef.status_code = response.statusCode;
       responseRef.body = responseBody.toCharPtr(arena);
       responseRef.body_size = responseBody.length;
 
-      int headerCnt = 0;
-      response.headers.forEach((name, values) {
-        headerCnt += values.length;
-      });
-
+      int headerCnt = response.headers.length;
       responseRef.headers = arena<realm_http_header>(headerCnt);
       responseRef.num_headers = headerCnt;
 
       int index = 0;
-      response.headers.forEach((name, values) {
-        for (final value in values) {
-          final headerRef = (responseRef.headers + index).ref;
-          headerRef.name = name.toCharPtr(arena);
-          headerRef.value = value.toCharPtr(arena);
-          index++;
-        }
+      response.headers.forEach((name, value) {
+        final headerRef = (responseRef.headers + index).ref;
+        headerRef.name = name.toCharPtr(arena);
+        headerRef.value = value.toCharPtr(arena);
+        index++;
       });
 
       responseRef.custom_status_code = CustomErrorCode.noError.code;

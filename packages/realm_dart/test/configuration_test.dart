@@ -87,7 +87,7 @@ void main() {
     final appClientId = baasHelper!.getClientAppId(appName: AppName.flexible);
     final baasUrl = baasHelper!.baseUrl;
     var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
-    expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
+    expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
 
     var app = App(appConfig);
     var user = await app.logIn(Credentials.anonymous());
@@ -103,7 +103,7 @@ void main() {
     Configuration.defaultRealmPath = customDefaultRealmPath;
 
     appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
-    expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
+    expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
 
     clearCachedApps();
 
@@ -163,7 +163,7 @@ void main() {
     var realm = getRealm(config);
     realm.write(() => realm.add(Car('Tesla')));
     realm.close();
-    expect(Realm.existsSync(config.path), false);
+    expect(File(config.path).existsSync(), false);
   });
 
   test('Configuration inMemory can not be readOnly', () {

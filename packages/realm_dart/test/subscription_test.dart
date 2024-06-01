@@ -473,7 +473,7 @@ void main() {
     final appConfigurationY = AppConfiguration(
       appConfigurationX.appId,
       baseUrl: appConfigurationX.baseUrl,
-      baseFilePath: temporaryDir,
+      baseFilePath: temporaryDir.path,
     );
     final appY = App(appConfigurationY);
 

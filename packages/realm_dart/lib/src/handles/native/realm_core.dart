@@ -9,7 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
 
-import '../../init.dart';
+import 'init.dart';
 import '../../realm_class.dart';
 import '../../scheduler.dart';
 import 'convert_native.dart';
@@ -195,5 +195,9 @@ class RealmCore {
       realmLib.realm_dart_set_and_get_rlimit(limit, outLimit).raiseLastErrorIfFalse();
       return outLimit.value;
     });
+  }
+
+  bool checkIfRealmExists(String path) {
+    return File(path).existsSync(); // TODO: Should this not check that file is an actual realm file?
   }
 }

@@ -3,7 +3,7 @@
 
 import 'package:realm_common/realm_common.dart';
 
-import '../../init.dart';
+import 'init.dart';
 import 'ffi.dart';
 import 'realm_bindings.dart';
 

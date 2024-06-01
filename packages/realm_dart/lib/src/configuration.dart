@@ -2,16 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
 
 import 'app.dart';
 import 'handles/realm_core.dart';
-import 'init.dart';
 import 'logging.dart';
-import 'realm_class.dart';
+import 'realm_dart.dart';
 import 'user.dart';
 
 const encryptionKeySize = 64;
@@ -84,11 +82,7 @@ abstract class Configuration {
   /// On Flutter Linux this is the `/home/username/.local/share/app_name` directory.
   /// On Dart standalone Windows, macOS and Linux this is the current directory.
   static String get defaultStoragePath {
-    if (isFlutterPlatform) {
-      return realmCore.getAppDirectory();
-    }
-
-    return Directory.current.path;
+    return realmCore.getAppDirectory();
   }
 
   /// The platform dependent path to the default realm file.
