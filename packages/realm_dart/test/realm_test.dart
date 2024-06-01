@@ -1445,7 +1445,7 @@ void main() {
     var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     final beforeCompactSizeSize = await createRealmForCompact(config);
 
-    final compacted = Realm.compact(config);
+    final compacted = await Realm.compact(config);
 
     validateCompact(compacted, config.path, beforeCompactSizeSize);
 
@@ -1486,7 +1486,7 @@ void main() {
 
     final beforeCompactSizeSize = await createRealmForCompact(config);
 
-    final compacted = Realm.compact(config);
+    final compacted = await Realm.compact(config);
 
     validateCompact(compacted, config.path, beforeCompactSizeSize);
 
@@ -1516,7 +1516,7 @@ void main() {
 
     final beforeCompactSize = await createRealmForCompact(config);
 
-    final compacted = Realm.compact(config);
+    final compacted = await Realm.compact(config);
 
     validateCompact(compacted, config.path, beforeCompactSize);
 

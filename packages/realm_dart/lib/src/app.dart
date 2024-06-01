@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:isolate';
 
+import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
@@ -52,20 +52,20 @@ he8Y4IWS6wY7bCkjCWDcRQJMEhg76fsO3txE+FiYruq9RUWhiF1myv4Q6W+CyBFC
 Dfvp7OOGAN6dEOM4+qR9sdjoSYKEBpsr6GtPAQw4dy753ec5
 -----END CERTIFICATE-----''';
 
-  if (Platform.isWindows) {
-    try {
-      final context = SecurityContext(withTrustedRoots: true);
-      context.setTrustedCertificatesBytes(const AsciiEncoder().convert(isrgRootX1CertPEM));
-      return HttpClient(context: context);
-    } on TlsException catch (e) {
-      // certificate is already trusted. Nothing to do here
-      if (e.osError?.message.contains("CERT_ALREADY_IN_HASH_TABLE") != true) {
-        rethrow;
-      }
-    }
-  }
+  // if (Platform.isWindows) {
+  //   try {
+  //     final context = SecurityContext(withTrustedRoots: true);
+  //     context.setTrustedCertificatesBytes(const AsciiEncoder().convert(isrgRootX1CertPEM));
+  //     return Client(context: context);
+  //   } on TlsException catch (e) {
+  //     // certificate is already trusted. Nothing to do here
+  //     if (e.osError?.message.contains("CERT_ALREADY_IN_HASH_TABLE") != true) {
+  //       rethrow;
+  //     }
+  //   }
+  // }
 
-  return HttpClient();
+  return Client();
 }();
 
 /// A class exposing configuration options for an [App]
@@ -79,7 +79,7 @@ class AppConfiguration {
   ///
   /// This data includes metadata for users and synchronized Realms. If set, you must ensure that the [baseFilePath]
   /// directory exists.
-  final Directory baseFilePath;
+  final String baseFilePath;
 
   /// The [baseUrl] is the [Uri] used to reach the MongoDB Atlas.
   ///
@@ -106,26 +106,26 @@ class AppConfiguration {
   /// Setting this will not change the encryption key for individual Realms, which is set in the [Configuration].
   final List<int>? metadataEncryptionKey;
 
-  /// The [HttpClient] that will be used for HTTP requests during authentication.
+  /// The [Client] that will be used for HTTP requests during authentication.
   ///
   /// You can use this to override the default http client handler and configure settings like proxies,
   /// client certificates, and cookies. While these are not required to connect to MongoDB Atlas under
   /// normal circumstances, they can be useful if client devices are behind corporate firewall or use
   /// a more complex networking setup.
-  final HttpClient httpClient;
+  final Client httpClient;
 
   /// Instantiates a new [AppConfiguration] with the specified appId.
   AppConfiguration(
     this.appId, {
     Uri? baseUrl,
-    Directory? baseFilePath,
+    String? baseFilePath,
     this.defaultRequestTimeout = const Duration(seconds: 60),
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
     this.maxConnectionTimeout = const Duration(minutes: 2),
-    HttpClient? httpClient,
+    Client? httpClient,
   })  : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
-        baseFilePath = baseFilePath ?? Directory(path.dirname(Configuration.defaultRealmPath)),
+        baseFilePath = baseFilePath ?? path.dirname(Configuration.defaultRealmPath),
         httpClient = httpClient ?? _defaultClient {
     if (appId == '') {
       throw RealmException('Supplied appId must be a non-empty value');
@@ -170,7 +170,6 @@ class App {
   App._(this._handle);
 
   static AppHandle _createApp(AppConfiguration configuration) {
-    configuration.baseFilePath.createSync(recursive: true);
     return AppHandle.from(configuration);
   }
 

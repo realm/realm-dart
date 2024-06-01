@@ -6,7 +6,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import '../../init.dart';
+import 'init.dart';
 import '../../realm_class.dart';
 import 'convert.dart';
 import 'convert_native.dart';
@@ -34,6 +34,8 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
       _firstTime = false;
       realmLib.realm_clear_cached_apps();
     }
+    Directory(configuration.baseFilePath).createSync(recursive: true);
+
     final httpTransportHandle = HttpTransportHandle.from(configuration.httpClient);
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
     return AppHandle(realmLib.realm_app_create_cached(appConfigHandle.pointer));
@@ -429,7 +431,7 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
 
     realmLib.realm_app_config_set_bundle_id(handle.pointer, realmCore.getBundleId().toCharPtr(arena));
 
-    realmLib.realm_app_config_set_base_file_path(handle.pointer, configuration.baseFilePath.path.toCharPtr(arena));
+    realmLib.realm_app_config_set_base_file_path(handle.pointer, configuration.baseFilePath.toCharPtr(arena));
     realmLib.realm_app_config_set_metadata_mode(handle.pointer, configuration.metadataPersistenceMode.index);
 
     if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {

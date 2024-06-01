@@ -4,9 +4,8 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import 'package:test/expect.dart' hide throws;
-
 import 'package:realm_dart/realm.dart';
+
 import 'test.dart';
 
 void main() {

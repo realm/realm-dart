@@ -191,7 +191,7 @@ class BaasHelper {
     return AppConfiguration(
       app.clientAppId,
       baseUrl: Uri.parse(customBaseUrl ?? baseUrl),
-      baseFilePath: temporaryDir,
+      baseFilePath: temporaryDir.path,
       maxConnectionTimeout: Duration(minutes: 10),
       defaultRequestTimeout: Duration(minutes: 7),
     );

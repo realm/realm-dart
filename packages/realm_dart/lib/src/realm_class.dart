@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
+import 'dart:isolate';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
@@ -179,7 +179,7 @@ class Realm {
       return await CancellableFuture.value(realm, cancellationToken);
     }
 
-    _ensureDirectory(config);
+//    _ensureDirectory(config);
 
     final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
     return await CancellableFuture.from<Realm>(() async {
@@ -205,15 +205,7 @@ class Realm {
   }
 
   static RealmHandle _openRealm(Configuration config) {
-    _ensureDirectory(config);
     return RealmHandle.open(config);
-  }
-
-  static void _ensureDirectory(Configuration config) {
-    var dir = File(config.path).parent;
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
-    }
   }
 
   void _populateMetadata() {
@@ -230,22 +222,12 @@ class Realm {
 
   /// Synchronously checks whether a `Realm` exists at [path]
   static bool existsSync(String path) {
-    try {
-      final fileEntity = File(path);
-      return fileEntity.existsSync();
-    } catch (e) {
-      throw RealmException("Error while checking if Realm exists at $path. Error: $e");
-    }
+    return realmCore.checkIfRealmExists(path);
   }
 
   /// Checks whether a `Realm` exists at [path].
   static Future<bool> exists(String path) async {
-    try {
-      final fileEntity = File(path);
-      return await fileEntity.exists();
-    } catch (e) {
-      throw RealmException("Error while checking if Realm exists at $path. Error: $e");
-    }
+    return await Isolate.run(() => realmCore.checkIfRealmExists(path));
   }
 
   /// Adds a [RealmObject] to the `Realm`.
@@ -564,7 +546,7 @@ class Realm {
       throw RealmException("Can't compact an in-memory Realm");
     }
 
-    if (!File(config.path).existsSync()) {
+    if (!Realm.existsSync(config.path)) {
       print("realm file doesn't exist: ${config.path}");
       return false;
     }

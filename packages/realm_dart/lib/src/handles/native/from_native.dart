@@ -287,6 +287,7 @@ extension CompleterEx<T> on Completer<T> {
 
 enum CustomErrorCode {
   noError(0),
+  socketException(997),
   unknownHttp(998),
   unknown(999),
   timeout(1000);

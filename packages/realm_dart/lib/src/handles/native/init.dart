@@ -7,11 +7,13 @@ import 'dart:io';
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as p;
 
-import '../realm.dart' as realm show isFlutterPlatform;
-import 'cli/common/target_os_type.dart';
-import 'cli/metrics/metrics_command.dart';
-import 'cli/metrics/options.dart';
-import 'realm_class.dart';
+import '../../cli/common/target_os_type.dart';
+import '../../cli/metrics/metrics_command.dart';
+import '../../cli/metrics/options.dart';
+import '../../realm_class.dart';
+
+import '../../../realm.dart' show isFlutterPlatform;
+export '../../../realm.dart' show isFlutterPlatform;
 
 const realmBinaryName = 'realm_dart';
 final targetOsType = Platform.operatingSystem.asTargetOsType ?? _platformNotSupported();
@@ -50,7 +52,7 @@ String _getLibPathDart(Package realmDartPackage) {
   _platformNotSupported();
 }
 
-bool get isFlutterPlatform => realm.isFlutterPlatform;
+//bool get isFlutterPlatform => realm.isFlutterPlatform;
 
 String _getLibName(String stem) => switch (targetOsType) {
       TargetOsType.android => 'lib$stem.so',
