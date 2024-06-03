@@ -6,8 +6,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'init.dart';
-import '../../realm_class.dart';
+import 'package:realm_dart/realm.dart';
+
 import 'convert.dart';
 import 'convert_native.dart';
 import 'credentials_handle.dart';

@@ -8,17 +8,15 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
+import 'package:realm_dart/realm.dart';
 
-import 'init.dart';
-import '../../realm_class.dart';
-import '../../scheduler.dart';
 import 'convert_native.dart';
 import 'error_handling.dart';
 import 'ffi.dart';
 import 'realm_library.dart';
 import 'scheduler_handle.dart';
 
-final realmCore = RealmCore._();
+import '../realm_core.dart' as intf;
 
 final _pluginLib = () {
   if (!isFlutterPlatform) {
@@ -41,12 +39,16 @@ final _pluginLib = () {
   return pluginLib;
 }();
 
-class RealmCore {
-  RealmCore._();
+const realmCore = RealmCore();
+
+class RealmCore implements intf.RealmCore {
+  const RealmCore();
 
   // For debugging
+  @override
   int get threadId => realmLib.realm_dart_get_thread_id();
 
+  @override
   void clearCachedApps() {
     realmLib.realm_clear_cached_apps();
   }
@@ -56,6 +58,7 @@ class RealmCore {
   //   realmLib.realm_dart_gc();
   // }
 
+  @override
   void deleteRealmFiles(String path) {
     using((arena) {
       final realmDeleted = arena<Bool>();
@@ -63,6 +66,7 @@ class RealmCore {
     });
   }
 
+  @override
   List<String> getAllCategoryNames() {
     return using((arena) {
       final count = realmLib.realm_get_category_names(0, nullptr);
@@ -72,6 +76,7 @@ class RealmCore {
     });
   }
 
+  @override
   String getAppDirectory() {
     try {
       if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
@@ -103,6 +108,7 @@ class RealmCore {
     }
   }
 
+  @override
   String getBundleId() {
     readBundleId() {
       try {
@@ -136,10 +142,12 @@ class RealmCore {
     return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
   }
 
+  @override
   String getDefaultBaseUrl() {
     return realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
   }
 
+  @override
   String getDeviceName() {
     if (Platform.isAndroid || Platform.isIOS) {
       return realmLib.realm_dart_get_device_name().cast<Utf8>().toRealmDartString()!;
@@ -148,6 +156,7 @@ class RealmCore {
     return "";
   }
 
+  @override
   String getDeviceVersion() {
     if (Platform.isAndroid || Platform.isIOS) {
       return realmLib.realm_dart_get_device_version().cast<Utf8>().toRealmDartString()!;
@@ -156,20 +165,25 @@ class RealmCore {
     return "";
   }
 
+  @override
   String getRealmLibraryCpuArchitecture() {
     return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
   }
 
+  @override
   void loggerAttach() => realmLib.realm_dart_attach_logger(schedulerHandle.sendPort.nativePort);
 
+  @override
   void loggerDetach() => realmLib.realm_dart_detach_logger(schedulerHandle.sendPort.nativePort);
 
+  @override
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
       realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
+  @override
   void setLogLevel(LogLevel level, {required LogCategory category}) {
     using((arena) {
       realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
@@ -190,6 +204,7 @@ class RealmCore {
     return realmLib.realm_dart_get_files_path().cast<Utf8>().toRealmDartString()!;
   }
 
+  @override
   int setAndGetRLimit(int limit) {
     return using((arena) {
       final outLimit = arena<Long>();
@@ -198,6 +213,7 @@ class RealmCore {
     });
   }
 
+  @override
   bool checkIfRealmExists(String path) {
     return File(path).existsSync(); // TODO: Should this not check that file is an actual realm file?
   }
