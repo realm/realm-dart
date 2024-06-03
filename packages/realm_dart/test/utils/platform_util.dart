@@ -21,6 +21,9 @@ abstract interface class PlatformUtil {
   Future<Uint8List> raw(String path);
 
   Map<String, String> get environment;
+
+  int get maxInt;
+  int get minInt;
 }
 
 const platformUtil = PlatformUtil();

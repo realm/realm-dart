@@ -412,8 +412,8 @@ final _openRealms = Queue<Realm>();
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
 
-const int maxInt = 9223372036854775807;
-const int minInt = -9223372036854775808;
+final int maxInt = platformUtil.maxInt;
+final int minInt = platformUtil.minInt;
 const int jsMaxInt = 9007199254740991;
 const int jsMinInt = -9007199254740991;
 

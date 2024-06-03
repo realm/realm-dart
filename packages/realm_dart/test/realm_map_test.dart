@@ -261,8 +261,8 @@ List<TestCaseData<int>> intTestCases() => [
       TestCaseData(123456789, initialValues: [('123', -123)]),
       TestCaseData(123456789, initialValues: [('a', 1), ('b', 1), ('c', 1)]),
       TestCaseData(123456789, initialValues: [('a', 1), ('b', 2), ('c', 3)]),
-      TestCaseData(123456789, initialValues: [('a', -0x8000000000000000), ('z', 0x7FFFFFFFFFFFFFFF)]),
-      TestCaseData(123456789, initialValues: [('a', -0x8000000000000000), ('zero', 0), ('one', 1), ('z', 0x7FFFFFFFFFFFFFFF)]),
+      TestCaseData(123456789, initialValues: [('a', minInt), ('z', maxInt)]),
+      TestCaseData(123456789, initialValues: [('a', minInt), ('zero', 0), ('one', 1), ('z', maxInt)]),
     ];
 
 List<TestCaseData<int?>> nullableIntTestCases() => [
@@ -272,8 +272,8 @@ List<TestCaseData<int?>> nullableIntTestCases() => [
       TestCaseData(1234, initialValues: [('null', null)]),
       TestCaseData(1234, initialValues: [('null1', null), ('null2', null), ('null3', null)]),
       TestCaseData(null, initialValues: [('a', 1), ('b', null), ('c', 3)]),
-      TestCaseData(1234, initialValues: [('a', -0x8000000000000000), ('m', null), ('z', 0x7FFFFFFFFFFFFFFF)]),
-      TestCaseData(1234, initialValues: [('a', -0x8000000000000000), ('zero', 0), ('null', null), ('one', 1), ('z', 0x7FFFFFFFFFFFFFFF)]),
+      TestCaseData(1234, initialValues: [('a', minInt), ('m', null), ('z', maxInt)]),
+      TestCaseData(1234, initialValues: [('a', minInt), ('zero', 0), ('null', null), ('one', 1), ('z', maxInt)]),
     ];
 
 List<TestCaseData<String>> stringTestValues() => [
