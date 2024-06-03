@@ -7,5 +7,11 @@
 pushd "%~dp0.."
 echo %CD%
 
-cmake --preset windows
-cmake --build --preset windows --config MinSizeRel
+@REM only building for x64 if no arguments
+set ABIS=x64 arm64
+if [%1]==[] set ABIS=x64
+
+(for %%a in (%ABIS%) do (
+    cmake --preset windows-%%a
+    cmake --build --preset windows-%%a --config MinSizeRel
+))

@@ -21,7 +21,7 @@ jobs:
     with:
       runner: windows-latest
       binary: windows
-      build: '["windows"]'
+      build: '["windows-x64", "windows-arm64"]'
 
   build-macos:
     name: Build MacOS
@@ -54,6 +54,11 @@ jobs:
       runner: macos-14
       binary: ios
       build: '["ios-device", "ios-simulator"]'
+
+  build-windows-combined:
+    name: Build combine Windows
+    needs: build-windows
+    uses: ./.github/workflows/binary-combine-windows.yml
 
   build-android-combined:
     name: Build combine Android
