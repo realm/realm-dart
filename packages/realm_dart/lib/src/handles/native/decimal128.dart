@@ -5,14 +5,14 @@ import 'dart:convert';
 import 'dart:ffi';
 
 import 'ffi.dart';
-import 'package:realm_common/realm_common.dart' as common;
-
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 import 'to_native.dart';
 
+import '../decimal128.dart' as intf;
+
 /// A 128-bit decimal floating point number.
-class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {
+class Decimal128 implements intf.Decimal128 {
   /// The value 0.
   static final zero = Decimal128.fromInt(0);
 
@@ -62,32 +62,39 @@ class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {
   }
 
   /// Returns `true` if `this` is NaN.
+  @override
   bool get isNaN => realmLib.realm_dart_decimal128_is_nan(_value);
 
   /// Adds `this` with `other` and returns a new [Decimal128].
-  Decimal128 operator +(Decimal128 other) {
+  @override
+  Decimal128 operator +(covariant Decimal128 other) {
     return Decimal128._(realmLib.realm_dart_decimal128_add(_value, other._value));
   }
 
   /// Subtracts `other` from `this` and returns a new [Decimal128].
-  Decimal128 operator -(Decimal128 other) {
+  @override
+  Decimal128 operator -(covariant Decimal128 other) {
     return Decimal128._(realmLib.realm_dart_decimal128_subtract(_value, other._value));
   }
 
   /// Multiplies `this` with `other` and returns a new [Decimal128].
-  Decimal128 operator *(Decimal128 other) {
+  @override
+  Decimal128 operator *(covariant Decimal128 other) {
     return Decimal128._(realmLib.realm_dart_decimal128_multiply(_value, other._value));
   }
 
   /// Divides `this` by `other` and returns a new [Decimal128].
-  Decimal128 operator /(Decimal128 other) {
+  @override
+  Decimal128 operator /(covariant Decimal128 other) {
     return Decimal128._(realmLib.realm_dart_decimal128_divide(_value, other._value));
   }
 
   /// Negates `this` and returns a new [Decimal128].
+  @override
   Decimal128 operator -() => Decimal128._(realmLib.realm_dart_decimal128_negate(_value));
 
   /// Returns the absolute value of `this`.
+  @override
   Decimal128 abs() => this < zero ? -this : this;
 
   /// Returns `true` if `this` and `other` are equal.
@@ -103,22 +110,27 @@ class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {
   }
 
   /// Returns `true` if `this` is less than `other`.
-  bool operator <(Decimal128 other) {
+  @override
+  bool operator <(covariant Decimal128 other) {
     return realmLib.realm_dart_decimal128_less_than(_value, other._value);
   }
 
   /// Returns `true` if `this` is less than or equal to `other`.
-  bool operator <=(Decimal128 other) => compareTo(other) <= 0;
+  @override
+  bool operator <=(covariant Decimal128 other) => compareTo(other) <= 0;
 
   /// Returns `true` if `this` is greater than `other`.
-  bool operator >(Decimal128 other) {
+  @override
+  bool operator >(covariant Decimal128 other) {
     return realmLib.realm_dart_decimal128_greater_than(_value, other._value);
   }
 
   /// Returns `true` if `this` is greater than or equal to `other`.
-  bool operator >=(Decimal128 other) => compareTo(other) >= 0;
+  @override
+  bool operator >=(covariant Decimal128 other) => compareTo(other) >= 0;
 
   /// Converts `this` to an `int`. Possibly loosing precision.
+  @override
   int toInt() => realmLib.realm_dart_decimal128_to_int64(_value);
 
   /// String representation of `this`.
@@ -132,7 +144,7 @@ class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {
 
   /// Compares `this` to `other`.
   @override
-  int compareTo(Decimal128 other) => realmLib.realm_dart_decimal128_compare_to(_value, other._value);
+  int compareTo(covariant Decimal128 other) => realmLib.realm_dart_decimal128_compare_to(_value, other._value);
 }
 
 extension Decimal128Internal on Decimal128 {
