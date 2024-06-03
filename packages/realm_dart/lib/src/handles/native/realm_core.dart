@@ -16,6 +16,7 @@ import 'convert_native.dart';
 import 'error_handling.dart';
 import 'ffi.dart';
 import 'realm_library.dart';
+import 'scheduler_handle.dart';
 
 final realmCore = RealmCore._();
 
@@ -159,9 +160,9 @@ class RealmCore {
     return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
   }
 
-  void loggerAttach() => realmLib.realm_dart_attach_logger(scheduler.nativePort);
+  void loggerAttach() => realmLib.realm_dart_attach_logger(schedulerHandle.sendPort.nativePort);
 
-  void loggerDetach() => realmLib.realm_dart_detach_logger(scheduler.nativePort);
+  void loggerDetach() => realmLib.realm_dart_detach_logger(schedulerHandle.sendPort.nativePort);
 
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {

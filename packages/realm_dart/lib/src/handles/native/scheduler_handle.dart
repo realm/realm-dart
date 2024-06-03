@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:ffi';
+import 'dart:isolate';
 
 import '../../scheduler.dart';
 import 'handle_base.dart';
@@ -11,11 +12,12 @@ import 'realm_library.dart';
 import '../scheduler_handle.dart' as intf;
 
 class SchedulerHandle extends HandleBase<realm_scheduler> implements intf.SchedulerHandle {
-  SchedulerHandle._(Pointer<realm_scheduler> pointer) : super(pointer, 24);
+  final SendPort sendPort;
+  SchedulerHandle._(this.sendPort, Pointer<realm_scheduler> pointer) : super(pointer, 24);
 
-  factory SchedulerHandle(int isolateId, int sendPort) {
-    final schedulerPtr = realmLib.realm_dart_create_scheduler(isolateId, sendPort);
-    return SchedulerHandle._(schedulerPtr);
+  factory SchedulerHandle(int isolateId, SendPort sendPort) {
+    final schedulerPtr = realmLib.realm_dart_create_scheduler(isolateId, sendPort.nativePort);
+    return SchedulerHandle._(sendPort, schedulerPtr);
   }
 
   @override
@@ -26,5 +28,3 @@ class SchedulerHandle extends HandleBase<realm_scheduler> implements intf.Schedu
 }
 
 final schedulerHandle = scheduler.handle as SchedulerHandle;
-
-
