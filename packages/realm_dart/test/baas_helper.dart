@@ -1,13 +1,12 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:io';
-
-import 'package:test/test.dart' as testing;
-
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/cli/atlas_apps/baas_client.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
+import 'package:test/test.dart' as testing;
+
+import 'utils/platform_util.dart';
 
 export 'package:realm_dart/src/cli/atlas_apps/baas_client.dart' show AppName;
 
@@ -37,7 +36,7 @@ enum Env {
   const Env(this.name, this._dartDefined);
 
   String? get dartDefined => _dartDefined.emptyAsNull;
-  String? get shellDefined => Platform.environment[name];
+  String? get shellDefined => platformUtil.environment[name];
   String? get value => dartDefined ?? shellDefined;
 
   bool get isDefined => value != null;
@@ -187,11 +186,11 @@ class BaasHelper {
       throw app.error!;
     }
 
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_');
+    final temporaryPath = await platformUtil.createTempPath();
     return AppConfiguration(
       app.clientAppId,
       baseUrl: Uri.parse(customBaseUrl ?? baseUrl),
-      baseFilePath: temporaryDir.path,
+      baseFilePath: temporaryPath,
       maxConnectionTimeout: Duration(minutes: 10),
       defaultRequestTimeout: Duration(minutes: 7),
     );
@@ -234,7 +233,7 @@ class BaasHelper {
         }
 
         print('Failed to trigger client reset: $e');
-        await Future.delayed(Duration(seconds: i));
+        await Future<void>.delayed(Duration(seconds: i));
       }
     }
 

@@ -3,8 +3,6 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ffi';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -16,14 +14,18 @@ import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/logging.dart';
 import 'package:realm_dart/src/realm_object.dart';
 import 'package:test/test.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 import 'baas_helper.dart';
+import 'utils/platform_util.dart';
 
 export 'package:test/test.dart';
 
 export 'baas_helper.dart' show AppName;
 
 part 'test.realm.dart';
+
+typedef Platform = UniversalPlatform;
 
 @RealmModel()
 class _Car {
@@ -436,7 +438,7 @@ void setupTests() {
     }
 
     // Enable this to print platform info, including current PID
-    _printPlatformInfo();
+    platformUtil.printPlatformInfo();
   });
 
   setUp(() {
@@ -465,7 +467,7 @@ void setupTests() {
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
 String generateRandomRealmPath() {
-  final path = _path.join(Directory.systemTemp.createTempSync("realm_test_").path, "${generateRandomString(10)}.realm");
+  final path = _path.join(platformUtil.createTempPathSync(), "${generateRandomString(10)}.realm");
   return path;
 }
 
@@ -550,10 +552,9 @@ dynamic freezeDynamic(dynamic object) {
   return frozen;
 }
 
-final dummy = File("");
 Future<void> tryDeleteRealm(String path) async {
   //Skip on CI to speed it up. We are creating the realms in $TEMP anyways.
-  if (Platform.environment.containsKey("REALM_CI")) {
+  if (platformUtil.environment.containsKey("REALM_CI")) {
     return;
   }
 
@@ -561,10 +562,6 @@ Future<void> tryDeleteRealm(String path) async {
   for (var i = 0; i < 5; i++) {
     try {
       Realm.deleteRealm(path);
-
-      //delete lock file
-      await File('$path.lock').delete().onError((error, stackTrace) => dummy);
-
       return;
     } catch (e) {
       Realm.logger.log(LogLevel.info, 'Failed to delete realm at path $path. Trying again in ${duration.inMilliseconds}ms');
@@ -708,23 +705,6 @@ extension DateTimeTest on DateTime {
 
 void clearCachedApps() => realmCore.clearCachedApps();
 
-void _printPlatformInfo() {
-  final pointerSize = sizeOf<IntPtr>() * 8;
-  final os = Platform.operatingSystem;
-  String? cpu;
-
-  if (!isFlutterPlatform) {
-    if (Platform.isWindows) {
-      cpu = Platform.environment['PROCESSOR_ARCHITECTURE'];
-    } else {
-      final info = Process.runSync('uname', ['-m']);
-      cpu = info.stdout.toString().replaceAll('\n', '');
-    }
-  }
-
-  print('Current PID $pid; OS $os, $pointerSize bit, CPU ${cpu ?? 'unknown'}');
-}
-
 extension StreamEx<T> on Stream<Stream<T>> {
   Stream<T> switchLatest() async* {
     StreamSubscription<T>? inner;
@@ -781,8 +761,4 @@ Future<bool> runWithRetries(FutureOr<bool> Function() tester, {int retryDelay = 
   return success;
 }
 
-Future<void> _copyFile(String fromPath, String toPath) async {
-  await File(fromPath).copy(toPath);
-}
-
-var copyFile = _copyFile; // default, but allow integration_test to override
+var copyFile = platformUtil.copy; // default, but allow integration_test to override

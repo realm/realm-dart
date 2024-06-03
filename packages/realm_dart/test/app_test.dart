@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
@@ -12,6 +11,7 @@ import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 
 import 'test.dart';
+import 'utils/platform_util.dart';
 
 void main() {
   setupTests();
@@ -28,7 +28,7 @@ void main() {
     final httpClient = Client();
     final appConfig = AppConfiguration(
       'myapp1',
-      baseFilePath: Directory.systemTemp.path,
+      baseFilePath: platformUtil.systemTempPath,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
       metadataPersistenceMode: MetadataPersistenceMode.disabled,
@@ -36,7 +36,7 @@ void main() {
       httpClient: httpClient,
     );
     expect(appConfig.appId, 'myapp1');
-    expect(appConfig.baseFilePath, Directory.systemTemp.path);
+    expect(appConfig.baseFilePath, platformUtil.systemTempPath);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.disabled);
@@ -61,7 +61,7 @@ void main() {
     final httpClient = Client();
     final appConfig = AppConfiguration(
       'myapp1',
-      baseFilePath: Directory.systemTemp.path,
+      baseFilePath: platformUtil.systemTempPath,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
       metadataPersistenceMode: MetadataPersistenceMode.encrypted,
@@ -71,7 +71,7 @@ void main() {
     );
 
     expect(appConfig.appId, 'myapp1');
-    expect(appConfig.baseFilePath, Directory.systemTemp.path);
+    expect(appConfig.baseFilePath, platformUtil.systemTempPath);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.encrypted);
