@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -11,6 +10,7 @@ import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/subscription.dart';
 
 import 'test.dart';
+import 'utils/platform_util.dart';
 
 void main() {
   setupTests();
@@ -469,11 +469,11 @@ void main() {
     final appX = App(appConfigurationX);
 
     realmCore.clearCachedApps();
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_flexible_sync_roundtrip_');
+    final temporaryPath = await platformUtil.createTempPath();
     final appConfigurationY = AppConfiguration(
       appConfigurationX.appId,
       baseUrl: appConfigurationX.baseUrl,
-      baseFilePath: temporaryDir.path,
+      baseFilePath: temporaryPath,
     );
     final appY = App(appConfigurationY);
 

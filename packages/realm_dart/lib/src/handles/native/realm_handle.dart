@@ -3,6 +3,7 @@
 
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'ffi.dart';
@@ -37,7 +38,13 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
   RealmHandle.unowned(super.pointer) : super.unowned();
 
   factory RealmHandle.open(Configuration config) {
+    var dir = File(config.path).parent;
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+    
     final configHandle = ConfigHandle.from(config);
+    
     return RealmHandle(realmLib
         .realm_open(configHandle.pointer) //
         .raiseLastErrorIfNull());
