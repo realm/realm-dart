@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
 
-import '../../realm_dart.dart';
+import 'package:realm_common/realm_common.dart' hide Decimal128;
+
 import '../../realm_object.dart';
 import 'decimal128.dart';
 import 'realm_bindings.dart';
