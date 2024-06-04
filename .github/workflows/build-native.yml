@@ -59,7 +59,7 @@ jobs:
         if: steps.check-cache.outputs.cache-hit != 'true'
         run: |
           cmake --preset ${{ startsWith(matrix.build, 'ios-') && 'ios' || matrix.build }}
-          cmake --build --preset ${{ matrix.build }} --config Release ${{ startsWith(matrix.build, 'android-') && '--target strip' || '' }}
+          cmake --build --preset ${{ matrix.build }} --config Debug
 
       - name: Store artifacts
         uses: actions/upload-artifact@v4
