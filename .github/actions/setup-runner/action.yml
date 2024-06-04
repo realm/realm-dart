@@ -1,0 +1,73 @@
+name: Setup runner
+description: Setup the runner with the necessary tools and dependencies.
+
+inputs:
+  flutter-version:
+    description: Flutter version to use.
+    default: stable
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup environment
+      # By forcing puro (and hence the pub-cache) onto the same drive as the checkout,
+      # we can avoid symlink issue between local and network drives on windows.
+      shell: bash
+      run: |
+        export PURO_ROOT=$(dirname $GITHUB_WORKSPACE)/puro
+        mkdir -p $PURO_ROOT
+
+        echo $PURO_ROOT/bin >> $GITHUB_PATH
+        echo $PURO_ROOT/shared/pub_cache/bin/ >> $GITHUB_PATH
+        echo $PURO_ROOT/envs/default/flutter/bin/ >> $GITHUB_PATH
+
+        echo PURO_ROOT=$PURO_ROOT >> $GITHUB_ENV
+        echo PUB_CACHE=$PURO_ROOT/shared/pub_cache >> $GITHUB_ENV
+        echo MELOS_SDK_PATH=$PURO_ROOT/envs/default/flutter/ >> $GITHUB_ENV
+
+    - name: Restore cache
+      id: restore
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ env.PURO_ROOT }}
+        key: setup-runner-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}
+        restore-keys: setup-runner-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Install puro (posix)
+      # see https://puro.dev/
+      if: runner.os != 'Windows'
+      shell: bash
+      run: curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.6" bash
+
+    - name: Install puro (windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: >-
+        Invoke-WebRequest
+        -Uri "https://puro.dev/builds/1.4.6/windows-x64/puro.exe"
+        -OutFile "$Env:PURO_ROOT";
+        &"$Env:PURO_ROOT\puro.exe" install-puro --promote
+
+    - name: Upgrade puro and flutter
+      shell: bash
+      run: |
+        puro upgrade-puro
+        puro use --global ${{ inputs.flutter-version }}
+        puro upgrade ${{ inputs.flutter-version }}
+        puro gc
+
+    - name: Activate melos
+      shell: bash
+      run: |
+        puro pub global run melos --version || puro pub global activate melos
+        puro pub global run melos bootstrap
+
+    - name: Save cache
+      # Saving on feature branches will only benefit reruns, so we don't bother.
+      # Feature branches inherit the cache from the main branch anyway.
+      # This saves on cache storage.
+      if: ${{ github.ref != 'refs/heads/main' && steps.restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ env.PURO_ROOT }}
+        key: ${{ steps.restore.outputs.cache-primary-key }}
