@@ -25,10 +25,10 @@ jobs:
       - name: Build .xcframework
         run: |
           xcodebuild -create-xcframework \
-            -framework ./binary/ios/Release-iphoneos/realm_dart.framework \
-            -framework ./binary/ios/Release-iphonesimulator/realm_dart.framework \
+            -framework ./binary/ios/Debug-iphoneos/realm_dart.framework \
+            -framework ./binary/ios/Debug-iphonesimulator/realm_dart.framework \
             -output ./binary/ios/realm_dart.xcframework
-          rm -rf ./binary/ios/Release-*
+          rm -rf ./binary/ios/Debug-*
 
       - name: Store .xcframework artifact
         uses: actions/upload-artifact@v4
