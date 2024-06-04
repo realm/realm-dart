@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ./packages/realm_dart/binary/**
-          key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}
+          key: binaries-${{ matrix.build }}-${{ inputs.runner }}-${{hashFiles('./packages/realm_dart/src/**')}}-debug
 
       - name: Setup Ninja
         if: steps.check-cache.outputs.cache-hit != 'true' && (startsWith(matrix.build, 'android') || startsWith(matrix.build, 'linux'))
