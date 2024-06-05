@@ -26,6 +26,7 @@ runs:
         echo MELOS_SDK_PATH=$PURO_ROOT/envs/default/flutter/ >> $GITHUB_ENV
 
     - name: Restore cache
+      # TODO: Avoid skipping restore on Windows
       if: runner.os != 'Windows'
       id: restore
       uses: actions/cache/restore@v4
@@ -35,13 +36,15 @@ runs:
         restore-keys: setup-runner-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Install puro (posix)
-      # see https://puro.dev/
-      if: runner.os != 'Windows'
+      # See https://puro.dev/
+      # Skip on any cache hit (partial or full)
+      if: runner.os != 'Windows' && steps.restore.outputs.cache-matched-key == ''
       shell: bash
       run: curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.6" bash
 
     - name: Install puro (windows)
-      if: runner.os == 'Windows'
+      # We always install on windows, as we currently don't restore a cache (see TODO above)
+      if: runner.os == 'Windows' && steps.restore.outputs.cache-matched-key == ''
       shell: pwsh
       run: >-
         Invoke-WebRequest
@@ -58,16 +61,19 @@ runs:
         puro gc
 
     - name: Activate melos
+      if: steps.restore.outputs.cache-matched-key == ''
       shell: bash
-      run: |
-        puro pub global run melos --version || puro pub global activate melos
-        puro pub global run melos bootstrap
+      run: puro pub global run melos --version || puro pub global activate melos
+
+    - name: Melos bootstrap
+      shell: bash
+      run: puro pub global run melos bootstrap
 
     - name: Save cache
       # Saving on feature branches will only benefit reruns, so we don't bother.
       # Feature branches inherit the cache from the main branch anyway.
       # This saves on cache storage.
-      if: ${{ github.ref != 'refs/heads/main' && steps.restore.outputs.cache-hit != 'true' }}
+      if: github.ref != 'refs/heads/main' && steps.restore.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: ${{ env.PURO_ROOT }}
