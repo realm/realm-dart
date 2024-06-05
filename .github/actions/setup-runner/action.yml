@@ -26,6 +26,7 @@ runs:
         echo MELOS_SDK_PATH=$PURO_ROOT/envs/default/flutter/ >> $GITHUB_ENV
 
     - name: Restore cache
+      if: runner.os != 'Windows'
       id: restore
       uses: actions/cache/restore@v4
       with:
