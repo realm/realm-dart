@@ -5,6 +5,10 @@ inputs:
   flutter-version:
     description: Flutter version to use.
     default: stable
+  cache-key:
+    description: Cache key to use for restoring and saving the cache.
+    default: ${{ hashFiles('**/pubspec.yaml') }}
+
 
 runs:
   using: "composite"
@@ -32,7 +36,7 @@ runs:
       uses: actions/cache/restore@v4
       with:
         path: ${{ env.PURO_ROOT }}
-        key: setup-runner-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}
+        key: setup-runner-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-key }}
         restore-keys: setup-runner-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Install puro (posix)
