@@ -59,9 +59,14 @@ class InstallCommand extends Command<void> {
     return false;
   }
 
-  Future<void> downloadAndExtractBinaries(Directory destinationDir, Version version, String archiveName) async {
+  Future<void> downloadAndExtractBinaries(Directory destinationDir, Version version, String archiveName, bool force) async {
     if (await shouldSkipDownload(destinationDir.absolute.path, version.toString())) {
-      return;
+      if (!force) {
+        return;
+      }
+
+      print('Deleting existing binaries because --force was supplied.');
+      await destinationDir.delete(recursive: true);
     }
 
     if (!await destinationDir.exists()) {
@@ -130,8 +135,9 @@ class InstallCommand extends Command<void> {
 
     final flavorName = flavor.packageName;
     final realmDependency = pubspec.dependencyOverrides[flavorName] ?? pubspec.dependencies[flavorName];
-    if (realmDependency is PathDependency) {
-      print('Path dependency for $flavorName found. Skipping install of native lib (assuming local development)');
+    if (realmDependency is PathDependency && !options.force) {
+      print(
+          'Path dependency for $flavorName found. Skipping install of native lib (assuming local development). If you want to force install, add --force to the command invocation.');
       return;
     }
     if (realmDependency == null) {
@@ -145,7 +151,7 @@ class InstallCommand extends Command<void> {
     final binaryPath = getBinaryPath(realmPackagePath, isFlutter: flavor == Flavor.flutter);
     print(binaryPath);
     final archiveName = '${options.targetOsType!.name}.tar.gz';
-    await downloadAndExtractBinaries(binaryPath, realmPubspec.version!, archiveName);
+    await downloadAndExtractBinaries(binaryPath, realmPubspec.version!, archiveName, options.force);
 
     print('Realm install command finished.');
   }

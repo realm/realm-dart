@@ -15,7 +15,7 @@ class Options {
   @CliOption(hide: true, help: 'Download binary from http://localhost:8000/.', defaultsTo: false)
   bool debug;
 
-  @CliOption(hide: true, help: 'Force install, even if we would normally skip it.', defaultsTo: false)
+  @CliOption(help: 'Force install, even if we would normally skip it.', abbr: 'f', defaultsTo: false)
   bool force;
 
   Options({this.targetOsType, this.force = false, this.debug = false});
