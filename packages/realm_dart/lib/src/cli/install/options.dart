@@ -18,7 +18,7 @@ class Options {
   @CliOption(hide: true, help: 'Download binary from http://localhost:8000/.', defaultsTo: false)
   bool debug;
 
-  @CliOption(help: 'Force install, even if we would normally skip it.', abbr: 'f', defaultsTo: false)
+  @CliOption(help: 'Force install, even if we would normally skip it.', defaultsTo: false)
   bool force;
 
   Options({this.targetOsType, this.force = false, this.debug = false});
@@ -26,9 +26,11 @@ class Options {
 
 String get usage => _$parserForOptions.usage;
 
-ArgParser populateOptionsParser(ArgParser parser, {
+ArgParser populateOptionsParser(
+  ArgParser parser, {
   TargetOsType? targetOsTypeDefaultOverride,
   Flavor? flavorDefaultOverride,
-}) => _$populateOptionsParser(parser, targetOsTypeDefaultOverride: targetOsTypeDefaultOverride, flavorDefaultOverride: flavorDefaultOverride);
+}) =>
+    _$populateOptionsParser(parser, targetOsTypeDefaultOverride: targetOsTypeDefaultOverride, flavorDefaultOverride: flavorDefaultOverride);
 
 Options parseOptionsResult(ArgResults results) => _$parseOptionsResult(results);
