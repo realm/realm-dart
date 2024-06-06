@@ -1,18 +1,22 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Report the originating error that caused a client reset to occur. (Core 14.9.0)
 
 ### Fixed
 * `Realm.writeAsync` did not handle async callbacks (`Future<T> Function()`) correctly. (Issue [#1667](https://github.com/realm/realm-dart/issues/1667)) 
 * Fixed an issue that would cause macOS apps to be rejected with `Invalid Code Signing Entitlements` error. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Fixed a regression that makes it inconvenient to run unit tests using realm. (Issue [#1619](https://github.com/realm/realm-dart/issues/1619))
+* After compacting, a file upgrade would be triggered. This could cause loss of data if schema mode is SoftResetFile (Core 14.9.0)
+* A non-streaming progress notifier would not immediately call its callback after registration. Instead you would have to wait for a download message to be received to get your first update - if you were already caught up when you registered the notifier you could end up waiting a long time for the server to deliver a download that would call/expire your notifier (Core 14.8.0).
+* Comparing a numeric property with an argument list containing a string would throw. (Core 14.8.0)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
+* Fileformat: Generates files with format v24. Reads and automatically upgrade from fileformat v10.
 
 ### Internal
-* Using Core 14.7.0.
+* Using Core 14.9.0.
 * Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Drop building xcframework for catalyst. (Issue [#1695](https://github.com/realm/realm-dart/issues/1695))
 * Using xcode 15.4 for native build. (Issue [#1547](https://github.com/realm/realm-dart/issues/1547))
