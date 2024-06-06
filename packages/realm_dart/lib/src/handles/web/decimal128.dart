@@ -1,7 +1,6 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:decimal/decimal.dart';
@@ -68,7 +67,7 @@ class Decimal128 implements intf.Decimal128 {
   }
 
   final Decimal _value;
-  Decimal128._(this._value); // TODO: truncate to 128 bits and handle NaN correctly
+  Decimal128._(this._value); // TODO: truncate to 128 bits and handle +/- Inf and NaN correctly
 
   @override
   Decimal128 operator *(covariant Decimal128 other) => Decimal128._(_value * other._value);
@@ -82,6 +81,7 @@ class Decimal128 implements intf.Decimal128 {
   @override
   Decimal128 operator -(covariant Decimal128 other) => Decimal128._(_value - other._value);
 
+  // Note IEEE 754 Decimal128 defines division with zero as infinity, similar to double
   @override
   Decimal128 operator /(covariant Decimal128 other) => Decimal128._((_value / other._value).toDecimal());
 
@@ -108,4 +108,13 @@ class Decimal128 implements intf.Decimal128 {
 
   @override
   int toInt() => _value.toBigInt().toInt();
+
+  @override
+  String toString() => _value.toStringAsExponential(27);
+
+  @override
+  operator ==(Object other) => other is Decimal128 && _value == other._value;
+
+  @override
+  int get hashCode => _value.hashCode;
 }
