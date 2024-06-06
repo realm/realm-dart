@@ -1,12 +1,19 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:decimal/decimal.dart';
+import 'package:rational/rational.dart';
+
 import 'package:realm_dart/src/handles/native/convert.dart';
 import 'package:realm_dart/src/handles/web/web_not_supported.dart';
 
 import '../decimal128.dart' as intf;
 
+/// This is not a compliant IEEE 754 Decimal128 implementation, as it is
+/// just based on the `decimal` package, but the precision is potentially better
 class Decimal128 implements intf.Decimal128 {
   static final zero = Decimal128.fromInt(0);
 
@@ -35,7 +42,30 @@ class Decimal128 implements intf.Decimal128 {
   factory Decimal128.fromInt(int value) => Decimal128._(Decimal.fromInt(value));
 
   /// Converts a `double` into a [Decimal128].
-  factory Decimal128.fromDouble(double value) => webNotSupported();
+  factory Decimal128.fromDouble(double value) {
+    if (value.isNaN) return nan;
+    if (value.isInfinite) return value.isNegative ? negativeInfinity : infinity;
+
+    // Extract the sign, exponent and mantissa from the double
+    final bytes = ByteData(8);
+    bytes.setFloat64(0, value);
+    final bits = bytes.getUint64(0);
+
+    final sign = bits >> 63; // 1 bit
+    final exponent = (bits & 0x7ff0000000000000) >> 12; // 11 bits
+    final mantissa = bits & 0x000fffffffffffff; // 52 bits
+
+    const bias = 1 << 12 - 1; // 1023 bit bias for 64bit double
+
+    final minusOne = -BigInt.one;
+    final denominator = BigInt.one << 52;
+
+    final s = minusOne.pow(sign); // -1^sign
+    final e = BigInt.one << (exponent - bias); // 2^(exponent - bias)
+    final m = Rational(BigInt.from(mantissa) + denominator, denominator); // mantissa + 1.0
+
+    return Decimal128._(((s * e).toRational() * m).toDecimal()); // s * e * m
+  }
 
   final Decimal _value;
   Decimal128._(this._value); // TODO: truncate to 128 bits and handle NaN correctly
@@ -74,8 +104,7 @@ class Decimal128 implements intf.Decimal128 {
   int compareTo(covariant Decimal128 other) => _value.compareTo(other._value);
 
   @override
-  // TODO: implement isNaN
-  bool get isNaN => webNotSupported();
+  bool get isNaN => this == nan;
 
   @override
   int toInt() => _value.toBigInt().toInt();
