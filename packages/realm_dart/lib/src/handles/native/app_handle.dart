@@ -6,8 +6,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:realm_dart/realm.dart';
-
+import '../../../realm.dart';
 import 'convert.dart';
 import 'convert_native.dart';
 import 'credentials_handle.dart';
@@ -19,6 +18,7 @@ import 'realm_bindings.dart';
 import 'realm_core.dart';
 import 'realm_library.dart';
 import 'scheduler_handle.dart';
+import 'sync_socket_handle.dart';
 import 'user_handle.dart';
 
 import '../app_handle.dart' as intf;
@@ -27,7 +27,7 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
   AppHandle(Pointer<realm_app> pointer) : super(pointer, 16);
 
   static bool _firstTime = true;
-  factory AppHandle.from(AppConfiguration configuration) {
+  static Future<AppHandle> from(AppConfiguration configuration) async {
     // to avoid caching apps across hot restarts we clear the cache on the first
     // time the ctor is called in the root isolate.
     if (_firstTime && _isRootIsolate) {
@@ -37,7 +37,14 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
     Directory(configuration.baseFilePath).createSync(recursive: true);
 
     final httpTransportHandle = HttpTransportHandle.from(configuration.httpClient);
-    final appConfigHandle = _createAppConfig(configuration, httpTransportHandle);
+    SyncSocketHandle? syncSocketHandle;
+    if (configuration.useManagedWebsockets) {
+      final worker = WebsocketHandler();
+      syncSocketHandle = await worker.start();
+    }
+
+    final appConfigHandle = _createAppConfig(configuration, httpTransportHandle, syncSocketHandle);
+
     return AppHandle(realmLib.realm_app_create_cached(appConfigHandle.pointer));
   }
 
@@ -406,7 +413,7 @@ class _AppConfigHandle extends HandleBase<realm_app_config> {
   _AppConfigHandle(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
-_AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportHandle httpTransport) {
+_AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportHandle httpTransport, SyncSocketHandle? syncSocket) {
   return using((arena) {
     final appId = configuration.appId.toCharPtr(arena);
     final handle = _AppConfigHandle(realmLib.realm_app_config_new(appId, httpTransport.pointer));
@@ -436,6 +443,11 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
 
     if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
       realmLib.realm_app_config_set_metadata_encryption_key(handle.pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
+    }
+
+    if (syncSocket != null) {
+      final syncClientConfig = realmLib.realm_app_config_get_sync_client_config(handle.pointer);
+      realmLib.realm_sync_client_config_set_sync_socket(syncClientConfig, syncSocket.pointer);
     }
 
     return handle;

@@ -9,7 +9,7 @@ import 'user_handle.dart';
 import 'native/app_handle.dart' if (dart.library.js_interop) 'web/app_handle.dart' as impl;
 
 abstract interface class AppHandle {
-  factory AppHandle.from(AppConfiguration configuration) = impl.AppHandle.from;
+  static Future<AppHandle> from(AppConfiguration configuration) => impl.AppHandle.from(configuration);
   static AppHandle? get(String id, String? baseUrl) => impl.AppHandle.get(id, baseUrl);
 
   String get id;
