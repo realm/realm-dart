@@ -67,7 +67,7 @@ class Decimal128 implements intf.Decimal128 {
   }
 
   final Decimal _value;
-  Decimal128._(this._value); // TODO: truncate to 128 bits and handle +/- Inf and NaN correctly
+  Decimal128._(Decimal value) : _value = value.truncate(scale: 6144);
 
   @override
   Decimal128 operator *(covariant Decimal128 other) => Decimal128._(_value * other._value);
@@ -83,7 +83,7 @@ class Decimal128 implements intf.Decimal128 {
 
   // Note IEEE 754 Decimal128 defines division with zero as infinity, similar to double
   @override
-  Decimal128 operator /(covariant Decimal128 other) => Decimal128._((_value / other._value).toDecimal());
+  Decimal128 operator /(covariant Decimal128 other) => Decimal128._((_value / other._value).toDecimal(scaleOnInfinitePrecision: 6144));
 
   @override
   bool operator <(covariant Decimal128 other) => _value < other._value;
@@ -101,7 +101,12 @@ class Decimal128 implements intf.Decimal128 {
   Decimal128 abs() => Decimal128._(_value.abs());
 
   @override
-  int compareTo(covariant Decimal128 other) => _value.compareTo(other._value);
+  int compareTo(covariant Decimal128 other) {
+    final sign = _value.compareTo(other._value);
+    if (sign < 0) return -1;
+    if (sign > 0) return 1;
+    return 0;
+  }
 
   @override
   bool get isNaN => this == nan;
