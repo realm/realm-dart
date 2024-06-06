@@ -7,14 +7,14 @@ import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
+import 'handles/handle_base.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_changes_handle.dart';
+import 'handles/object_handle.dart';
 import 'list.dart';
-import 'native/handle_base.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
-import 'native/realm_library.dart';
+import 'map.dart';
 import 'realm_class.dart';
 import 'results.dart';
-import 'map.dart';
 
 typedef DartDynamic = dynamic;
 
@@ -175,6 +175,7 @@ class RealmCoreAccessor implements RealmAccessor {
           if (listMetadata != null && _isTypeGenericObject<T>()) {
             switch (listMetadata.schema.baseType) {
               case ObjectType.realmObject:
+                //ManagedRealmList<RealmObject>._(handle, object.realm, listMetadata);
                 return object.realm.createList<RealmObject>(handle, listMetadata);
               case ObjectType.embeddedObject:
                 return object.realm.createList<EmbeddedObject>(handle, listMetadata);
@@ -541,7 +542,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
     if (invocation.isGetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError("Could not find symbol name for ${invocation.memberName}. $bugInTheSdkMessage");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}");
       }
 
       return get(this, name);
@@ -550,7 +551,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
     if (invocation.isSetter) {
       final name = _symbolRegex.firstMatch(invocation.memberName.toString())?.namedGroup("symbolName");
       if (name == null) {
-        throw RealmError("Could not find symbol name for ${invocation.memberName}. $bugInTheSdkMessage");
+        throw RealmError("Could not find symbol name for ${invocation.memberName}");
       }
 
       return set(this, name, invocation.positionalArguments.single);
@@ -647,7 +648,7 @@ extension EmbeddedObjectExtension on EmbeddedObject {
 extension RealmObjectInternal on RealmObjectBase {
   void manage(Realm realm, ObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
-      //most certainly a bug hence we throw an Error
+      // most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
     }
 
@@ -758,7 +759,7 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
         throw RealmException("It is not allowed to have empty key paths.");
       }
       // throw early if the key paths are invalid
-      realmObject.handle.buildAndVerifyKeyPath(keyPaths);
+      realmObject.handle.verifyKeyPath(keyPaths);
     }
   }
 

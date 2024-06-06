@@ -5,7 +5,7 @@ import 'dart:async';
 
 import 'package:logging/logging.dart';
 
-import 'native/realm_core.dart';
+import 'handles/realm_core.dart';
 
 // Using classes to make a fancy hierarchical enum
 sealed class LogCategory {

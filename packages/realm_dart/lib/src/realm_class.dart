@@ -2,25 +2,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
+import 'dart:isolate';
 
 import 'package:cancellation_token/cancellation_token.dart';
 import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
+import 'handles/async_open_task_handle.dart';
+import 'handles/handle_base.dart';
+import 'handles/list_handle.dart';
+import 'handles/map_handle.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_handle.dart';
+import 'handles/realm_core.dart';
+import 'handles/realm_handle.dart';
+import 'handles/set_handle.dart';
 import 'list.dart';
 import 'logging.dart';
 import 'map.dart';
-import 'native/async_open_task_handle.dart';
-import 'native/handle_base.dart';
-import 'native/list_handle.dart';
-import 'native/map_handle.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
-import 'native/realm_core.dart';
-import 'native/realm_handle.dart';
-import 'native/set_handle.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
@@ -88,11 +88,11 @@ export "configuration.dart"
         SyncError,
         SyncErrorHandler;
 export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
+export 'handles/decimal128.dart' show Decimal128;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'logging.dart' hide RealmLoggerInternal;
 export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
-export 'native/decimal128.dart' show Decimal128;
 export 'realm_object.dart'
     show
         AsymmetricObject,
@@ -179,7 +179,6 @@ class Realm {
       return await CancellableFuture.value(realm, cancellationToken);
     }
 
-    _ensureDirectory(config);
 
     final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
     return await CancellableFuture.from<Realm>(() async {
@@ -205,15 +204,7 @@ class Realm {
   }
 
   static RealmHandle _openRealm(Configuration config) {
-    _ensureDirectory(config);
     return RealmHandle.open(config);
-  }
-
-  static void _ensureDirectory(Configuration config) {
-    var dir = File(config.path).parent;
-    if (!dir.existsSync()) {
-      dir.createSync(recursive: true);
-    }
   }
 
   void _populateMetadata() {
@@ -230,22 +221,12 @@ class Realm {
 
   /// Synchronously checks whether a `Realm` exists at [path]
   static bool existsSync(String path) {
-    try {
-      final fileEntity = File(path);
-      return fileEntity.existsSync();
-    } catch (e) {
-      throw RealmException("Error while checking if Realm exists at $path. Error: $e");
-    }
+    return realmCore.checkIfRealmExists(path);
   }
 
   /// Checks whether a `Realm` exists at [path].
   static Future<bool> exists(String path) async {
-    try {
-      final fileEntity = File(path);
-      return await fileEntity.exists();
-    } catch (e) {
-      throw RealmException("Error while checking if Realm exists at $path. Error: $e");
-    }
+    return await Isolate.run(() => realmCore.checkIfRealmExists(path));
   }
 
   /// Adds a [RealmObject] to the `Realm`.
@@ -365,7 +346,6 @@ class Realm {
   T write<T>(T Function() writeCallback) {
     assert(!_isFuture<T>(), 'writeCallback must be synchronous');
     final transaction = beginWrite();
-
     try {
       T result = writeCallback();
       transaction.commit();
@@ -565,7 +545,7 @@ class Realm {
       throw RealmException("Can't compact an in-memory Realm");
     }
 
-    if (!File(config.path).existsSync()) {
+    if (!Realm.existsSync(config.path)) {
       print("realm file doesn't exist: ${config.path}");
       return false;
     }

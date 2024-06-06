@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:isolate';
-import 'package:test/expect.dart' hide throws;
-import 'package:path/path.dart' as path;
-import 'package:crypto/crypto.dart';
 
+import 'package:crypto/crypto.dart';
+import 'package:http/http.dart';
+import 'package:path/path.dart' as path;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/handles/realm_core.dart';
+
 import 'test.dart';
+import 'utils/platform_util.dart';
 
 void main() {
   setupTests();
@@ -19,15 +20,15 @@ void main() {
     Configuration.defaultRealmPath = path.join(Configuration.defaultStoragePath, Configuration.defaultRealmName);
     final defaultAppConfig = AppConfiguration('myapp');
     expect(defaultAppConfig.appId, 'myapp');
-    expect(defaultAppConfig.baseFilePath.path, Configuration.defaultStoragePath);
+    expect(defaultAppConfig.baseFilePath, Configuration.defaultStoragePath);
     expect(defaultAppConfig.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     expect(defaultAppConfig.defaultRequestTimeout, const Duration(minutes: 1));
     expect(defaultAppConfig.metadataPersistenceMode, MetadataPersistenceMode.plaintext);
 
-    final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
+    final httpClient = Client();
     final appConfig = AppConfiguration(
       'myapp1',
-      baseFilePath: Directory.systemTemp,
+      baseFilePath: platformUtil.systemTempPath,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
       metadataPersistenceMode: MetadataPersistenceMode.disabled,
@@ -35,7 +36,7 @@ void main() {
       httpClient: httpClient,
     );
     expect(appConfig.appId, 'myapp1');
-    expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
+    expect(appConfig.baseFilePath, platformUtil.systemTempPath);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.disabled);
@@ -57,10 +58,10 @@ void main() {
   });
 
   test('AppConfiguration can be created', () {
-    final httpClient = HttpClient(context: SecurityContext(withTrustedRoots: false));
+    final httpClient = Client();
     final appConfig = AppConfiguration(
       'myapp1',
-      baseFilePath: Directory.systemTemp,
+      baseFilePath: platformUtil.systemTempPath,
       baseUrl: Uri.parse('https://not_re.al'),
       defaultRequestTimeout: const Duration(seconds: 2),
       metadataPersistenceMode: MetadataPersistenceMode.encrypted,
@@ -70,7 +71,7 @@ void main() {
     );
 
     expect(appConfig.appId, 'myapp1');
-    expect(appConfig.baseFilePath.path, Directory.systemTemp.path);
+    expect(appConfig.baseFilePath, platformUtil.systemTempPath);
     expect(appConfig.baseUrl, Uri.parse('https://not_re.al'));
     expect(appConfig.defaultRequestTimeout, const Duration(seconds: 2));
     expect(appConfig.metadataPersistenceMode, MetadataPersistenceMode.encrypted);

@@ -2,16 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:test/expect.dart' hide throws;
-
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/subscription.dart';
+
 import 'test.dart';
+import 'utils/platform_util.dart';
 
 void main() {
   setupTests();
@@ -470,11 +469,11 @@ void main() {
     final appX = App(appConfigurationX);
 
     realmCore.clearCachedApps();
-    final temporaryDir = await Directory.systemTemp.createTemp('realm_test_flexible_sync_roundtrip_');
+    final temporaryPath = await platformUtil.createTempPath();
     final appConfigurationY = AppConfiguration(
       appConfigurationX.appId,
       baseUrl: appConfigurationX.baseUrl,
-      baseFilePath: temporaryDir,
+      baseFilePath: temporaryPath,
     );
     final appY = App(appConfigurationY);
 
@@ -549,7 +548,7 @@ void main() {
     expect(() => subscriptions.state, returnsNormally);
 
     realm.close();
-    expect(() => subscriptions.state, throws<RealmClosedError>());
+    expect(() => subscriptions.state, throws<RealmError>());
   });
 
   baasTest('SyncSessionErrorCode.compensatingWrite', (configuration) async {

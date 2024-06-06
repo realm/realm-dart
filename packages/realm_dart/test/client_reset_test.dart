@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
 
-import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/configuration.dart' show ClientResetHandlerInternal, ClientResyncModeInternal;
 import 'test.dart';
@@ -95,7 +93,7 @@ void main() {
 
     await resetRealmFuture.wait(defaultWaitTimeout, "ManualRecoveryHandler is not reported.");
 
-    expect(File(config.path).existsSync(), isFalse);
+    expect(Realm.existsSync(config.path), isFalse);
   });
 
   baasTest('Initiate resetRealm after ManualRecoveryHandler callback fails when Realm is opened', (appConfig) async {
@@ -121,7 +119,7 @@ void main() {
     await baasHelper!.triggerClientReset(realm);
 
     expect(await resetRealmFuture.timeout(defaultWaitTimeout), !Platform.isWindows);
-    expect(File(config.path).existsSync(), Platform.isWindows); // posix and windows semantics are different
+    expect(Realm.existsSync(config.path), Platform.isWindows); // posix and windows semantics are different
   });
 
   for (Type clientResetHandlerType in [
