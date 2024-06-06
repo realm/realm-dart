@@ -30,7 +30,15 @@ Options _$parseOptionsResult(ArgResults result) => Options(
       ),
       force: result['force'] as bool,
       debug: result['debug'] as bool,
-    );
+    )..flavor = _$nullableEnumValueHelperNullable(
+        _$FlavorEnumMapBuildCli,
+        result['flavor'] as String?,
+      );
+
+const _$FlavorEnumMapBuildCli = <Flavor, String>{
+  Flavor.flutter: 'flutter',
+  Flavor.dart: 'dart'
+};
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.android: 'android',
@@ -40,23 +48,36 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.windows: 'windows'
 };
 
-ArgParser _$populateOptionsParser(ArgParser parser) => parser
-  ..addOption(
-    'target-os-type',
-    abbr: 't',
-    help: 'The target OS to install binaries for.',
-    allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
-  )
-  ..addFlag(
-    'debug',
-    help: 'Download binary from http://localhost:8000/.',
-    hide: true,
-  )
-  ..addFlag(
-    'force',
-    help: 'Force install, even if we would normally skip it.',
-    hide: true,
-  );
+ArgParser _$populateOptionsParser(
+  ArgParser parser, {
+  Flavor? flavorDefaultOverride,
+  TargetOsType? targetOsTypeDefaultOverride,
+}) =>
+    parser
+      ..addOption(
+        'flavor',
+        abbr: 'f',
+        help: 'The flavor to install binaries for.',
+        defaultsTo: _$FlavorEnumMapBuildCli[flavorDefaultOverride],
+        allowed: ['flutter', 'dart'],
+      )
+      ..addOption(
+        'target-os-type',
+        abbr: 't',
+        help: 'The target OS to install binaries for.',
+        defaultsTo: _$TargetOsTypeEnumMapBuildCli[targetOsTypeDefaultOverride],
+        allowed: ['android', 'ios', 'linux', 'macos', 'windows'],
+      )
+      ..addFlag(
+        'debug',
+        help: 'Download binary from http://localhost:8000/.',
+        hide: true,
+      )
+      ..addFlag(
+        'force',
+        help: 'Force install, even if we would normally skip it.',
+        hide: true,
+      );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
 

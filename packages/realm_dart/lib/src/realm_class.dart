@@ -355,11 +355,15 @@ class Realm {
   /// Checks whether the `Realm` is in write transaction.
   bool get isInTransaction => handle.isWritable;
 
+  bool _isSubtype<S, T>() => <S>[] is List<T>;
+  bool _isFuture<T>() => T != Never && _isSubtype<T, Future>();
+
   /// Synchronously calls the provided callback inside a write transaction.
   ///
   /// If no exception is thrown from within the callback, the transaction will be committed.
   /// It is more efficient to update several properties or even create multiple objects in a single write transaction.
   T write<T>(T Function() writeCallback) {
+    assert(!_isFuture<T>(), 'writeCallback must be synchronous');
     final transaction = beginWrite();
 
     try {
@@ -388,8 +392,8 @@ class Realm {
   /// Executes the provided [writeCallback] in a temporary write transaction. Both acquiring the write
   /// lock and committing the transaction will be done asynchronously.
   Future<T> writeAsync<T>(T Function() writeCallback, [CancellationToken? cancellationToken]) async {
+    assert(!_isFuture<T>(), 'writeCallback must be synchronous');
     final transaction = await beginWriteAsync(cancellationToken);
-
     try {
       T result = writeCallback();
       await transaction.commitAsync(cancellationToken);

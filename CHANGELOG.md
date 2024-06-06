@@ -4,7 +4,9 @@
 * None
 
 ### Fixed
+* `Realm.writeAsync` did not handle async callbacks (`Future<T> Function()`) correctly. (Issue [#1667](https://github.com/realm/realm-dart/issues/1667)) 
 * Fixed an issue that would cause macOS apps to be rejected with `Invalid Code Signing Entitlements` error. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
+* Fixed a regression that makes it inconvenient to run unit tests using realm. (Issue [#1619](https://github.com/realm/realm-dart/issues/1619))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
@@ -13,6 +15,7 @@
 * Using Core 14.7.0.
 * Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Drop building xcframework for catalyst. (Issue [#1695](https://github.com/realm/realm-dart/issues/1695))
+* Using xcode 15.4 for native build. (Issue [#1547](https://github.com/realm/realm-dart/issues/1547))
 
 ## 2.3.0 (2024-05-23)
 
