@@ -602,15 +602,8 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          dart pub global run melos bootstrap
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Compile to wasm
         run: flutter build web --wasm -t integration_test/all_tests.dart
