@@ -9,7 +9,6 @@ inputs:
     description: Cache key to use for restoring and saving the cache.
     default: ${{ hashFiles('**/pubspec.yaml') }}
 
-
 runs:
   using: "composite"
   steps:
@@ -68,6 +67,13 @@ runs:
       if: steps.restore.outputs.cache-matched-key == ''
       shell: bash
       run: puro pub global run melos --version || puro pub global activate melos
+
+    - name: Pub get
+      # We need to run `flutter pub get` first, to ensure the pub-cache is populated,
+      # if we don't have an exact cache hit.
+      if: steps.restore.outputs.cache-hit != 'true'
+      shell: bash
+      run: puro pub global run melos exec -- flutter pub get
 
     - name: Melos bootstrap
       shell: bash
