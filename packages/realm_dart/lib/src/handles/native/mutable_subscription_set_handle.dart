@@ -97,7 +97,9 @@ class MutableSubscriptionSetHandle extends SubscriptionSetHandle implements intf
   void clear() => realmLib.realm_sync_subscription_set_clear(_mutablePointer).raiseLastErrorIfFalse();
 
   @override
-  // Workaround for weird compiler bug
+  // Workaround for weird compiler bug. This should be unnecessary, but if you
+  // remove this override, you get an error that the method is not implemented.
+  // I believe this is related to the covariant keyword in the method signature.
   // ignore: unnecessary_overrides
   SubscriptionHandle? findByResults(covariant ResultsHandle results) => super.findByResults(results);
 }

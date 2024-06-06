@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../collection_changes_handle.dart' as intf;
+import 'handle_base.dart';
 
-class CollectionChangesHandle implements intf.CollectionChangesHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class CollectionChangesHandle extends HandleBase implements intf.CollectionChangesHandle {}

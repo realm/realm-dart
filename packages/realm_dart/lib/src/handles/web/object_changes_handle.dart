@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../object_changes_handle.dart' as intf;
+import 'handle_base.dart';
 
-class ObjectChangesHandle implements intf.ObjectChangesHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class ObjectChangesHandle extends HandleBase implements intf.ObjectChangesHandle {}

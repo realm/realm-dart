@@ -4,10 +4,8 @@
 import 'package:realm_dart/realm.dart';
 
 import '../realm_handle.dart' as intf;
+import 'handle_base.dart';
 
-class RealmHandle implements intf.RealmHandle {
-  factory RealmHandle.open(Configuration config) => throw UnsupportedError('web not supported');
-
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
+class RealmHandle extends HandleBase implements intf.RealmHandle {
+  factory RealmHandle.open(Configuration config) => webNotSupported();
 }

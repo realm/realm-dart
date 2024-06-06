@@ -648,7 +648,7 @@ extension EmbeddedObjectExtension on EmbeddedObject {
 extension RealmObjectInternal on RealmObjectBase {
   void manage(Realm realm, ObjectHandle handle, RealmCoreAccessor accessor, bool update) {
     if (_handle != null) {
-      //most certainly a bug hence we throw an Error
+      // most certainly a bug hence we throw an Error
       throw ArgumentError("Object is already managed");
     }
 

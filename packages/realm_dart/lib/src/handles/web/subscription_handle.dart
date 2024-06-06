@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../subscription_handle.dart' as intf;
+import 'handle_base.dart';
 
-class SubscriptionHandle implements intf.SubscriptionHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class SubscriptionHandle extends HandleBase implements intf.SubscriptionHandle {}

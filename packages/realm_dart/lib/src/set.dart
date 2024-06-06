@@ -141,7 +141,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     _throwOnRealmValueCollection(value);
 
     if (_isManagedRealmObject(value)) {
-      //It is valid to call `add` with managed objects already in the set.
+      // It is valid to call `add` with managed objects already in the set.
       _ensureManagedByThis(value, "add");
     } else {
       // might be updating an existing realm object

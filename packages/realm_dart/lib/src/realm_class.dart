@@ -179,7 +179,6 @@ class Realm {
       return await CancellableFuture.value(realm, cancellationToken);
     }
 
-//    _ensureDirectory(config);
 
     final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
     return await CancellableFuture.from<Realm>(() async {

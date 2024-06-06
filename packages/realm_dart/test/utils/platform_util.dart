@@ -18,7 +18,7 @@ abstract interface class PlatformUtil {
   void printPlatformInfo();
 
   Future<void> copy(String fromPath, String toPath);
-  Future<Uint8List> raw(String path);
+  Future<Uint8List> readAsBytes(String path);
 
   Map<String, String> get environment;
 

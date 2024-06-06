@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../list_handle.dart' as intf;
+import 'handle_base.dart';
 
-class ListHandle implements intf.ListHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class ListHandle extends HandleBase implements intf.ListHandle {}

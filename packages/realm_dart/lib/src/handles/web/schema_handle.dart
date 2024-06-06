@@ -4,10 +4,8 @@
 import 'package:realm_dart/realm.dart';
 
 import '../schema_handle.dart' as intf;
+import 'handle_base.dart';
 
-class SchemaHandle implements intf.SchemaHandle {
-  factory SchemaHandle.from(Iterable<SchemaObject> schema) => throw UnsupportedError('web not supported');
-
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
+class SchemaHandle extends HandleBase implements intf.SchemaHandle {
+  factory SchemaHandle.from(Iterable<SchemaObject> schema) => webNotSupported();
 }

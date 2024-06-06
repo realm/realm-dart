@@ -4,12 +4,8 @@
 import 'dart:isolate';
 
 import '../scheduler_handle.dart' as intf;
+import 'handle_base.dart';
 
-class SchedulerHandle  implements intf.SchedulerHandle {
-  factory SchedulerHandle(int isolateId, SendPort sendPort) => throw UnsupportedError('web not supported');
-
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
+class SchedulerHandle extends HandleBase implements intf.SchedulerHandle {
+  factory SchedulerHandle(int isolateId, SendPort sendPort) => webNotSupported();
 }
-
-

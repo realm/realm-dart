@@ -52,7 +52,6 @@ String _getLibPathDart(Package realmDartPackage) {
   _platformNotSupported();
 }
 
-//bool get isFlutterPlatform => realm.isFlutterPlatform;
 
 String _getLibName(String stem) => switch (targetOsType) {
       TargetOsType.android => 'lib$stem.so',

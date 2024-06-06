@@ -43,7 +43,7 @@ class PlatformUtil implements intf.PlatformUtil {
   }
 
   @override
-  Future<Uint8List> raw(String path) => File(path).readAsBytes();
+  Future<Uint8List> readAsBytes(String path) => File(path).readAsBytes();
 
   @override
   Map<String, String> get environment => Platform.environment;

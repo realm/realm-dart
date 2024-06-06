@@ -2,26 +2,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../credentials_handle.dart' as intf;
+import 'handle_base.dart';
 
-class CredentialsHandle implements intf.CredentialsHandle {
-  factory CredentialsHandle.anonymous(bool reuseCredentials) => throw UnsupportedError('web not supported');
+class CredentialsHandle  extends HandleBase implements intf.CredentialsHandle {
+  factory CredentialsHandle.anonymous(bool reuseCredentials) => webNotSupported();
 
-  factory CredentialsHandle.emailPassword(String email, String password) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.emailPassword(String email, String password) => webNotSupported();
 
-  factory CredentialsHandle.jwt(String token) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.jwt(String token) => webNotSupported();
 
-  factory CredentialsHandle.apple(String idToken) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.apple(String idToken) => webNotSupported();
 
-  factory CredentialsHandle.facebook(String accessToken) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.facebook(String accessToken) => webNotSupported();
 
-  factory CredentialsHandle.googleIdToken(String idToken) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.googleIdToken(String idToken) => webNotSupported();
 
-  factory CredentialsHandle.googleAuthCode(String authCode) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.googleAuthCode(String authCode) => webNotSupported();
 
-  factory CredentialsHandle.function(String payload) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.function(String payload) => webNotSupported();
 
-  factory CredentialsHandle.apiKey(String key) => throw UnsupportedError('web not supported');
-
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
+  factory CredentialsHandle.apiKey(String key) => webNotSupported();
 }

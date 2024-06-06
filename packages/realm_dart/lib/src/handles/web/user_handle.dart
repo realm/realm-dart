@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../user_handle.dart' as intf;
+import 'handle_base.dart';
 
-class UserHandle implements intf.UserHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class UserHandle extends HandleBase implements intf.UserHandle {}

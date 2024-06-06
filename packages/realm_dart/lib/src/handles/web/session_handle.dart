@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../session_handle.dart' as intf;
+import 'handle_base.dart';
 
-class SessionHandle implements intf.SessionHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class SessionHandle extends HandleBase implements intf.SessionHandle {}

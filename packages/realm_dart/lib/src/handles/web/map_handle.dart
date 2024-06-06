@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../map_handle.dart' as intf;
+import 'handle_base.dart';
 
-class MapHandle implements intf.MapHandle {
-  @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
-}
+class MapHandle extends HandleBase implements intf.MapHandle {}

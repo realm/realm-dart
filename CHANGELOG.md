@@ -2,7 +2,7 @@
 
 ### Breaking Changes
 * To avoid dependency on `dart:io`
-  - `AppConfiguration.httpClient` is now of type [`Client`](https://api.dart.dev/stable/3.4.2/dart-io/HttpClient-class.html) and
+  - `AppConfiguration.httpClient` is now of type [`Client`](https://pub.dev/documentation/http/latest/http/Client-class.html) and
   - `AppConfiguration.baseFilePath` is now of type `String`
   
   (Issue [#1374](https://github.com/realm/realm-dart/issues/1374))

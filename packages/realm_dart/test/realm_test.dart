@@ -933,7 +933,7 @@ void main() {
     var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     var realm = getRealm(config);
     readFile(String path) async {
-      final bytes = await platformUtil.raw(path);
+      final bytes = await platformUtil.readAsBytes(path);
       return utf8.decode(bytes, allowMalformed: true);
     }
 

@@ -4,15 +4,16 @@
 import 'package:realm_dart/realm.dart';
 
 import '../async_open_task_handle.dart' as intf;
+import 'handle_base.dart';
 
-class AsyncOpenTaskHandle implements intf.AsyncOpenTaskHandle {
-  factory AsyncOpenTaskHandle.from(FlexibleSyncConfiguration config) => throw UnsupportedError('web not supported');
+class AsyncOpenTaskHandle extends HandleBase implements intf.AsyncOpenTaskHandle {
+  factory AsyncOpenTaskHandle.from(FlexibleSyncConfiguration config) => webNotSupported();
 
   @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
+  noSuchMethod(Invocation invocation) => webNotSupported();
 }
 
 abstract class AsyncOpenTaskProgressNotificationTokenHandle implements intf.AsyncOpenTaskProgressNotificationTokenHandle {
   @override
-  noSuchMethod(Invocation invocation) => throw UnsupportedError('web not supported');
+  noSuchMethod(Invocation invocation) => webNotSupported();
 }
