@@ -11,8 +11,19 @@ import 'package:realm_dart/src/handles/web/web_not_supported.dart';
 
 import '../decimal128.dart' as intf;
 
-/// This is not a compliant IEEE 754 Decimal128 implementation, as it is
-/// just based on the `decimal` package, but the precision is potentially better
+/// This is not a compliant IEEE 754-2008 Decimal128 implementation, as it is
+/// just based on the [decimal](https://pub.dev/packages/decimal) package.
+/// Which is based on the [rational](https://pub.dev/packages/rational) package,
+/// which is again based on the [BigInt] class.
+///
+/// The issues are mostly in some of the odd corner cases of IEEE 754-2008
+/// Decimal128, such as:
+/// * -0 < 0,
+/// * NaN != NaN,
+/// * 1 / 0 = Inf, etc.
+///
+/// Also, be warned that this class is incredible slow compared to the native
+/// implementation.
 class Decimal128 implements intf.Decimal128 {
   static final zero = Decimal128.fromInt(0);
 
