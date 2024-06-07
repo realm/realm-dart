@@ -50,6 +50,7 @@ void main() {
   Future<void> waitForSynchronization({required Realm uploadRealm, required Realm downloadRealm}) async {
     await uploadRealm.syncSession.waitForUpload();
     await downloadRealm.syncSession.waitForDownload();
+    downloadRealm.refresh();
   }
 
   group('RealmValue', () {
