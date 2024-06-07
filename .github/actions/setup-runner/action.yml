@@ -29,7 +29,7 @@ runs:
         echo PUB_CACHE=$PURO_ROOT/shared/pub_cache >> $GITHUB_ENV
         echo MELOS_SDK_PATH=$PURO_ROOT/envs/default/flutter/ >> $GITHUB_ENV
 
-        echo "week = $(date +'%Y-%U')" >> $GITHUB_OUTPUT
+        echo "week=$(date +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Restore cache
       # TODO: Avoid skipping restore on Windows 
@@ -71,13 +71,6 @@ runs:
       if: steps.restore.outputs.cache-matched-key == ''
       shell: bash
       run: puro pub global run melos --version || puro pub global activate melos
-
-    - name: Pub get
-      # We need to run `flutter pub get` first, to ensure the pub-cache is populated,
-      # if we don't have an exact cache hit.
-      if: steps.restore.outputs.cache-hit != 'true'
-      shell: bash
-      run: puro pub global run melos exec -- flutter pub get
 
     - name: Melos bootstrap
       shell: bash

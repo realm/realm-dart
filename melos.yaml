@@ -13,16 +13,6 @@ packages:
 
 command:
   bootstrap:
-    # To benefit most from the cached pub-cache on CI we want to use
-    # `flutter pub get --offline` when running `melos bootstrap`.
-    # Unfortunately, melos doesn't support '--offline' as a cli argument yet
-    # (see https://github.com/invertase/melos/issues/714).
-    #
-    # Instead we set `runPubGetOffline` to `true` to achieve the same effect.
-    # This has the downside of not updating deps when running
-    # 'melos bootstrap' locally as well, but that can easily by mitigated
-    # by running: `melos exec -- flutter pub get`.
-    runPubGetOffline: true
     environment:
       sdk: ^3.3.0
       flutter: ^3.19.0
