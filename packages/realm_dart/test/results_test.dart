@@ -10,6 +10,49 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+@RealmModel()
+class _TestNotificationObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+
+  @MapTo("_remappedIntProperty")
+  late int? remappedIntProperty;
+
+  late _TestNotificationObject? link;
+
+  late List<_TestNotificationObject> list;
+
+  late Set<_TestNotificationObject> set;
+
+  late Map<String, _TestNotificationObject?> map;
+
+  late _TestNotificationDifferentType? linkDifferentType;
+
+  late List<_TestNotificationDifferentType> listDifferentType;
+
+  late Set<_TestNotificationDifferentType> setDifferentType;
+
+  late Map<String, _TestNotificationDifferentType?> mapDifferentType;
+
+  late _TestNotificationEmbeddedObject? embedded;
+
+  @Backlink(#link)
+  late Iterable<_TestNotificationObject> backlink;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _TestNotificationEmbeddedObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+}
+
+@RealmModel()
+class _TestNotificationDifferentType {
+  late String? stringProperty;
+}
+
 void main() {
   setupTests();
 
@@ -76,8 +119,8 @@ void main() {
         tno.linkDifferentType = TestNotificationDifferentType();
         tno.embedded = TestNotificationEmbeddedObject();
         tno.listDifferentType.add(TestNotificationDifferentType());
-        tno.setLinks.add(TestNotificationDifferentType());
-        tno.mapLinks["test"] = TestNotificationDifferentType();
+        tno.setDifferentType.add(TestNotificationDifferentType());
+        tno.mapDifferentType["test"] = TestNotificationDifferentType();
       });
       await verifyNotifications(externalChanges, expectedNotifications: false);
 
