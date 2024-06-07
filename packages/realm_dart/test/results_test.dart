@@ -13,6 +13,78 @@ import 'test.dart';
 void main() {
   setupTests();
 
+  group('Results notifications with keypaths', () {
+    Future<void> verifyNotifications<T extends RealmObjectBase>(List<RealmResultsChanges<T>> changeList,
+        {List<int>? expectedInserted,
+        List<int>? expectedModified,
+        List<int>? expectedDeleted,
+        List<int>? expectedMoved,
+        bool expectedIsCleared = false,
+        bool expectedNotifications = true}) async {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      if (!expectedNotifications) {
+        expect(changeList.length, 0);
+        return;
+      }
+
+      expect(changeList.length, 1);
+      final changes = changeList[0];
+
+      expect(changes.inserted, expectedInserted ?? []);
+      expect(changes.modified, expectedModified ?? []);
+      expect(changes.deleted, expectedDeleted ?? []);
+      expect(changes.moved, expectedMoved ?? []);
+      expect(changes.isCleared, expectedIsCleared);
+
+      changeList.clear();
+    }
+
+    bool isFirstNotification<T extends RealmObjectBase>(RealmResultsChanges<T> changes) {
+      return changes.inserted.isEmpty &&
+          changes.modified.isEmpty &&
+          changes.deleted.isEmpty &&
+          changes.newModified.isEmpty &&
+          changes.moved.isEmpty &&
+          !changes.isCleared;
+    }
+
+    test('scalar top level property', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["stringProperty"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.stringProperty = "testString";
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.intProperty = 23;
+        tno.remappedIntProperty = 25;
+        tno.linkDifferentType = TestNotificationDifferentType();
+        tno.embedded = TestNotificationEmbeddedObject();
+        tno.listDifferentType.add(TestNotificationDifferentType());
+        tno.setLinks.add(TestNotificationDifferentType());
+        tno.mapLinks["test"] = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+  });
+
   test('Results all should not return null', () {
     var config = Configuration.local([Car.schema]);
     var realm = getRealm(config);

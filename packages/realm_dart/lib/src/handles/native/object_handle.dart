@@ -170,6 +170,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> implements intf.Object
     });
   }
 
+  //Why does not this need to be declared with @override?
   void verifyKeyPath(List<String>? keyPaths) => buildAndVerifyKeyPath(keyPaths);
 
   @override

@@ -114,16 +114,38 @@ class ResultsHandle extends RootedHandleBase<realm_results> implements intf.Resu
   }
 
   @override
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    return NotificationTokenHandle(
-      realmLib.realm_results_add_notification_callback(
-        pointer,
-        controller.toPersistentHandle(),
-        realmLib.addresses.realm_dart_delete_persistent_handle,
-        nullptr,
-        Pointer.fromFunction(collectionChangeCallback),
-      ),
-      root,
-    );
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey) {
+    return using((Arena arena) {
+      final kpNative = buildAndVerifyKeyPath(keyPaths, classKey);
+      return NotificationTokenHandle(
+        realmLib.realm_results_add_notification_callback(
+          pointer,
+          controller.toPersistentHandle(),
+          realmLib.addresses.realm_dart_delete_persistent_handle,
+          kpNative,
+          Pointer.fromFunction(collectionChangeCallback),
+        ),
+        root,
+      );
+    });
   }
+
+  Pointer<realm_key_path_array> buildAndVerifyKeyPath(List<String>? keyPaths, int? classKey) {
+    return using((arena) {
+      if (keyPaths == null || classKey == null) {
+        return nullptr;
+      }
+
+      final length = keyPaths.length;
+      final keypathsNative = arena<Pointer<Char>>(length);
+      for (int i = 0; i < length; i++) {
+        keypathsNative[i] = keyPaths[i].toCharPtr(arena);
+      }
+
+      return realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative).raiseLastErrorIfNull();
+    });
+  }
+
+  @override
+  void verifyKeyPath(List<String>? keyPaths, int? classKey) => buildAndVerifyKeyPath(keyPaths, classKey);
 }

@@ -406,6 +406,49 @@ class _ObjectWithInt {
   int i = 42;
 }
 
+@RealmModel()
+class _TestNotificationObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+
+  @MapTo("_remappedIntProperty")
+  late int? remappedIntProperty;
+
+  late _TestNotificationObject? link;
+
+  late List<_TestNotificationObject> listLinks;
+
+  late Set<_TestNotificationObject> setLinks;
+
+  late Map<String, _TestNotificationObject?> mapLinks;
+
+  late _TestNotificationDifferentType? linkDifferentType;
+
+  late List<_TestNotificationDifferentType> listDifferentType;
+
+  late Set<_TestNotificationDifferentType> setDifferentType;
+
+  late Map<String, _TestNotificationDifferentType?> mapDifferentType;
+
+  late _TestNotificationEmbeddedObject? embedded;
+
+  @Backlink(#link)
+  late Iterable<_TestNotificationObject> backlink;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _TestNotificationEmbeddedObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+}
+
+@RealmModel()
+class _TestNotificationDifferentType {
+  late String? stringProperty;
+}
+
 String? testName;
 final _openRealms = Queue<Realm>();
 
