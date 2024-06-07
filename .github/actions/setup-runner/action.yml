@@ -83,7 +83,7 @@ runs:
       # Saving on feature branches will only benefit reruns, so we don't bother.
       # Feature branches inherit the cache from the main branch anyway.
       # This saves on cache storage.
-      if: github.ref != 'refs/heads/main' && steps.restore.outputs.cache-hit != 'true'
+      if: github.ref == 'refs/heads/main' && steps.restore.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: ${{ env.PURO_ROOT }}
