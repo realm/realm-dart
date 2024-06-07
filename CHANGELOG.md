@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 3.0.0 (2024-06-07)
 
 ### Breaking Changes
 * To avoid dependency on `dart:io`
