@@ -4,7 +4,6 @@
 * To avoid dependency on `dart:io`
   - `AppConfiguration.httpClient` is now of type [`Client`](https://pub.dev/documentation/http/latest/http/Client-class.html) and
   - `AppConfiguration.baseFilePath` is now of type `String`
-  
   (Issue [#1374](https://github.com/realm/realm-dart/issues/1374))
 
 ### Enhancements
@@ -29,6 +28,7 @@
 * Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Drop building xcframework for catalyst. (Issue [#1695](https://github.com/realm/realm-dart/issues/1695))
 * Using xcode 15.4 for native build. (Issue [#1547](https://github.com/realm/realm-dart/issues/1547))
+* Using puro on CI. ([#1710](https://github.com/realm/realm-dart/pull/1710))
 
 ## 2.3.0 (2024-05-23)
 
