@@ -46,7 +46,7 @@ jobs:
         with:
           find: "const libraryVersion = '[^']*';"
           replace: "const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
-          include: 'packages/realm_dart/lib/src/handles/native/realm_core.dart'
+          include: 'packages/realm_dart/lib/src/handles/native/realm_library.dart'
 
       - name: Make sure we updated libraryVersion in realm_library.dart
         run: |
