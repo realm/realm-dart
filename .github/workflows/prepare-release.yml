@@ -40,15 +40,15 @@ jobs:
           replace: "  s.version$1= '${{ steps.update-changelog.outputs.new-version }}'"
           include: '**realm.podspec'
 
-      - name: Update libraryVersion in realm_core.dart
+      - name: Update libraryVersion in realm_library.dart
         id: update-libraryVersion
         uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
         with:
           find: "const libraryVersion = '[^']*';"
           replace: "const libraryVersion = '${{ steps.update-changelog.outputs.new-version }}';"
-          include: 'packages/realm_dart/lib/src/native/realm_core.dart'
+          include: 'packages/realm_dart/lib/src/handles/native/realm_core.dart'
 
-      - name: Make sure we updated libraryVersion in realm_core.dart
+      - name: Make sure we updated libraryVersion in realm_library.dart
         run: |
           if [ '${{ steps.update-libraryVersion.outputs.modifiedFiles }}' != '1' ]; then
             echo 'Expected exactly one modified file, got ${{ steps.update-libraryVersion.outputs.modifiedFiles }}'
