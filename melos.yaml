@@ -13,6 +13,16 @@ packages:
 
 command:
   bootstrap:
+    # To benefit most from the cached pub-cache on CI we want to use
+    # `flutter pub get --offline` when running `melos bootstrap`.
+    # Unfortunately, melos doesn't support '--offline' as a cli argument yet
+    # (see https://github.com/invertase/melos/issues/714).
+    #
+    # Instead we set `runPubGetOffline` to `true` to achieve the same effect.
+    # This has the downside of not updating deps when running
+    # 'melos bootstrap' locally as well, but that can easily by mitigated
+    # by running: `melos exec -- flutter pub get`.
+    runPubGetOffline: true
     environment:
       sdk: ^3.3.0
       flutter: ^3.19.0
@@ -40,7 +50,7 @@ scripts:
       - build:native
       - build:binding
       - build:dart
-      
+
   build:native:
     exec: dev build
     packageFilters:
@@ -121,7 +131,7 @@ scripts:
     run: >-
       find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
       | xargs dart format --fix --line-length 160
-    exec: 
+    exec:
       concurrency: 1 # only one project at a time to keep output sane
 
   upgrade:
@@ -143,7 +153,7 @@ scripts:
     run: >-
       find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
       | xargs dart format --fix --line-length 160 --output none --set-exit-if-changed
-    exec: 
+    exec:
       concurrency: 1 # only one project at a time to keep output sane
 
   lint:pana:
@@ -152,7 +162,7 @@ scripts:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       published: true
-    
+
   coverage:
     description: Generate, check and render coverage.
     steps:
@@ -223,4 +233,3 @@ scripts:
       - coverage
       - analyze
       - lint
-  

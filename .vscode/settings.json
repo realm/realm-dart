@@ -33,6 +33,8 @@
     "nodoc",
     "nullptr",
     "posix",
+    "puro",
+    "pwsh",
     "riscv",
     "sublist",
     "sublists",

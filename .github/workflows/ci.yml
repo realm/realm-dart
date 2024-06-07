@@ -321,32 +321,22 @@ jobs:
         with:
           submodules: "recursive"
 
+      - name: Setup runner
+        uses: ./.github/actions/setup-runner
+
       - name: Bump ulimit
         run: |
           ulimit -n
           ulimit -n 10240
 
       - name: Enable ccache
-        run: echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
+        run: echo "/usr/lib/ccache:/usr/local/opt/ccache/libexec" >> $GITHUB_PATH
 
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
         with:
           name: librealm-ios
           path: packages/realm_dart/binary/ios
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          dart pub global run melos bootstrap
-
-      - name: Install dependencies
-        run: dart pub get
 
       - name: Launch Simulator
         uses: futureware-tech/simulator-action@v3
@@ -431,18 +421,8 @@ jobs:
           name: librealm-android
           path: packages/realm_dart/binary/android
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          dart pub global run melos bootstrap
-
-      - name: Install dependencies
-        run: dart pub get
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       # Hack to free up space on the runner to ensure we have enough diskspace to run the emulator
       - name: Remove unnecessary files (dotnet, etc.)
@@ -526,15 +506,8 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          dart pub global run melos bootstrap
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Delete generated files in realm_dart
         run: |
@@ -629,15 +602,8 @@ jobs:
         with:
           submodules: "recursive"
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          dart pub global run melos bootstrap
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Compile to wasm
         run: flutter build web --wasm -t integration_test/all_tests.dart

@@ -27,14 +27,8 @@ jobs:
           version: ${{ inputs.version }}
           version-suffix: ''
 
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-          architecture: 'x64'
-
-      - name: Setup Melos
-        run: dart pub global activate melos
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Update pubspec.yaml files
         run: REALM_VERSION=${{ steps.update-changelog.outputs.new-version }} melos run update:version:realm

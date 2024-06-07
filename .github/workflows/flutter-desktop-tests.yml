@@ -61,19 +61,8 @@ jobs:
           name: librealm-${{ steps.runner_os_lowercase.outputs.os }}
           path: packages/realm_dart/binary/${{ steps.runner_os_lowercase.outputs.os }}
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          architecture: ${{ inputs.arch }}
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          dart pub global run melos bootstrap
-
-      - name: Install dependencies
-        run: dart pub get
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Bump ulimit
         run: |
