@@ -15,6 +15,7 @@ runs:
     - name: Setup environment
       # By forcing puro (and hence the pub-cache) onto the same drive as the checkout,
       # we can avoid symlink issue between local and network drives on windows.
+      id: setup
       shell: bash
       run: |
         export PURO_ROOT=$(dirname $GITHUB_WORKSPACE)/puro
@@ -28,14 +29,17 @@ runs:
         echo PUB_CACHE=$PURO_ROOT/shared/pub_cache >> $GITHUB_ENV
         echo MELOS_SDK_PATH=$PURO_ROOT/envs/default/flutter/ >> $GITHUB_ENV
 
+        echo "week = $(date +'%Y-%U')" >> $GITHUB_OUTPUT
+
     - name: Restore cache
-      # TODO: Avoid skipping restore on Windows
+      # TODO: Avoid skipping restore on Windows 
+      # (see https://github.com/pingbird/puro/issues/87)
       if: runner.os != 'Windows'
       id: restore
       uses: actions/cache/restore@v4
       with:
         path: ${{ env.PURO_ROOT }}
-        key: setup-runner-${{ runner.os }}-${{ runner.arch }}-${{ inputs.cache-key }}
+        key: setup-runner-${{ runner.os }}-${{ runner.arch }}-${{ steps.setup.outputs.week }}-${{ inputs.cache-key }}
         restore-keys: setup-runner-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Install puro (posix)
