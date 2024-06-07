@@ -8,6 +8,7 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart';
 import 'package:path/path.dart' as path;
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/configuration.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 
 import 'test.dart';
@@ -377,6 +378,21 @@ void main() {
     final log = sb.toString();
 
     expect(log, contains('App constructor called on Isolate'));
+  });
+
+  baasTest('boom', (appConfig) async {
+    final appId = appConfig.appId;
+    final url = appConfig.baseUrl;
+    for (var i = 0; i < 5; i++) {
+      await Isolate.run(() async {
+        clearCachedApps(); // simulate first time on main isolate
+        final app = App(AppConfiguration(appId, baseUrl: url));
+        final user = await app.logIn(Credentials.anonymous());
+        final config = Configuration.flexibleSync(user, getSyncSchema());
+        final realm = getRealm(config, stopPolicy: SessionStopPolicy.afterChangesUploaded);
+        realm.close();
+      });
+    }
   });
 
   test('AppConfiguration(empty-id) throws', () {
