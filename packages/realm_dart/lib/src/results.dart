@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
 
@@ -160,11 +161,16 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity {
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmResultsChanges<T>> get changes {
+    return changesFor(null);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided keypaths.
+  Stream<RealmResultsChanges<T>> changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('Results are frozen and cannot emit changes');
     }
 
-    final controller = ResultsNotificationsController<T>(this);
+    final controller = ResultsNotificationsController<T>(this, keyPaths);
     return controller.createStream();
   }
 }
@@ -306,12 +312,23 @@ class RealmResultsChanges<T extends Object?> extends RealmCollectionChanges {
 class ResultsNotificationsController<T extends Object?> extends NotificationsController {
   final RealmResults<T> results;
   late final StreamController<RealmResultsChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  ResultsNotificationsController(this.results);
+  ResultsNotificationsController(this.results, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+
+      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
+        throw RealmException("A key path cannot be empty or consisting only of white spaces");
+      }
+
+      results.handle.verifyKeyPath(keyPaths, results._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return results.handle.subscribeForNotifications(this);
+    return results.handle.subscribeForNotifications(this, keyPaths, results._metadata?.classKey);
   }
 
   Stream<RealmResultsChanges<T>> createStream() {

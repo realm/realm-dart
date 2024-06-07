@@ -24,5 +24,7 @@ abstract interface class ResultsHandle extends HandleBase {
   ResultsHandle resolveIn(RealmHandle realmHandle);
 
   Object? elementAt(Realm realm, int index);
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller);
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey);
+
+  void verifyKeyPath(List<String> keyPaths, int? classKey);
 }

@@ -4,14 +4,572 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:typed_data';
-
 import 'package:test/test.dart' hide test, throws;
 
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+part 'results_test.realm.dart';
+
+@RealmModel()
+class _TestNotificationObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+
+  @MapTo("_remappedIntProperty")
+  late int? remappedIntProperty;
+
+  late _TestNotificationObject? link;
+
+  late List<_TestNotificationObject> list;
+
+  late Set<_TestNotificationObject> set;
+
+  late Map<String, _TestNotificationObject?> map;
+
+  late _TestNotificationDifferentType? linkDifferentType;
+
+  late List<_TestNotificationDifferentType> listDifferentType;
+
+  late Set<_TestNotificationDifferentType> setDifferentType;
+
+  late Map<String, _TestNotificationDifferentType?> mapDifferentType;
+
+  late _TestNotificationEmbeddedObject? embedded;
+
+  @Backlink(#link)
+  late Iterable<_TestNotificationObject> backlink;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _TestNotificationEmbeddedObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+}
+
+@RealmModel()
+class _TestNotificationDifferentType {
+  late String? stringProperty;
+
+  late int? intProperty;
+
+  late _TestNotificationDifferentType? link;
+}
+
 void main() {
   setupTests();
+
+  group('Results notifications with keypaths', () {
+    Future<void> verifyNotifications<T extends RealmObjectBase>(List<RealmResultsChanges<T>> changeList,
+        {List<int>? expectedInserted,
+        List<int>? expectedModified,
+        List<int>? expectedDeleted,
+        List<int>? expectedMoved,
+        bool expectedIsCleared = false,
+        bool expectedNotifications = true}) async {
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      if (!expectedNotifications) {
+        expect(changeList.length, 0);
+        return;
+      }
+
+      expect(changeList.length, 1);
+      final changes = changeList[0];
+
+      expect(changes.inserted, expectedInserted ?? []);
+      expect(changes.modified, expectedModified ?? []);
+      expect(changes.deleted, expectedDeleted ?? []);
+      expect(changes.moved, expectedMoved ?? []);
+      expect(changes.isCleared, expectedIsCleared);
+
+      changeList.clear();
+    }
+
+    bool isFirstNotification<T extends RealmObjectBase>(RealmResultsChanges<T> changes) {
+      return changes.inserted.isEmpty &&
+          changes.modified.isEmpty &&
+          changes.deleted.isEmpty &&
+          changes.newModified.isEmpty &&
+          changes.moved.isEmpty &&
+          !changes.isCleared;
+    }
+
+    test('throws on invalid keypath', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      expect(() {
+        realm.all<TestNotificationObject>().changesFor(["stringProperty", "inv"]).listen((changes) {});
+      }, throws<RealmException>("Property 'inv' in KeyPath 'inv' is not a valid property in TestNotificationObject"));
+
+      expect(() {
+        realm.all<TestNotificationObject>().changesFor(["stringProperty", "link.inv2"]).listen((changes) {});
+      }, throws<RealmException>("Property 'inv2' in KeyPath 'link.inv2' is not a valid property in TestNotificationObject"));
+    });
+
+    test('throws on empty or whitespace keypath', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      expect(() {
+        realm.all<TestNotificationObject>().changesFor(["stringProperty", ""]).listen((changes) {});
+      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
+
+      expect(() {
+        realm.all<TestNotificationObject>().changesFor(["stringProperty", "  "]).listen((changes) {});
+      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
+    });
+
+    test('throws on empty or whitespace keypath', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      expect(() {
+        realm.all<TestNotificationObject>().changesFor(["stringProperty", ""]).listen((changes) {});
+      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
+
+      expect(() {
+        realm.all<TestNotificationObject>().changesFor(["stringProperty", "  "]).listen((changes) {});
+      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
+    });
+
+    test('null keypaths behaves like default', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(null).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.stringProperty = "testString";
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.embedded = TestNotificationEmbeddedObject();
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.stringProperty = "test";
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      subscription.cancel();
+    });
+
+    //TODO Not sure why this one doesn't pass
+    test('empty keypath raises only shallow notifications', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor([]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.stringProperty = "testString";
+        tno.intProperty = 23;
+        tno.remappedIntProperty = 25;
+        tno.embedded = TestNotificationEmbeddedObject();
+        tno.linkDifferentType = TestNotificationDifferentType();
+        tno.listDifferentType.add(TestNotificationDifferentType());
+        tno.setDifferentType.add(TestNotificationDifferentType());
+        tno.mapDifferentType["test"] = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('multiple keypaths', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["stringProperty", "intProperty"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.stringProperty = "testString";
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.remappedIntProperty = 25;
+        tno.embedded = TestNotificationEmbeddedObject();
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('scalar top level property', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["stringProperty"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.stringProperty = "testString";
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.intProperty = 23;
+        tno.remappedIntProperty = 25;
+        tno.embedded = TestNotificationEmbeddedObject();
+        tno.linkDifferentType = TestNotificationDifferentType();
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('nested property on link', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["linkDifferentType.intProperty"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.stringProperty = "test";
+
+        tno.intProperty = 23;
+        tno.embedded = TestNotificationEmbeddedObject();
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('nested property on collection', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["listDifferentType.intProperty"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.listDifferentType[0].intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.listDifferentType[0].stringProperty = "23";
+
+        tno.intProperty = 23;
+        tno.embedded = TestNotificationEmbeddedObject();
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('collection top level property', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["listDifferentType"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.listDifferentType[0].stringProperty = "34";
+        tno.listDifferentType[0].intProperty = 23;
+        tno.intProperty = 23;
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('wildcard top level', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["*"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.mapDifferentType["test"] = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      // No notifications deeper than one level
+      realm.write(() {
+        tno.listDifferentType[0].stringProperty = "34";
+        tno.mapDifferentType["test"]?.intProperty = 23;
+        tno.linkDifferentType?.intProperty = 21;
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('wildcard nested', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["*.*"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.mapDifferentType["test"] = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.listDifferentType[0].stringProperty = "34";
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.intProperty = 21;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.link = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      // No notifications deeper than two levels
+      realm.write(() {
+        tno.linkDifferentType?.link?.intProperty = 24;
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('wildcard nested on top level property', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["linkDifferentType.*"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.link = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      // No notifications deeper than one level on linkDifferentType
+      // No notifications for other keypaths
+      realm.write(() {
+        tno.linkDifferentType?.link?.intProperty = 23;
+
+        tno.listDifferentType.add(TestNotificationDifferentType());
+        tno.intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+
+    test('nested property on wildcard', () async {
+      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
+      var realm = getRealm(config);
+
+      final externalChanges = <RealmResultsChanges<TestNotificationObject>>[];
+      final subscription = realm.all<TestNotificationObject>().changesFor(["*.intProperty"]).listen((changes) {
+        if (!isFirstNotification(changes)) externalChanges.add(changes);
+      });
+
+      final tno = TestNotificationObject();
+      realm.write(() {
+        realm.add(tno);
+      });
+      await verifyNotifications(externalChanges, expectedInserted: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.linkDifferentType?.intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.listDifferentType.add(TestNotificationDifferentType());
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.listDifferentType[0].intProperty = 23;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.mapDifferentType["test"] = TestNotificationDifferentType();
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      realm.write(() {
+        tno.mapDifferentType["test"]?.intProperty = 22;
+      });
+      await verifyNotifications(externalChanges, expectedModified: [0]);
+
+      // No notifications not on keypath
+      realm.write(() {
+        tno.linkDifferentType?.link?.stringProperty = "23";
+        tno.listDifferentType[0].stringProperty = "22";
+        tno.mapDifferentType["test"]?.stringProperty = "22";
+      });
+      await verifyNotifications(externalChanges, expectedNotifications: false);
+
+      subscription.cancel();
+    });
+  });
 
   test('Results all should not return null', () {
     var config = Configuration.local([Car.schema]);
