@@ -75,6 +75,36 @@ class _BoolValue {
   late bool value;
 }
 
+@RealmModel()
+class _TestNotificationObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+
+  @MapTo("_remappedIntProperty")
+  late int? remappedIntProperty;
+
+  late _TestNotificationObject? link;
+
+  late _TestNotificationEmbeddedObject? embedded;
+
+  late List<_TestNotificationObject> listLinks;
+
+  late Set<_TestNotificationObject> setLinks;
+
+  late Map<String, _TestNotificationObject?> mapLinks;
+
+  @Backlink(#link)
+  late Iterable<_TestNotificationObject> backlink;
+}
+
+@RealmModel(ObjectType.embeddedObject)
+class _TestNotificationEmbeddedObject {
+  late String? stringProperty;
+
+  late int? intProperty;
+}
+
 void main() {
   setupTests();
 
