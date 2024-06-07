@@ -24,6 +24,7 @@
     "fnum",
     "geospatial",
     "HRESULT",
+    "intf",
     "keepalive",
     "keypaths",
     "loggable",

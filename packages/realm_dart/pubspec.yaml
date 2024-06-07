@@ -29,6 +29,8 @@ dependencies:
   build_runner: ^2.1.0
   http: ^1.0.0
   cancellation_token: ^2.0.0
+  decimal: ^3.0.1
+  rational: ^2.2.3
 
 dev_dependencies:
   build_cli: ^2.2.2
