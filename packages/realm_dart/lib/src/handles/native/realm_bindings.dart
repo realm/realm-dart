@@ -175,25 +175,6 @@ class RealmLibrary {
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
-  ffi.Pointer<realm_sync_client_config_t>
-      realm_app_config_get_sync_client_config(
-    ffi.Pointer<realm_app_config_t> arg0,
-  ) {
-    return _realm_app_config_get_sync_client_config(
-      arg0,
-    );
-  }
-
-  late final _realm_app_config_get_sync_client_configPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_sync_client_config_t> Function(
-                  ffi.Pointer<realm_app_config_t>)>>(
-      'realm_app_config_get_sync_client_config');
-  late final _realm_app_config_get_sync_client_config =
-      _realm_app_config_get_sync_client_configPtr.asFunction<
-          ffi.Pointer<realm_sync_client_config_t> Function(
-              ffi.Pointer<realm_app_config_t>)>();
-
   /// Create a new app configuration.
   ///
   /// @param app_id The MongoDB Realm app id.
@@ -482,6 +463,26 @@ class RealmLibrary {
       _realm_app_config_set_security_access_groupPtr.asFunction<
           void Function(
               ffi.Pointer<realm_app_config_t>, ffi.Pointer<ffi.Char>)>();
+
+  void realm_app_config_set_sync_client_config(
+    ffi.Pointer<realm_app_config_t> config,
+    ffi.Pointer<realm_sync_client_config_t> sync_client_config,
+  ) {
+    return _realm_app_config_set_sync_client_config(
+      config,
+      sync_client_config,
+    );
+  }
+
+  late final _realm_app_config_set_sync_client_configPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<realm_app_config_t>,
+                  ffi.Pointer<realm_sync_client_config_t>)>>(
+      'realm_app_config_set_sync_client_config');
+  late final _realm_app_config_set_sync_client_config =
+      _realm_app_config_set_sync_client_configPtr.asFunction<
+          void Function(ffi.Pointer<realm_app_config_t>,
+              ffi.Pointer<realm_sync_client_config_t>)>();
 
   /// Create realm_app_t* instance given a valid realm app configuration.
   ///

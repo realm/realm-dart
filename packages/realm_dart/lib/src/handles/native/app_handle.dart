@@ -27,7 +27,7 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
   AppHandle(Pointer<realm_app> pointer) : super(pointer, 16);
 
   static bool _firstTime = true;
-  static Future<AppHandle> from(AppConfiguration configuration) async {
+  factory AppHandle.from(AppConfiguration configuration) {
     // to avoid caching apps across hot restarts we clear the cache on the first
     // time the ctor is called in the root isolate.
     if (_firstTime && _isRootIsolate) {
@@ -40,7 +40,7 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
     SyncSocketHandle? syncSocketHandle;
     if (configuration.useManagedWebsockets) {
       final worker = WebsocketHandler();
-      syncSocketHandle = await worker.start();
+      syncSocketHandle = worker.start();
     }
 
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle, syncSocketHandle);
@@ -446,8 +446,10 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
     }
 
     if (syncSocket != null) {
-      final syncClientConfig = realmLib.realm_app_config_get_sync_client_config(handle.pointer);
+      print(Isolate.current.debugName);
+      final syncClientConfig = realmLib.realm_sync_client_config_new();
       realmLib.realm_sync_client_config_set_sync_socket(syncClientConfig, syncSocket.pointer);
+      realmLib.realm_app_config_set_sync_client_config(handle.pointer, syncClientConfig);
     }
 
     return handle;
