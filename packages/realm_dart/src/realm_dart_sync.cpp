@@ -18,6 +18,7 @@
 
 #include <realm/object-store/sync/sync_session.hpp>
 #include <realm/sync/config.hpp>
+#include <realm/object-store/c_api/util.hpp>
 
 #include "realm_dart.hpp"
 #include "realm_dart_sync.h"
@@ -384,5 +385,24 @@ RLM_API void realm_dart_return_string_callback(realm_userdata_t userdata, const 
     auto ud = reinterpret_cast<realm_dart_userdata_async_t>(userdata);
     ud->scheduler->invoke([ud, buf = std::move(buf), error = std::move(error_copy)]() mutable {
         (reinterpret_cast<realm_return_string_func_t>(ud->dart_callback))(ud->handle, buf.data(), error.get());
+    });
+}
+
+RLM_API bool realm_dart_app_reset_for_testing(realm_app_t* app) {
+    return realm::c_api::wrap_err([app] {
+        if (!app->get()->sync_manager()->get_logger()) {
+            return true;
+        }
+
+        auto users = app->get()->all_users();
+        for (size_t i = 0; i < users.size(); i++) {
+            auto &user = users[i];
+            user->log_out();
+        }
+
+        // This method will crash the application if called more than once for the same app.
+        app->get()->sync_manager()->tear_down_for_testing();
+
+        return true;
     });
 }

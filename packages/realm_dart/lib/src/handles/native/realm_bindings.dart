@@ -3411,6 +3411,21 @@ class RealmLibrary {
               int,
               ffi.Pointer<realm_app_error_t>)>();
 
+  bool realm_dart_app_reset_for_testing(
+    ffi.Pointer<realm_app_t> app,
+  ) {
+    return _realm_dart_app_reset_for_testing(
+      app,
+    );
+  }
+
+  late final _realm_dart_app_reset_for_testingPtr =
+      _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_app_t>)>>(
+          'realm_dart_app_reset_for_testing');
+  late final _realm_dart_app_reset_for_testing =
+      _realm_dart_app_reset_for_testingPtr
+          .asFunction<bool Function(ffi.Pointer<realm_app_t>)>();
+
   void realm_dart_async_open_task_callback(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<realm_thread_safe_reference_t> realm,
@@ -4126,6 +4141,60 @@ class RealmLibrary {
   late final _realm_dart_sync_progress_callback =
       _realm_dart_sync_progress_callbackPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int, double)>();
+
+  ffi.Pointer<realm_sync_socket_t> realm_dart_sync_socket_new(
+    ffi.Pointer<ffi.Void> userdata,
+    realm_free_userdata_func_t userdata_free,
+    ffi.Pointer<realm_scheduler_t> scheduler,
+    realm_sync_socket_post_func_t post_func,
+    realm_sync_socket_create_timer_func_t create_timer_func,
+    realm_sync_socket_timer_canceled_func_t cancel_timer_func,
+    realm_sync_socket_timer_free_func_t free_timer_func,
+    realm_sync_socket_connect_func_t websocket_connect_func,
+    realm_sync_socket_websocket_async_write_func_t websocket_write_func,
+    realm_sync_socket_websocket_free_func_t websocket_free_func,
+  ) {
+    return _realm_dart_sync_socket_new(
+      userdata,
+      userdata_free,
+      scheduler,
+      post_func,
+      create_timer_func,
+      cancel_timer_func,
+      free_timer_func,
+      websocket_connect_func,
+      websocket_write_func,
+      websocket_free_func,
+    );
+  }
+
+  late final _realm_dart_sync_socket_newPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_sync_socket_t> Function(
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>,
+                  realm_sync_socket_post_func_t,
+                  realm_sync_socket_create_timer_func_t,
+                  realm_sync_socket_timer_canceled_func_t,
+                  realm_sync_socket_timer_free_func_t,
+                  realm_sync_socket_connect_func_t,
+                  realm_sync_socket_websocket_async_write_func_t,
+                  realm_sync_socket_websocket_free_func_t)>>(
+      'realm_dart_sync_socket_new');
+  late final _realm_dart_sync_socket_new =
+      _realm_dart_sync_socket_newPtr.asFunction<
+          ffi.Pointer<realm_sync_socket_t> Function(
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              ffi.Pointer<realm_scheduler_t>,
+              realm_sync_socket_post_func_t,
+              realm_sync_socket_create_timer_func_t,
+              realm_sync_socket_timer_canceled_func_t,
+              realm_sync_socket_timer_free_func_t,
+              realm_sync_socket_connect_func_t,
+              realm_sync_socket_websocket_async_write_func_t,
+              realm_sync_socket_websocket_free_func_t)>();
 
   void realm_dart_sync_wait_for_completion_callback(
     ffi.Pointer<ffi.Void> userdata,
@@ -11721,6 +11790,9 @@ class _SymbolAddresses {
                   ffi.Pointer<realm_app_error_t>)>>
       get realm_dart_apikey_list_callback =>
           _library._realm_dart_apikey_list_callbackPtr;
+  ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_app_t>)>>
+      get realm_dart_app_reset_for_testing =>
+          _library._realm_dart_app_reset_for_testingPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(
@@ -11901,6 +11973,20 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64, ffi.Double)>>
       get realm_dart_sync_progress_callback =>
           _library._realm_dart_sync_progress_callbackPtr;
+  ffi.Pointer<
+          ffi.NativeFunction<
+              ffi.Pointer<realm_sync_socket_t> Function(
+                  ffi.Pointer<ffi.Void>,
+                  realm_free_userdata_func_t,
+                  ffi.Pointer<realm_scheduler_t>,
+                  realm_sync_socket_post_func_t,
+                  realm_sync_socket_create_timer_func_t,
+                  realm_sync_socket_timer_canceled_func_t,
+                  realm_sync_socket_timer_free_func_t,
+                  realm_sync_socket_connect_func_t,
+                  realm_sync_socket_websocket_async_write_func_t,
+                  realm_sync_socket_websocket_free_func_t)>>
+      get realm_dart_sync_socket_new => _library._realm_dart_sync_socket_newPtr;
   ffi.Pointer<
           ffi.NativeFunction<
               ffi.Void Function(

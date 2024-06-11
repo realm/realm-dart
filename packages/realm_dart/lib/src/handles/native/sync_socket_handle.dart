@@ -4,10 +4,12 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
-import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:cancellation_token/cancellation_token.dart';
+import 'package:ffi/ffi.dart';
+import 'package:realm_dart/src/handles/native/scheduler_handle.dart';
+import 'package:realm_dart/src/handles/native/to_native.dart';
 
 import '../../../realm.dart';
 import '../../logging.dart';
@@ -22,15 +24,85 @@ class SyncSocketHandle extends HandleBase<realm_sync_socket> {
 }
 
 class WebsocketHandler {
-  SendPort? _workerThreadPort;
+  final _workerThreadCompleter = Completer<Pointer<realm_sync_socket>>();
+  final Map<int, SyncSocket> _sockets = {};
+  late SendPort _workerThreadPort;
 
-  SyncSocketHandle start() {
+  Future<SyncSocketHandle> start() async {
     final port = ReceivePort();
     port.listen(_handleMessageFromWorker);
-    Isolate.spawn(SyncEventLoop.start, port.sendPort, debugName: 'Realm Websocket Worker');
+    await Isolate.spawn(SyncEventLoop.start, port.sendPort, debugName: 'Realm Websocket Worker');
 
-    final post = Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_socket_post_callback_t>)>(_postWork);
-    final createTimer = Pointer.fromFunction<Pointer<Void> Function(Handle, Uint64, Pointer<realm_sync_socket_post_callback_t>)>(_createTimer);
+    final syncSocketPointer = await _workerThreadCompleter.future;
+    return SyncSocketHandle(syncSocketPointer);
+  }
+
+  void _handleMessageFromWorker(dynamic message) async {
+    try {
+      switch (message) {
+        case WorkerThreadInitialized wti:
+          if (_workerThreadCompleter.isCompleted) {
+            throw RealmError('WebsocketHandler.start called more than once. $bugInTheSdkMessage');
+          }
+
+          _workerThreadPort = wti.workerThreadPort;
+          _workerThreadCompleter.complete(wti.socket);
+          break;
+        case WebSocketConnectRequest connectRequest:
+          _sockets[connectRequest.proxyId] = SyncSocket(_workerThreadPort, connectRequest.proxyId, connectRequest.uri, connectRequest.protocols);
+          break;
+        case WebSocketWriteRequest writeRequest:
+          await _sockets[writeRequest.proxyId]!.write(writeRequest.bytes, writeRequest.callback);
+          break;
+        case WebSocketCloseRequest closeRequest:
+          await _sockets[closeRequest.proxyId]!.close();
+          _sockets.remove(closeRequest.proxyId);
+          break;
+        default:
+          throw RealmError('Unexpected message: $message');
+      }
+    } catch (e) {
+      Realm.logger.log(LogLevel.error, 'An error occurred in WebSocketHandler._handleMessageFromWorker: $e');
+    }
+  }
+}
+
+class SyncEventLoop {
+  final SendPort sendPort;
+  final receivePort = ReceivePort();
+  final Map<int, SyncSocketProxy> _proxies = {};
+
+  static int proxyIdCounter = 0;
+
+  SyncEventLoop._(this.sendPort) {
+    receivePort.listen(_handleMessage);
+  }
+
+  void _handleMessage(dynamic message) {
+    try {
+      switch (message) {
+        case IWebSocketOperation response:
+          _proxies[response.proxyId]!.messageReceived(response);
+          break;
+        default:
+          throw RealmError('Unexpected message: $message');
+      }
+    } catch (e) {
+      Realm.logger.log(LogLevel.error, 'Error occurred in SyncEventLoop._handleMessage: $e');
+      stop();
+    }
+  }
+
+  void stop() {
+    Realm.logger.log(LogLevel.trace, 'Exiting WebsocketHandler event loop.');
+    Isolate.exit(sendPort);
+  }
+
+  static void start(SendPort sendPort) {
+    final eventLoop = SyncEventLoop._(sendPort);
+
+    final post = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<realm_sync_socket_post_callback_t>)>(_postWork);
+    final createTimer = Pointer.fromFunction<Pointer<Void> Function(Pointer<Void>, Uint64, Pointer<realm_sync_socket_post_callback_t>)>(_createTimer);
     final cancelTimer = Pointer.fromFunction<Void Function(Pointer<Void>, Handle)>(_cancelTimer);
     final freeTimer = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<Void>)>(_freeTimer);
     final websocketConnect =
@@ -39,50 +111,40 @@ class WebsocketHandler {
     final websocketWrite =
         Pointer.fromFunction<Void Function(Handle, Handle, Pointer<Uint8>, Size, Pointer<realm_sync_socket_write_callback_t>)>(_websocketWrite);
 
-    final freeSocket = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<Void>)>(_freeWebsocket);
+    final freeSocket = Pointer.fromFunction<Void Function(Pointer<Void> _, Pointer<Void>)>(_freeWebsocket);
 
-    final nativeSyncSocket = realmLib.realm_sync_socket_new(toPersistentHandle(), realmLib.addresses.realm_dart_delete_persistent_handle, post.cast(),
-        createTimer.cast(), cancelTimer.cast(), freeTimer, websocketConnect.cast(), websocketWrite.cast(), freeSocket);
-    return SyncSocketHandle(nativeSyncSocket);
+    final nativeSyncSocket = realmLib.realm_dart_sync_socket_new(eventLoop.toPersistentHandle(), Pointer.fromFunction(_free), schedulerHandle.pointer, post,
+        createTimer, cancelTimer.cast(), freeTimer, websocketConnect.cast(), websocketWrite.cast(), freeSocket);
+
+    sendPort.send(WorkerThreadInitialized(eventLoop.receivePort.sendPort, nativeSyncSocket));
   }
 
-  void _handleMessageFromWorker(dynamic message) {
-    switch (message) {
-      case SendPort sendPort:
-        if (_workerThreadPort != null) {
-          throw RealmError('WebsocketHandler.start called more than once. $bugInTheSdkMessage');
-        }
-
-        _workerThreadPort = sendPort;
-        break;
-      default:
-        break;
-    }
+  static void _free(Pointer<Void> userdata) {
+    final eventLoop = userdata.toObject<SyncEventLoop>();
+    realmLib.realm_dart_delete_persistent_handle(userdata);
+    eventLoop.stop();
   }
 
-  static void _postWork(Object userData, Pointer<realm_sync_socket_post_callback_t> nativeCallback) {
-    final handler = userData as WebsocketHandler;
-
-    handler._workerThreadPort!.send(EventLoopWork(nativeCallback));
+  static void _postWork(Object _, Pointer<realm_sync_socket_post_callback_t> nativeCallback) {
+    realmLib.realm_sync_socket_post_complete(nativeCallback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_SUCCESS, nullptr);
   }
 
-  static Pointer<Void> _createTimer(Object userData, int delay, Pointer<realm_sync_socket_post_callback_t> nativeCallback) {
-    final handler = userData as WebsocketHandler;
-    final timer = SyncTimer(Duration(milliseconds: delay), nativeCallback, handler);
+  static Pointer<Void> _createTimer(Pointer<Void> _, int delay, Pointer<realm_sync_socket_post_callback_t> nativeCallback) {
+    final timer = SyncTimer(Duration(milliseconds: delay), nativeCallback);
     return timer.toPersistentHandle();
   }
 
-  static void _cancelTimer(Object _, Object timerUserData) {
+  static void _cancelTimer(Pointer<Void> _, Object timerUserData) {
     final timer = timerUserData as SyncTimer;
     timer.cancel();
   }
 
-  static void _freeTimer(Object _, Pointer<Void> timerUserData) {
+  static void _freeTimer(Pointer<Void> _, Pointer<Void> timerUserData) {
     realmLib.realm_dart_delete_persistent_handle(timerUserData);
   }
 
   static Pointer<Void> _websocketConnect(Object userData, realm_websocket_endpoint_t endpoint, Pointer<realm_websocket_observer_t> observer) {
-    final handler = userData as WebsocketHandler;
+    final eventLoop = userData as SyncEventLoop;
 
     final pathAndQuery = endpoint.path.cast<Utf8>().toRealmDartString()?.split('?');
     final path = pathAndQuery?.elementAtOrNull(0);
@@ -94,102 +156,44 @@ class WebsocketHandler {
       protocols.add(endpoint.protocols[i].cast<Utf8>().toDartString());
     }
 
-    final socket = SyncSocket(uri, protocols, handler._workerThreadPort!, observer);
-    return socket.toPersistentHandle();
+    final result = SyncSocketProxy(proxyIdCounter++, uri, protocols, eventLoop.sendPort, observer);
+    Realm.logger.log(LogLevel.trace, 'Created socket ${result.id}');
+
+    eventLoop._proxies[result.id] = result;
+    return result.toPersistentHandle();
   }
 
   static void _websocketWrite(Object _, Object websocket, Pointer<Uint8> data, int size, Pointer<realm_sync_socket_write_callback_t> callback) {
-    final socket = websocket as SyncSocket;
+    final socket = websocket as SyncSocketProxy;
     final bytes = data.asTypedList(size).toList();
-    socket.write(bytes, callback);
+    socket.requestWrite(bytes, callback);
   }
 
-  static void _freeWebsocket(Object _, Pointer<Void> websocket) {
-    final socket = websocket.toObject<SyncSocket>();
+  static void _freeWebsocket(Object userData, Pointer<Void> websocket) {
+    final eventLoop = userData as SyncEventLoop;
+    final socket = websocket.toObject<SyncSocketProxy>();
+    eventLoop._proxies.remove(socket.id);
 
-    final _ = socket.close();
+    Realm.logger.log(LogLevel.trace, 'Destroying socket ${socket.id}');
+
+    socket.requestClose();
 
     realmLib.realm_dart_delete_persistent_handle(websocket);
-  }
-}
-
-class SyncEventLoop {
-  final SendPort sendPort;
-  final receivePort = ReceivePort();
-
-  SyncEventLoop._(this.sendPort) {
-    receivePort.listen(_handleMessage);
-  }
-
-  void _handleMessage(dynamic message) {
-    try {
-      switch (message) {
-        case _IWork work:
-          work.execute();
-          break;
-        default:
-          Realm.logger.log(LogLevel.error, 'Unexpected message received: $message');
-          break;
-      }
-    } catch (e) {
-      Realm.logger.log(LogLevel.error, 'Error occurred in SyncSocketProvider event loop $e');
-      _stop();
-    }
-
-    Realm.logger.log(LogLevel.trace, 'Exiting WebsocketHandler event loop.');
-  }
-
-  void _stop() {
-    // TODO
-    Isolate.exit(sendPort);
-  }
-
-  static void start(SendPort sendPort) {
-    final eventLoop = SyncEventLoop._(sendPort);
-    sendPort.send(eventLoop.receivePort.sendPort);
-  }
-}
-
-abstract interface class _IWork {
-  void execute();
-}
-
-abstract class WebSocketWork extends _IWork {
-  final int _nativeObserver;
-
-  Pointer<realm_websocket_observer_t> get observer => Pointer.fromAddress(_nativeObserver);
-
-  WebSocketWork(Pointer<realm_websocket_observer_t> observer) : _nativeObserver = observer.address;
-
-  @override
-  void execute() {
-    throw "aaa: $observer";
-  }
-}
-
-class EventLoopWork extends _IWork {
-  final int _nativeCallback;
-  final Status status;
-
-  Pointer<realm_sync_socket_post_callback_t> get pointer => Pointer.fromAddress(_nativeCallback);
-
-  EventLoopWork(Pointer<realm_sync_socket_post_callback_t> pointer, {this.status = Status.ok}) : _nativeCallback = pointer.address;
-
-  @override
-  void execute() {
-    throw "aaa: $pointer, $status";
   }
 }
 
 class SyncTimer {
   final CancellationToken _cancellationToken = CancellationToken();
 
-  SyncTimer(Duration duration, Pointer<realm_sync_socket_post_callback_t> nativeCallback, WebsocketHandler handler) {
+  SyncTimer(Duration duration, Pointer<realm_sync_socket_post_callback_t> nativeCallback) {
     Realm.logger.log(LogLevel.trace, 'Creating timer with delay $duration and target $nativeCallback.');
-    Future<void>.delayed(duration, () {
-      final status = _cancellationToken.isCancelled ? Status(ErrorCode.operationAborted, reason: 'Timer canceled') : Status.ok;
-      handler._workerThreadPort!.send(EventLoopWork(nativeCallback, status: status));
-    }).asCancellable(_cancellationToken);
+    CancellableFuture.delayed<void>(duration, _cancellationToken, () {
+      realmLib.realm_sync_socket_timer_complete(nativeCallback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_SUCCESS, nullptr);
+      Realm.logger.log(LogLevel.trace, 'Timer with target $nativeCallback completed.');
+    }).onError((err, _) {
+      realmLib.realm_sync_socket_timer_canceled(nativeCallback);
+      Realm.logger.log(LogLevel.trace, 'Timer with target $nativeCallback was canceled.');
+    });
   }
 
   void cancel() {
@@ -197,96 +201,191 @@ class SyncTimer {
   }
 }
 
-class WebSocketConnectedWork extends WebSocketWork {
-  final String _protocol;
+abstract interface class IWebSocketOperation {
+  final int proxyId;
 
-  WebSocketConnectedWork(this._protocol, Pointer<realm_websocket_observer_t> observer) : super(observer);
+  IWebSocketOperation._(this.proxyId);
 }
 
-class WebSocketClosedWork extends WebSocketWork {
-  final bool _clean;
-  final String _description;
-  final int _closeCode;
-  WebSocketClosedWork(this._clean, this._description, this._closeCode, Pointer<realm_websocket_observer_t> observer) : super(observer);
+class WebSocketConnectRequest extends IWebSocketOperation {
+  final Uri uri;
+  final List<String> protocols;
+
+  WebSocketConnectRequest(super.proxyId, this.uri, this.protocols) : super._();
 }
 
-class SyncSocket {
+class WebSocketConnected extends IWebSocketOperation {
+  final String protocol;
+
+  WebSocketConnected(super.proxyId, this.protocol) : super._();
+}
+
+class WebSocketCloseRequest extends IWebSocketOperation {
+  WebSocketCloseRequest(super.proxyId) : super._();
+}
+
+class WebSocketClosed extends IWebSocketOperation {
+  final bool clean;
+  final String description;
+  final int closeCode;
+  WebSocketClosed(super.proxyId, this.clean, this.closeCode, this.description) : super._();
+}
+
+class WebSocketDataReceived extends IWebSocketOperation {
+  final List<int> message;
+
+  WebSocketDataReceived(super.proxyId, this.message) : super._();
+}
+
+class WebSocketWriteRequest extends IWebSocketOperation {
+  List<int> bytes;
+  Pointer<realm_sync_socket_callback> callback;
+
+  WebSocketWriteRequest(super.proxyId, this.bytes, this.callback) : super._();
+}
+
+class WebSocketDataSent extends IWebSocketOperation {
+  final Pointer<realm_sync_socket_write_callback_t> callback;
+  final int statusCode;
+  final String? error;
+
+  WebSocketDataSent.ok(super.proxyId, this.callback)
+      : statusCode = realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_SUCCESS,
+        error = null,
+        super._();
+
+  WebSocketDataSent.error(super.proxyId, this.callback, this.statusCode, String errorMessage)
+      : error = errorMessage,
+        super._();
+}
+
+class WorkerThreadInitialized {
+  final SendPort workerThreadPort;
+  final Pointer<realm_sync_socket> socket;
+
+  WorkerThreadInitialized(this.workerThreadPort, this.socket);
+}
+
+class SyncSocketProxy {
+  final int id;
   final Uri _uri;
   final List<String> _protocols;
   final SendPort _sendPort;
   final Pointer<realm_websocket_observer_t> _observer;
 
-  WebSocket? _webSocket;
-
-  SyncSocket(this._uri, this._protocols, this._sendPort, this._observer) {
-    final _ = _socketRead();
+  SyncSocketProxy(this.id, this._uri, this._protocols, this._sendPort, this._observer) {
+    _sendPort.send(WebSocketConnectRequest(id, _uri, _protocols));
   }
 
-  Future<void> _socketRead() async {
-    Realm.logger.log(LogLevel.trace, 'Entering WebSocket event loop.');
-
-    try {
-      _webSocket = await WebSocket.connect(_uri.toString(), protocols: _protocols);
-      _sendPort.send(WebSocketConnectedWork(_webSocket!.protocol!, _observer));
-    } catch (e) {
-      Realm.logger.log(LogLevel.error, "Error establishing WebSocket connection: $e");
-      _sendPort.send(WebSocketClosedWork(false, e.toString(), realm_web_socket_errno.RLM_ERR_WEBSOCKET_CONNECTION_FAILED, _observer));
-      return;
-    }
-
-    // TODO: implement reading
-    throw "Not implemented";
+  void messageReceived(IWebSocketOperation message) {
+    using((Arena arena) {
+      switch (message) {
+        case WebSocketConnected connected:
+          realmLib.realm_sync_socket_websocket_connected(_observer, connected.protocol.toCharPtr(arena));
+          break;
+        case WebSocketClosed socketClosed:
+          realmLib.realm_sync_socket_websocket_closed(_observer, socketClosed.clean, socketClosed.closeCode, socketClosed.description.toCharPtr(arena));
+          break;
+        case WebSocketDataReceived dataReceived:
+          realmLib.realm_sync_socket_websocket_message(_observer, dataReceived.message.toCharPtr(arena), dataReceived.message.length);
+          break;
+        case WebSocketDataSent dataSent:
+          using((Arena arena) {
+            realmLib.realm_sync_socket_write_complete(dataSent.callback, dataSent.statusCode, dataSent.error?.toCharPtr(arena) ?? nullptr);
+          });
+          break;
+      }
+    });
   }
 
-  Future<void> write(List<int> bytes, Pointer<realm_sync_socket_callback> callback) async {
-    final socket = _webSocket;
-    if (socket == null || socket.closeCode != null) {
-      // TODO: delete callback
+  void requestWrite(List<int> bytes, Pointer<realm_sync_socket_write_callback_t> callback) {
+    _sendPort.send(WebSocketWriteRequest(id, bytes, callback));
+  }
+
+  void requestClose() {
+    _sendPort.send(WebSocketCloseRequest(id));
+  }
+}
+
+class SyncSocket {
+  final SendPort sendPort;
+  final int proxyId;
+
+  late final Future<void> _readThread;
+
+  late final WebSocket _webSocket;
+
+  SyncSocket(this.sendPort, this.proxyId, Uri uri, List<String> protocols) {
+    _readThread = _socketRead(uri, protocols);
+  }
+
+  Future<void> _socketRead(Uri uri, List<String> protocols) async {
+    _log(LogLevel.trace, 'Entering WebSocket event loop');
+
+    try {
+      _webSocket = await WebSocket.connect(uri.toString(), protocols: protocols);
+      sendPort.send(WebSocketConnected(proxyId, _webSocket.protocol!));
+    } catch (e) {
+      _log(LogLevel.error, "Error establishing WebSocket connection: $e");
+      sendPort.send(WebSocketClosed(proxyId, false, realm_web_socket_errno.RLM_ERR_WEBSOCKET_CONNECTION_FAILED, e.toString()));
+      return;
+    }
+
+    final stream = _webSocket.listen((message) {
+      switch (message) {
+        case List<int> binary:
+          sendPort.send(WebSocketDataReceived(proxyId, binary));
+          break;
+        default:
+          _log(LogLevel.warn, 'Received unexpected websocket message: $message');
+          break;
+      }
+    });
+
+    try {
+      await stream.asFuture<void>();
+      _log(LogLevel.trace, 'WebSocket closed with status: ${_webSocket.closeCode} and description ${_webSocket.closeReason}');
+      sendPort.send(WebSocketClosed(proxyId, true, _webSocket.closeCode!, _webSocket.closeReason!));
+    } catch (error, stacktrace) {
+      _log(LogLevel.error, 'Error reading from WebSocket: $error');
+      _log(LogLevel.trace, 'Error reading from WebSocket: $stacktrace');
+      sendPort.send(WebSocketClosed(proxyId, false, realm_web_socket_errno.RLM_ERR_WEBSOCKET_READ_ERROR, error.toString()));
+    }
+  }
+
+  Future<void> write(List<int> bytes, Pointer<realm_sync_socket_write_callback_t> callback) async {
+    if (_webSocket.closeCode != null) {
+      sendPort.send(WebSocketDataSent.error(
+          proxyId, callback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_CONNECTION_CLOSED, "Connection closed: ${_webSocket.closeReason}"));
       return;
     }
 
     try {
-      await _webSocket!.addStream(Stream.value(bytes));
+      await _webSocket.addStream(Stream.value(bytes));
     } catch (e) {
-      Realm.logger.log(LogLevel.error, "Error writing to WebSocket: $e");
-      _sendPort.send(WebSocketClosedWork(false, e.toString(), realm_web_socket_errno.RLM_ERR_WEBSOCKET_WRITE_ERROR, _observer));
+      _log(LogLevel.error, "Error writing to WebSocket: $e");
 
-      // TODO: delete callback
+      sendPort.send(WebSocketDataSent.error(proxyId, callback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_RUNTIME, e.toString()));
+      sendPort.send(WebSocketClosed(proxyId, false, realm_web_socket_errno.RLM_ERR_WEBSOCKET_WRITE_ERROR, e.toString()));
       return;
     }
 
-    _sendPort.send(EventLoopWork(callback));
+    sendPort.send(WebSocketDataSent.ok(proxyId, callback));
   }
 
   Future<void> close() async {
-    final socket = _webSocket;
-    if (socket != null && socket.closeCode == null) {
-      await socket.close(realm_web_socket_errno.RLM_ERR_WEBSOCKET_OK);
+    _log(LogLevel.trace, "Closing WebSocket.");
+
+    if (_webSocket.closeCode == null) {
+      await _webSocket.close(realm_web_socket_errno.RLM_ERR_WEBSOCKET_OK);
     }
 
-    Realm.logger.log(LogLevel.trace, "Disposing WebSocket.");
+    await _readThread;
 
-    // TODO: wait for read thread to finish
+    _log(LogLevel.trace, "Closed WebSocket.");
   }
-}
 
-enum ErrorCode {
-  ok(0),
-  runtimeError(1000),
-  operationAborted(1027);
-
-  final int rawValue;
-
-  const ErrorCode(this.rawValue);
-}
-
-class Status {
-  final ErrorCode code;
-  final String? reason;
-
-  static const Status ok = Status._(ErrorCode.ok);
-
-  Status(this.code, {this.reason});
-
-  const Status._(this.code) : reason = null;
+  void _log(LogLevel level, Object message) {
+    Realm.logger.log(level, 'WebSocket $proxyId: $message');
+  }
 }

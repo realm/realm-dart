@@ -27,7 +27,7 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
   AppHandle(Pointer<realm_app> pointer) : super(pointer, 16);
 
   static bool _firstTime = true;
-  factory AppHandle.from(AppConfiguration configuration) {
+  static Future<AppHandle> from(AppConfiguration configuration) async {
     // to avoid caching apps across hot restarts we clear the cache on the first
     // time the ctor is called in the root isolate.
     if (_firstTime && _isRootIsolate) {
@@ -40,7 +40,7 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
     SyncSocketHandle? syncSocketHandle;
     if (configuration.useManagedWebsockets) {
       final worker = WebsocketHandler();
-      syncSocketHandle = worker.start();
+      syncSocketHandle = await worker.start();
     }
 
     final appConfigHandle = _createAppConfig(configuration, httpTransportHandle, syncSocketHandle);
@@ -350,6 +350,11 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
           .raiseLastErrorIfFalse();
       return completer.future;
     });
+  }
+
+  @override
+  void resetForTesting() {
+    realmLib.realm_dart_app_reset_for_testing(pointer).raiseLastErrorIfFalse();
   }
 }
 

@@ -466,7 +466,7 @@ void main() {
   });
 
   baasTest('flexible sync roundtrip', (appConfigurationX) async {
-    final appX = App(appConfigurationX);
+    final appX = await App.create(appConfigurationX);
 
     realmCore.clearCachedApps();
     final temporaryPath = await platformUtil.createTempPath();
@@ -475,7 +475,7 @@ void main() {
       baseUrl: appConfigurationX.baseUrl,
       baseFilePath: temporaryPath,
     );
-    final appY = App(appConfigurationY);
+    final appY = await App.create(appConfigurationY);
 
     final credentials = Credentials.anonymous();
     final userX = await appX.logIn(credentials);
@@ -744,7 +744,7 @@ void main() {
 Future<RealmResults<Product>> _getQueryToSubscribeForDownload(AppConfiguration configuration, int takeCount) async {
   final prefix = generateRandomString(4);
   final byTestRun = "name BEGINSWITH '$prefix'";
-  App app = App(configuration);
+  App app = await App.create(configuration);
   final userA = await app.logIn(Credentials.anonymous(reuseCredentials: false));
   final configA = Configuration.flexibleSync(userA, getSyncSchema());
   final realmA = getRealm(configA);

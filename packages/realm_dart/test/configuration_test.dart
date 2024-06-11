@@ -61,7 +61,7 @@ void main() {
   });
 
   baasTest('Configuration defaultRealmName can be set for FlexibleSyncConfiguration', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.anonymous());
 
     var customDefaultRealmName = "myRealmName.realm";
@@ -89,7 +89,7 @@ void main() {
     var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
     expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
 
-    var app = App(appConfig);
+    var app = await App.create(appConfig);
     var user = await app.logIn(Credentials.anonymous());
 
     var config = Configuration.flexibleSync(user, getSyncSchema());
@@ -107,7 +107,7 @@ void main() {
 
     clearCachedApps();
 
-    app = App(appConfig);
+    app = await App.create(appConfig);
     user = await app.logIn(Credentials.anonymous());
     config = Configuration.flexibleSync(user, getSyncSchema());
     realm = getRealm(config);
@@ -442,7 +442,7 @@ void main() {
     }
   }
 
-  for (var shouldCompact in [true, false])  {
+  for (var shouldCompact in [true, false]) {
     test('Configuration.shouldCompact when return $shouldCompact triggers compaction', () async {
       var config = Configuration.local([Person.schema]);
 
@@ -475,7 +475,7 @@ void main() {
   }
 
   baasTest('Configuration.flexibleSync shouldCompactCallback is invoked', (appConfig) async {
-    final app = App(appConfig);
+    final app = await App.create(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     var invoked = false;
@@ -489,7 +489,7 @@ void main() {
   });
 
   baasTest('Configuration.flexibleSync suggests correct path', (appConfig) async {
-    final app = App(appConfig);
+    final app = await App.create(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     final config = Configuration.flexibleSync(user, getSyncSchema());
@@ -499,7 +499,7 @@ void main() {
   });
 
   baasTest('Configuration.flexibleSync when path is supplied, uses that', (appConfig) async {
-    final app = App(appConfig);
+    final app = await App.create(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     final config = Configuration.flexibleSync(user, getSyncSchema(), path: 'my-custom-path.realm');
@@ -508,7 +508,7 @@ void main() {
   });
 
   baasTest('Configuration.flexibleSync when path is supplied, open realm', (appConfig) async {
-    final app = App(appConfig);
+    final app = await App.create(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     var customPath = path.join(
       path.dirname(Configuration.defaultStoragePath),
@@ -519,7 +519,7 @@ void main() {
   });
 
   baasTest('Configuration.disconnectedSync', (appConfig) async {
-    final app = App(appConfig);
+    final app = await App.create(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     final temporaryPath = await platformUtil.createTempPath();
@@ -562,7 +562,7 @@ void main() {
   });
 
   baasTest('FlexibleSyncConfiguration set too long encryption key size', (appConfiguration) async {
-    final app = App(appConfiguration);
+    final app = await App.create(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
 
@@ -588,7 +588,7 @@ void main() {
   });
 
   baasTest('FlexibleSyncConfiguration.maxNumberOfActiveVersions - throw when exceeded', (appConfiguration) async {
-    final app = App(appConfiguration);
+    final app = await App.create(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
 
@@ -599,7 +599,7 @@ void main() {
   });
 
   baasTest('DisconnectedSyncConfiguration.maxNumberOfActiveVersions - throw when exceeded', (appConfiguration) async {
-    final app = App(appConfiguration);
+    final app = await App.create(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final config = Configuration.flexibleSync(user, getSyncSchema());

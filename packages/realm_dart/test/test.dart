@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/app.dart';
 import 'package:realm_dart/src/configuration.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/logging.dart';
@@ -408,6 +409,7 @@ class _ObjectWithInt {
 
 String? testName;
 final _openRealms = Queue<Realm>();
+final _openApps = Queue<App>();
 
 String testUsername = "realm-test@realm.io";
 String testPassword = "123456";
@@ -427,9 +429,9 @@ void setupTests() {
   setUpAll(() async {
     baasHelper = await BaasHelper.setupBaas();
 
-    Realm.logger.setLogLevel(LogLevel.detail);
+    Realm.logger.setLogLevel(LogLevel.trace, category: LogCategory.realm.sdk);
     Realm.logger.onRecord.listen((record) {
-      printOnFailure('${record.category} ${record.level.name}: ${record.message}');
+      print('${record.category} ${record.level.name}: ${record.message}');
     });
 
     if (Platform.isIOS) {
@@ -448,6 +450,11 @@ void setupTests() {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
+
+      while (_openApps.isNotEmpty) {
+        final app = _openApps.removeFirst();
+        app.handle.resetForTesting();
+      }
 
       realmCore.clearCachedApps();
 
@@ -493,6 +500,12 @@ Realm getRealm(Configuration config) {
   final realm = Realm(config);
   _openRealms.add(realm);
   return realm;
+}
+
+Future<App> getApp(AppConfiguration config) async {
+  final app = await App.create(config);
+  _openApps.add(app);
+  return app;
 }
 
 Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
@@ -606,7 +619,7 @@ String getAutoverifiedEmail() => 'realm_tests_do_autoverify_${generateRandomEmai
 
 /// Registers, logs in, and returns the new user.
 Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
-  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
+  app ??= await getApp(appConfig ?? await baasHelper!.getAppConfig());
   final email = getAutoverifiedEmail();
   final password = 'password';
   await app.emailPasswordAuthProvider.registerUser(email, password);

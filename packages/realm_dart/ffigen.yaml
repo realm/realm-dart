@@ -9,6 +9,7 @@ headers:
     - 'src/realm_dart_logger.h'
     - 'src/realm_dart_decimal128.h'
     - 'src/realm_dart_scheduler.h'
+    - 'src/realm_dart_socket_provider.h'
     - 'src/realm_dart_sync.h'
   include-directives: # generate only for these headers
     - 'src/realm-core/src/realm.h'
@@ -16,6 +17,7 @@ headers:
     - 'src/realm_dart_logger.h'
     - 'src/realm_dart_decimal128.h'
     - 'src/realm_dart_scheduler.h'
+    - 'src/realm_dart_socket_provider.h'
     - 'src/realm_dart_sync.h'
 preamble: |
   // ignore_for_file: always_specify_types

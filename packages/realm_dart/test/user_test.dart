@@ -12,7 +12,7 @@ void main() {
   setupTests();
 
   baasTest('User logout anon user is marked as removed', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.anonymous());
     expect(user.state, UserState.loggedIn);
     await user.logOut();
@@ -20,7 +20,7 @@ void main() {
   });
 
   baasTest('User logout', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(user.state, UserState.loggedIn);
     await user.logOut();
@@ -28,33 +28,33 @@ void main() {
   });
 
   baasTest('User get id', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(user.id, isNotEmpty);
   });
 
   baasTest('User get identities', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     //singleWhere throws an exception if not found
     expect(user.identities.singleWhere((identity) => identity.provider == AuthProviderType.emailPassword), isA<UserIdentity>());
   });
 
   baasTest('User get customdata', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(user.customData, isNull);
   });
 
   baasTest('User refresh customdata', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     final dynamic data = await user.refreshCustomData();
     expect(data, isNull);
   });
 
   baasTest('User link credentials', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user1 = await getAnonymousUser(app);
 
     expect(user1.state, UserState.loggedIn);
@@ -76,7 +76,7 @@ void main() {
   });
 
   baasTest('User deviceId', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     expect(user.deviceId, isNotNull);
@@ -85,7 +85,7 @@ void main() {
   });
 
   baasTest('User profile', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     expect(user.profile.email, testUsername);
   });
@@ -357,7 +357,7 @@ void main() {
   });
 
   baasTest('User.apiKeys can login with generated key', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await getIntegrationUser(app: app);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
@@ -369,7 +369,7 @@ void main() {
   });
 
   baasTest('User.apiKeys can login with reenabled key', (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await getIntegrationUser(app: app);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
@@ -392,7 +392,7 @@ void main() {
   });
 
   baasTest("User.apiKeys can't login with deleted key", (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
     final user = await getIntegrationUser(app: app);
 
     final key = await createAndVerifyApiKey(user, 'my-key');
@@ -432,7 +432,7 @@ void main() {
   });
 
   baasTest("Credentials.apiKey with server-generated can login user", (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
 
     final apiKey = await baasHelper!.createServerApiKey(app, ObjectId().toString());
     final credentials = Credentials.apiKey(apiKey);
@@ -443,7 +443,7 @@ void main() {
   });
 
   baasTest("Credentials.apiKey with disabled server api key throws an error", (configuration) async {
-    final app = App(configuration);
+    final app = await App.create(configuration);
 
     final apiKey = await baasHelper!.createServerApiKey(app, ObjectId().toString(), enabled: false);
     final credentials = Credentials.apiKey(apiKey);

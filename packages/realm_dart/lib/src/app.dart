@@ -98,7 +98,7 @@ class App {
 
   /// Create an app with a particular [AppConfiguration]. This constructor should only be used on the main isolate and,
   /// ideally, only once as soon as the app starts.
-  App(AppConfiguration configuration) : _handle = AppHandle.from(configuration) {
+  static Future<App> create(AppConfiguration configuration) async {
     // This is not foolproof, but could point people to errors they may have in their app. Realm apps are cached natively, so calling App(config)
     // on a background isolate will not recreate the app. Instead, users should construct the app on the main isolate and then call getById on the
     // background isolates. This check will log a warning if the isolate name is != 'main' and doesn't start with 'test/' since dart test will
@@ -107,6 +107,9 @@ class App {
       Realm.logger.log(LogLevel.warn,
           "App constructor called on Isolate ${Isolate.current.debugName} which doesn't appear to be the main isolate. If you need an app instance on a background isolate use App.getById after constructing the App on the main isolate.");
     }
+
+    final appHandle = await AppHandle.from(configuration);
+    return App._(appHandle);
   }
 
   /// Obtain an [App] instance by id. The app must have first been created by calling the constructor that takes an [AppConfiguration]
