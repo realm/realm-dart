@@ -12,6 +12,7 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
+//TODO This file is called list_test, while the one for maps and sets are called realm_map/set_test
 void main() {
   setupTests();
 
@@ -513,6 +514,13 @@ void main() {
     final team = Team('team');
 
     expect(() => freezeList(team.players), throws<RealmStateError>("Unmanaged lists can't be frozen"));
+  });
+
+  test('UnmanagedList.changes throws', () {
+    final team = Team('team');
+
+    expect(() => team.players.changes, throws<RealmStateError>("Unmanaged lists don't support changes"));
+    expect(() => team.players.changesFor(["test"]), throws<RealmStateError>("Unmanaged lists don't support changes"));
   });
 
   test('List.freeze when frozen returns same object', () {
