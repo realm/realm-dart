@@ -26,7 +26,7 @@ class SyncSocketHandle extends HandleBase<realm_sync_socket> {
 class WebsocketHandler {
   final _workerThreadCompleter = Completer<Pointer<realm_sync_socket>>();
   final Map<int, SyncSocket> _sockets = {};
-  late SendPort _workerThreadPort;
+  late final SendPort _workerThreadPort;
 
   Future<SyncSocketHandle> start() async {
     final port = ReceivePort();
@@ -63,6 +63,7 @@ class WebsocketHandler {
       }
     } catch (e) {
       Realm.logger.log(LogLevel.error, 'An error occurred in WebSocketHandler._handleMessageFromWorker: $e');
+      rethrow;
     }
   }
 }
@@ -82,7 +83,7 @@ class SyncEventLoop {
     try {
       switch (message) {
         case IWebSocketOperation response:
-          _proxies[response.proxyId]!.messageReceived(response);
+          _proxies[response.proxyId]?.messageReceived(response);
           break;
         default:
           throw RealmError('Unexpected message: $message');
@@ -99,24 +100,30 @@ class SyncEventLoop {
   }
 
   static void start(SendPort sendPort) {
-    final eventLoop = SyncEventLoop._(sendPort);
+    Realm.logger.log(LogLevel.trace, 'Entering WebsocketHandler event loop.');
 
-    final post = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<realm_sync_socket_post_callback_t>)>(_postWork);
-    final createTimer = Pointer.fromFunction<Pointer<Void> Function(Pointer<Void>, Uint64, Pointer<realm_sync_socket_post_callback_t>)>(_createTimer);
-    final cancelTimer = Pointer.fromFunction<Void Function(Pointer<Void>, Handle)>(_cancelTimer);
-    final freeTimer = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<Void>)>(_freeTimer);
-    final websocketConnect =
-        Pointer.fromFunction<Pointer<Void> Function(Handle, realm_websocket_endpoint_t, Pointer<realm_websocket_observer_t>)>(_websocketConnect);
+    try {
+      final eventLoop = SyncEventLoop._(sendPort);
 
-    final websocketWrite =
-        Pointer.fromFunction<Void Function(Handle, Handle, Pointer<Uint8>, Size, Pointer<realm_sync_socket_write_callback_t>)>(_websocketWrite);
+      final post = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<realm_sync_socket_post_callback_t>)>(_postWork);
+      final createTimer = Pointer.fromFunction<Pointer<Void> Function(Pointer<Void>, Uint64, Pointer<realm_sync_socket_post_callback_t>)>(_createTimer);
+      final cancelTimer = Pointer.fromFunction<Void Function(Pointer<Void>, Handle)>(_cancelTimer);
+      final freeTimer = Pointer.fromFunction<Void Function(Pointer<Void>, Pointer<Void>)>(_freeTimer);
+      final websocketConnect =
+          Pointer.fromFunction<Pointer<Void> Function(Handle, realm_websocket_endpoint_t, Pointer<realm_websocket_observer_t>)>(_websocketConnect);
 
-    final freeSocket = Pointer.fromFunction<Void Function(Pointer<Void> _, Pointer<Void>)>(_freeWebsocket);
+      final websocketWrite =
+          Pointer.fromFunction<Void Function(Handle, Handle, Pointer<Uint8>, Size, Pointer<realm_sync_socket_write_callback_t>)>(_websocketWrite);
 
-    final nativeSyncSocket = realmLib.realm_dart_sync_socket_new(eventLoop.toPersistentHandle(), Pointer.fromFunction(_free), schedulerHandle.pointer, post,
-        createTimer, cancelTimer.cast(), freeTimer, websocketConnect.cast(), websocketWrite.cast(), freeSocket);
+      final freeSocket = Pointer.fromFunction<Void Function(Pointer<Void> _, Pointer<Void>)>(_freeWebsocket);
 
-    sendPort.send(WorkerThreadInitialized(eventLoop.receivePort.sendPort, nativeSyncSocket));
+      final nativeSyncSocket = realmLib.realm_dart_sync_socket_new(eventLoop.toPersistentHandle(), Pointer.fromFunction(_free), schedulerHandle.pointer, post,
+          createTimer, cancelTimer.cast(), freeTimer, websocketConnect.cast(), websocketWrite.cast(), freeSocket);
+
+      sendPort.send(WorkerThreadInitialized(eventLoop.receivePort.sendPort, nativeSyncSocket));
+    } catch (e) {
+      Realm.logger.log(LogLevel.error, 'Failed to initialize WebsocketHandler event loop: $e');
+    }
   }
 
   static void _free(Pointer<Void> userdata) {
@@ -169,8 +176,8 @@ class SyncEventLoop {
     socket.requestWrite(bytes, callback);
   }
 
-  static void _freeWebsocket(Object userData, Pointer<Void> websocket) {
-    final eventLoop = userData as SyncEventLoop;
+  static void _freeWebsocket(Pointer<Void> userData, Pointer<Void> websocket) {
+    final eventLoop = userData.toObject<SyncEventLoop>();
     final socket = websocket.toObject<SyncSocketProxy>();
     eventLoop._proxies.remove(socket.id);
 
@@ -188,11 +195,11 @@ class SyncTimer {
   SyncTimer(Duration duration, Pointer<realm_sync_socket_post_callback_t> nativeCallback) {
     Realm.logger.log(LogLevel.trace, 'Creating timer with delay $duration and target $nativeCallback.');
     CancellableFuture.delayed<void>(duration, _cancellationToken, () {
-      realmLib.realm_sync_socket_timer_complete(nativeCallback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_SUCCESS, nullptr);
       Realm.logger.log(LogLevel.trace, 'Timer with target $nativeCallback completed.');
+      realmLib.realm_sync_socket_timer_complete(nativeCallback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_SUCCESS, nullptr);
     }).onError((err, _) {
-      realmLib.realm_sync_socket_timer_canceled(nativeCallback);
       Realm.logger.log(LogLevel.trace, 'Timer with target $nativeCallback was canceled.');
+      realmLib.realm_sync_socket_timer_canceled(nativeCallback);
     });
   }
 
@@ -290,9 +297,7 @@ class SyncSocketProxy {
           realmLib.realm_sync_socket_websocket_message(_observer, dataReceived.message.toCharPtr(arena), dataReceived.message.length);
           break;
         case WebSocketDataSent dataSent:
-          using((Arena arena) {
-            realmLib.realm_sync_socket_write_complete(dataSent.callback, dataSent.statusCode, dataSent.error?.toCharPtr(arena) ?? nullptr);
-          });
+          realmLib.realm_sync_socket_write_complete(dataSent.callback, dataSent.statusCode, dataSent.error?.toCharPtr(arena) ?? nullptr);
           break;
       }
     });
@@ -362,15 +367,13 @@ class SyncSocket {
 
     try {
       await _webSocket.addStream(Stream.value(bytes));
+      sendPort.send(WebSocketDataSent.ok(proxyId, callback));
     } catch (e) {
       _log(LogLevel.error, "Error writing to WebSocket: $e");
 
       sendPort.send(WebSocketDataSent.error(proxyId, callback, realm_sync_socket_callback_result.RLM_ERR_SYNC_SOCKET_RUNTIME, e.toString()));
-      sendPort.send(WebSocketClosed(proxyId, false, realm_web_socket_errno.RLM_ERR_WEBSOCKET_WRITE_ERROR, e.toString()));
-      return;
+      _webSocket.close(realm_web_socket_errno.RLM_ERR_WEBSOCKET_WRITE_ERROR, e.toString());
     }
-
-    sendPort.send(WebSocketDataSent.ok(proxyId, callback));
   }
 
   Future<void> close() async {

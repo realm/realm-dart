@@ -206,12 +206,25 @@ struct DartSyncSocketProvider : sync::SyncSocketProvider {
         REALM_ASSERT(m_websocket_free);
     }
 
-    ~DartSyncSocketProvider()
+    ~DartSyncSocketProvider() override
     {
+        // TODO: this doesn't appear to be ever called - why??
+        util::Logger::get_default_logger()->error("~DartSyncSocketProvider()");
+
         if (m_userdata_free) {
-            m_scheduler->invoke([free = m_userdata_free, userdata = m_userdata]() {
-                free(userdata);
+            std::condition_variable condition;
+            std::mutex mutex;
+            bool completed = false;
+
+            m_scheduler->invoke([&]() {
+                std::unique_lock lock(mutex);
+                m_userdata_free(m_userdata);
+                completed = true;
+                condition.notify_one();
             });
+
+            std::unique_lock lock(mutex);
+            condition.wait(lock, [&]() { return completed; });
         }
     }
 

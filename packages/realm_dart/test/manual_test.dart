@@ -24,7 +24,7 @@ void main() {
       const String validUsername = "valid_email@mail.com";
 
       baasTest('Manual test 1. Register a valid user for email confirmation', (configuration) async {
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.registerUser(validUsername, strongPassword);
       }, appName: AppName.emailConfirm, skip: "It is a manual test");
@@ -34,7 +34,7 @@ void main() {
         String token = "3a8bdfa28e147f38e531cf5aca93d452a11efc4fc9a81f00219b0cb29cfb93858f6b174123659a6ef47b58a2b80eac3b406d7803605c17ef44401ec6cf2c8fa6";
         String tokenId = "626934dcb4e7e5a0e2f1d85e";
 
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.confirmUser(token, tokenId);
         final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
@@ -53,7 +53,7 @@ void main() {
       // Enter a valid email that is not registered
       const String validUsername = "valid_email@mail.com";
       baasTest('Manual test 1. Register a valid user and resend email confirmation', (configuration) async {
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.registerUser(validUsername, strongPassword);
         await authProvider.resendUserConfirmation(validUsername);
@@ -65,7 +65,7 @@ void main() {
         String token = "3eb9e380e925075af761fbf36273ad32c5ad898e7cd5fc2e7cf5d0296c5850222ecb55d5d39601f95fc81a67f4b4ca1f7386bc6fef62a0b27498c3157332e155";
         String tokenId = "626b1977dbc08e4014bad1ec";
 
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.confirmUser(token, tokenId);
         final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
@@ -87,7 +87,7 @@ void main() {
       const String validUsername = "valid_email@realm.io";
 
       baasTest('Manual test 1 (resetPassword). Register a valid user', (configuration) async {
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.registerUser(validUsername, strongPassword);
       }, appName: AppName.emailConfirm, skip: "It is a manual test");
@@ -97,7 +97,7 @@ void main() {
         String token = "3e23e2e689fe1fdbbb51d3c090a216a4195a4f0a004a578787618d9dd39c791f4169511ee3820e4b6fa2bfdc14430f1e58356223d78e3bed3c86042c3a91a4db";
         String tokenId = "6278cecd9106aa5b645999ba";
 
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.confirmUser(token, tokenId);
         final user = await loginWithRetry(app, Credentials.emailPassword(validUsername, strongPassword));
@@ -105,7 +105,7 @@ void main() {
       }, appName: AppName.emailConfirm, skip: "It is a manual test");
 
       baasTest('Manual test 3 (resetPassword). Reset user password email', (configuration) async {
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         await authProvider.resetPassword(validUsername);
       }, appName: AppName.emailConfirm, skip: "It is a manual test");
@@ -116,7 +116,7 @@ void main() {
         String token = "fb485146b15497209a9d1b67128ae29199cdff2c26f389e0ee5d52ae6bc4228e5738b29256eade976e24767804bfb4dc68198075e3a461cd4f73864901fb09be";
         String tokenId = "6272619334f5b3a770a7dc2c";
 
-        final app = await App.create(configuration);
+        final app = await getApp(configuration);
         final authProvider = EmailPasswordAuthProvider(app);
         String newPassword = "RWE@#EDE";
         await authProvider.completeResetPassword(newPassword, token, tokenId);
@@ -127,7 +127,7 @@ void main() {
 
     ///See test/README.md section 'Manually configure Facebook, Google and Apple authentication providers'"
     baasTest('Facebook credentials - login', (configuration) async {
-      final app = await App.create(configuration);
+      final app = await getApp(configuration);
       final accessToken =
           'EAARZCEokqpOMBAKoIHgaG6bqY6LLseGHcQjYdoPhv9FdB89mkVZBWQFOmZCuVeuRfIa5cMtQANLpZBUQI0n4qb4TZCZCAI3vXZC9Oud2qRiieQDtXqE4abZBQJorcBMzECVfsDlus7hk63zW3XzuFCZAxF4BCdRZBHXlGXIzaHhFHhY72aU1apX0tC';
       final credentials = Credentials.facebook(accessToken);

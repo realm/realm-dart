@@ -68,7 +68,7 @@ void main() {
   });
 
   baasTest('Initiate resetRealm after ManualRecoveryHandler callback', (appConfig) async {
-    final app = await App.create(appConfig);
+    final app = await getApp(appConfig);
     final user = await getAnonymousUser(app);
 
     final resetCompleter = Completer<void>();
@@ -458,7 +458,7 @@ void main() {
   // 6. only now userB goes online, downloads and merges the changes. userB will have [task0, task1, task3]
   // 7. userA will also have [task0, task1, task3]
   baasTest('RecoverUnsyncedChangesHandler integration test with two users', (appConfig) async {
-    final app = await App.create(appConfig);
+    final app = await getApp(appConfig);
     final afterRecoverCompleterA = Completer<void>();
     final afterRecoverCompleterB = Completer<void>();
 

@@ -54,7 +54,7 @@ void main() {
     expect(appConfig.httpClient, isNotNull);
 
     // Check that the app constructor works
-    await App.create(appConfig);
+    await getApp(appConfig);
   });
 
   test('AppConfiguration can be created', () async {
@@ -79,12 +79,12 @@ void main() {
     expect(appConfig.httpClient, httpClient);
 
     // Check that the app constructor works
-    await App.create(appConfig);
+    await getApp(appConfig);
   });
 
   test('App can be created', () async {
     final configuration = AppConfiguration(generateRandomString(10));
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     expect(app.id, configuration.appId);
   });
 
@@ -94,7 +94,7 @@ void main() {
   });
 
   baasTest('App log in', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
@@ -104,13 +104,13 @@ void main() {
 
   test('Application get all users', () async {
     final configuration = AppConfiguration(generateRandomString(10));
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     var users = app.users;
     expect(users.isEmpty, true);
   });
 
   baasTest('App remove user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
     expect(user.state, UserState.loggedIn);
@@ -119,7 +119,7 @@ void main() {
   });
 
   baasTest('App log out anonymous user is marked as removed', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
@@ -128,7 +128,7 @@ void main() {
   });
 
   baasTest('App remove anonymous user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     expect(user.state, UserState.loggedIn);
@@ -137,7 +137,7 @@ void main() {
   });
 
   baasTest('App get current user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final credentials = Credentials.anonymous();
     expect(app.currentUser, isNull);
 
@@ -148,7 +148,7 @@ void main() {
   });
 
   baasTest('App switch user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     expect(app.currentUser, isNull);
 
     final user1 = await app.logIn(Credentials.anonymous());
@@ -163,7 +163,7 @@ void main() {
   });
 
   baasTest('App get users', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     expect(app.currentUser, isNull);
     expect(app.users.length, 0);
 
@@ -173,7 +173,7 @@ void main() {
   });
 
   baasTest('App delete user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = getAutoverifiedEmail();
     const String strongPassword = "SWV23R#@T#VFQDV";
@@ -195,20 +195,20 @@ void main() {
   });
 
   baasTest('Call Atlas function that does not exist', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.anonymous());
     await expectLater(user.functions.call('notExisitingFunction'), throws<AppException>("function not found"));
   });
 
   baasTest('Call Atlas function with no arguments', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.anonymous());
     final dynamic response = await user.functions.call('userFuncNoArgs');
     expect(response, isNotNull);
   });
 
   baasTest('Call Atlas function on background isolate', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final appId = app.id;
     expect(Isolate.run(
       () async {
@@ -220,7 +220,7 @@ void main() {
   });
 
   baasTest('Call Atlas function with one argument', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.anonymous());
     const arg1 = 'Jhonatan';
     final dynamic response = await user.functions.call('userFuncOneArg', [arg1]);
@@ -230,7 +230,7 @@ void main() {
   });
 
   baasTest('Call Atlas function with two arguments', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.anonymous());
     const arg1 = 'Jhonatan';
     const arg2 = 'Michael';
@@ -242,7 +242,7 @@ void main() {
   });
 
   baasTest('Call Atlas function with two arguments but pass one', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.anonymous());
     const arg1 = 'Jhonatan';
     final dynamic response = await user.functions.call('userFuncTwoArgs', [arg1]);
@@ -253,7 +253,7 @@ void main() {
   });
 
   baasTest('Call Atlas function with two Object arguments', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user = await app.logIn(Credentials.anonymous());
     final arg1 = Person("Jhonatan");
     final arg2 = Person('Michael');
@@ -267,7 +267,7 @@ void main() {
   });
 
   baasTest('App.reconnect', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final realm = await getIntegrationRealm(app: app);
     final session = realm.syncSession;
 
@@ -290,7 +290,7 @@ void main() {
   });
 
   baasTest('App switch to logout user throws', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     expect(app.currentUser, isNull);
 
     final user1 = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
@@ -305,13 +305,13 @@ void main() {
   });
 
   baasTest('App get Base URL', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     expect(app.baseUrl, configuration.baseUrl);
   });
 
   baasTest('App update Base URL', (appConfig) async {
     final config = await baasHelper!.getAppConfig(customBaseUrl: 'https://services.cloud.mongodb.com');
-    final app = await App.create(config);
+    final app = await getApp(config);
     expect(app.baseUrl, Uri.parse('https://services.cloud.mongodb.com'));
     // Set it to the same thing to confirm the function works, it's not actually going to update the location
     await app.updateBaseUrl(Uri.parse(baasHelper!.baseUrl));
@@ -335,7 +335,7 @@ void main() {
   test('app.logIn unsuccessful logIn attempt on background isolate', () async {
     // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
     const appId = 'fake-app-id';
-    await App.create(AppConfiguration(appId, baseUrl: Uri.parse('https://this-is-a-fake-url.com')));
+    await getApp(AppConfiguration(appId, baseUrl: Uri.parse('https://this-is-a-fake-url.com')));
     expect(Isolate.run(
       () async {
         final app = App.getById(appId);
@@ -347,7 +347,7 @@ void main() {
   baasTest('app.logIn successful logIn on background isolate', (configuration) async {
     // This test was introduced due to: https://github.com/realm/realm-dart/issues/1467
     final appId = configuration.appId;
-    await App.create(configuration);
+    await getApp(configuration);
     expect(Isolate.run(
       () async {
         final app = App.getById(appId);
@@ -357,7 +357,7 @@ void main() {
   });
 
   baasTest('app.getById with different baseUrl returns null', (appConfig) async {
-    final app = await App.create(appConfig);
+    final app = await getApp(appConfig);
     expect(App.getById(app.id, baseUrl: Uri.parse('https://foo.bar')), null);
     expect(App.getById(app.id, baseUrl: appConfig.baseUrl), isNotNull);
   });
@@ -371,7 +371,7 @@ void main() {
     });
 
     await Isolate.run(() async {
-      await App.create(AppConfiguration('abc'));
+      await getApp(AppConfiguration('abc'));
     });
 
     final log = sb.toString();

@@ -451,13 +451,6 @@ void setupTests() {
       final paths = HashSet<String>();
       paths.add(path);
 
-      while (_openApps.isNotEmpty) {
-        final app = _openApps.removeFirst();
-        app.handle.resetForTesting();
-      }
-
-      realmCore.clearCachedApps();
-
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
         paths.add(realm.config.path);
@@ -467,6 +460,13 @@ void setupTests() {
       for (final path in paths) {
         await tryDeleteRealm(path);
       }
+
+      while (_openApps.isNotEmpty) {
+        final app = _openApps.removeFirst();
+        app.handle.resetForTesting();
+      }
+
+      realmCore.clearCachedApps();
     });
   });
 }

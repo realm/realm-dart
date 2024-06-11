@@ -28,24 +28,38 @@ class AppHandle extends HandleBase<realm_app> implements intf.AppHandle {
 
   static bool _firstTime = true;
   static Future<AppHandle> from(AppConfiguration configuration) async {
-    // to avoid caching apps across hot restarts we clear the cache on the first
-    // time the ctor is called in the root isolate.
-    if (_firstTime && _isRootIsolate) {
-      _firstTime = false;
-      realmLib.realm_clear_cached_apps();
-    }
-    Directory(configuration.baseFilePath).createSync(recursive: true);
-
-    final httpTransportHandle = HttpTransportHandle.from(configuration.httpClient);
+    HttpTransportHandle? httpTransportHandle;
+    _AppConfigHandle? appConfigHandle;
     SyncSocketHandle? syncSocketHandle;
-    if (configuration.useManagedWebsockets) {
-      final worker = WebsocketHandler();
-      syncSocketHandle = await worker.start();
+    _SyncClientConfigHandle? syncClientConfigHandle;
+    try {
+      // to avoid caching apps across hot restarts we clear the cache on the first
+      // time the ctor is called in the root isolate.
+      if (_firstTime && _isRootIsolate) {
+        _firstTime = false;
+        realmLib.realm_clear_cached_apps();
+      }
+      Directory(configuration.baseFilePath).createSync(recursive: true);
+
+      httpTransportHandle = HttpTransportHandle.from(configuration.httpClient);
+      if (configuration.useManagedWebsockets) {
+        final websocketHandler = WebsocketHandler();
+        syncSocketHandle = await websocketHandler.start();
+
+        syncClientConfigHandle = _SyncClientConfigHandle(realmLib.realm_sync_client_config_new());
+        realmLib.realm_sync_client_config_set_sync_socket(syncClientConfigHandle.pointer, syncSocketHandle.pointer);
+      }
+
+      appConfigHandle = _createAppConfig(configuration, httpTransportHandle, syncClientConfigHandle);
+      final result = AppHandle(realmLib.realm_app_create_cached(appConfigHandle.pointer));
+
+      return result;
+    } finally {
+      httpTransportHandle?.release();
+      syncClientConfigHandle?.release();
+      syncSocketHandle?.release();
+      appConfigHandle?.release();
     }
-
-    final appConfigHandle = _createAppConfig(configuration, httpTransportHandle, syncSocketHandle);
-
-    return AppHandle(realmLib.realm_app_create_cached(appConfigHandle.pointer));
   }
 
   static AppHandle? get(String id, String? baseUrl) {
@@ -418,7 +432,11 @@ class _AppConfigHandle extends HandleBase<realm_app_config> {
   _AppConfigHandle(Pointer<realm_app_config> pointer) : super(pointer, 8);
 }
 
-_AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportHandle httpTransport, SyncSocketHandle? syncSocket) {
+class _SyncClientConfigHandle extends HandleBase<realm_sync_client_config> {
+  _SyncClientConfigHandle(Pointer<realm_sync_client_config> pointer) : super(pointer, 8);
+}
+
+_AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportHandle httpTransport, _SyncClientConfigHandle? syncClientConfig) {
   return using((arena) {
     final appId = configuration.appId.toCharPtr(arena);
     final handle = _AppConfigHandle(realmLib.realm_app_config_new(appId, httpTransport.pointer));
@@ -450,11 +468,8 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
       realmLib.realm_app_config_set_metadata_encryption_key(handle.pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
     }
 
-    if (syncSocket != null) {
-      print(Isolate.current.debugName);
-      final syncClientConfig = realmLib.realm_sync_client_config_new();
-      realmLib.realm_sync_client_config_set_sync_socket(syncClientConfig, syncSocket.pointer);
-      realmLib.realm_app_config_set_sync_client_config(handle.pointer, syncClientConfig);
+    if (syncClientConfig != null) {
+      realmLib.realm_app_config_set_sync_client_config(handle.pointer, syncClientConfig.pointer);
     }
 
     return handle;

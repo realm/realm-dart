@@ -16,7 +16,7 @@ void main() {
   });
 
   baasTest('Anonymous - new user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final user1 = await app.logIn(Credentials.anonymous());
     final user2 = await app.logIn(Credentials.anonymous());
     final user3 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
@@ -35,7 +35,7 @@ void main() {
   });
 
   baasTest('Email/Password - register user confirmation throws', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = generateRandomEmail();
     await expectLater(() {
@@ -46,7 +46,7 @@ void main() {
   });
 
   baasTest('Email/Password - register user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = getAutoverifiedEmail();
     await authProvider.registerUser(username, strongPassword);
@@ -55,7 +55,7 @@ void main() {
   });
 
   baasTest('Email/Password - register user auto confirm', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = generateRandomEmail();
     // For application with name 'autoConfirm' and with confirmationType = 'auto'
@@ -67,7 +67,7 @@ void main() {
   }, appName: AppName.autoConfirm);
 
   baasTest('Email/Password - register user twice throws', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = generateRandomEmail();
     await authProvider.registerUser(username, strongPassword);
@@ -75,7 +75,7 @@ void main() {
   }, appName: AppName.autoConfirm);
 
   baasTest('Email/Password - register user with weak/empty password throws', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = generateRandomEmail();
     await expectLater(() => authProvider.registerUser(username, "pwd"), throws<AppException>("password must be between 6 and 128 characters"));
@@ -83,13 +83,13 @@ void main() {
   });
 
   baasTest('Email/Password - register user with empty email throws', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     await expectLater(() => authProvider.registerUser("", "password"), throws<AppException>("email invalid"));
   });
 
   baasTest('Email/Password - confirm user token expired', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     await expectLater(
         () => authProvider.confirmUser(
@@ -99,13 +99,13 @@ void main() {
   }, appName: AppName.emailConfirm);
 
   baasTest('Email/Password - confirm user token invalid', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     await expectLater(() => authProvider.confirmUser("abc", "123"), throws<AppException>("invalid token data"));
   }, appName: AppName.emailConfirm);
 
   baasTest('Email/Password - retry custom confirmation function', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = "realm_tests_pending_confirm_${generateRandomEmail()}";
     await authProvider.registerUser(username, strongPassword);
@@ -117,7 +117,7 @@ void main() {
   });
 
   baasTest('Email/Password - retry custom confirmation after user is confirmed', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = getAutoverifiedEmail();
     // Custom confirmation function confirms automatically username with 'realm_tests_do_autoverify'.
@@ -127,21 +127,21 @@ void main() {
   });
 
   baasTest('Email/Password - retry custom confirmation for not registered user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = generateRandomEmail();
     await expectLater(() => authProvider.retryCustomConfirmationFunction(username), throws<AppException>("user not found"));
   });
 
   baasTest('Email/Password - reset password of non-existent user throws', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final authProvider = EmailPasswordAuthProvider(app);
     String username = generateRandomEmail();
     await expectLater(() => authProvider.resetPassword(username), throws<AppException>("user not found"));
   }, appName: AppName.emailConfirm);
 
   baasTest('Email/Password - call reset password function and login with the new password', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     String username = generateRandomEmail();
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
@@ -158,7 +158,7 @@ void main() {
   }, appName: AppName.autoConfirm);
 
   baasTest('Email/Password - call reset password function with no additional arguments', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     String username = generateRandomEmail();
     const String newPassword = "!@#!DQXQWD!223eda";
     final authProvider = EmailPasswordAuthProvider(app);
@@ -195,7 +195,7 @@ void main() {
   /// }
   /// JWT with private key validation is configured in flexible app wich is used by the tests by default.
   baasTest('JWT validation by specified public key  - login', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     String username = "JWT_privatekey_validated_user@realm.io";
     String userId = "62f394e9bcb9fee0c9aecb76";
     var token =
@@ -236,7 +236,7 @@ void main() {
   ///   "iss": "https://realm.io"
   /// }
   baasTest('JWT - login with existing user and edit profile', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     const username = "realm_tests_do_autoverify_jwt_user@realm.io";
     final authProvider = EmailPasswordAuthProvider(app);
     // Always register jwt_user@#r@D@realm.io as a new user.
@@ -304,7 +304,7 @@ void main() {
   ///  "iss": "https://realm.io"
   /// }
   baasTest('JWT with wrong signiture key - login fails', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     var token =
         "eyJraWQiOiIxIiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiI2MmYzOTY4ODhhZjg3MjBiMzczZmYwNmEiLCJlbWFpbCI6Indvbmdfc2lnbml0dXJlX2tleUByZWFsbS5pbyIsImlhdCI6MTY2MDE0MjIxNSwiZXhwIjo0ODEzNzQyMjE1LCJhdWQiOiJtb25nb2RiLmNvbSIsImlzcyI6Imh0dHBzOi8vcmVhbG0uaW8ifQ.Af--ZUCL_KC7lAhrD_d1lq91O7qVwu7GqXifwxKojkLCkbjmAER9K2Xa7BPO8xNstFeX8m9uBo4BCD5B6XmngSmyCj5OZWdiG5LTR_uhA3MnpqcV3Vu40K4Yx8XrjPuCL39xVPnEfPKLGz5TjEcMLa8xMPqo51byX0q3mR2eSS4w1A7c5TiTNuQ23_SCO8aK95SyXwuUmU4mH0iR4sHPtf64WyoAXkx8w5twXExzky1_h473CwtAERdMsBhwz1YzFKP0kxU31pg5SRciF5Ly66sK1fSPTMQPuVdS_wKvAYll8_trWnWS83M3_PWs4UxzOdjSpoK0uqhN-_IC38YOGg";
     final credentials = Credentials.jwt(token);
@@ -318,7 +318,7 @@ void main() {
   });
 
   baasTest('Facebook credentials - invalid or expired token', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     final accessToken = 'invalid or expired token';
     final credentials = Credentials.facebook(accessToken);
     await expectLater(
@@ -336,7 +336,7 @@ void main() {
   });
 
   baasTest('Function credentials - login with new user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     var userId = ObjectId().toString();
     String username = generateRandomEmail();
     final payload = '{"username":"$username","userId":"$userId"}';
@@ -347,7 +347,7 @@ void main() {
   });
 
   baasTest('Function credentials - login with existing user', (configuration) async {
-    final app = await App.create(configuration);
+    final app = await getApp(configuration);
     var userId = ObjectId().toString();
     final payload = '{"userId":"$userId"}';
 

@@ -974,7 +974,7 @@ void main() {
   });
 
   baasTest('Realm - open synced encrypted realm with encryption key', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
@@ -1221,7 +1221,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync)', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1244,7 +1244,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - cancel before open', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1255,7 +1255,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - cancel right after open', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1267,7 +1267,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1282,7 +1282,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1298,7 +1298,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
 
     final user1 = await app.logIn(Credentials.anonymous());
     final configuration1 = Configuration.flexibleSync(user1, getSyncSchema());
@@ -1316,7 +1316,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1332,7 +1332,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - listen for download progress on an empty realm', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous();
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
@@ -1352,7 +1352,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final queryDifferentiator = generateRandomString(10);
     const itemsCount = 200;
     final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemsCount);
@@ -1363,7 +1363,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final config = await _subscribeForAtlasAddedData(app);
 
     int printCount = 0;
@@ -1380,7 +1380,7 @@ void main() {
   });
 
   baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final config = await _subscribeForAtlasAddedData(app);
 
     final cancellationToken = CancellationToken();
@@ -1536,7 +1536,7 @@ void main() {
   });
 
   baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
@@ -1572,7 +1572,7 @@ void main() {
     final originalConfig = Configuration.local([Product.schema]);
     final originalRealm = getRealm(originalConfig);
 
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
     final configCopy = Configuration.flexibleSync(user, getSyncSchema());
@@ -1689,7 +1689,7 @@ void main() {
           'to ${destinationEncryptedKey != null ? "encrypted with ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "the same" : "different"} key " : ""}Sync';
       final testDescription = '$sourceEncryptedState $destinationEncryptedState';
       baasTest('Realm writeCopy Sync->Sync - $testDescription can be opened and synced', (appConfiguration) async {
-        final app = await App.create(appConfiguration);
+        final app = await getApp(appConfiguration);
         var user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
         final originalConfig = Configuration.flexibleSync(user1, getSyncSchema(), encryptionKey: sourceEncryptedKey);
         final originalRealm = getRealm(originalConfig);
@@ -1737,7 +1737,7 @@ void main() {
           'to ${destinationEncryptedKey != null ? "encrypted with ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "the same" : "different"} key " : ""}Local';
       final testDescription = '$sourceEncryptedState $destinationEncryptedState';
       baasTest('Realm writeCopy Sync->Local - $testDescription can be opened and synced', (appConfiguration) async {
-        final app = await App.create(appConfiguration);
+        final app = await getApp(appConfiguration);
         var user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
         final originalConfig = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: sourceEncryptedKey);
         final originalRealm = getRealm(originalConfig);
@@ -1874,7 +1874,7 @@ void main() {
   });
 
   baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final productName = generateRandomUnicodeString();
     final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
     final config = Configuration.flexibleSync(user, getSyncSchema());
@@ -1899,7 +1899,7 @@ void main() {
   baasTest('Synchronized Realm can be opened on multiple isolates', (appConfiguration) async {
     clearCachedApps();
 
-    final app = await App.create(appConfiguration);
+    final app = await getApp(appConfiguration);
     final user = await getAnonymousUser(app);
     final config = Configuration.flexibleSync(user, getSyncSchema());
     final realm = getRealm(config);
