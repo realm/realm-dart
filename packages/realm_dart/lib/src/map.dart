@@ -33,6 +33,9 @@ abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<S
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmMapChanges<T>> get changes;
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]);
 }
 
 class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<String, T> with RealmEntity implements RealmMap<T> {
@@ -50,6 +53,9 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 
   @override
   Stream<RealmMapChanges<T>> get changes => throw RealmStateError("Unmanaged maps don't support changes");
+
+  @override
+  Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]) => throw RealmStateError("Unmanaged maps don't support changes");
 
   @override
   bool operator ==(Object? other) {
@@ -144,11 +150,18 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  Stream<RealmMapChanges<T>> get changes {
+  Stream<RealmMapChanges<T>> get changes => changesFor(null);
+
+  @override
+  Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]) {
+    // if (T is! RealmObjectBase) {
+    //   throw RealmStateError('"Key paths can be used only with collections of Realm objects"');
+    // }
+
     if (isFrozen) {
-      throw RealmStateError('Map is frozen and cannot emit changes');
+      throw RealmStateError('List is frozen and cannot emit changes');
     }
-    final controller = MapNotificationsController<T>(asManaged());
+    final controller = MapNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 
@@ -273,12 +286,23 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 class MapNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmMap<T> map;
   late final StreamController<RealmMapChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  MapNotificationsController(this.map);
+  MapNotificationsController(this.map, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+
+      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
+        throw RealmException("A key path cannot be empty or consisting only of white spaces");
+      }
+
+      map.realm.handle.verifyKeyPath(keyPaths, map._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return map.handle.subscribeForNotifications(this);
+    return map.handle.subscribeForNotifications(this, keyPaths, map._metadata?.classKey);
   }
 
   Stream<RealmMapChanges<T>> createStream() {

@@ -42,9 +42,9 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
     if (!dir.existsSync()) {
       dir.createSync(recursive: true);
     }
-    
+
     final configHandle = ConfigHandle.from(config);
-    
+
     return RealmHandle(realmLib
         .realm_open(configHandle.pointer) //
         .raiseLastErrorIfNull());
@@ -478,6 +478,25 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
     }
     return result;
   }
+
+  Pointer<realm_key_path_array> buildAndVerifyKeyPath(List<String>? keyPaths, int? classKey) {
+    return using((arena) {
+      if (keyPaths == null || classKey == null) {
+        return nullptr;
+      }
+
+      final length = keyPaths.length;
+      final keypathsNative = arena<Pointer<Char>>(length);
+      for (int i = 0; i < length; i++) {
+        keypathsNative[i] = keyPaths[i].toCharPtr(arena);
+      }
+
+      return realmLib.realm_create_key_path_array(pointer, classKey, length, keypathsNative).raiseLastErrorIfNull();
+    });
+  }
+
+  @override
+  void verifyKeyPath(List<String>? keyPaths, int? classKey) => buildAndVerifyKeyPath(keyPaths, classKey);
 }
 
 class CallbackTokenHandle extends RootedHandleBase<realm_callback_token> implements intf.CallbackTokenHandle {

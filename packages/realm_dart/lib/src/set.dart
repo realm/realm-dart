@@ -34,6 +34,9 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity {
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmSetChanges<T>> get changes;
 
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]);
+
   /// Returns the element of type `T` at the specified [index].
   ///
   /// Note that elements in a RealmSet move around arbitrarily when other elements are
@@ -113,8 +116,12 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
   @override
   bool get isValid => true;
 
+  //TODO We just call lists "lists" (same for maps), while we call sets "RealmSets". We probably need to figure out which one we want to use
   @override
   Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
+
+  @override
+  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]) => throw RealmStateError("Unmanaged RealmSets don't support changes");
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");
@@ -222,11 +229,14 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   int get length => handle.size;
 
   @override
-  Stream<RealmSetChanges<T>> get changes {
+  Stream<RealmSetChanges<T>> get changes => changesFor(null);
+
+  @override
+  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('Set is frozen and cannot emit changes');
     }
-    final controller = RealmSetNotificationsController<T>(asManaged());
+    final controller = RealmSetNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 
@@ -335,12 +345,24 @@ class RealmSetChanges<T extends Object?> extends RealmCollectionChanges {
 class RealmSetNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmSet<T> set;
   late final StreamController<RealmSetChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  RealmSetNotificationsController(this.set);
+  //TODO Maybe this can be moved to the NotificationController
+  RealmSetNotificationsController(this.set, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+
+      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
+        throw RealmException("A key path cannot be empty or consisting only of white spaces");
+      }
+
+      set.realm.handle.verifyKeyPath(keyPaths, set._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return set.handle.subscribeForNotifications(this);
+    return set.handle.subscribeForNotifications(this, keyPaths, set._metadata?.classKey);
   }
 
   Stream<RealmSetChanges<T>> createStream() {

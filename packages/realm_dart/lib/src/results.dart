@@ -160,9 +160,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity {
   }
 
   /// Allows listening for changes when the contents of this collection changes.
-  Stream<RealmResultsChanges<T>> get changes {
-    return changesFor(null);
-  }
+  Stream<RealmResultsChanges<T>> get changes => changesFor(null);
 
   /// Allows listening for changes when the contents of this collection changes on one of the provided keypaths.
   Stream<RealmResultsChanges<T>> changesFor([List<String>? keyPaths]) {
@@ -322,7 +320,7 @@ class ResultsNotificationsController<T extends Object?> extends NotificationsCon
         throw RealmException("A key path cannot be empty or consisting only of white spaces");
       }
 
-      results.handle.verifyKeyPath(keyPaths, results._metadata?.classKey);
+      results.realm.handle.verifyKeyPath(keyPaths, results._metadata?.classKey);
     }
   }
 

@@ -42,8 +42,12 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T> 
   /// Creates a frozen snapshot of this `RealmList`.
   RealmList<T> freeze();
 
+  //TODO Should we have a base collection class so we can move those methods there?
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes;
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  Stream<RealmListChanges<T>> changesFor([List<String>? keyPaths]);
 }
 
 class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> implements RealmList<T> {
@@ -195,15 +199,20 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   RealmResults<T> asResults() => RealmResultsInternal.create<T>(handle.asResults(), realm, metadata);
 
   @override
-  Stream<RealmListChanges<T>> get changes {
+  Stream<RealmListChanges<T>> get changes => changesFor(null);
+
+  @override
+  Stream<RealmListChanges<T>> changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('List is frozen and cannot emit changes');
     }
-    final controller = ListNotificationsController<T>(asManaged());
+    //TODO Also this is just called ListNotificationController, while the set one is called RealmSetNotificationController
+    final controller = ListNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 }
 
+//TODO I would move this before the managed, so it's consistent with the maps and list
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
   final List<T> _base;
 
@@ -228,6 +237,9 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
 
   @override
   Stream<RealmListChanges<T>> get changes => throw RealmStateError("Unmanaged lists don't support changes");
+
+  @override
+  Stream<RealmListChanges<T>> changesFor([List<String>? keyPaths]) => throw RealmStateError("Unmanaged lists don't support changes");
 
   @override
   bool operator ==(Object? other) {
@@ -323,12 +335,23 @@ class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
 class ListNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmList<T> list;
   late final StreamController<RealmListChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  ListNotificationsController(this.list);
+  ListNotificationsController(this.list, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+
+      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
+        throw RealmException("A key path cannot be empty or consisting only of white spaces");
+      }
+
+      list.realm.handle.verifyKeyPath(keyPaths, list._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return list.handle.subscribeForNotifications(this);
+    return list.handle.subscribeForNotifications(this, keyPaths, list._metadata?.classKey);
   }
 
   Stream<RealmListChanges<T>> createStream() {
