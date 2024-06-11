@@ -1026,6 +1026,14 @@ void main() {
       expect(externalChanges.length, 0);
 
       subscription.cancel();
+
+      // No more notifications after cancelling subscription
+      realm.write(() {
+        map["test1"]?.year = 22222;
+      });
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(externalChanges.length, 0);
     });
   });
 

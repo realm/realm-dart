@@ -523,6 +523,89 @@ void main() {
     expect(() => team.players.changesFor(["test"]), throws<RealmStateError>("Unmanaged lists don't support changes"));
   });
 
+  //TODO This test does not pass at the moment. We need to check how to verify that the collection is of realm objects. Maybe checking if it has metadata?
+  test('List.changesFor throws of collection of non-objects', () {
+    final config = Configuration.local([Team.schema, Person.schema]);
+    final realm = getRealm(config);
+    final intList = realm.write(() {
+      return realm.add(Team("s"));
+    }).scores;
+
+    expect(() => intList.changesFor(["test"]), throws<RealmStateError>("Key paths can be used only with collections of Realm objects"));
+  });
+
+  test('RealmList.changesFor works with keypaths', () async {
+    var config = Configuration.local([School.schema, Student.schema]);
+    var realm = getRealm(config);
+
+    final students = realm.write(() {
+      return realm.add(School("pizzi"));
+    }).students;
+
+    final externalChanges = <RealmListChanges<Student?>>[];
+    final subscription = students.changesFor(["yearOfBirth"]).listen((changes) {
+      externalChanges.add(changes);
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 1);
+
+    final firstNotification = externalChanges[0];
+    expect(firstNotification.inserted.isEmpty, true);
+    expect(firstNotification.deleted.isEmpty, true);
+    expect(firstNotification.modified.isEmpty, true);
+    expect(firstNotification.isCleared, false);
+    externalChanges.clear();
+
+    final student = Student(222);
+    realm.write(() {
+      students.add(student);
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 1);
+
+    var notification = externalChanges[0];
+    expect(notification.inserted, [0]);
+    expect(notification.deleted.isEmpty, true);
+    expect(notification.modified.isEmpty, true);
+    expect(notification.isCleared, false);
+    externalChanges.clear();
+
+    // We expect notifications because "yearOfBirth" is in the keypaths
+    realm.write(() {
+      student.yearOfBirth = 1999;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 1);
+
+    notification = externalChanges[0];
+    expect(notification.inserted.isEmpty, true);
+    expect(notification.deleted.isEmpty, true);
+    expect(notification.modified, [0]);
+    expect(notification.isCleared, false);
+    externalChanges.clear();
+
+    // We don't expect notifications because "name" is not in the keypaths
+    realm.write(() {
+      student.name = "Luis";
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 0);
+
+    subscription.cancel();
+
+    // No more notifications after cancelling subscription
+    realm.write(() {
+      student.yearOfBirth = 1299;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 0);
+  });
+
   test('List.freeze when frozen returns same object', () {
     final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);
