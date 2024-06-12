@@ -138,7 +138,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> implements intf.Object
   @override
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]) {
     return using((arena) {
-      final kpNative = buildAndVerifyKeyPath(keyPaths);
+      final kpNative = root.buildAndVerifyKeyPath(keyPaths, classKey);
       return NotificationTokenHandle(
         realmLib.realm_object_add_notification_callback(
           pointer,
@@ -151,27 +151,6 @@ class ObjectHandle extends RootedHandleBase<realm_object> implements intf.Object
       );
     });
   }
-
-  Pointer<realm_key_path_array> buildAndVerifyKeyPath(List<String>? keyPaths) {
-    return using((arena) {
-      if (keyPaths == null) {
-        return nullptr;
-      }
-
-      final length = keyPaths.length;
-      final keypathsNative = arena<Pointer<Char>>(length);
-
-      for (int i = 0; i < length; i++) {
-        keypathsNative[i] = keyPaths[i].toCharPtr(arena);
-      }
-      // TODO(kn):
-      // call to classKey getter involves a native call, which is not ideal
-      return realmLib.realm_create_key_path_array(root.pointer, classKey, length, keypathsNative).raiseLastErrorIfNull();
-    });
-  }
-
-  //Why does not this need to be declared with @override?
-  void verifyKeyPath(List<String>? keyPaths) => buildAndVerifyKeyPath(keyPaths);
 
   @override
   // equals handled by HandleBase<T>

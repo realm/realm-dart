@@ -522,7 +522,7 @@ void main() {
       subscription.cancel();
     });
 
-    test('empty list gives default subscriptions', () async {
+    test('empty list gives no subscriptions', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
 
@@ -546,7 +546,7 @@ void main() {
         tno.mapLinks["test"] = TestNotificationObject();
       });
 
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "stringProperty", "intProperty", "link"]);
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
 
       realm.write(() {
         tno.link?.stringProperty = "test";

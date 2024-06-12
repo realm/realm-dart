@@ -40,8 +40,6 @@ abstract interface class ObjectHandle extends HandleBase {
 
   NotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]);
 
-  void verifyKeyPath(List<String>? keyPaths);
-
   @override
   // equals handled by HandleBase<T>
   // ignore: hash_and_equals
