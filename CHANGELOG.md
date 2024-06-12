@@ -1,7 +1,9 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Performance has been improved for range queries on integers and timestamps. Requires that you use the "BETWEEN" operation in MQL or the Query::between() method when you build the query. (Core 14.10.1)
+* Include the originating client reset error in AutoClientResetFailure errors. (Core 14.10.0)
+* Reduce the size of the local transaction log produced by creating objects, improving the performance of insertion-heavy transactions (Core 14.10.0).
 
 ### Fixed
 * None
@@ -23,12 +25,19 @@
   - The type of `Uuid.bytes` has changed to `Uint8List`.
 
   Issue [#1729](https://github.com/realm/realm-dart/issues/1729)
+* Opening an FLX realm asynchronously may not wait to download all data (Core 14.10.1).
+* Clearing a List of Mixed in an upgraded file would lead to an assertion failing (Core 14.10.1)
+* Fix some client resets (such as migrating to flexible sync) potentially failing with AutoClientResetFailed if a new client reset condition (such as rolling back a flexible sync migration) occurred before the first one completed. (Core 14.10.0)
+* Encrypted files on Windows had a maximum size of 2GB even on x64 due to internal usage of `off_t`, which is a 32-bit type on 64-bit Windows. (Core 14.10.0)
+* The encryption code no longer behaves differently depending on the system page size, which should entirely eliminate a recurring source of bugs related to copying encrypted Realm files between platforms with different page sizes. (Core 14.10.0)
+* There were several complicated scenarios which could result in stale reads from encrypted files in multiprocess scenarios. These were very difficult to hit and would typically lead to a crash, either due to an assertion failure or DecryptionFailure being thrown. (Core 14.10.0)
+* Tokenizing strings for full-text search could fail. (Core 14.10.0)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.10.1
 
 ## 3.0.0 (2024-06-07)
 
