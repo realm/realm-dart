@@ -36,6 +36,18 @@ RLM_API const char* realm_dart_get_device_version();
 // implemented for Android only
 RLM_API const char* realm_dart_get_bundle_id();
 
+// implemented for iOS only (for now - valid for all posix)
+/**
+ * Set the soft limit on number of open files
+ * @param limit The requested limit. If less than zero no attempt is made.
+ * @param[out] out_limit The actual limit set.
+ *
+ * @return true if no error occurred.
+ *
+ * @throws RLM_ERR_FILE_PERMISSION_DENIED if the operation was not permitted.
+ */
+RLM_API bool realm_dart_set_and_get_rlimit(long limit, long* out_limit);
+
 RLM_API const char* realm_get_library_cpu_arch();
 
 typedef struct realm_dart_userdata_async* realm_dart_userdata_async_t;

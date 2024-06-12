@@ -3,10 +3,10 @@
 
 import 'dart:core';
 
-import 'native/convert.dart';
-import 'native/mutable_subscription_set_handle.dart';
-import 'native/subscription_handle.dart';
-import 'native/subscription_set_handle.dart';
+import 'convert.dart';
+import 'handles/mutable_subscription_set_handle.dart';
+import 'handles/subscription_handle.dart';
+import 'handles/subscription_set_handle.dart';
 import 'realm_class.dart';
 import 'results.dart';
 
@@ -111,11 +111,9 @@ enum SubscriptionSetState {
 /// {@category Sync}
 sealed class SubscriptionSet with Iterable<Subscription> {
   final Realm _realm;
-  SubscriptionSetHandle __handle;
-  SubscriptionSetHandle get _handle => __handle.nullPtrAsNull ?? (throw RealmClosedError('Cannot access a SubscriptionSet that belongs to a closed Realm'));
-  set _handle(SubscriptionSetHandle value) => __handle = value;
+  SubscriptionSetHandle _handle;
 
-  SubscriptionSet._(this._realm, this.__handle);
+  SubscriptionSet._(this._realm, this._handle);
 
   /// Finds an existing [Subscription] in this set by its query
   ///

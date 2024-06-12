@@ -2,17 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:io';
 
 // ignore: no_leading_underscores_for_library_prefixes
 import 'package:path/path.dart' as _path;
 
 import 'app.dart';
-import 'init.dart';
+import 'handles/realm_core.dart';
 import 'logging.dart';
-import 'native/from_native.dart';
-import 'native/realm_core.dart';
-import 'realm_class.dart';
+import 'realm_dart.dart';
 import 'user.dart';
 
 const encryptionKeySize = 64;
@@ -85,11 +82,7 @@ abstract class Configuration {
   /// On Flutter Linux this is the `/home/username/.local/share/app_name` directory.
   /// On Dart standalone Windows, macOS and Linux this is the current directory.
   static String get defaultStoragePath {
-    if (isFlutterPlatform) {
-      return realmCore.getAppDirectory();
-    }
-
-    return Directory.current.path;
+    return realmCore.getAppDirectory();
   }
 
   /// The platform dependent path to the default realm file.
@@ -715,28 +708,51 @@ final class CompensatingWriteError extends SyncError {
 }
 
 /// @nodoc
+class SyncErrorDetails {
+  final String message;
+  final SyncErrorCode code;
+  final String? path;
+  final bool isFatal;
+  final bool isClientResetRequested;
+  final String? originalFilePath;
+  final String? backupFilePath;
+  final List<CompensatingWriteInfo>? compensatingWrites;
+  final Object? userError;
+
+  SyncErrorDetails(
+    this.message,
+    this.code,
+    this.userError, {
+    this.path,
+    this.isFatal = false,
+    this.isClientResetRequested = false,
+    this.originalFilePath,
+    this.backupFilePath,
+    this.compensatingWrites,
+  });
+}
+
+/// @nodoc
 extension SyncErrorInternal on SyncError {
   static SyncError createSyncError(SyncErrorDetails error, {App? app}) {
     //Client reset can be requested with isClientResetRequested disregarding the ErrorCode
-    SyncErrorCode errorCode = SyncErrorCode.fromInt(error.code);
-
-    return switch (errorCode) {
+    return switch (error.code) {
       SyncErrorCode.autoClientResetFailed => ClientResetError._(
           error.message,
-          errorCode,
+          error.code,
           app,
           error.userError,
           originalFilePath: error.originalFilePath,
           backupFilePath: error.backupFilePath,
         ),
       SyncErrorCode.clientReset =>
-        ClientResetError._(error.message, errorCode, app, error.userError, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath),
+        ClientResetError._(error.message, error.code, app, error.userError, originalFilePath: error.originalFilePath, backupFilePath: error.backupFilePath),
       SyncErrorCode.compensatingWrite => CompensatingWriteError._(
           error.message,
           error.userError,
           compensatingWrites: error.compensatingWrites,
         ),
-      _ => SyncError._(error.message, errorCode, error.userError),
+      _ => SyncError._(error.message, error.code, error.userError),
     };
   }
 }

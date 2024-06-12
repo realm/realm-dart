@@ -3,21 +3,17 @@ name: Dart desktop tests
 on:
   workflow_call:
     inputs:
-      os:
-        description: OS to execute on.
-        required: true
-        type: string
       runner:
         description: GitHub runner image to execute on.
         required: true
         type: string
-      architecture:
-        description: Architecture to execute on.
-        required: false
-        type: string
       differentiator:
         description: Differentiator for the BaaS container.
         required: true
+        type: string
+      arch:
+        description: Architecture to execute on.
+        default: x64
         type: string
 
 env:
@@ -28,7 +24,7 @@ env:
 jobs:
   dart-tests:
     runs-on: ${{ inputs.runner }}
-    name: Dart tests on ${{inputs.os }} ${{ inputs.architecture }}
+    name: Dart tests on ${{ inputs.runner }}-${{ inputs.arch }}
     timeout-minutes: 45
 
     steps:
@@ -37,37 +33,41 @@ jobs:
         with:
           submodules: false
 
+      - name: Check runner.arch
+        if: ${{ inputs.arch != runner.arch }}
+        run: false # fail if arch is not as expected
+        shell: bash
+
+      - id: runner_os_lowercase
+        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯ 
+        # use with steps.runner_os_lowercase.outputs.os
+        run: echo ${{ runner.os }} | awk '{print "os=" tolower($0)}' >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
         with:
-          name: librealm-${{ inputs.os }}
-          path: packages/realm_dart/binary/${{ inputs.os }}
+          name: librealm-${{ steps.runner_os_lowercase.outputs.os }}
+          path: packages/realm_dart/binary/${{ steps.runner_os_lowercase.outputs.os }}
 
-      - name : Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-          architecture: ${{ inputs.architecture == 'arm' && 'arm64' || 'x64'}}
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          melos bootstrap --no-flutter
-          melos setup
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Bump ulimit on macos
-        run: ulimit -n 10240
-        if: ${{ contains(inputs.os, 'macos') }}
+        run: |
+          ulimit -n
+          ulimit -n 10240
+        if: ${{ contains(runner.os, 'macos') }}
 
-      - name: Run tests
-        run: ${{ inputs.architecture == 'arm' && 'arch -arm64 ' || '' }}melos test:unit
+      - name: Run tests ${{ runner }} ${{ runner.arch }}
+        run: melos test:unit
 
       # TODO: Publish all reports
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
-          name: Test Results Dart ${{ inputs.os }} ${{ inputs.architecture }}
+          name: Test Results Dart ${{ runner }} ${{ runner.arch }}
           path: test-results.json
           reporter: dart-json
           only-summary: true
@@ -77,6 +77,7 @@ jobs:
         if: inputs.runner == 'ubuntu-latest'
         run: |
           sudo apt-get install lcov
+          melos setup
           melos coverage:convert
           melos coverage:gather
           melos coverage:groom

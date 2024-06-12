@@ -3,16 +3,16 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:isolate';
 
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/native/realm_core.dart';
+import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'test.dart';
+import 'utils/platform_util.dart';
 
 void main() {
   setupTests();
@@ -108,8 +108,7 @@ void main() {
     realm.close();
     Realm.deleteRealm(config.path);
 
-    expect(File(config.path).existsSync(), false);
-    expect(Directory("${config.path}.management").existsSync(), false);
+    expect(Realm.existsSync(config.path), false);
   });
 
   test('Realm deleteRealm throws exception on an open realm', () {
@@ -118,8 +117,7 @@ void main() {
 
     expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
 
-    expect(File(config.path).existsSync(), true);
-    expect(Directory("${config.path}.management").existsSync(), true);
+    expect(Realm.existsSync(config.path), true);
   });
 
   test('Realm add object', () {
@@ -931,21 +929,21 @@ void main() {
     });
   });
 
-  test('Realm - encryption works', () {
+  test('Realm - encryption works', () async {
     var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     var realm = getRealm(config);
-    readFile(String path) {
-      final bytes = File(path).readAsBytesSync();
+    readFile(String path) async {
+      final bytes = await platformUtil.readAsBytes(path);
       return utf8.decode(bytes, allowMalformed: true);
     }
 
-    var decoded = readFile(realm.config.path);
+    var decoded = await readFile(realm.config.path);
     expect(decoded, contains("bestFriend"));
 
     config = Configuration.local([Friend.schema],
         encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
     realm = getRealm(config);
-    decoded = readFile(realm.config.path);
+    decoded = await readFile(realm.config.path);
     expect(decoded, isNot(contains("bestFriend")));
   });
 
@@ -1071,7 +1069,7 @@ void main() {
     expect(realm2.all<Person>().length, 0);
   });
 
-  test("Realm.writeAsync with multiple transactions doesnt't deadlock", () async {
+  test("Realm.writeAsync with multiple transactions doesn't deadlock", () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final t1 = await realm.beginWriteAsync();
     realm.add(Person('Marco'));
@@ -1198,6 +1196,16 @@ void main() {
 
     await expectLater(realm.beginWriteAsync(token), throwsA(isA<CancelledException>()));
     expect(realm.isInTransaction, false);
+  });
+
+  test('Realm.writeAsync with async callback fails with assert', () async {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    await expectLater(realm.writeAsync(() async {}), throwsA(isA<AssertionError>()));
+  });
+
+  test('Realm.write with async callback', () {
+    final realm = getRealm(Configuration.local([Person.schema]));
+    expect(() => realm.write(() async {}), throwsA(isA<AssertionError>()));
   });
 
   test('Transaction.commitAsync with a canceled token throws', () async {
@@ -1422,15 +1430,15 @@ void main() {
       await realm.syncSession.waitForUpload();
     }
 
-    final beforeSize = await File(config.path).stat().then((value) => value.size);
+    final beforeSize = platformUtil.sizeOnStorage(config);
 
     realm.close();
     return beforeSize;
   }
 
-  void validateCompact(bool compacted, String realmPath, int beforeCompactSizeSize) async {
+  void validateCompact(bool compacted, Configuration config, int beforeCompactSizeSize) async {
     expect(compacted, true);
-    final afterCompactSize = await File(realmPath).stat().then((value) => value.size);
+    final afterCompactSize = await platformUtil.sizeOnStorage(config);
     expect(beforeCompactSizeSize, greaterThan(afterCompactSize));
   }
 
@@ -1440,7 +1448,7 @@ void main() {
 
     final compacted = Realm.compact(config);
 
-    validateCompact(compacted, config.path, beforeCompactSizeSize);
+    validateCompact(compacted, config, beforeCompactSizeSize);
 
     //test the realm can be opened.
     final realm = getRealm(config);
@@ -1467,7 +1475,7 @@ void main() {
 
     final compacted = await receivePort.first as bool;
 
-    validateCompact(compacted, config.path, beforeCompactSizeSize);
+    validateCompact(compacted, config, beforeCompactSizeSize);
 
     //test the realm can be opened.
     final realm = getRealm(config);
@@ -1481,7 +1489,7 @@ void main() {
 
     final compacted = Realm.compact(config);
 
-    validateCompact(compacted, config.path, beforeCompactSizeSize);
+    validateCompact(compacted, config, beforeCompactSizeSize);
 
     //test the realm can be opened.
     final realm = getRealm(config);
@@ -1511,7 +1519,7 @@ void main() {
 
     final compacted = Realm.compact(config);
 
-    validateCompact(compacted, config.path, beforeCompactSize);
+    validateCompact(compacted, config, beforeCompactSize);
 
     // test the realm can be opened.
     expect(() => getRealm(config), returnsNormally);
@@ -1524,7 +1532,7 @@ void main() {
     final beforeCompactSize = await createRealmForCompact(config);
 
     final compacted = await runWithRetries(() => Realm.compact(config));
-    validateCompact(compacted, config.path, beforeCompactSize);
+    validateCompact(compacted, config, beforeCompactSize);
 
     // test the realm can be opened.
     expect(() => getRealm(config), returnsNormally);
@@ -1540,7 +1548,7 @@ void main() {
     final beforeCompactSize = await createRealmForCompact(config);
 
     final compacted = await runWithRetries(() => Realm.compact(config));
-    validateCompact(compacted, config.path, beforeCompactSize);
+    validateCompact(compacted, config, beforeCompactSize);
 
     // test the realm can be opened.
     expect(() => getRealm(config), returnsNormally);
@@ -1612,7 +1620,7 @@ void main() {
     originalRealm.writeCopy(configCopy);
     originalRealm.close();
 
-    expect(File(pathCopy).existsSync(), isTrue);
+    expect(Realm.existsSync(pathCopy), isTrue);
     final copiedRealm = getRealm(configCopy);
     expect(copiedRealm.all<Car>().length, itemsCount);
     copiedRealm.close();
@@ -1667,7 +1675,7 @@ void main() {
           originalRealm.writeCopy(configCopy);
           originalRealm.close();
 
-          expect(File(pathCopy).existsSync(), isTrue);
+          expect(Realm.existsSync(pathCopy), isTrue);
           final copiedRealm = getRealm(configCopy);
           expect(copiedRealm.all<Car>().length, itemsCount);
           copiedRealm.close();
@@ -1697,7 +1705,7 @@ void main() {
         originalRealm.writeCopy(configCopy);
         originalRealm.close();
 
-        expect(File(configCopy.path).existsSync(), isTrue);
+        expect(Realm.existsSync(configCopy.path), isTrue);
         // Check data in copied realm before synchronization
         final disconnectedConfig = Configuration.disconnectedSync([Product.schema], path: configCopy.path, encryptionKey: destinationEncryptedKey);
         final disconnectedCopiedRealm = getRealm(disconnectedConfig);
@@ -1745,7 +1753,7 @@ void main() {
         originalRealm.writeCopy(configCopy);
         originalRealm.close();
 
-        expect(File(pathCopy).existsSync(), isTrue);
+        expect(Realm.existsSync(pathCopy), isTrue);
         final copiedRealm = getRealm(configCopy);
         expect(copiedRealm.all<Product>().length, itemsCount);
         copiedRealm.close();
@@ -1959,8 +1967,8 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
     afterEncrypt(realm);
   }
   if (encryptionKey == decryptionKey) {
-    final decriptedRealm = getRealm(config2);
-    expect(decriptedRealm.isClosed, false);
+    final decryptedRealm = getRealm(config2);
+    expect(decryptedRealm.isClosed, false);
   } else {
     expect(
       () => getRealm(config2),

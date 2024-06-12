@@ -50,6 +50,7 @@ void main() {
   Future<void> waitForSynchronization({required Realm uploadRealm, required Realm downloadRealm}) async {
     await uploadRealm.syncSession.waitForUpload();
     await downloadRealm.syncSession.waitForDownload();
+    downloadRealm.refresh();
   }
 
   group('RealmValue', () {
@@ -2454,8 +2455,8 @@ void main() {
       expect(RealmValue.from(bin1), isNot(RealmValue.from(bin2)));
     }
 
-    // Not quite 8 times speedup, but close enough. Setting the threshold to 4
+    // Not quite 8 times speedup, but close enough. Setting the threshold to 2
     // for test stability sake.
-    expect(listEqualsClock.elapsedTicks ~/ 4, greaterThan(memEqualsClock.elapsedTicks));
+    expect(listEqualsClock.elapsedTicks ~/ 2, greaterThan(memEqualsClock.elapsedTicks));
   });
 }

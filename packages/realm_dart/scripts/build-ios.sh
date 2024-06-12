@@ -13,7 +13,7 @@ function usage {
     echo ""
     echo "Arguments:"
     echo "   -c : build configuration (Debug or Release)"
-    echo "   <platforms> : platforms to build for (catalyst, ios, or simulator)"
+    echo "   <platforms> : platforms to build for (ios, or simulator)"
     echo "                                                                     "
     echo "Environment variables:"
     echo "  REALM_USE_CCACHE=TRUE - enables ccache builds"
@@ -65,10 +65,6 @@ for platform in "${PLATFORMS[@]}"; do
         ios)
             cmake --build --preset ios-device --config $CONFIGURATION
             FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-iphoneos/realm_dart.framework)
-        ;;
-        catalyst)
-            cmake --build --preset ios-catalyst --config $CONFIGURATION
-            FRAMEWORKS+=(-framework ./binary/ios/$CONFIGURATION-maccatalyst/realm_dart.framework)
         ;;
         simulator)
             cmake --build --preset ios-simulator --config $CONFIGURATION

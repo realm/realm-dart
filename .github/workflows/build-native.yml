@@ -51,9 +51,11 @@ jobs:
         if: startsWith(matrix.build, 'android')
         run: echo "ANDROID_NDK=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
-      - name: Downgrade XCode for MacOS
-        if: matrix.build == 'macos'
-        run: sudo xcodes select 14.3.1
+      - name: Select XCode for MacOS
+        if: runner.os == 'macOS'
+        run: |
+          xcodes installed
+          sudo xcodes select 15.4
 
       - name: Build
         if: steps.check-cache.outputs.cache-hit != 'true'

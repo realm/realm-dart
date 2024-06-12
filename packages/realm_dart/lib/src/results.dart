@@ -6,11 +6,11 @@ import 'dart:async';
 import 'package:cancellation_token/cancellation_token.dart';
 
 import 'collections.dart';
-import 'native/collection_changes_handle.dart';
-import 'native/handle_base.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
-import 'native/results_handle.dart';
+import 'handles/collection_changes_handle.dart';
+import 'handles/handle_base.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_handle.dart';
+import 'handles/results_handle.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
 

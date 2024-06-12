@@ -1,7 +1,7 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'native/schema_handle.dart';
+import 'handles/schema_handle.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
 

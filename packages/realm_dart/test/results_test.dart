@@ -242,7 +242,7 @@ void main() {
     var config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
     realm.write(() => realm.add(Dog("Foxi")));
-    expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Unsupported comparison between type"));
+    expect(() => realm.all<Dog>().query(r'age == $0', [true]), throws<RealmException>("Cannot compare argument"));
   });
 
   test('Results sort', () {

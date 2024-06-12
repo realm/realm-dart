@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:realm_dart/src/logging.dart';
 
-import 'native/scheduler_handle.dart';
+import 'handles/scheduler_handle.dart';
 import 'realm_class.dart';
 
 final _receivePortFinalizer = Finalizer<RawReceivePort>((p) => p.close());
@@ -16,8 +15,6 @@ final Scheduler scheduler = Scheduler._();
 class Scheduler {
   late final SchedulerHandle handle;
   final RawReceivePort _receivePort = RawReceivePort();
-
-  int get nativePort => _receivePort.sendPort.nativePort;
 
   Scheduler._() {
     _receivePortFinalizer.attach(this, _receivePort, detach: this);
@@ -34,7 +31,7 @@ class Scheduler {
     // these.
     _receivePort.handler = Zone.current.bindUnaryCallbackGuarded(_handle);
     final sendPort = _receivePort.sendPort;
-    handle = SchedulerHandle(Isolate.current.hashCode, sendPort.nativePort);
+    handle = SchedulerHandle(Isolate.current.hashCode, sendPort);
   }
 
   void _handle(dynamic message) {

@@ -1,13 +1,13 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:io';
 import 'dart:math';
 
 import 'package:path/path.dart' as path;
 import 'package:realm_dart/realm.dart';
 
 import 'test.dart';
+import 'utils/platform_util.dart';
 
 void main() {
   setupTests();
@@ -44,7 +44,7 @@ void main() {
   });
 
   test('Configuration defaultRealmPath can be set for LocalConfiguration', () async {
-    final customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    final customDefaultRealmPath = path.join(await platformUtil.createTempPath(), Configuration.defaultRealmName);
     Configuration.defaultRealmPath = customDefaultRealmPath;
     final config = Configuration.local([Car.schema]);
     expect(path.dirname(config.path), path.dirname(customDefaultRealmPath));
@@ -53,7 +53,7 @@ void main() {
     expect(path.dirname(realm.config.path), path.dirname(customDefaultRealmPath));
 
     //set a new defaultRealmPath
-    final customDefaultRealmPath1 = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    final customDefaultRealmPath1 = path.join(await platformUtil.createTempPath(), Configuration.defaultRealmName);
     Configuration.defaultRealmPath = customDefaultRealmPath1;
     final config1 = Configuration.local([Car.schema]);
     final realm1 = getRealm(config1);
@@ -81,13 +81,13 @@ void main() {
   });
 
   baasTest('Configuration defaultRealmPath can be set for FlexibleSyncConfiguration', (_) async {
-    var customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    var customDefaultRealmPath = path.join(await platformUtil.createTempPath(), Configuration.defaultRealmName);
     Configuration.defaultRealmPath = customDefaultRealmPath;
 
     final appClientId = baasHelper!.getClientAppId(appName: AppName.flexible);
     final baasUrl = baasHelper!.baseUrl;
     var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
-    expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
+    expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
 
     var app = App(appConfig);
     var user = await app.logIn(Credentials.anonymous());
@@ -99,11 +99,11 @@ void main() {
     expect(path.dirname(realm.config.path), startsWith(path.dirname(customDefaultRealmPath)));
 
     //set a new defaultRealmPath
-    customDefaultRealmPath = path.join((await Directory.systemTemp.createTemp()).path, Configuration.defaultRealmName);
+    customDefaultRealmPath = path.join(await platformUtil.createTempPath(), Configuration.defaultRealmName);
     Configuration.defaultRealmPath = customDefaultRealmPath;
 
     appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
-    expect(appConfig.baseFilePath.path, path.dirname(customDefaultRealmPath));
+    expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
 
     clearCachedApps();
 
@@ -442,15 +442,15 @@ void main() {
     }
   }
 
-  for (var shouldCompact in [true, false]) {
-    test('Configuration.shouldCompact when return $shouldCompact triggers compaction', () {
+  for (var shouldCompact in [true, false])  {
+    test('Configuration.shouldCompact when return $shouldCompact triggers compaction', () async {
       var config = Configuration.local([Person.schema]);
 
       final populateRealm = Realm(config);
       addDummyData(populateRealm);
       populateRealm.close();
 
-      final oldSize = File(config.path).lengthSync();
+      final oldSize = await platformUtil.sizeOnStorage(config);
       var projectedNewSize = 0;
 
       config = Configuration.local([Person.schema], shouldCompactCallback: (totalSize, usedSize) {
@@ -459,7 +459,7 @@ void main() {
       });
 
       final compactedRealm = getRealm(config);
-      final newSize = File(config.path).lengthSync();
+      final newSize = await platformUtil.sizeOnStorage(config);
 
       if (shouldCompact) {
         expect(newSize, lessThan(oldSize));
@@ -522,8 +522,8 @@ void main() {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
 
-    final dir = await Directory.systemTemp.createTemp();
-    final realmPath = path.join(dir.path, 'test.realm');
+    final temporaryPath = await platformUtil.createTempPath();
+    final realmPath = path.join(temporaryPath, 'test.realm');
 
     final flexibleSyncConfig = Configuration.flexibleSync(user, getSyncSchema(), path: realmPath);
     final realm = getRealm(flexibleSyncConfig);

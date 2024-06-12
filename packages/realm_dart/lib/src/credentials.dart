@@ -4,8 +4,8 @@
 import 'dart:convert';
 
 import 'app.dart';
-import 'native/convert.dart';
-import 'native/credentials_handle.dart';
+import 'convert.dart';
+import 'handles/credentials_handle.dart';
 import 'user.dart';
 
 /// An enum containing all authentication providers. These have to be enabled manually for the application before they can be used.

@@ -40,7 +40,7 @@ scripts:
       - build:native
       - build:binding
       - build:dart
-      
+
   build:native:
     exec: dev build
     packageFilters:
@@ -121,7 +121,7 @@ scripts:
     run: >-
       find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
       | xargs dart format --fix --line-length 160
-    exec: 
+    exec:
       concurrency: 1 # only one project at a time to keep output sane
 
   upgrade:
@@ -143,7 +143,7 @@ scripts:
     run: >-
       find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
       | xargs dart format --fix --line-length 160 --output none --set-exit-if-changed
-    exec: 
+    exec:
       concurrency: 1 # only one project at a time to keep output sane
 
   lint:pana:
@@ -152,7 +152,7 @@ scripts:
       concurrency: 1 # only one project at a time to keep output sane
     packageFilters:
       published: true
-    
+
   coverage:
     description: Generate, check and render coverage.
     steps:
@@ -223,4 +223,3 @@ scripts:
       - coverage
       - analyze
       - lint
-  

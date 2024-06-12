@@ -1,20 +1,20 @@
 // Copyright 2023 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:core';
 import 'dart:async';
 import 'dart:collection';
+import 'dart:core';
 
 import 'package:collection/collection.dart' as collection;
 
-import 'native/collection_changes_handle.dart';
-import 'native/handle_base.dart';
-import 'native/notification_token_handle.dart';
-import 'native/object_handle.dart';
-import 'native/set_handle.dart';
+import 'collections.dart';
+import 'handles/collection_changes_handle.dart';
+import 'handles/handle_base.dart';
+import 'handles/notification_token_handle.dart';
+import 'handles/object_handle.dart';
+import 'handles/set_handle.dart';
 import 'realm_class.dart';
 import 'realm_object.dart';
-import 'collections.dart';
 import 'results.dart';
 
 /// RealmSet is a collection that contains no duplicate elements.
@@ -141,7 +141,7 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     _throwOnRealmValueCollection(value);
 
     if (_isManagedRealmObject(value)) {
-      //It is valid to call `add` with managed objects already in the set.
+      // It is valid to call `add` with managed objects already in the set.
       _ensureManagedByThis(value, "add");
     } else {
       // might be updating an existing realm object
