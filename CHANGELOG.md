@@ -1,16 +1,30 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* "Next launch" metadata file actions are now performed in a multi-process safe manner (Core 14.10.3).
+* Performance has been improved for range queries on integers and timestamps. Requires that you use the "BETWEEN" in the `realm.query<T>()` method when you build the query. (Core 14.10.1)
+* Include the originating client reset error in AutoClientResetFailure errors. (Core 14.10.0)
+* Reduce the size of the local transaction log produced by creating objects, improving the performance of insertion-heavy transactions (Core 14.10.0).
 
 ### Fixed
-* None
+* Fixed an issue that affects sync apps that use embedded objects which have a `List<RealmValue>` that contains a link to another top level object which has been deleted by another sync client (creating a tombstone locally). In this particular case, the switch would cause any remaining link removals to recursively delete the destination object if there were no other links to it. (Core v14.10.2-15-g7c31f5d8f)
+* Fixed removing backlinks from the wrong objects if the link came from a nested list, nested dictionary, top-level map, or `List<RealmValue>`, and the source table had more than 256 objects. This could manifest as `array_backlink.cpp:112: Assertion failed: int64_t(value >> 1) == key.value` when removing an object. (Core 14.10.3)
+* Fixed the collapse/rejoin of clusters which contained nested collections with links. This could manifest as `array.cpp:319: Array::move() Assertion failed: begin <= end [2, 1]` when removing an object. (Core 14.10.3)
+* `waitForUpload()` was inconsistent in how it handled commits which did not produce any changesets to upload. Previously it would sometimes complete immediately if all commits waiting to be uploaded were empty, and at other times it would wait for a server roundtrip. It will now always complete immediately. (Core v14.10.3).
+* Opening an FLX realm asynchronously may not wait to download all data (Core 14.10.1).
+* Clearing a List of Mixed in an upgraded file would lead to an assertion failing (Core 14.10.1)
+* Fix some client resets (such as migrating to flexible sync) potentially failing with AutoClientResetFailed if a new client reset condition (such as rolling back a flexible sync migration) occurred before the first one completed. (Core 14.10.0)
+* Encrypted files on Windows had a maximum size of 2GB even on x64 due to internal usage of `off_t`, which is a 32-bit type on 64-bit Windows. (Core 14.10.0)
+* The encryption code no longer behaves differently depending on the system page size, which should entirely eliminate a recurring source of bugs related to copying encrypted Realm files between platforms with different page sizes. (Core 14.10.0)
+* There were several complicated scenarios which could result in stale reads from encrypted files in multiprocess scenarios. These were very difficult to hit and would typically lead to a crash, either due to an assertion failure or DecryptionFailure being thrown. (Core 14.10.0)
+* Tokenizing strings for full-text search could fail. (Core 14.10.0)
+
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core v14.10.2-15-g7c31f5d8f
+* Using Core 14.10.3
 
 ## 3.1.0 (2024-06-25)
 
@@ -28,7 +42,7 @@
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.9.0
 
 ## 3.0.0 (2024-06-07)
 
