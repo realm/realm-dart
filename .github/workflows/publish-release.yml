@@ -30,15 +30,8 @@ jobs:
         echo "version=$pkgVersion$pkgSuffix" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
-
-    - name: Setup Melos
-      run: |
-        dart pub global activate melos
-        dart pub global run melos bootstrap
+    - name: Setup Runner
+      uses: ./.github/actions/setup-runner
 
     - name: Download all artifacts
       uses: dawidd6/action-download-artifact@71072fbb1229e1317f1a8de6b04206afb461bd67 # 3.1.2
@@ -161,15 +154,8 @@ jobs:
         name: release-bundle
         path: release
 
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: 'stable'
-
-    - name: Setup Melos
-      run: |
-        dart pub global activate melos
-        dart pub global run melos bootstrap
+    - name: Setup Runner
+      uses: ./.github/actions/setup-runner
 
     # realm_flutter has symlinks to native binaries which should not be packaged
     - name: Cleanup symlinks

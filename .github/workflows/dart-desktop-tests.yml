@@ -50,16 +50,8 @@ jobs:
           name: librealm-${{ steps.runner_os_lowercase.outputs.os }}
           path: packages/realm_dart/binary/${{ steps.runner_os_lowercase.outputs.os }}
 
-      - name: Setup Dart SDK
-        uses: dart-lang/setup-dart@main
-        with:
-          sdk: stable
-
-      - name: Setup Melos
-        run: |
-          dart pub global activate melos
-          melos bootstrap --no-flutter
-          melos setup
+      - name: Setup Runner
+        uses: ./.github/actions/setup-runner
 
       - name: Bump ulimit on macos
         run: |
@@ -85,6 +77,7 @@ jobs:
         if: inputs.runner == 'ubuntu-latest'
         run: |
           sudo apt-get install lcov
+          melos setup
           melos coverage:convert
           melos coverage:gather
           melos coverage:groom
