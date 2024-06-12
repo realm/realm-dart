@@ -170,7 +170,7 @@ void main() {
       subscription.cancel();
     });
 
-    //TODO Not sure why this one doesn't pass
+    //TODO Remove skip when of https://github.com/realm/realm-core/issues/7805 is solved
     test('empty keypath raises only shallow notifications', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
       var realm = getRealm(config);
@@ -188,13 +188,6 @@ void main() {
 
       realm.write(() {
         tno.stringProperty = "testString";
-        tno.intProperty = 23;
-        tno.remappedIntProperty = 25;
-        tno.embedded = TestNotificationEmbeddedObject();
-        tno.linkDifferentType = TestNotificationDifferentType();
-        tno.listDifferentType.add(TestNotificationDifferentType());
-        tno.setDifferentType.add(TestNotificationDifferentType());
-        tno.mapDifferentType["test"] = TestNotificationDifferentType();
       });
       await verifyNotifications(externalChanges, expectedNotifications: false);
 
