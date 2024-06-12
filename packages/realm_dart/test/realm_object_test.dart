@@ -522,6 +522,7 @@ void main() {
       subscription.cancel();
     });
 
+    //TODO Remove skip when of https://github.com/realm/realm-core/issues/7805 is solved
     test('empty list gives no subscriptions', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
@@ -558,7 +559,7 @@ void main() {
       await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
 
       subscription.cancel();
-    });
+    }, skip: true);
 
     test('wildcard', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
