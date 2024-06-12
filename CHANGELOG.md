@@ -1,10 +1,51 @@
 ## vNext (TBD)
 
+### Enhancements
+* None
+
+### Fixed
+* None
+
+### Compatibility
+* Realm Studio: 15.0.0 or later.
+
+### Internal
+* Using Core x.y.z.
+
+## 3.0.0 (2024-06-07)
+
 ### Breaking Changes
 * To avoid dependency on `dart:io`
   - `AppConfiguration.httpClient` is now of type [`Client`](https://pub.dev/documentation/http/latest/http/Client-class.html) and
-  - `AppConfiguration.baseFilePath` is now of type `String`
-  
+  - `AppConfiguration.baseFilePath` is now of type `String`.
+
+  Assuming you are configuring these today, migration is easy:
+  ```dart
+  import 'dart:io';
+  import 'package:realm_dart/realm.dart';
+
+  final client = HttpClient();
+  final dir = Directory.current;
+  final config = AppConfiguration(
+    'your-app-id',
+    httpClient: client,
+    baseFilePath: dir,
+  );
+  ```
+  becomes:
+  ```dart
+  import 'dart:io';
+  import 'package:realm_dart/realm.dart';
+  import 'package:http/io_client.dart';
+
+  final client = HttpClient();
+  final dir = Directory.current;
+  final config = AppConfiguration(
+    'your-app-id',
+    httpClient: IOClient(client),
+    baseFilePath: dir.path,
+  );
+  ```
   (Issue [#1374](https://github.com/realm/realm-dart/issues/1374))
 
 ### Enhancements
@@ -43,6 +84,7 @@
 * Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Drop building xcframework for catalyst. (Issue [#1695](https://github.com/realm/realm-dart/issues/1695))
 * Using xcode 15.4 for native build. (Issue [#1547](https://github.com/realm/realm-dart/issues/1547))
+* Using puro on CI. ([#1710](https://github.com/realm/realm-dart/pull/1710))
 
 ## 2.3.0 (2024-05-23)
 
