@@ -206,6 +206,11 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
     if (isFrozen) {
       throw RealmStateError('List is frozen and cannot emit changes');
     }
+
+    if (keyPaths != null && _metadata == null) {
+      throw RealmStateError('Key paths can be used only with collections of Realm objects');
+    }
+
     //TODO Also this is just called ListNotificationController, while the set one is called RealmSetNotificationController
     final controller = ListNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();

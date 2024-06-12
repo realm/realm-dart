@@ -802,7 +802,6 @@ void main() {
     }
   });
 
-  //TODO This test does not pass at the moment. We need to check how to verify that the collection is of realm objects. Maybe checking if it has metadata?
   test('RealmSet.changesFor throws of collection of non-objects', () {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     final realm = getRealm(config);

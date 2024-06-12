@@ -154,13 +154,14 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
 
   @override
   Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]) {
-    // if (T is! RealmObjectBase) {
-    //   throw RealmStateError('"Key paths can be used only with collections of Realm objects"');
-    // }
-
     if (isFrozen) {
       throw RealmStateError('List is frozen and cannot emit changes');
     }
+
+    if (keyPaths != null && _metadata == null) {
+      throw RealmStateError('Key paths can be used only with collections of Realm objects');
+    }
+
     final controller = MapNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }

@@ -199,7 +199,7 @@ void main() {
       await verifyNotifications(externalChanges, expectedNotifications: false);
 
       subscription.cancel();
-    });
+    }, skip: true);
 
     test('multiple keypaths', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);

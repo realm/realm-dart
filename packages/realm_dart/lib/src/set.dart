@@ -236,6 +236,11 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
     if (isFrozen) {
       throw RealmStateError('Set is frozen and cannot emit changes');
     }
+
+    if (keyPaths != null && _metadata == null) {
+      throw RealmStateError('Key paths can be used only with collections of Realm objects');
+    }
+
     final controller = RealmSetNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }

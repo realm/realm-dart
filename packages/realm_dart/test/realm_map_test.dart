@@ -959,7 +959,6 @@ void main() {
       expect(() => map.changesFor(["test"]), throws<RealmStateError>("Unmanaged maps don't support changes"));
     });
 
-    //TODO This test does not pass at the moment. We need to check how to verify that the collection is of realm objects. Maybe checking if it has metadata?
     test('works only with realm objects', () {
       final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
       final realm = getRealm(config);

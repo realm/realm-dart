@@ -523,7 +523,6 @@ void main() {
     expect(() => team.players.changesFor(["test"]), throws<RealmStateError>("Unmanaged lists don't support changes"));
   });
 
-  //TODO This test does not pass at the moment. We need to check how to verify that the collection is of realm objects. Maybe checking if it has metadata?
   test('List.changesFor throws of collection of non-objects', () {
     final config = Configuration.local([Team.schema, Person.schema]);
     final realm = getRealm(config);
@@ -539,7 +538,7 @@ void main() {
     var realm = getRealm(config);
 
     final students = realm.write(() {
-      return realm.add(School("pizzi"));
+      return realm.add(School("Liceo Pizzi"));
     }).students;
 
     final externalChanges = <RealmListChanges<Student?>>[];
