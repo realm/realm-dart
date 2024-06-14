@@ -147,16 +147,20 @@ class ListHandle extends CollectionHandleBase<realm_list> implements intf.ListHa
   }
 
   @override
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    return NotificationTokenHandle(
-      realmLib.realm_list_add_notification_callback(
-        pointer,
-        controller.toPersistentHandle(),
-        realmLib.addresses.realm_dart_delete_persistent_handle,
-        nullptr,
-        Pointer.fromFunction(collectionChangeCallback),
-      ),
-      root,
-    );
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey) {
+    return using((Arena arena) {
+      final kpNative = root.buildAndVerifyKeyPath(keyPaths, classKey);
+
+      return NotificationTokenHandle(
+        realmLib.realm_list_add_notification_callback(
+          pointer,
+          controller.toPersistentHandle(),
+          realmLib.addresses.realm_dart_delete_persistent_handle,
+          kpNative,
+          Pointer.fromFunction(collectionChangeCallback),
+        ),
+        root,
+      );
+    });
   }
 }

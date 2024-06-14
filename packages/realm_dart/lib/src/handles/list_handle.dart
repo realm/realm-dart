@@ -28,5 +28,5 @@ abstract interface class ListHandle extends HandleBase {
   void removeAt(int index);
   ListHandle? resolveIn(RealmHandle frozenRealm);
   ObjectHandle setEmbeddedAt(int index);
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller);
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey);
 }

@@ -30,5 +30,5 @@ abstract interface class SetHandle extends HandleBase {
 
   SetHandle? resolveIn(RealmHandle frozenRealm);
 
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller);
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey);
 }

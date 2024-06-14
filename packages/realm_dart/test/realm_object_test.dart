@@ -180,7 +180,7 @@ void main() {
       subscription.cancel();
     });
 
-    test('empty keypath', () async {
+    test('empty or whitespace keypath', () async {
       var config = Configuration.local([Dog.schema, Person.schema]);
       var realm = getRealm(config);
 
@@ -192,11 +192,11 @@ void main() {
 
       expect(() {
         dog.changesFor([""]);
-      }, throws<RealmException>("It is not allowed to have empty key paths."));
+      }, throws<RealmException>("None of the key paths provided can be empty or consisting only of white spaces"));
 
       expect(() {
-        dog.changesFor(["age", ""]);
-      }, throws<RealmException>("It is not allowed to have empty key paths."));
+        dog.changesFor(["age", " "]);
+      }, throws<RealmException>("None of the key paths provided can be empty or consisting only of white spaces"));
     });
 
     test('unknown keypath', () async {
@@ -522,7 +522,8 @@ void main() {
       subscription.cancel();
     });
 
-    test('empty list gives default subscriptions', () async {
+    //TODO Remove skip when https://github.com/realm/realm-core/issues/7805 is solved
+    test('empty list gives no subscriptions', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
 
@@ -546,7 +547,7 @@ void main() {
         tno.mapLinks["test"] = TestNotificationObject();
       });
 
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["listLinks", "setLinks", "mapLinks", "stringProperty", "intProperty", "link"]);
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
 
       realm.write(() {
         tno.link?.stringProperty = "test";
@@ -558,7 +559,7 @@ void main() {
       await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
 
       subscription.cancel();
-    });
+    }, skip: true);
 
     test('wildcard', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);

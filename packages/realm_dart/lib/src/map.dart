@@ -144,11 +144,18 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  Stream<RealmMapChanges<T>> get changes {
+  Stream<RealmMapChanges<T>> get changes => _changesFor(null);
+
+  Stream<RealmMapChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
-      throw RealmStateError('Map is frozen and cannot emit changes');
+      throw RealmStateError('List is frozen and cannot emit changes');
     }
-    final controller = MapNotificationsController<T>(asManaged());
+
+    if (keyPaths != null && _metadata == null) {
+      throw RealmStateError('Key paths can be used only with collections of Realm objects');
+    }
+
+    final controller = MapNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 
@@ -210,7 +217,7 @@ class RealmMapChanges<T extends Object?> {
   bool get isCollectionDeleted => _changes.isDeleted;
 }
 
-// The query operations on maps only work for maps of objects (core restriction),
+// Query operations and keypath filtering on maps only work for maps of objects (core restriction),
 // so we add these as an extension methods to allow the compiler to prevent misuse.
 extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   /// Filters the map values and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
@@ -221,6 +228,17 @@ extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, metadata);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmMap.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmMapChanges<T?>> changesFor([List<String>? keyPaths]) {
+    if (!isManaged) {
+      throw RealmStateError("Unmanaged maps don't support changes");
+    }
+
+    return (this as ManagedRealmMap<T?>)._changesFor(keyPaths);
   }
 }
 
@@ -273,12 +291,18 @@ extension RealmMapInternal<T extends Object?> on RealmMap<T> {
 class MapNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmMap<T> map;
   late final StreamController<RealmMapChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  MapNotificationsController(this.map);
+  MapNotificationsController(this.map, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+      map.realm.handle.verifyKeyPath(keyPaths, map._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return map.handle.subscribeForNotifications(this);
+    return map.handle.subscribeForNotifications(this, keyPaths, map._metadata?.classKey);
   }
 
   Stream<RealmMapChanges<T>> createStream() {
