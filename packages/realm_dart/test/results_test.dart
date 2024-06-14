@@ -116,24 +116,11 @@ void main() {
 
       expect(() {
         realm.all<TestNotificationObject>().changesFor(["stringProperty", ""]).listen((changes) {});
-      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
+      }, throws<RealmException>("None of the key paths provided can be empty or consisting only of white spaces"));
 
       expect(() {
         realm.all<TestNotificationObject>().changesFor(["stringProperty", "  "]).listen((changes) {});
-      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
-    });
-
-    test('throws on empty or whitespace keypath', () async {
-      var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema, TestNotificationDifferentType.schema]);
-      var realm = getRealm(config);
-
-      expect(() {
-        realm.all<TestNotificationObject>().changesFor(["stringProperty", ""]).listen((changes) {});
-      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
-
-      expect(() {
-        realm.all<TestNotificationObject>().changesFor(["stringProperty", "  "]).listen((changes) {});
-      }, throws<RealmException>("A key path cannot be empty or consisting only of white spaces"));
+      }, throws<RealmException>("None of the key paths provided can be empty or consisting only of white spaces"));
     });
 
     test('null keypaths behaves like default', () async {

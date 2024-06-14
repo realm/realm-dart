@@ -293,10 +293,6 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
 
-      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
-        throw RealmException("A key path cannot be empty or consisting only of white spaces");
-      }
-
       map.realm.handle.verifyKeyPath(keyPaths, map._metadata?.classKey);
     }
   }

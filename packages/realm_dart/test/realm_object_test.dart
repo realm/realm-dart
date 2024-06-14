@@ -180,7 +180,7 @@ void main() {
       subscription.cancel();
     });
 
-    test('empty keypath', () async {
+    test('empty or whitespace keypath', () async {
       var config = Configuration.local([Dog.schema, Person.schema]);
       var realm = getRealm(config);
 
@@ -192,11 +192,11 @@ void main() {
 
       expect(() {
         dog.changesFor([""]);
-      }, throws<RealmException>("It is not allowed to have empty key paths."));
+      }, throws<RealmException>("None of the key paths provided can be empty or consisting only of white spaces"));
 
       expect(() {
-        dog.changesFor(["age", ""]);
-      }, throws<RealmException>("It is not allowed to have empty key paths."));
+        dog.changesFor(["age", " "]);
+      }, throws<RealmException>("None of the key paths provided can be empty or consisting only of white spaces"));
     });
 
     test('unknown keypath', () async {

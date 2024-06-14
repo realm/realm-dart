@@ -357,10 +357,6 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
 
-      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
-        throw RealmException("A key path cannot be empty or consisting only of white spaces");
-      }
-
       set.realm.handle.verifyKeyPath(keyPaths, set._metadata?.classKey);
     }
   }

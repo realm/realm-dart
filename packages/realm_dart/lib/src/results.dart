@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:cancellation_token/cancellation_token.dart';
 
@@ -315,10 +314,6 @@ class ResultsNotificationsController<T extends Object?> extends NotificationsCon
   ResultsNotificationsController(this.results, [List<String>? keyPaths]) {
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
-
-      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
-        throw RealmException("A key path cannot be empty or consisting only of white spaces");
-      }
 
       results.realm.handle.verifyKeyPath(keyPaths, results._metadata?.classKey);
     }

@@ -480,11 +480,15 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
   }
 
   Pointer<realm_key_path_array> buildAndVerifyKeyPath(List<String>? keyPaths, int? classKey) {
-    return using((arena) {
-      if (keyPaths == null || classKey == null) {
-        return nullptr;
-      }
+    if (keyPaths == null || classKey == null) {
+      return nullptr;
+    }
 
+    if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
+      throw RealmException("None of the key paths provided can be empty or consisting only of white spaces");
+    }
+
+    return using((arena) {
       final length = keyPaths.length;
       final keypathsNative = arena<Pointer<Char>>(length);
       for (int i = 0; i < length; i++) {

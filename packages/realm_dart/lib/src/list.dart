@@ -346,10 +346,6 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
 
-      if (keyPaths.any((element) => element.isEmpty || element.trim().isEmpty)) {
-        throw RealmException("A key path cannot be empty or consisting only of white spaces");
-      }
-
       list.realm.handle.verifyKeyPath(keyPaths, list._metadata?.classKey);
     }
   }
