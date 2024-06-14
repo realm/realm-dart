@@ -42,7 +42,6 @@ abstract class RealmList<T extends Object?> with RealmEntity implements List<T> 
   /// Creates a frozen snapshot of this `RealmList`.
   RealmList<T> freeze();
 
-  //TODO Should we have a base collection class so we can move those methods there?
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmListChanges<T>> get changes;
 
@@ -211,13 +210,11 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
       throw RealmStateError('Key paths can be used only with collections of Realm objects');
     }
 
-    //TODO Also this is just called ListNotificationController, while the set one is called RealmSetNotificationController
     final controller = ListNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 }
 
-//TODO I would move this before the managed, so it's consistent with the maps and list
 class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T> with RealmEntity implements RealmList<T> {
   final List<T> _base;
 

@@ -116,7 +116,6 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
   @override
   bool get isValid => true;
 
-  //TODO We just call lists "lists" (same for maps), while we call sets "RealmSets". We probably need to figure out which one we want to use
   @override
   Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
 

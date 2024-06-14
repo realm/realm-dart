@@ -522,7 +522,7 @@ void main() {
       subscription.cancel();
     });
 
-    //TODO Remove skip when of https://github.com/realm/realm-core/issues/7805 is solved
+    //TODO Remove skip when https://github.com/realm/realm-core/issues/7805 is solved
     test('empty list gives no subscriptions', () async {
       var config = Configuration.local([TestNotificationObject.schema, TestNotificationEmbeddedObject.schema]);
       var realm = getRealm(config);
