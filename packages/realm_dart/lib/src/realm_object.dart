@@ -525,7 +525,7 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
       throw RealmStateError('Object is frozen and cannot emit changes.');
     }
 
-    final controller = RealmObjectNotificationsController<T>(object, keyPaths);
+    final controller = RealmObjectNotificationsController<T>(object, keyPaths, (object.accessor as RealmCoreAccessor).metadata.classKey);
     return controller.createStream();
   }
 
@@ -750,22 +750,24 @@ class RealmObjectNotificationsController<T extends RealmObjectBase> extends Noti
   T realmObject;
   late final StreamController<RealmObjectChanges<T>> streamController;
   List<String>? keyPaths;
+  int? classKey;
 
-  RealmObjectNotificationsController(this.realmObject, [List<String>? keyPaths]) {
+  RealmObjectNotificationsController(this.realmObject, List<String>? keyPaths, int? classKey) {
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
+      this.classKey = classKey;
 
       if (keyPaths.any((element) => element.isEmpty)) {
         throw RealmException("It is not allowed to have empty key paths.");
       }
       // throw early if the key paths are invalid
-      realmObject.realm.handle.verifyKeyPath(keyPaths, this.realmObject._handle?.classKey);
+      realmObject.realm.handle.verifyKeyPath(keyPaths, classKey);
     }
   }
 
   @override
   NotificationTokenHandle subscribe() {
-    return realmObject.handle.subscribeForNotifications(this, keyPaths);
+    return realmObject.handle.subscribeForNotifications(this, keyPaths, classKey);
   }
 
   Stream<RealmObjectChanges<T>> createStream() {
