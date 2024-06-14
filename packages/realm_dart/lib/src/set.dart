@@ -104,17 +104,17 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   // ignore: unused_element
-  RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
+  RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged sets don't have metadata associated with them.");
 
   @override
   // ignore: unused_element
-  set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
+  set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged sets don't have metadata associated with them.");
 
   @override
   bool get isValid => true;
 
   @override
-  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
+  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged sets don't support changes");
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");

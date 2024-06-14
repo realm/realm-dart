@@ -765,8 +765,8 @@ void main() {
   test('UnmanagedSet.changes throws', () {
     final set = TestRealmSets(1);
 
-    expect(() => set.objectsSet.changes, throws<RealmStateError>("Unmanaged RealmSets don't support changes"));
-    expect(() => set.objectsSet.changesFor(["test"]), throws<RealmStateError>("Unmanaged RealmSets don't support changes"));
+    expect(() => set.objectsSet.changes, throws<RealmStateError>("Unmanaged sets don't support changes"));
+    expect(() => set.objectsSet.changesFor(["test"]), throws<RealmStateError>("Unmanaged sets don't support changes"));
   });
 
   test('RealmSet.changes - await for with yield ', () async {
