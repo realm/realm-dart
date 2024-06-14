@@ -136,7 +136,7 @@ class ObjectHandle extends RootedHandleBase<realm_object> implements intf.Object
   }
 
   @override
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]) {
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey) {
     return using((arena) {
       final kpNative = root.buildAndVerifyKeyPath(keyPaths, classKey);
       return NotificationTokenHandle(
