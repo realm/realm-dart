@@ -314,7 +314,6 @@ class ResultsNotificationsController<T extends Object?> extends NotificationsCon
   ResultsNotificationsController(this.results, [List<String>? keyPaths]) {
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
-
       results.realm.handle.verifyKeyPath(keyPaths, results._metadata?.classKey);
     }
   }

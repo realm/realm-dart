@@ -351,11 +351,9 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   late final StreamController<RealmSetChanges<T>> streamController;
   List<String>? keyPaths;
 
-  //TODO Maybe this can be moved to the NotificationController
   RealmSetNotificationsController(this.set, [List<String>? keyPaths]) {
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
-
       set.realm.handle.verifyKeyPath(keyPaths, set._metadata?.classKey);
     }
   }

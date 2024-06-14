@@ -292,7 +292,6 @@ class MapNotificationsController<T extends Object?> extends NotificationsControl
   MapNotificationsController(this.map, [List<String>? keyPaths]) {
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
-
       map.realm.handle.verifyKeyPath(keyPaths, map._metadata?.classKey);
     }
   }

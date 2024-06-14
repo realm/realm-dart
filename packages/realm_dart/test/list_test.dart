@@ -12,7 +12,6 @@ import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 
-//TODO This file is called list_test, while the one for maps and sets are called realm_map/set_test
 void main() {
   setupTests();
 

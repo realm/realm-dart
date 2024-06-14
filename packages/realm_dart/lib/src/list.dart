@@ -342,7 +342,6 @@ class ListNotificationsController<T extends Object?> extends NotificationsContro
   ListNotificationsController(this.list, [List<String>? keyPaths]) {
     if (keyPaths != null) {
       this.keyPaths = keyPaths;
-
       list.realm.handle.verifyKeyPath(keyPaths, list._metadata?.classKey);
     }
   }
