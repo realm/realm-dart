@@ -33,9 +33,6 @@ abstract class RealmMap<T extends Object?> with RealmEntity implements MapBase<S
 
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmMapChanges<T>> get changes;
-
-  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
-  Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]);
 }
 
 class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<String, T> with RealmEntity implements RealmMap<T> {
@@ -53,9 +50,6 @@ class UnmanagedRealmMap<T extends Object?> extends collection.DelegatingMap<Stri
 
   @override
   Stream<RealmMapChanges<T>> get changes => throw RealmStateError("Unmanaged maps don't support changes");
-
-  @override
-  Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]) => throw RealmStateError("Unmanaged maps don't support changes");
 
   @override
   bool operator ==(Object? other) {
@@ -150,10 +144,9 @@ class ManagedRealmMap<T extends Object?> with RealmEntity, MapMixin<String, T> i
   }
 
   @override
-  Stream<RealmMapChanges<T>> get changes => changesFor(null);
+  Stream<RealmMapChanges<T>> get changes => _changesFor(null);
 
-  @override
-  Stream<RealmMapChanges<T>> changesFor([List<String>? keyPaths]) {
+  Stream<RealmMapChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('List is frozen and cannot emit changes');
     }
@@ -224,7 +217,7 @@ class RealmMapChanges<T extends Object?> {
   bool get isCollectionDeleted => _changes.isDeleted;
 }
 
-// The query operations on maps only work for maps of objects (core restriction),
+// Query operations and keypath filtering on maps only work for maps of objects (core restriction),
 // so we add these as an extension methods to allow the compiler to prevent misuse.
 extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   /// Filters the map values and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
@@ -235,6 +228,17 @@ extension RealmMapOfObject<T extends RealmObjectBase> on RealmMap<T?> {
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, metadata);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmMap.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmMapChanges<T?>> changesFor([List<String>? keyPaths]) {
+    if (!isManaged) {
+      throw RealmStateError("Unmanaged maps don't support changes");
+    }
+
+    return (this as ManagedRealmMap<T?>)._changesFor(keyPaths);
   }
 }
 

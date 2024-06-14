@@ -34,9 +34,6 @@ abstract class RealmSet<T extends Object?> extends SetBase<T> with RealmEntity {
   /// Allows listening for changes when the contents of this collection changes.
   Stream<RealmSetChanges<T>> get changes;
 
-  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
-  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]);
-
   /// Returns the element of type `T` at the specified [index].
   ///
   /// Note that elements in a RealmSet move around arbitrarily when other elements are
@@ -118,9 +115,6 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
-
-  @override
-  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]) => throw RealmStateError("Unmanaged RealmSets don't support changes");
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");
@@ -228,10 +222,9 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   int get length => handle.size;
 
   @override
-  Stream<RealmSetChanges<T>> get changes => changesFor(null);
+  Stream<RealmSetChanges<T>> get changes => _changesFor(null);
 
-  @override
-  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]) {
+  Stream<RealmSetChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('Set is frozen and cannot emit changes');
     }
@@ -384,7 +377,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   }
 }
 
-// The query operations on sets only work for sets of objects (core restriction),
+// Query operations and keypath filtering on sets only work for sets of objects (core restriction),
 // so we add these as an extension methods to allow the compiler to prevent misuse.
 extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
   /// Filters the set and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
@@ -395,6 +388,17 @@ extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmSet.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]) {
+    if (!isManaged) {
+      throw RealmStateError("Unmanaged sets don't support changes");
+    }
+
+    return (this as ManagedRealmSet<T>)._changesFor(keyPaths);
   }
 }
 

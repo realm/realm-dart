@@ -159,10 +159,9 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity {
   }
 
   /// Allows listening for changes when the contents of this collection changes.
-  Stream<RealmResultsChanges<T>> get changes => changesFor(null);
+  Stream<RealmResultsChanges<T>> get changes => _changesFor(null);
 
-  /// Allows listening for changes when the contents of this collection changes on one of the provided keypaths.
-  Stream<RealmResultsChanges<T>> changesFor([List<String>? keyPaths]) {
+  Stream<RealmResultsChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('Results are frozen and cannot emit changes');
     }
@@ -172,7 +171,7 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity {
   }
 }
 
-// The query operations on results only work for results of objects (core restriction),
+// Query operations and keypath filtering on results only work for results of objects (core restriction),
 // so we add it as an extension methods to allow the compiler to prevent misuse.
 extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
   /// Returns a new [RealmResults] filtered according to the provided query.
@@ -182,6 +181,11 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
     final handle = this.handle.queryResults(query, args);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmResults.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmResultsChanges<T>> changesFor([List<String>? keyPaths]) => _changesFor(keyPaths);
 }
 
 class _SubscribedRealmResult<T extends RealmObject> extends RealmResults<T> {

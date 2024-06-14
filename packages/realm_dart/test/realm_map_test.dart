@@ -959,14 +959,6 @@ void main() {
       expect(() => map.changesFor(["test"]), throws<RealmStateError>("Unmanaged maps don't support changes"));
     });
 
-    test('works only with realm objects', () {
-      final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
-      final realm = getRealm(config);
-      final intMap = realm.write(() => realm.add(TestRealmMaps(0))).intMap;
-
-      expect(() => intMap.changesFor(["test"]), throws<RealmStateError>("Key paths can be used only with collections of Realm objects"));
-    });
-
     test('works as expected', () async {
       final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
       final realm = getRealm(config);

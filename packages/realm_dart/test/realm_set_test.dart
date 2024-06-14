@@ -802,16 +802,6 @@ void main() {
     }
   });
 
-  test('RealmSet.changesFor throws of collection of non-objects', () {
-    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
-    final realm = getRealm(config);
-    final intSet = realm.write(() {
-      return realm.add(TestRealmSets(1));
-    }).intSet;
-
-    expect(() => intSet.changesFor(["test"]), throws<RealmStateError>("Key paths can be used only with collections of Realm objects"));
-  });
-
   test('RealmSet.changesFor works with keypaths', () async {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);

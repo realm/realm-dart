@@ -522,16 +522,6 @@ void main() {
     expect(() => team.players.changesFor(["test"]), throws<RealmStateError>("Unmanaged lists don't support changes"));
   });
 
-  test('List.changesFor throws of collection of non-objects', () {
-    final config = Configuration.local([Team.schema, Person.schema]);
-    final realm = getRealm(config);
-    final intList = realm.write(() {
-      return realm.add(Team("s"));
-    }).scores;
-
-    expect(() => intList.changesFor(["test"]), throws<RealmStateError>("Key paths can be used only with collections of Realm objects"));
-  });
-
   test('RealmList.changesFor works with keypaths', () async {
     var config = Configuration.local([School.schema, Student.schema]);
     var realm = getRealm(config);
