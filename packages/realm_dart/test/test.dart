@@ -485,9 +485,9 @@ String generateRandomEmail({int length = 5}) {
   return "$randomString@realm.io";
 }
 
-Realm getRealm(Configuration config) {
+Realm getRealm(Configuration config, {SessionStopPolicy stopPolicy = SessionStopPolicy.immediately}) {
   if (config is FlexibleSyncConfiguration) {
-    config.sessionStopPolicy = SessionStopPolicy.immediately;
+    config.sessionStopPolicy = stopPolicy;
   }
 
   final realm = Realm(config);
