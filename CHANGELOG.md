@@ -1,10 +1,16 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Reduce the size of the local transaction log produced by creating objects, improving the performance of insertion-heavy transactions. (Core 14.10.0)
+* Performance has been improved for range queries on integers and timestamps. Requires that you use the "BETWEEN" operation in `realm.query<T>(...)`/`realm.all<T>().query(...)`. (Core 14.10.1)
 
 ### Fixed
-* None
+* Fix some client resets (such as migrating to flexible sync) potentially failing with AutoClientResetFailed if a new client reset condition (such as rolling back a flexible sync migration) occurred before the first one completed. (Core 14.10.0)
+* Encrypted files on Windows had a maximum size of 2GB even on x64 due to internal usage of `off_t`, which is a 32-bit type on 64-bit Windows. (Core 14.10.0)
+* The encryption code no longer behaves differently depending on the system page size, which should entirely eliminate a recurring source of bugs related to copying encrypted Realm files between platforms with different page sizes. One known outstanding bug was ([RNET-1141](https://github.com/realm/realm-dotnet/issues/3592)), where opening files on a system with a larger page size than the writing system would attempt to read sections of the file which had never been written to. (Core 14.10.0)
+* There were several complicated scenarios which could result in stale reads from encrypted files in multiprocess scenarios. These were very difficult to hit and would typically lead to a crash, either due to an assertion failure or DecryptionFailure being thrown. (Core 14.10.0)
+* Tokenizing strings for full-text search could pass values outside the range [-1, 255] to `isspace()`, which is undefined behavior. (Core 14.10.0)
+* Opening an FLX realm asynchronously may not wait to download all data. (Core 14.10.1)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
@@ -69,7 +75,7 @@
   ```
 
 ### Fixed
-* `Realm.writeAsync` did not handle async callbacks (`Future<T> Function()`) correctly. (Issue [#1667](https://github.com/realm/realm-dart/issues/1667)) 
+* `Realm.writeAsync` did not handle async callbacks (`Future<T> Function()`) correctly. (Issue [#1667](https://github.com/realm/realm-dart/issues/1667))
 * Fixed an issue that would cause macOS apps to be rejected with `Invalid Code Signing Entitlements` error. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Fixed a regression that makes it inconvenient to run unit tests using realm. (Issue [#1619](https://github.com/realm/realm-dart/issues/1619))
 * After compacting, a file upgrade would be triggered. This could cause loss of data if schema mode is SoftResetFile (Core 14.9.0)
@@ -81,7 +87,7 @@
 * Fileformat: Generates files with format v24. Reads and automatically upgrade from fileformat v10.
 
 ### Internal
-* Using Core 14.9.0.
+* Using Core 14.10.1.
 * Disabled codesigning of Apple binaries. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Drop building xcframework for catalyst. (Issue [#1695](https://github.com/realm/realm-dart/issues/1695))
 * Using xcode 15.4 for native build. (Issue [#1547](https://github.com/realm/realm-dart/issues/1547))
