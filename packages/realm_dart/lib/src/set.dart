@@ -104,17 +104,17 @@ class UnmanagedRealmSet<T extends Object?> extends collection.DelegatingSet<T> w
 
   @override
   // ignore: unused_element
-  RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
+  RealmObjectMetadata? get _metadata => throw RealmError("Unmanaged sets don't have metadata associated with them.");
 
   @override
   // ignore: unused_element
-  set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged RealmSets don't have metadata associated with them.");
+  set _metadata(RealmObjectMetadata? _) => throw RealmError("Unmanaged sets don't have metadata associated with them.");
 
   @override
   bool get isValid => true;
 
   @override
-  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged RealmSets don't support changes");
+  Stream<RealmSetChanges<T>> get changes => throw RealmStateError("Unmanaged sets don't support changes");
 
   @override
   RealmResults<T> asResults() => throw RealmStateError("Unmanaged sets can't be converted to results");
@@ -222,11 +222,18 @@ class ManagedRealmSet<T extends Object?> with RealmEntity, SetMixin<T> implement
   int get length => handle.size;
 
   @override
-  Stream<RealmSetChanges<T>> get changes {
+  Stream<RealmSetChanges<T>> get changes => _changesFor(null);
+
+  Stream<RealmSetChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('Set is frozen and cannot emit changes');
     }
-    final controller = RealmSetNotificationsController<T>(asManaged());
+
+    if (keyPaths != null && _metadata == null) {
+      throw RealmStateError('Key paths can be used only with collections of Realm objects');
+    }
+
+    final controller = RealmSetNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 
@@ -335,12 +342,18 @@ class RealmSetChanges<T extends Object?> extends RealmCollectionChanges {
 class RealmSetNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmSet<T> set;
   late final StreamController<RealmSetChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  RealmSetNotificationsController(this.set);
+  RealmSetNotificationsController(this.set, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+      set.realm.handle.verifyKeyPath(keyPaths, set._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return set.handle.subscribeForNotifications(this);
+    return set.handle.subscribeForNotifications(this, keyPaths, set._metadata?.classKey);
   }
 
   Stream<RealmSetChanges<T>> createStream() {
@@ -364,7 +377,7 @@ class RealmSetNotificationsController<T extends Object?> extends NotificationsCo
   }
 }
 
-// The query operations on sets only work for sets of objects (core restriction),
+// Query operations and keypath filtering on sets only work for sets of objects (core restriction),
 // so we add these as an extension methods to allow the compiler to prevent misuse.
 extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
   /// Filters the set and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
@@ -375,6 +388,17 @@ extension RealmSetOfObject<T extends RealmObjectBase> on RealmSet<T> {
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmSet.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmSetChanges<T>> changesFor([List<String>? keyPaths]) {
+    if (!isManaged) {
+      throw RealmStateError("Unmanaged sets don't support changes");
+    }
+
+    return (this as ManagedRealmSet<T>)._changesFor(keyPaths);
   }
 }
 

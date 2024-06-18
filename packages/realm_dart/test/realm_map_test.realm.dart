@@ -11,9 +11,11 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   Car(
     String make, {
     String? color,
+    int? year,
   }) {
     RealmObjectBase.set(this, 'make', make);
     RealmObjectBase.set(this, 'color', color);
+    RealmObjectBase.set(this, 'year', year);
   }
 
   Car._();
@@ -27,6 +29,11 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   String? get color => RealmObjectBase.get<String>(this, 'color') as String?;
   @override
   set color(String? value) => RealmObjectBase.set(this, 'color', value);
+
+  @override
+  int? get year => RealmObjectBase.get<int>(this, 'year') as int?;
+  @override
+  set year(int? value) => RealmObjectBase.set(this, 'year', value);
 
   @override
   Stream<RealmObjectChanges<Car>> get changes =>
@@ -43,6 +50,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
     return <String, dynamic>{
       'make': make.toEJson(),
       'color': color.toEJson(),
+      'year': year.toEJson(),
     };
   }
 
@@ -52,10 +60,12 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       {
         'make': EJsonValue make,
         'color': EJsonValue color,
+        'year': EJsonValue year,
       } =>
         Car(
           fromEJson(make),
           color: fromEJson(color),
+          year: fromEJson(year),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -67,6 +77,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
     return SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
+      SchemaProperty('year', RealmPropertyType.int, optional: true),
     ]);
   }();
 

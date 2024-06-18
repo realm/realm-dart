@@ -27,5 +27,5 @@ abstract interface class MapHandle extends HandleBase {
   ResultsHandle query(String query, List<Object?> args);
   bool remove(String key);
   MapHandle? resolveIn(RealmHandle frozenRealm);
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller);
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey);
 }

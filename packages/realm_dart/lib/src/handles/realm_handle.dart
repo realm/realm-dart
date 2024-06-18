@@ -64,6 +64,8 @@ abstract interface class RealmHandle extends HandleBase {
   Map<String, RealmPropertyMetadata> getPropertiesMetadata(int classKey, String? primaryKeyName);
 
   RealmObjectMetadata getObjectMetadata(SchemaObject schema);
+
+  void verifyKeyPath(List<String> keyPaths, int? classKey);
 }
 
 abstract class CallbackTokenHandle extends HandleBase {}

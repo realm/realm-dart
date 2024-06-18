@@ -56,6 +56,7 @@ class _Car {
   @PrimaryKey()
   late String make;
   late String? color;
+  late int? year;
 }
 
 @RealmModel()
@@ -761,6 +762,13 @@ void main() {
     expect(() => set.boolSet.freeze(), throws<RealmStateError>("Unmanaged sets can't be frozen"));
   });
 
+  test('UnmanagedSet.changes throws', () {
+    final set = TestRealmSets(1);
+
+    expect(() => set.objectsSet.changes, throws<RealmStateError>("Unmanaged sets don't support changes"));
+    expect(() => set.objectsSet.changesFor(["test"]), throws<RealmStateError>("Unmanaged sets don't support changes"));
+  });
+
   test('RealmSet.changes - await for with yield ', () async {
     var config = Configuration.local([TestRealmSets.schema, Car.schema]);
     var realm = getRealm(config);
@@ -792,6 +800,78 @@ void main() {
       ++count; // saw true due to new event from changes
       if (count > 1) fail('Should only receive one event');
     }
+  });
+
+  test('RealmSet.changesFor works with keypaths', () async {
+    var config = Configuration.local([TestRealmSets.schema, Car.schema]);
+    var realm = getRealm(config);
+
+    final cars = realm.write(() {
+      return realm.add(TestRealmSets(1));
+    }).objectsSet;
+
+    final externalChanges = <RealmSetChanges<Car?>>[];
+    final subscription = cars.changesFor(["year"]).listen((changes) {
+      externalChanges.add(changes);
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 1);
+
+    final firstNotification = externalChanges[0];
+    expect(firstNotification.inserted.isEmpty, true);
+    expect(firstNotification.deleted.isEmpty, true);
+    expect(firstNotification.modified.isEmpty, true);
+    expect(firstNotification.isCleared, false);
+    externalChanges.clear();
+
+    final bmw = Car("BMW");
+    realm.write(() {
+      cars.add(bmw);
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 1);
+
+    var notification = externalChanges[0];
+    expect(notification.inserted, [0]);
+    expect(notification.deleted.isEmpty, true);
+    expect(notification.modified.isEmpty, true);
+    expect(notification.isCleared, false);
+    externalChanges.clear();
+
+    // We expect notifications because "year" is in the keypaths
+    realm.write(() {
+      bmw.year = 1999;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 1);
+
+    notification = externalChanges[0];
+    expect(notification.inserted.isEmpty, true);
+    expect(notification.deleted.isEmpty, true);
+    expect(notification.modified, [0]);
+    expect(notification.isCleared, false);
+    externalChanges.clear();
+
+    // We don't expect notifications because "color" is not in the keypaths
+    realm.write(() {
+      bmw.color = "blue";
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 0);
+
+    subscription.cancel();
+
+    // No more notifications after cancelling subscription
+    realm.write(() {
+      bmw.year = 222;
+    });
+
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(externalChanges.length, 0);
   });
 
   test('Query on RealmSet with IN-operator', () {

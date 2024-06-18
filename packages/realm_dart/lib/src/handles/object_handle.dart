@@ -38,9 +38,7 @@ abstract interface class ObjectHandle extends HandleBase {
 
   ObjectHandle? resolveIn(RealmHandle frozenRealm);
 
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, [List<String>? keyPaths]);
-
-  void verifyKeyPath(List<String>? keyPaths);
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey);
 
   @override
   // equals handled by HandleBase<T>

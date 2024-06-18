@@ -17,6 +17,7 @@ class _Car {
   @PrimaryKey()
   late String make;
   late String? color;
+  late int? year;
 }
 
 @RealmModel(ObjectType.embeddedObject)
@@ -947,6 +948,83 @@ void main() {
         map.remove('a');
       });
       realm.refresh();
+    });
+  });
+
+  group('keypath filtering', () {
+    test('on unmanaged dictionary throws', () {
+      final map = TestRealmMaps(0).objectsMap;
+
+      expect(() => map.changes, throws<RealmStateError>("Unmanaged maps don't support changes"));
+      expect(() => map.changesFor(["test"]), throws<RealmStateError>("Unmanaged maps don't support changes"));
+    });
+
+    test('works as expected', () async {
+      final config = Configuration.local([TestRealmMaps.schema, Car.schema, EmbeddedValue.schema]);
+      final realm = getRealm(config);
+      final map = realm.write(() => realm.add(TestRealmMaps(0))).objectsMap;
+
+      final externalChanges = <RealmMapChanges<Car?>>[];
+      final subscription = map.changesFor(["year"]).listen((changes) {
+        externalChanges.add(changes);
+      });
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(externalChanges.length, 1);
+
+      final firstNotification = externalChanges[0];
+      expect(firstNotification.inserted.isEmpty, true);
+      expect(firstNotification.deleted.isEmpty, true);
+      expect(firstNotification.modified.isEmpty, true);
+      expect(firstNotification.isCleared, false);
+      externalChanges.clear();
+
+      realm.write(() {
+        map["test1"] = Car("BMW");
+      });
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(externalChanges.length, 1);
+
+      var notification = externalChanges[0];
+      expect(notification.inserted, ["test1"]);
+      expect(notification.deleted.isEmpty, true);
+      expect(notification.modified.isEmpty, true);
+      expect(notification.isCleared, false);
+      externalChanges.clear();
+
+      // We expect notifications because "year" is in the keypaths
+      realm.write(() {
+        map["test1"]?.year = 1999;
+      });
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(externalChanges.length, 1);
+
+      notification = externalChanges[0];
+      expect(notification.inserted.isEmpty, true);
+      expect(notification.deleted.isEmpty, true);
+      expect(notification.modified, ["test1"]);
+      expect(notification.isCleared, false);
+      externalChanges.clear();
+
+      // We don't expect notifications because "color" is not in the keypaths
+      realm.write(() {
+        map["test1"]?.color = "blue";
+      });
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(externalChanges.length, 0);
+
+      subscription.cancel();
+
+      // No more notifications after cancelling subscription
+      realm.write(() {
+        map["test1"]?.year = 22222;
+      });
+
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(externalChanges.length, 0);
     });
   });
 

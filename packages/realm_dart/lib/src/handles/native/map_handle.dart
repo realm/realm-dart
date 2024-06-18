@@ -178,17 +178,21 @@ class MapHandle extends CollectionHandleBase<realm_dictionary> implements intf.M
   }
 
   @override
-  NotificationTokenHandle subscribeForNotifications(NotificationsController controller) {
-    return NotificationTokenHandle(
-      realmLib.realm_dictionary_add_notification_callback(
-        pointer,
-        controller.toPersistentHandle(),
-        realmLib.addresses.realm_dart_delete_persistent_handle,
-        nullptr,
-        Pointer.fromFunction(_mapChangeCallback),
-      ),
-      root,
-    );
+  NotificationTokenHandle subscribeForNotifications(NotificationsController controller, List<String>? keyPaths, int? classKey) {
+    return using((Arena arena) {
+      final kpNative = root.buildAndVerifyKeyPath(keyPaths, classKey);
+
+      return NotificationTokenHandle(
+        realmLib.realm_dictionary_add_notification_callback(
+          pointer,
+          controller.toPersistentHandle(),
+          realmLib.addresses.realm_dart_delete_persistent_handle,
+          kpNative,
+          Pointer.fromFunction(_mapChangeCallback),
+        ),
+        root,
+      );
+    });
   }
 }
 

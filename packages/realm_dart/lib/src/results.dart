@@ -159,17 +159,19 @@ class RealmResults<T extends Object?> extends Iterable<T> with RealmEntity {
   }
 
   /// Allows listening for changes when the contents of this collection changes.
-  Stream<RealmResultsChanges<T>> get changes {
+  Stream<RealmResultsChanges<T>> get changes => _changesFor(null);
+
+  Stream<RealmResultsChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('Results are frozen and cannot emit changes');
     }
 
-    final controller = ResultsNotificationsController<T>(this);
+    final controller = ResultsNotificationsController<T>(this, keyPaths);
     return controller.createStream();
   }
 }
 
-// The query operations on results only work for results of objects (core restriction),
+// Query operations and keypath filtering on results only work for results of objects (core restriction),
 // so we add it as an extension methods to allow the compiler to prevent misuse.
 extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
   /// Returns a new [RealmResults] filtered according to the provided query.
@@ -179,6 +181,11 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
     final handle = this.handle.queryResults(query, args);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
   }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmResults.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmResultsChanges<T>> changesFor([List<String>? keyPaths]) => _changesFor(keyPaths);
 }
 
 class _SubscribedRealmResult<T extends RealmObject> extends RealmResults<T> {
@@ -306,12 +313,18 @@ class RealmResultsChanges<T extends Object?> extends RealmCollectionChanges {
 class ResultsNotificationsController<T extends Object?> extends NotificationsController {
   final RealmResults<T> results;
   late final StreamController<RealmResultsChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  ResultsNotificationsController(this.results);
+  ResultsNotificationsController(this.results, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+      results.realm.handle.verifyKeyPath(keyPaths, results._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return results.handle.subscribeForNotifications(this);
+    return results.handle.subscribeForNotifications(this, keyPaths, results._metadata?.classKey);
   }
 
   Stream<RealmResultsChanges<T>> createStream() {

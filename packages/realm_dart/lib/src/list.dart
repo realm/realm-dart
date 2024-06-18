@@ -195,11 +195,18 @@ class ManagedRealmList<T extends Object?> with RealmEntity, ListMixin<T> impleme
   RealmResults<T> asResults() => RealmResultsInternal.create<T>(handle.asResults(), realm, metadata);
 
   @override
-  Stream<RealmListChanges<T>> get changes {
+  Stream<RealmListChanges<T>> get changes => _changesFor(null);
+
+  Stream<RealmListChanges<T>> _changesFor([List<String>? keyPaths]) {
     if (isFrozen) {
       throw RealmStateError('List is frozen and cannot emit changes');
     }
-    final controller = ListNotificationsController<T>(asManaged());
+
+    if (keyPaths != null && _metadata == null) {
+      throw RealmStateError('Key paths can be used only with collections of Realm objects');
+    }
+
+    final controller = ListNotificationsController<T>(asManaged(), keyPaths);
     return controller.createStream();
   }
 }
@@ -238,7 +245,7 @@ class UnmanagedRealmList<T extends Object?> extends collection.DelegatingList<T>
   int get hashCode => _base.hashCode;
 }
 
-// The query operations on lists, only work for list of objects (core restriction),
+// Query operations and keypath filtering on lists only work for list of objects (core restriction),
 // so we add these as an extension methods to allow the compiler to prevent misuse.
 extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   /// Filters the list and returns a new [RealmResults] according to the provided [query] (with optional [arguments]).
@@ -249,6 +256,17 @@ extension RealmListOfObject<T extends RealmObjectBase> on RealmList<T> {
   RealmResults<T> query(String query, [List<Object?> arguments = const []]) {
     final handle = asManaged().handle.query(query, arguments);
     return RealmResultsInternal.create<T>(handle, realm, _metadata);
+  }
+
+  /// Allows listening for changes when the contents of this collection changes on one of the provided [keyPaths].
+  /// If [keyPaths] is null, default notifications will be raised (same as [RealmList.change]).
+  /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
+  Stream<RealmListChanges<T>> changesFor([List<String>? keyPaths]) {
+    if (!isManaged) {
+      throw RealmStateError("Unmanaged lists don't support changes");
+    }
+
+    return (this as ManagedRealmList<T>)._changesFor(keyPaths);
   }
 }
 
@@ -323,12 +341,18 @@ class RealmListChanges<T extends Object?> extends RealmCollectionChanges {
 class ListNotificationsController<T extends Object?> extends NotificationsController {
   final ManagedRealmList<T> list;
   late final StreamController<RealmListChanges<T>> streamController;
+  List<String>? keyPaths;
 
-  ListNotificationsController(this.list);
+  ListNotificationsController(this.list, [List<String>? keyPaths]) {
+    if (keyPaths != null) {
+      this.keyPaths = keyPaths;
+      list.realm.handle.verifyKeyPath(keyPaths, list._metadata?.classKey);
+    }
+  }
 
   @override
   NotificationTokenHandle subscribe() {
-    return list.handle.subscribeForNotifications(this);
+    return list.handle.subscribeForNotifications(this, keyPaths, list._metadata?.classKey);
   }
 
   Stream<RealmListChanges<T>> createStream() {
