@@ -2,7 +2,7 @@ name: ejson
 description: >-
   EJSON serialization.
 
-  BSON is a binary format used to store JSON-like documents efficiently. 
+  BSON is a binary format used to store JSON-like documents efficiently.
   EJSON extends JSON defining how all BSON types should be represented in JSON.
 
 topics:
@@ -22,7 +22,7 @@ dependencies:
   collection: ^1.17.0
   ejson_annotation: ^0.3.0
   objectid: ^3.0.0
-  sane_uuid: ^1.0.0-alpha.5
+  sane_uuid: ^1.0.1
   type_plus: ^2.0.0
 
 dev_dependencies:

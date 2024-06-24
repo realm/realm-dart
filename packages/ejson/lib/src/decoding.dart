@@ -243,7 +243,7 @@ UndefinedOr<T> _decodeUndefinedOr<T>(EJsonValue ejson) {
 
 Uuid _decodeUuid(EJsonValue ejson) {
   return switch (ejson) {
-    {'\$binary': {'base64': String s, 'subType': '04'}} => Uuid.fromBytes(base64.decode(s).buffer),
+    {'\$binary': {'base64': String s, 'subType': '04'}} => Uuid.fromBytes(base64.decode(s)),
     _ => raiseInvalidEJson(ejson),
   };
 }
