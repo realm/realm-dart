@@ -93,7 +93,7 @@ void main() {
     expect(ObjectId.fromValues(1, 2, 3).toEJson(), toEJson(ObjectId.fromValues(1, 2, 3)));
     final uuid = Uuid.v4();
     expect(uuid.toEJson(), toEJson(uuid));
-    final bytes = uuid.bytes.asUint8List();
+    final bytes = uuid.bytes;
     expect(bytes.toEJson(), toEJson(bytes));
   });
 
@@ -200,7 +200,7 @@ void main() {
         _testCase(ObjectId.fromValues(1, 2, 3), {'\$oid': '000000000000000002000003'});
         final uuid = Uuid.v4();
         _testCase(uuid, {
-          '\$binary': {'base64': base64.encode(uuid.bytes.asUint8List()), 'subType': '04'}
+          '\$binary': {'base64': base64.encode(uuid.bytes), 'subType': '04'}
         });
         final uint8list = Uint8List.fromList(List.generate(32, (i) => i));
         _testCase(uint8list, {
