@@ -4,7 +4,11 @@
 * None
 
 ### Fixed
-* None
+* [sane_uuid](https://pub.dev/packages/sane_uuid) 1.0.0 was released, which has a few minor breaking change as compared to to 1.0.0-rc.5 that impact realm:
+  - The `Uuid.fromBytes` factory now accepts a `Uint8List` instead of a `ByteBuffer`
+  - The type of `Uuid.bytes` has changed to `Uint8List`.
+
+  Issue [#1729](https://github.com/realm/realm-dart/issues/1729)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.

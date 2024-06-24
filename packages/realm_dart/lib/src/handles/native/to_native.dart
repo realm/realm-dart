@@ -136,7 +136,7 @@ void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator)
     }
     realmValue.type = realm_value_type.RLM_TYPE_OBJECT_ID;
   } else if (value is Uuid) {
-    final bytes = value.bytes.asUint8List();
+    final bytes = value.bytes;
     for (var i = 0; i < 16; i++) {
       realmValue.values.uuid.bytes[i] = bytes[i];
     }
