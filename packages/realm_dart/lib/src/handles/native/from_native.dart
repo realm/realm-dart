@@ -59,7 +59,7 @@ extension RealmValueEx on realm_value_t {
         return ObjectId.fromBytes(values.object_id.bytes.toList(12));
       case realm_value_type.RLM_TYPE_UUID:
         final listInt = values.uuid.bytes.toList(16);
-        return Uuid.fromBytes(Uint8List.fromList(listInt).buffer);
+        return Uuid.fromBytes(Uint8List.fromList(listInt));
       case realm_value_type.RLM_TYPE_LIST:
         if (getList == null || realm == null) {
           throw RealmException('toDartValue called with a list argument but without a list getter');

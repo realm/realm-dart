@@ -117,7 +117,7 @@ EJsonValue _encodeSymbol(Symbol value) => {'\$symbol': value.name};
 
 EJsonValue _encodeUndefined(Undefined<dynamic> undefined) => {'\$undefined': 1};
 
-EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes.asUint8List(), subtype: '04');
+EJsonValue _encodeUuid(Uuid uuid) => _encodeBinary(uuid.bytes, subtype: '04');
 
 EJsonValue _encodeBinary(Uint8List buffer, {required String subtype}) => {
       '\$binary': {

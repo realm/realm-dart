@@ -78,7 +78,7 @@ void main() {
   stringFactory(int i) => '${i.hashCode} $i';
   timestampFactory(int i) => DateTime.fromMillisecondsSinceEpoch(i.hashCode);
   objectIdFactory(int i) => ObjectId.fromValues(i.hashCode * 1000000, i.hashCode, i);
-  uuidFactory(int i) => Uuid.fromBytes(Uint8List(16).buffer..asByteData().setInt64(0, i.hashCode));
+  uuidFactory(int i) => Uuid.fromBytes(Uint8List(16)..buffer.asByteData().setInt64(0, i.hashCode));
 
   // skip timestamp for now, as timestamps are not indexed properly it seems
   final indexedTestData = [
