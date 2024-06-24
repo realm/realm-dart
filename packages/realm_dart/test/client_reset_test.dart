@@ -147,7 +147,7 @@ void main() {
       await expectLater(
           clientResetFuture,
           throwsA(isA<ClientResetError>().having((e) => e.innerError?.toString(), 'innerError', 'Exception: This fails!').having((e) => e.toString(), 'message',
-              "ClientResetError message: A fatal error occurred during client reset: 'User-provided callback failed', inner error: 'Exception: This fails!'")));
+              "ClientResetError message: A fatal error occurred during 'ClientReset' client reset for SyncClientResetRequired: Bad client file identifier (IDENT): 'User-provided callback failed', inner error: 'Exception: This fails!'")));
     });
 
     baasTest('$clientResetHandlerType.onManualResetFallback invoked when throw in onAfterReset', (appConfig) async {
@@ -177,7 +177,7 @@ void main() {
           throwsA(isA<ClientResetError>().having((e) => e.innerError?.toString(), 'innerError', 'Exception: This fails too!').having(
               (e) => e.toString(),
               'message',
-              "ClientResetError message: A fatal error occurred during client reset: 'User-provided callback failed', inner error: 'Exception: This fails too!'")));
+              "ClientResetError message: A fatal error occurred during 'ClientReset' client reset for SyncClientResetRequired: Bad client file identifier (IDENT): 'User-provided callback failed', inner error: 'Exception: This fails too!'")));
     });
 
     baasTest('$clientResetHandlerType.onBeforeReset and onAfterReset are invoked', (appConfig) async {
