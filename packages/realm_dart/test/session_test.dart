@@ -261,14 +261,14 @@ void main() {
     await validateData(uploadData, expectDone: true);
 
     // Reopen the download realm and subscribe for notifications - those should still be delivered as normal.
-    downloadRealm = Realm(getIntegrationConfig(user));
-    final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+    downloadRealm = getRealm(getIntegrationConfig(user));
+    final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.reportIndefinitely);
 
     await downloadRealm.syncSession.waitForDownload();
 
-    await validateData(downloadData, expectDone: true);
+    await validateData(downloadData, expectDone: false);
 
-    // We should not see more updates in either direction
+    // We should not see more updates in upload direction, but should see a callback invoked for download
     final uploadCallbacks = uploadData.callbacksInvoked;
     final downloadCallbacks = downloadData.callbacksInvoked;
 
@@ -281,7 +281,7 @@ void main() {
 
     expect(uploadRealm.all<NullableTypes>().length, downloadRealm.all<NullableTypes>().length);
     expect(uploadData.callbacksInvoked, uploadCallbacks);
-    expect(downloadData.callbacksInvoked, downloadCallbacks);
+    expect(downloadData.callbacksInvoked, greaterThan(downloadCallbacks));
 
     await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();

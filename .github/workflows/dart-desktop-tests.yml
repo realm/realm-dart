@@ -39,7 +39,7 @@ jobs:
         shell: bash
 
       - id: runner_os_lowercase
-        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯ 
+        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯
         # use with steps.runner_os_lowercase.outputs.os
         run: echo ${{ runner.os }} | awk '{print "os=" tolower($0)}' >> $GITHUB_OUTPUT
         shell: bash
@@ -59,7 +59,7 @@ jobs:
           ulimit -n 10240
         if: ${{ contains(runner.os, 'macos') }}
 
-      - name: Run tests ${{ runner }} ${{ runner.arch }}
+      - name: Run tests ${{ runner.os }} ${{ runner.arch }}
         run: melos test:unit
 
       # TODO: Publish all reports
@@ -67,7 +67,7 @@ jobs:
         uses: dorny/test-reporter@v1.8.0
         if: success() || failure()
         with:
-          name: Test Results Dart ${{ runner }} ${{ runner.arch }}
+          name: Test Results Dart ${{ runner.os }} ${{ runner.arch }}
           path: test-results.json
           reporter: dart-json
           only-summary: true
