@@ -54,3 +54,5 @@ RLM_API void realm_dart_apikey_callback(realm_userdata_t userdata, realm_app_use
 RLM_API void realm_dart_apikey_list_callback(realm_userdata_t userdata, realm_app_user_apikey_t apikey_list[], size_t count, const realm_app_error_t* error);
 
 RLM_API void realm_dart_return_string_callback(realm_userdata_t userdata, const char* serialized_ejson_response, const realm_app_error_t* error);
+
+RLM_API bool realm_dart_app_reset_for_testing(realm_app_t* app);
