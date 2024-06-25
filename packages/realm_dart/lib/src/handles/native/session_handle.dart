@@ -173,5 +173,5 @@ void _onConnectionStateChange(Object userdata, int oldState, int newState) {
 void syncProgressCallback(Object userdata, int transferred, int transferable, double estimate) {
   final controller = userdata as ProgressNotificationsController;
 
-  controller.onProgress(transferred, transferable);
+  controller.onProgress(estimate);
 }

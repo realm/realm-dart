@@ -429,7 +429,7 @@ void setupTests() {
 
     Realm.logger.setLogLevel(LogLevel.detail);
     Realm.logger.onRecord.listen((record) {
-      printOnFailure('${record.category} ${record.level.name}: ${record.message}');
+      printOnFailure('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
     });
 
     if (Platform.isIOS) {
@@ -618,21 +618,28 @@ Future<User> getAnonymousUser(App app) {
   return app.logIn(Credentials.anonymous(reuseCredentials: false));
 }
 
+FlexibleSyncConfiguration getIntegrationConfig(User user) {
+  return Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+}
+
 /// Returns a synced realm after logging in a user.
 ///
 /// A subscription for querying all [NullableTypes] objects containing
 /// the `differentiator` will be added if a `differentiator` is provided.
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig}) async {
+Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
+  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
   final user = await getIntegrationUser(app: app, appConfig: appConfig);
 
-  final config = Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
+  final config = getIntegrationConfig(user);
   final realm = getRealm(config);
   if (differentiator != null) {
     realm.subscriptions.update((mutableSubscriptions) {
       mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
     });
 
-    await realm.subscriptions.waitForSynchronization();
+    if (waitForSync) {
+      await realm.subscriptions.waitForSynchronization();
+    }
   }
 
   return realm;

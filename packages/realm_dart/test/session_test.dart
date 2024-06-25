@@ -159,6 +159,7 @@ void main() {
   StreamProgressData subscribeToProgress(Realm realm, ProgressDirection direction, ProgressMode mode) {
     final data = StreamProgressData();
     final stream = realm.syncSession.getProgressStream(direction, mode);
+
     data.subscription = stream.listen((event) {
       if (mode == ProgressMode.forCurrentlyOutstandingWork) {
         expect(event.progressEstimate, greaterThanOrEqualTo(data.progressEstimate));
@@ -191,25 +192,96 @@ void main() {
 
   baasTest('SyncSession.getProgressStream forCurrentlyOutstandingWork', (configuration) async {
     final differentiator = ObjectId();
-    final realmA = await getIntegrationRealm(differentiator: differentiator);
-    final realmB = await getIntegrationRealm(differentiator: differentiator);
+    final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
 
     for (var i = 0; i < 10; i++) {
-      realmA.write(() {
-        realmA.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+      uploadRealm.write(() {
+        uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
       });
     }
 
-    final uploadData = subscribeToProgress(realmA, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
-    final downloadData = subscribeToProgress(realmB, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
-
-    await realmA.syncSession.waitForUpload();
-
+    final uploadData = subscribeToProgress(uploadRealm, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
+    await uploadRealm.syncSession.waitForUpload();
     await validateData(uploadData, expectDone: true);
 
-    await realmB.syncSession.waitForDownload();
+    // Subscribe immediately after the upload to ensure we get the entire upload message as progress notifications
+    final downloadRealm = await getIntegrationRealm(differentiator: differentiator, waitForSync: false);
+    final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.forCurrentlyOutstandingWork);
+
+    await downloadRealm.subscriptions.waitForSynchronization();
+
+    await downloadRealm.syncSession.waitForDownload();
 
     await validateData(downloadData, expectDone: true);
+
+    // We should not see more updates in either direction
+    final uploadCallbacks = uploadData.callbacksInvoked;
+    final downloadCallbacks = downloadData.callbacksInvoked;
+
+    uploadRealm.write(() {
+      uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+    });
+
+    await uploadRealm.syncSession.waitForUpload();
+    await downloadRealm.syncSession.waitForDownload();
+
+    expect(uploadRealm.all<NullableTypes>().length, downloadRealm.all<NullableTypes>().length);
+    expect(uploadData.callbacksInvoked, uploadCallbacks);
+    expect(downloadData.callbacksInvoked, downloadCallbacks);
+
+    await uploadData.subscription.cancel();
+    await downloadData.subscription.cancel();
+  });
+
+  baasTest('SyncSession.getProgressStream after reconnecting', (configuration) async {
+    final differentiator = ObjectId();
+    final uploadRealm = await getIntegrationRealm(differentiator: differentiator);
+
+    // Make sure we've caught up, then close the Realm. We'll reopen it later and verify that progress notifications
+    // are delivered. This is different from "SyncSession.getProgressStream forCurrentlyOutstandingWork" where we're
+    // testing notifications after change of query.
+    final user = await getIntegrationUser(appConfig: configuration);
+    final config = getIntegrationConfig(user);
+    var downloadRealm = getRealm(config);
+    downloadRealm.subscriptions.update((mutableSubscriptions) {
+      mutableSubscriptions.add(downloadRealm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
+    });
+
+    await downloadRealm.subscriptions.waitForSynchronization();
+    downloadRealm.close();
+
+    for (var i = 0; i < 10; i++) {
+      uploadRealm.write(() {
+        uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+      });
+    }
+
+    final uploadData = subscribeToProgress(uploadRealm, ProgressDirection.upload, ProgressMode.forCurrentlyOutstandingWork);
+    await uploadRealm.syncSession.waitForUpload();
+    await validateData(uploadData, expectDone: true);
+
+    // Reopen the download realm and subscribe for notifications - those should still be delivered as normal.
+    downloadRealm = getRealm(getIntegrationConfig(user));
+    final downloadData = subscribeToProgress(downloadRealm, ProgressDirection.download, ProgressMode.reportIndefinitely);
+
+    await downloadRealm.syncSession.waitForDownload();
+
+    await validateData(downloadData, expectDone: false);
+
+    // We should not see more updates in upload direction, but should see a callback invoked for download
+    final uploadCallbacks = uploadData.callbacksInvoked;
+    final downloadCallbacks = downloadData.callbacksInvoked;
+
+    uploadRealm.write(() {
+      uploadRealm.add(NullableTypes(ObjectId(), differentiator, stringProp: generateRandomString(50)));
+    });
+
+    await uploadRealm.syncSession.waitForUpload();
+    await downloadRealm.syncSession.waitForDownload();
+
+    expect(uploadRealm.all<NullableTypes>().length, downloadRealm.all<NullableTypes>().length);
+    expect(uploadData.callbacksInvoked, uploadCallbacks);
+    expect(downloadData.callbacksInvoked, greaterThan(downloadCallbacks));
 
     await uploadData.subscription.cancel();
     await downloadData.subscription.cancel();
@@ -254,7 +326,6 @@ void main() {
     expect(downloadData.progressEstimate, 1.0);
 
     expect(uploadData.callbacksInvoked, greaterThan(uploadSnapshot.callbacksInvoked));
-
     expect(downloadData.callbacksInvoked, greaterThan(downloadSnapshot.callbacksInvoked));
 
     await uploadData.subscription.cancel();
@@ -319,7 +390,7 @@ class StreamProgressData {
   bool doneInvoked;
   late StreamSubscription<SyncProgress> subscription;
 
-  StreamProgressData({this.progressEstimate = 0, this.callbacksInvoked = 0, this.doneInvoked = false});
+  StreamProgressData({this.progressEstimate = -1, this.callbacksInvoked = 0, this.doneInvoked = false});
 
   StreamProgressData.snapshot(StreamProgressData other)
       : this(callbacksInvoked: other.callbacksInvoked, doneInvoked: other.doneInvoked, progressEstimate: other.progressEstimate);

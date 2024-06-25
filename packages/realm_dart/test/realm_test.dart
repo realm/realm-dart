@@ -1337,18 +1337,21 @@ void main() {
     final user = await app.logIn(credentials);
     final configuration = Configuration.flexibleSync(user, getSyncSchema());
 
-    int count = 0;
-    double progress = -1;
-
+    double progressEstimate = -1;
+    bool progressReported = false;
     var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
-      count++;
-      progress = syncProgress.progressEstimate;
+      progressEstimate = syncProgress.progressEstimate;
+      progressReported = true;
     });
 
+    await Future<void>.delayed(Duration(milliseconds: 500));
+
     expect(syncedRealm.isClosed, false);
-    // Semantics of onProgressCallback changed with https://github.com/realm/realm-core/issues/7452
-    expect(count, 0);
-    expect(progress, -1);
+
+    // For FLX realms with no subscriptions, the server won't report any progress before it resolves the
+    // Realm.open future.
+    expect(progressEstimate, -1);
+    expect(progressReported, false);
   });
 
   baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
@@ -1367,16 +1370,16 @@ void main() {
     final config = await _subscribeForAtlasAddedData(app);
 
     int printCount = 0;
-    double progress = 0;
+    double progressEstimate = 0;
 
     final syncedRealm = await getRealmAsync(config, onProgressCallback: (syncProgress) {
       printCount++;
-      progress = syncProgress.progressEstimate;
+      progressEstimate = syncProgress.progressEstimate;
     });
 
     expect(syncedRealm.isClosed, false);
     expect(printCount, isNot(0));
-    expect(progress, 1.0);
+    expect(progressEstimate, 1.0);
   });
 
   baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {

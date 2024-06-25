@@ -1016,8 +1016,8 @@ class RealmAsyncOpenProgressNotificationsController implements ProgressNotificat
   }
 
   @override
-  void onProgress(int transferredBytes, int transferableBytes) {
-    _streamController.add(SessionInternal.createSyncProgress(transferredBytes, transferableBytes));
+  void onProgress(double progressEstimate) {
+    _streamController.add(SessionInternal.createSyncProgress(progressEstimate));
   }
 
   void _start() {
