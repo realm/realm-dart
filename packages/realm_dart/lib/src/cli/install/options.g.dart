@@ -76,7 +76,6 @@ ArgParser _$populateOptionsParser(
       ..addFlag(
         'force',
         help: 'Force install, even if we would normally skip it.',
-        hide: true,
       );
 
 final _$parserForOptions = _$populateOptionsParser(ArgParser());
