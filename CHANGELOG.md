@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 3.1.0 (2024-06-25)
 
 ### Enhancements
 * The download progress estimate reported by `Session.getProgressStream` will now return meaningful estimated values, while previously it always returned 1. (Issue [#1564](https://github.com/realm/realm-dart/issues/1564))
