@@ -1,3 +1,7 @@
+## 0.3.1
+
+- Update sane_uuid dependency to ^1.0.0 (compensate for breaking change)
+
 ## 0.3.0
 
 - Rename `Key` class to `BsonKey` to avoid common conflict with flutter

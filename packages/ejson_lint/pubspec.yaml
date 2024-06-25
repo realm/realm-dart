@@ -5,7 +5,7 @@ description: >-
   BSON is a binary format used to store JSON-like documents efficiently.
   EJSON extends JSON defining how all BSON types should be represented in JSON.
 
-version: 0.3.0
+version: 0.3.1
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_lint
 
 environment:
@@ -14,7 +14,7 @@ environment:
 dependencies:
   analyzer: ^6.0.0
   custom_lint_builder: ^0.6.2
-  ejson_analyzer: ^0.3.0
+  ejson_analyzer: ^0.3.1
 
 dev_dependencies:
   lints: ^3.0.0
