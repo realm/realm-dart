@@ -59,7 +59,7 @@ class Location extends _Location
   static Location _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Location(
-      type: fromEJson(ejson['type']),
+      type: fromEJson(ejson['type'], defaultValue: 'Point'),
       coordinates: fromEJson(ejson['coordinates']),
     );
   }

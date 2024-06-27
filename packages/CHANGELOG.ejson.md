@@ -1,3 +1,8 @@
+## 0.4.0
+
+- `fromEJson<T>` now accepts a `defaultValue` argument that is returned if  
+  `null` is passed as `ejson`.
+
 ## 0.3.1
 
 - Update sane_uuid dependency to ^1.0.0 (compensate for breaking change)

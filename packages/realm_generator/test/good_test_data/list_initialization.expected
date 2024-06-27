@@ -143,15 +143,18 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Person(
       children: fromEJson(ejson['children']),
-      initList: fromEJson(ejson['initList']),
-      initListWithType: fromEJson(ejson['initListWithType']),
-      initListConst: fromEJson(ejson['initListConst']),
-      initSet: fromEJson(ejson['initSet']),
-      initSetWithType: fromEJson(ejson['initSetWithType']),
-      initSetConst: fromEJson(ejson['initSetConst']),
-      initMap: fromEJson(ejson['initMap']),
-      initMapWithType: fromEJson(ejson['initMapWithType']),
-      initMapConst: fromEJson(ejson['initMapConst']),
+      initList: fromEJson(ejson['initList'], defaultValue: const []),
+      initListWithType:
+          fromEJson(ejson['initListWithType'], defaultValue: const []),
+      initListConst: fromEJson(ejson['initListConst'], defaultValue: const []),
+      initSet: fromEJson(ejson['initSet'], defaultValue: const {}),
+      initSetWithType:
+          fromEJson(ejson['initSetWithType'], defaultValue: const {}),
+      initSetConst: fromEJson(ejson['initSetConst'], defaultValue: const {}),
+      initMap: fromEJson(ejson['initMap'], defaultValue: const {}),
+      initMapWithType:
+          fromEJson(ejson['initMapWithType'], defaultValue: const {}),
+      initMapConst: fromEJson(ejson['initMapConst'], defaultValue: const {}),
     );
   }
 

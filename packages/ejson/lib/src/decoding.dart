@@ -55,11 +55,14 @@ final _decoders = () {
 
 /// Converts [ejson] to type [T].
 ///
+/// [defaultValue] is returned if set, and [ejson] is `null`.
+/// 
 /// Throws [InvalidEJson] if [ejson] is not valid for [T].
 /// Throws [MissingDecoder] if no decoder is registered for [T].
-T fromEJson<T>(EJsonValue ejson) {
+T fromEJson<T>(EJsonValue ejson, {T? defaultValue}) {
   final type = T;
   final nullable = type.isNullable;
+  if (!nullable && ejson == null && defaultValue != null) return defaultValue;
   final decoder = nullable ? _decodeNullable : _decoders[type.base];
   if (decoder == null) {
     throw MissingDecoder._(ejson, type);
