@@ -80,7 +80,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
         Car(
           fromEJson(make),
           model: fromEJson(ejson['model']),
-          kilometers: fromEJson(ejson['kilometers']),
+          kilometers: fromEJson(ejson['kilometers'], defaultValue: 500),
           owner: fromEJson(ejson['owner']),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -158,7 +158,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
       } =>
         Person(
           fromEJson(name),
-          age: fromEJson(ejson['age']),
+          age: fromEJson(ejson['age'], defaultValue: 1),
         ),
       _ => raiseInvalidEJson(ejson),
     };
