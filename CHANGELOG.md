@@ -4,6 +4,7 @@
 * Performance has been improved for range queries on integers and timestamps. Requires that you use the "BETWEEN" operation in MQL or the Query::between() method when you build the query. (Core 14.10.1)
 * Include the originating client reset error in AutoClientResetFailure errors. (Core 14.10.0)
 * Reduce the size of the local transaction log produced by creating objects, improving the performance of insertion-heavy transactions (Core 14.10.0).
+* Allow nullable fields to be absent in EJson, when deserializing realm objects. (Issue [#1735](https://github.com/realm/realm-dart/issues/1735))
 
 ### Fixed
 * Fixed an issue that affects sync apps that use embedded objects which have a `List<RealmValue>` that contains a link to another top level object which has been deleted by another sync client (creating a tombstone locally). In this particular case, the switch would cause any remaining link removals to recursively delete the destination object if there were no other links to it. (Core v14.10.2-14-gf66e24d03)
