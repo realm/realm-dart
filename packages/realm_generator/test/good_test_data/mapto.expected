@@ -72,19 +72,12 @@ class Original extends $Original
 
   static EJsonValue _toEJson(Original value) => value.toEJson();
   static Original _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'remapped primitive': EJsonValue primitiveProperty,
-        'remapped object': EJsonValue objectProperty,
-        'remapped list': EJsonValue listProperty,
-      } =>
-        Original(
-          primitiveProperty: fromEJson(primitiveProperty),
-          objectProperty: fromEJson(objectProperty),
-          listProperty: fromEJson(listProperty),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Original(
+      primitiveProperty: fromEJson(ejson['remapped primitive']),
+      objectProperty: fromEJson(ejson['remapped object']),
+      listProperty: fromEJson(ejson['remapped list']),
+    );
   }
 
   static final schema = () {

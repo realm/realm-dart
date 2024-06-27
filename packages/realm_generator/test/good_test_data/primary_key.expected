@@ -40,6 +40,7 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(IntPK value) => value.toEJson();
   static IntPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -98,12 +99,13 @@ class NullableIntPK extends _NullableIntPK
 
   static EJsonValue _toEJson(NullableIntPK value) => value.toEJson();
   static NullableIntPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableIntPK(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -157,6 +159,7 @@ class StringPK extends _StringPK
 
   static EJsonValue _toEJson(StringPK value) => value.toEJson();
   static StringPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -216,12 +219,13 @@ class NullableStringPK extends _NullableStringPK
 
   static EJsonValue _toEJson(NullableStringPK value) => value.toEJson();
   static NullableStringPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableStringPK(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -275,6 +279,7 @@ class ObjectIdPK extends _ObjectIdPK
 
   static EJsonValue _toEJson(ObjectIdPK value) => value.toEJson();
   static ObjectIdPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -334,12 +339,13 @@ class NullableObjectIdPK extends _NullableObjectIdPK
 
   static EJsonValue _toEJson(NullableObjectIdPK value) => value.toEJson();
   static NullableObjectIdPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableObjectIdPK(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -392,6 +398,7 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(UuidPK value) => value.toEJson();
   static UuidPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -450,12 +457,13 @@ class NullableUuidPK extends _NullableUuidPK
 
   static EJsonValue _toEJson(NullableUuidPK value) => value.toEJson();
   static NullableUuidPK _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableUuidPK(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };

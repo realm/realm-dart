@@ -185,24 +185,17 @@ class Indexable extends _Indexable
 
   static EJsonValue _toEJson(Indexable value) => value.toEJson();
   static Indexable _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'aBool': EJsonValue aBool,
-        'aNullableBool': EJsonValue aNullableBool,
         'anInt': EJsonValue anInt,
-        'aNullableInt': EJsonValue aNullableInt,
         'aString': EJsonValue aString,
-        'aNullableString': EJsonValue aNullableString,
         'anObjectId': EJsonValue anObjectId,
-        'aNullableObjectId': EJsonValue aNullableObjectId,
         'anUuid': EJsonValue anUuid,
-        'aNullableUuid': EJsonValue aNullableUuid,
         'aDateTime': EJsonValue aDateTime,
-        'aNullableDateTime': EJsonValue aNullableDateTime,
-        'aRealmValue': EJsonValue aRealmValue,
         'generalStringIndex': EJsonValue generalStringIndex,
         'ftsStringValue': EJsonValue ftsStringValue,
-        'nullableFtsStringValue': EJsonValue nullableFtsStringValue,
       } =>
         Indexable(
           fromEJson(aBool),
@@ -213,14 +206,14 @@ class Indexable extends _Indexable
           fromEJson(aDateTime),
           fromEJson(generalStringIndex),
           fromEJson(ftsStringValue),
-          aNullableBool: fromEJson(aNullableBool),
-          aNullableInt: fromEJson(aNullableInt),
-          aNullableString: fromEJson(aNullableString),
-          aNullableObjectId: fromEJson(aNullableObjectId),
-          aNullableUuid: fromEJson(aNullableUuid),
-          aNullableDateTime: fromEJson(aNullableDateTime),
-          aRealmValue: fromEJson(aRealmValue),
-          nullableFtsStringValue: fromEJson(nullableFtsStringValue),
+          aNullableBool: fromEJson(ejson['aNullableBool']),
+          aNullableInt: fromEJson(ejson['aNullableInt']),
+          aNullableString: fromEJson(ejson['aNullableString']),
+          aNullableObjectId: fromEJson(ejson['aNullableObjectId']),
+          aNullableUuid: fromEJson(ejson['aNullableUuid']),
+          aNullableDateTime: fromEJson(ejson['aNullableDateTime']),
+          aRealmValue: fromEJson(ejson['aRealmValue']),
+          nullableFtsStringValue: fromEJson(ejson['nullableFtsStringValue']),
         ),
       _ => raiseInvalidEJson(ejson),
     };

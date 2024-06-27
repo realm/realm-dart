@@ -52,14 +52,14 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Foo value) => value.toEJson();
   static Foo _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'requiredBinaryProp': EJsonValue requiredBinaryProp,
-        'nullableBinaryProp': EJsonValue nullableBinaryProp,
       } =>
         Foo(
           fromEJson(requiredBinaryProp),
-          nullableBinaryProp: fromEJson(nullableBinaryProp),
+          nullableBinaryProp: fromEJson(ejson['nullableBinaryProp']),
         ),
       _ => raiseInvalidEJson(ejson),
     };

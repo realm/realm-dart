@@ -40,6 +40,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Car value) => value.toEJson();
   static Car _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'make': EJsonValue make,
@@ -276,44 +277,29 @@ class RealmSets extends _RealmSets
 
   static EJsonValue _toEJson(RealmSets value) => value.toEJson();
   static RealmSets _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'key': EJsonValue key,
-        'boolSet': EJsonValue boolSet,
-        'nullableBoolSet': EJsonValue nullableBoolSet,
-        'intSet': EJsonValue intSet,
-        'nullableintSet': EJsonValue nullableintSet,
-        'stringSet': EJsonValue stringSet,
-        'nullablestringSet': EJsonValue nullablestringSet,
-        'doubleSet': EJsonValue doubleSet,
-        'nullabledoubleSet': EJsonValue nullabledoubleSet,
-        'dateTimeSet': EJsonValue dateTimeSet,
-        'nullabledateTimeSet': EJsonValue nullabledateTimeSet,
-        'objectIdSet': EJsonValue objectIdSet,
-        'nullableobjectIdSet': EJsonValue nullableobjectIdSet,
-        'uuidSet': EJsonValue uuidSet,
-        'nullableuuidSet': EJsonValue nullableuuidSet,
-        'realmValueSet': EJsonValue realmValueSet,
-        'realmObjectsSet': EJsonValue realmObjectsSet,
       } =>
         RealmSets(
           fromEJson(key),
-          boolSet: fromEJson(boolSet),
-          nullableBoolSet: fromEJson(nullableBoolSet),
-          intSet: fromEJson(intSet),
-          nullableintSet: fromEJson(nullableintSet),
-          stringSet: fromEJson(stringSet),
-          nullablestringSet: fromEJson(nullablestringSet),
-          doubleSet: fromEJson(doubleSet),
-          nullabledoubleSet: fromEJson(nullabledoubleSet),
-          dateTimeSet: fromEJson(dateTimeSet),
-          nullabledateTimeSet: fromEJson(nullabledateTimeSet),
-          objectIdSet: fromEJson(objectIdSet),
-          nullableobjectIdSet: fromEJson(nullableobjectIdSet),
-          uuidSet: fromEJson(uuidSet),
-          nullableuuidSet: fromEJson(nullableuuidSet),
-          realmValueSet: fromEJson(realmValueSet),
-          realmObjectsSet: fromEJson(realmObjectsSet),
+          boolSet: fromEJson(ejson['boolSet']),
+          nullableBoolSet: fromEJson(ejson['nullableBoolSet']),
+          intSet: fromEJson(ejson['intSet']),
+          nullableintSet: fromEJson(ejson['nullableintSet']),
+          stringSet: fromEJson(ejson['stringSet']),
+          nullablestringSet: fromEJson(ejson['nullablestringSet']),
+          doubleSet: fromEJson(ejson['doubleSet']),
+          nullabledoubleSet: fromEJson(ejson['nullabledoubleSet']),
+          dateTimeSet: fromEJson(ejson['dateTimeSet']),
+          nullabledateTimeSet: fromEJson(ejson['nullabledateTimeSet']),
+          objectIdSet: fromEJson(ejson['objectIdSet']),
+          nullableobjectIdSet: fromEJson(ejson['nullableobjectIdSet']),
+          uuidSet: fromEJson(ejson['uuidSet']),
+          nullableuuidSet: fromEJson(ejson['nullableuuidSet']),
+          realmValueSet: fromEJson(ejson['realmValueSet']),
+          realmObjectsSet: fromEJson(ejson['realmObjectsSet']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
