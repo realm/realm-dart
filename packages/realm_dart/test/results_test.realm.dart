@@ -192,37 +192,21 @@ class TestNotificationObject extends _TestNotificationObject
 
   static EJsonValue _toEJson(TestNotificationObject value) => value.toEJson();
   static TestNotificationObject _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'stringProperty': EJsonValue stringProperty,
-        'intProperty': EJsonValue intProperty,
-        '_remappedIntProperty': EJsonValue remappedIntProperty,
-        'link': EJsonValue link,
-        'list': EJsonValue list,
-        'set': EJsonValue set,
-        'map': EJsonValue map,
-        'linkDifferentType': EJsonValue linkDifferentType,
-        'listDifferentType': EJsonValue listDifferentType,
-        'setDifferentType': EJsonValue setDifferentType,
-        'mapDifferentType': EJsonValue mapDifferentType,
-        'embedded': EJsonValue embedded,
-      } =>
-        TestNotificationObject(
-          stringProperty: fromEJson(stringProperty),
-          intProperty: fromEJson(intProperty),
-          remappedIntProperty: fromEJson(remappedIntProperty),
-          link: fromEJson(link),
-          list: fromEJson(list),
-          set: fromEJson(set),
-          map: fromEJson(map),
-          linkDifferentType: fromEJson(linkDifferentType),
-          listDifferentType: fromEJson(listDifferentType),
-          setDifferentType: fromEJson(setDifferentType),
-          mapDifferentType: fromEJson(mapDifferentType),
-          embedded: fromEJson(embedded),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TestNotificationObject(
+      stringProperty: fromEJson(ejson['stringProperty']),
+      intProperty: fromEJson(ejson['intProperty']),
+      remappedIntProperty: fromEJson(ejson['_remappedIntProperty']),
+      link: fromEJson(ejson['link']),
+      list: fromEJson(ejson['list']),
+      set: fromEJson(ejson['set']),
+      map: fromEJson(ejson['map']),
+      linkDifferentType: fromEJson(ejson['linkDifferentType']),
+      listDifferentType: fromEJson(ejson['listDifferentType']),
+      setDifferentType: fromEJson(ejson['setDifferentType']),
+      mapDifferentType: fromEJson(ejson['mapDifferentType']),
+      embedded: fromEJson(ejson['embedded']),
+    );
   }
 
   static final schema = () {
@@ -321,17 +305,11 @@ class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
   static EJsonValue _toEJson(TestNotificationEmbeddedObject value) =>
       value.toEJson();
   static TestNotificationEmbeddedObject _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'stringProperty': EJsonValue stringProperty,
-        'intProperty': EJsonValue intProperty,
-      } =>
-        TestNotificationEmbeddedObject(
-          stringProperty: fromEJson(stringProperty),
-          intProperty: fromEJson(intProperty),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TestNotificationEmbeddedObject(
+      stringProperty: fromEJson(ejson['stringProperty']),
+      intProperty: fromEJson(ejson['intProperty']),
+    );
   }
 
   static final schema = () {
@@ -409,19 +387,12 @@ class TestNotificationDifferentType extends _TestNotificationDifferentType
   static EJsonValue _toEJson(TestNotificationDifferentType value) =>
       value.toEJson();
   static TestNotificationDifferentType _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'stringProperty': EJsonValue stringProperty,
-        'intProperty': EJsonValue intProperty,
-        'link': EJsonValue link,
-      } =>
-        TestNotificationDifferentType(
-          stringProperty: fromEJson(stringProperty),
-          intProperty: fromEJson(intProperty),
-          link: fromEJson(link),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TestNotificationDifferentType(
+      stringProperty: fromEJson(ejson['stringProperty']),
+      intProperty: fromEJson(ejson['intProperty']),
+      link: fromEJson(ejson['link']),
+    );
   }
 
   static final schema = () {

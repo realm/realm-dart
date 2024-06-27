@@ -72,18 +72,16 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Car value) => value.toEJson();
   static Car _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'make': EJsonValue make,
-        'model': EJsonValue model,
-        'kilometers': EJsonValue kilometers,
-        'owner': EJsonValue owner,
       } =>
         Car(
           fromEJson(make),
-          model: fromEJson(model),
-          kilometers: fromEJson(kilometers),
-          owner: fromEJson(owner),
+          model: fromEJson(ejson['model']),
+          kilometers: fromEJson(ejson['kilometers']),
+          owner: fromEJson(ejson['owner']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -153,14 +151,14 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
-        'age': EJsonValue age,
       } =>
         Person(
           fromEJson(name),
-          age: fromEJson(age),
+          age: fromEJson(ejson['age']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
