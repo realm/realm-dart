@@ -50,6 +50,7 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Taskv2 value) => value.toEJson();
   static Taskv2 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         '_id': EJsonValue id,

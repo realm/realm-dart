@@ -135,23 +135,36 @@ class RealmModelInfo {
       // Decode
       yield 'static $name _fromEJson(EJsonValue ejson) {';
       {
-        yield 'return switch (ejson) {';
-        {
-          yield '{';
+        yield 'if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);';
+        final shape = allSettable.where(required);
+        if (shape.isEmpty) {
+          yield 'return ';
+        } else {
+          yield 'return switch (ejson) {';
           {
-            yield* allSettable.map((f) {
-              return "'${f.realmName}': EJsonValue ${f.name},";
-            });
+            yield '{';
+            {
+              yield* shape.map((f) {
+                return "'${f.realmName}': EJsonValue ${f.name},";
+              });
+            }
+            yield '} =>';
           }
-          yield '} => $name(';
-          {
-            yield* positional.map((f) => 'fromEJson(${f.name}),');
-            yield* named.map((f) => '${paramName(f)}: fromEJson(${f.name}),');
-          }
-          yield '),';
-          yield '_ => raiseInvalidEJson(ejson),';
         }
-        yield '};';
+        yield '$name(';
+        {
+          getter(RealmFieldInfo f) => f.isRequired ? f.name : "ejson['${f.realmName}']";
+          yield* positional.map((f) => 'fromEJson(${getter(f)}),');
+          yield* named.map((f) => '${paramName(f)}: fromEJson(${getter(f)}),');
+        }
+        yield ')';
+        if (shape.isEmpty) {
+          yield ';';
+        } else {
+          yield ',';
+          yield '_ => raiseInvalidEJson(ejson),';
+          yield '};';
+        }
       }
       yield '}';
 

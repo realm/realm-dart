@@ -48,15 +48,10 @@ class TuckedIn extends _TuckedIn
 
   static EJsonValue _toEJson(TuckedIn value) => value.toEJson();
   static TuckedIn _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'x': EJsonValue x,
-      } =>
-        TuckedIn(
-          x: fromEJson(x),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TuckedIn(
+      x: fromEJson(ejson['x']),
+    );
   }
 
   static final schema = () {

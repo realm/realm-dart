@@ -85,6 +85,7 @@ class WithIndexes extends _WithIndexes
 
   static EJsonValue _toEJson(WithIndexes value) => value.toEJson();
   static WithIndexes _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'anInt': EJsonValue anInt,
@@ -206,6 +207,7 @@ class NoIndexes extends _NoIndexes
 
   static EJsonValue _toEJson(NoIndexes value) => value.toEJson();
   static NoIndexes _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'anInt': EJsonValue anInt,
@@ -298,16 +300,16 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
 
   static EJsonValue _toEJson(ObjectWithFTSIndex value) => value.toEJson();
   static ObjectWithFTSIndex _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'title': EJsonValue title,
         'summary': EJsonValue summary,
-        'nullableSummary': EJsonValue nullableSummary,
       } =>
         ObjectWithFTSIndex(
           fromEJson(title),
           fromEJson(summary),
-          nullableSummary: fromEJson(nullableSummary),
+          nullableSummary: fromEJson(ejson['nullableSummary']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
