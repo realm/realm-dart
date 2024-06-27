@@ -54,17 +54,11 @@ class MappedToo extends _MappedToo
 
   static EJsonValue _toEJson(MappedToo value) => value.toEJson();
   static MappedToo _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'singleLink': EJsonValue singleLink,
-        'listLink': EJsonValue listLink,
-      } =>
-        MappedToo(
-          singleLink: fromEJson(singleLink),
-          listLink: fromEJson(listLink),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return MappedToo(
+      singleLink: fromEJson(ejson['singleLink']),
+      listLink: fromEJson(ejson['listLink']),
+    );
   }
 
   static final schema = () {

@@ -55,17 +55,11 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Foo value) => value.toEJson();
   static Foo _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'x': EJsonValue x,
-        'bar': EJsonValue bar,
-      } =>
-        Foo(
-          x: fromEJson(x),
-          bar: fromEJson(bar),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Foo(
+      x: fromEJson(ejson['x']),
+      bar: fromEJson(ejson['bar']),
+    );
   }
 
   static final schema = () {
@@ -269,6 +263,7 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Bar value) => value.toEJson();
   static Bar _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -276,16 +271,8 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
         'another': EJsonValue another,
         'data': EJsonValue data,
         'tidspunkt': EJsonValue timestamp,
-        'aDouble': EJsonValue aDouble,
-        'foo': EJsonValue foo,
         'objectId': EJsonValue objectId,
         'uuid': EJsonValue uuid,
-        'list': EJsonValue list,
-        'set': EJsonValue set,
-        'map': EJsonValue map,
-        'anOptionalString': EJsonValue anOptionalString,
-        'any': EJsonValue any,
-        'manyAny': EJsonValue manyAny,
         'decimal': EJsonValue decimal,
       } =>
         Bar(
@@ -297,14 +284,14 @@ class Bar extends _Bar with RealmEntity, RealmObjectBase, RealmObject {
           fromEJson(objectId),
           fromEJson(uuid),
           fromEJson(decimal),
-          aDouble: fromEJson(aDouble),
-          foo: fromEJson(foo),
-          list: fromEJson(list),
-          set: fromEJson(set),
-          map: fromEJson(map),
-          anOptionalString: fromEJson(anOptionalString),
-          any: fromEJson(any),
-          manyAny: fromEJson(manyAny),
+          aDouble: fromEJson(ejson['aDouble']),
+          foo: fromEJson(ejson['foo']),
+          list: fromEJson(ejson['list']),
+          set: fromEJson(ejson['set']),
+          map: fromEJson(ejson['map']),
+          anOptionalString: fromEJson(ejson['anOptionalString']),
+          any: fromEJson(ejson['any']),
+          manyAny: fromEJson(ejson['manyAny']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -426,6 +413,7 @@ class PrimitiveTypes extends _PrimitiveTypes
 
   static EJsonValue _toEJson(PrimitiveTypes value) => value.toEJson();
   static PrimitiveTypes _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'stringProp': EJsonValue stringProp,

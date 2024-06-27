@@ -140,33 +140,19 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'children': EJsonValue children,
-        'initList': EJsonValue initList,
-        'initListWithType': EJsonValue initListWithType,
-        'initListConst': EJsonValue initListConst,
-        'initSet': EJsonValue initSet,
-        'initSetWithType': EJsonValue initSetWithType,
-        'initSetConst': EJsonValue initSetConst,
-        'initMap': EJsonValue initMap,
-        'initMapWithType': EJsonValue initMapWithType,
-        'initMapConst': EJsonValue initMapConst,
-      } =>
-        Person(
-          children: fromEJson(children),
-          initList: fromEJson(initList),
-          initListWithType: fromEJson(initListWithType),
-          initListConst: fromEJson(initListConst),
-          initSet: fromEJson(initSet),
-          initSetWithType: fromEJson(initSetWithType),
-          initSetConst: fromEJson(initSetConst),
-          initMap: fromEJson(initMap),
-          initMapWithType: fromEJson(initMapWithType),
-          initMapConst: fromEJson(initMapConst),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Person(
+      children: fromEJson(ejson['children']),
+      initList: fromEJson(ejson['initList']),
+      initListWithType: fromEJson(ejson['initListWithType']),
+      initListConst: fromEJson(ejson['initListConst']),
+      initSet: fromEJson(ejson['initSet']),
+      initSetWithType: fromEJson(ejson['initSetWithType']),
+      initSetConst: fromEJson(ejson['initSetConst']),
+      initMap: fromEJson(ejson['initMap']),
+      initMapWithType: fromEJson(ejson['initMapWithType']),
+      initMapConst: fromEJson(ejson['initMapConst']),
+    );
   }
 
   static final schema = () {

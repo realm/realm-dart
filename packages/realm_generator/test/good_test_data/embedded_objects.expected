@@ -52,17 +52,11 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Parent value) => value.toEJson();
   static Parent _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'child': EJsonValue child,
-        'children': EJsonValue children,
-      } =>
-        Parent(
-          child: fromEJson(child),
-          children: fromEJson(children),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Parent(
+      child: fromEJson(ejson['child']),
+      children: fromEJson(ejson['children']),
+    );
   }
 
   static final schema = () {
@@ -143,18 +137,16 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
 
   static EJsonValue _toEJson(Child1 value) => value.toEJson();
   static Child1 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'value': EJsonValue value,
-        'child': EJsonValue child,
-        'children': EJsonValue children,
-        'linkToParent': EJsonValue linkToParent,
       } =>
         Child1(
           fromEJson(value),
-          child: fromEJson(child),
-          children: fromEJson(children),
-          linkToParent: fromEJson(linkToParent),
+          child: fromEJson(ejson['child']),
+          children: fromEJson(ejson['children']),
+          linkToParent: fromEJson(ejson['linkToParent']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -336,6 +328,7 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
 
   static EJsonValue _toEJson(Child2 value) => value.toEJson();
   static Child2 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'boolProp': EJsonValue boolProp,
@@ -345,13 +338,6 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
         'dateProp': EJsonValue dateProp,
         'objectIdProp': EJsonValue objectIdProp,
         'uuidProp': EJsonValue uuidProp,
-        'nullableBoolProp': EJsonValue nullableBoolProp,
-        'nullableIntProp': EJsonValue nullableIntProp,
-        'nullableDoubleProp': EJsonValue nullableDoubleProp,
-        'nullableStringProp': EJsonValue nullableStringProp,
-        'nullableDateProp': EJsonValue nullableDateProp,
-        'nullableObjectIdProp': EJsonValue nullableObjectIdProp,
-        'nullableUuidProp': EJsonValue nullableUuidProp,
       } =>
         Child2(
           fromEJson(boolProp),
@@ -361,13 +347,13 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
           fromEJson(dateProp),
           fromEJson(objectIdProp),
           fromEJson(uuidProp),
-          nullableBoolProp: fromEJson(nullableBoolProp),
-          nullableIntProp: fromEJson(nullableIntProp),
-          nullableDoubleProp: fromEJson(nullableDoubleProp),
-          nullableStringProp: fromEJson(nullableStringProp),
-          nullableDateProp: fromEJson(nullableDateProp),
-          nullableObjectIdProp: fromEJson(nullableObjectIdProp),
-          nullableUuidProp: fromEJson(nullableUuidProp),
+          nullableBoolProp: fromEJson(ejson['nullableBoolProp']),
+          nullableIntProp: fromEJson(ejson['nullableIntProp']),
+          nullableDoubleProp: fromEJson(ejson['nullableDoubleProp']),
+          nullableStringProp: fromEJson(ejson['nullableStringProp']),
+          nullableDateProp: fromEJson(ejson['nullableDateProp']),
+          nullableObjectIdProp: fromEJson(ejson['nullableObjectIdProp']),
+          nullableUuidProp: fromEJson(ejson['nullableUuidProp']),
         ),
       _ => raiseInvalidEJson(ejson),
     };

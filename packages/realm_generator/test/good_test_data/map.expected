@@ -148,35 +148,20 @@ class LotsOfMaps extends _LotsOfMaps
 
   static EJsonValue _toEJson(LotsOfMaps value) => value.toEJson();
   static LotsOfMaps _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'persons': EJsonValue persons,
-        'bools': EJsonValue bools,
-        'dateTimes': EJsonValue dateTimes,
-        'decimals': EJsonValue decimals,
-        'doubles': EJsonValue doubles,
-        'ints': EJsonValue ints,
-        'objectIds': EJsonValue objectIds,
-        'any': EJsonValue any,
-        'strings': EJsonValue strings,
-        'binary': EJsonValue binary,
-        'uuids': EJsonValue uuids,
-      } =>
-        LotsOfMaps(
-          persons: fromEJson(persons),
-          bools: fromEJson(bools),
-          dateTimes: fromEJson(dateTimes),
-          decimals: fromEJson(decimals),
-          doubles: fromEJson(doubles),
-          ints: fromEJson(ints),
-          objectIds: fromEJson(objectIds),
-          any: fromEJson(any),
-          strings: fromEJson(strings),
-          binary: fromEJson(binary),
-          uuids: fromEJson(uuids),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return LotsOfMaps(
+      persons: fromEJson(ejson['persons']),
+      bools: fromEJson(ejson['bools']),
+      dateTimes: fromEJson(ejson['dateTimes']),
+      decimals: fromEJson(ejson['decimals']),
+      doubles: fromEJson(ejson['doubles']),
+      ints: fromEJson(ejson['ints']),
+      objectIds: fromEJson(ejson['objectIds']),
+      any: fromEJson(ejson['any']),
+      strings: fromEJson(ejson['strings']),
+      binary: fromEJson(ejson['binary']),
+      uuids: fromEJson(ejson['uuids']),
+    );
   }
 
   static final schema = () {
@@ -247,6 +232,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
