@@ -5,7 +5,8 @@ enum EJsonType {
   array,
   binary,
   boolean,
-  date,
+  databaseRef,
+  date, // use this instead of timestamp
   decimal128,
   document,
   double,
@@ -13,16 +14,15 @@ enum EJsonType {
   int64,
   maxKey,
   minKey,
+  nil, // aka. null
   objectId,
   string,
   symbol,
-  nil, // aka. null
   undefined,
   // TODO: The following is not supported yet
   // code,
   // codeWithScope,
-  // databasePointer,
-  // databaseRef,
+  // databasePointer, // deprecated
   // regularExpression,
   // timestamp, // This is not what you think, see https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-Timestamp
 }
@@ -30,6 +30,20 @@ enum EJsonType {
 /// See [MaxKey](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-MaxKey)
 /// and [MinKey](https://www.mongodb.com/docs/manual/reference/mongodb-extended-json/#mongodb-bsontype-MinKey)
 enum BsonKey { min, max }
+
+final class DBRef<KeyT> {
+  // Do we need to support the database name?
+  final String collection;
+  final KeyT id;
+
+  const DBRef(this.collection, this.id);
+
+  @override
+  int get hashCode => Object.hash(collection, id);
+
+  @override
+  bool operator ==(Object other) => other is DBRef<KeyT> && collection == other.collection && id == other.id;
+}
 
 sealed class UndefinedOr<T> {
   const UndefinedOr();

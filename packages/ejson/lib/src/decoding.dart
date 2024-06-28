@@ -32,6 +32,7 @@ const _commonDecoders = {
   Symbol: _decodeSymbol,
   Uint8List: _decodeBinary,
   Uuid: _decodeUuid,
+  DBRef: _decodeDBRef,
   Undefined: _decodeUndefined,
   UndefinedOr: _decodeUndefinedOr,
 };
@@ -45,6 +46,7 @@ final _decoders = () {
   TypePlus.addFactory(undefinedOr);
   TypePlus.addFactory(<T>(dynamic f) => f<Defined<T>>(), superTypes: [undefinedOr]);
   TypePlus.addFactory(<T>(dynamic f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
+  TypePlus.addFactory(<T>(dynamic f) => f<DBRef<T>>());
   TypePlus.add<BsonKey>();
   TypePlus.add<ObjectId>();
   TypePlus.add<Uint8List>();
@@ -56,7 +58,7 @@ final _decoders = () {
 /// Converts [ejson] to type [T].
 ///
 /// [defaultValue] is returned if set, and [ejson] is `null`.
-/// 
+///
 /// Throws [InvalidEJson] if [ejson] is not valid for [T].
 /// Throws [MissingDecoder] if no decoder is registered for [T].
 T fromEJson<T>(EJsonValue ejson, {T? defaultValue}) {
@@ -97,6 +99,7 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$numberDouble': _} => _decodeDouble(ejson),
     {'\$numberInt': _} => _decodeInt(ejson),
     {'\$numberLong': _} => _decodeInt(ejson),
+    {'\$ref': _, '\$id': _} => _decodeDBRef<dynamic>(ejson),
     {'\$regex': _} => _decodeString(ejson),
     {'\$symbol': _} => _decodeSymbol(ejson),
     {'\$undefined': _} => _decodeUndefined<dynamic>(ejson),
@@ -138,6 +141,13 @@ DateTime _decodeDate(EJsonValue ejson) {
   return switch (ejson) {
     {'\$date': String s} => DateTime.parse(s), // relaxed mode
     {'\$date': {'\$numberLong': String i}} => DateTime.fromMillisecondsSinceEpoch(int.tryParse(i) ?? raiseInvalidEJson(ejson)),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+DBRef<KeyT> _decodeDBRef<KeyT>(EJsonValue ejson) {
+  return switch (ejson) {
+    {'\$ref': String collection, '\$id': EJsonValue id} => DBRef<KeyT>(collection, fromEJson<KeyT>(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
