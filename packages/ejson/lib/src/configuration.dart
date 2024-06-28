@@ -9,8 +9,8 @@ import 'encoding.dart';
 
 /// Register custom EJSON [encoder] and [decoder] for a type [T].
 /// The last registered codec pair for a given type [T] will be used.
-void register<T>(EJsonEncoder<T> encoder, EJsonDecoder<T> decoder) {
-  TypePlus.add<T>();
+void register<T>(EJsonEncoder<T> encoder, EJsonDecoder<T> decoder, {Iterable<Type>? superTypes}) {
+  TypePlus.add<T>(superTypes: superTypes);
   customEncoders[T] = encoder;
   customDecoders[T] = decoder;
 }
