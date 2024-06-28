@@ -4,6 +4,7 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:ejson/ejson.dart';
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as p;
 
@@ -14,6 +15,8 @@ import '../../realm_class.dart';
 
 import '../../../realm.dart' show isFlutterPlatform;
 export '../../../realm.dart' show isFlutterPlatform;
+
+import 'decimal128.dart' as impl;
 
 const realmBinaryName = 'realm_dart';
 final targetOsType = Platform.operatingSystem.asTargetOsType ?? _platformNotSupported();
@@ -137,12 +140,27 @@ DynamicLibrary _openRealmLib() {
   throwError(candidatePaths);
 }
 
+EJsonValue encodeDecimal128(Decimal128 value) => {'\$numberDecimal': value.toString()};
+
+impl.Decimal128 decodeDecimal128(EJsonValue ejson) => switch (ejson) {
+      {'\$numberDecimal': String x} => impl.Decimal128.parse(x),
+      _ => raiseInvalidEJson(ejson),
+    };
+
+EJsonValue encodeRealmValue(RealmValue value) => toEJson(value.value);
+
+RealmValue decodeRealmValue(EJsonValue ejson) => RealmValue.from(fromEJson(ejson));
+
 /// @nodoc
 // Initializes Realm library
 DynamicLibrary initRealm() {
   if (_library != null) {
     return _library!;
   }
+
+  register<impl.Decimal128>(encodeDecimal128, decodeDecimal128, superTypes: [Decimal128]);
+  register<Decimal128>(encodeDecimal128, decodeDecimal128);
+  register(encodeRealmValue, decodeRealmValue);
 
   if (!isFlutterPlatform) {
     assert(() {
