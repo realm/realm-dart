@@ -147,7 +147,13 @@ impl.Decimal128 decodeDecimal128(EJsonValue ejson) => switch (ejson) {
       _ => raiseInvalidEJson(ejson),
     };
 
-EJsonValue encodeRealmValue(RealmValue value) => toEJson(value.value);
+EJsonValue encodeRealmValue(RealmValue value) {
+  final v = value.value;
+  if (v is RealmObject) {
+    // TODO: encode link as DBRef
+  }
+  return toEJson(v);
+}
 
 RealmValue decodeRealmValue(EJsonValue ejson) => RealmValue.from(fromEJson(ejson));
 
