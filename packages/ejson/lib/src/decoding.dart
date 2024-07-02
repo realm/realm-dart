@@ -37,10 +37,8 @@ const _commonDecoders = {
   UndefinedOr: _decodeUndefinedOr,
 };
 
-/// Custom decoders for specific types. Use `register` to add a custom decoder.
-final customDecoders = <Type, Function>{};
-
-final _decoders = () {
+/// Predefined decoders for common types
+final commonDecoders = () {
   // register extra common types on first access
   undefinedOr<T>(dynamic f) => f<UndefinedOr<T>>();
   TypePlus.addFactory(undefinedOr);
@@ -52,8 +50,13 @@ final _decoders = () {
   TypePlus.add<Uint8List>();
   TypePlus.add<Uuid>();
 
-  return CombinedMapView([customDecoders, _commonDecoders]);
+  return _commonDecoders;
 }();
+
+/// Custom decoders for specific types. Use `register` to add a custom decoder.
+final customDecoders = <Type, Function>{};
+
+final _decoders = CombinedMapView([customDecoders, commonDecoders]);
 
 /// Converts [ejson] to type [T].
 ///
@@ -61,19 +64,25 @@ final _decoders = () {
 ///
 /// Throws [InvalidEJson] if [ejson] is not valid for [T].
 /// Throws [MissingDecoder] if no decoder is registered for [T].
-T fromEJson<T>(EJsonValue ejson, {T? defaultValue}) {
-  final type = T;
-  final nullable = type.isNullable;
-  if (!nullable && ejson == null && defaultValue != null) return defaultValue;
-  final decoder = nullable ? _decodeNullable : _decoders[type.base];
-  if (decoder == null) {
-    throw MissingDecoder._(ejson, type);
+T fromEJson<T>(EJsonValue ejson, {bool? allowCustom, T? defaultValue}) {
+  final oldAllowCustom = _allowCustom;
+  _allowCustom = allowCustom ?? _allowCustom;
+  try {
+    final type = T;
+    final nullable = type.isNullable;
+    if (!nullable && ejson == null && defaultValue != null) return defaultValue;
+    final decoder = nullable ? _decodeNullable : _decoders[type.base];
+    if (decoder == null) {
+      throw MissingDecoder._(ejson, type);
+    }
+    final args = nullable ? [type.nonNull] : type.args;
+    if (args.isEmpty) {
+      return decoder(ejson) as T; // minor optimization
+    }
+    return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
+  } finally {
+    _allowCustom = oldAllowCustom;
   }
-  final args = nullable ? [type.nonNull] : type.args;
-  if (args.isEmpty) {
-    return decoder(ejson) as T; // minor optimization
-  }
-  return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
 }
 
 /// Parses [source] to [EJsonValue] and convert to type [T].
@@ -107,17 +116,20 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
     {'\$binary': _} => _decodeBinary(ejson),
     List<dynamic> _ => _decodeArray<dynamic>(ejson),
-    Map<dynamic, dynamic> _ => _tryDecodeCustom(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
+    Map<dynamic, dynamic> _ => _tryDecodeCustomIfAllowed(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
     _ => raiseInvalidEJson<dynamic>(ejson),
   };
 }
 
-dynamic _tryDecodeCustom(EJsonValue ejson) {
-  for (final decoder in customDecoders.values) {
-    try {
-      return decoder(ejson);
-    } catch (_) {
-      // ignore
+bool _allowCustom = true;
+dynamic _tryDecodeCustomIfAllowed(EJsonValue ejson) {
+  if (_allowCustom) {
+    for (final decoder in customDecoders.values) {
+      try {
+        return decoder(ejson);
+      } catch (_) {
+        // ignore
+      }
     }
   }
   return null;
