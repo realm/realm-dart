@@ -38,11 +38,6 @@ void main() {
         'a': {'\$numberInt': '1'},
         'b': {'\$numberInt': '2'},
       },
-      Player('Christian Eriksen'): {
-        // Player is a RealmObject, so it is encoded as a reference inside a RealmValue.
-        '@ref': 'Player',
-        '@id': 'Christian Eriksen'
-      },
     }.entries) {
       final value = entry.key;
       final encoded = entry.value;
@@ -53,6 +48,16 @@ void main() {
         if (r.value is! List && r.value is! Map) {
           expect(fromEJson<RealmValue>(r.toEJson()), r);
         }
+      });
+
+      test('RealmValue with RealmObject', () {
+        // load custom codecs for Player and Game. This is done to test that it
+        // doesn't interfere with the RealmValue codecs.
+        Realm(Configuration.inMemory([Player.schema, Game.schema]));
+
+        final rv = RealmValue.from(Player('Christian Eriksen'));
+        expect(rv.toEJson(), {'\$id': 'Christian Eriksen', '\$ref': 'Player'});
+        expect(fromEJson<DBRef>(rv.toEJson()), isA<DBRef>().having((r) => r.id, '\$id', 'Christian Eriksen'));
       });
     }
   });

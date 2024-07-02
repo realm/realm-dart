@@ -4,6 +4,7 @@
 import 'dart:async';
 
 // ignore: no_leading_underscores_for_library_prefixes
+import 'package:collection/collection.dart';
 import 'package:path/path.dart' as _path;
 
 import 'app.dart';
@@ -442,6 +443,8 @@ class SchemaObject extends Iterable<SchemaProperty> {
 
   @override
   SchemaProperty elementAt(int index) => _properties.elementAt(index);
+
+  SchemaProperty? get primaryKey => _properties.firstWhereOrNull((p) => p.primaryKey);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`
