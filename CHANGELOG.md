@@ -6,13 +6,16 @@
 * Reduce the size of the local transaction log produced by creating objects, improving the performance of insertion-heavy transactions (Core 14.10.0).
 
 ### Fixed
-* None
+* Fixed an issue that affects sync apps that use embedded objects which have a `List<RealmValue>` that contains a link to another top level object which has been deleted by another sync client (creating a tombstone locally). In this particular case, the switch would cause any remaining link removals to recursively delete the destination object if there were no other links to it. (Core v14.10.2-14-gf66e24d03)
+* Fixed removing backlinks from the wrong objects if the link came from a nested list, nested dictionary, top-level map, or `List<RealmValue>`, and the source table had more than 256 objects. This could manifest as `array_backlink.cpp:112: Assertion failed: int64_t(value >> 1) == key.value` when removing an object. (Core v14.10.2-14-gf66e24d03)
+* Fixed the collapse/rejoin of clusters which contained nested collections with links. This could manifest as `array.cpp:319: Array::move() Assertion failed: begin <= end [2, 1]` when removing an object. (Core v14.10.2-14-gf66e24d03)
+* `waitForUpload()` was inconsistent in how it handled commits which did not produce any changesets to upload. Previously it would sometimes complete immediately if all commits waiting to be uploaded were empty, and at other times it would wait for a server roundtrip. It will now always complete immediately. (Core v14.10.2-14-gf66e24d03).
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core 14.10.2.
+* Using Core v14.10.2-14-gf66e24d03.
 
 ## 3.1.0 (2024-06-25)
 
