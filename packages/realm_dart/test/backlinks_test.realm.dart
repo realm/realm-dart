@@ -90,23 +90,14 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Source value) => value.toEJson();
   static Source _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'name': EJsonValue name,
-        'et mål': EJsonValue oneTarget,
-        'manyTargets': EJsonValue manyTargets,
-        'dynamisk mål': EJsonValue dynamicTarget,
-        'dynamicManyTargets': EJsonValue dynamicManyTargets,
-      } =>
-        Source(
-          name: fromEJson(name),
-          oneTarget: fromEJson(oneTarget),
-          manyTargets: fromEJson(manyTargets),
-          dynamicTarget: fromEJson(dynamicTarget),
-          dynamicManyTargets: fromEJson(dynamicManyTargets),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Source(
+      name: fromEJson(ejson['name'], defaultValue: 'source'),
+      oneTarget: fromEJson(ejson['et mål']),
+      manyTargets: fromEJson(ejson['manyTargets']),
+      dynamicTarget: fromEJson(ejson['dynamisk mål']),
+      dynamicManyTargets: fromEJson(ejson['dynamicManyTargets']),
+    );
   }
 
   static final schema = () {
@@ -204,17 +195,11 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Target value) => value.toEJson();
   static Target _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'name': EJsonValue name,
-        'source': EJsonValue source,
-      } =>
-        Target(
-          name: fromEJson(name),
-          source: fromEJson(source),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Target(
+      name: fromEJson(ejson['name'], defaultValue: 'target'),
+      source: fromEJson(ejson['source']),
+    );
   }
 
   static final schema = () {

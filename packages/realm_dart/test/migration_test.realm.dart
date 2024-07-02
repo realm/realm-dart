@@ -42,6 +42,7 @@ class PersonIntName extends _PersonIntName
 
   static EJsonValue _toEJson(PersonIntName value) => value.toEJson();
   static PersonIntName _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -108,14 +109,14 @@ class StudentV1 extends _StudentV1
 
   static EJsonValue _toEJson(StudentV1 value) => value.toEJson();
   static StudentV1 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
-        'yearOfBirth': EJsonValue yearOfBirth,
       } =>
         StudentV1(
           fromEJson(name),
-          yearOfBirth: fromEJson(yearOfBirth),
+          yearOfBirth: fromEJson(ejson['yearOfBirth']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -178,6 +179,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
 
   static EJsonValue _toEJson(MyObjectWithTypo value) => value.toEJson();
   static MyObjectWithTypo _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'nmae': EJsonValue nmae,
@@ -248,6 +250,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 
   static EJsonValue _toEJson(MyObjectWithoutTypo value) => value.toEJson();
   static MyObjectWithoutTypo _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -311,6 +314,7 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
 
   static EJsonValue _toEJson(MyObjectWithoutValue value) => value.toEJson();
   static MyObjectWithoutValue _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,

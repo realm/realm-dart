@@ -136,32 +136,24 @@ class NullablesV0 extends _NullablesV0
 
   static EJsonValue _toEJson(NullablesV0 value) => value.toEJson();
   static NullablesV0 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         '_id': EJsonValue id,
         'differentiator': EJsonValue differentiator,
-        'boolValue': EJsonValue boolValue,
-        'intValue': EJsonValue intValue,
-        'doubleValue': EJsonValue doubleValue,
-        'decimalValue': EJsonValue decimalValue,
-        'dateValue': EJsonValue dateValue,
-        'stringValue': EJsonValue stringValue,
-        'objectIdValue': EJsonValue objectIdValue,
-        'uuidValue': EJsonValue uuidValue,
-        'binaryValue': EJsonValue binaryValue,
       } =>
         NullablesV0(
           fromEJson(id),
           fromEJson(differentiator),
-          boolValue: fromEJson(boolValue),
-          intValue: fromEJson(intValue),
-          doubleValue: fromEJson(doubleValue),
-          decimalValue: fromEJson(decimalValue),
-          dateValue: fromEJson(dateValue),
-          stringValue: fromEJson(stringValue),
-          objectIdValue: fromEJson(objectIdValue),
-          uuidValue: fromEJson(uuidValue),
-          binaryValue: fromEJson(binaryValue),
+          boolValue: fromEJson(ejson['boolValue']),
+          intValue: fromEJson(ejson['intValue']),
+          doubleValue: fromEJson(ejson['doubleValue']),
+          decimalValue: fromEJson(ejson['decimalValue']),
+          dateValue: fromEJson(ejson['dateValue']),
+          stringValue: fromEJson(ejson['stringValue']),
+          objectIdValue: fromEJson(ejson['objectIdValue']),
+          uuidValue: fromEJson(ejson['uuidValue']),
+          binaryValue: fromEJson(ejson['binaryValue']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -331,6 +323,7 @@ class NullablesV1 extends _NullablesV1
 
   static EJsonValue _toEJson(NullablesV1 value) => value.toEJson();
   static NullablesV1 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         '_id': EJsonValue id,

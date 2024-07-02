@@ -57,12 +57,17 @@ class RealmFieldInfo {
   String get mappedTypeName => fieldElement.mappedTypeName;
 
   String get initializer {
-    if (type.realmCollectionType == RealmCollectionType.list) return ' = const []';
-    if (type.realmCollectionType == RealmCollectionType.set) return ' = const {}';
-    if (type.realmCollectionType == RealmCollectionType.map) return ' = const {}';
-    if (isMixed) return ' = const RealmValue.nullValue()';
-    if (hasDefaultValue) return ' = ${fieldElement.initializerExpression}';
-    return ''; // no initializer
+    final v = defaultValue;
+    return v == null ? '' : ' = $v';
+  }
+
+  String? get defaultValue {
+    if (type.realmCollectionType == RealmCollectionType.list) return 'const []';
+    if (type.realmCollectionType == RealmCollectionType.set) return 'const {}';
+    if (type.realmCollectionType == RealmCollectionType.map) return 'const {}';
+    if (isMixed) return 'const RealmValue.nullValue()';
+    if (hasDefaultValue) return '${fieldElement.initializerExpression}';
+    return null; // no default value
   }
 
   RealmCollectionType get realmCollectionType => type.realmCollectionType;

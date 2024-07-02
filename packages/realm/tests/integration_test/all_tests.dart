@@ -8,6 +8,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:test/test.dart';
 
 import '../../../realm_dart/test/test.dart' as test;
+
 import '../../../realm_dart/test/app_test.dart' as app_test;
 import '../../../realm_dart/test/asymmetric_test.dart' as asymmetric_test;
 import '../../../realm_dart/test/backlinks_test.dart' as backlinks_test;
@@ -29,10 +30,11 @@ import '../../../realm_dart/test/realm_set_test.dart' as realm_set_test;
 import '../../../realm_dart/test/realm_test.dart' as realm_test;
 import '../../../realm_dart/test/realm_value_test.dart' as realm_value_test;
 import '../../../realm_dart/test/results_test.dart' as results_test;
+import '../../../realm_dart/test/serialization_test.dart' as serialization_test;
 import '../../../realm_dart/test/session_test.dart' as session_test;
 import '../../../realm_dart/test/subscription_test.dart' as subscription_test;
-import '../../../realm_dart/test/user_test.dart' as user_test;
 import '../../../realm_dart/test/sync_migration_test.dart' as sync_migration_test;
+import '../../../realm_dart/test/user_test.dart' as user_test;
 
 Future<void> _copyBundledFile(String fromPath, String toPath) async {
   final data = await rootBundle.load(fromPath);
@@ -68,8 +70,9 @@ void main() {
   group('realm_test.dart', realm_test.main);
   group('realm_value_test.dart', realm_value_test.main);
   group('results_test.dart', results_test.main);
+  group('serialization_test.dart', serialization_test.main);
   group('session_test.dart', session_test.main);
   group('subscription_test.dart', subscription_test.main);
-  group('user_test.dart', user_test.main);
   group('sync_migration_test.dart', sync_migration_test.main);
+  group('user_test.dart', user_test.main);
 }

@@ -32,43 +32,57 @@ const _commonDecoders = {
   Symbol: _decodeSymbol,
   Uint8List: _decodeBinary,
   Uuid: _decodeUuid,
+  DBRef: _decodeDBRef,
   Undefined: _decodeUndefined,
   UndefinedOr: _decodeUndefinedOr,
 };
 
-/// Custom decoders for specific types. Use `register` to add a custom decoder.
-final customDecoders = <Type, Function>{};
-
-final _decoders = () {
+/// Predefined decoders for common types
+final commonDecoders = () {
   // register extra common types on first access
   undefinedOr<T>(dynamic f) => f<UndefinedOr<T>>();
   TypePlus.addFactory(undefinedOr);
   TypePlus.addFactory(<T>(dynamic f) => f<Defined<T>>(), superTypes: [undefinedOr]);
   TypePlus.addFactory(<T>(dynamic f) => f<Undefined<T>>(), superTypes: [undefinedOr]);
+  TypePlus.addFactory(<T>(dynamic f) => f<DBRef<T>>());
   TypePlus.add<BsonKey>();
   TypePlus.add<ObjectId>();
   TypePlus.add<Uint8List>();
   TypePlus.add<Uuid>();
 
-  return CombinedMapView([customDecoders, _commonDecoders]);
+  return _commonDecoders;
 }();
+
+/// Custom decoders for specific types. Use `register` to add a custom decoder.
+final customDecoders = <Type, Function>{};
+
+final _decoders = CombinedMapView([customDecoders, commonDecoders]);
 
 /// Converts [ejson] to type [T].
 ///
+/// [defaultValue] is returned if set, and [ejson] is `null`.
+///
 /// Throws [InvalidEJson] if [ejson] is not valid for [T].
 /// Throws [MissingDecoder] if no decoder is registered for [T].
-T fromEJson<T>(EJsonValue ejson) {
-  final type = T;
-  final nullable = type.isNullable;
-  final decoder = nullable ? _decodeNullable : _decoders[type.base];
-  if (decoder == null) {
-    throw MissingDecoder._(ejson, type);
+T fromEJson<T>(EJsonValue ejson, {bool? allowCustom, T? defaultValue}) {
+  final oldAllowCustom = _allowCustom;
+  _allowCustom = allowCustom ?? _allowCustom;
+  try {
+    final type = T;
+    final nullable = type.isNullable;
+    if (!nullable && ejson == null && defaultValue != null) return defaultValue;
+    final decoder = nullable ? _decodeNullable : _decoders[type.base];
+    if (decoder == null) {
+      throw MissingDecoder._(ejson, type);
+    }
+    final args = nullable ? [type.nonNull] : type.args;
+    if (args.isEmpty) {
+      return decoder(ejson) as T; // minor optimization
+    }
+    return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
+  } finally {
+    _allowCustom = oldAllowCustom;
   }
-  final args = nullable ? [type.nonNull] : type.args;
-  if (args.isEmpty) {
-    return decoder(ejson) as T; // minor optimization
-  }
-  return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
 }
 
 /// Parses [source] to [EJsonValue] and convert to type [T].
@@ -94,6 +108,7 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$numberDouble': _} => _decodeDouble(ejson),
     {'\$numberInt': _} => _decodeInt(ejson),
     {'\$numberLong': _} => _decodeInt(ejson),
+    {'\$ref': _, '\$id': _} => _decodeDBRef<dynamic>(ejson),
     {'\$regex': _} => _decodeString(ejson),
     {'\$symbol': _} => _decodeSymbol(ejson),
     {'\$undefined': _} => _decodeUndefined<dynamic>(ejson),
@@ -101,17 +116,20 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
     {'\$binary': _} => _decodeBinary(ejson),
     List<dynamic> _ => _decodeArray<dynamic>(ejson),
-    Map<dynamic, dynamic> _ => _tryDecodeCustom(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
+    Map<dynamic, dynamic> _ => _tryDecodeCustomIfAllowed(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
     _ => raiseInvalidEJson<dynamic>(ejson),
   };
 }
 
-dynamic _tryDecodeCustom(EJsonValue ejson) {
-  for (final decoder in customDecoders.values) {
-    try {
-      return decoder(ejson);
-    } catch (_) {
-      // ignore
+bool _allowCustom = true;
+dynamic _tryDecodeCustomIfAllowed(EJsonValue ejson) {
+  if (_allowCustom) {
+    for (final decoder in customDecoders.values) {
+      try {
+        return decoder(ejson);
+      } catch (_) {
+        // ignore
+      }
     }
   }
   return null;
@@ -135,6 +153,13 @@ DateTime _decodeDate(EJsonValue ejson) {
   return switch (ejson) {
     {'\$date': String s} => DateTime.parse(s), // relaxed mode
     {'\$date': {'\$numberLong': String i}} => DateTime.fromMillisecondsSinceEpoch(int.tryParse(i) ?? raiseInvalidEJson(ejson)),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+DBRef<KeyT> _decodeDBRef<KeyT>(EJsonValue ejson) {
+  return switch (ejson) {
+    {'\$ref': String collection, '\$id': EJsonValue id} => DBRef<KeyT>(collection, fromEJson<KeyT>(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
