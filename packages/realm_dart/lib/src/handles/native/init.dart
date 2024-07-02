@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:ejson/ejson.dart';
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as p;
+import 'package:type_plus/type_plus.dart';
 
 import '../../cli/common/target_os_type.dart';
 import '../../cli/metrics/metrics_command.dart';
@@ -156,7 +157,16 @@ EJsonValue encodeRealmValue(RealmValue value) {
   return toEJson(v);
 }
 
-RealmValue decodeRealmValue(EJsonValue ejson) => RealmValue.from(fromEJson(ejson, allowCustom: false));
+RealmValue decodeRealmValue(EJsonValue ejson) {
+  Object? decoded = fromEJson(ejson, allowCustom: false);
+  if (decoded is DBRef) {
+    final t = TypePlus.fromId(decoded.collection);
+    final o = RealmObjectBase.createObject(t, null);
+    o.dynamic.set(o.objectSchema.primaryKey!.name, decoded.id);
+    return RealmValue.realmObject(o.cast());
+  }
+  return RealmValue.from(decoded);
+}
 
 /// @nodoc
 // Initializes Realm library
@@ -190,4 +200,8 @@ DynamicLibrary initRealm() {
   }
 
   return _library = realmLibrary;
+}
+
+extension<T> on T {
+  U cast<U>() => this as U;
 }

@@ -49,17 +49,19 @@ void main() {
           expect(fromEJson<RealmValue>(r.toEJson()), r);
         }
       });
-
-      test('RealmValue with RealmObject', () {
-        // load custom codecs for Player and Game. This is done to test that it
-        // doesn't interfere with the RealmValue codecs.
-        Realm(Configuration.inMemory([Player.schema, Game.schema]));
-
-        final rv = RealmValue.from(Player('Christian Eriksen'));
-        expect(rv.toEJson(), {'\$id': 'Christian Eriksen', '\$ref': 'Player'});
-        expect(fromEJson<DBRef>(rv.toEJson()), isA<DBRef>().having((r) => r.id, '\$id', 'Christian Eriksen'));
-      });
     }
+
+    test('RealmObject', () {
+      // load custom codecs for Player and Game. This is done to test that it
+      // doesn't interfere with the RealmValue codecs.
+      Realm(Configuration.inMemory([Player.schema, Game.schema]));
+
+      final p = Player('Christian Eriksen');
+      final rv = RealmValue.from(p);
+      expect(rv.toEJson(), {'\$id': 'Christian Eriksen', '\$ref': 'Player'});
+      expect(fromEJson<DBRef<String>>(rv.toEJson()), isA<DBRef<String>>().having((r) => r.id, '\$id', 'Christian Eriksen'));
+      expect((fromEJson<RealmValue>(rv.toEJson()).value as Player).name, p.name);
+    });
   });
 
   test('Decimal128', () {
