@@ -155,7 +155,7 @@ EJsonValue encodeRealmValue(RealmValue value) {
   return toEJson(v);
 }
 
-RealmValue decodeRealmValue(EJsonValue ejson) => RealmValue.from(fromEJson(ejson));
+RealmValue decodeRealmValue(EJsonValue ejson) => RealmValue.from(fromEJson(ejson, allowCustom: false));
 
 /// @nodoc
 // Initializes Realm library
