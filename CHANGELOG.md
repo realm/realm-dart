@@ -5,7 +5,7 @@
 * Performance has been improved for range queries on integers and timestamps. Requires that you use the "BETWEEN" in the `realm.query<T>()` method when you build the query. (Core 14.10.1)
 * Include the originating client reset error in AutoClientResetFailure errors. (Core 14.10.0)
 * Reduce the size of the local transaction log produced by creating objects, improving the performance of insertion-heavy transactions. (Core 14.10.0)
-* Make `SubscriptionSet` an abstract interface class, to allow mocking. ()
+* Make `SubscriptionSet` an abstract interface class, to allow mocking. (Issue [#1744](https://github.com/realm/realm-dart/issues/1744))
 
 ### Fixed
 * Fixed an issue that affects sync apps that use embedded objects which have a `List<RealmValue>` that contains a link to another top level object which has been deleted by another sync client (creating a tombstone locally). In this particular case, the switch would cause any remaining link removals to recursively delete the destination object if there were no other links to it. (Core v14.10.3)
@@ -102,7 +102,7 @@
   ```
 
 ### Fixed
-* `Realm.writeAsync` did not handle async callbacks (`Future<T> Function()`) correctly. (Issue [#1667](https://github.com/realm/realm-dart/issues/1667)) 
+* `Realm.writeAsync` did not handle async callbacks (`Future<T> Function()`) correctly. (Issue [#1667](https://github.com/realm/realm-dart/issues/1667))
 * Fixed an issue that would cause macOS apps to be rejected with `Invalid Code Signing Entitlements` error. (Issue [#1679](https://github.com/realm/realm-dart/issues/1679))
 * Fixed a regression that makes it inconvenient to run unit tests using realm. (Issue [#1619](https://github.com/realm/realm-dart/issues/1619))
 * After compacting, a file upgrade would be triggered. This could cause loss of data if schema mode is SoftResetFile (Core 14.9.0)
