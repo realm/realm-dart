@@ -18,7 +18,7 @@ import 'options.dart';
 import '../common/utils.dart';
 
 // stamped into the library by the build system (see prepare-release.yml)
-const realmCoreVersion = '14.9.0';
+const realmCoreVersion = '14.10.3';
 
 class MetricsCommand extends Command<void> {
   @override
