@@ -109,7 +109,7 @@ enum SubscriptionSetState {
 /// Realm is an expensive operation server-side, even if there's very little data that needs
 /// downloading.
 /// {@category Sync}
-sealed class SubscriptionSet with Iterable<Subscription> {
+abstract interface class SubscriptionSet with Iterable<Subscription> {
   final Realm _realm;
   SubscriptionSetHandle _handle;
 
