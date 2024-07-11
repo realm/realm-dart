@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 3.2.0 (2024-07-10)
 
 ### Enhancements
 * "Next launch" metadata file actions are now performed in a multi-process safe manner. (Core 14.10.3)
