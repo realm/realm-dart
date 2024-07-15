@@ -466,8 +466,8 @@ void setupTests() {
 
 Matcher throws<T>([String? message]) => throwsA(isA<T>().having((dynamic exception) => exception.message, 'message', contains(message ?? '')));
 
-String generateRandomRealmPath() {
-  final path = _path.join(platformUtil.createTempPathSync(), "${generateRandomString(10)}.realm");
+String generateRandomRealmPath({bool useUnicodeCharacters = false}) {
+  final path = _path.join(platformUtil.createTempPathSync(), "${useUnicodeCharacters ? generateRandomUnicodeString() : generateRandomString(10)}.realm");
   return path;
 }
 

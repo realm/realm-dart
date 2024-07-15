@@ -168,7 +168,8 @@ void main() {
 
   test('Configuration inMemory can not be readOnly', () {
     Configuration config = Configuration.inMemory([Car.schema]);
-    final realm = getRealm(config);
+
+    expect(() => getRealm(config), returnsNormally);
 
     expect(() {
       config = Configuration.local([Car.schema], isReadOnly: true);
@@ -178,7 +179,7 @@ void main() {
 
   test('Configuration - FIFO files fallback path', () {
     Configuration config = Configuration.local([Car.schema], fifoFilesFallbackPath: "./fifo_folder");
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   test('Configuration.operator== equal configs', () {
@@ -344,14 +345,13 @@ void main() {
       }
     });
 
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
 
     expect(callbackEx, isNotNull);
     expect(callbackEx.toString(), contains('The Realm is already in a write transaction'));
   });
 
   test("Configuration.initialDataCallback destroys objects after callback", () {
-    Exception? callbackEx;
     late RealmResults<Person> people;
     late Person george;
     final config = Configuration.local([Person.schema], initialDataCallback: (realm) {
@@ -377,7 +377,7 @@ void main() {
       return false;
     });
 
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
     expect(invoked, true);
   });
 
@@ -404,7 +404,7 @@ void main() {
       return false;
     });
 
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
     expect(invoked, 1);
 
     // Try to open the Realm again - callback should not be invoked because the first Realm
@@ -420,7 +420,7 @@ void main() {
       return totalSize > 0;
     });
 
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
     expect(invoked, true);
   });
 
@@ -442,7 +442,7 @@ void main() {
     }
   }
 
-  for (var shouldCompact in [true, false])  {
+  for (var shouldCompact in [true, false]) {
     test('Configuration.shouldCompact when return $shouldCompact triggers compaction', () async {
       var config = Configuration.local([Person.schema]);
 
@@ -484,7 +484,7 @@ void main() {
       return false;
     });
 
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
     expect(invoked, isTrue);
   });
 
@@ -511,11 +511,11 @@ void main() {
     final app = App(appConfig);
     final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
     var customPath = path.join(
-      path.dirname(Configuration.defaultStoragePath),
-      path.basename('my-custom-realm-name.realm'),
+      platformUtil.createTempPathSync(),
+      'my-custom-realm-name.realm',
     );
     final config = Configuration.flexibleSync(user, getSyncSchema(), path: customPath);
-    var realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   baasTest('Configuration.disconnectedSync', (appConfig) async {
@@ -613,9 +613,9 @@ void main() {
     var config = Configuration.local([Dog.schema, Person.schema], maxNumberOfActiveVersions: 2);
 
     final realm = getRealm(config);
-    final frozen1 = realm.freeze();
+    realm.freeze();
     realm.write(() => realm.add(Dog("Foxi1")));
-    final frozen2 = realm.freeze();
+    realm.freeze();
     realm.write(() => realm.add(Dog("Foxi2")));
     expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (3) in the Realm exceeded the limit of 2"));
   });

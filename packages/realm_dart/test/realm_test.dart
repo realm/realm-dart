@@ -7,6 +7,7 @@ import 'dart:isolate';
 
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/configuration.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -930,7 +931,7 @@ void main() {
   });
 
   test('Realm - encryption works', () async {
-    var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.local([Friend.schema], path: generateRandomRealmPath());
     var realm = getRealm(config);
     readFile(String path) async {
       final bytes = await platformUtil.readAsBytes(path);
@@ -940,8 +941,7 @@ void main() {
     var decoded = await readFile(realm.config.path);
     expect(decoded, contains("bestFriend"));
 
-    config = Configuration.local([Friend.schema],
-        encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    config = Configuration.local([Friend.schema], encryptionKey: generateEncryptionKey(), path: generateRandomRealmPath());
     realm = getRealm(config);
     decoded = await readFile(realm.config.path);
     expect(decoded, isNot(contains("bestFriend")));
@@ -1862,7 +1862,7 @@ void main() {
   });
 
   test('Realm path with unicode symbols', () {
-    var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString()}.realm");
+    var config = Configuration.local([Car.schema], path: generateRandomRealmPath(useUnicodeCharacters: true));
     var realm = getRealm(config);
     expect(realm.isClosed, false);
   }, skip: Platform.isAndroid || Platform.isIOS); // TODO: Enable test after fixing https://github.com/realm/realm-dart/issues/1230
@@ -1952,6 +1952,21 @@ void main() {
     final product = realm.all<Product>().single;
     expect(product.id, subscriptionId);
     expect(product.name, 'abc');
+  });
+
+  test('Local realm can be opened with orphaned embedded objects', () {
+    final config = Configuration.local([Car.schema, AllTypesEmbedded.schema], path: generateRandomRealmPath());
+    expect(() => getRealm(config), returnsNormally);
+  });
+
+  baasTest('Sync realm with orphaned embedded objects, throws', (appConfig) async {
+    final user = await getIntegrationUser(appConfig: appConfig);
+    final config = Configuration.flexibleSync(user, [Task.schema, AllTypesEmbedded.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+
+    expect(
+        () => getRealm(config),
+        throwsA(isA<RealmException>()
+            .having((e) => e.message, 'message', contains("Embedded object 'AllTypesEmbedded' is unreachable by any link path from top level objects"))));
   });
 }
 
