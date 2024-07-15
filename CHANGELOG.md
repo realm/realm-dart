@@ -4,7 +4,7 @@
 * None
 
 ### Fixed
-* None
+* Fixed an issue where creating a flexible sync configuration with an embedded object not referenced by any top-level object would throw a "No such table" exception with no meaningful information about the issue. Now a `RealmException` will be thrown that includes the offending object name, as well as more precise text for what the root cause of the error is. (PR [#1748](https://github.com/realm/realm-dart/pull/1748))
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
