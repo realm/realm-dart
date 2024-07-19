@@ -1,16 +1,17 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* On Windows devices Device Sync will additionally look up SSL certificates in the Windows Trusted Root Certification Authorities certificate store when establishing a connection. (Core 14.11.0)
+* Role and permissions changes no longer require a client reset to update the local realm. (Core 14.11.0)
 
 ### Fixed
-* None
+* When a public name is defined on a property (using `@MapTo`), calling `query("... SORT/DISTINCT(mapped-to-name)")` with the internal name could throw an error like `Cannot sort on key path 'NAME': property 'PersonObject.NAME' does not exist`. (Core 14.10.4)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.11.0.
 
 ## 3.2.0 (2024-07-10)
 
