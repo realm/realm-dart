@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 3.3.0 (2024-07-20)
 
 ### Enhancements
 * On Windows devices Device Sync will additionally look up SSL certificates in the Windows Trusted Root Certification Authorities certificate store when establishing a connection. (Core 14.11.0)
