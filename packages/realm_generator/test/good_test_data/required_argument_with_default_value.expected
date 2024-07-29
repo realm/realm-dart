@@ -49,7 +49,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Person(
-      age: fromEJson(ejson['age']),
+      age: fromEJson(ejson['age'], defaultValue: 47),
     );
   }
 

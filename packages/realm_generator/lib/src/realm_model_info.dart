@@ -154,8 +154,9 @@ class RealmModelInfo {
         yield '$name(';
         {
           getter(RealmFieldInfo f) => f.isRequired ? f.name : "ejson['${f.realmName}']";
-          yield* positional.map((f) => 'fromEJson(${getter(f)}),');
-          yield* named.map((f) => '${paramName(f)}: fromEJson(${getter(f)}),');
+          fromEJson(RealmFieldInfo f) => 'fromEJson(${getter(f)}${f.hasDefaultValue ? ', defaultValue: ${f.defaultValue}' : ''})';
+          yield* positional.map((f) => '${fromEJson(f)},');
+          yield* named.map((f) => '${paramName(f)}: ${fromEJson(f)},');
         }
         yield ')';
         if (shape.isEmpty) {

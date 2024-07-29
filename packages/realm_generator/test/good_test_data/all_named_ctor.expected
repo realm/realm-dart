@@ -62,7 +62,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
       } =>
         Person(
           name: fromEJson(name),
-          age: fromEJson(ejson['age']),
+          age: fromEJson(ejson['age'], defaultValue: 42),
         ),
       _ => raiseInvalidEJson(ejson),
     };

@@ -74,7 +74,8 @@ class Original extends $Original
   static Original _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Original(
-      primitiveProperty: fromEJson(ejson['remapped primitive']),
+      primitiveProperty:
+          fromEJson(ejson['remapped primitive'], defaultValue: 0),
       objectProperty: fromEJson(ejson['remapped object']),
       listProperty: fromEJson(ejson['remapped list']),
     );

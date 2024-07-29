@@ -49,7 +49,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static Foo _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Foo(
-      x: fromEJson(ejson['x']),
+      x: fromEJson(ejson['x'], defaultValue: 0),
     );
   }
 

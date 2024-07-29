@@ -455,7 +455,7 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
         School(
           fromEJson(name),
           city: fromEJson(ejson['city']),
-          students: fromEJson(ejson['students']),
+          students: fromEJson(ejson['students'], defaultValue: const []),
           branchOfSchool: fromEJson(ejson['branchOfSchool']),
           branches: fromEJson(ejson['branches']),
         ),
@@ -743,7 +743,7 @@ class Schedule extends _Schedule
       } =>
         Schedule(
           fromEJson(id),
-          tasks: fromEJson(ejson['tasks']),
+          tasks: fromEJson(ejson['tasks'], defaultValue: const []),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2311,7 +2311,7 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
         Party(
           fromEJson(year),
           host: fromEJson(ejson['host']),
-          guests: fromEJson(ejson['guests']),
+          guests: fromEJson(ejson['guests'], defaultValue: const []),
           previous: fromEJson(ejson['previous']),
         ),
       _ => raiseInvalidEJson(ejson),
@@ -2412,9 +2412,9 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
       } =>
         Friend(
           fromEJson(name),
-          age: fromEJson(ejson['age']),
+          age: fromEJson(ejson['age'], defaultValue: 42),
           bestFriend: fromEJson(ejson['bestFriend']),
-          friends: fromEJson(ejson['friends']),
+          friends: fromEJson(ejson['friends'], defaultValue: const []),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2569,7 +2569,8 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
         Player(
           fromEJson(name),
           game: fromEJson(ejson['game']),
-          scoresByRound: fromEJson(ejson['scoresByRound']),
+          scoresByRound:
+              fromEJson(ejson['scoresByRound'], defaultValue: const []),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2629,7 +2630,7 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   static Game _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Game(
-      winnerByRound: fromEJson(ejson['winnerByRound']),
+      winnerByRound: fromEJson(ejson['winnerByRound'], defaultValue: const []),
     );
   }
 
@@ -3912,7 +3913,7 @@ class ObjectWithInt extends _ObjectWithInt
         ObjectWithInt(
           fromEJson(id),
           differentiator: fromEJson(ejson['differentiator']),
-          i: fromEJson(ejson['i']),
+          i: fromEJson(ejson['i'], defaultValue: 42),
         ),
       _ => raiseInvalidEJson(ejson),
     };

@@ -50,7 +50,7 @@ class TuckedIn extends _TuckedIn
   static TuckedIn _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return TuckedIn(
-      x: fromEJson(ejson['x']),
+      x: fromEJson(ejson['x'], defaultValue: 42),
     );
   }
 

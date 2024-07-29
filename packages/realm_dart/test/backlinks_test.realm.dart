@@ -92,7 +92,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   static Source _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Source(
-      name: fromEJson(ejson['name']),
+      name: fromEJson(ejson['name'], defaultValue: 'source'),
       oneTarget: fromEJson(ejson['et mål']),
       manyTargets: fromEJson(ejson['manyTargets']),
       dynamicTarget: fromEJson(ejson['dynamisk mål']),
@@ -197,7 +197,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   static Target _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Target(
-      name: fromEJson(ejson['name']),
+      name: fromEJson(ejson['name'], defaultValue: 'target'),
       source: fromEJson(ejson['source']),
     );
   }
