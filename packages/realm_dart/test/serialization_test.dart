@@ -69,4 +69,38 @@ void main() {
     expect(toEJson(d), {'\$numberDecimal': '+42E+0'});
     expect(fromEJson<Decimal128>({'\$numberDecimal': '42'}), d);
   });
+
+  test('Set<RealmValue> on RealmObject', () {
+    final oid = ObjectId();
+    final realm = Realm(Configuration.inMemory([ObjectWithRealmValue.schema]));
+    final o = realm.write(() => realm.add(ObjectWithRealmValue(oid, setOfAny: {RealmValue.from(42), RealmValue.from('42')})));
+    expect(o.setOfAny, {RealmValue.from(42), RealmValue.from('42')});
+    final serialized = toEJsonString(o);
+    expect(serialized, '{"_id":{"\$oid":"$oid"},"differentiator":null,"oneAny":null,"manyAny":[],"dictOfAny":{},"setOfAny":[{"\$numberInt":"42"},"42"]}');
+    final deserialized = fromEJsonString<ObjectWithRealmValue>(serialized);
+    // deserialized is unmanaged, so will never compare equal, but we can test properties
+    expect(deserialized.id, o.id);
+    expect(deserialized.setOfAny, o.setOfAny);
+  });
+
+  test('Set on RealmObject', () {
+    final realm = Realm(Configuration.inMemory([AllCollections.schema]));
+    final o = realm.write(() => realm.add(AllCollections(intSet: {1, 2, 3})));
+    expect(o.intSet, {1, 2, 3});
+    final deserialized = fromEJsonString<AllCollections>(toEJsonString(o));
+    // deserialized is unmanaged, so will never compare equal, but we can test properties
+    expect(deserialized.intSet, o.intSet);
+  });
+
+  test('Set in RealmValue', () {
+    final rv = RealmValue.from({1, 2, 3}); // constructed from a list of ints
+    expect(rv.value, [RealmValue.from(1), RealmValue.from(2), RealmValue.from(3)]); // but becomes a list RealmValues
+    expect(rv.toEJson(), [
+      // and serializes as a list of EJson
+      {'\$numberInt': '1'},
+      {'\$numberInt': '2'},
+      {'\$numberInt': '3'},
+    ]);
+    // expect(rv.as<Set<int>>(), {1, 2, 3}); // doesn't work because the set is a list of RealmValues. Should we support this?
+  });
 }

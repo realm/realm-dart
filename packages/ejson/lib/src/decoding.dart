@@ -19,6 +19,7 @@ const _commonDecoders = {
   Object: _decodeAny,
   Iterable: _decodeArray,
   List: _decodeArray,
+  Set: _decodeSet,
   bool: _decodeBool,
   DateTime: _decodeDate,
   Defined: _decodeDefined,
@@ -116,6 +117,7 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
     {'\$binary': _} => _decodeBinary(ejson),
     List<dynamic> _ => _decodeArray<dynamic>(ejson),
+    Set<dynamic> _ => _decodeSet<dynamic>(ejson),
     Map<dynamic, dynamic> _ => _tryDecodeCustomIfAllowed(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
     _ => raiseInvalidEJson<dynamic>(ejson),
   };
@@ -138,6 +140,13 @@ dynamic _tryDecodeCustomIfAllowed(EJsonValue ejson) {
 List<T> _decodeArray<T>(EJsonValue ejson) {
   return switch (ejson) {
     Iterable<dynamic> i => i.map((ejson) => fromEJson<T>(ejson)).toList(),
+    _ => raiseInvalidEJson(ejson),
+  };
+}
+
+Set<T> _decodeSet<T>(EJsonValue ejson) {
+  return switch (ejson) {
+    Iterable<dynamic> i => i.map((ejson) => fromEJson<T>(ejson)).toSet(),
     _ => raiseInvalidEJson(ejson),
   };
 }

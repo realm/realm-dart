@@ -114,6 +114,8 @@ void main() {
     _invalidTestCase<BsonKey>();
     _invalidTestCase<List>();
     _invalidTestCase<List<int>>();
+    _invalidTestCase<Set>();
+    _invalidTestCase<Set<int>>();
     _invalidTestCase<Map>([]);
     _invalidTestCase<Map<int, int>>([]);
     _invalidTestCase<Null>();
@@ -156,6 +158,16 @@ void main() {
                   {'\$numberInt': '3'},
                 ]
               : [1, 2, 3],
+        );
+        _testCase(
+          {1, 2, 3},
+          canonical
+              ? {
+                  {'\$numberInt': '1'},
+                  {'\$numberInt': '2'},
+                  {'\$numberInt': '3'},
+                }
+              : {1, 2, 3},
         );
         _testCase(
           [1, 1.1],

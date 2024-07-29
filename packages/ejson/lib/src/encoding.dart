@@ -40,7 +40,7 @@ EJsonValue _encodeAny(Object? value) {
     int i => _encodeInt(i),
     BsonKey k => _encodeKey(k),
     Uint8List b => _encodeBinary(b, subtype: '00'),
-    Iterable<dynamic> l => _encodeArray(l),
+    Iterable<dynamic> l => _encodeArray(l), // handles List and Set as well
     Map<dynamic, dynamic> m => _encodeDocument(m),
     ObjectId o => _encodeObjectId(o),
     String s => _encodeString(s),
