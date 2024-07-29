@@ -86,7 +86,7 @@ class ConfigHandle extends HandleBase<realm_config> {
       } else if (config is InMemoryConfiguration) {
         realmLib.realm_config_set_in_memory(configHandle.pointer, true);
       } else if (config is FlexibleSyncConfiguration) {
-        realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED);
+        realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         final syncConfigPtr = realmLib.realm_flx_sync_config_new((config.user.handle as UserHandle).pointer).raiseLastErrorIfNull();
         try {
           realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);

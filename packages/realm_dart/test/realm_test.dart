@@ -7,6 +7,7 @@ import 'dart:isolate';
 
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/configuration.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -18,8 +19,8 @@ void main() {
   setupTests();
 
   test('Realm can be created', () {
-    var config = Configuration.local([Car.schema]);
-    var realm = getRealm(config);
+    final config = Configuration.local([Car.schema]);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   test('Realm can be closed', () {
@@ -46,7 +47,7 @@ void main() {
   });
 
   test('Realm is closed', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     expect(realm.isClosed, false);
 
@@ -64,45 +65,51 @@ void main() {
   });
 
   test('Realm open with schema superset', () {
-    var config = Configuration.local([Person.schema]);
+    final config = Configuration.local([Person.schema]);
     var realm = getRealm(config);
+    expect(realm.schema.any((s) => s.name == Person.schema.name), true);
+    expect(realm.schema.any((s) => s.name == Car.schema.name), false);
     realm.close();
 
-    var config1 = Configuration.local([Person.schema, Car.schema]);
+    final config1 = Configuration.local([Person.schema, Car.schema]);
     var realm1 = getRealm(config1);
+    expect(realm1.schema.any((s) => s.name == Person.schema.name), true);
+    expect(realm1.schema.any((s) => s.name == Car.schema.name), true);
   });
 
   test('Realm open twice with same schema', () async {
-    var config = Configuration.local([Person.schema, Car.schema]);
-    var realm = getRealm(config);
+    final config = Configuration.local([Person.schema, Car.schema]);
+    final realm = getRealm(config);
 
-    var config1 = Configuration.local([Person.schema, Car.schema]);
-    var realm1 = getRealm(config1);
+    final config1 = Configuration.local([Person.schema, Car.schema]);
+    final realm1 = getRealm(config1);
+
+    expect(realm.schema, realm1.schema);
   });
 
   test('Realm add throws when no write transaction', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     final car = Car('');
     expect(() => realm.add(car), throws<RealmException>("Trying to modify database while in read transaction"));
   });
 
   test('Realm existsSync', () {
-    var config = Configuration.local([Dog.schema, Person.schema]);
+    final config = Configuration.local([Dog.schema, Person.schema]);
     expect(Realm.existsSync(config.path), false);
-    var realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
     expect(Realm.existsSync(config.path), true);
   });
 
   test('Realm exists', () async {
-    var config = Configuration.local([Dog.schema, Person.schema]);
+    final config = Configuration.local([Dog.schema, Person.schema]);
     expect(await Realm.exists(config.path), false);
-    var realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
     expect(await Realm.exists(config.path), true);
   });
 
   test('Realm deleteRealm succeeds', () {
-    var config = Configuration.local([Dog.schema, Person.schema]);
+    final config = Configuration.local([Dog.schema, Person.schema]);
     var realm = getRealm(config);
 
     realm.close();
@@ -112,16 +119,20 @@ void main() {
   });
 
   test('Realm deleteRealm throws exception on an open realm', () {
-    var config = Configuration.local([Dog.schema, Person.schema]);
-    var realm = getRealm(config);
+    final config = Configuration.local([Dog.schema, Person.schema]);
+    final realm = getRealm(config);
 
     expect(() => Realm.deleteRealm(config.path), throws<RealmException>());
 
     expect(Realm.existsSync(config.path), true);
+
+    realm.close();
+
+    expect(() => Realm.deleteRealm(config.path), returnsNormally);
   });
 
   test('Realm add object', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     realm.write(() {
@@ -148,7 +159,7 @@ void main() {
   });
 
   test('Realm add object twice does not throw', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     realm.write(() {
@@ -162,7 +173,7 @@ void main() {
   });
 
   test('Realm add object with list properties', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final team = Team("Ferrari")
@@ -186,14 +197,14 @@ void main() {
   });
 
   test('Realm adding not configured object throws exception', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     expect(() => realm.write(() => realm.add(Person(''))), throws<RealmError>("not configured"));
   });
 
   test('Realm add returns the same object', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car('');
@@ -206,7 +217,7 @@ void main() {
   });
 
   test('Realm add object transaction rollbacks on exception', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     expect(() {
@@ -221,7 +232,7 @@ void main() {
   });
 
   test('Realm adding objects with duplicate primary keys throws', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final carOne = Car("Toyota");
@@ -231,7 +242,7 @@ void main() {
   });
 
   test('Realm adding objects with duplicate primary with update flag', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final carOne = Car("Toyota");
@@ -241,7 +252,7 @@ void main() {
   });
 
   test('Realm adding object graph with multiple existing objects with with update flag', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final carOne = Car("Toyota");
@@ -251,10 +262,8 @@ void main() {
   });
 
   test('Realm write after realm is closed', () async {
-    var config = Configuration.local([Car.schema]);
-    var realm = getRealm(config);
-
-    final car = Car('Tesla');
+    final config = Configuration.local([Car.schema]);
+    final realm = getRealm(config);
 
     realm.close();
     _expectAllWritesToThrow<RealmClosedError>(realm, "Cannot access realm that has been closed");
@@ -273,7 +282,7 @@ void main() {
   });
 
   test('Realm query', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
@@ -284,7 +293,7 @@ void main() {
   });
 
   test('Realm query with parameter', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     realm.write(() => realm
       ..add(Car("Audi"))
@@ -295,7 +304,7 @@ void main() {
   });
 
   test('Realm query with multiple parameters', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final p1 = Person('p1');
@@ -318,7 +327,7 @@ void main() {
   });
 
   test('Realm find object by primary key', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     realm.write(() => realm.add(Car("Opel")));
@@ -328,14 +337,14 @@ void main() {
   });
 
   test('Realm find not configured object by primary key throws exception', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     expect(() => realm.find<Person>("Me"), throws<RealmError>("not configured"));
   });
 
   test('Realm find object by primary key default value', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     realm.write(() => realm.add(Car('Tesla')));
@@ -346,7 +355,7 @@ void main() {
   });
 
   test('Realm find non existing object by primary key returns null', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     realm.write(() => realm.add(Car("Opel")));
@@ -356,7 +365,7 @@ void main() {
   });
 
   test('Realm delete object', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
 
     final car = Car("SomeNewNonExistingValue");
@@ -372,7 +381,7 @@ void main() {
   });
 
   test('Realm deleteMany from realm list', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create a team
@@ -405,7 +414,7 @@ void main() {
   });
 
   test('Realm deleteMany from list referenced by two objects', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two teams
@@ -443,7 +452,7 @@ void main() {
   });
 
   test('Realm deleteMany from iterable', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     //Create two teams
@@ -469,7 +478,7 @@ void main() {
   });
 
   test('Realm deleteAll', () {
-    var config = Configuration.local([Team.schema, Person.schema]);
+    final config = Configuration.local([Team.schema, Person.schema]);
     var realm = getRealm(config);
 
     final denmark = Team('Denmark', players: ['Arnesen', 'Laudrup', 'Mølby'].map(Person.new));
@@ -510,7 +519,7 @@ void main() {
 
     school131.branches.addAll([school131Branch1, school131Branch2]);
 
-    var config = Configuration.local([School.schema, Student.schema]);
+    final config = Configuration.local([School.schema, Student.schema]);
     var realm = getRealm(config);
 
     realm.write(() => realm.add(school131));
@@ -562,7 +571,7 @@ void main() {
   });
 
   test('Realm write returns result', () {
-    var config = Configuration.local([Car.schema]);
+    final config = Configuration.local([Car.schema]);
     var realm = getRealm(config);
     var car = Car('Mustang');
 
@@ -930,7 +939,7 @@ void main() {
   });
 
   test('Realm - encryption works', () async {
-    var config = Configuration.local([Friend.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    var config = Configuration.local([Friend.schema], path: generateRandomRealmPath());
     var realm = getRealm(config);
     readFile(String path) async {
       final bytes = await platformUtil.readAsBytes(path);
@@ -940,8 +949,7 @@ void main() {
     var decoded = await readFile(realm.config.path);
     expect(decoded, contains("bestFriend"));
 
-    config = Configuration.local([Friend.schema],
-        encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    config = Configuration.local([Friend.schema], encryptionKey: generateEncryptionKey(), path: generateRandomRealmPath());
     realm = getRealm(config);
     decoded = await readFile(realm.config.path);
     expect(decoded, isNot(contains("bestFriend")));
@@ -1443,7 +1451,7 @@ void main() {
   }
 
   test('Realm - local realm can be compacted', () async {
-    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final config = Configuration.local([Product.schema], path: generateRandomRealmPath());
     final beforeCompactSizeSize = await createRealmForCompact(config);
 
     final compacted = Realm.compact(config);
@@ -1451,24 +1459,24 @@ void main() {
     validateCompact(compacted, config, beforeCompactSizeSize);
 
     //test the realm can be opened.
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   test('Realm - non existing realm can not be compacted', () async {
-    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final config = Configuration.local([Product.schema], path: generateRandomRealmPath());
     final compacted = Realm.compact(config);
     expect(compacted, false);
   });
 
   test('Realm - local realm can be compacted in worker isolate', () async {
-    var config = Configuration.local([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final config = Configuration.local([Product.schema], path: generateRandomRealmPath());
     final beforeCompactSizeSize = await createRealmForCompact(config);
 
     final receivePort = ReceivePort();
     await Isolate.spawn((List<Object> args) async {
       SendPort sendPort = args[0] as SendPort;
       final path = args[1] as String;
-      var config = Configuration.local([Product.schema], path: path);
+      final config = Configuration.local([Product.schema], path: path);
       final compacted = Realm.compact(config);
       Isolate.exit(sendPort, compacted);
     }, [receivePort.sendPort, config.path]);
@@ -1478,12 +1486,11 @@ void main() {
     validateCompact(compacted, config, beforeCompactSizeSize);
 
     //test the realm can be opened.
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   test('Realm - local encrypted realm can be compacted', () async {
-    final config = Configuration.local([Product.schema],
-        encryptionKey: generateEncryptionKey(), path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final config = Configuration.local([Product.schema], encryptionKey: generateEncryptionKey(), path: generateRandomRealmPath());
 
     final beforeCompactSizeSize = await createRealmForCompact(config);
 
@@ -1492,28 +1499,28 @@ void main() {
     validateCompact(compacted, config, beforeCompactSizeSize);
 
     //test the realm can be opened.
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   test('Realm - in-memory realm can not be compacted', () async {
-    var config = Configuration.inMemory([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final config = Configuration.inMemory([Product.schema], path: generateRandomRealmPath());
     expect(() => Realm.compact(config), throws<RealmException>("Can't compact an in-memory Realm"));
   });
 
   test('Realm - readonly realm can not be compacted', () async {
-    var path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
+    final path = generateRandomRealmPath();
     var config = Configuration.local([Product.schema], path: path);
-    final beforeCompactSize = await createRealmForCompact(config);
+    await createRealmForCompact(config);
 
     config = Configuration.local([Product.schema], isReadOnly: true, path: path);
     expect(() => Realm.compact(config), throws<RealmException>("Can't compact a read-only Realm"));
 
     //test the realm can be opened.
-    final realm = getRealm(config);
+    expect(() => getRealm(config), returnsNormally);
   });
 
   baasTest('Realm - disconnected sync realm can be compacted', (appConfiguration) async {
-    var config = Configuration.disconnectedSync([Product.schema], path: p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm"));
+    final config = Configuration.disconnectedSync([Product.schema], path: generateRandomRealmPath());
 
     final beforeCompactSize = await createRealmForCompact(config);
 
@@ -1526,9 +1533,8 @@ void main() {
   });
 
   baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
-    var user = await getIntegrationUser(appConfig: appConfiguration);
-    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, getSyncSchema(), path: path);
+    final user = await getIntegrationUser(appConfig: appConfiguration);
+    final config = Configuration.flexibleSync(user, getSyncSchema(), path: generateRandomRealmPath());
     final beforeCompactSize = await createRealmForCompact(config);
 
     final compacted = await runWithRetries(() => Realm.compact(config));
@@ -1543,8 +1549,7 @@ void main() {
     final credentials = Credentials.anonymous(reuseCredentials: false);
     var user = await app.logIn(credentials);
     List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final path = p.join(Configuration.defaultStoragePath, "${generateRandomString(8)}.realm");
-    final config = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key, path: path);
+    final config = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key, path: generateRandomRealmPath());
     final beforeCompactSize = await createRealmForCompact(config);
 
     final compacted = await runWithRetries(() => Realm.compact(config));
@@ -1820,7 +1825,6 @@ void main() {
 
   test('Realm.refresh on frozen realm should be no-op', () async {
     var realm = getRealm(Configuration.local([Person.schema]));
-    bool called = false;
     realm = realm.freeze();
     expect(realm.refresh(), false);
   });
@@ -1862,7 +1866,7 @@ void main() {
   });
 
   test('Realm path with unicode symbols', () {
-    var config = Configuration.local([Car.schema], path: "${generateRandomUnicodeString()}.realm");
+    final config = Configuration.local([Car.schema], path: generateRandomRealmPath(useUnicodeCharacters: true));
     var realm = getRealm(config);
     expect(realm.isClosed, false);
   }, skip: Platform.isAndroid || Platform.isIOS); // TODO: Enable test after fixing https://github.com/realm/realm-dart/issues/1230
@@ -1952,6 +1956,21 @@ void main() {
     final product = realm.all<Product>().single;
     expect(product.id, subscriptionId);
     expect(product.name, 'abc');
+  });
+
+  test('Local realm can be opened with orphaned embedded objects', () {
+    final config = Configuration.local([Car.schema, AllTypesEmbedded.schema], path: generateRandomRealmPath());
+    expect(() => getRealm(config), returnsNormally);
+  });
+
+  baasTest('Sync realm with orphaned embedded objects, throws', (appConfig) async {
+    final user = await getIntegrationUser(appConfig: appConfig);
+    final config = Configuration.flexibleSync(user, [Task.schema, AllTypesEmbedded.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
+
+    expect(
+        () => getRealm(config),
+        throwsA(isA<RealmException>()
+            .having((e) => e.message, 'message', contains("Embedded object 'AllTypesEmbedded' is unreachable by any link path from top level objects"))));
   });
 }
 
