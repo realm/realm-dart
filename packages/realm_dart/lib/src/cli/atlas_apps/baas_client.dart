@@ -159,7 +159,9 @@ class BaasClient {
 
   static final String defaultAppName = AppName.flexible.name;
 
-  final String _adminApiUrl;
+  String get _adminApiUrl => '$baseUrl/api/admin/v3.0';
+  String get _privateApiUrl => '$baseUrl/api/private/v1.0';
+
   final String? _clusterName;
   final Map<String, String> _headers;
   final String _appSuffix;
@@ -170,8 +172,7 @@ class BaasClient {
   late String publicRSAKey = '';
 
   BaasClient._(this.baseUrl, String differentiator, [this._clusterName])
-      : _adminApiUrl = '$baseUrl/api/admin/v3.0',
-        _headers = <String, String>{'Accept': 'application/json'},
+      : _headers = <String, String>{'Accept': 'application/json'},
         _appSuffix = '-${shortenDifferentiator(differentiator)}${_clusterName == null ? '' : '-$_clusterName'}';
 
   /// A client that imports apps in a MongoDB Atlas docker image. See https://github.com/realm/ci/tree/master/realm/docker/mongodb-realm
@@ -333,18 +334,25 @@ class BaasClient {
     try {
       final response = await _get('groups/$_groupId/apps/$appId/sync/progress');
 
-      final progressInfo = response['progress'] as Map<String, dynamic>;
-      for (final key in progressInfo.keys) {
-        final error = progressInfo[key]['error'] as String?;
-        if (error != null) {
-          print(error);
-          return false;
-        }
+      final acceptingClients = response['accepting_clients'] as bool? ?? false;
+      if (acceptingClients) {
+        return true;
+      }
 
-        final namespaceComplete = progressInfo[key]['complete'] as bool;
+      final progressInfo = response['progress'] as Map<String, dynamic>?;
+      if (progressInfo != null) {
+        for (final key in (progressInfo?.keys ?? <String>{})) {
+          final error = progressInfo[key]['error'] as String?;
+          if (error != null) {
+            print(error);
+            return false;
+          }
 
-        if (!namespaceComplete) {
-          return false;
+          final namespaceComplete = progressInfo[key]['complete'] as bool;
+
+          if (!namespaceComplete) {
+            return false;
+          }
         }
       }
 
@@ -538,6 +546,10 @@ class BaasClient {
           }''');
       }
 
+      print('Enable qbsv2 for ${app.name}');
+
+      await _setFeatureFlag(app, 'allow_qbs_v2');
+
       print('Creating database db_$uniqueName');
 
       final mongoServiceId = await _createMongoDBService(
@@ -629,6 +641,17 @@ class BaasClient {
     }
 
     return result['key'] as String;
+  }
+
+  Future<void> _setFeatureFlag(BaasApp app, String feature, {bool enabled = true}) async {
+    final action = enabled ? 'enable' : 'disable';
+    await _post(
+        'groups/$_groupId/apps/$app/features',
+        '''{
+          "action": "$action",
+          "feature_flags": [ "$feature" ]
+        }''',
+        apiRootPath: _privateApiUrl);
   }
 
   Future<void> _authenticate(String provider, String credentials) async {
@@ -766,12 +789,12 @@ class BaasClient {
     return additionalHeaders;
   }
 
-  Uri _getUri(String relativePath) {
-    return Uri.parse('$_adminApiUrl/$relativePath');
+  Uri _getUri(String relativePath, {String? apiRootPath}) {
+    return Uri.parse('${apiRootPath ?? _adminApiUrl}/$relativePath');
   }
 
-  Future<dynamic> _post(String relativePath, String payload) async {
-    var response = await http.post(_getUri(relativePath), headers: _getHeaders({'Content-Type': 'application/json'}), body: payload);
+  Future<dynamic> _post(String relativePath, String payload, {String? apiRootPath}) async {
+    var response = await http.post(_getUri(relativePath, apiRootPath: apiRootPath), headers: _getHeaders({'Content-Type': 'application/json'}), body: payload);
     return _decodeResponse(response, payload);
   }
 

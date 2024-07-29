@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:realm_dart/realm.dart';
 import 'package:realm_dart/src/configuration.dart';
-import 'package:test/test.dart' hide test, throws;
 
 import 'test.dart';
 
@@ -159,7 +158,7 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppName.staticSchema, skip: true);
+  }, appName: AppName.staticSchema);
 
   baasTest('Can remove field', (appConfig) async {
     final differentiator = ObjectId();
@@ -237,7 +236,7 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppName.staticSchema, skip:true);
+  }, appName: AppName.staticSchema);
 
   baasTest('Realm can be migrated skipping versions (0->2)', (appConfig) async {
     final differentiator = ObjectId();
@@ -262,5 +261,5 @@ void main() {
     expect(objv2.stringValue, isNull);
     expect(objv2.uuidValue, isNull);
     expect(objv2.binaryValue, isNull);
-  }, appName: AppName.staticSchema, skip: true);
+  }, appName: AppName.staticSchema);
 }
