@@ -17,7 +17,7 @@ import 'user.dart';
 
 /// Options for configuring timeouts and intervals used by the sync client.
 @immutable
-class SyncTimeoutOptions {
+final class SyncTimeoutOptions {
   /// Controls the maximum amount of time to allow for a connection to
   /// become fully established.
   ///
@@ -137,16 +137,17 @@ class AppConfiguration {
   final SyncTimeoutOptions syncTimeoutOptions;
 
   /// Instantiates a new [AppConfiguration] with the specified appId.
-  AppConfiguration(this.appId,
-      {Uri? baseUrl,
-      String? baseFilePath,
-      this.defaultRequestTimeout = const Duration(seconds: 60),
-      this.metadataEncryptionKey,
-      this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
-      @Deprecated('Use SyncTimeoutOptions.connectTimeout') this.maxConnectionTimeout = const Duration(minutes: 2),
-      Client? httpClient,
-      this.syncTimeoutOptions = const SyncTimeoutOptions()})
-      : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
+  AppConfiguration(
+    this.appId, {
+    Uri? baseUrl,
+    String? baseFilePath,
+    this.defaultRequestTimeout = const Duration(seconds: 60),
+    this.metadataEncryptionKey,
+    this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
+    @Deprecated('Use SyncTimeoutOptions.connectTimeout') this.maxConnectionTimeout = const Duration(minutes: 2),
+    Client? httpClient,
+    this.syncTimeoutOptions = const SyncTimeoutOptions(),
+  })  : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
         baseFilePath = baseFilePath ?? path.dirname(Configuration.defaultRealmPath),
         httpClient = httpClient ?? defaultClient {
     if (appId == '') {

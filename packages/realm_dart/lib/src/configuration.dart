@@ -189,16 +189,19 @@ abstract class Configuration {
     int schemaVersion = 0,
     bool cancelAsyncOperationsOnNonFatalErrors = false,
   }) =>
-      FlexibleSyncConfiguration._(user, schemaObjects,
-          fifoFilesFallbackPath: fifoFilesFallbackPath,
-          path: path,
-          encryptionKey: encryptionKey,
-          syncErrorHandler: syncErrorHandler,
-          clientResetHandler: clientResetHandler,
-          maxNumberOfActiveVersions: maxNumberOfActiveVersions,
-          shouldCompactCallback: shouldCompactCallback,
-          schemaVersion: schemaVersion,
-          cancelAsyncOperationsOnNonFatalErrors: cancelAsyncOperationsOnNonFatalErrors);
+      FlexibleSyncConfiguration._(
+        user,
+        schemaObjects,
+        fifoFilesFallbackPath: fifoFilesFallbackPath,
+        path: path,
+        encryptionKey: encryptionKey,
+        syncErrorHandler: syncErrorHandler,
+        clientResetHandler: clientResetHandler,
+        maxNumberOfActiveVersions: maxNumberOfActiveVersions,
+        shouldCompactCallback: shouldCompactCallback,
+        schemaVersion: schemaVersion,
+        cancelAsyncOperationsOnNonFatalErrors: cancelAsyncOperationsOnNonFatalErrors,
+      );
 
   /// Constructs a [DisconnectedSyncConfiguration]
   static DisconnectedSyncConfiguration disconnectedSync(
