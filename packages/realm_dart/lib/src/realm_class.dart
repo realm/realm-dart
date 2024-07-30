@@ -59,7 +59,7 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfiguration;
+export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfiguration, SyncTimeoutOptions;
 export 'collections.dart' show Move;
 export "configuration.dart"
     show
@@ -178,7 +178,6 @@ class Realm {
       final realm = Realm(config);
       return await CancellableFuture.value(realm, cancellationToken);
     }
-
 
     final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
     return await CancellableFuture.from<Realm>(() async {

@@ -382,6 +382,35 @@ void main() {
   test('AppConfiguration(empty-id) throws', () {
     expect(() => AppConfiguration(''), throwsA(isA<RealmException>()));
   });
+
+  baasTest('AppConfiguration.syncTimeouts are passed correctly to Core', (appConfig) async {
+    Realm.logger.setLogLevel(LogLevel.debug);
+    final buffer = StringBuffer();
+    final sub = Realm.logger.onRecord.listen((r) => buffer.writeln('[${r.category}] ${r.level}: ${r.message}'));
+
+    final customConfig = AppConfiguration(appConfig.appId,
+        baseUrl: appConfig.baseUrl,
+        baseFilePath: appConfig.baseFilePath,
+        defaultRequestTimeout: appConfig.defaultRequestTimeout,
+        syncTimeoutOptions: SyncTimeoutOptions(
+            connectTimeout: Duration(milliseconds: 1234),
+            connectionLingerTime: Duration(milliseconds: 3456),
+            pingKeepAlivePeriod: Duration(milliseconds: 5678),
+            pongKeepAliveTimeout: Duration(milliseconds: 7890),
+            fastReconnectLimit: Duration(milliseconds: 9012)));
+
+    final realm = await getIntegrationRealm(appConfig: customConfig);
+    await realm.syncSession.waitForDownload();
+
+    final log = buffer.toString();
+    expect(log, contains('Config param: connect_timeout = 1234 ms'));
+    expect(log, contains('Config param: connection_linger_time = 3456 ms'));
+    expect(log, contains('Config param: ping_keepalive_period = 5678 ms'));
+    expect(log, contains('Config param: pong_keepalive_timeout = 7890 ms'));
+    expect(log, contains('Config param: fast_reconnect_limit = 9012 ms'));
+
+    await sub.cancel();
+  });
 }
 
 extension PersonExt on Person {
