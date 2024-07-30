@@ -103,7 +103,7 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Source._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Source, 'Source', [
+    return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('oneTarget', RealmPropertyType.object,
           mapTo: 'et mål', optional: true, linkTarget: 'Target'),
@@ -205,7 +205,7 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Target._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Target, 'Target', [
+    return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('source', RealmPropertyType.object,
           optional: true, linkTarget: 'Source'),

@@ -56,7 +56,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
+    return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }();

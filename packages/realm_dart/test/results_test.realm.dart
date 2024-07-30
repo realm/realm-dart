@@ -212,7 +212,7 @@ class TestNotificationObject extends _TestNotificationObject
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationObject._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, TestNotificationObject,
+    return const SchemaObject(ObjectType.realmObject, TestNotificationObject,
         'TestNotificationObject', [
       SchemaProperty('stringProperty', RealmPropertyType.string,
           optional: true),
@@ -315,7 +315,7 @@ class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationEmbeddedObject._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject,
+    return const SchemaObject(ObjectType.embeddedObject,
         TestNotificationEmbeddedObject, 'TestNotificationEmbeddedObject', [
       SchemaProperty('stringProperty', RealmPropertyType.string,
           optional: true),
@@ -398,8 +398,8 @@ class TestNotificationDifferentType extends _TestNotificationDifferentType
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationDifferentType._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, TestNotificationDifferentType,
-        'TestNotificationDifferentType', [
+    return const SchemaObject(ObjectType.realmObject,
+        TestNotificationDifferentType, 'TestNotificationDifferentType', [
       SchemaProperty('stringProperty', RealmPropertyType.string,
           optional: true),
       SchemaProperty('intProperty', RealmPropertyType.int, optional: true),

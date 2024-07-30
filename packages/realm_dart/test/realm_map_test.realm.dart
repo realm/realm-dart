@@ -73,7 +73,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Car._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
       SchemaProperty('year', RealmPropertyType.int, optional: true),
@@ -134,7 +134,7 @@ class EmbeddedValue extends _EmbeddedValue
   static final schema = () {
     RealmObjectBase.registerFactory(EmbeddedValue._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.embeddedObject, EmbeddedValue, 'EmbeddedValue', [
       SchemaProperty('intValue', RealmPropertyType.int),
     ]);
@@ -452,7 +452,7 @@ class TestRealmMaps extends _TestRealmMaps
   static final schema = () {
     RealmObjectBase.registerFactory(TestRealmMaps._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, TestRealmMaps, 'TestRealmMaps', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolMap', RealmPropertyType.bool,

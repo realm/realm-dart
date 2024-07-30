@@ -75,7 +75,7 @@ class WithPrivateFields extends _WithPrivateFields
   static final schema = () {
     RealmObjectBase.registerFactory(WithPrivateFields._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, WithPrivateFields, 'WithPrivateFields', [
       SchemaProperty('_plain', RealmPropertyType.string),
       SchemaProperty('_withDefault', RealmPropertyType.int),

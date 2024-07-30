@@ -64,7 +64,7 @@ class MappedToo extends _MappedToo
   static final schema = () {
     RealmObjectBase.registerFactory(MappedToo._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, MappedToo, 'this is also mapped', [
       SchemaProperty('singleLink', RealmPropertyType.object,
           optional: true, linkTarget: 'another type'),

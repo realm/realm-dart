@@ -55,7 +55,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Car._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
   }();
@@ -308,7 +308,7 @@ class RealmSets extends _RealmSets
   static final schema = () {
     RealmObjectBase.registerFactory(RealmSets._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
+    return const SchemaObject(ObjectType.realmObject, RealmSets, 'RealmSets', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolSet', RealmPropertyType.bool,
           collectionType: RealmCollectionType.set),

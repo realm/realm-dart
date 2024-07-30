@@ -167,7 +167,7 @@ class LotsOfMaps extends _LotsOfMaps
   static final schema = () {
     RealmObjectBase.registerFactory(LotsOfMaps._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
+    return const SchemaObject(ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
           optional: true,
           linkTarget: 'Person',
@@ -247,7 +247,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }();

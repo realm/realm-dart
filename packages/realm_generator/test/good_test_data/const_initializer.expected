@@ -250,7 +250,7 @@ class ConstInitializer extends _ConstInitializer
   static final schema = () {
     RealmObjectBase.registerFactory(ConstInitializer._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ConstInitializer, 'ConstInitializer', [
       SchemaProperty('zero', RealmPropertyType.int),
       SchemaProperty('minusOne', RealmPropertyType.int),

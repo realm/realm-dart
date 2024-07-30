@@ -162,7 +162,8 @@ class NullablesV0 extends _NullablesV0
   static final schema = () {
     RealmObjectBase.registerFactory(NullablesV0._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NullablesV0, 'Nullables', [
+    return const SchemaObject(
+        ObjectType.realmObject, NullablesV0, 'Nullables', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.objectid),
@@ -360,7 +361,8 @@ class NullablesV1 extends _NullablesV1
   static final schema = () {
     RealmObjectBase.registerFactory(NullablesV1._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NullablesV1, 'Nullables', [
+    return const SchemaObject(
+        ObjectType.realmObject, NullablesV1, 'Nullables', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.objectid),

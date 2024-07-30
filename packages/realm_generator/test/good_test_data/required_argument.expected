@@ -55,7 +55,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
     ]);
   }();

@@ -55,7 +55,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Car._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
     ]);
   }();
@@ -112,7 +112,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);
   }();
@@ -188,7 +188,7 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Dog._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
+    return const SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
       SchemaProperty('owner', RealmPropertyType.object,
@@ -271,7 +271,7 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Team._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Team, 'Team', [
+    return const SchemaObject(ObjectType.realmObject, Team, 'Team', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('players', RealmPropertyType.object,
           linkTarget: 'Person', collectionType: RealmCollectionType.list),
@@ -361,7 +361,7 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Student._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Student, 'Student', [
+    return const SchemaObject(ObjectType.realmObject, Student, 'Student', [
       SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
@@ -466,7 +466,7 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(School._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, School, 'School', [
+    return const SchemaObject(ObjectType.realmObject, School, 'School', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('city', RealmPropertyType.string, optional: true),
       SchemaProperty('students', RealmPropertyType.object,
@@ -547,7 +547,7 @@ class RemappedClass extends $RemappedClass
   static final schema = () {
     RealmObjectBase.registerFactory(RemappedClass._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, RemappedClass, 'myRemappedClass', [
       SchemaProperty('remappedProperty', RealmPropertyType.string,
           mapTo: 'primitive_property'),
@@ -610,7 +610,7 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Task._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Task, 'Task', [
+    return const SchemaObject(ObjectType.realmObject, Task, 'Task', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);
@@ -680,7 +680,7 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Product._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Product, 'Product', [
+    return const SchemaObject(ObjectType.realmObject, Product, 'Product', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string,
@@ -752,7 +752,7 @@ class Schedule extends _Schedule
   static final schema = () {
     RealmObjectBase.registerFactory(Schedule._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
+    return const SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('tasks', RealmPropertyType.object,
@@ -825,7 +825,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
+    return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
       SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
           optional: true),
@@ -1087,7 +1087,7 @@ class AllTypes extends _AllTypes
   static final schema = () {
     RealmObjectBase.registerFactory(AllTypes._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, AllTypes, 'AllTypes', [
+    return const SchemaObject(ObjectType.realmObject, AllTypes, 'AllTypes', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
       SchemaProperty('dateProp', RealmPropertyType.timestamp),
@@ -1218,7 +1218,8 @@ class LinksClass extends _LinksClass
   static final schema = () {
     RealmObjectBase.registerFactory(LinksClass._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, LinksClass, 'LinksClass', [
+    return const SchemaObject(
+        ObjectType.realmObject, LinksClass, 'LinksClass', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
       SchemaProperty('link', RealmPropertyType.object,
           optional: true, linkTarget: 'LinksClass'),
@@ -1863,7 +1864,7 @@ class AllCollections extends _AllCollections
   static final schema = () {
     RealmObjectBase.registerFactory(AllCollections._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, AllCollections, 'AllCollections', [
       SchemaProperty('stringList', RealmPropertyType.string,
           collectionType: RealmCollectionType.list),
@@ -2111,7 +2112,7 @@ class NullableTypes extends _NullableTypes
   static final schema = () {
     RealmObjectBase.registerFactory(NullableTypes._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, NullableTypes, 'NullableTypes', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
@@ -2225,7 +2226,7 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Event._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Event, 'Event', [
+    return const SchemaObject(ObjectType.realmObject, Event, 'Event', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string,
@@ -2321,7 +2322,7 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Party._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Party, 'Party', [
+    return const SchemaObject(ObjectType.realmObject, Party, 'Party', [
       SchemaProperty('host', RealmPropertyType.object,
           optional: true, linkTarget: 'Friend'),
       SchemaProperty('year', RealmPropertyType.int),
@@ -2423,7 +2424,7 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Friend._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Friend, 'Friend', [
+    return const SchemaObject(ObjectType.realmObject, Friend, 'Friend', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int),
       SchemaProperty('bestFriend', RealmPropertyType.object,
@@ -2499,7 +2500,7 @@ class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(When._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, When, 'When', [
+    return const SchemaObject(ObjectType.realmObject, When, 'When', [
       SchemaProperty('dateTimeUtc', RealmPropertyType.timestamp),
       SchemaProperty('locationName', RealmPropertyType.string),
     ]);
@@ -2579,7 +2580,7 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Player._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Player, 'Player', [
+    return const SchemaObject(ObjectType.realmObject, Player, 'Player', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('game', RealmPropertyType.object,
           optional: true, linkTarget: 'Game'),
@@ -2637,7 +2638,7 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Game._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Game, 'Game', [
+    return const SchemaObject(ObjectType.realmObject, Game, 'Game', [
       SchemaProperty('winnerByRound', RealmPropertyType.object,
           linkTarget: 'Player', collectionType: RealmCollectionType.list),
     ]);
@@ -2959,7 +2960,7 @@ class AllTypesEmbedded extends _AllTypesEmbedded
   static final schema = () {
     RealmObjectBase.registerFactory(AllTypesEmbedded._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.embeddedObject, AllTypesEmbedded, 'AllTypesEmbedded', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
@@ -3119,7 +3120,7 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithEmbedded._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectWithEmbedded, 'ObjectWithEmbedded', [
       SchemaProperty('id', RealmPropertyType.string,
           mapTo: '_id', primaryKey: true),
@@ -3229,7 +3230,7 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1
   static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded1._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded1, 'RecursiveEmbedded1', [
       SchemaProperty('value', RealmPropertyType.string),
       SchemaProperty('child', RealmPropertyType.object,
@@ -3334,7 +3335,7 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2
   static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded2._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded2, 'RecursiveEmbedded2', [
       SchemaProperty('value', RealmPropertyType.string),
       SchemaProperty('child', RealmPropertyType.object,
@@ -3402,7 +3403,7 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3
   static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded3._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.embeddedObject, RecursiveEmbedded3, 'RecursiveEmbedded3', [
       SchemaProperty('value', RealmPropertyType.string),
     ]);
@@ -3475,7 +3476,7 @@ class ObjectWithDecimal extends _ObjectWithDecimal
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithDecimal._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
       SchemaProperty('decimal', RealmPropertyType.decimal128),
       SchemaProperty('nullableDecimal', RealmPropertyType.decimal128,
@@ -3560,7 +3561,8 @@ class Asymmetric extends _Asymmetric
   static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.asymmetricObject, Asymmetric, 'Asymmetric', [
+    return const SchemaObject(
+        ObjectType.asymmetricObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('symmetric', RealmPropertyType.object,
@@ -3644,7 +3646,7 @@ class Embedded extends _Embedded
   static final schema = () {
     RealmObjectBase.registerFactory(Embedded._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
+    return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('value', RealmPropertyType.int),
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),
       SchemaProperty('symmetric', RealmPropertyType.object,
@@ -3705,7 +3707,7 @@ class Symmetric extends _Symmetric
   static final schema = () {
     RealmObjectBase.registerFactory(Symmetric._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
+    return const SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
     ]);
@@ -3824,7 +3826,7 @@ class ObjectWithRealmValue extends _ObjectWithRealmValue
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithRealmValue._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectWithRealmValue, 'ObjectWithRealmValue', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
@@ -3922,7 +3924,7 @@ class ObjectWithInt extends _ObjectWithInt
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithInt._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectWithInt, 'ObjectWithInt', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),

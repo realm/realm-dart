@@ -90,7 +90,7 @@ class Asymmetric extends _Asymmetric
   static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Asymmetric, 'Asymmetric', [
+    return const SchemaObject(ObjectType.realmObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('children', RealmPropertyType.object,
@@ -165,7 +165,7 @@ class Embedded extends _Embedded
   static final schema = () {
     RealmObjectBase.registerFactory(Embedded._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
+    return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
     ]);

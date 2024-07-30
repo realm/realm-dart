@@ -84,7 +84,7 @@ class Original extends $Original
   static final schema = () {
     RealmObjectBase.registerFactory(Original._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Original, 'another type', [
+    return const SchemaObject(ObjectType.realmObject, Original, 'another type', [
       SchemaProperty('primitiveProperty', RealmPropertyType.int,
           mapTo: 'remapped primitive'),
       SchemaProperty('objectProperty', RealmPropertyType.object,

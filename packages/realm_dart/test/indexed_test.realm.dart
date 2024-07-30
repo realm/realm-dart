@@ -110,7 +110,8 @@ class WithIndexes extends _WithIndexes
   static final schema = () {
     RealmObjectBase.registerFactory(WithIndexes._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, WithIndexes, 'WithIndexes', [
+    return const SchemaObject(
+        ObjectType.realmObject, WithIndexes, 'WithIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int,
           indexType: RealmIndexType.regular),
       SchemaProperty('aBool', RealmPropertyType.bool,
@@ -232,7 +233,7 @@ class NoIndexes extends _NoIndexes
   static final schema = () {
     RealmObjectBase.registerFactory(NoIndexes._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
+    return const SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int),
       SchemaProperty('aBool', RealmPropertyType.bool),
       SchemaProperty('string', RealmPropertyType.string),
@@ -318,7 +319,7 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
       SchemaProperty('title', RealmPropertyType.string),
       SchemaProperty('summary', RealmPropertyType.string,

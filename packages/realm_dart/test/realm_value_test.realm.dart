@@ -57,7 +57,7 @@ class TuckedIn extends _TuckedIn
   static final schema = () {
     RealmObjectBase.registerFactory(TuckedIn._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
+    return const SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }();
