@@ -78,12 +78,13 @@ final class SyncTimeoutOptions {
   /// Defaults to 1 minute.
   final Duration fastReconnectLimit;
 
-  const SyncTimeoutOptions(
-      {this.connectTimeout = const Duration(minutes: 2),
-      this.connectionLingerTime = const Duration(seconds: 30),
-      this.pingKeepAlivePeriod = const Duration(minutes: 1),
-      this.pongKeepAliveTimeout = const Duration(minutes: 2),
-      this.fastReconnectLimit = const Duration(minutes: 1)});
+  const SyncTimeoutOptions({
+    this.connectTimeout = const Duration(minutes: 2),
+    this.connectionLingerTime = const Duration(seconds: 30),
+    this.pingKeepAlivePeriod = const Duration(minutes: 1),
+    this.pongKeepAliveTimeout = const Duration(minutes: 2),
+    this.fastReconnectLimit = const Duration(minutes: 1),
+  });
 }
 
 /// A class exposing configuration options for an [App]
