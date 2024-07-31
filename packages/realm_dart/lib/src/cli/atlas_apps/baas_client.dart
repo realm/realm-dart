@@ -332,23 +332,7 @@ class BaasClient {
   Future<bool> _isSyncComplete(String appId) async {
     try {
       final response = await _get('groups/$_groupId/apps/$appId/sync/progress');
-
-      final progressInfo = response['progress'] as Map<String, dynamic>;
-      for (final key in progressInfo.keys) {
-        final error = progressInfo[key]['error'] as String?;
-        if (error != null) {
-          print(error);
-          return false;
-        }
-
-        final namespaceComplete = progressInfo[key]['complete'] as bool;
-
-        if (!namespaceComplete) {
-          return false;
-        }
-      }
-
-      return true;
+      return response['accepting_clients'] as bool? ?? false;
     } catch (e) {
       print(e);
       return false;
