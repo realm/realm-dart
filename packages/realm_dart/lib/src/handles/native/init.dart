@@ -52,7 +52,6 @@ String _getLibPathDart(Package realmDartPackage) {
   _platformNotSupported();
 }
 
-
 String _getLibName(String stem) => switch (targetOsType) {
       TargetOsType.android => 'lib$stem.so',
       TargetOsType.ios => stem, // xcframeworks are a directory
@@ -69,13 +68,13 @@ String? _getNearestProjectRoot(String dir) {
   return null;
 }
 
-File _getPackageConfigJson(Directory d) {
+File? _getPackageConfigJson(Directory d) {
   final root = _getNearestProjectRoot(d.path);
   if (root != null) {
     final file = File(p.join(root, '.dart_tool', 'package_config.json'));
     if (file.existsSync()) return file;
   }
-  throw StateError('Could not find package_config.json');
+  return null;
 }
 
 Never _platformNotSupported() => throw UnsupportedError('Platform ${Platform.operatingSystem} is not supported');
@@ -107,25 +106,28 @@ DynamicLibrary _openRealmLib() {
 
   final isFlutterTest = Platform.environment.containsKey('FLUTTER_TEST');
   if (isFlutterPlatform && !isFlutterTest) {
-    return open(_getLibPathFlutter());
+    return open(_getLibPathFlutter()); // flutter app
   }
 
   // NOTE: This needs to be sync, so we cannot use findPackageConfig
   final packageConfigFile = _getPackageConfigJson(Directory.current);
-  final packageConfig = PackageConfig.parseBytes(packageConfigFile.readAsBytesSync(), packageConfigFile.uri);
-
-  if (isFlutterTest) {
-    final realmPackage = packageConfig['realm']!;
-    return open(_getLibPathFlutterTest(realmPackage));
+  if (packageConfigFile != null) {
+    // inside a project
+    final packageConfig = PackageConfig.parseBytes(packageConfigFile.readAsBytesSync(), packageConfigFile.uri);
+    if (isFlutterTest) {
+      // running flutter test (not flutter test integration_test or flutter drive)
+      final realmPackage = packageConfig['realm']!;
+      return open(_getLibPathFlutterTest(realmPackage));
+    }
+    // plain dart
+    final realmDartPackage = packageConfig['realm_dart']!;
+    return open(_getLibPathDart(realmDartPackage));
   }
 
-  final realmDartPackage = packageConfig['realm_dart']!;
-
-  // else plain dart
+  // plain dart (compiled or interpreted)
   final candidatePaths = [
     nativeLibraryName, // just ask OS..
     p.join(_exeDirName, nativeLibraryName), // try finding it next to the executable
-    _getLibPathDart(realmDartPackage), // try finding it in the package
   ];
   DynamicLibrary? lib;
   for (final path in candidatePaths) {
