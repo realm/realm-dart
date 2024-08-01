@@ -212,7 +212,7 @@ class BaasClient {
     final authHelper = BaasAuthHelper(apiKey);
     final existing = (await _getContainers(authHelper, differentiator: differentiator)).firstOrNull;
     if (existing != null) {
-      print('Using existing BaaS container at ${existing.httpUrl}');
+      print('Using existing BaaS container at ${existing.httpUrl}, id: ${existing.id}');
       return (existing.httpUrl, existing.id);
     }
 
@@ -228,7 +228,7 @@ class BaasClient {
       httpUrl = await _waitForContainer(authHelper, id);
     }
 
-    print('Deployed BaaS instance at $httpUrl');
+    print('Deployed BaaS instance at $httpUrl, id: $id');
 
     return (httpUrl, id);
   }
