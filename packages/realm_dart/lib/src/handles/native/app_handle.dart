@@ -438,6 +438,13 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
       realmLib.realm_app_config_set_metadata_encryption_key(handle.pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));
     }
 
+    final syncClientConfig = realmLib.realm_app_config_get_sync_client_config(handle.pointer);
+    realmLib.realm_sync_client_config_set_connect_timeout(syncClientConfig, configuration.syncTimeoutOptions.connectTimeout.inMilliseconds);
+    realmLib.realm_sync_client_config_set_connection_linger_time(syncClientConfig, configuration.syncTimeoutOptions.connectionLingerTime.inMilliseconds);
+    realmLib.realm_sync_client_config_set_ping_keepalive_period(syncClientConfig, configuration.syncTimeoutOptions.pingKeepAlivePeriod.inMilliseconds);
+    realmLib.realm_sync_client_config_set_pong_keepalive_timeout(syncClientConfig, configuration.syncTimeoutOptions.pongKeepAliveTimeout.inMilliseconds);
+    realmLib.realm_sync_client_config_set_fast_reconnect_limit(syncClientConfig, configuration.syncTimeoutOptions.fastReconnectLimit.inMilliseconds);
+
     return handle;
   });
 }

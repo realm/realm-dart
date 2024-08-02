@@ -15,6 +15,78 @@ import 'handles/realm_core.dart';
 import 'logging.dart';
 import 'user.dart';
 
+/// Options for configuring timeouts and intervals used by the sync client.
+@immutable
+final class SyncTimeoutOptions {
+  /// Controls the maximum amount of time to allow for a connection to
+  /// become fully established.
+  ///
+  /// This includes the time to resolve the
+  /// network address, the TCP connect operation, the SSL handshake, and
+  /// the WebSocket handshake.
+  ///
+  /// Defaults to 2 minutes.
+  final Duration connectTimeout; // TimeSpan.FromMinutes(2);
+
+  /// Controls the amount of time to keep a connection open after all
+  /// sessions have been abandoned.
+  ///
+  /// After all synchronized Realms have been closed for a given server, the
+  /// connection is kept open until the linger time has expired to avoid the
+  /// overhead of reestablishing the connection when Realms are being closed and
+  /// reopened.
+  ///
+  /// Defaults to 30 seconds.
+  final Duration connectionLingerTime;
+
+  /// Controls how long to wait between each heartbeat ping message.
+  ///
+  /// The client periodically sends ping messages to the server to check if the
+  /// connection is still alive. Shorter periods make connection state change
+  /// notifications more responsive at the cost of battery life (as the antenna
+  /// will have to wake up more often).
+  ///
+  /// Defaults to 1 minute.
+  final Duration pingKeepAlivePeriod;
+
+  /// Controls how long to wait for a reponse to a heartbeat ping before
+  /// concluding that the connection has dropped.
+  ///
+  /// Shorter values will make connection state change notifications more
+  /// responsive as it will only change to `disconnected` after this much time has
+  /// elapsed, but overly short values may result in spurious disconnection
+  /// notifications when the server is simply taking a long time to respond.
+  ///
+  /// Defaults to 2 minutes.
+  final Duration pongKeepAliveTimeout;
+
+  /// Controls the maximum amount of time since the loss of a
+  /// prior connection, for a new connection to be considered a "fast
+  /// reconnect".
+  ///
+  /// When a client first connects to the server, it defers uploading any local
+  /// changes until it has downloaded all changesets from the server. This
+  /// typically reduces the total amount of merging that has to be done, and is
+  /// particularly beneficial the first time that a specific client ever connects
+  /// to the server.
+  ///
+  /// When an existing client disconnects and then reconnects within the "fact
+  /// reconnect" time this is skipped and any local changes are uploaded
+  /// immediately without waiting for downloads, just as if the client was online
+  /// the whole time.
+  ///
+  /// Defaults to 1 minute.
+  final Duration fastReconnectLimit;
+
+  const SyncTimeoutOptions({
+    this.connectTimeout = const Duration(minutes: 2),
+    this.connectionLingerTime = const Duration(seconds: 30),
+    this.pingKeepAlivePeriod = const Duration(minutes: 1),
+    this.pongKeepAliveTimeout = const Duration(minutes: 2),
+    this.fastReconnectLimit = const Duration(minutes: 1),
+  });
+}
+
 /// A class exposing configuration options for an [App]
 /// {@category Application}
 @immutable
@@ -41,6 +113,7 @@ class AppConfiguration {
   /// become fully established. This includes the time to resolve the
   /// network address, the TCP connect operation, the SSL handshake, and
   /// the WebSocket handshake. Defaults to 2 minutes.
+  @Deprecated('Use SyncTimeoutOptions.connectTimeout')
   final Duration maxConnectionTimeout;
 
   /// Enumeration that specifies how and if logged-in User objects are persisted across application launches.
@@ -61,6 +134,9 @@ class AppConfiguration {
   /// a more complex networking setup.
   final Client httpClient;
 
+  /// Options for the assorted types of connection timeouts for sync connections opened for this app.
+  final SyncTimeoutOptions syncTimeoutOptions;
+
   /// Instantiates a new [AppConfiguration] with the specified appId.
   AppConfiguration(
     this.appId, {
@@ -69,8 +145,9 @@ class AppConfiguration {
     this.defaultRequestTimeout = const Duration(seconds: 60),
     this.metadataEncryptionKey,
     this.metadataPersistenceMode = MetadataPersistenceMode.plaintext,
-    this.maxConnectionTimeout = const Duration(minutes: 2),
+    @Deprecated('Use SyncTimeoutOptions.connectTimeout') this.maxConnectionTimeout = const Duration(minutes: 2),
     Client? httpClient,
+    this.syncTimeoutOptions = const SyncTimeoutOptions(),
   })  : baseUrl = baseUrl ?? Uri.parse(realmCore.getDefaultBaseUrl()),
         baseFilePath = baseFilePath ?? path.dirname(Configuration.defaultRealmPath),
         httpClient = httpClient ?? defaultClient {

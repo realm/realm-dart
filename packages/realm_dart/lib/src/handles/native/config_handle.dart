@@ -91,6 +91,8 @@ class ConfigHandle extends HandleBase<realm_config> {
         try {
           realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
           realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
+          realmLib.realm_sync_config_set_cancel_waits_on_nonfatal_error(syncConfigPtr, config.cancelAsyncOperationsOnNonFatalErrors);
+
           final errorHandlerCallback =
               Pointer.fromFunction<Void Function(Handle, Pointer<realm_sync_session_t>, realm_sync_error_t)>(_syncErrorHandlerCallback);
           final errorHandlerUserdata = realmLib.realm_dart_userdata_async_new(config, errorHandlerCallback.cast(), schedulerHandle.pointer);

@@ -187,6 +187,7 @@ abstract class Configuration {
     int? maxNumberOfActiveVersions,
     ShouldCompactCallback? shouldCompactCallback,
     int schemaVersion = 0,
+    bool cancelAsyncOperationsOnNonFatalErrors = false,
   }) =>
       FlexibleSyncConfiguration._(
         user,
@@ -199,6 +200,7 @@ abstract class Configuration {
         maxNumberOfActiveVersions: maxNumberOfActiveVersions,
         shouldCompactCallback: shouldCompactCallback,
         schemaVersion: schemaVersion,
+        cancelAsyncOperationsOnNonFatalErrors: cancelAsyncOperationsOnNonFatalErrors,
       );
 
   /// Constructs a [DisconnectedSyncConfiguration]
@@ -351,6 +353,14 @@ class FlexibleSyncConfiguration extends Configuration {
   /// all subscriptions will be reset since they may not conform to the new schema.
   final int schemaVersion;
 
+  /// Controls whether async operations such as [Realm.open], [Session.waitForUpload], and [Session.waitForDownload]
+  /// should throw an error whenever a non-fatal error, such as timeout occurs.
+  ///
+  /// If set to `false`, non-fatal session errors will be ignored and sync will continue retrying the
+  /// connection under in the background. This means that in cases where the devie is offline, these operations
+  /// may take an indeterminate time to complete.
+  final bool cancelAsyncOperationsOnNonFatalErrors;
+
   FlexibleSyncConfiguration._(
     this.user,
     super.schemaObjects, {
@@ -362,6 +372,7 @@ class FlexibleSyncConfiguration extends Configuration {
     super.maxNumberOfActiveVersions,
     this.shouldCompactCallback,
     this.schemaVersion = 0,
+    this.cancelAsyncOperationsOnNonFatalErrors = false,
   }) : super._();
 
   @override
