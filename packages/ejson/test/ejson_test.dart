@@ -10,8 +10,40 @@ import 'package:ejson/ejson.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 import 'package:test/test.dart';
+import 'package:type_plus/type_plus.dart';
 
 import 'person.dart';
+
+bool _canDecodeAny<T>([Type? type]) {
+  commonDecoders; // ensure common types has been registered;
+  type ??= T;
+  if (type.isNullable) return _canDecodeAny(type.base);
+  if ([
+    dynamic,
+    Null,
+    Object,
+    bool,
+    double,
+    int,
+    num,
+    String,
+    DateTime,
+    BsonKey,
+    Symbol,
+    ObjectId,
+    Uuid,
+    Uint8List,
+  ].contains(type)) return true;
+  if ([
+    List,
+    Set,
+    Map,
+    DBRef,
+    Undefined,
+    UndefinedOr,
+  ].contains(type.base)) return type.args.every(_canDecodeAny);
+  return false;
+}
 
 void _testCase<T>(T value, EJsonValue expected) {
   test('encode from $value of type $T', () {
@@ -46,7 +78,7 @@ void _testCase<T>(T value, EJsonValue expected) {
     expect(() => fromEJson(expected), returnsNormally);
   });
 
-  if (value is! Defined && value is! DBRef) {
+  if (_canDecodeAny<T>()) {
     test('roundtrip $value of type $T as dynamic', () {
       // no <T> here, so dynamic
       expect(fromEJson(toEJson(value)), value);

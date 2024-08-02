@@ -2,9 +2,6 @@
 
 - `fromEJson<T>` now accepts a `defaultValue` argument that is returned if  
   `null` is passed as `ejson`.
-- `fromEJson<T>` now accepts a `allowCustom` argument that can be used to specify
-  the custom decoders are allowed to be used. Defaults to `null`, which specify that
-  currently set value on the stack should be used. At top level the default is `true`.
 - `register<T>` takes an optional `superTypes` argument to specify the super 
   types of `T` if needed.
 

@@ -158,7 +158,7 @@ EJsonValue encodeRealmValue(RealmValue value) {
 }
 
 RealmValue decodeRealmValue(EJsonValue ejson) {
-  Object? decoded = fromEJson(ejson, allowCustom: false);
+  final decoded = fromEJson<dynamic>(ejson);
   if (decoded is DBRef) {
     final t = TypePlus.fromId(decoded.collection);
     final o = RealmObjectBase.createObject(t, null);

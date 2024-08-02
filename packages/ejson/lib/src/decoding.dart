@@ -65,25 +65,19 @@ final _decoders = CombinedMapView([customDecoders, commonDecoders]);
 ///
 /// Throws [InvalidEJson] if [ejson] is not valid for [T].
 /// Throws [MissingDecoder] if no decoder is registered for [T].
-T fromEJson<T>(EJsonValue ejson, {bool? allowCustom, T? defaultValue}) {
-  final oldAllowCustom = _allowCustom;
-  _allowCustom = allowCustom ?? _allowCustom;
-  try {
-    final type = T;
-    final nullable = type.isNullable;
-    if (!nullable && ejson == null && defaultValue != null) return defaultValue;
-    final decoder = nullable ? _decodeNullable : _decoders[type.base];
-    if (decoder == null) {
-      throw MissingDecoder._(ejson, type);
-    }
-    final args = nullable ? [type.nonNull] : type.args;
-    if (args.isEmpty) {
-      return decoder(ejson) as T; // minor optimization
-    }
-    return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
-  } finally {
-    _allowCustom = oldAllowCustom;
+T fromEJson<T>(EJsonValue ejson, {T? defaultValue}) {
+  final type = T;
+  final nullable = type.isNullable;
+  if (ejson == null && defaultValue != null) return defaultValue;
+  final decoder = nullable ? _decodeNullable : _decoders[type.base];
+  if (decoder == null) {
+    throw MissingDecoder._(ejson, type);
   }
+  final args = nullable ? [type.nonNull] : type.args;
+  if (args.isEmpty) {
+    return decoder(ejson) as T; // minor optimization
+  }
+  return decoder.callWith(typeArguments: args, parameters: [ejson]) as T;
 }
 
 /// Parses [source] to [EJsonValue] and convert to type [T].
@@ -116,37 +110,23 @@ dynamic _decodeAny(EJsonValue ejson) {
     {'\$oid': _} => _decodeObjectId(ejson),
     {'\$binary': {'base64': _, 'subType': '04'}} => _decodeUuid(ejson),
     {'\$binary': _} => _decodeBinary(ejson),
-    List<dynamic> _ => _decodeArray<dynamic>(ejson),
-    Set<dynamic> _ => _decodeSet<dynamic>(ejson),
-    Map<dynamic, dynamic> _ => _tryDecodeCustomIfAllowed(ejson) ?? _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
+    List _ => _decodeArray<dynamic>(ejson),
+    Set _ => _decodeSet<dynamic>(ejson),
+    Map _ => _decodeDocument<String, dynamic>(ejson), // other maps goes last!!
     _ => raiseInvalidEJson<dynamic>(ejson),
   };
 }
 
-bool _allowCustom = true;
-dynamic _tryDecodeCustomIfAllowed(EJsonValue ejson) {
-  if (_allowCustom) {
-    for (final decoder in customDecoders.values) {
-      try {
-        return decoder(ejson);
-      } catch (_) {
-        // ignore
-      }
-    }
-  }
-  return null;
-}
-
 List<T> _decodeArray<T>(EJsonValue ejson) {
   return switch (ejson) {
-    Iterable<dynamic> i => i.map((ejson) => fromEJson<T>(ejson)).toList(),
+    Iterable i => i.map((ejson) => fromEJson<T>(ejson)).toList(),
     _ => raiseInvalidEJson(ejson),
   };
 }
 
 Set<T> _decodeSet<T>(EJsonValue ejson) {
   return switch (ejson) {
-    Iterable<dynamic> i => i.map((ejson) => fromEJson<T>(ejson)).toSet(),
+    Iterable i => i.map((ejson) => fromEJson<T>(ejson)).toSet(),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -167,20 +147,23 @@ DateTime _decodeDate(EJsonValue ejson) {
 }
 
 DBRef<KeyT> _decodeDBRef<KeyT>(EJsonValue ejson) {
-  return switch (ejson) {
-    {'\$ref': String collection, '\$id': EJsonValue id} => DBRef<KeyT>(collection, fromEJson<KeyT>(id)),
-    _ => raiseInvalidEJson(ejson),
-  };
+  switch (ejson) {
+    case {'\$ref': String collection, '\$id': EJsonValue id}:
+      KeyT key = fromEJson(id);
+      return DBRef.new.callWith(parameters: [collection, key], typeArguments: [key.runtimeType]) as DBRef<KeyT>;
+    default:
+      return raiseInvalidEJson(ejson);
+  }
 }
 
 Defined<T> _decodeDefined<T>(EJsonValue ejson) {
   if (ejson case {'\$undefined': 1}) return raiseInvalidEJson(ejson);
-  return Defined<T>(fromEJson<T>(ejson));
+  return Defined(fromEJson(ejson));
 }
 
 Map<K, V> _decodeDocument<K, V>(EJsonValue ejson) {
   return switch (ejson) {
-    Map<dynamic, dynamic> m => m.map((key, value) => MapEntry(key as K, fromEJson<V>(value))),
+    Map m => m.map((key, value) => MapEntry(key as K, fromEJson(value))),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -263,14 +246,14 @@ Symbol _decodeSymbol(EJsonValue ejson) {
 
 Undefined<T> _decodeUndefined<T>(EJsonValue ejson) {
   return switch (ejson) {
-    {'\$undefined': 1} => Undefined<T>(),
+    {'\$undefined': 1} => Undefined(),
     _ => raiseInvalidEJson(ejson),
   };
 }
 
 UndefinedOr<T> _decodeUndefinedOr<T>(EJsonValue ejson) {
   return switch (ejson) {
-    {'\$undefined': 1} => Undefined<T>(),
+    {'\$undefined': 1} => Undefined(),
     _ => _decodeDefined(ejson),
   };
 }
