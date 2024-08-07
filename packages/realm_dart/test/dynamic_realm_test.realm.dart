@@ -50,6 +50,7 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Taskv2 value) => value.toEJson();
   static Taskv2 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         '_id': EJsonValue id,
@@ -66,7 +67,7 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Taskv2._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Taskv2, 'Task', [
+    return const SchemaObject(ObjectType.realmObject, Taskv2, 'Task', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('description', RealmPropertyType.string),

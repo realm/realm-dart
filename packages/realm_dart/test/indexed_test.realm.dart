@@ -85,6 +85,7 @@ class WithIndexes extends _WithIndexes
 
   static EJsonValue _toEJson(WithIndexes value) => value.toEJson();
   static WithIndexes _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'anInt': EJsonValue anInt,
@@ -109,7 +110,8 @@ class WithIndexes extends _WithIndexes
   static final schema = () {
     RealmObjectBase.registerFactory(WithIndexes._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, WithIndexes, 'WithIndexes', [
+    return const SchemaObject(
+        ObjectType.realmObject, WithIndexes, 'WithIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int,
           indexType: RealmIndexType.regular),
       SchemaProperty('aBool', RealmPropertyType.bool,
@@ -206,6 +208,7 @@ class NoIndexes extends _NoIndexes
 
   static EJsonValue _toEJson(NoIndexes value) => value.toEJson();
   static NoIndexes _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'anInt': EJsonValue anInt,
@@ -230,7 +233,7 @@ class NoIndexes extends _NoIndexes
   static final schema = () {
     RealmObjectBase.registerFactory(NoIndexes._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
+    return const SchemaObject(ObjectType.realmObject, NoIndexes, 'NoIndexes', [
       SchemaProperty('anInt', RealmPropertyType.int),
       SchemaProperty('aBool', RealmPropertyType.bool),
       SchemaProperty('string', RealmPropertyType.string),
@@ -298,16 +301,16 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
 
   static EJsonValue _toEJson(ObjectWithFTSIndex value) => value.toEJson();
   static ObjectWithFTSIndex _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'title': EJsonValue title,
         'summary': EJsonValue summary,
-        'nullableSummary': EJsonValue nullableSummary,
       } =>
         ObjectWithFTSIndex(
           fromEJson(title),
           fromEJson(summary),
-          nullableSummary: fromEJson(nullableSummary),
+          nullableSummary: fromEJson(ejson['nullableSummary']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -316,7 +319,7 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
       SchemaProperty('title', RealmPropertyType.string),
       SchemaProperty('summary', RealmPropertyType.string,

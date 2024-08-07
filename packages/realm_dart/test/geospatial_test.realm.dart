@@ -57,23 +57,17 @@ class Location extends _Location
 
   static EJsonValue _toEJson(Location value) => value.toEJson();
   static Location _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'type': EJsonValue type,
-        'coordinates': EJsonValue coordinates,
-      } =>
-        Location(
-          type: fromEJson(type),
-          coordinates: fromEJson(coordinates),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Location(
+      type: fromEJson(ejson['type'], defaultValue: 'Point'),
+      coordinates: fromEJson(ejson['coordinates']),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(Location._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
+    return const SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
       SchemaProperty('type', RealmPropertyType.string),
       SchemaProperty('coordinates', RealmPropertyType.double,
           collectionType: RealmCollectionType.list),
@@ -128,14 +122,14 @@ class Restaurant extends _Restaurant
 
   static EJsonValue _toEJson(Restaurant value) => value.toEJson();
   static Restaurant _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
-        'location': EJsonValue location,
       } =>
         Restaurant(
           fromEJson(name),
-          location: fromEJson(location),
+          location: fromEJson(ejson['location']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -144,7 +138,8 @@ class Restaurant extends _Restaurant
   static final schema = () {
     RealmObjectBase.registerFactory(Restaurant._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Restaurant, 'Restaurant', [
+    return const SchemaObject(
+        ObjectType.realmObject, Restaurant, 'Restaurant', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('location', RealmPropertyType.object,
           optional: true, linkTarget: 'Location'),
@@ -193,21 +188,17 @@ class LocationList extends _LocationList
 
   static EJsonValue _toEJson(LocationList value) => value.toEJson();
   static LocationList _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'locations': EJsonValue locations,
-      } =>
-        LocationList(
-          locations: fromEJson(locations),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return LocationList(
+      locations: fromEJson(ejson['locations']),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(LocationList._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, LocationList, 'LocationList', [
+    return const SchemaObject(
+        ObjectType.realmObject, LocationList, 'LocationList', [
       SchemaProperty('locations', RealmPropertyType.object,
           linkTarget: 'Location', collectionType: RealmCollectionType.list),
     ]);

@@ -55,14 +55,14 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
-        'age': EJsonValue age,
       } =>
         Person(
           name: fromEJson(name),
-          age: fromEJson(age),
+          age: fromEJson(ejson['age'], defaultValue: 42),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -71,7 +71,7 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
     ]);

@@ -4,6 +4,7 @@
 import 'dart:async';
 
 // ignore: no_leading_underscores_for_library_prefixes
+import 'package:collection/collection.dart';
 import 'package:path/path.dart' as _path;
 
 import 'app.dart';
@@ -430,7 +431,7 @@ class SchemaObject extends Iterable<SchemaProperty> {
   final ObjectType baseType;
 
   /// Creates schema instance with object type and collection of object's properties.
-  SchemaObject(this.baseType, this.type, this.name, Iterable<SchemaProperty> properties) : _properties = List.from(properties);
+  const SchemaObject(this.baseType, this.type, this.name, this._properties);
 
   @override
   Iterator<SchemaProperty> get iterator => _properties.iterator;
@@ -442,6 +443,8 @@ class SchemaObject extends Iterable<SchemaProperty> {
 
   @override
   SchemaProperty elementAt(int index) => _properties.elementAt(index);
+
+  SchemaProperty? get primaryKey => _properties.firstWhereOrNull((p) => p.primaryKey);
 }
 
 /// Describes the complete set of classes which may be stored in a `Realm`

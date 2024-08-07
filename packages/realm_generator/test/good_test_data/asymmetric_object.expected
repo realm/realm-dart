@@ -72,18 +72,16 @@ class Asymmetric extends _Asymmetric
 
   static EJsonValue _toEJson(Asymmetric value) => value.toEJson();
   static Asymmetric _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         '_id': EJsonValue id,
-        'children': EJsonValue children,
-        'father': EJsonValue father,
-        'mother': EJsonValue mother,
       } =>
         Asymmetric(
           fromEJson(id),
-          children: fromEJson(children),
-          father: fromEJson(father),
-          mother: fromEJson(mother),
+          children: fromEJson(ejson['children']),
+          father: fromEJson(ejson['father']),
+          mother: fromEJson(ejson['mother']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -92,7 +90,7 @@ class Asymmetric extends _Asymmetric
   static final schema = () {
     RealmObjectBase.registerFactory(Asymmetric._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Asymmetric, 'Asymmetric', [
+    return const SchemaObject(ObjectType.realmObject, Asymmetric, 'Asymmetric', [
       SchemaProperty('id', RealmPropertyType.objectid,
           mapTo: '_id', primaryKey: true),
       SchemaProperty('children', RealmPropertyType.object,
@@ -150,6 +148,7 @@ class Embedded extends _Embedded
 
   static EJsonValue _toEJson(Embedded value) => value.toEJson();
   static Embedded _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -166,7 +165,7 @@ class Embedded extends _Embedded
   static final schema = () {
     RealmObjectBase.registerFactory(Embedded._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
+    return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('age', RealmPropertyType.int),
     ]);

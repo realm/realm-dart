@@ -10,8 +10,40 @@ import 'package:ejson/ejson.dart';
 import 'package:objectid/objectid.dart';
 import 'package:sane_uuid/uuid.dart';
 import 'package:test/test.dart';
+import 'package:type_plus/type_plus.dart';
 
 import 'person.dart';
+
+bool _canDecodeAny<T>([Type? type]) {
+  commonDecoders; // ensure common types has been registered;
+  type ??= T;
+  if (type.isNullable) return _canDecodeAny(type.base);
+  if ([
+    dynamic,
+    Null,
+    Object,
+    bool,
+    double,
+    int,
+    num,
+    String,
+    DateTime,
+    BsonKey,
+    Symbol,
+    ObjectId,
+    Uuid,
+    Uint8List,
+  ].contains(type)) return true;
+  if ([
+    List,
+    Set,
+    Map,
+    DBRef,
+    Undefined,
+    UndefinedOr,
+  ].contains(type.base)) return type.args.every(_canDecodeAny);
+  return false;
+}
 
 void _testCase<T>(T value, EJsonValue expected) {
   test('encode from $value of type $T', () {
@@ -46,7 +78,7 @@ void _testCase<T>(T value, EJsonValue expected) {
     expect(() => fromEJson(expected), returnsNormally);
   });
 
-  if (value is! Defined) {
+  if (_canDecodeAny<T>()) {
     test('roundtrip $value of type $T as dynamic', () {
       // no <T> here, so dynamic
       expect(fromEJson(toEJson(value)), value);
@@ -82,6 +114,7 @@ void main() {
     expect([1, 2, 3].toEJson(), toEJson([1, 2, 3]));
     expect({'a': 1, 'b': 2}.toEJson(), toEJson({'a': 1, 'b': 2}));
     expect(DateTime(1974, 4, 10, 2, 42, 12, 202).toEJson(), toEJson(DateTime(1974, 4, 10, 2, 42, 12, 202)));
+    expect(DBRef('collection', 42).toEJson(), toEJson(DBRef('collection', 42)));
     expect((#sym).toEJson(), toEJson(#sym));
     expect(BsonKey.max.toEJson(), toEJson(BsonKey.max));
     expect(BsonKey.min.toEJson(), toEJson(BsonKey.min));
@@ -105,11 +138,17 @@ void main() {
   group('invalid', () {
     _invalidTestCase<bool>();
     _invalidTestCase<DateTime>();
+    _invalidTestCase<DBRef>();
+    _invalidTestCase<DBRef<int>>();
     _invalidTestCase<double>({'\$numberDouble': 'foobar'});
     _invalidTestCase<double>();
     _invalidTestCase<int>();
     _invalidTestCase<BsonKey>();
+    _invalidTestCase<List>();
     _invalidTestCase<List<int>>();
+    _invalidTestCase<Set>();
+    _invalidTestCase<Set<int>>();
+    _invalidTestCase<Map>([]);
     _invalidTestCase<Map<int, int>>([]);
     _invalidTestCase<Null>();
     _invalidTestCase<num>();
@@ -118,6 +157,7 @@ void main() {
     _invalidTestCase<String>();
     _invalidTestCase<Symbol>();
     _invalidTestCase<Uint8List>();
+    _invalidTestCase<Undefined>();
     _invalidTestCase<Undefined<int>>();
     _invalidTestCase<Uuid>();
 
@@ -150,6 +190,16 @@ void main() {
                   {'\$numberInt': '3'},
                 ]
               : [1, 2, 3],
+        );
+        _testCase(
+          {1, 2, 3},
+          canonical
+              ? {
+                  {'\$numberInt': '1'},
+                  {'\$numberInt': '2'},
+                  {'\$numberInt': '3'},
+                }
+              : {1, 2, 3},
         );
         _testCase(
           [1, 1.1],
@@ -190,6 +240,10 @@ void main() {
         _testCase(#sym, {'\$symbol': 'sym'});
         _testCase(BsonKey.max, {'\$maxKey': 1});
         _testCase(BsonKey.min, {'\$minKey': 1});
+        _testCase(const DBRef<int>('collection', 42), {
+          '\$ref': 'collection',
+          '\$id': canonical ? {'\$numberInt': '42'} : 42,
+        });
         _testCase(undefined, {'\$undefined': 1});
         _testCase(const Undefined<int?>(), {'\$undefined': 1});
         _testCase(Undefined<int?>(), {'\$undefined': 1});

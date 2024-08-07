@@ -47,21 +47,16 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'age': EJsonValue age,
-      } =>
-        Person(
-          age: fromEJson(age),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Person(
+      age: fromEJson(ejson['age'], defaultValue: 47),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Person, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
       SchemaProperty('age', RealmPropertyType.int),
     ]);
   }();

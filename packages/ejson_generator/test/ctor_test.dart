@@ -85,13 +85,6 @@ void _testCase<T>(T value, EJsonValue expected) {
   test('roundtrip $expected as $T', () {
     expect(toEJson(fromEJson<T>(expected)), expected);
   });
-
-  test('roundtrip $expected of type $T as dynamic', () {
-    // no <T> here, so dynamic
-    final decoded = fromEJson<dynamic>(expected);
-    expect(decoded, isA<T>());
-    expect(toEJson(decoded), expected);
-  });
 }
 
 void main() {

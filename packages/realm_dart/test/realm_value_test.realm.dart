@@ -48,21 +48,16 @@ class TuckedIn extends _TuckedIn
 
   static EJsonValue _toEJson(TuckedIn value) => value.toEJson();
   static TuckedIn _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'x': EJsonValue x,
-      } =>
-        TuckedIn(
-          x: fromEJson(x),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TuckedIn(
+      x: fromEJson(ejson['x'], defaultValue: 42),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(TuckedIn._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
+    return const SchemaObject(ObjectType.embeddedObject, TuckedIn, 'TuckedIn', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }();

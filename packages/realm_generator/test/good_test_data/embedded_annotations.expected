@@ -53,23 +53,17 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Parent value) => value.toEJson();
   static Parent _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'single child': EJsonValue child,
-        'CHILDREN': EJsonValue children,
-      } =>
-        Parent(
-          child: fromEJson(child),
-          children: fromEJson(children),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Parent(
+      child: fromEJson(ejson['single child']),
+      children: fromEJson(ejson['CHILDREN']),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(Parent._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
+    return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
       SchemaProperty('child', RealmPropertyType.object,
           mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
       SchemaProperty('children', RealmPropertyType.object,
@@ -136,16 +130,16 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
 
   static EJsonValue _toEJson(Child1 value) => value.toEJson();
   static Child1 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         '_value': EJsonValue value,
-        '_parent': EJsonValue linkToParent,
         'indexedString': EJsonValue indexedString,
       } =>
         Child1(
           fromEJson(value),
           fromEJson(indexedString),
-          linkToParent: fromEJson(linkToParent),
+          linkToParent: fromEJson(ejson['_parent']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -154,7 +148,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
+    return const SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),

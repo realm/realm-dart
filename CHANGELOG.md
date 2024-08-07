@@ -3,6 +3,7 @@
 ### Enhancements
 * Added a new parameter of type `SyncTimeoutOptions` to `AppConfiguration`. It allows users to control sync timings, such as ping/pong intervals as well various connection timeouts. (Issue [#1763](https://github.com/realm/realm-dart/issues/1763))
 * Added a new parameter `cancelAsyncOperationsOnNonFatalErrors` on `Configuration.flexibleSync` that allows users to control whether non-fatal errors such as connection timeouts should be surfaced in the form of errors or if sync should try and reconnect in the background. (PR [#1764](https://github.com/realm/realm-dart/pull/1764))
+* Allow nullable and other optional fields to be absent in EJson, when deserializing realm objects. (Issue [#1735](https://github.com/realm/realm-dart/issues/1735))
 
 ### Fixed
 * Fixed an issue where creating a flexible sync configuration with an embedded object not referenced by any top-level object would throw a "No such table" exception with no meaningful information about the issue. Now a `RealmException` will be thrown that includes the offending object name, as well as more precise text for what the root cause of the error is. (PR [#1748](https://github.com/realm/realm-dart/pull/1748))

@@ -47,21 +47,16 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Foo value) => value.toEJson();
   static Foo _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'x': EJsonValue x,
-      } =>
-        Foo(
-          x: fromEJson(x),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return Foo(
+      x: fromEJson(ejson['x'], defaultValue: 0),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(Foo._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
+    return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('x', RealmPropertyType.int),
     ]);
   }();

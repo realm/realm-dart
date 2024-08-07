@@ -34,12 +34,13 @@ EJsonValue _encodeAny(Object? value) {
     null => null,
     bool b => _encodeBool(b),
     DateTime d => _encodeDate(d),
+    DBRef d => _encodeDBRef(d),
     Defined<dynamic> d => _encodeDefined(d),
     double d => _encodeDouble(d),
     int i => _encodeInt(i),
     BsonKey k => _encodeKey(k),
     Uint8List b => _encodeBinary(b, subtype: '00'),
-    Iterable<dynamic> l => _encodeArray(l),
+    Iterable<dynamic> l => _encodeArray(l), // handles List and Set as well
     Map<dynamic, dynamic> m => _encodeDocument(m),
     ObjectId o => _encodeObjectId(o),
     String s => _encodeString(s),
@@ -68,6 +69,13 @@ EJsonValue _encodeDate(DateTime value) {
     false => {
         '\$date': {'\$numberLong': value.millisecondsSinceEpoch.toString()},
       },
+  };
+}
+
+EJsonValue _encodeDBRef(DBRef<dynamic> d) {
+  return {
+    '\$ref': d.collection,
+    '\$id': toEJson(d.id),
   };
 }
 
@@ -148,6 +156,12 @@ extension DateTimeEJsonEncoderExtension on DateTime {
   /// Converts this [DateTime] to EJson
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeDate(this);
+}
+
+extension DBRefEJsonEncoderExtension on DBRef<dynamic> {
+  /// Converts this [DBRef] to EJson
+  @pragma('vm:prefer-inline')
+  EJsonValue toEJson() => _encodeDBRef(this);
 }
 
 extension DefinedEJsonEncoderExtension on Defined<dynamic> {

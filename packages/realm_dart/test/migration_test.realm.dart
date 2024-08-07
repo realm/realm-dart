@@ -42,6 +42,7 @@ class PersonIntName extends _PersonIntName
 
   static EJsonValue _toEJson(PersonIntName value) => value.toEJson();
   static PersonIntName _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -56,7 +57,7 @@ class PersonIntName extends _PersonIntName
   static final schema = () {
     RealmObjectBase.registerFactory(PersonIntName._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, PersonIntName, 'Person', [
+    return const SchemaObject(ObjectType.realmObject, PersonIntName, 'Person', [
       SchemaProperty('name', RealmPropertyType.int),
     ]);
   }();
@@ -108,14 +109,14 @@ class StudentV1 extends _StudentV1
 
   static EJsonValue _toEJson(StudentV1 value) => value.toEJson();
   static StudentV1 _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
-        'yearOfBirth': EJsonValue yearOfBirth,
       } =>
         StudentV1(
           fromEJson(name),
-          yearOfBirth: fromEJson(yearOfBirth),
+          yearOfBirth: fromEJson(ejson['yearOfBirth']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -124,7 +125,7 @@ class StudentV1 extends _StudentV1
   static final schema = () {
     RealmObjectBase.registerFactory(StudentV1._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, StudentV1, 'Student', [
+    return const SchemaObject(ObjectType.realmObject, StudentV1, 'Student', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
     ]);
@@ -178,6 +179,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
 
   static EJsonValue _toEJson(MyObjectWithTypo value) => value.toEJson();
   static MyObjectWithTypo _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'nmae': EJsonValue nmae,
@@ -194,7 +196,8 @@ class MyObjectWithTypo extends _MyObjectWithTypo
   static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithTypo._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
+    return const SchemaObject(
+        ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
       SchemaProperty('nmae', RealmPropertyType.string),
       SchemaProperty('vlaue', RealmPropertyType.int),
     ]);
@@ -248,6 +251,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 
   static EJsonValue _toEJson(MyObjectWithoutTypo value) => value.toEJson();
   static MyObjectWithoutTypo _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -264,7 +268,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
   static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithoutTypo._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, MyObjectWithoutTypo, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
       SchemaProperty('value', RealmPropertyType.int),
@@ -311,6 +315,7 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
 
   static EJsonValue _toEJson(MyObjectWithoutValue value) => value.toEJson();
   static MyObjectWithoutValue _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'name': EJsonValue name,
@@ -325,7 +330,7 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
   static final schema = () {
     RealmObjectBase.registerFactory(MyObjectWithoutValue._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, MyObjectWithoutValue, 'MyObject', [
       SchemaProperty('name', RealmPropertyType.string),
     ]);

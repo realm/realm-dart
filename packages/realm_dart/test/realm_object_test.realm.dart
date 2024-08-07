@@ -43,6 +43,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
 
   static EJsonValue _toEJson(ObjectIdPrimaryKey value) => value.toEJson();
   static ObjectIdPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -57,7 +58,7 @@ class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectIdPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ObjectIdPrimaryKey, 'ObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
     ]);
@@ -104,12 +105,13 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   static EJsonValue _toEJson(NullableObjectIdPrimaryKey value) =>
       value.toEJson();
   static NullableObjectIdPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableObjectIdPrimaryKey(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -118,8 +120,8 @@ class NullableObjectIdPrimaryKey extends _NullableObjectIdPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(NullableObjectIdPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NullableObjectIdPrimaryKey,
-        'NullableObjectIdPrimaryKey', [
+    return const SchemaObject(ObjectType.realmObject,
+        NullableObjectIdPrimaryKey, 'NullableObjectIdPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.objectid,
           optional: true, primaryKey: true),
     ]);
@@ -164,6 +166,7 @@ class IntPrimaryKey extends _IntPrimaryKey
 
   static EJsonValue _toEJson(IntPrimaryKey value) => value.toEJson();
   static IntPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -178,7 +181,7 @@ class IntPrimaryKey extends _IntPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(IntPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, IntPrimaryKey, 'IntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int, primaryKey: true),
     ]);
@@ -224,12 +227,13 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
 
   static EJsonValue _toEJson(NullableIntPrimaryKey value) => value.toEJson();
   static NullableIntPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableIntPrimaryKey(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -238,7 +242,7 @@ class NullableIntPrimaryKey extends _NullableIntPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(NullableIntPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey,
+    return const SchemaObject(ObjectType.realmObject, NullableIntPrimaryKey,
         'NullableIntPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.int,
           optional: true, primaryKey: true),
@@ -285,6 +289,7 @@ class StringPrimaryKey extends _StringPrimaryKey
 
   static EJsonValue _toEJson(StringPrimaryKey value) => value.toEJson();
   static StringPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -299,7 +304,7 @@ class StringPrimaryKey extends _StringPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(StringPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, StringPrimaryKey, 'StringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string, primaryKey: true),
     ]);
@@ -345,12 +350,13 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
 
   static EJsonValue _toEJson(NullableStringPrimaryKey value) => value.toEJson();
   static NullableStringPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableStringPrimaryKey(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -359,7 +365,7 @@ class NullableStringPrimaryKey extends _NullableStringPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(NullableStringPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey,
+    return const SchemaObject(ObjectType.realmObject, NullableStringPrimaryKey,
         'NullableStringPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.string,
           optional: true, primaryKey: true),
@@ -405,6 +411,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey
 
   static EJsonValue _toEJson(UuidPrimaryKey value) => value.toEJson();
   static UuidPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
@@ -419,7 +426,7 @@ class UuidPrimaryKey extends _UuidPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(UuidPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, UuidPrimaryKey, 'UuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
     ]);
@@ -465,12 +472,13 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
 
   static EJsonValue _toEJson(NullableUuidPrimaryKey value) => value.toEJson();
   static NullableUuidPrimaryKey _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'id': EJsonValue id,
       } =>
         NullableUuidPrimaryKey(
-          fromEJson(id),
+          fromEJson(ejson['id']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -479,7 +487,7 @@ class NullableUuidPrimaryKey extends _NullableUuidPrimaryKey
   static final schema = () {
     RealmObjectBase.registerFactory(NullableUuidPrimaryKey._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey,
+    return const SchemaObject(ObjectType.realmObject, NullableUuidPrimaryKey,
         'NullableUuidPrimaryKey', [
       SchemaProperty('id', RealmPropertyType.uuid,
           optional: true, primaryKey: true),
@@ -529,21 +537,16 @@ class RemappedFromAnotherFile extends _RemappedFromAnotherFile
 
   static EJsonValue _toEJson(RemappedFromAnotherFile value) => value.toEJson();
   static RemappedFromAnotherFile _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'property with spaces': EJsonValue linkToAnotherClass,
-      } =>
-        RemappedFromAnotherFile(
-          linkToAnotherClass: fromEJson(linkToAnotherClass),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return RemappedFromAnotherFile(
+      linkToAnotherClass: fromEJson(ejson['property with spaces']),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(RemappedFromAnotherFile._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, RemappedFromAnotherFile, 'class with spaces', [
       SchemaProperty('linkToAnotherClass', RealmPropertyType.object,
           mapTo: 'property with spaces',
@@ -598,6 +601,7 @@ class BoolValue extends _BoolValue
 
   static EJsonValue _toEJson(BoolValue value) => value.toEJson();
   static BoolValue _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'key': EJsonValue key,
@@ -614,7 +618,7 @@ class BoolValue extends _BoolValue
   static final schema = () {
     RealmObjectBase.registerFactory(BoolValue._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, BoolValue, 'BoolValue', [
+    return const SchemaObject(ObjectType.realmObject, BoolValue, 'BoolValue', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('value', RealmPropertyType.bool),
     ]);
@@ -752,35 +756,23 @@ class TestNotificationObject extends _TestNotificationObject
 
   static EJsonValue _toEJson(TestNotificationObject value) => value.toEJson();
   static TestNotificationObject _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'stringProperty': EJsonValue stringProperty,
-        'intProperty': EJsonValue intProperty,
-        '_remappedIntProperty': EJsonValue remappedIntProperty,
-        'link': EJsonValue link,
-        'embedded': EJsonValue embedded,
-        'listLinks': EJsonValue listLinks,
-        'setLinks': EJsonValue setLinks,
-        'mapLinks': EJsonValue mapLinks,
-      } =>
-        TestNotificationObject(
-          stringProperty: fromEJson(stringProperty),
-          intProperty: fromEJson(intProperty),
-          remappedIntProperty: fromEJson(remappedIntProperty),
-          link: fromEJson(link),
-          embedded: fromEJson(embedded),
-          listLinks: fromEJson(listLinks),
-          setLinks: fromEJson(setLinks),
-          mapLinks: fromEJson(mapLinks),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TestNotificationObject(
+      stringProperty: fromEJson(ejson['stringProperty']),
+      intProperty: fromEJson(ejson['intProperty']),
+      remappedIntProperty: fromEJson(ejson['_remappedIntProperty']),
+      link: fromEJson(ejson['link']),
+      embedded: fromEJson(ejson['embedded']),
+      listLinks: fromEJson(ejson['listLinks']),
+      setLinks: fromEJson(ejson['setLinks']),
+      mapLinks: fromEJson(ejson['mapLinks']),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationObject._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, TestNotificationObject,
+    return const SchemaObject(ObjectType.realmObject, TestNotificationObject,
         'TestNotificationObject', [
       SchemaProperty('stringProperty', RealmPropertyType.string,
           optional: true),
@@ -861,23 +853,17 @@ class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
   static EJsonValue _toEJson(TestNotificationEmbeddedObject value) =>
       value.toEJson();
   static TestNotificationEmbeddedObject _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'stringProperty': EJsonValue stringProperty,
-        'intProperty': EJsonValue intProperty,
-      } =>
-        TestNotificationEmbeddedObject(
-          stringProperty: fromEJson(stringProperty),
-          intProperty: fromEJson(intProperty),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return TestNotificationEmbeddedObject(
+      stringProperty: fromEJson(ejson['stringProperty']),
+      intProperty: fromEJson(ejson['intProperty']),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationEmbeddedObject._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.embeddedObject,
+    return const SchemaObject(ObjectType.embeddedObject,
         TestNotificationEmbeddedObject, 'TestNotificationEmbeddedObject', [
       SchemaProperty('stringProperty', RealmPropertyType.string,
           optional: true),

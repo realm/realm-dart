@@ -56,16 +56,15 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
   static EJsonValue _toEJson(Car value) => value.toEJson();
   static Car _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'make': EJsonValue make,
-        'color': EJsonValue color,
-        'year': EJsonValue year,
       } =>
         Car(
           fromEJson(make),
-          color: fromEJson(color),
-          year: fromEJson(year),
+          color: fromEJson(ejson['color']),
+          year: fromEJson(ejson['year']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -74,7 +73,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Car._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(ObjectType.realmObject, Car, 'Car', [
+    return const SchemaObject(ObjectType.realmObject, Car, 'Car', [
       SchemaProperty('make', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('color', RealmPropertyType.string, optional: true),
       SchemaProperty('year', RealmPropertyType.int, optional: true),
@@ -120,6 +119,7 @@ class EmbeddedValue extends _EmbeddedValue
 
   static EJsonValue _toEJson(EmbeddedValue value) => value.toEJson();
   static EmbeddedValue _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'intValue': EJsonValue intValue,
@@ -134,7 +134,7 @@ class EmbeddedValue extends _EmbeddedValue
   static final schema = () {
     RealmObjectBase.registerFactory(EmbeddedValue._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.embeddedObject, EmbeddedValue, 'EmbeddedValue', [
       SchemaProperty('intValue', RealmPropertyType.int),
     ]);
@@ -416,54 +416,34 @@ class TestRealmMaps extends _TestRealmMaps
 
   static EJsonValue _toEJson(TestRealmMaps value) => value.toEJson();
   static TestRealmMaps _fromEJson(EJsonValue ejson) {
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
       {
         'key': EJsonValue key,
-        'boolMap': EJsonValue boolMap,
-        'intMap': EJsonValue intMap,
-        'stringMap': EJsonValue stringMap,
-        'doubleMap': EJsonValue doubleMap,
-        'dateTimeMap': EJsonValue dateTimeMap,
-        'objectIdMap': EJsonValue objectIdMap,
-        'uuidMap': EJsonValue uuidMap,
-        'binaryMap': EJsonValue binaryMap,
-        'decimalMap': EJsonValue decimalMap,
-        'nullableBoolMap': EJsonValue nullableBoolMap,
-        'nullableIntMap': EJsonValue nullableIntMap,
-        'nullableStringMap': EJsonValue nullableStringMap,
-        'nullableDoubleMap': EJsonValue nullableDoubleMap,
-        'nullableDateTimeMap': EJsonValue nullableDateTimeMap,
-        'nullableObjectIdMap': EJsonValue nullableObjectIdMap,
-        'nullableUuidMap': EJsonValue nullableUuidMap,
-        'nullableBinaryMap': EJsonValue nullableBinaryMap,
-        'nullableDecimalMap': EJsonValue nullableDecimalMap,
-        'objectsMap': EJsonValue objectsMap,
-        'embeddedMap': EJsonValue embeddedMap,
-        'mixedMap': EJsonValue mixedMap,
       } =>
         TestRealmMaps(
           fromEJson(key),
-          boolMap: fromEJson(boolMap),
-          intMap: fromEJson(intMap),
-          stringMap: fromEJson(stringMap),
-          doubleMap: fromEJson(doubleMap),
-          dateTimeMap: fromEJson(dateTimeMap),
-          objectIdMap: fromEJson(objectIdMap),
-          uuidMap: fromEJson(uuidMap),
-          binaryMap: fromEJson(binaryMap),
-          decimalMap: fromEJson(decimalMap),
-          nullableBoolMap: fromEJson(nullableBoolMap),
-          nullableIntMap: fromEJson(nullableIntMap),
-          nullableStringMap: fromEJson(nullableStringMap),
-          nullableDoubleMap: fromEJson(nullableDoubleMap),
-          nullableDateTimeMap: fromEJson(nullableDateTimeMap),
-          nullableObjectIdMap: fromEJson(nullableObjectIdMap),
-          nullableUuidMap: fromEJson(nullableUuidMap),
-          nullableBinaryMap: fromEJson(nullableBinaryMap),
-          nullableDecimalMap: fromEJson(nullableDecimalMap),
-          objectsMap: fromEJson(objectsMap),
-          embeddedMap: fromEJson(embeddedMap),
-          mixedMap: fromEJson(mixedMap),
+          boolMap: fromEJson(ejson['boolMap']),
+          intMap: fromEJson(ejson['intMap']),
+          stringMap: fromEJson(ejson['stringMap']),
+          doubleMap: fromEJson(ejson['doubleMap']),
+          dateTimeMap: fromEJson(ejson['dateTimeMap']),
+          objectIdMap: fromEJson(ejson['objectIdMap']),
+          uuidMap: fromEJson(ejson['uuidMap']),
+          binaryMap: fromEJson(ejson['binaryMap']),
+          decimalMap: fromEJson(ejson['decimalMap']),
+          nullableBoolMap: fromEJson(ejson['nullableBoolMap']),
+          nullableIntMap: fromEJson(ejson['nullableIntMap']),
+          nullableStringMap: fromEJson(ejson['nullableStringMap']),
+          nullableDoubleMap: fromEJson(ejson['nullableDoubleMap']),
+          nullableDateTimeMap: fromEJson(ejson['nullableDateTimeMap']),
+          nullableObjectIdMap: fromEJson(ejson['nullableObjectIdMap']),
+          nullableUuidMap: fromEJson(ejson['nullableUuidMap']),
+          nullableBinaryMap: fromEJson(ejson['nullableBinaryMap']),
+          nullableDecimalMap: fromEJson(ejson['nullableDecimalMap']),
+          objectsMap: fromEJson(ejson['objectsMap']),
+          embeddedMap: fromEJson(ejson['embeddedMap']),
+          mixedMap: fromEJson(ejson['mixedMap']),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -472,7 +452,7 @@ class TestRealmMaps extends _TestRealmMaps
   static final schema = () {
     RealmObjectBase.registerFactory(TestRealmMaps._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, TestRealmMaps, 'TestRealmMaps', [
       SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('boolMap', RealmPropertyType.bool,

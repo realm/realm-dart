@@ -220,55 +220,37 @@ class ConstInitializer extends _ConstInitializer
 
   static EJsonValue _toEJson(ConstInitializer value) => value.toEJson();
   static ConstInitializer _fromEJson(EJsonValue ejson) {
-    return switch (ejson) {
-      {
-        'zero': EJsonValue zero,
-        'minusOne': EJsonValue minusOne,
-        'fooOrOne': EJsonValue fooOrOne,
-        'parenthesis': EJsonValue parenthesis,
-        'minusMinusOne': EJsonValue minusMinusOne,
-        'add': EJsonValue add,
-        'identifier': EJsonValue identifier,
-        'infinity': EJsonValue infinity,
-        'nan': EJsonValue nan,
-        'negativeInfinity': EJsonValue negativeInfinity,
-        'fooEnv': EJsonValue fooEnv,
-        'fooLit': EJsonValue fooLit,
-        'constEmptyList': EJsonValue constEmptyList,
-        'constEmptyMap': EJsonValue constEmptyMap,
-        'constEmptySet': EJsonValue constEmptySet,
-        'emptyList': EJsonValue emptyList,
-        'emptyMao': EJsonValue emptyMao,
-        'emptySet': EJsonValue emptySet,
-      } =>
-        ConstInitializer(
-          zero: fromEJson(zero),
-          minusOne: fromEJson(minusOne),
-          fooOrOne: fromEJson(fooOrOne),
-          parenthesis: fromEJson(parenthesis),
-          minusMinusOne: fromEJson(minusMinusOne),
-          add: fromEJson(add),
-          identifier: fromEJson(identifier),
-          infinity: fromEJson(infinity),
-          nan: fromEJson(nan),
-          negativeInfinity: fromEJson(negativeInfinity),
-          fooEnv: fromEJson(fooEnv),
-          fooLit: fromEJson(fooLit),
-          constEmptyList: fromEJson(constEmptyList),
-          constEmptyMap: fromEJson(constEmptyMap),
-          constEmptySet: fromEJson(constEmptySet),
-          emptyList: fromEJson(emptyList),
-          emptyMao: fromEJson(emptyMao),
-          emptySet: fromEJson(emptySet),
-        ),
-      _ => raiseInvalidEJson(ejson),
-    };
+    if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
+    return ConstInitializer(
+      zero: fromEJson(ejson['zero'], defaultValue: 0),
+      minusOne: fromEJson(ejson['minusOne'], defaultValue: -1),
+      fooOrOne: fromEJson(ejson['fooOrOne'],
+          defaultValue: const int.fromEnvironment('FOO', defaultValue: 1)),
+      parenthesis: fromEJson(ejson['parenthesis'], defaultValue: (1)),
+      minusMinusOne: fromEJson(ejson['minusMinusOne'], defaultValue: -(-1)),
+      add: fromEJson(ejson['add'], defaultValue: 1 + 1),
+      identifier: fromEJson(ejson['identifier'], defaultValue: myConst),
+      infinity: fromEJson(ejson['infinity'], defaultValue: double.infinity),
+      nan: fromEJson(ejson['nan'], defaultValue: double.nan),
+      negativeInfinity: fromEJson(ejson['negativeInfinity'],
+          defaultValue: double.negativeInfinity),
+      fooEnv: fromEJson(ejson['fooEnv'],
+          defaultValue: const String.fromEnvironment('FOO')),
+      fooLit: fromEJson(ejson['fooLit'], defaultValue: 'foo'),
+      constEmptyList:
+          fromEJson(ejson['constEmptyList'], defaultValue: const []),
+      constEmptyMap: fromEJson(ejson['constEmptyMap'], defaultValue: const {}),
+      constEmptySet: fromEJson(ejson['constEmptySet'], defaultValue: const {}),
+      emptyList: fromEJson(ejson['emptyList'], defaultValue: const []),
+      emptyMao: fromEJson(ejson['emptyMao'], defaultValue: const {}),
+      emptySet: fromEJson(ejson['emptySet'], defaultValue: const {}),
+    );
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(ConstInitializer._);
     register(_toEJson, _fromEJson);
-    return SchemaObject(
+    return const SchemaObject(
         ObjectType.realmObject, ConstInitializer, 'ConstInitializer', [
       SchemaProperty('zero', RealmPropertyType.int),
       SchemaProperty('minusOne', RealmPropertyType.int),

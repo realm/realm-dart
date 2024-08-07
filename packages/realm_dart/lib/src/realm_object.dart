@@ -5,6 +5,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
+import 'package:type_plus/type_plus.dart';
 
 import 'configuration.dart';
 import 'handles/handle_base.dart';
@@ -400,6 +401,14 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
 
   /// @nodoc
   static void registerFactory<T extends RealmObjectBase>(T Function() factory) {
+    // Register type as both (T).hashCode.toString() and T.name
+    TypePlus.add<T>();
+    if (TypePlus.fromId(T.name) == UnresolvedType) {
+      // Only register by name, if no other class with the same name is registered
+      // Can happen, if the same class name is used in different libraries.
+      TypePlus.add<T>(id: T.name);
+    }
+
     // We register a factory for both the type itself, but also the nullable
     // version of the type.
     _factories.putIfAbsent(T, () => factory);
@@ -407,10 +416,10 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
   }
 
   /// @nodoc
-  static RealmObjectBase createObject(Type type, RealmObjectMetadata metadata) {
+  static RealmObjectBase createObject(Type type, RealmObjectMetadata? metadata) {
     final factory = _factories[type];
     if (factory == null) {
-      if (type == RealmObjectBase) {
+      if (type == RealmObjectBase && metadata != null) {
         switch (metadata.schema.baseType) {
           case ObjectType.realmObject:
             return _ConcreteRealmObject();
