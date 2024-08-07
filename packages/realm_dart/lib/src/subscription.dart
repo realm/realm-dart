@@ -125,6 +125,11 @@ abstract interface class SubscriptionSet with Iterable<Subscription> {
 
   Future<SubscriptionSetState> _waitForStateChange(SubscriptionSetState state, [CancellationToken? cancellationToken]) async {
     final result = await _handle.waitForStateChange(state, cancellationToken);
+    if (_handle.released) {
+      // We can get here if the Realm was closed before the wait has completed
+      throw CancelledException(cancellationReason: 'The Realm owning the subscription set was closed.');
+    }
+
     _handle.refresh();
     return result;
   }
