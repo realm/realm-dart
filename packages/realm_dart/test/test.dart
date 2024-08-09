@@ -258,6 +258,9 @@ class _Friend {
   var age = 42;
   _Friend? bestFriend;
   final friends = <_Friend>[];
+
+  @override
+  String toString() => '$name $age';
 }
 
 @RealmModel()

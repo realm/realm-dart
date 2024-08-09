@@ -1550,4 +1550,18 @@ void main() {
     expect(results.skip(2), results.toList().sublist(2));
     expect(results.skip(2).take(3), [results[2], results[3], results[4]]);
   });
+
+  test('BETWEEN op', () {
+    final realm = getRealm(Configuration.local([Friend.schema, Party.schema]));
+
+    final alice = Friend('alice', age: 36);
+    final bob = Friend('bob', age: 49, bestFriend: alice);
+    alice.bestFriend = bob;
+
+    realm.write(() => realm.addAll([alice, bob]));
+  
+    expect(realm.query<Friend>(r'age BETWEEN {$0, $1}', [20, 40]), [alice]);
+    // the following used to fail due to: https://github.com/realm/realm-core/issues/7935
+    expect(realm.query<Friend>(r'bestFriend.age BETWEEN {$0, $1}', [20, 40]), [bob]);
+  });
 }

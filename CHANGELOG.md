@@ -4,11 +4,19 @@
 * Added a new parameter of type `SyncTimeoutOptions` to `AppConfiguration`. It allows users to control sync timings, such as ping/pong intervals as well various connection timeouts. (Issue [#1763](https://github.com/realm/realm-dart/issues/1763))
 * Added a new parameter `cancelAsyncOperationsOnNonFatalErrors` on `Configuration.flexibleSync` that allows users to control whether non-fatal errors such as connection timeouts should be surfaced in the form of errors or if sync should try and reconnect in the background. (PR [#1764](https://github.com/realm/realm-dart/pull/1764))
 * Allow nullable and other optional fields to be absent in EJson, when deserializing realm objects. (Issue [#1735](https://github.com/realm/realm-dart/issues/1735))
+* Sync log statements now include the app services connection id in their prefix (e.g `Connection[1:<connection id>] Session[1]: log message`) to make correlating sync activity to server logs easier during troubleshooting (Core 14.11.2).
+* Improve sync bootstrap performance by reducing the number of table selections in the replication logs for embedded objects. (Core v14.11.2-8-g430a044fe)
+* Released a read lock which was pinned for the duration of a mutable subscription even after commit. This frees resources earlier, and may improve performance of sync bootstraps where the starting state is large. (Core v14.11.2-8-g430a044fe)
+* Client reset cycle detection now checks if the previous recovery attempt was made by the same core version, and if not attempts recovery again (Core v14.11.2-8-g430a044fe).
 
 ### Fixed
 * Fixed an issue where creating a flexible sync configuration with an embedded object not referenced by any top-level object would throw a "No such table" exception with no meaningful information about the issue. Now a `RealmException` will be thrown that includes the offending object name, as well as more precise text for what the root cause of the error is. (PR [#1748](https://github.com/realm/realm-dart/pull/1748))
 * `AppConfiguration.maxConnectionTimeout` never had any effect and has been deprecated in favor of `SyncTimeoutOptions.connectTimeout`. (PR [#1764](https://github.com/realm/realm-dart/pull/1764))
 * Pure dart apps, when compiled to an exe and run from outside the project directory would fail to load the native shared library. (Issue [#1765](https://github.com/realm/realm-dart/issues/1765))
+* App subscription callback was getting fired before the user profile was retrieved on login, leading to an empty user profile when using the callback. (Core 14.11.1)
+* Sync client may report duplicate compensating write errors (Core 14.11.2).
+* String serialization of timestamps with a sufficiently large timestamp value could overflow an int causing undefined behavior, causing potentially bad values for the month/day/year values in stringified dates. (Core 14.11.2).
+* Fixed an "invalid column key" exception when using a RQL "BETWEEN" query on an int or timestamp property across links. (Core v14.11.2-8-g430a044fe)
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
