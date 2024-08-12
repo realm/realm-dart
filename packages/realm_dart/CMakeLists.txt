@@ -5,6 +5,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL Android)
     set(REALM_ANDROID ON)
     set(CMAKE_ANDROID_STL_TYPE c++_static)
     set(ANDROID_ALLOW_UNDEFINED_SYMBOLS ON)
+    set(ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON)
 endif()
 
 project(realm-dart)
