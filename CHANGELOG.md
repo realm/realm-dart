@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 3.4.0 (2024-08-13)
 
 ### Enhancements
 * Added a new parameter of type `SyncTimeoutOptions` to `AppConfiguration`. It allows users to control sync timings, such as ping/pong intervals as well various connection timeouts. (Issue [#1763](https://github.com/realm/realm-dart/issues/1763))
