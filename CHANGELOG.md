@@ -1,7 +1,4 @@
-## vNext (TBD)
-
-### Enhancements
-* None
+## 3.4.1 (2024-08-14)
 
 ### Fixed
 * Fixed ejson dependency to 0.4.0.
