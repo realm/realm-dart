@@ -4,13 +4,13 @@
 * None
 
 ### Fixed
-* None
+* Fixed ejson dependency to 0.4.0.
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.11.0.
 
 ## 3.4.0 (2024-08-13)
 
@@ -28,7 +28,7 @@
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 14.11.0.
 
 ## 3.3.0 (2024-07-20)
 
