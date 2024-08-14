@@ -3,7 +3,7 @@ description: >-
              Hosts the common code shared between realm, realm_dart and realm_generator packages.
              This package is part of the official Realm Flutter and Realm Dart SDKs.
 
-version: 3.4.0
+version: 3.4.1
 
 homepage: https://www.realm.io
 repository: https://github.com/realm/realm-dart
