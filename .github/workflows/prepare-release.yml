@@ -7,6 +7,10 @@ on:
         description: Use this to provide a version, instead of deriving it from the changelog.
         required: false
         type: string
+      ejson-version:
+        description: Use this to provide a version for the ejson packages, instead of deriving it from the changelog.
+        required: false
+        type: string
 env:
   REALM_CI: true
 
@@ -29,6 +33,10 @@ jobs:
 
       - name: Setup Runner
         uses: ./.github/actions/setup-runner
+
+      - name: Update ejson pubspec.yaml files
+        run: EJSON_VERSION=${{ inputs.ejson-version }} melos run update:version:ejson
+        if: inputs.ejson-version != ''
 
       - name: Update pubspec.yaml files
         run: REALM_VERSION=${{ steps.update-changelog.outputs.new-version }} melos run update:version:realm
