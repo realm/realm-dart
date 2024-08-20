@@ -12,20 +12,12 @@ sealed class LogCategory {
   /// All possible log categories.
   static final values = [
     realm,
-    realm.app,
     realm.sdk,
     realm.storage,
     realm.storage.notification,
     realm.storage.object,
     realm.storage.query,
     realm.storage.transaction,
-    realm.sync,
-    realm.sync.client,
-    realm.sync.client.changeset,
-    realm.sync.client.network,
-    realm.sync.client.reset,
-    realm.sync.client.session,
-    realm.sync.server,
   ];
 
   /// The root category for all log messages from the Realm SDK.
@@ -68,26 +60,8 @@ class _LeafLogCategory extends LogCategory {
 class _RealmLogCategory extends LogCategory {
   _RealmLogCategory() : super._('Realm', null);
 
-  late final app = _LeafLogCategory('App', this);
   late final sdk = _LeafLogCategory('SDK', this);
   late final storage = _StorageLogCategory(this);
-  late final sync = _SyncLogCategory(this);
-}
-
-class _SyncLogCategory extends LogCategory {
-  _SyncLogCategory(LogCategory parent) : super._('Sync', parent);
-
-  late final client = _ClientLogCategory(this);
-  late final server = _LeafLogCategory('Server', this);
-}
-
-class _ClientLogCategory extends LogCategory {
-  _ClientLogCategory(LogCategory parent) : super._('Client', parent);
-
-  late final changeset = _LeafLogCategory('Changeset', this);
-  late final network = _LeafLogCategory('Network', this);
-  late final reset = _LeafLogCategory('Reset', this);
-  late final session = _LeafLogCategory('Session', this);
 }
 
 class _StorageLogCategory extends LogCategory {
@@ -100,15 +74,15 @@ class _StorageLogCategory extends LogCategory {
 }
 
 /// Specifies the criticality level above which messages will be logged
-/// by the default sync client logger.
+/// by the default client logger.
 /// {@category Realm}
 enum LogLevel {
   /// Log everything. This will seriously harm the performance of the
-  /// sync client and should never be used in production scenarios.
+  /// database and should never be used in production scenarios.
   all(Level.ALL),
 
   /// A version of [debug] that allows for very high volume output.
-  /// This may seriously affect the performance of the sync client.
+  /// This may seriously affect the performance of the database.
   trace(Level.FINEST),
 
   /// Reveal information that can aid debugging, no longer paying
@@ -118,7 +92,7 @@ enum LogLevel {
   /// Same as [info], but prioritize completeness over minimalism.
   detail(Level.FINE),
 
-  /// Log operational sync client messages, but in a minimalist fashion to
+  /// Log operational database messages, but in a minimalist fashion to
   /// avoid general overhead from logging and to keep volume down.
   info(Level.INFO),
 

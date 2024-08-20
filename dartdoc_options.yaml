@@ -3,9 +3,7 @@ dartdoc:
     "Configuration":
     "Annotations":
     "Realm":
-    "Application":
-    "Sync":
-  categoryOrder: ["Realm", "Configuration", "Annotations", "Application", "Sync"]
+  categoryOrder: ["Realm", "Configuration", "Annotations"]
   examplePathPrefix: 'example'
   # nodoc: ['generator/flutter/ffigen/scripts/src/test/*.g.dart']
   showUndocumentedCategories: true

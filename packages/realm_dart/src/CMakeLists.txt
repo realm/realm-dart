@@ -1,6 +1,9 @@
 option(REALM_BUILD_CORE_FROM_SOURCE "Build Realm Core from source" ON)
+
 if(REALM_BUILD_CORE_FROM_SOURCE)
     set(REALM_BUILD_LIB_ONLY ON)
+    set(REALM_ENABLE_SYNC OFF)
+    set(REALM_APP_SERVICES OFF)
 
     add_subdirectory(realm-core EXCLUDE_FROM_ALL)
 endif()
@@ -12,7 +15,6 @@ set(SOURCES
     realm_dart_logger.cpp
     realm_dart_decimal128.cpp
     realm_dart_scheduler.cpp
-    realm_dart_sync.cpp
     realm-core/src/external/IntelRDFPMathLib20U2/LIBRARY/src/bid128_noncomp.c
 )
 
@@ -21,8 +23,6 @@ set(HEADERS
     realm_dart.hpp
     realm_dart_logger.h
     realm_dart_scheduler.h
-    realm_dart_scheduler.h
-    realm_dart_sync.h
     realm-core/src/realm.h
 )
 
@@ -42,6 +42,7 @@ else()
 endif()
 
 string(APPEND OUTPUT_DIR "${PROJECT_SOURCE_DIR}/binary")
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(APPEND OUTPUT_DIR "/windows")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")

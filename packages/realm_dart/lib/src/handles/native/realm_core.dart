@@ -1,13 +1,10 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as path;
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_dart/realm.dart';
 
 import 'convert_native.dart';
@@ -47,11 +44,6 @@ class RealmCore implements intf.RealmCore {
   // For debugging
   @override
   int get threadId => realmLib.realm_dart_get_thread_id();
-
-  @override
-  void clearCachedApps() {
-    realmLib.realm_clear_cached_apps();
-  }
 
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
@@ -106,68 +98,6 @@ class RealmCore implements intf.RealmCore {
     } catch (e) {
       throw RealmException('Cannot get app directory. Error: $e');
     }
-  }
-
-  @override
-  String getBundleId() {
-    readBundleId() {
-      try {
-        if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-          var pubspecPath = path.join(path.current, 'pubspec.yaml');
-          var pubspecFile = File(pubspecPath);
-
-          if (pubspecFile.existsSync()) {
-            final pubspec = Pubspec.parse(pubspecFile.readAsStringSync());
-            return pubspec.name;
-          }
-        }
-
-        if (Platform.isAndroid) {
-          return realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
-        }
-
-        final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
-        final bundleIdPtr = getBundleIdFunc();
-        return bundleIdPtr.cast<Utf8>().toDartString();
-      } on Exception catch (_) {
-        //Never fail on bundleId. Use fallback value.
-      }
-
-      //Fallback value
-      return "realm_bundle_id";
-    }
-
-    String bundleId = readBundleId();
-    const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
-    return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
-  }
-
-  @override
-  String getDefaultBaseUrl() {
-    return realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
-  }
-
-  @override
-  String getDeviceName() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmLib.realm_dart_get_device_name().cast<Utf8>().toRealmDartString()!;
-    }
-
-    return "";
-  }
-
-  @override
-  String getDeviceVersion() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmLib.realm_dart_get_device_version().cast<Utf8>().toRealmDartString()!;
-    }
-
-    return "";
-  }
-
-  @override
-  String getRealmLibraryCpuArchitecture() {
-    return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
   }
 
   @override

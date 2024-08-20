@@ -175,6 +175,10 @@ class RealmLibrary {
           ffi.Pointer<ffi.Void>,
           realm_free_userdata_func_t)>();
 
+  /// If using App Services, the realm_sync_client_config_t instance is part of the
+  /// realm_app_config_t structure and this function returns a pointer to that
+  /// member property. The realm_sync_client_config_t reference returned by this
+  /// function should not be freed using realm_release.
   ffi.Pointer<realm_sync_client_config_t>
       realm_app_config_get_sync_client_config(
     ffi.Pointer<realm_app_config_t> arg0,
@@ -5650,6 +5654,22 @@ class RealmLibrary {
   late final _realm_get_object = _realm_get_objectPtr.asFunction<
       ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int, int)>();
 
+  /// Get the schema version for this realm at the path.
+  int realm_get_persisted_schema_version(
+    ffi.Pointer<realm_config_t> config,
+  ) {
+    return _realm_get_persisted_schema_version(
+      config,
+    );
+  }
+
+  late final _realm_get_persisted_schema_versionPtr = _lookup<
+          ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>>(
+      'realm_get_persisted_schema_version');
+  late final _realm_get_persisted_schema_version =
+      _realm_get_persisted_schema_versionPtr
+          .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
+
   /// Find a property by its column key.
   ///
   /// It is an error to pass a property @a key that is not present in this class.
@@ -9377,17 +9397,6 @@ class RealmLibrary {
           ffi.Pointer<realm_property_key_t>,
           ffi.Pointer<realm_value_t>,
           bool)>();
-
-  ffi.Pointer<realm_sync_client_config_t> realm_sync_client_config_new() {
-    return _realm_sync_client_config_new();
-  }
-
-  late final _realm_sync_client_config_newPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Pointer<realm_sync_client_config_t> Function()>>(
-      'realm_sync_client_config_new');
-  late final _realm_sync_client_config_new = _realm_sync_client_config_newPtr
-      .asFunction<ffi.Pointer<realm_sync_client_config_t> Function()>();
 
   void realm_sync_client_config_set_connect_timeout(
     ffi.Pointer<realm_sync_client_config_t> arg0,

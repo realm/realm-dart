@@ -5,10 +5,7 @@ import 'dart:typed_data';
 
 import 'ffi.dart';
 
-import '../../app.dart';
-import '../../configuration.dart';
 import '../../realm_class.dart';
-import '../../user.dart';
 import 'decimal128.dart';
 import 'list_handle.dart';
 import 'map_handle.dart';
@@ -142,119 +139,9 @@ extension PointerUtf8Ex on Pointer<Utf8> {
   }
 }
 
-extension RealmSyncErrorEx on realm_sync_error {
-  SyncErrorDetails toDart() {
-    final message = status.message.cast<Utf8>().toRealmDartString()!;
-    final userInfoMap = user_info_map.toDart(user_info_length);
-    final originalFilePathKey = c_original_file_path_key.cast<Utf8>().toRealmDartString();
-    final recoveryFilePathKey = c_recovery_file_path_key.cast<Utf8>().toRealmDartString();
-
-    return SyncErrorDetails(
-      message,
-      status.error.toSyncErrorCode(),
-      user_code_error.toUserCodeError(),
-      isFatal: is_fatal,
-      isClientResetRequested: is_client_reset_requested,
-      originalFilePath: userInfoMap?[originalFilePathKey],
-      backupFilePath: userInfoMap?[recoveryFilePathKey],
-      compensatingWrites: compensating_writes.toList(compensating_writes_length),
-    );
-  }
-}
-
-extension PointerRealmSyncErrorUserInfoEx on Pointer<realm_sync_error_user_info> {
-  Map<String, String>? toDart(int length) {
-    if (this == nullptr) {
-      return null;
-    }
-    Map<String, String> userInfoMap = {};
-    for (int i = 0; i < length; i++) {
-      final userInfoItem = this[i];
-      final key = userInfoItem.key.cast<Utf8>().toDartString();
-      final value = userInfoItem.value.cast<Utf8>().toDartString();
-      userInfoMap[key] = value;
-    }
-    return userInfoMap;
-  }
-}
-
-extension PointerRealmSyncErrorCompensatingWriteInfoEx on Pointer<realm_sync_error_compensating_write_info> {
-  List<CompensatingWriteInfo>? toList(int length) {
-    if (this == nullptr || length == 0) {
-      return null;
-    }
-    List<CompensatingWriteInfo> compensatingWrites = [];
-    for (int i = 0; i < length; i++) {
-      final compensatingWrite = this[i];
-      final reason = compensatingWrite.reason.cast<Utf8>().toDartString();
-      final objectName = compensatingWrite.object_name.cast<Utf8>().toDartString();
-      final primaryKey = compensatingWrite.primary_key.toPrimitiveValue();
-      compensatingWrites.add(CompensatingWriteInfo(objectName, reason, RealmValue.from(primaryKey)));
-    }
-    return compensatingWrites;
-  }
-}
-
-extension PointerRealmErrorEx on Pointer<realm_error_t> {
-  SyncError toDart() {
-    final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, ref.error.toSyncErrorCode(), ref.user_code_error.toUserCodeError());
-    return SyncErrorInternal.createSyncError(details);
-  }
-}
-
-extension IntEx on int {
-  SyncErrorCode toSyncErrorCode() => switch (this) {
-    realm_errno.RLM_ERR_RUNTIME => SyncErrorCode.runtimeError,
-    realm_errno.RLM_ERR_BAD_CHANGESET => SyncErrorCode.badChangeset,
-    realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE => SyncErrorCode.badPartitionValue,
-    realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED => SyncErrorCode.protocolInvariantFailed,
-    realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY => SyncErrorCode.invalidSubscriptionQuery,
-    realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED => SyncErrorCode.clientReset,
-    realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE => SyncErrorCode.invalidSchemaChange,
-    realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED => SyncErrorCode.permissionDenied,
-    realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED => SyncErrorCode.serverPermissionsChanged,
-    realm_errno.RLM_ERR_SYNC_USER_MISMATCH => SyncErrorCode.userMismatch,
-    realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED => SyncErrorCode.writeNotAllowed,
-    realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED => SyncErrorCode.autoClientResetFailed,
-    realm_errno.RLM_ERR_WRONG_SYNC_TYPE => SyncErrorCode.wrongSyncType,
-    realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE => SyncErrorCode.compensatingWrite,
-    _ => throw RealmError("Unknown sync error code $this"),
-  };
-}
-
-extension SyncErrorCodeEx on SyncErrorCode {
-  int get code  => switch (this) {
-    SyncErrorCode.runtimeError => realm_errno.RLM_ERR_RUNTIME,
-    SyncErrorCode.badChangeset => realm_errno.RLM_ERR_BAD_CHANGESET,
-    SyncErrorCode.badPartitionValue => realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE,
-    SyncErrorCode.protocolInvariantFailed => realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED,
-    SyncErrorCode.invalidSubscriptionQuery => realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY,
-    SyncErrorCode.clientReset => realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED,
-    SyncErrorCode.invalidSchemaChange => realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE,
-    SyncErrorCode.permissionDenied => realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED,
-    SyncErrorCode.serverPermissionsChanged => realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED,
-    SyncErrorCode.userMismatch => realm_errno.RLM_ERR_SYNC_USER_MISMATCH,
-    SyncErrorCode.writeNotAllowed => realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED,
-    SyncErrorCode.autoClientResetFailed => realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED,
-    SyncErrorCode.wrongSyncType => realm_errno.RLM_ERR_WRONG_SYNC_TYPE,
-    SyncErrorCode.compensatingWrite => realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE,
-  };
-}
-
 extension ObjectEx on Object {
   Pointer<Void> toPersistentHandle() {
     return realmLib.realm_dart_object_to_persistent_handle(this);
-  }
-}
-
-extension ListUserStateEx on List<UserState> {
-  UserState fromIndex(int index) {
-    if (!UserState.values.any((value) => value.index == index)) {
-      throw RealmError("Unknown user state $index");
-    }
-
-    return UserState.values[index];
   }
 }
 
@@ -267,41 +154,6 @@ extension RealmPropertyInfoEx on realm_property_info {
         linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
         collectionType: RealmCollectionType.values[collection_type]);
   }
-}
-
-extension CompleterEx<T> on Completer<T> {
-  void completeFrom(FutureOr<T> Function() action) {
-    try {
-      complete(action());
-    } catch (error, stackTrace) {
-      completeError(error, stackTrace);
-    }
-  }
-
-  void completeWithAppError(Pointer<realm_app_error> error) {
-    final message = error.ref.message.cast<Utf8>().toRealmDartString()!;
-    final linkToLogs = error.ref.link_to_server_logs.cast<Utf8>().toRealmDartString();
-    completeError(AppInternal.createException(message, linkToLogs, error.ref.http_status_code));
-  }
-}
-
-enum CustomErrorCode {
-  noError(0),
-  socketException(997),
-  unknownHttp(998),
-  unknown(999),
-  timeout(1000);
-
-  final int code;
-  const CustomErrorCode(this.code);
-}
-
-enum HttpMethod {
-  get,
-  post,
-  patch,
-  put,
-  delete,
 }
 
 extension RealmTimestampEx on realm_timestamp_t {
@@ -332,15 +184,6 @@ extension RealmObjectIdEx on realm_object_id {
     }
     return ObjectId.fromBytes(buffer);
   }
-}
-
-extension RealmAppUserApikeyEx on realm_app_user_apikey {
-  ApiKey toDart() => UserInternal.createApiKey(
-        id.toDart(),
-        name.cast<Utf8>().toDartString(),
-        key.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true),
-        !disabled,
-      );
 }
 
 extension PlatformEx on Platform {

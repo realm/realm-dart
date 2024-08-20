@@ -6,22 +6,17 @@ import 'dart:collection';
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as _path;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/configuration.dart';
 import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:realm_dart/src/logging.dart';
 import 'package:realm_dart/src/realm_object.dart';
 import 'package:test/test.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-import 'baas_helper.dart';
 import 'utils/platform_util.dart';
 
 export 'package:test/test.dart';
-
-export 'baas_helper.dart' show AppName;
 
 part 'test.realm.dart';
 
@@ -358,16 +353,6 @@ class _ObjectWithDecimal {
   Decimal128? nullableDecimal;
 }
 
-@RealmModel(ObjectType.asymmetricObject)
-class _Asymmetric {
-  @PrimaryKey()
-  @MapTo('_id')
-  late ObjectId id;
-
-  _Symmetric? symmetric;
-  late List<_Embedded> embeddedObjects;
-}
-
 @RealmModel(ObjectType.embeddedObject)
 class _Embedded {
   late int value;
@@ -421,12 +406,8 @@ void xtest(String? name, dynamic Function() testFunction, {dynamic skip, Map<Str
   test(name, testFunction, skip: "Test is disabled");
 }
 
-BaasHelper? baasHelper;
-
 void setupTests() {
-  setUpAll(() async {
-    baasHelper = await BaasHelper.setupBaas();
-
+  setUpAll(() {
     Realm.logger.setLogLevel(LogLevel.detail);
     Realm.logger.onRecord.listen((record) {
       printOnFailure('${DateTime.now().toUtc()} ${record.category} ${record.level.name}: ${record.message}');
@@ -448,8 +429,6 @@ void setupTests() {
     addTearDown(() async {
       final paths = HashSet<String>();
       paths.add(path);
-
-      realmCore.clearCachedApps();
 
       while (_openRealms.isNotEmpty) {
         final realm = _openRealms.removeFirst();
@@ -486,20 +465,13 @@ String generateRandomEmail({int length = 5}) {
 }
 
 Realm getRealm(Configuration config) {
-  if (config is FlexibleSyncConfiguration) {
-    config.sessionStopPolicy = SessionStopPolicy.immediately;
-  }
-
   final realm = Realm(config);
   _openRealms.add(realm);
   return realm;
 }
 
-Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
-  if (config is FlexibleSyncConfiguration) {
-    config.sessionStopPolicy = SessionStopPolicy.immediately;
-  }
-  final realm = await Realm.open(config, cancellationToken: cancellationToken, onProgressCallback: onProgressCallback);
+Future<Realm> getRealmAsync(Configuration config, {CancellationToken? cancellationToken}) async {
+  final realm = await Realm.open(config, cancellationToken: cancellationToken);
   _openRealms.add(realm);
   return realm;
 }
@@ -573,90 +545,6 @@ Future<void> tryDeleteRealm(String path) async {
   // throw Exception('Failed to delete realm at path $path. Did you forget to close it?');
 }
 
-@isTest
-Future<void> baasTest(
-  String name,
-  FutureOr<void> Function(AppConfiguration appConfig) testFunction, {
-  AppName appName = AppName.flexible,
-  dynamic skip,
-}) async {
-  BaasHelper.throwIfSetupFailed();
-
-  skip = shouldSkip(skip);
-
-  test(name, () async {
-    baasHelper!.printSplunkLogLink(appName, baasHelper?.baseUrl);
-    final config = await baasHelper!.getAppConfig(appName: appName);
-    await testFunction(config);
-  }, skip: skip, tags: 'baas');
-}
-
-dynamic shouldSkip(dynamic skip) {
-  if (skip == null) {
-    skip = BaasHelper.shouldRunBaasTests ? false : "BAAS URL not present";
-  } else if (skip is bool) {
-    if (!BaasHelper.shouldRunBaasTests) {
-      skip = "BAAS URL not present";
-    }
-  }
-  return skip;
-}
-
-String getAutoverifiedEmail() => 'realm_tests_do_autoverify_${generateRandomEmail()}';
-
-/// Registers, logs in, and returns the new user.
-Future<User> getIntegrationUser({App? app, AppConfiguration? appConfig}) async {
-  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
-  final email = getAutoverifiedEmail();
-  final password = 'password';
-  await app.emailPasswordAuthProvider.registerUser(email, password);
-
-  return await loginWithRetry(app, Credentials.emailPassword(email, password));
-}
-
-Future<User> getAnonymousUser(App app) {
-  return app.logIn(Credentials.anonymous(reuseCredentials: false));
-}
-
-FlexibleSyncConfiguration getIntegrationConfig(User user) {
-  return Configuration.flexibleSync(user, getSyncSchema())..sessionStopPolicy = SessionStopPolicy.immediately;
-}
-
-/// Returns a synced realm after logging in a user.
-///
-/// A subscription for querying all [NullableTypes] objects containing
-/// the `differentiator` will be added if a `differentiator` is provided.
-Future<Realm> getIntegrationRealm({App? app, ObjectId? differentiator, AppConfiguration? appConfig, bool waitForSync = true}) async {
-  app ??= App(appConfig ?? await baasHelper!.getAppConfig());
-  final user = await getIntegrationUser(app: app, appConfig: appConfig);
-
-  final config = getIntegrationConfig(user);
-  final realm = getRealm(config);
-  if (differentiator != null) {
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<NullableTypes>(r'differentiator = $0', [differentiator]));
-    });
-
-    if (waitForSync) {
-      await realm.subscriptions.waitForSynchronization();
-    }
-  }
-
-  return realm;
-}
-
-Future<User> loginWithRetry(App app, Credentials credentials, {int retryCount = 3}) async {
-  try {
-    return await app.logIn(credentials);
-  } catch (e) {
-    if (retryCount > 1) {
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-      return await loginWithRetry(app, credentials, retryCount: retryCount - 1);
-    }
-    rethrow;
-  }
-}
-
 Future<void> waitForCondition(
   FutureOr<bool> Function() condition, {
   Duration timeout = const Duration(seconds: 1),
@@ -710,8 +598,6 @@ extension DateTimeTest on DateTime {
   }
 }
 
-void clearCachedApps() => realmCore.clearCachedApps();
-
 extension StreamEx<T> on Stream<Stream<T>> {
   Stream<T> switchLatest() async* {
     StreamSubscription<T>? inner;
@@ -724,48 +610,6 @@ extension StreamEx<T> on Stream<Stream<T>> {
     await outer.cancel();
     await inner?.cancel();
   }
-}
-
-/// Schema list for default app service
-/// used for all the flexible sync tests.
-/// The full list of schemas is required when creating
-/// a flexibleSync configuration to the default app service
-/// to avoid causing breaking changes in development mode.
-List<SchemaObject> getSyncSchema() {
-  return [
-    Task.schema,
-    Schedule.schema,
-    Product.schema,
-    Event.schema,
-    AllTypesEmbedded.schema,
-    ObjectWithEmbedded.schema,
-    RecursiveEmbedded1.schema,
-    RecursiveEmbedded2.schema,
-    RecursiveEmbedded3.schema,
-    NullableTypes.schema,
-    Asymmetric.schema,
-    Embedded.schema,
-    Symmetric.schema,
-    ObjectWithRealmValue.schema,
-    ObjectWithInt.schema,
-  ];
-}
-
-Future<bool> runWithRetries(FutureOr<bool> Function() tester, {int retryDelay = 100, int attempts = 100}) async {
-  var success = await tester();
-  var timeout = retryDelay * attempts;
-
-  while (!success && attempts > 0) {
-    await Future<void>.delayed(Duration(milliseconds: retryDelay));
-    success = await tester();
-    attempts--;
-  }
-
-  if (!success) {
-    throw TimeoutException('Failed to meet condition after $timeout ms.');
-  }
-
-  return success;
 }
 
 var copyFile = platformUtil.copy; // default, but allow integration_test to override

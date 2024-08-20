@@ -10,8 +10,6 @@ import 'package:path/path.dart' as p;
 import 'package:type_plus/type_plus.dart';
 
 import '../../cli/common/target_os_type.dart';
-import '../../cli/metrics/metrics_command.dart';
-import '../../cli/metrics/options.dart';
 import '../../realm_class.dart';
 
 import '../../../realm.dart' show isFlutterPlatform;
@@ -178,18 +176,6 @@ DynamicLibrary initRealm() {
   register<impl.Decimal128>(encodeDecimal128, decodeDecimal128, superTypes: [Decimal128]);
   register<Decimal128>(encodeDecimal128, decodeDecimal128);
   register(encodeRealmValue, decodeRealmValue);
-
-  if (!isFlutterPlatform) {
-    assert(() {
-      try {
-        uploadMetrics(Options(
-          targetOsType: Platform.operatingSystem.asTargetOsType,
-          targetOsVersion: Platform.operatingSystemVersion,
-        ));
-      } catch (_) {} // ignore: avoid_catching_errors
-      return true;
-    }());
-  }
 
   final realmLibrary = _openRealmLib();
 

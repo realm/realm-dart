@@ -4,16 +4,12 @@ targets:
       build_cli:
         generate_for:
           - lib/src/cli/**/**.dart
-      json_serializable:
-        generate_for:
-          - lib/src/cli/metrics/flutter_info.dart
-          - lib/src/cli/metrics/metrics.dart
       realm_generator:
         generate_for:
           include:
             - test/**.dart
             - example/**.dart
-            
+
 builders:
   realm_generator:
     import: "package:realm_generator/realm_generator.dart"

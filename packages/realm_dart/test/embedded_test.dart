@@ -1,7 +1,6 @@
 // Copyright 2022 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-
 import 'package:realm_dart/realm.dart';
 // This is required to be able to use the API for querying embedded objects.
 import 'package:realm_dart/src/realm_class.dart' show RealmInternal;
@@ -28,13 +27,6 @@ void main() {
     final schema = dynamicRealm.schema;
     expect(schema.single.baseType, ObjectType.embeddedObject);
   });
-
-  baasTest('Synchronized Realm with orphan embedded schemas throws', (configuration) async {
-    final user = await getIntegrationUser(appConfig: configuration);
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-
-    expect(() => getRealm(config), throws<RealmException>("Embedded object 'AllTypesEmbedded' is unreachable by any link path from top level objects"));
-  }, skip: "This test requires a new app service with missing embedded parent schema.");
 
   test('Embedded object roundtrip', () {
     final realm = getLocalRealm();
@@ -370,56 +362,6 @@ void main() {
     expect(embedded1s.length, 0);
     expect(embedded2s.length, 0);
     expect(embedded3s.length, 0);
-  });
-
-  baasTest('Embedded objects synchronization', (config) async {
-    final realm1 = await getIntegrationRealm(appConfig: config);
-
-    final differentiator = Uuid.v4();
-    realm1.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm1.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
-    });
-
-    final obj1 = realm1.write(() {
-      return realm1.add(ObjectWithEmbedded(Uuid.v4().toString(),
-          differentiator: differentiator,
-          recursiveObject: RecursiveEmbedded1('1.1', child: RecursiveEmbedded2('2.1'), children: [RecursiveEmbedded2('2.2')]),
-          recursiveList: [RecursiveEmbedded1('1.2')]));
-    });
-
-    await realm1.subscriptions.waitForSynchronization();
-    await realm1.syncSession.waitForUpload();
-
-    final realm2 = await getIntegrationRealm(appConfig: config);
-    realm2.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm2.query<ObjectWithEmbedded>(r'differentiator = $0', [differentiator]));
-    });
-
-    await realm2.subscriptions.waitForSynchronization();
-    await realm2.syncSession.waitForDownload();
-
-    final obj2 = realm2.all<ObjectWithEmbedded>().single;
-
-    expect(obj2.recursiveObject!.value, '1.1');
-    expect(obj2.recursiveObject!.child!.value, '2.1');
-    expect(obj2.recursiveObject!.children.length, 1);
-    expect(obj2.recursiveObject!.children[0].value, '2.2');
-    expect(obj2.recursiveList.length, 1);
-    expect(obj2.recursiveList[0].value, '1.2');
-    expect(obj2.recursiveList[0].child, isNull);
-    expect(obj2.recursiveList[0].children, isEmpty);
-
-    realm2.write(() {
-      obj2.recursiveObject = null;
-    });
-
-    await realm2.syncSession.waitForUpload();
-    await realm1.syncSession.waitForDownload();
-
-    expect(obj1.recursiveObject, isNull);
-
-    expect(realm1.allEmbedded<RecursiveEmbedded1>().length, 1);
-    expect(realm1.allEmbedded<RecursiveEmbedded2>().length, 0);
   });
 
   for (final isDynamic in [true, false]) {

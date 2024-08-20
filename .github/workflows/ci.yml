@@ -67,250 +67,87 @@ jobs:
 
   # Dart jobs
 
-  deploy-cluster-dart-windows:
-    name: Deploy Cluster for Dart Windows
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
-
   dart-tests-windows:
     name: Dart Tests Windows
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-windows
-      - deploy-cluster-dart-windows
     secrets: inherit
     with:
       runner: windows-latest
-      differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-dart-windows:
-    name: Cleanup Cluster for Dart Windows
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - dart-tests-windows
-    secrets: inherit
-    with:
-      differentiator: dw${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-dart-macos:
-    name: Deploy Cluster for Dart MacOS
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-macos:
     name: Dart Tests MacOS
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-cluster-dart-macos
     secrets: inherit
     with:
       runner: macos-13
-      differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-dart-macos:
-    name: Cleanup Cluster for Dart macOS
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - dart-tests-macos
-    secrets: inherit
-    with:
-      differentiator: dm${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-dart-macos-arm:
-    name: Deploy Cluster for Dart MacOS Arm
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-macos-arm:
     name: Dart Tests MacOS Arm
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-cluster-dart-macos-arm
     secrets: inherit
     with:
       runner: macos-14
       arch: arm64
-      differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-dart-macos-arm:
-    name: Cleanup Cluster for Dart macOS Arm
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - dart-tests-macos-arm
-    secrets: inherit
-    with:
-      differentiator: dma${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-dart-linux:
-    name: Deploy Cluster for Dart Linux
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
 
   dart-tests-linux:
     name: Dart Tests Linux
     uses: ./.github/workflows/dart-desktop-tests.yml
     needs:
       - build-linux
-      - deploy-cluster-dart-linux
     secrets: inherit
     with:
       runner: ubuntu-latest
-      differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-dart-linux:
-    name: Cleanup Cluster for Dart Linux
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - dart-tests-linux
-    secrets: inherit
-    with:
-      differentiator: dl${{ github.run_id }}${{ github.run_attempt }}
 
   # Flutter jobs
-  deploy-cluster-flutter-windows:
-    name: Deploy Cluster for Flutter Windows
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
-
   flutter-tests-windows:
     name: Flutter Tests Windows
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-windows
-      - deploy-cluster-flutter-windows
     secrets: inherit
     with:
       runner: windows-latest
-      differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-flutter-windows:
-    name: Cleanup Cluster for Flutter Windows
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - flutter-tests-windows
-    secrets: inherit
-    with:
-      differentiator: fw${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-flutter-macos:
-    name: Deploy Cluster for Flutter MacOS
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-macos:
     name: Flutter Tests MacOS
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-cluster-flutter-macos
     secrets: inherit
     with:
       runner: macos-13
-      differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-flutter-macos:
-    name: Cleanup Cluster for Flutter macOS
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - flutter-tests-macos
-    secrets: inherit
-    with:
-      differentiator: fm${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-flutter-macos-arm:
-    name: Deploy Cluster for Flutter MacOS Arm
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: fma${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-macos-arm:
     name: Flutter Tests MacOS Arm
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-macos
-      - deploy-cluster-flutter-macos-arm
     secrets: inherit
     with:
       runner: macos-14
       arch: arm64
-      differentiator: fma${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-flutter-macos-arm:
-    name: Cleanup Cluster for Flutter macOS Arm
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - flutter-tests-macos-arm
-    secrets: inherit
-    with:
-      differentiator: fma${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-flutter-linux:
-    name: Deploy Cluster for Flutter Linux
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-linux:
     name: Flutter Tests Linux
     uses: ./.github/workflows/flutter-desktop-tests.yml
     needs:
       - build-linux
-      - deploy-cluster-flutter-linux
     secrets: inherit
     with:
       runner: ubuntu-latest
-      differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
-
-  cleanup-cluster-flutter-linux:
-    name: Cleanup Cluster for Flutter Linux
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - flutter-tests-linux
-    secrets: inherit
-    with:
-      differentiator: fl${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-flutter-ios:
-    name: Deploy Cluster for Flutter iOS
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: fi${{ github.run_id }}${{ github.run_attempt }}
 
   flutter-tests-ios:
     runs-on: macos-14
     name: Flutter Tests iOS
     timeout-minutes: 45
     needs:
-      - deploy-cluster-flutter-ios
       - build-ios-xcframework
-    env:
-      BAAS_DIFFERENTIATOR: fi${{ github.run_id }}${{ github.run_attempt }}
-      BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
     defaults:
       run:
         working-directory: packages/realm/tests
@@ -348,8 +185,6 @@ jobs:
       - name: Run tests on iOS Simulator
         run: |
           flutter test integration_test/all_tests.dart \
-            --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
-            --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
             --file-reporter=json:test-results.json \
             --suppress-analytics
 
@@ -363,33 +198,12 @@ jobs:
           only-summary: true
           working-directory: packages/realm/tests
 
-  cleanup-cluster-flutter-ios:
-    name: Cleanup Cluster for Flutter iOS
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - flutter-tests-ios
-    secrets: inherit
-    with:
-      differentiator: fi${{ github.run_id }}${{ github.run_attempt }}
-
-  deploy-cluster-flutter-android:
-    name: Deploy Cluster for Flutter Android
-    uses: ./.github/workflows/deploy-baas.yml
-    secrets: inherit
-    with:
-      differentiator: fa${{ github.run_id }}${{ github.run_attempt }}
-
   flutter-tests-android:
     runs-on: ubuntu-latest
     name: Flutter Tests Android
     timeout-minutes: 45
     needs:
-      - deploy-cluster-flutter-android
       - build-android-combined
-    env:
-      BAAS_DIFFERENTIATOR: fa${{ github.run_id }}${{ github.run_attempt }}
-      BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
     defaults:
       run:
         working-directory: packages/realm/tests
@@ -462,7 +276,7 @@ jobs:
           arch: x86_64
           ndk: 25.2.9519653
           cmake: 3.10.2.4988404
-          script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
+          script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --file-reporter=json:test-results.json --suppress-analytics
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.8.0
@@ -473,16 +287,6 @@ jobs:
           reporter: dart-json
           only-summary: true
           working-directory: packages/realm/tests
-
-  cleanup-cluster-flutter-android:
-    name: Cleanup Cluster for Flutter Android
-    uses: ./.github/workflows/terminate-baas.yml
-    if: always()
-    needs:
-      - flutter-tests-android
-    secrets: inherit
-    with:
-      differentiator: fa${{ github.run_id }}${{ github.run_attempt }}
 
   # Generator jobs
 
@@ -592,7 +396,7 @@ jobs:
             *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
             <{{refUrl}}|`{{ref}}` - {{description}}>
             {{#if description}}<{{diffUrl}}|branch: `{{diffRef}}`>{{/if}}
-    
+
   web-compile:
     name: Compile for web
     runs-on: ubuntu-latest

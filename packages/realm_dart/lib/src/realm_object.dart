@@ -180,8 +180,6 @@ class RealmCoreAccessor implements RealmAccessor {
                 return object.realm.createList<RealmObject>(handle, listMetadata);
               case ObjectType.embeddedObject:
                 return object.realm.createList<EmbeddedObject>(handle, listMetadata);
-              case ObjectType.asymmetricObject:
-                return object.realm.createList<AsymmetricObject>(handle, listMetadata);
               default:
                 throw RealmError('List of ${listMetadata.schema.baseType} is not supported yet');
             }
@@ -196,8 +194,6 @@ class RealmCoreAccessor implements RealmAccessor {
                 return object.realm.createSet<RealmObject>(handle, setMetadata);
               case ObjectType.embeddedObject:
                 return object.realm.createSet<EmbeddedObject>(handle, setMetadata);
-              case ObjectType.asymmetricObject:
-                return object.realm.createSet<AsymmetricObject>(handle, setMetadata);
               default:
                 throw RealmError('Set of ${setMetadata.schema.baseType} is not supported yet');
             }
@@ -221,8 +217,6 @@ class RealmCoreAccessor implements RealmAccessor {
                 return object.realm.createMap<RealmObject>(handle, mapMetadata);
               case ObjectType.embeddedObject:
                 return object.realm.createMap<EmbeddedObject>(handle, mapMetadata);
-              case ObjectType.asymmetricObject:
-                return object.realm.createMap<AsymmetricObject>(handle, mapMetadata);
               default:
                 throw RealmError('Map of ${mapMetadata.schema.baseType} is not supported yet');
             }
@@ -376,7 +370,6 @@ mixin RealmObjectBase on RealmEntity implements RealmObjectBaseMarker {
     _typeOf<RealmObject?>(): () => _ConcreteRealmObject(),
     EmbeddedObject: () => _ConcreteEmbeddedObject(),
     _typeOf<EmbeddedObject?>(): () => _ConcreteEmbeddedObject(),
-    // We can never read asymmetric objects from a realm, so we don't need a factory for them.
   };
 
   /// @nodoc
@@ -627,17 +620,6 @@ mixin EmbeddedObject on RealmObjectBase implements EmbeddedObjectMarker {
   @override
   Stream<RealmObjectChanges<EmbeddedObject>> get changes => throw RealmError("Invalid usage. Use the generated inheritors of EmbeddedObject");
 }
-
-/// Base for any object that can be persisted in a [Realm], but cannot be retrieved,
-/// hence cannot be modified.
-///
-/// The benefit of using [AsymmetricObject] is that synchronization is one-way, and
-/// thus performs much better. However, they cannot be queried, or retrieved
-/// locally, which limits their use-cases greatly.
-///
-/// Use [AsymmetricObject] when you have a write-/only use case. You use it by
-/// parsing [ObjectType.asymmetricObject] to the [RealmModel] annotation.
-mixin AsymmetricObject on RealmObjectBase implements AsymmetricObjectMarker {}
 
 extension EmbeddedObjectExtension on EmbeddedObject {
   /// Retrieve the [parent] object of this embedded object.
@@ -926,8 +908,6 @@ class DynamicRealmObject {
     _typeOf<RealmObject?>(): RealmPropertyType.object,
     EmbeddedObject: RealmPropertyType.object,
     _typeOf<EmbeddedObject?>(): RealmPropertyType.object,
-    AsymmetricObject: RealmPropertyType.object,
-    _typeOf<AsymmetricObject?>(): RealmPropertyType.object,
   };
 
   RealmPropertyType? _getPropertyType<T extends Object?>() => _propertyTypeMap[T];

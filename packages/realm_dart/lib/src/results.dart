@@ -3,8 +3,6 @@
 
 import 'dart:async';
 
-import 'package:cancellation_token/cancellation_token.dart';
-
 import 'collections.dart';
 import 'handles/collection_changes_handle.dart';
 import 'handles/handle_base.dart';
@@ -186,99 +184,6 @@ extension RealmResultsOfObject<T extends RealmObjectBase> on RealmResults<T> {
   /// If [keyPaths] is null, default notifications will be raised (same as [RealmResults.change]).
   /// If [keyPaths] is an empty list, only notifications related to the collection itself will be raised (such as adding or removing elements).
   Stream<RealmResultsChanges<T>> changesFor([List<String>? keyPaths]) => _changesFor(keyPaths);
-}
-
-class _SubscribedRealmResult<T extends RealmObject> extends RealmResults<T> {
-  final String? subscriptionName;
-
-  _SubscribedRealmResult._(RealmResults<RealmObject> results, {this.subscriptionName})
-      : super._(
-          results.handle,
-          results.realm,
-          results.metadata,
-        );
-}
-
-extension RealmResultsOfRealmObject<T extends RealmObject> on RealmResults<T> {
-  /// Adds this [RealmResults] query to the set of active subscriptions.
-  /// The query will be joined via an OR statement with any existing queries for the same type.
-  ///
-  /// If a [name] is given this allows you to later refer to the subscription by name,
-  /// e.g. when calling [MutableSubscriptionSet.removeByName].
-  ///
-  /// If [update] is specified to `true`, then any existing query
-  /// with the same name will be replaced.
-  /// Otherwise a [RealmException] is thrown, in case of duplicates.
-  ///
-  /// [WaitForSyncMode] specifies how to wait or not wait for subscribed objects to be downloaded.
-  /// The default value is [WaitForSyncMode.firstTime].
-  ///
-  /// The [cancellationToken] is optional and can be used to cancel
-  /// the waiting for objects to be downloaded.
-  /// If the operation is cancelled, a [CancelledException] is thrown and the download
-  /// continues in the background.
-  /// In case of using [TimeoutCancellationToken] and the time limit is exceeded,
-  /// a [TimeoutException] is thrown and the download continues in the background.
-  ///
-  /// {@category Sync}
-  Future<RealmResults<T>> subscribe({
-    String? name,
-    WaitForSyncMode waitForSyncMode = WaitForSyncMode.firstTime,
-    CancellationToken? cancellationToken,
-    bool update = false,
-  }) async {
-    final subscriptions = realm.subscriptions;
-    Subscription? existingSubscription = name == null ? subscriptions.find(this) : subscriptions.findByName(name);
-    late Subscription updatedSubscription;
-    subscriptions.update((mutableSubscriptions) {
-      updatedSubscription = mutableSubscriptions.add(this, name: name, update: update);
-    });
-    bool shouldWait = waitForSyncMode == WaitForSyncMode.always ||
-        (waitForSyncMode == WaitForSyncMode.firstTime && subscriptionIsChanged(existingSubscription, updatedSubscription));
-
-    return await CancellableFuture.from<RealmResults<T>>(() async {
-      if (cancellationToken != null && cancellationToken.isCancelled) {
-        throw cancellationToken.exception!;
-      }
-      if (shouldWait) {
-        await subscriptions.waitForSynchronization(cancellationToken);
-        await realm.syncSession.waitForDownload(cancellationToken);
-      }
-      return _SubscribedRealmResult._(this, subscriptionName: name);
-    }, cancellationToken);
-  }
-
-  /// Unsubscribe from this query result. It returns immediately
-  /// without waiting for synchronization.
-  ///
-  /// If the subscription is unnamed, the subscription matching
-  /// the query will be removed.
-  /// Return `false` if the [RealmResults] is not created by [subscribe].
-  ///
-  /// {@category Sync}
-  bool unsubscribe() {
-    bool unsubscribed = false;
-    if (realm.config is! FlexibleSyncConfiguration) {
-      throw RealmError('unsubscribe is only allowed on Realms opened with a FlexibleSyncConfiguration');
-    }
-    if (this is _SubscribedRealmResult<T>) {
-      final subscriptionName = (this as _SubscribedRealmResult<T>).subscriptionName;
-      realm.subscriptions.update((mutableSubscriptions) {
-        if (subscriptionName != null) {
-          unsubscribed = mutableSubscriptions.removeByName(subscriptionName);
-        } else {
-          unsubscribed = mutableSubscriptions.removeByQuery(this);
-        }
-      });
-    }
-    return unsubscribed;
-  }
-
-  bool subscriptionIsChanged(Subscription? existingSubscription, Subscription updatedSubscription) {
-    return existingSubscription == null ||
-        existingSubscription.objectClassName != updatedSubscription.objectClassName ||
-        existingSubscription.queryString != updatedSubscription.queryString;
-  }
 }
 
 /// @nodoc

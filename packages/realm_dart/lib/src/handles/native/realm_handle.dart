@@ -23,8 +23,6 @@ import 'realm_library.dart';
 import 'results_handle.dart';
 import 'rooted_handle.dart';
 import 'schema_handle.dart';
-import 'session_handle.dart';
-import 'subscription_set_handle.dart';
 
 import '../realm_handle.dart' as intf;
 
@@ -147,18 +145,8 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
   RealmHandle freeze() => RealmHandle(realmLib.realm_freeze(pointer));
 
   @override
-  SessionHandle getSession() {
-    return SessionHandle(realmLib.realm_sync_session_get(pointer), this);
-  }
-
-  @override
   bool get isFrozen {
     return realmLib.realm_is_frozen(pointer.cast());
-  }
-
-  @override
-  SubscriptionSetHandle get subscriptions {
-    return SubscriptionSetHandle(realmLib.realm_sync_get_active_subscription_set(pointer), this);
   }
 
   @override
@@ -426,9 +414,6 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
         break;
       case ObjectType.embeddedObject:
         type = EmbeddedObject;
-        break;
-      case ObjectType.asymmetricObject:
-        type = AsymmetricObject;
         break;
       default:
         throw RealmError('$baseType is not supported yet');

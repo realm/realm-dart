@@ -132,9 +132,6 @@ abstract class RealmObjectMarker implements RealmObjectBaseMarker {}
 /// @nodoc
 abstract class EmbeddedObjectMarker implements RealmObjectBaseMarker {}
 
-/// @nodoc
-abstract class AsymmetricObjectMarker implements RealmObjectBaseMarker {}
-
 /// An enum describing the possible types that can be wrapped inside [RealmValue]
 enum RealmValueType {
   /// The [RealmValue] represents `null`

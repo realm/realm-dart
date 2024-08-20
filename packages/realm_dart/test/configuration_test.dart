@@ -60,60 +60,6 @@ void main() {
     expect(path.dirname(realm1.config.path), path.dirname(customDefaultRealmPath1));
   });
 
-  baasTest('Configuration defaultRealmName can be set for FlexibleSyncConfiguration', (configuration) async {
-    final app = App(configuration);
-    final user = await app.logIn(Credentials.anonymous());
-
-    var customDefaultRealmName = "myRealmName.realm";
-    Configuration.defaultRealmName = customDefaultRealmName;
-    var config = Configuration.flexibleSync(user, getSyncSchema());
-    expect(path.basename(config.path), path.basename(customDefaultRealmName));
-
-    var realm = getRealm(config);
-    expect(path.basename(realm.config.path), customDefaultRealmName);
-
-    //set a new defaultRealmName
-    customDefaultRealmName = "anotherRealmName.realm";
-    Configuration.defaultRealmName = customDefaultRealmName;
-    config = Configuration.flexibleSync(user, getSyncSchema());
-    realm = getRealm(config);
-    expect(path.basename(realm.config.path), customDefaultRealmName);
-  });
-
-  baasTest('Configuration defaultRealmPath can be set for FlexibleSyncConfiguration', (_) async {
-    var customDefaultRealmPath = path.join(await platformUtil.createTempPath(), Configuration.defaultRealmName);
-    Configuration.defaultRealmPath = customDefaultRealmPath;
-
-    final appClientId = baasHelper!.getClientAppId(appName: AppName.flexible);
-    final baasUrl = baasHelper!.baseUrl;
-    var appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
-    expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
-
-    var app = App(appConfig);
-    var user = await app.logIn(Credentials.anonymous());
-
-    var config = Configuration.flexibleSync(user, getSyncSchema());
-    expect(path.dirname(config.path), startsWith(path.dirname(customDefaultRealmPath)));
-
-    var realm = getRealm(config);
-    expect(path.dirname(realm.config.path), startsWith(path.dirname(customDefaultRealmPath)));
-
-    //set a new defaultRealmPath
-    customDefaultRealmPath = path.join(await platformUtil.createTempPath(), Configuration.defaultRealmName);
-    Configuration.defaultRealmPath = customDefaultRealmPath;
-
-    appConfig = AppConfiguration(appClientId, baseUrl: Uri.parse(baasUrl));
-    expect(appConfig.baseFilePath, path.dirname(customDefaultRealmPath));
-
-    clearCachedApps();
-
-    app = App(appConfig);
-    user = await app.logIn(Credentials.anonymous());
-    config = Configuration.flexibleSync(user, getSyncSchema());
-    realm = getRealm(config);
-    expect(path.dirname(realm.config.path), startsWith(path.dirname(customDefaultRealmPath)));
-  });
-
   test('Configuration get/set path', () {
     final config = Configuration.local([Car.schema]);
     expect(config.path, endsWith('.realm'));
@@ -474,71 +420,6 @@ void main() {
     });
   }
 
-  baasTest('Configuration.flexibleSync shouldCompactCallback is invoked', (appConfig) async {
-    final app = App(appConfig);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    var invoked = false;
-    var config = Configuration.flexibleSync(user, getSyncSchema(), shouldCompactCallback: (totalSize, usedSize) {
-      invoked = true;
-      return false;
-    });
-
-    expect(() => getRealm(config), returnsNormally);
-    expect(invoked, isTrue);
-  });
-
-  baasTest('Configuration.flexibleSync suggests correct path', (appConfig) async {
-    final app = App(appConfig);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-
-    expect(config.path, contains(user.id));
-    expect(config.path, contains(appConfig.appId));
-  });
-
-  baasTest('Configuration.flexibleSync when path is supplied, uses that', (appConfig) async {
-    final app = App(appConfig);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    final config = Configuration.flexibleSync(user, getSyncSchema(), path: 'my-custom-path.realm');
-
-    expect(config.path, 'my-custom-path.realm');
-  });
-
-  baasTest('Configuration.flexibleSync when path is supplied, open realm', (appConfig) async {
-    final app = App(appConfig);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-    var customPath = path.join(
-      platformUtil.createTempPathSync(),
-      'my-custom-realm-name.realm',
-    );
-    final config = Configuration.flexibleSync(user, getSyncSchema(), path: customPath);
-    expect(() => getRealm(config), returnsNormally);
-  });
-
-  baasTest('Configuration.disconnectedSync', (appConfig) async {
-    final app = App(appConfig);
-    final user = await app.logIn(Credentials.emailPassword(testUsername, testPassword));
-
-    final temporaryPath = await platformUtil.createTempPath();
-    final realmPath = path.join(temporaryPath, 'test.realm');
-
-    final flexibleSyncConfig = Configuration.flexibleSync(user, getSyncSchema(), path: realmPath);
-    final realm = getRealm(flexibleSyncConfig);
-    final oid = ObjectId();
-    realm.subscriptions.update((mutableSubscriptions) {
-      mutableSubscriptions.add(realm.query<Task>(r'_id == $0', [oid]));
-    });
-    realm.write(() => realm.add(Task(oid)));
-    realm.close();
-
-    final disconnectedSyncConfig = Configuration.disconnectedSync([Task.schema], path: realmPath);
-    final disconnectedRealm = getRealm(disconnectedSyncConfig);
-    expect(disconnectedRealm.find<Task>(oid), isNotNull);
-  });
-
   test('Configuration.local set too short encryption key size', () {
     List<int> key = [1, 2, 3];
     expect(
@@ -561,18 +442,6 @@ void main() {
     expect(config.encryptionKey, key);
   });
 
-  baasTest('FlexibleSyncConfiguration set too long encryption key size', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-
-    List<int> key = List<int>.generate(encryptionKeySize + 10, (i) => random.nextInt(256));
-    expect(
-      () => Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key),
-      throws<RealmException>("Wrong encryption key size"),
-    );
-  });
-
   test('LocalConfiguration.maxNumberOfActiveVersions - throw when exceeded', () {
     var config = Configuration.local([Dog.schema, Person.schema], maxNumberOfActiveVersions: 1);
 
@@ -585,28 +454,6 @@ void main() {
 
     final realm = getRealm(config); // First writing to the Realm when opening
     expect(() => realm.write(() {}), throws<RealmException>("Number of active versions (2) in the Realm exceeded the limit of 1"));
-  });
-
-  baasTest('FlexibleSyncConfiguration.maxNumberOfActiveVersions - throw when exceeded', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-
-    final config = Configuration.flexibleSync(user, getSyncSchema(), maxNumberOfActiveVersions: 1);
-    final realm = await getRealmAsync(config); // First writing to the Realm when opening
-    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(realm.all<Task>()));
-    expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
-  });
-
-  baasTest('DisconnectedSyncConfiguration.maxNumberOfActiveVersions - throw when exceeded', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-
-    final disconnectedConfig = Configuration.disconnectedSync([Task.schema], path: config.path, maxNumberOfActiveVersions: 1);
-    final realm = getRealm(disconnectedConfig); // First writing to the Realm when opening
-    expect(() => realm.write(() {}), throws<RealmException>("in the Realm exceeded the limit of 1"));
   });
 
   test('LocalConfiguration.maxNumberOfActiveVersions - freeze to exceed the version and then throw', () {
