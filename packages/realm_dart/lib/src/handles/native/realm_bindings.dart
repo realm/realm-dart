@@ -3359,87 +3359,6 @@ class RealmLibrary {
           ffi.Pointer<realm_thread_safe_reference_t> Function(
               ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_apikey_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_app_user_apikey_t> apikey,
-    ffi.Pointer<realm_app_error_t> error,
-  ) {
-    return _realm_dart_apikey_callback(
-      userdata,
-      apikey,
-      error,
-    );
-  }
-
-  late final _realm_dart_apikey_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_app_user_apikey_t>,
-              ffi.Pointer<realm_app_error_t>)>>('realm_dart_apikey_callback');
-  late final _realm_dart_apikey_callback =
-      _realm_dart_apikey_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_app_user_apikey_t>,
-              ffi.Pointer<realm_app_error_t>)>();
-
-  void realm_dart_apikey_list_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_app_user_apikey_t> apikey_list,
-    int count,
-    ffi.Pointer<realm_app_error_t> error,
-  ) {
-    return _realm_dart_apikey_list_callback(
-      userdata,
-      apikey_list,
-      count,
-      error,
-    );
-  }
-
-  late final _realm_dart_apikey_list_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_app_user_apikey_t>,
-                  ffi.Size,
-                  ffi.Pointer<realm_app_error_t>)>>(
-      'realm_dart_apikey_list_callback');
-  late final _realm_dart_apikey_list_callback =
-      _realm_dart_apikey_list_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_app_user_apikey_t>,
-              int,
-              ffi.Pointer<realm_app_error_t>)>();
-
-  void realm_dart_async_open_task_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_thread_safe_reference_t> realm,
-    ffi.Pointer<realm_async_error_t> error,
-  ) {
-    return _realm_dart_async_open_task_callback(
-      userdata,
-      realm,
-      error,
-    );
-  }
-
-  late final _realm_dart_async_open_task_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_thread_safe_reference_t>,
-                  ffi.Pointer<realm_async_error_t>)>>(
-      'realm_dart_async_open_task_callback');
-  late final _realm_dart_async_open_task_callback =
-      _realm_dart_async_open_task_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_thread_safe_reference_t>,
-              ffi.Pointer<realm_async_error_t>)>();
-
   void realm_dart_attach_logger(
     int port,
   ) {
@@ -3813,27 +3732,6 @@ class RealmLibrary {
   late final _realm_dart_get_thread_id =
       _realm_dart_get_thread_idPtr.asFunction<int Function()>();
 
-  void realm_dart_http_request_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    realm_http_request_t request,
-    ffi.Pointer<ffi.Void> request_context,
-  ) {
-    return _realm_dart_http_request_callback(
-      userdata,
-      request,
-      request_context,
-    );
-  }
-
-  late final _realm_dart_http_request_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
-              ffi.Pointer<ffi.Void>)>>('realm_dart_http_request_callback');
-  late final _realm_dart_http_request_callback =
-      _realm_dart_http_request_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
-              ffi.Pointer<ffi.Void>)>();
-
   void realm_dart_init_debug_logger() {
     return _realm_dart_init_debug_logger();
   }
@@ -3936,28 +3834,6 @@ class RealmLibrary {
       _realm_dart_persistent_handle_to_objectPtr
           .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_return_string_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<ffi.Char> serialized_ejson_response,
-    ffi.Pointer<realm_app_error_t> error,
-  ) {
-    return _realm_dart_return_string_callback(
-      userdata,
-      serialized_ejson_response,
-      error,
-    );
-  }
-
-  late final _realm_dart_return_string_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<realm_app_error_t>)>>(
-      'realm_dart_return_string_callback');
-  late final _realm_dart_return_string_callback =
-      _realm_dart_return_string_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<realm_app_error_t>)>();
-
   void realm_dart_scheduler_invoke(
     int isolateId,
     ffi.Pointer<ffi.Void> userData,
@@ -4002,193 +3878,6 @@ class RealmLibrary {
   late final _realm_dart_set_and_get_rlimit = _realm_dart_set_and_get_rlimitPtr
       .asFunction<bool Function(int, ffi.Pointer<ffi.Long>)>();
 
-  bool realm_dart_sync_after_reset_handler_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_t> before_realm,
-    ffi.Pointer<realm_thread_safe_reference_t> after_realm,
-    bool did_recover,
-  ) {
-    return _realm_dart_sync_after_reset_handler_callback(
-      userdata,
-      before_realm,
-      after_realm,
-      did_recover,
-    );
-  }
-
-  late final _realm_dart_sync_after_reset_handler_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>,
-              ffi.Bool)>>('realm_dart_sync_after_reset_handler_callback');
-  late final _realm_dart_sync_after_reset_handler_callback =
-      _realm_dart_sync_after_reset_handler_callbackPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>, bool)>();
-
-  bool realm_dart_sync_before_reset_handler_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_t> realm,
-  ) {
-    return _realm_dart_sync_before_reset_handler_callback(
-      userdata,
-      realm,
-    );
-  }
-
-  late final _realm_dart_sync_before_reset_handler_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>(
-      'realm_dart_sync_before_reset_handler_callback');
-  late final _realm_dart_sync_before_reset_handler_callback =
-      _realm_dart_sync_before_reset_handler_callbackPtr.asFunction<
-          bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>();
-
-  void realm_dart_sync_connection_state_changed_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    int old_state,
-    int new_state,
-  ) {
-    return _realm_dart_sync_connection_state_changed_callback(
-      userdata,
-      old_state,
-      new_state,
-    );
-  }
-
-  late final _realm_dart_sync_connection_state_changed_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32,
-              ffi.Int32)>>('realm_dart_sync_connection_state_changed_callback');
-  late final _realm_dart_sync_connection_state_changed_callback =
-      _realm_dart_sync_connection_state_changed_callbackPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int)>();
-
-  void realm_dart_sync_error_handler_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_sync_session_t> session,
-    realm_sync_error_t error,
-  ) {
-    return _realm_dart_sync_error_handler_callback(
-      userdata,
-      session,
-      error,
-    );
-  }
-
-  late final _realm_dart_sync_error_handler_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_sync_session_t>,
-              realm_sync_error_t)>>('realm_dart_sync_error_handler_callback');
-  late final _realm_dart_sync_error_handler_callback =
-      _realm_dart_sync_error_handler_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>();
-
-  void realm_dart_sync_on_subscription_state_changed_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    int state,
-  ) {
-    return _realm_dart_sync_on_subscription_state_changed_callback(
-      userdata,
-      state,
-    );
-  }
-
-  late final _realm_dart_sync_on_subscription_state_changed_callbackPtr =
-      _lookup<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>(
-          'realm_dart_sync_on_subscription_state_changed_callback');
-  late final _realm_dart_sync_on_subscription_state_changed_callback =
-      _realm_dart_sync_on_subscription_state_changed_callbackPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>, int)>();
-
-  void realm_dart_sync_progress_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    int transferred_bytes,
-    int total_bytes,
-    double estimate,
-  ) {
-    return _realm_dart_sync_progress_callback(
-      userdata,
-      transferred_bytes,
-      total_bytes,
-      estimate,
-    );
-  }
-
-  late final _realm_dart_sync_progress_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64,
-              ffi.Double)>>('realm_dart_sync_progress_callback');
-  late final _realm_dart_sync_progress_callback =
-      _realm_dart_sync_progress_callbackPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>, int, int, double)>();
-
-  void realm_dart_sync_wait_for_completion_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_error_t> error,
-  ) {
-    return _realm_dart_sync_wait_for_completion_callback(
-      userdata,
-      error,
-    );
-  }
-
-  late final _realm_dart_sync_wait_for_completion_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>(
-      'realm_dart_sync_wait_for_completion_callback');
-  late final _realm_dart_sync_wait_for_completion_callback =
-      _realm_dart_sync_wait_for_completion_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>();
-
-  void realm_dart_user_change_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    int state,
-  ) {
-    return _realm_dart_user_change_callback(
-      userdata,
-      state,
-    );
-  }
-
-  late final _realm_dart_user_change_callbackPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>(
-      'realm_dart_user_change_callback');
-  late final _realm_dart_user_change_callback =
-      _realm_dart_user_change_callbackPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>, int)>();
-
-  void realm_dart_user_completion_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_user_t> user,
-    ffi.Pointer<realm_app_error_t> error,
-  ) {
-    return _realm_dart_user_completion_callback(
-      userdata,
-      user,
-      error,
-    );
-  }
-
-  late final _realm_dart_user_completion_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_user_t>, ffi.Pointer<realm_app_error_t>)>>(
-      'realm_dart_user_completion_callback');
-  late final _realm_dart_user_completion_callback =
-      _realm_dart_user_completion_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_user_t>,
-              ffi.Pointer<realm_app_error_t>)>();
-
   void realm_dart_userdata_async_free(
     ffi.Pointer<ffi.Void> userdata,
   ) {
@@ -4225,26 +3914,6 @@ class RealmLibrary {
       _realm_dart_userdata_async_newPtr.asFunction<
           realm_dart_userdata_async_t Function(
               Object, ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>();
-
-  void realm_dart_void_completion_callback(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_app_error_t> error,
-  ) {
-    return _realm_dart_void_completion_callback(
-      userdata,
-      error,
-    );
-  }
-
-  late final _realm_dart_void_completion_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>>(
-      'realm_dart_void_completion_callback');
-  late final _realm_dart_void_completion_callback =
-      _realm_dart_void_completion_callbackPtr.asFunction<
-          void Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>();
 
   /// Deletes the following files for the given `realm_file_path` if they exist:
   /// - the Realm file itself
@@ -11713,30 +11382,6 @@ class RealmLibrary {
 class _SymbolAddresses {
   final RealmLibrary _library;
   _SymbolAddresses(this._library);
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_app_user_apikey_t>,
-                  ffi.Pointer<realm_app_error_t>)>>
-      get realm_dart_apikey_callback => _library._realm_dart_apikey_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_app_user_apikey_t>,
-                  ffi.Size,
-                  ffi.Pointer<realm_app_error_t>)>>
-      get realm_dart_apikey_list_callback =>
-          _library._realm_dart_apikey_list_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_thread_safe_reference_t>,
-                  ffi.Pointer<realm_async_error_t>)>>
-      get realm_dart_async_open_task_callback =>
-          _library._realm_dart_async_open_task_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
       get realm_dart_attach_logger => _library._realm_dart_attach_loggerPtr;
   ffi.Pointer<
@@ -11829,11 +11474,6 @@ class _SymbolAddresses {
       get realm_dart_get_files_path => _library._realm_dart_get_files_pathPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Uint64 Function()>>
       get realm_dart_get_thread_id => _library._realm_dart_get_thread_idPtr;
-  ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>, realm_http_request_t,
-              ffi.Pointer<ffi.Void>)>> get realm_dart_http_request_callback =>
-      _library._realm_dart_http_request_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
       get realm_dart_init_debug_logger =>
           _library._realm_dart_init_debug_loggerPtr;
@@ -11859,12 +11499,6 @@ class _SymbolAddresses {
       get realm_dart_persistent_handle_to_object =>
           _library._realm_dart_persistent_handle_to_objectPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<realm_app_error_t>)>>
-      get realm_dart_return_string_callback =>
-          _library._realm_dart_return_string_callbackPtr;
-  ffi.Pointer<
           ffi
           .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
       get realm_dart_scheduler_invoke =>
@@ -11874,58 +11508,6 @@ class _SymbolAddresses {
           .NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>>
       get realm_dart_set_and_get_rlimit =>
           _library._realm_dart_set_and_get_rlimitPtr;
-  ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<ffi.Void>,
-              ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>,
-              ffi.Bool)>> get realm_dart_sync_after_reset_handler_callback =>
-      _library._realm_dart_sync_after_reset_handler_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_t>)>>
-      get realm_dart_sync_before_reset_handler_callback =>
-          _library._realm_dart_sync_before_reset_handler_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32, ffi.Int32)>>
-      get realm_dart_sync_connection_state_changed_callback =>
-          _library._realm_dart_sync_connection_state_changed_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_sync_session_t>, realm_sync_error_t)>>
-      get realm_dart_sync_error_handler_callback =>
-          _library._realm_dart_sync_error_handler_callbackPtr;
-  ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
-      get realm_dart_sync_on_subscription_state_changed_callback =>
-          _library._realm_dart_sync_on_subscription_state_changed_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Uint64, ffi.Uint64, ffi.Double)>>
-      get realm_dart_sync_progress_callback =>
-          _library._realm_dart_sync_progress_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_error_t>)>>
-      get realm_dart_sync_wait_for_completion_callback =>
-          _library._realm_dart_sync_wait_for_completion_callbackPtr;
-  ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Int32)>>
-      get realm_dart_user_change_callback =>
-          _library._realm_dart_user_change_callbackPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>,
-                  ffi.Pointer<realm_user_t>, ffi.Pointer<realm_app_error_t>)>>
-      get realm_dart_user_completion_callback =>
-          _library._realm_dart_user_completion_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_dart_userdata_async_free =>
           _library._realm_dart_userdata_async_freePtr;
@@ -11935,12 +11517,6 @@ class _SymbolAddresses {
                   ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>>
       get realm_dart_userdata_async_new =>
           _library._realm_dart_userdata_async_newPtr;
-  ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_app_error_t>)>>
-      get realm_dart_void_completion_callback =>
-          _library._realm_dart_void_completion_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
       get realm_release => _library._realm_releasePtr;
 }

@@ -22,10 +22,12 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   set make(String value) => RealmObjectBase.set(this, 'make', value);
 
   @override
-  Stream<RealmObjectChanges<Car>> get changes => RealmObjectBase.getChanges<Car>(this);
+  Stream<RealmObjectChanges<Car>> get changes =>
+      RealmObjectBase.getChanges<Car>(this);
 
   @override
-  Stream<RealmObjectChanges<Car>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Car>(this, keyPaths);
+  Stream<RealmObjectChanges<Car>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Car>(this, keyPaths);
 
   @override
   Car freeze() => RealmObjectBase.freezeObject<Car>(this);
@@ -77,10 +79,12 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  Stream<RealmObjectChanges<Person>> get changes => RealmObjectBase.getChanges<Person>(this);
+  Stream<RealmObjectChanges<Person>> get changes =>
+      RealmObjectBase.getChanges<Person>(this);
 
   @override
-  Stream<RealmObjectChanges<Person>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Person>(this, keyPaths);
+  Stream<RealmObjectChanges<Person>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Person>(this, keyPaths);
 
   @override
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
@@ -143,13 +147,16 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
   @override
   Person? get owner => RealmObjectBase.get<Person>(this, 'owner') as Person?;
   @override
-  set owner(covariant Person? value) => RealmObjectBase.set(this, 'owner', value);
+  set owner(covariant Person? value) =>
+      RealmObjectBase.set(this, 'owner', value);
 
   @override
-  Stream<RealmObjectChanges<Dog>> get changes => RealmObjectBase.getChanges<Dog>(this);
+  Stream<RealmObjectChanges<Dog>> get changes =>
+      RealmObjectBase.getChanges<Dog>(this);
 
   @override
-  Stream<RealmObjectChanges<Dog>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Dog>(this, keyPaths);
+  Stream<RealmObjectChanges<Dog>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Dog>(this, keyPaths);
 
   @override
   Dog freeze() => RealmObjectBase.freezeObject<Dog>(this);
@@ -184,7 +191,8 @@ class Dog extends _Dog with RealmEntity, RealmObjectBase, RealmObject {
     return const SchemaObject(ObjectType.realmObject, Dog, 'Dog', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object, optional: true, linkTarget: 'Person'),
+      SchemaProperty('owner', RealmPropertyType.object,
+          optional: true, linkTarget: 'Person'),
     ]);
   }();
 
@@ -199,7 +207,8 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
     Iterable<int> scores = const [],
   }) {
     RealmObjectBase.set(this, 'name', name);
-    RealmObjectBase.set<RealmList<Person>>(this, 'players', RealmList<Person>(players));
+    RealmObjectBase.set<RealmList<Person>>(
+        this, 'players', RealmList<Person>(players));
     RealmObjectBase.set<RealmList<int>>(this, 'scores', RealmList<int>(scores));
   }
 
@@ -211,20 +220,26 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
   set name(String value) => RealmObjectBase.set(this, 'name', value);
 
   @override
-  RealmList<Person> get players => RealmObjectBase.get<Person>(this, 'players') as RealmList<Person>;
+  RealmList<Person> get players =>
+      RealmObjectBase.get<Person>(this, 'players') as RealmList<Person>;
   @override
-  set players(covariant RealmList<Person> value) => throw RealmUnsupportedSetError();
+  set players(covariant RealmList<Person> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<int> get scores => RealmObjectBase.get<int>(this, 'scores') as RealmList<int>;
+  RealmList<int> get scores =>
+      RealmObjectBase.get<int>(this, 'scores') as RealmList<int>;
   @override
-  set scores(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+  set scores(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Team>> get changes => RealmObjectBase.getChanges<Team>(this);
+  Stream<RealmObjectChanges<Team>> get changes =>
+      RealmObjectBase.getChanges<Team>(this);
 
   @override
-  Stream<RealmObjectChanges<Team>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Team>(this, keyPaths);
+  Stream<RealmObjectChanges<Team>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Team>(this, keyPaths);
 
   @override
   Team freeze() => RealmObjectBase.freezeObject<Team>(this);
@@ -258,8 +273,10 @@ class Team extends _Team with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Team, 'Team', [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('players', RealmPropertyType.object, linkTarget: 'Person', collectionType: RealmCollectionType.list),
-      SchemaProperty('scores', RealmPropertyType.int, collectionType: RealmCollectionType.list),
+      SchemaProperty('players', RealmPropertyType.object,
+          linkTarget: 'Person', collectionType: RealmCollectionType.list),
+      SchemaProperty('scores', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -295,18 +312,22 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
   @override
   int? get yearOfBirth => RealmObjectBase.get<int>(this, 'yearOfBirth') as int?;
   @override
-  set yearOfBirth(int? value) => RealmObjectBase.set(this, 'yearOfBirth', value);
+  set yearOfBirth(int? value) =>
+      RealmObjectBase.set(this, 'yearOfBirth', value);
 
   @override
   School? get school => RealmObjectBase.get<School>(this, 'school') as School?;
   @override
-  set school(covariant School? value) => RealmObjectBase.set(this, 'school', value);
+  set school(covariant School? value) =>
+      RealmObjectBase.set(this, 'school', value);
 
   @override
-  Stream<RealmObjectChanges<Student>> get changes => RealmObjectBase.getChanges<Student>(this);
+  Stream<RealmObjectChanges<Student>> get changes =>
+      RealmObjectBase.getChanges<Student>(this);
 
   @override
-  Stream<RealmObjectChanges<Student>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Student>(this, keyPaths);
+  Stream<RealmObjectChanges<Student>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Student>(this, keyPaths);
 
   @override
   Student freeze() => RealmObjectBase.freezeObject<Student>(this);
@@ -344,7 +365,8 @@ class Student extends _Student with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('number', RealmPropertyType.int, primaryKey: true),
       SchemaProperty('name', RealmPropertyType.string, optional: true),
       SchemaProperty('yearOfBirth', RealmPropertyType.int, optional: true),
-      SchemaProperty('school', RealmPropertyType.object, optional: true, linkTarget: 'School'),
+      SchemaProperty('school', RealmPropertyType.object,
+          optional: true, linkTarget: 'School'),
     ]);
   }();
 
@@ -362,9 +384,11 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   }) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'city', city);
-    RealmObjectBase.set<RealmList<Student>>(this, 'students', RealmList<Student>(students));
+    RealmObjectBase.set<RealmList<Student>>(
+        this, 'students', RealmList<Student>(students));
     RealmObjectBase.set(this, 'branchOfSchool', branchOfSchool);
-    RealmObjectBase.set<RealmList<School>>(this, 'branches', RealmList<School>(branches));
+    RealmObjectBase.set<RealmList<School>>(
+        this, 'branches', RealmList<School>(branches));
   }
 
   School._();
@@ -380,25 +404,33 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   set city(String? value) => RealmObjectBase.set(this, 'city', value);
 
   @override
-  RealmList<Student> get students => RealmObjectBase.get<Student>(this, 'students') as RealmList<Student>;
+  RealmList<Student> get students =>
+      RealmObjectBase.get<Student>(this, 'students') as RealmList<Student>;
   @override
-  set students(covariant RealmList<Student> value) => throw RealmUnsupportedSetError();
+  set students(covariant RealmList<Student> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  School? get branchOfSchool => RealmObjectBase.get<School>(this, 'branchOfSchool') as School?;
+  School? get branchOfSchool =>
+      RealmObjectBase.get<School>(this, 'branchOfSchool') as School?;
   @override
-  set branchOfSchool(covariant School? value) => RealmObjectBase.set(this, 'branchOfSchool', value);
+  set branchOfSchool(covariant School? value) =>
+      RealmObjectBase.set(this, 'branchOfSchool', value);
 
   @override
-  RealmList<School> get branches => RealmObjectBase.get<School>(this, 'branches') as RealmList<School>;
+  RealmList<School> get branches =>
+      RealmObjectBase.get<School>(this, 'branches') as RealmList<School>;
   @override
-  set branches(covariant RealmList<School> value) => throw RealmUnsupportedSetError();
+  set branches(covariant RealmList<School> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<School>> get changes => RealmObjectBase.getChanges<School>(this);
+  Stream<RealmObjectChanges<School>> get changes =>
+      RealmObjectBase.getChanges<School>(this);
 
   @override
-  Stream<RealmObjectChanges<School>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<School>(this, keyPaths);
+  Stream<RealmObjectChanges<School>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<School>(this, keyPaths);
 
   @override
   School freeze() => RealmObjectBase.freezeObject<School>(this);
@@ -437,9 +469,12 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
     return const SchemaObject(ObjectType.realmObject, School, 'School', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('city', RealmPropertyType.string, optional: true),
-      SchemaProperty('students', RealmPropertyType.object, linkTarget: 'Student', collectionType: RealmCollectionType.list),
-      SchemaProperty('branchOfSchool', RealmPropertyType.object, optional: true, linkTarget: 'School'),
-      SchemaProperty('branches', RealmPropertyType.object, linkTarget: 'School', collectionType: RealmCollectionType.list),
+      SchemaProperty('students', RealmPropertyType.object,
+          linkTarget: 'Student', collectionType: RealmCollectionType.list),
+      SchemaProperty('branchOfSchool', RealmPropertyType.object,
+          optional: true, linkTarget: 'School'),
+      SchemaProperty('branches', RealmPropertyType.object,
+          linkTarget: 'School', collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -447,32 +482,42 @@ class School extends _School with RealmEntity, RealmObjectBase, RealmObject {
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class RemappedClass extends $RemappedClass with RealmEntity, RealmObjectBase, RealmObject {
+class RemappedClass extends $RemappedClass
+    with RealmEntity, RealmObjectBase, RealmObject {
   RemappedClass(
     String remappedProperty, {
     Iterable<RemappedClass> listProperty = const [],
   }) {
     RealmObjectBase.set(this, 'primitive_property', remappedProperty);
-    RealmObjectBase.set<RealmList<RemappedClass>>(this, 'list-with-dashes', RealmList<RemappedClass>(listProperty));
+    RealmObjectBase.set<RealmList<RemappedClass>>(
+        this, 'list-with-dashes', RealmList<RemappedClass>(listProperty));
   }
 
   RemappedClass._();
 
   @override
-  String get remappedProperty => RealmObjectBase.get<String>(this, 'primitive_property') as String;
+  String get remappedProperty =>
+      RealmObjectBase.get<String>(this, 'primitive_property') as String;
   @override
-  set remappedProperty(String value) => RealmObjectBase.set(this, 'primitive_property', value);
+  set remappedProperty(String value) =>
+      RealmObjectBase.set(this, 'primitive_property', value);
 
   @override
-  RealmList<RemappedClass> get listProperty => RealmObjectBase.get<RemappedClass>(this, 'list-with-dashes') as RealmList<RemappedClass>;
+  RealmList<RemappedClass> get listProperty =>
+      RealmObjectBase.get<RemappedClass>(this, 'list-with-dashes')
+          as RealmList<RemappedClass>;
   @override
-  set listProperty(covariant RealmList<RemappedClass> value) => throw RealmUnsupportedSetError();
+  set listProperty(covariant RealmList<RemappedClass> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<RemappedClass>> get changes => RealmObjectBase.getChanges<RemappedClass>(this);
+  Stream<RealmObjectChanges<RemappedClass>> get changes =>
+      RealmObjectBase.getChanges<RemappedClass>(this);
 
   @override
-  Stream<RealmObjectChanges<RemappedClass>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<RemappedClass>(this, keyPaths);
+  Stream<RealmObjectChanges<RemappedClass>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RemappedClass>(this, keyPaths);
 
   @override
   RemappedClass freeze() => RealmObjectBase.freezeObject<RemappedClass>(this);
@@ -502,10 +547,14 @@ class RemappedClass extends $RemappedClass with RealmEntity, RealmObjectBase, Re
   static final schema = () {
     RealmObjectBase.registerFactory(RemappedClass._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, RemappedClass, 'myRemappedClass', [
-      SchemaProperty('remappedProperty', RealmPropertyType.string, mapTo: 'primitive_property'),
+    return const SchemaObject(
+        ObjectType.realmObject, RemappedClass, 'myRemappedClass', [
+      SchemaProperty('remappedProperty', RealmPropertyType.string,
+          mapTo: 'primitive_property'),
       SchemaProperty('listProperty', RealmPropertyType.object,
-          mapTo: 'list-with-dashes', linkTarget: 'myRemappedClass', collectionType: RealmCollectionType.list),
+          mapTo: 'list-with-dashes',
+          linkTarget: 'myRemappedClass',
+          collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -528,10 +577,12 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  Stream<RealmObjectChanges<Task>> get changes => RealmObjectBase.getChanges<Task>(this);
+  Stream<RealmObjectChanges<Task>> get changes =>
+      RealmObjectBase.getChanges<Task>(this);
 
   @override
-  Stream<RealmObjectChanges<Task>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Task>(this, keyPaths);
+  Stream<RealmObjectChanges<Task>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Task>(this, keyPaths);
 
   @override
   Task freeze() => RealmObjectBase.freezeObject<Task>(this);
@@ -560,7 +611,8 @@ class Task extends _Task with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Task._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Task, 'Task', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
     ]);
   }();
 
@@ -585,15 +637,19 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  String get name => RealmObjectBase.get<String>(this, 'stringQueryField') as String;
+  String get name =>
+      RealmObjectBase.get<String>(this, 'stringQueryField') as String;
   @override
-  set name(String value) => RealmObjectBase.set(this, 'stringQueryField', value);
+  set name(String value) =>
+      RealmObjectBase.set(this, 'stringQueryField', value);
 
   @override
-  Stream<RealmObjectChanges<Product>> get changes => RealmObjectBase.getChanges<Product>(this);
+  Stream<RealmObjectChanges<Product>> get changes =>
+      RealmObjectBase.getChanges<Product>(this);
 
   @override
-  Stream<RealmObjectChanges<Product>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Product>(this, keyPaths);
+  Stream<RealmObjectChanges<Product>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Product>(this, keyPaths);
 
   @override
   Product freeze() => RealmObjectBase.freezeObject<Product>(this);
@@ -625,8 +681,10 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Product._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Product, 'Product', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
-      SchemaProperty('name', RealmPropertyType.string, mapTo: 'stringQueryField'),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('name', RealmPropertyType.string,
+          mapTo: 'stringQueryField'),
     ]);
   }();
 
@@ -634,7 +692,8 @@ class Product extends _Product with RealmEntity, RealmObjectBase, RealmObject {
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class Schedule extends _Schedule with RealmEntity, RealmObjectBase, RealmObject {
+class Schedule extends _Schedule
+    with RealmEntity, RealmObjectBase, RealmObject {
   Schedule(
     ObjectId id, {
     Iterable<Task> tasks = const [],
@@ -651,15 +710,19 @@ class Schedule extends _Schedule with RealmEntity, RealmObjectBase, RealmObject 
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  RealmList<Task> get tasks => RealmObjectBase.get<Task>(this, 'tasks') as RealmList<Task>;
+  RealmList<Task> get tasks =>
+      RealmObjectBase.get<Task>(this, 'tasks') as RealmList<Task>;
   @override
-  set tasks(covariant RealmList<Task> value) => throw RealmUnsupportedSetError();
+  set tasks(covariant RealmList<Task> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Schedule>> get changes => RealmObjectBase.getChanges<Schedule>(this);
+  Stream<RealmObjectChanges<Schedule>> get changes =>
+      RealmObjectBase.getChanges<Schedule>(this);
 
   @override
-  Stream<RealmObjectChanges<Schedule>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Schedule>(this, keyPaths);
+  Stream<RealmObjectChanges<Schedule>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Schedule>(this, keyPaths);
 
   @override
   Schedule freeze() => RealmObjectBase.freezeObject<Schedule>(this);
@@ -690,8 +753,10 @@ class Schedule extends _Schedule with RealmEntity, RealmObjectBase, RealmObject 
     RealmObjectBase.registerFactory(Schedule._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Schedule, 'Schedule', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
-      SchemaProperty('tasks', RealmPropertyType.object, linkTarget: 'Task', collectionType: RealmCollectionType.list),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('tasks', RealmPropertyType.object,
+          linkTarget: 'Task', collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -711,20 +776,26 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   Foo._();
 
   @override
-  Uint8List get requiredBinaryProp => RealmObjectBase.get<Uint8List>(this, 'requiredBinaryProp') as Uint8List;
+  Uint8List get requiredBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'requiredBinaryProp') as Uint8List;
   @override
-  set requiredBinaryProp(Uint8List value) => RealmObjectBase.set(this, 'requiredBinaryProp', value);
+  set requiredBinaryProp(Uint8List value) =>
+      RealmObjectBase.set(this, 'requiredBinaryProp', value);
 
   @override
-  Uint8List? get nullableBinaryProp => RealmObjectBase.get<Uint8List>(this, 'nullableBinaryProp') as Uint8List?;
+  Uint8List? get nullableBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'nullableBinaryProp') as Uint8List?;
   @override
-  set nullableBinaryProp(Uint8List? value) => RealmObjectBase.set(this, 'nullableBinaryProp', value);
+  set nullableBinaryProp(Uint8List? value) =>
+      RealmObjectBase.set(this, 'nullableBinaryProp', value);
 
   @override
-  Stream<RealmObjectChanges<Foo>> get changes => RealmObjectBase.getChanges<Foo>(this);
+  Stream<RealmObjectChanges<Foo>> get changes =>
+      RealmObjectBase.getChanges<Foo>(this);
 
   @override
-  Stream<RealmObjectChanges<Foo>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Foo>(this, keyPaths);
+  Stream<RealmObjectChanges<Foo>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Foo>(this, keyPaths);
 
   @override
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
@@ -756,7 +827,8 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
-      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary, optional: true),
+      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
+          optional: true),
     ]);
   }();
 
@@ -764,7 +836,8 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class AllTypes extends _AllTypes with RealmEntity, RealmObjectBase, RealmObject {
+class AllTypes extends _AllTypes
+    with RealmEntity, RealmObjectBase, RealmObject {
   AllTypes(
     String stringProp,
     bool boolProp,
@@ -810,9 +883,11 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObjectBase, RealmObject 
   AllTypes._();
 
   @override
-  String get stringProp => RealmObjectBase.get<String>(this, 'stringProp') as String;
+  String get stringProp =>
+      RealmObjectBase.get<String>(this, 'stringProp') as String;
   @override
-  set stringProp(String value) => RealmObjectBase.set(this, 'stringProp', value);
+  set stringProp(String value) =>
+      RealmObjectBase.set(this, 'stringProp', value);
 
   @override
   bool get boolProp => RealmObjectBase.get<bool>(this, 'boolProp') as bool;
@@ -820,19 +895,24 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObjectBase, RealmObject 
   set boolProp(bool value) => RealmObjectBase.set(this, 'boolProp', value);
 
   @override
-  DateTime get dateProp => RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime;
+  DateTime get dateProp =>
+      RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime;
   @override
   set dateProp(DateTime value) => RealmObjectBase.set(this, 'dateProp', value);
 
   @override
-  double get doubleProp => RealmObjectBase.get<double>(this, 'doubleProp') as double;
+  double get doubleProp =>
+      RealmObjectBase.get<double>(this, 'doubleProp') as double;
   @override
-  set doubleProp(double value) => RealmObjectBase.set(this, 'doubleProp', value);
+  set doubleProp(double value) =>
+      RealmObjectBase.set(this, 'doubleProp', value);
 
   @override
-  ObjectId get objectIdProp => RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId;
+  ObjectId get objectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId;
   @override
-  set objectIdProp(ObjectId value) => RealmObjectBase.set(this, 'objectIdProp', value);
+  set objectIdProp(ObjectId value) =>
+      RealmObjectBase.set(this, 'objectIdProp', value);
 
   @override
   Uuid get uuidProp => RealmObjectBase.get<Uuid>(this, 'uuidProp') as Uuid;
@@ -845,70 +925,97 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObjectBase, RealmObject 
   set intProp(int value) => RealmObjectBase.set(this, 'intProp', value);
 
   @override
-  Decimal128 get decimalProp => RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128;
+  Decimal128 get decimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128;
   @override
-  set decimalProp(Decimal128 value) => RealmObjectBase.set(this, 'decimalProp', value);
+  set decimalProp(Decimal128 value) =>
+      RealmObjectBase.set(this, 'decimalProp', value);
 
   @override
-  Uint8List get binaryProp => RealmObjectBase.get<Uint8List>(this, 'binaryProp') as Uint8List;
+  Uint8List get binaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'binaryProp') as Uint8List;
   @override
-  set binaryProp(Uint8List value) => RealmObjectBase.set(this, 'binaryProp', value);
+  set binaryProp(Uint8List value) =>
+      RealmObjectBase.set(this, 'binaryProp', value);
 
   @override
-  String? get nullableStringProp => RealmObjectBase.get<String>(this, 'nullableStringProp') as String?;
+  String? get nullableStringProp =>
+      RealmObjectBase.get<String>(this, 'nullableStringProp') as String?;
   @override
-  set nullableStringProp(String? value) => RealmObjectBase.set(this, 'nullableStringProp', value);
+  set nullableStringProp(String? value) =>
+      RealmObjectBase.set(this, 'nullableStringProp', value);
 
   @override
-  bool? get nullableBoolProp => RealmObjectBase.get<bool>(this, 'nullableBoolProp') as bool?;
+  bool? get nullableBoolProp =>
+      RealmObjectBase.get<bool>(this, 'nullableBoolProp') as bool?;
   @override
-  set nullableBoolProp(bool? value) => RealmObjectBase.set(this, 'nullableBoolProp', value);
+  set nullableBoolProp(bool? value) =>
+      RealmObjectBase.set(this, 'nullableBoolProp', value);
 
   @override
-  DateTime? get nullableDateProp => RealmObjectBase.get<DateTime>(this, 'nullableDateProp') as DateTime?;
+  DateTime? get nullableDateProp =>
+      RealmObjectBase.get<DateTime>(this, 'nullableDateProp') as DateTime?;
   @override
-  set nullableDateProp(DateTime? value) => RealmObjectBase.set(this, 'nullableDateProp', value);
+  set nullableDateProp(DateTime? value) =>
+      RealmObjectBase.set(this, 'nullableDateProp', value);
 
   @override
-  double? get nullableDoubleProp => RealmObjectBase.get<double>(this, 'nullableDoubleProp') as double?;
+  double? get nullableDoubleProp =>
+      RealmObjectBase.get<double>(this, 'nullableDoubleProp') as double?;
   @override
-  set nullableDoubleProp(double? value) => RealmObjectBase.set(this, 'nullableDoubleProp', value);
+  set nullableDoubleProp(double? value) =>
+      RealmObjectBase.set(this, 'nullableDoubleProp', value);
 
   @override
-  ObjectId? get nullableObjectIdProp => RealmObjectBase.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
+  ObjectId? get nullableObjectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
   @override
-  set nullableObjectIdProp(ObjectId? value) => RealmObjectBase.set(this, 'nullableObjectIdProp', value);
+  set nullableObjectIdProp(ObjectId? value) =>
+      RealmObjectBase.set(this, 'nullableObjectIdProp', value);
 
   @override
-  Uuid? get nullableUuidProp => RealmObjectBase.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
+  Uuid? get nullableUuidProp =>
+      RealmObjectBase.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
   @override
-  set nullableUuidProp(Uuid? value) => RealmObjectBase.set(this, 'nullableUuidProp', value);
+  set nullableUuidProp(Uuid? value) =>
+      RealmObjectBase.set(this, 'nullableUuidProp', value);
 
   @override
-  int? get nullableIntProp => RealmObjectBase.get<int>(this, 'nullableIntProp') as int?;
+  int? get nullableIntProp =>
+      RealmObjectBase.get<int>(this, 'nullableIntProp') as int?;
   @override
-  set nullableIntProp(int? value) => RealmObjectBase.set(this, 'nullableIntProp', value);
+  set nullableIntProp(int? value) =>
+      RealmObjectBase.set(this, 'nullableIntProp', value);
 
   @override
-  Decimal128? get nullableDecimalProp => RealmObjectBase.get<Decimal128>(this, 'nullableDecimalProp') as Decimal128?;
+  Decimal128? get nullableDecimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimalProp')
+          as Decimal128?;
   @override
-  set nullableDecimalProp(Decimal128? value) => RealmObjectBase.set(this, 'nullableDecimalProp', value);
+  set nullableDecimalProp(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimalProp', value);
 
   @override
-  Uint8List? get nullableBinaryProp => RealmObjectBase.get<Uint8List>(this, 'nullableBinaryProp') as Uint8List?;
+  Uint8List? get nullableBinaryProp =>
+      RealmObjectBase.get<Uint8List>(this, 'nullableBinaryProp') as Uint8List?;
   @override
-  set nullableBinaryProp(Uint8List? value) => RealmObjectBase.set(this, 'nullableBinaryProp', value);
+  set nullableBinaryProp(Uint8List? value) =>
+      RealmObjectBase.set(this, 'nullableBinaryProp', value);
 
   @override
-  RealmValue get realmValueProp => RealmObjectBase.get<RealmValue>(this, 'realmValueProp') as RealmValue;
+  RealmValue get realmValueProp =>
+      RealmObjectBase.get<RealmValue>(this, 'realmValueProp') as RealmValue;
   @override
-  set realmValueProp(RealmValue value) => RealmObjectBase.set(this, 'realmValueProp', value);
+  set realmValueProp(RealmValue value) =>
+      RealmObjectBase.set(this, 'realmValueProp', value);
 
   @override
-  Stream<RealmObjectChanges<AllTypes>> get changes => RealmObjectBase.getChanges<AllTypes>(this);
+  Stream<RealmObjectChanges<AllTypes>> get changes =>
+      RealmObjectBase.getChanges<AllTypes>(this);
 
   @override
-  Stream<RealmObjectChanges<AllTypes>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<AllTypes>(this, keyPaths);
+  Stream<RealmObjectChanges<AllTypes>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AllTypes>(this, keyPaths);
 
   @override
   AllTypes freeze() => RealmObjectBase.freezeObject<AllTypes>(this);
@@ -990,15 +1097,23 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObjectBase, RealmObject 
       SchemaProperty('intProp', RealmPropertyType.int),
       SchemaProperty('decimalProp', RealmPropertyType.decimal128),
       SchemaProperty('binaryProp', RealmPropertyType.binary),
-      SchemaProperty('nullableStringProp', RealmPropertyType.string, optional: true),
-      SchemaProperty('nullableBoolProp', RealmPropertyType.bool, optional: true),
-      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp, optional: true),
-      SchemaProperty('nullableDoubleProp', RealmPropertyType.double, optional: true),
-      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid, optional: true),
-      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid, optional: true),
+      SchemaProperty('nullableStringProp', RealmPropertyType.string,
+          optional: true),
+      SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
+          optional: true),
+      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
+          optional: true),
+      SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
+          optional: true),
+      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
+          optional: true),
       SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
-      SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128, optional: true),
-      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary, optional: true),
+      SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128,
+          optional: true),
+      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
+          optional: true),
       SchemaProperty('realmValueProp', RealmPropertyType.mixed, optional: true),
     ]);
   }();
@@ -1007,7 +1122,8 @@ class AllTypes extends _AllTypes with RealmEntity, RealmObjectBase, RealmObject 
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class LinksClass extends _LinksClass with RealmEntity, RealmObjectBase, RealmObject {
+class LinksClass extends _LinksClass
+    with RealmEntity, RealmObjectBase, RealmObject {
   LinksClass(
     Uuid id, {
     LinksClass? link,
@@ -1017,9 +1133,12 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObjectBase, RealmObj
   }) {
     RealmObjectBase.set(this, 'id', id);
     RealmObjectBase.set(this, 'link', link);
-    RealmObjectBase.set<RealmList<LinksClass>>(this, 'list', RealmList<LinksClass>(list));
-    RealmObjectBase.set<RealmSet<LinksClass>>(this, 'linksSet', RealmSet<LinksClass>(linksSet));
-    RealmObjectBase.set<RealmMap<LinksClass?>>(this, 'map', RealmMap<LinksClass?>(map));
+    RealmObjectBase.set<RealmList<LinksClass>>(
+        this, 'list', RealmList<LinksClass>(list));
+    RealmObjectBase.set<RealmSet<LinksClass>>(
+        this, 'linksSet', RealmSet<LinksClass>(linksSet));
+    RealmObjectBase.set<RealmMap<LinksClass?>>(
+        this, 'map', RealmMap<LinksClass?>(map));
   }
 
   LinksClass._();
@@ -1030,30 +1149,40 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObjectBase, RealmObj
   set id(Uuid value) => RealmObjectBase.set(this, 'id', value);
 
   @override
-  LinksClass? get link => RealmObjectBase.get<LinksClass>(this, 'link') as LinksClass?;
+  LinksClass? get link =>
+      RealmObjectBase.get<LinksClass>(this, 'link') as LinksClass?;
   @override
-  set link(covariant LinksClass? value) => RealmObjectBase.set(this, 'link', value);
+  set link(covariant LinksClass? value) =>
+      RealmObjectBase.set(this, 'link', value);
 
   @override
-  RealmList<LinksClass> get list => RealmObjectBase.get<LinksClass>(this, 'list') as RealmList<LinksClass>;
+  RealmList<LinksClass> get list =>
+      RealmObjectBase.get<LinksClass>(this, 'list') as RealmList<LinksClass>;
   @override
-  set list(covariant RealmList<LinksClass> value) => throw RealmUnsupportedSetError();
+  set list(covariant RealmList<LinksClass> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<LinksClass> get linksSet => RealmObjectBase.get<LinksClass>(this, 'linksSet') as RealmSet<LinksClass>;
+  RealmSet<LinksClass> get linksSet =>
+      RealmObjectBase.get<LinksClass>(this, 'linksSet') as RealmSet<LinksClass>;
   @override
-  set linksSet(covariant RealmSet<LinksClass> value) => throw RealmUnsupportedSetError();
+  set linksSet(covariant RealmSet<LinksClass> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<LinksClass?> get map => RealmObjectBase.get<LinksClass?>(this, 'map') as RealmMap<LinksClass?>;
+  RealmMap<LinksClass?> get map =>
+      RealmObjectBase.get<LinksClass?>(this, 'map') as RealmMap<LinksClass?>;
   @override
-  set map(covariant RealmMap<LinksClass?> value) => throw RealmUnsupportedSetError();
+  set map(covariant RealmMap<LinksClass?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<LinksClass>> get changes => RealmObjectBase.getChanges<LinksClass>(this);
+  Stream<RealmObjectChanges<LinksClass>> get changes =>
+      RealmObjectBase.getChanges<LinksClass>(this);
 
   @override
-  Stream<RealmObjectChanges<LinksClass>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<LinksClass>(this, keyPaths);
+  Stream<RealmObjectChanges<LinksClass>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<LinksClass>(this, keyPaths);
 
   @override
   LinksClass freeze() => RealmObjectBase.freezeObject<LinksClass>(this);
@@ -1089,12 +1218,19 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObjectBase, RealmObj
   static final schema = () {
     RealmObjectBase.registerFactory(LinksClass._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, LinksClass, 'LinksClass', [
+    return const SchemaObject(
+        ObjectType.realmObject, LinksClass, 'LinksClass', [
       SchemaProperty('id', RealmPropertyType.uuid, primaryKey: true),
-      SchemaProperty('link', RealmPropertyType.object, optional: true, linkTarget: 'LinksClass'),
-      SchemaProperty('list', RealmPropertyType.object, linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
-      SchemaProperty('linksSet', RealmPropertyType.object, linkTarget: 'LinksClass', collectionType: RealmCollectionType.set),
-      SchemaProperty('map', RealmPropertyType.object, optional: true, linkTarget: 'LinksClass', collectionType: RealmCollectionType.map),
+      SchemaProperty('link', RealmPropertyType.object,
+          optional: true, linkTarget: 'LinksClass'),
+      SchemaProperty('list', RealmPropertyType.object,
+          linkTarget: 'LinksClass', collectionType: RealmCollectionType.list),
+      SchemaProperty('linksSet', RealmPropertyType.object,
+          linkTarget: 'LinksClass', collectionType: RealmCollectionType.set),
+      SchemaProperty('map', RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'LinksClass',
+          collectionType: RealmCollectionType.map),
     ]);
   }();
 
@@ -1102,7 +1238,8 @@ class LinksClass extends _LinksClass with RealmEntity, RealmObjectBase, RealmObj
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class AllCollections extends _AllCollections with RealmEntity, RealmObjectBase, RealmObject {
+class AllCollections extends _AllCollections
+    with RealmEntity, RealmObjectBase, RealmObject {
   AllCollections({
     Iterable<String> stringList = const [],
     Iterable<bool> boolList = const [],
@@ -1153,303 +1290,465 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObjectBase, 
     Map<String, int?> nullableIntMap = const {},
     Map<String, Decimal128?> nullableDecimalMap = const {},
   }) {
-    RealmObjectBase.set<RealmList<String>>(this, 'stringList', RealmList<String>(stringList));
-    RealmObjectBase.set<RealmList<bool>>(this, 'boolList', RealmList<bool>(boolList));
-    RealmObjectBase.set<RealmList<DateTime>>(this, 'dateList', RealmList<DateTime>(dateList));
-    RealmObjectBase.set<RealmList<double>>(this, 'doubleList', RealmList<double>(doubleList));
-    RealmObjectBase.set<RealmList<ObjectId>>(this, 'objectIdList', RealmList<ObjectId>(objectIdList));
-    RealmObjectBase.set<RealmList<Uuid>>(this, 'uuidList', RealmList<Uuid>(uuidList));
-    RealmObjectBase.set<RealmList<int>>(this, 'intList', RealmList<int>(intList));
-    RealmObjectBase.set<RealmList<Decimal128>>(this, 'decimalList', RealmList<Decimal128>(decimalList));
-    RealmObjectBase.set<RealmList<String?>>(this, 'nullableStringList', RealmList<String?>(nullableStringList));
-    RealmObjectBase.set<RealmList<bool?>>(this, 'nullableBoolList', RealmList<bool?>(nullableBoolList));
-    RealmObjectBase.set<RealmList<DateTime?>>(this, 'nullableDateList', RealmList<DateTime?>(nullableDateList));
-    RealmObjectBase.set<RealmList<double?>>(this, 'nullableDoubleList', RealmList<double?>(nullableDoubleList));
-    RealmObjectBase.set<RealmList<ObjectId?>>(this, 'nullableObjectIdList', RealmList<ObjectId?>(nullableObjectIdList));
-    RealmObjectBase.set<RealmList<Uuid?>>(this, 'nullableUuidList', RealmList<Uuid?>(nullableUuidList));
-    RealmObjectBase.set<RealmList<int?>>(this, 'nullableIntList', RealmList<int?>(nullableIntList));
-    RealmObjectBase.set<RealmList<Decimal128?>>(this, 'nullableDecimalList', RealmList<Decimal128?>(nullableDecimalList));
-    RealmObjectBase.set<RealmSet<String>>(this, 'stringSet', RealmSet<String>(stringSet));
-    RealmObjectBase.set<RealmSet<bool>>(this, 'boolSet', RealmSet<bool>(boolSet));
-    RealmObjectBase.set<RealmSet<DateTime>>(this, 'dateSet', RealmSet<DateTime>(dateSet));
-    RealmObjectBase.set<RealmSet<double>>(this, 'doubleSet', RealmSet<double>(doubleSet));
-    RealmObjectBase.set<RealmSet<ObjectId>>(this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
-    RealmObjectBase.set<RealmSet<Uuid>>(this, 'uuidSet', RealmSet<Uuid>(uuidSet));
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'stringList', RealmList<String>(stringList));
+    RealmObjectBase.set<RealmList<bool>>(
+        this, 'boolList', RealmList<bool>(boolList));
+    RealmObjectBase.set<RealmList<DateTime>>(
+        this, 'dateList', RealmList<DateTime>(dateList));
+    RealmObjectBase.set<RealmList<double>>(
+        this, 'doubleList', RealmList<double>(doubleList));
+    RealmObjectBase.set<RealmList<ObjectId>>(
+        this, 'objectIdList', RealmList<ObjectId>(objectIdList));
+    RealmObjectBase.set<RealmList<Uuid>>(
+        this, 'uuidList', RealmList<Uuid>(uuidList));
+    RealmObjectBase.set<RealmList<int>>(
+        this, 'intList', RealmList<int>(intList));
+    RealmObjectBase.set<RealmList<Decimal128>>(
+        this, 'decimalList', RealmList<Decimal128>(decimalList));
+    RealmObjectBase.set<RealmList<String?>>(
+        this, 'nullableStringList', RealmList<String?>(nullableStringList));
+    RealmObjectBase.set<RealmList<bool?>>(
+        this, 'nullableBoolList', RealmList<bool?>(nullableBoolList));
+    RealmObjectBase.set<RealmList<DateTime?>>(
+        this, 'nullableDateList', RealmList<DateTime?>(nullableDateList));
+    RealmObjectBase.set<RealmList<double?>>(
+        this, 'nullableDoubleList', RealmList<double?>(nullableDoubleList));
+    RealmObjectBase.set<RealmList<ObjectId?>>(this, 'nullableObjectIdList',
+        RealmList<ObjectId?>(nullableObjectIdList));
+    RealmObjectBase.set<RealmList<Uuid?>>(
+        this, 'nullableUuidList', RealmList<Uuid?>(nullableUuidList));
+    RealmObjectBase.set<RealmList<int?>>(
+        this, 'nullableIntList', RealmList<int?>(nullableIntList));
+    RealmObjectBase.set<RealmList<Decimal128?>>(this, 'nullableDecimalList',
+        RealmList<Decimal128?>(nullableDecimalList));
+    RealmObjectBase.set<RealmSet<String>>(
+        this, 'stringSet', RealmSet<String>(stringSet));
+    RealmObjectBase.set<RealmSet<bool>>(
+        this, 'boolSet', RealmSet<bool>(boolSet));
+    RealmObjectBase.set<RealmSet<DateTime>>(
+        this, 'dateSet', RealmSet<DateTime>(dateSet));
+    RealmObjectBase.set<RealmSet<double>>(
+        this, 'doubleSet', RealmSet<double>(doubleSet));
+    RealmObjectBase.set<RealmSet<ObjectId>>(
+        this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
+    RealmObjectBase.set<RealmSet<Uuid>>(
+        this, 'uuidSet', RealmSet<Uuid>(uuidSet));
     RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>(intSet));
-    RealmObjectBase.set<RealmSet<Decimal128>>(this, 'decimalSet', RealmSet<Decimal128>(decimalSet));
-    RealmObjectBase.set<RealmSet<String?>>(this, 'nullableStringSet', RealmSet<String?>(nullableStringSet));
-    RealmObjectBase.set<RealmSet<bool?>>(this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
-    RealmObjectBase.set<RealmSet<DateTime?>>(this, 'nullableDateSet', RealmSet<DateTime?>(nullableDateSet));
-    RealmObjectBase.set<RealmSet<double?>>(this, 'nullableDoubleSet', RealmSet<double?>(nullableDoubleSet));
-    RealmObjectBase.set<RealmSet<ObjectId?>>(this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
-    RealmObjectBase.set<RealmSet<Uuid?>>(this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
-    RealmObjectBase.set<RealmSet<int?>>(this, 'nullableIntSet', RealmSet<int?>(nullableIntSet));
-    RealmObjectBase.set<RealmSet<Decimal128?>>(this, 'nullableDecimalSet', RealmSet<Decimal128?>(nullableDecimalSet));
-    RealmObjectBase.set<RealmMap<String>>(this, 'stringMap', RealmMap<String>(stringMap));
-    RealmObjectBase.set<RealmMap<bool>>(this, 'boolMap', RealmMap<bool>(boolMap));
-    RealmObjectBase.set<RealmMap<DateTime>>(this, 'dateMap', RealmMap<DateTime>(dateMap));
-    RealmObjectBase.set<RealmMap<double>>(this, 'doubleMap', RealmMap<double>(doubleMap));
-    RealmObjectBase.set<RealmMap<ObjectId>>(this, 'objectIdMap', RealmMap<ObjectId>(objectIdMap));
-    RealmObjectBase.set<RealmMap<Uuid>>(this, 'uuidMap', RealmMap<Uuid>(uuidMap));
+    RealmObjectBase.set<RealmSet<Decimal128>>(
+        this, 'decimalSet', RealmSet<Decimal128>(decimalSet));
+    RealmObjectBase.set<RealmSet<String?>>(
+        this, 'nullableStringSet', RealmSet<String?>(nullableStringSet));
+    RealmObjectBase.set<RealmSet<bool?>>(
+        this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
+    RealmObjectBase.set<RealmSet<DateTime?>>(
+        this, 'nullableDateSet', RealmSet<DateTime?>(nullableDateSet));
+    RealmObjectBase.set<RealmSet<double?>>(
+        this, 'nullableDoubleSet', RealmSet<double?>(nullableDoubleSet));
+    RealmObjectBase.set<RealmSet<ObjectId?>>(
+        this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
+    RealmObjectBase.set<RealmSet<Uuid?>>(
+        this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
+    RealmObjectBase.set<RealmSet<int?>>(
+        this, 'nullableIntSet', RealmSet<int?>(nullableIntSet));
+    RealmObjectBase.set<RealmSet<Decimal128?>>(
+        this, 'nullableDecimalSet', RealmSet<Decimal128?>(nullableDecimalSet));
+    RealmObjectBase.set<RealmMap<String>>(
+        this, 'stringMap', RealmMap<String>(stringMap));
+    RealmObjectBase.set<RealmMap<bool>>(
+        this, 'boolMap', RealmMap<bool>(boolMap));
+    RealmObjectBase.set<RealmMap<DateTime>>(
+        this, 'dateMap', RealmMap<DateTime>(dateMap));
+    RealmObjectBase.set<RealmMap<double>>(
+        this, 'doubleMap', RealmMap<double>(doubleMap));
+    RealmObjectBase.set<RealmMap<ObjectId>>(
+        this, 'objectIdMap', RealmMap<ObjectId>(objectIdMap));
+    RealmObjectBase.set<RealmMap<Uuid>>(
+        this, 'uuidMap', RealmMap<Uuid>(uuidMap));
     RealmObjectBase.set<RealmMap<int>>(this, 'intMap', RealmMap<int>(intMap));
-    RealmObjectBase.set<RealmMap<Decimal128>>(this, 'decimalMap', RealmMap<Decimal128>(decimalMap));
-    RealmObjectBase.set<RealmMap<String?>>(this, 'nullableStringMap', RealmMap<String?>(nullableStringMap));
-    RealmObjectBase.set<RealmMap<bool?>>(this, 'nullableBoolMap', RealmMap<bool?>(nullableBoolMap));
-    RealmObjectBase.set<RealmMap<DateTime?>>(this, 'nullableDateMap', RealmMap<DateTime?>(nullableDateMap));
-    RealmObjectBase.set<RealmMap<double?>>(this, 'nullableDoubleMap', RealmMap<double?>(nullableDoubleMap));
-    RealmObjectBase.set<RealmMap<ObjectId?>>(this, 'nullableObjectIdMap', RealmMap<ObjectId?>(nullableObjectIdMap));
-    RealmObjectBase.set<RealmMap<Uuid?>>(this, 'nullableUuidMap', RealmMap<Uuid?>(nullableUuidMap));
-    RealmObjectBase.set<RealmMap<int?>>(this, 'nullableIntMap', RealmMap<int?>(nullableIntMap));
-    RealmObjectBase.set<RealmMap<Decimal128?>>(this, 'nullableDecimalMap', RealmMap<Decimal128?>(nullableDecimalMap));
+    RealmObjectBase.set<RealmMap<Decimal128>>(
+        this, 'decimalMap', RealmMap<Decimal128>(decimalMap));
+    RealmObjectBase.set<RealmMap<String?>>(
+        this, 'nullableStringMap', RealmMap<String?>(nullableStringMap));
+    RealmObjectBase.set<RealmMap<bool?>>(
+        this, 'nullableBoolMap', RealmMap<bool?>(nullableBoolMap));
+    RealmObjectBase.set<RealmMap<DateTime?>>(
+        this, 'nullableDateMap', RealmMap<DateTime?>(nullableDateMap));
+    RealmObjectBase.set<RealmMap<double?>>(
+        this, 'nullableDoubleMap', RealmMap<double?>(nullableDoubleMap));
+    RealmObjectBase.set<RealmMap<ObjectId?>>(
+        this, 'nullableObjectIdMap', RealmMap<ObjectId?>(nullableObjectIdMap));
+    RealmObjectBase.set<RealmMap<Uuid?>>(
+        this, 'nullableUuidMap', RealmMap<Uuid?>(nullableUuidMap));
+    RealmObjectBase.set<RealmMap<int?>>(
+        this, 'nullableIntMap', RealmMap<int?>(nullableIntMap));
+    RealmObjectBase.set<RealmMap<Decimal128?>>(
+        this, 'nullableDecimalMap', RealmMap<Decimal128?>(nullableDecimalMap));
   }
 
   AllCollections._();
 
   @override
-  RealmList<String> get stringList => RealmObjectBase.get<String>(this, 'stringList') as RealmList<String>;
+  RealmList<String> get stringList =>
+      RealmObjectBase.get<String>(this, 'stringList') as RealmList<String>;
   @override
-  set stringList(covariant RealmList<String> value) => throw RealmUnsupportedSetError();
+  set stringList(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<bool> get boolList => RealmObjectBase.get<bool>(this, 'boolList') as RealmList<bool>;
+  RealmList<bool> get boolList =>
+      RealmObjectBase.get<bool>(this, 'boolList') as RealmList<bool>;
   @override
-  set boolList(covariant RealmList<bool> value) => throw RealmUnsupportedSetError();
+  set boolList(covariant RealmList<bool> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<DateTime> get dateList => RealmObjectBase.get<DateTime>(this, 'dateList') as RealmList<DateTime>;
+  RealmList<DateTime> get dateList =>
+      RealmObjectBase.get<DateTime>(this, 'dateList') as RealmList<DateTime>;
   @override
-  set dateList(covariant RealmList<DateTime> value) => throw RealmUnsupportedSetError();
+  set dateList(covariant RealmList<DateTime> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<double> get doubleList => RealmObjectBase.get<double>(this, 'doubleList') as RealmList<double>;
+  RealmList<double> get doubleList =>
+      RealmObjectBase.get<double>(this, 'doubleList') as RealmList<double>;
   @override
-  set doubleList(covariant RealmList<double> value) => throw RealmUnsupportedSetError();
+  set doubleList(covariant RealmList<double> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<ObjectId> get objectIdList => RealmObjectBase.get<ObjectId>(this, 'objectIdList') as RealmList<ObjectId>;
+  RealmList<ObjectId> get objectIdList =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdList')
+          as RealmList<ObjectId>;
   @override
-  set objectIdList(covariant RealmList<ObjectId> value) => throw RealmUnsupportedSetError();
+  set objectIdList(covariant RealmList<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Uuid> get uuidList => RealmObjectBase.get<Uuid>(this, 'uuidList') as RealmList<Uuid>;
+  RealmList<Uuid> get uuidList =>
+      RealmObjectBase.get<Uuid>(this, 'uuidList') as RealmList<Uuid>;
   @override
-  set uuidList(covariant RealmList<Uuid> value) => throw RealmUnsupportedSetError();
+  set uuidList(covariant RealmList<Uuid> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<int> get intList => RealmObjectBase.get<int>(this, 'intList') as RealmList<int>;
+  RealmList<int> get intList =>
+      RealmObjectBase.get<int>(this, 'intList') as RealmList<int>;
   @override
-  set intList(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
+  set intList(covariant RealmList<int> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Decimal128> get decimalList => RealmObjectBase.get<Decimal128>(this, 'decimalList') as RealmList<Decimal128>;
+  RealmList<Decimal128> get decimalList =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalList')
+          as RealmList<Decimal128>;
   @override
-  set decimalList(covariant RealmList<Decimal128> value) => throw RealmUnsupportedSetError();
+  set decimalList(covariant RealmList<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<String?> get nullableStringList => RealmObjectBase.get<String?>(this, 'nullableStringList') as RealmList<String?>;
+  RealmList<String?> get nullableStringList =>
+      RealmObjectBase.get<String?>(this, 'nullableStringList')
+          as RealmList<String?>;
   @override
-  set nullableStringList(covariant RealmList<String?> value) => throw RealmUnsupportedSetError();
+  set nullableStringList(covariant RealmList<String?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<bool?> get nullableBoolList => RealmObjectBase.get<bool?>(this, 'nullableBoolList') as RealmList<bool?>;
+  RealmList<bool?> get nullableBoolList =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolList') as RealmList<bool?>;
   @override
-  set nullableBoolList(covariant RealmList<bool?> value) => throw RealmUnsupportedSetError();
+  set nullableBoolList(covariant RealmList<bool?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<DateTime?> get nullableDateList => RealmObjectBase.get<DateTime?>(this, 'nullableDateList') as RealmList<DateTime?>;
+  RealmList<DateTime?> get nullableDateList =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateList')
+          as RealmList<DateTime?>;
   @override
-  set nullableDateList(covariant RealmList<DateTime?> value) => throw RealmUnsupportedSetError();
+  set nullableDateList(covariant RealmList<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<double?> get nullableDoubleList => RealmObjectBase.get<double?>(this, 'nullableDoubleList') as RealmList<double?>;
+  RealmList<double?> get nullableDoubleList =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleList')
+          as RealmList<double?>;
   @override
-  set nullableDoubleList(covariant RealmList<double?> value) => throw RealmUnsupportedSetError();
+  set nullableDoubleList(covariant RealmList<double?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<ObjectId?> get nullableObjectIdList => RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdList') as RealmList<ObjectId?>;
+  RealmList<ObjectId?> get nullableObjectIdList =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdList')
+          as RealmList<ObjectId?>;
   @override
-  set nullableObjectIdList(covariant RealmList<ObjectId?> value) => throw RealmUnsupportedSetError();
+  set nullableObjectIdList(covariant RealmList<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Uuid?> get nullableUuidList => RealmObjectBase.get<Uuid?>(this, 'nullableUuidList') as RealmList<Uuid?>;
+  RealmList<Uuid?> get nullableUuidList =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidList') as RealmList<Uuid?>;
   @override
-  set nullableUuidList(covariant RealmList<Uuid?> value) => throw RealmUnsupportedSetError();
+  set nullableUuidList(covariant RealmList<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<int?> get nullableIntList => RealmObjectBase.get<int?>(this, 'nullableIntList') as RealmList<int?>;
+  RealmList<int?> get nullableIntList =>
+      RealmObjectBase.get<int?>(this, 'nullableIntList') as RealmList<int?>;
   @override
-  set nullableIntList(covariant RealmList<int?> value) => throw RealmUnsupportedSetError();
+  set nullableIntList(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Decimal128?> get nullableDecimalList => RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalList') as RealmList<Decimal128?>;
+  RealmList<Decimal128?> get nullableDecimalList =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalList')
+          as RealmList<Decimal128?>;
   @override
-  set nullableDecimalList(covariant RealmList<Decimal128?> value) => throw RealmUnsupportedSetError();
+  set nullableDecimalList(covariant RealmList<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<String> get stringSet => RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
+  RealmSet<String> get stringSet =>
+      RealmObjectBase.get<String>(this, 'stringSet') as RealmSet<String>;
   @override
-  set stringSet(covariant RealmSet<String> value) => throw RealmUnsupportedSetError();
+  set stringSet(covariant RealmSet<String> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<bool> get boolSet => RealmObjectBase.get<bool>(this, 'boolSet') as RealmSet<bool>;
+  RealmSet<bool> get boolSet =>
+      RealmObjectBase.get<bool>(this, 'boolSet') as RealmSet<bool>;
   @override
-  set boolSet(covariant RealmSet<bool> value) => throw RealmUnsupportedSetError();
+  set boolSet(covariant RealmSet<bool> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<DateTime> get dateSet => RealmObjectBase.get<DateTime>(this, 'dateSet') as RealmSet<DateTime>;
+  RealmSet<DateTime> get dateSet =>
+      RealmObjectBase.get<DateTime>(this, 'dateSet') as RealmSet<DateTime>;
   @override
-  set dateSet(covariant RealmSet<DateTime> value) => throw RealmUnsupportedSetError();
+  set dateSet(covariant RealmSet<DateTime> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<double> get doubleSet => RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
+  RealmSet<double> get doubleSet =>
+      RealmObjectBase.get<double>(this, 'doubleSet') as RealmSet<double>;
   @override
-  set doubleSet(covariant RealmSet<double> value) => throw RealmUnsupportedSetError();
+  set doubleSet(covariant RealmSet<double> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<ObjectId> get objectIdSet => RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
+  RealmSet<ObjectId> get objectIdSet =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdSet') as RealmSet<ObjectId>;
   @override
-  set objectIdSet(covariant RealmSet<ObjectId> value) => throw RealmUnsupportedSetError();
+  set objectIdSet(covariant RealmSet<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Uuid> get uuidSet => RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
+  RealmSet<Uuid> get uuidSet =>
+      RealmObjectBase.get<Uuid>(this, 'uuidSet') as RealmSet<Uuid>;
   @override
-  set uuidSet(covariant RealmSet<Uuid> value) => throw RealmUnsupportedSetError();
+  set uuidSet(covariant RealmSet<Uuid> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<int> get intSet => RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
+  RealmSet<int> get intSet =>
+      RealmObjectBase.get<int>(this, 'intSet') as RealmSet<int>;
   @override
   set intSet(covariant RealmSet<int> value) => throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Decimal128> get decimalSet => RealmObjectBase.get<Decimal128>(this, 'decimalSet') as RealmSet<Decimal128>;
+  RealmSet<Decimal128> get decimalSet =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalSet')
+          as RealmSet<Decimal128>;
   @override
-  set decimalSet(covariant RealmSet<Decimal128> value) => throw RealmUnsupportedSetError();
+  set decimalSet(covariant RealmSet<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<String?> get nullableStringSet => RealmObjectBase.get<String?>(this, 'nullableStringSet') as RealmSet<String?>;
+  RealmSet<String?> get nullableStringSet =>
+      RealmObjectBase.get<String?>(this, 'nullableStringSet')
+          as RealmSet<String?>;
   @override
-  set nullableStringSet(covariant RealmSet<String?> value) => throw RealmUnsupportedSetError();
+  set nullableStringSet(covariant RealmSet<String?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<bool?> get nullableBoolSet => RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
+  RealmSet<bool?> get nullableBoolSet =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolSet') as RealmSet<bool?>;
   @override
-  set nullableBoolSet(covariant RealmSet<bool?> value) => throw RealmUnsupportedSetError();
+  set nullableBoolSet(covariant RealmSet<bool?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<DateTime?> get nullableDateSet => RealmObjectBase.get<DateTime?>(this, 'nullableDateSet') as RealmSet<DateTime?>;
+  RealmSet<DateTime?> get nullableDateSet =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateSet')
+          as RealmSet<DateTime?>;
   @override
-  set nullableDateSet(covariant RealmSet<DateTime?> value) => throw RealmUnsupportedSetError();
+  set nullableDateSet(covariant RealmSet<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<double?> get nullableDoubleSet => RealmObjectBase.get<double?>(this, 'nullableDoubleSet') as RealmSet<double?>;
+  RealmSet<double?> get nullableDoubleSet =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleSet')
+          as RealmSet<double?>;
   @override
-  set nullableDoubleSet(covariant RealmSet<double?> value) => throw RealmUnsupportedSetError();
+  set nullableDoubleSet(covariant RealmSet<double?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<ObjectId?> get nullableObjectIdSet => RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdSet') as RealmSet<ObjectId?>;
+  RealmSet<ObjectId?> get nullableObjectIdSet =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdSet')
+          as RealmSet<ObjectId?>;
   @override
-  set nullableObjectIdSet(covariant RealmSet<ObjectId?> value) => throw RealmUnsupportedSetError();
+  set nullableObjectIdSet(covariant RealmSet<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Uuid?> get nullableUuidSet => RealmObjectBase.get<Uuid?>(this, 'nullableUuidSet') as RealmSet<Uuid?>;
+  RealmSet<Uuid?> get nullableUuidSet =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidSet') as RealmSet<Uuid?>;
   @override
-  set nullableUuidSet(covariant RealmSet<Uuid?> value) => throw RealmUnsupportedSetError();
+  set nullableUuidSet(covariant RealmSet<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<int?> get nullableIntSet => RealmObjectBase.get<int?>(this, 'nullableIntSet') as RealmSet<int?>;
+  RealmSet<int?> get nullableIntSet =>
+      RealmObjectBase.get<int?>(this, 'nullableIntSet') as RealmSet<int?>;
   @override
-  set nullableIntSet(covariant RealmSet<int?> value) => throw RealmUnsupportedSetError();
+  set nullableIntSet(covariant RealmSet<int?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<Decimal128?> get nullableDecimalSet => RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalSet') as RealmSet<Decimal128?>;
+  RealmSet<Decimal128?> get nullableDecimalSet =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalSet')
+          as RealmSet<Decimal128?>;
   @override
-  set nullableDecimalSet(covariant RealmSet<Decimal128?> value) => throw RealmUnsupportedSetError();
+  set nullableDecimalSet(covariant RealmSet<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String> get stringMap => RealmObjectBase.get<String>(this, 'stringMap') as RealmMap<String>;
+  RealmMap<String> get stringMap =>
+      RealmObjectBase.get<String>(this, 'stringMap') as RealmMap<String>;
   @override
-  set stringMap(covariant RealmMap<String> value) => throw RealmUnsupportedSetError();
+  set stringMap(covariant RealmMap<String> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<bool> get boolMap => RealmObjectBase.get<bool>(this, 'boolMap') as RealmMap<bool>;
+  RealmMap<bool> get boolMap =>
+      RealmObjectBase.get<bool>(this, 'boolMap') as RealmMap<bool>;
   @override
-  set boolMap(covariant RealmMap<bool> value) => throw RealmUnsupportedSetError();
+  set boolMap(covariant RealmMap<bool> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<DateTime> get dateMap => RealmObjectBase.get<DateTime>(this, 'dateMap') as RealmMap<DateTime>;
+  RealmMap<DateTime> get dateMap =>
+      RealmObjectBase.get<DateTime>(this, 'dateMap') as RealmMap<DateTime>;
   @override
-  set dateMap(covariant RealmMap<DateTime> value) => throw RealmUnsupportedSetError();
+  set dateMap(covariant RealmMap<DateTime> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<double> get doubleMap => RealmObjectBase.get<double>(this, 'doubleMap') as RealmMap<double>;
+  RealmMap<double> get doubleMap =>
+      RealmObjectBase.get<double>(this, 'doubleMap') as RealmMap<double>;
   @override
-  set doubleMap(covariant RealmMap<double> value) => throw RealmUnsupportedSetError();
+  set doubleMap(covariant RealmMap<double> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<ObjectId> get objectIdMap => RealmObjectBase.get<ObjectId>(this, 'objectIdMap') as RealmMap<ObjectId>;
+  RealmMap<ObjectId> get objectIdMap =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdMap') as RealmMap<ObjectId>;
   @override
-  set objectIdMap(covariant RealmMap<ObjectId> value) => throw RealmUnsupportedSetError();
+  set objectIdMap(covariant RealmMap<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<Uuid> get uuidMap => RealmObjectBase.get<Uuid>(this, 'uuidMap') as RealmMap<Uuid>;
+  RealmMap<Uuid> get uuidMap =>
+      RealmObjectBase.get<Uuid>(this, 'uuidMap') as RealmMap<Uuid>;
   @override
-  set uuidMap(covariant RealmMap<Uuid> value) => throw RealmUnsupportedSetError();
+  set uuidMap(covariant RealmMap<Uuid> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<int> get intMap => RealmObjectBase.get<int>(this, 'intMap') as RealmMap<int>;
+  RealmMap<int> get intMap =>
+      RealmObjectBase.get<int>(this, 'intMap') as RealmMap<int>;
   @override
   set intMap(covariant RealmMap<int> value) => throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<Decimal128> get decimalMap => RealmObjectBase.get<Decimal128>(this, 'decimalMap') as RealmMap<Decimal128>;
+  RealmMap<Decimal128> get decimalMap =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalMap')
+          as RealmMap<Decimal128>;
   @override
-  set decimalMap(covariant RealmMap<Decimal128> value) => throw RealmUnsupportedSetError();
+  set decimalMap(covariant RealmMap<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<String?> get nullableStringMap => RealmObjectBase.get<String?>(this, 'nullableStringMap') as RealmMap<String?>;
+  RealmMap<String?> get nullableStringMap =>
+      RealmObjectBase.get<String?>(this, 'nullableStringMap')
+          as RealmMap<String?>;
   @override
-  set nullableStringMap(covariant RealmMap<String?> value) => throw RealmUnsupportedSetError();
+  set nullableStringMap(covariant RealmMap<String?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<bool?> get nullableBoolMap => RealmObjectBase.get<bool?>(this, 'nullableBoolMap') as RealmMap<bool?>;
+  RealmMap<bool?> get nullableBoolMap =>
+      RealmObjectBase.get<bool?>(this, 'nullableBoolMap') as RealmMap<bool?>;
   @override
-  set nullableBoolMap(covariant RealmMap<bool?> value) => throw RealmUnsupportedSetError();
+  set nullableBoolMap(covariant RealmMap<bool?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<DateTime?> get nullableDateMap => RealmObjectBase.get<DateTime?>(this, 'nullableDateMap') as RealmMap<DateTime?>;
+  RealmMap<DateTime?> get nullableDateMap =>
+      RealmObjectBase.get<DateTime?>(this, 'nullableDateMap')
+          as RealmMap<DateTime?>;
   @override
-  set nullableDateMap(covariant RealmMap<DateTime?> value) => throw RealmUnsupportedSetError();
+  set nullableDateMap(covariant RealmMap<DateTime?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<double?> get nullableDoubleMap => RealmObjectBase.get<double?>(this, 'nullableDoubleMap') as RealmMap<double?>;
+  RealmMap<double?> get nullableDoubleMap =>
+      RealmObjectBase.get<double?>(this, 'nullableDoubleMap')
+          as RealmMap<double?>;
   @override
-  set nullableDoubleMap(covariant RealmMap<double?> value) => throw RealmUnsupportedSetError();
+  set nullableDoubleMap(covariant RealmMap<double?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<ObjectId?> get nullableObjectIdMap => RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdMap') as RealmMap<ObjectId?>;
+  RealmMap<ObjectId?> get nullableObjectIdMap =>
+      RealmObjectBase.get<ObjectId?>(this, 'nullableObjectIdMap')
+          as RealmMap<ObjectId?>;
   @override
-  set nullableObjectIdMap(covariant RealmMap<ObjectId?> value) => throw RealmUnsupportedSetError();
+  set nullableObjectIdMap(covariant RealmMap<ObjectId?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<Uuid?> get nullableUuidMap => RealmObjectBase.get<Uuid?>(this, 'nullableUuidMap') as RealmMap<Uuid?>;
+  RealmMap<Uuid?> get nullableUuidMap =>
+      RealmObjectBase.get<Uuid?>(this, 'nullableUuidMap') as RealmMap<Uuid?>;
   @override
-  set nullableUuidMap(covariant RealmMap<Uuid?> value) => throw RealmUnsupportedSetError();
+  set nullableUuidMap(covariant RealmMap<Uuid?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<int?> get nullableIntMap => RealmObjectBase.get<int?>(this, 'nullableIntMap') as RealmMap<int?>;
+  RealmMap<int?> get nullableIntMap =>
+      RealmObjectBase.get<int?>(this, 'nullableIntMap') as RealmMap<int?>;
   @override
-  set nullableIntMap(covariant RealmMap<int?> value) => throw RealmUnsupportedSetError();
+  set nullableIntMap(covariant RealmMap<int?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<Decimal128?> get nullableDecimalMap => RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalMap') as RealmMap<Decimal128?>;
+  RealmMap<Decimal128?> get nullableDecimalMap =>
+      RealmObjectBase.get<Decimal128?>(this, 'nullableDecimalMap')
+          as RealmMap<Decimal128?>;
   @override
-  set nullableDecimalMap(covariant RealmMap<Decimal128?> value) => throw RealmUnsupportedSetError();
+  set nullableDecimalMap(covariant RealmMap<Decimal128?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<AllCollections>> get changes => RealmObjectBase.getChanges<AllCollections>(this);
+  Stream<RealmObjectChanges<AllCollections>> get changes =>
+      RealmObjectBase.getChanges<AllCollections>(this);
 
   @override
-  Stream<RealmObjectChanges<AllCollections>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<AllCollections>(this, keyPaths);
+  Stream<RealmObjectChanges<AllCollections>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AllCollections>(this, keyPaths);
 
   @override
   AllCollections freeze() => RealmObjectBase.freezeObject<AllCollections>(this);
@@ -1565,55 +1864,104 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObjectBase, 
   static final schema = () {
     RealmObjectBase.registerFactory(AllCollections._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, AllCollections, 'AllCollections', [
-      SchemaProperty('stringList', RealmPropertyType.string, collectionType: RealmCollectionType.list),
-      SchemaProperty('boolList', RealmPropertyType.bool, collectionType: RealmCollectionType.list),
-      SchemaProperty('dateList', RealmPropertyType.timestamp, collectionType: RealmCollectionType.list),
-      SchemaProperty('doubleList', RealmPropertyType.double, collectionType: RealmCollectionType.list),
-      SchemaProperty('objectIdList', RealmPropertyType.objectid, collectionType: RealmCollectionType.list),
-      SchemaProperty('uuidList', RealmPropertyType.uuid, collectionType: RealmCollectionType.list),
-      SchemaProperty('intList', RealmPropertyType.int, collectionType: RealmCollectionType.list),
-      SchemaProperty('decimalList', RealmPropertyType.decimal128, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableStringList', RealmPropertyType.string, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableBoolList', RealmPropertyType.bool, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDateList', RealmPropertyType.timestamp, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDoubleList', RealmPropertyType.double, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableObjectIdList', RealmPropertyType.objectid, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableUuidList', RealmPropertyType.uuid, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableIntList', RealmPropertyType.int, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('nullableDecimalList', RealmPropertyType.decimal128, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('stringSet', RealmPropertyType.string, collectionType: RealmCollectionType.set),
-      SchemaProperty('boolSet', RealmPropertyType.bool, collectionType: RealmCollectionType.set),
-      SchemaProperty('dateSet', RealmPropertyType.timestamp, collectionType: RealmCollectionType.set),
-      SchemaProperty('doubleSet', RealmPropertyType.double, collectionType: RealmCollectionType.set),
-      SchemaProperty('objectIdSet', RealmPropertyType.objectid, collectionType: RealmCollectionType.set),
-      SchemaProperty('uuidSet', RealmPropertyType.uuid, collectionType: RealmCollectionType.set),
-      SchemaProperty('intSet', RealmPropertyType.int, collectionType: RealmCollectionType.set),
-      SchemaProperty('decimalSet', RealmPropertyType.decimal128, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableStringSet', RealmPropertyType.string, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableBoolSet', RealmPropertyType.bool, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDateSet', RealmPropertyType.timestamp, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDoubleSet', RealmPropertyType.double, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableIntSet', RealmPropertyType.int, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDecimalSet', RealmPropertyType.decimal128, optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('stringMap', RealmPropertyType.string, collectionType: RealmCollectionType.map),
-      SchemaProperty('boolMap', RealmPropertyType.bool, collectionType: RealmCollectionType.map),
-      SchemaProperty('dateMap', RealmPropertyType.timestamp, collectionType: RealmCollectionType.map),
-      SchemaProperty('doubleMap', RealmPropertyType.double, collectionType: RealmCollectionType.map),
-      SchemaProperty('objectIdMap', RealmPropertyType.objectid, collectionType: RealmCollectionType.map),
-      SchemaProperty('uuidMap', RealmPropertyType.uuid, collectionType: RealmCollectionType.map),
-      SchemaProperty('intMap', RealmPropertyType.int, collectionType: RealmCollectionType.map),
-      SchemaProperty('decimalMap', RealmPropertyType.decimal128, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableStringMap', RealmPropertyType.string, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableBoolMap', RealmPropertyType.bool, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableDateMap', RealmPropertyType.timestamp, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableDoubleMap', RealmPropertyType.double, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableObjectIdMap', RealmPropertyType.objectid, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableUuidMap', RealmPropertyType.uuid, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableIntMap', RealmPropertyType.int, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableDecimalMap', RealmPropertyType.decimal128, optional: true, collectionType: RealmCollectionType.map),
+    return const SchemaObject(
+        ObjectType.realmObject, AllCollections, 'AllCollections', [
+      SchemaProperty('stringList', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('boolList', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('dateList', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('doubleList', RealmPropertyType.double,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('objectIdList', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('uuidList', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('intList', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('decimalList', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableStringList', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableBoolList', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDateList', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDoubleList', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableObjectIdList', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableUuidList', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableIntList', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDecimalList', RealmPropertyType.decimal128,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('stringSet', RealmPropertyType.string,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('boolSet', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('dateSet', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('doubleSet', RealmPropertyType.double,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('objectIdSet', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('uuidSet', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('intSet', RealmPropertyType.int,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('decimalSet', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableStringSet', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDateSet', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDoubleSet', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableIntSet', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('nullableDecimalSet', RealmPropertyType.decimal128,
+          optional: true, collectionType: RealmCollectionType.set),
+      SchemaProperty('stringMap', RealmPropertyType.string,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('boolMap', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('dateMap', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('doubleMap', RealmPropertyType.double,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('objectIdMap', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('uuidMap', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('intMap', RealmPropertyType.int,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('decimalMap', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableStringMap', RealmPropertyType.string,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableBoolMap', RealmPropertyType.bool,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableDateMap', RealmPropertyType.timestamp,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableDoubleMap', RealmPropertyType.double,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableObjectIdMap', RealmPropertyType.objectid,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableUuidMap', RealmPropertyType.uuid,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableIntMap', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('nullableDecimalMap', RealmPropertyType.decimal128,
+          optional: true, collectionType: RealmCollectionType.map),
     ]);
   }();
 
@@ -1621,7 +1969,8 @@ class AllCollections extends _AllCollections with RealmEntity, RealmObjectBase, 
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class NullableTypes extends _NullableTypes with RealmEntity, RealmObjectBase, RealmObject {
+class NullableTypes extends _NullableTypes
+    with RealmEntity, RealmObjectBase, RealmObject {
   NullableTypes(
     ObjectId id,
     ObjectId differentiator, {
@@ -1654,14 +2003,18 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObjectBase, Re
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  ObjectId get differentiator => RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId;
+  ObjectId get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId;
   @override
-  set differentiator(ObjectId value) => RealmObjectBase.set(this, 'differentiator', value);
+  set differentiator(ObjectId value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
 
   @override
-  String? get stringProp => RealmObjectBase.get<String>(this, 'stringProp') as String?;
+  String? get stringProp =>
+      RealmObjectBase.get<String>(this, 'stringProp') as String?;
   @override
-  set stringProp(String? value) => RealmObjectBase.set(this, 'stringProp', value);
+  set stringProp(String? value) =>
+      RealmObjectBase.set(this, 'stringProp', value);
 
   @override
   bool? get boolProp => RealmObjectBase.get<bool>(this, 'boolProp') as bool?;
@@ -1669,19 +2022,24 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObjectBase, Re
   set boolProp(bool? value) => RealmObjectBase.set(this, 'boolProp', value);
 
   @override
-  DateTime? get dateProp => RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime?;
+  DateTime? get dateProp =>
+      RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime?;
   @override
   set dateProp(DateTime? value) => RealmObjectBase.set(this, 'dateProp', value);
 
   @override
-  double? get doubleProp => RealmObjectBase.get<double>(this, 'doubleProp') as double?;
+  double? get doubleProp =>
+      RealmObjectBase.get<double>(this, 'doubleProp') as double?;
   @override
-  set doubleProp(double? value) => RealmObjectBase.set(this, 'doubleProp', value);
+  set doubleProp(double? value) =>
+      RealmObjectBase.set(this, 'doubleProp', value);
 
   @override
-  ObjectId? get objectIdProp => RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId?;
+  ObjectId? get objectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId?;
   @override
-  set objectIdProp(ObjectId? value) => RealmObjectBase.set(this, 'objectIdProp', value);
+  set objectIdProp(ObjectId? value) =>
+      RealmObjectBase.set(this, 'objectIdProp', value);
 
   @override
   Uuid? get uuidProp => RealmObjectBase.get<Uuid>(this, 'uuidProp') as Uuid?;
@@ -1694,15 +2052,20 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObjectBase, Re
   set intProp(int? value) => RealmObjectBase.set(this, 'intProp', value);
 
   @override
-  Decimal128? get decimalProp => RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128?;
+  Decimal128? get decimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128?;
   @override
-  set decimalProp(Decimal128? value) => RealmObjectBase.set(this, 'decimalProp', value);
+  set decimalProp(Decimal128? value) =>
+      RealmObjectBase.set(this, 'decimalProp', value);
 
   @override
-  Stream<RealmObjectChanges<NullableTypes>> get changes => RealmObjectBase.getChanges<NullableTypes>(this);
+  Stream<RealmObjectChanges<NullableTypes>> get changes =>
+      RealmObjectBase.getChanges<NullableTypes>(this);
 
   @override
-  Stream<RealmObjectChanges<NullableTypes>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<NullableTypes>(this, keyPaths);
+  Stream<RealmObjectChanges<NullableTypes>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<NullableTypes>(this, keyPaths);
 
   @override
   NullableTypes freeze() => RealmObjectBase.freezeObject<NullableTypes>(this);
@@ -1749,17 +2112,21 @@ class NullableTypes extends _NullableTypes with RealmEntity, RealmObjectBase, Re
   static final schema = () {
     RealmObjectBase.registerFactory(NullableTypes._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, NullableTypes, 'NullableTypes', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
+    return const SchemaObject(
+        ObjectType.realmObject, NullableTypes, 'NullableTypes', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.objectid),
       SchemaProperty('stringProp', RealmPropertyType.string, optional: true),
       SchemaProperty('boolProp', RealmPropertyType.bool, optional: true),
       SchemaProperty('dateProp', RealmPropertyType.timestamp, optional: true),
       SchemaProperty('doubleProp', RealmPropertyType.double, optional: true),
-      SchemaProperty('objectIdProp', RealmPropertyType.objectid, optional: true),
+      SchemaProperty('objectIdProp', RealmPropertyType.objectid,
+          optional: true),
       SchemaProperty('uuidProp', RealmPropertyType.uuid, optional: true),
       SchemaProperty('intProp', RealmPropertyType.int, optional: true),
-      SchemaProperty('decimalProp', RealmPropertyType.decimal128, optional: true),
+      SchemaProperty('decimalProp', RealmPropertyType.decimal128,
+          optional: true),
     ]);
   }();
 
@@ -1790,30 +2157,40 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  String? get name => RealmObjectBase.get<String>(this, 'stringQueryField') as String?;
+  String? get name =>
+      RealmObjectBase.get<String>(this, 'stringQueryField') as String?;
   @override
-  set name(String? value) => RealmObjectBase.set(this, 'stringQueryField', value);
+  set name(String? value) =>
+      RealmObjectBase.set(this, 'stringQueryField', value);
 
   @override
-  bool? get isCompleted => RealmObjectBase.get<bool>(this, 'boolQueryField') as bool?;
+  bool? get isCompleted =>
+      RealmObjectBase.get<bool>(this, 'boolQueryField') as bool?;
   @override
-  set isCompleted(bool? value) => RealmObjectBase.set(this, 'boolQueryField', value);
+  set isCompleted(bool? value) =>
+      RealmObjectBase.set(this, 'boolQueryField', value);
 
   @override
-  int? get durationInMinutes => RealmObjectBase.get<int>(this, 'intQueryField') as int?;
+  int? get durationInMinutes =>
+      RealmObjectBase.get<int>(this, 'intQueryField') as int?;
   @override
-  set durationInMinutes(int? value) => RealmObjectBase.set(this, 'intQueryField', value);
+  set durationInMinutes(int? value) =>
+      RealmObjectBase.set(this, 'intQueryField', value);
 
   @override
-  String? get assignedTo => RealmObjectBase.get<String>(this, 'assignedTo') as String?;
+  String? get assignedTo =>
+      RealmObjectBase.get<String>(this, 'assignedTo') as String?;
   @override
-  set assignedTo(String? value) => RealmObjectBase.set(this, 'assignedTo', value);
+  set assignedTo(String? value) =>
+      RealmObjectBase.set(this, 'assignedTo', value);
 
   @override
-  Stream<RealmObjectChanges<Event>> get changes => RealmObjectBase.getChanges<Event>(this);
+  Stream<RealmObjectChanges<Event>> get changes =>
+      RealmObjectBase.getChanges<Event>(this);
 
   @override
-  Stream<RealmObjectChanges<Event>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Event>(this, keyPaths);
+  Stream<RealmObjectChanges<Event>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Event>(this, keyPaths);
 
   @override
   Event freeze() => RealmObjectBase.freezeObject<Event>(this);
@@ -1850,10 +2227,14 @@ class Event extends _Event with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Event._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Event, 'Event', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
-      SchemaProperty('name', RealmPropertyType.string, mapTo: 'stringQueryField', optional: true),
-      SchemaProperty('isCompleted', RealmPropertyType.bool, mapTo: 'boolQueryField', optional: true),
-      SchemaProperty('durationInMinutes', RealmPropertyType.int, mapTo: 'intQueryField', optional: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('name', RealmPropertyType.string,
+          mapTo: 'stringQueryField', optional: true),
+      SchemaProperty('isCompleted', RealmPropertyType.bool,
+          mapTo: 'boolQueryField', optional: true),
+      SchemaProperty('durationInMinutes', RealmPropertyType.int,
+          mapTo: 'intQueryField', optional: true),
       SchemaProperty('assignedTo', RealmPropertyType.string, optional: true),
     ]);
   }();
@@ -1871,7 +2252,8 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   }) {
     RealmObjectBase.set(this, 'host', host);
     RealmObjectBase.set(this, 'year', year);
-    RealmObjectBase.set<RealmList<Friend>>(this, 'guests', RealmList<Friend>(guests));
+    RealmObjectBase.set<RealmList<Friend>>(
+        this, 'guests', RealmList<Friend>(guests));
     RealmObjectBase.set(this, 'previous', previous);
   }
 
@@ -1888,20 +2270,25 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
   set year(int value) => RealmObjectBase.set(this, 'year', value);
 
   @override
-  RealmList<Friend> get guests => RealmObjectBase.get<Friend>(this, 'guests') as RealmList<Friend>;
+  RealmList<Friend> get guests =>
+      RealmObjectBase.get<Friend>(this, 'guests') as RealmList<Friend>;
   @override
-  set guests(covariant RealmList<Friend> value) => throw RealmUnsupportedSetError();
+  set guests(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
   Party? get previous => RealmObjectBase.get<Party>(this, 'previous') as Party?;
   @override
-  set previous(covariant Party? value) => RealmObjectBase.set(this, 'previous', value);
+  set previous(covariant Party? value) =>
+      RealmObjectBase.set(this, 'previous', value);
 
   @override
-  Stream<RealmObjectChanges<Party>> get changes => RealmObjectBase.getChanges<Party>(this);
+  Stream<RealmObjectChanges<Party>> get changes =>
+      RealmObjectBase.getChanges<Party>(this);
 
   @override
-  Stream<RealmObjectChanges<Party>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Party>(this, keyPaths);
+  Stream<RealmObjectChanges<Party>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Party>(this, keyPaths);
 
   @override
   Party freeze() => RealmObjectBase.freezeObject<Party>(this);
@@ -1936,10 +2323,13 @@ class Party extends _Party with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Party._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Party, 'Party', [
-      SchemaProperty('host', RealmPropertyType.object, optional: true, linkTarget: 'Friend'),
+      SchemaProperty('host', RealmPropertyType.object,
+          optional: true, linkTarget: 'Friend'),
       SchemaProperty('year', RealmPropertyType.int),
-      SchemaProperty('guests', RealmPropertyType.object, linkTarget: 'Friend', collectionType: RealmCollectionType.list),
-      SchemaProperty('previous', RealmPropertyType.object, optional: true, linkTarget: 'Party'),
+      SchemaProperty('guests', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+      SchemaProperty('previous', RealmPropertyType.object,
+          optional: true, linkTarget: 'Party'),
     ]);
   }();
 
@@ -1964,7 +2354,8 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'age', age);
     RealmObjectBase.set(this, 'bestFriend', bestFriend);
-    RealmObjectBase.set<RealmList<Friend>>(this, 'friends', RealmList<Friend>(friends));
+    RealmObjectBase.set<RealmList<Friend>>(
+        this, 'friends', RealmList<Friend>(friends));
   }
 
   Friend._();
@@ -1980,20 +2371,26 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
   set age(int value) => RealmObjectBase.set(this, 'age', value);
 
   @override
-  Friend? get bestFriend => RealmObjectBase.get<Friend>(this, 'bestFriend') as Friend?;
+  Friend? get bestFriend =>
+      RealmObjectBase.get<Friend>(this, 'bestFriend') as Friend?;
   @override
-  set bestFriend(covariant Friend? value) => RealmObjectBase.set(this, 'bestFriend', value);
+  set bestFriend(covariant Friend? value) =>
+      RealmObjectBase.set(this, 'bestFriend', value);
 
   @override
-  RealmList<Friend> get friends => RealmObjectBase.get<Friend>(this, 'friends') as RealmList<Friend>;
+  RealmList<Friend> get friends =>
+      RealmObjectBase.get<Friend>(this, 'friends') as RealmList<Friend>;
   @override
-  set friends(covariant RealmList<Friend> value) => throw RealmUnsupportedSetError();
+  set friends(covariant RealmList<Friend> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Friend>> get changes => RealmObjectBase.getChanges<Friend>(this);
+  Stream<RealmObjectChanges<Friend>> get changes =>
+      RealmObjectBase.getChanges<Friend>(this);
 
   @override
-  Stream<RealmObjectChanges<Friend>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Friend>(this, keyPaths);
+  Stream<RealmObjectChanges<Friend>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Friend>(this, keyPaths);
 
   @override
   Friend freeze() => RealmObjectBase.freezeObject<Friend>(this);
@@ -2030,8 +2427,10 @@ class Friend extends _Friend with RealmEntity, RealmObjectBase, RealmObject {
     return const SchemaObject(ObjectType.realmObject, Friend, 'Friend', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
       SchemaProperty('age', RealmPropertyType.int),
-      SchemaProperty('bestFriend', RealmPropertyType.object, optional: true, linkTarget: 'Friend'),
-      SchemaProperty('friends', RealmPropertyType.object, linkTarget: 'Friend', collectionType: RealmCollectionType.list),
+      SchemaProperty('bestFriend', RealmPropertyType.object,
+          optional: true, linkTarget: 'Friend'),
+      SchemaProperty('friends', RealmPropertyType.object,
+          linkTarget: 'Friend', collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -2051,20 +2450,26 @@ class When extends _When with RealmEntity, RealmObjectBase, RealmObject {
   When._();
 
   @override
-  DateTime get dateTimeUtc => RealmObjectBase.get<DateTime>(this, 'dateTimeUtc') as DateTime;
+  DateTime get dateTimeUtc =>
+      RealmObjectBase.get<DateTime>(this, 'dateTimeUtc') as DateTime;
   @override
-  set dateTimeUtc(DateTime value) => RealmObjectBase.set(this, 'dateTimeUtc', value);
+  set dateTimeUtc(DateTime value) =>
+      RealmObjectBase.set(this, 'dateTimeUtc', value);
 
   @override
-  String get locationName => RealmObjectBase.get<String>(this, 'locationName') as String;
+  String get locationName =>
+      RealmObjectBase.get<String>(this, 'locationName') as String;
   @override
-  set locationName(String value) => RealmObjectBase.set(this, 'locationName', value);
+  set locationName(String value) =>
+      RealmObjectBase.set(this, 'locationName', value);
 
   @override
-  Stream<RealmObjectChanges<When>> get changes => RealmObjectBase.getChanges<When>(this);
+  Stream<RealmObjectChanges<When>> get changes =>
+      RealmObjectBase.getChanges<When>(this);
 
   @override
-  Stream<RealmObjectChanges<When>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<When>(this, keyPaths);
+  Stream<RealmObjectChanges<When>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<When>(this, keyPaths);
 
   @override
   When freeze() => RealmObjectBase.freezeObject<When>(this);
@@ -2113,7 +2518,8 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   }) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'game', game);
-    RealmObjectBase.set<RealmList<int?>>(this, 'scoresByRound', RealmList<int?>(scoresByRound));
+    RealmObjectBase.set<RealmList<int?>>(
+        this, 'scoresByRound', RealmList<int?>(scoresByRound));
   }
 
   Player._();
@@ -2129,15 +2535,19 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
   set game(covariant Game? value) => RealmObjectBase.set(this, 'game', value);
 
   @override
-  RealmList<int?> get scoresByRound => RealmObjectBase.get<int?>(this, 'scoresByRound') as RealmList<int?>;
+  RealmList<int?> get scoresByRound =>
+      RealmObjectBase.get<int?>(this, 'scoresByRound') as RealmList<int?>;
   @override
-  set scoresByRound(covariant RealmList<int?> value) => throw RealmUnsupportedSetError();
+  set scoresByRound(covariant RealmList<int?> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Player>> get changes => RealmObjectBase.getChanges<Player>(this);
+  Stream<RealmObjectChanges<Player>> get changes =>
+      RealmObjectBase.getChanges<Player>(this);
 
   @override
-  Stream<RealmObjectChanges<Player>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Player>(this, keyPaths);
+  Stream<RealmObjectChanges<Player>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Player>(this, keyPaths);
 
   @override
   Player freeze() => RealmObjectBase.freezeObject<Player>(this);
@@ -2160,7 +2570,8 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
         Player(
           fromEJson(name),
           game: fromEJson(ejson['game']),
-          scoresByRound: fromEJson(ejson['scoresByRound'], defaultValue: const []),
+          scoresByRound:
+              fromEJson(ejson['scoresByRound'], defaultValue: const []),
         ),
       _ => raiseInvalidEJson(ejson),
     };
@@ -2171,8 +2582,10 @@ class Player extends _Player with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Player, 'Player', [
       SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('game', RealmPropertyType.object, optional: true, linkTarget: 'Game'),
-      SchemaProperty('scoresByRound', RealmPropertyType.int, optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('game', RealmPropertyType.object,
+          optional: true, linkTarget: 'Game'),
+      SchemaProperty('scoresByRound', RealmPropertyType.int,
+          optional: true, collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -2184,21 +2597,26 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   Game({
     Iterable<Player> winnerByRound = const [],
   }) {
-    RealmObjectBase.set<RealmList<Player>>(this, 'winnerByRound', RealmList<Player>(winnerByRound));
+    RealmObjectBase.set<RealmList<Player>>(
+        this, 'winnerByRound', RealmList<Player>(winnerByRound));
   }
 
   Game._();
 
   @override
-  RealmList<Player> get winnerByRound => RealmObjectBase.get<Player>(this, 'winnerByRound') as RealmList<Player>;
+  RealmList<Player> get winnerByRound =>
+      RealmObjectBase.get<Player>(this, 'winnerByRound') as RealmList<Player>;
   @override
-  set winnerByRound(covariant RealmList<Player> value) => throw RealmUnsupportedSetError();
+  set winnerByRound(covariant RealmList<Player> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<Game>> get changes => RealmObjectBase.getChanges<Game>(this);
+  Stream<RealmObjectChanges<Game>> get changes =>
+      RealmObjectBase.getChanges<Game>(this);
 
   @override
-  Stream<RealmObjectChanges<Game>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Game>(this, keyPaths);
+  Stream<RealmObjectChanges<Game>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Game>(this, keyPaths);
 
   @override
   Game freeze() => RealmObjectBase.freezeObject<Game>(this);
@@ -2221,7 +2639,8 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Game._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Game, 'Game', [
-      SchemaProperty('winnerByRound', RealmPropertyType.object, linkTarget: 'Player', collectionType: RealmCollectionType.list),
+      SchemaProperty('winnerByRound', RealmPropertyType.object,
+          linkTarget: 'Player', collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -2229,7 +2648,8 @@ class Game extends _Game with RealmEntity, RealmObjectBase, RealmObject {
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBase, EmbeddedObject {
+class AllTypesEmbedded extends _AllTypesEmbedded
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
   AllTypesEmbedded(
     String stringProp,
     bool boolProp,
@@ -2272,22 +2692,29 @@ class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBa
     RealmObjectBase.set(this, 'nullableUuidProp', nullableUuidProp);
     RealmObjectBase.set(this, 'nullableIntProp', nullableIntProp);
     RealmObjectBase.set(this, 'nullableDecimalProp', nullableDecimalProp);
-    RealmObjectBase.set<RealmList<String>>(this, 'strings', RealmList<String>(strings));
+    RealmObjectBase.set<RealmList<String>>(
+        this, 'strings', RealmList<String>(strings));
     RealmObjectBase.set<RealmList<bool>>(this, 'bools', RealmList<bool>(bools));
-    RealmObjectBase.set<RealmList<DateTime>>(this, 'dates', RealmList<DateTime>(dates));
-    RealmObjectBase.set<RealmList<double>>(this, 'doubles', RealmList<double>(doubles));
-    RealmObjectBase.set<RealmList<ObjectId>>(this, 'objectIds', RealmList<ObjectId>(objectIds));
+    RealmObjectBase.set<RealmList<DateTime>>(
+        this, 'dates', RealmList<DateTime>(dates));
+    RealmObjectBase.set<RealmList<double>>(
+        this, 'doubles', RealmList<double>(doubles));
+    RealmObjectBase.set<RealmList<ObjectId>>(
+        this, 'objectIds', RealmList<ObjectId>(objectIds));
     RealmObjectBase.set<RealmList<Uuid>>(this, 'uuids', RealmList<Uuid>(uuids));
     RealmObjectBase.set<RealmList<int>>(this, 'ints', RealmList<int>(ints));
-    RealmObjectBase.set<RealmList<Decimal128>>(this, 'decimals', RealmList<Decimal128>(decimals));
+    RealmObjectBase.set<RealmList<Decimal128>>(
+        this, 'decimals', RealmList<Decimal128>(decimals));
   }
 
   AllTypesEmbedded._();
 
   @override
-  String get stringProp => RealmObjectBase.get<String>(this, 'stringProp') as String;
+  String get stringProp =>
+      RealmObjectBase.get<String>(this, 'stringProp') as String;
   @override
-  set stringProp(String value) => RealmObjectBase.set(this, 'stringProp', value);
+  set stringProp(String value) =>
+      RealmObjectBase.set(this, 'stringProp', value);
 
   @override
   bool get boolProp => RealmObjectBase.get<bool>(this, 'boolProp') as bool;
@@ -2295,19 +2722,24 @@ class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBa
   set boolProp(bool value) => RealmObjectBase.set(this, 'boolProp', value);
 
   @override
-  DateTime get dateProp => RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime;
+  DateTime get dateProp =>
+      RealmObjectBase.get<DateTime>(this, 'dateProp') as DateTime;
   @override
   set dateProp(DateTime value) => RealmObjectBase.set(this, 'dateProp', value);
 
   @override
-  double get doubleProp => RealmObjectBase.get<double>(this, 'doubleProp') as double;
+  double get doubleProp =>
+      RealmObjectBase.get<double>(this, 'doubleProp') as double;
   @override
-  set doubleProp(double value) => RealmObjectBase.set(this, 'doubleProp', value);
+  set doubleProp(double value) =>
+      RealmObjectBase.set(this, 'doubleProp', value);
 
   @override
-  ObjectId get objectIdProp => RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId;
+  ObjectId get objectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIdProp') as ObjectId;
   @override
-  set objectIdProp(ObjectId value) => RealmObjectBase.set(this, 'objectIdProp', value);
+  set objectIdProp(ObjectId value) =>
+      RealmObjectBase.set(this, 'objectIdProp', value);
 
   @override
   Uuid get uuidProp => RealmObjectBase.get<Uuid>(this, 'uuidProp') as Uuid;
@@ -2320,98 +2752,137 @@ class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBa
   set intProp(int value) => RealmObjectBase.set(this, 'intProp', value);
 
   @override
-  Decimal128 get decimalProp => RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128;
+  Decimal128 get decimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'decimalProp') as Decimal128;
   @override
-  set decimalProp(Decimal128 value) => RealmObjectBase.set(this, 'decimalProp', value);
+  set decimalProp(Decimal128 value) =>
+      RealmObjectBase.set(this, 'decimalProp', value);
 
   @override
-  String? get nullableStringProp => RealmObjectBase.get<String>(this, 'nullableStringProp') as String?;
+  String? get nullableStringProp =>
+      RealmObjectBase.get<String>(this, 'nullableStringProp') as String?;
   @override
-  set nullableStringProp(String? value) => RealmObjectBase.set(this, 'nullableStringProp', value);
+  set nullableStringProp(String? value) =>
+      RealmObjectBase.set(this, 'nullableStringProp', value);
 
   @override
-  bool? get nullableBoolProp => RealmObjectBase.get<bool>(this, 'nullableBoolProp') as bool?;
+  bool? get nullableBoolProp =>
+      RealmObjectBase.get<bool>(this, 'nullableBoolProp') as bool?;
   @override
-  set nullableBoolProp(bool? value) => RealmObjectBase.set(this, 'nullableBoolProp', value);
+  set nullableBoolProp(bool? value) =>
+      RealmObjectBase.set(this, 'nullableBoolProp', value);
 
   @override
-  DateTime? get nullableDateProp => RealmObjectBase.get<DateTime>(this, 'nullableDateProp') as DateTime?;
+  DateTime? get nullableDateProp =>
+      RealmObjectBase.get<DateTime>(this, 'nullableDateProp') as DateTime?;
   @override
-  set nullableDateProp(DateTime? value) => RealmObjectBase.set(this, 'nullableDateProp', value);
+  set nullableDateProp(DateTime? value) =>
+      RealmObjectBase.set(this, 'nullableDateProp', value);
 
   @override
-  double? get nullableDoubleProp => RealmObjectBase.get<double>(this, 'nullableDoubleProp') as double?;
+  double? get nullableDoubleProp =>
+      RealmObjectBase.get<double>(this, 'nullableDoubleProp') as double?;
   @override
-  set nullableDoubleProp(double? value) => RealmObjectBase.set(this, 'nullableDoubleProp', value);
+  set nullableDoubleProp(double? value) =>
+      RealmObjectBase.set(this, 'nullableDoubleProp', value);
 
   @override
-  ObjectId? get nullableObjectIdProp => RealmObjectBase.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
+  ObjectId? get nullableObjectIdProp =>
+      RealmObjectBase.get<ObjectId>(this, 'nullableObjectIdProp') as ObjectId?;
   @override
-  set nullableObjectIdProp(ObjectId? value) => RealmObjectBase.set(this, 'nullableObjectIdProp', value);
+  set nullableObjectIdProp(ObjectId? value) =>
+      RealmObjectBase.set(this, 'nullableObjectIdProp', value);
 
   @override
-  Uuid? get nullableUuidProp => RealmObjectBase.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
+  Uuid? get nullableUuidProp =>
+      RealmObjectBase.get<Uuid>(this, 'nullableUuidProp') as Uuid?;
   @override
-  set nullableUuidProp(Uuid? value) => RealmObjectBase.set(this, 'nullableUuidProp', value);
+  set nullableUuidProp(Uuid? value) =>
+      RealmObjectBase.set(this, 'nullableUuidProp', value);
 
   @override
-  int? get nullableIntProp => RealmObjectBase.get<int>(this, 'nullableIntProp') as int?;
+  int? get nullableIntProp =>
+      RealmObjectBase.get<int>(this, 'nullableIntProp') as int?;
   @override
-  set nullableIntProp(int? value) => RealmObjectBase.set(this, 'nullableIntProp', value);
+  set nullableIntProp(int? value) =>
+      RealmObjectBase.set(this, 'nullableIntProp', value);
 
   @override
-  Decimal128? get nullableDecimalProp => RealmObjectBase.get<Decimal128>(this, 'nullableDecimalProp') as Decimal128?;
+  Decimal128? get nullableDecimalProp =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimalProp')
+          as Decimal128?;
   @override
-  set nullableDecimalProp(Decimal128? value) => RealmObjectBase.set(this, 'nullableDecimalProp', value);
+  set nullableDecimalProp(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimalProp', value);
 
   @override
-  RealmList<String> get strings => RealmObjectBase.get<String>(this, 'strings') as RealmList<String>;
+  RealmList<String> get strings =>
+      RealmObjectBase.get<String>(this, 'strings') as RealmList<String>;
   @override
-  set strings(covariant RealmList<String> value) => throw RealmUnsupportedSetError();
+  set strings(covariant RealmList<String> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<bool> get bools => RealmObjectBase.get<bool>(this, 'bools') as RealmList<bool>;
+  RealmList<bool> get bools =>
+      RealmObjectBase.get<bool>(this, 'bools') as RealmList<bool>;
   @override
-  set bools(covariant RealmList<bool> value) => throw RealmUnsupportedSetError();
+  set bools(covariant RealmList<bool> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<DateTime> get dates => RealmObjectBase.get<DateTime>(this, 'dates') as RealmList<DateTime>;
+  RealmList<DateTime> get dates =>
+      RealmObjectBase.get<DateTime>(this, 'dates') as RealmList<DateTime>;
   @override
-  set dates(covariant RealmList<DateTime> value) => throw RealmUnsupportedSetError();
+  set dates(covariant RealmList<DateTime> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<double> get doubles => RealmObjectBase.get<double>(this, 'doubles') as RealmList<double>;
+  RealmList<double> get doubles =>
+      RealmObjectBase.get<double>(this, 'doubles') as RealmList<double>;
   @override
-  set doubles(covariant RealmList<double> value) => throw RealmUnsupportedSetError();
+  set doubles(covariant RealmList<double> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<ObjectId> get objectIds => RealmObjectBase.get<ObjectId>(this, 'objectIds') as RealmList<ObjectId>;
+  RealmList<ObjectId> get objectIds =>
+      RealmObjectBase.get<ObjectId>(this, 'objectIds') as RealmList<ObjectId>;
   @override
-  set objectIds(covariant RealmList<ObjectId> value) => throw RealmUnsupportedSetError();
+  set objectIds(covariant RealmList<ObjectId> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Uuid> get uuids => RealmObjectBase.get<Uuid>(this, 'uuids') as RealmList<Uuid>;
+  RealmList<Uuid> get uuids =>
+      RealmObjectBase.get<Uuid>(this, 'uuids') as RealmList<Uuid>;
   @override
-  set uuids(covariant RealmList<Uuid> value) => throw RealmUnsupportedSetError();
+  set uuids(covariant RealmList<Uuid> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmList<int> get ints => RealmObjectBase.get<int>(this, 'ints') as RealmList<int>;
+  RealmList<int> get ints =>
+      RealmObjectBase.get<int>(this, 'ints') as RealmList<int>;
   @override
   set ints(covariant RealmList<int> value) => throw RealmUnsupportedSetError();
 
   @override
-  RealmList<Decimal128> get decimals => RealmObjectBase.get<Decimal128>(this, 'decimals') as RealmList<Decimal128>;
+  RealmList<Decimal128> get decimals =>
+      RealmObjectBase.get<Decimal128>(this, 'decimals')
+          as RealmList<Decimal128>;
   @override
-  set decimals(covariant RealmList<Decimal128> value) => throw RealmUnsupportedSetError();
+  set decimals(covariant RealmList<Decimal128> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<AllTypesEmbedded>> get changes => RealmObjectBase.getChanges<AllTypesEmbedded>(this);
+  Stream<RealmObjectChanges<AllTypesEmbedded>> get changes =>
+      RealmObjectBase.getChanges<AllTypesEmbedded>(this);
 
   @override
-  Stream<RealmObjectChanges<AllTypesEmbedded>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<AllTypesEmbedded>(this, keyPaths);
+  Stream<RealmObjectChanges<AllTypesEmbedded>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<AllTypesEmbedded>(this, keyPaths);
 
   @override
-  AllTypesEmbedded freeze() => RealmObjectBase.freezeObject<AllTypesEmbedded>(this);
+  AllTypesEmbedded freeze() =>
+      RealmObjectBase.freezeObject<AllTypesEmbedded>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -2489,7 +2960,8 @@ class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBa
   static final schema = () {
     RealmObjectBase.registerFactory(AllTypesEmbedded._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, AllTypesEmbedded, 'AllTypesEmbedded', [
+    return const SchemaObject(
+        ObjectType.embeddedObject, AllTypesEmbedded, 'AllTypesEmbedded', [
       SchemaProperty('stringProp', RealmPropertyType.string),
       SchemaProperty('boolProp', RealmPropertyType.bool),
       SchemaProperty('dateProp', RealmPropertyType.timestamp),
@@ -2498,22 +2970,37 @@ class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBa
       SchemaProperty('uuidProp', RealmPropertyType.uuid),
       SchemaProperty('intProp', RealmPropertyType.int),
       SchemaProperty('decimalProp', RealmPropertyType.decimal128),
-      SchemaProperty('nullableStringProp', RealmPropertyType.string, optional: true),
-      SchemaProperty('nullableBoolProp', RealmPropertyType.bool, optional: true),
-      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp, optional: true),
-      SchemaProperty('nullableDoubleProp', RealmPropertyType.double, optional: true),
-      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid, optional: true),
-      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid, optional: true),
+      SchemaProperty('nullableStringProp', RealmPropertyType.string,
+          optional: true),
+      SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
+          optional: true),
+      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
+          optional: true),
+      SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
+          optional: true),
+      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
+          optional: true),
       SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
-      SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128, optional: true),
-      SchemaProperty('strings', RealmPropertyType.string, collectionType: RealmCollectionType.list),
-      SchemaProperty('bools', RealmPropertyType.bool, collectionType: RealmCollectionType.list),
-      SchemaProperty('dates', RealmPropertyType.timestamp, collectionType: RealmCollectionType.list),
-      SchemaProperty('doubles', RealmPropertyType.double, collectionType: RealmCollectionType.list),
-      SchemaProperty('objectIds', RealmPropertyType.objectid, collectionType: RealmCollectionType.list),
-      SchemaProperty('uuids', RealmPropertyType.uuid, collectionType: RealmCollectionType.list),
-      SchemaProperty('ints', RealmPropertyType.int, collectionType: RealmCollectionType.list),
-      SchemaProperty('decimals', RealmPropertyType.decimal128, collectionType: RealmCollectionType.list),
+      SchemaProperty('nullableDecimalProp', RealmPropertyType.decimal128,
+          optional: true),
+      SchemaProperty('strings', RealmPropertyType.string,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('bools', RealmPropertyType.bool,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('dates', RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('doubles', RealmPropertyType.double,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('objectIds', RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('uuids', RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('ints', RealmPropertyType.int,
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('decimals', RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -2521,7 +3008,8 @@ class AllTypesEmbedded extends _AllTypesEmbedded with RealmEntity, RealmObjectBa
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class ObjectWithEmbedded extends _ObjectWithEmbedded with RealmEntity, RealmObjectBase, RealmObject {
+class ObjectWithEmbedded extends _ObjectWithEmbedded
+    with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithEmbedded(
     String id, {
     Uuid? differentiator,
@@ -2533,9 +3021,11 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded with RealmEntity, RealmObje
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'differentiator', differentiator);
     RealmObjectBase.set(this, 'singleObject', singleObject);
-    RealmObjectBase.set<RealmList<AllTypesEmbedded>>(this, 'list', RealmList<AllTypesEmbedded>(list));
+    RealmObjectBase.set<RealmList<AllTypesEmbedded>>(
+        this, 'list', RealmList<AllTypesEmbedded>(list));
     RealmObjectBase.set(this, 'recursiveObject', recursiveObject);
-    RealmObjectBase.set<RealmList<RecursiveEmbedded1>>(this, 'recursiveList', RealmList<RecursiveEmbedded1>(recursiveList));
+    RealmObjectBase.set<RealmList<RecursiveEmbedded1>>(
+        this, 'recursiveList', RealmList<RecursiveEmbedded1>(recursiveList));
   }
 
   ObjectWithEmbedded._();
@@ -2546,38 +3036,56 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded with RealmEntity, RealmObje
   set id(String value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  Uuid? get differentiator => RealmObjectBase.get<Uuid>(this, 'differentiator') as Uuid?;
+  Uuid? get differentiator =>
+      RealmObjectBase.get<Uuid>(this, 'differentiator') as Uuid?;
   @override
-  set differentiator(Uuid? value) => RealmObjectBase.set(this, 'differentiator', value);
+  set differentiator(Uuid? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
 
   @override
-  AllTypesEmbedded? get singleObject => RealmObjectBase.get<AllTypesEmbedded>(this, 'singleObject') as AllTypesEmbedded?;
+  AllTypesEmbedded? get singleObject =>
+      RealmObjectBase.get<AllTypesEmbedded>(this, 'singleObject')
+          as AllTypesEmbedded?;
   @override
-  set singleObject(covariant AllTypesEmbedded? value) => RealmObjectBase.set(this, 'singleObject', value);
+  set singleObject(covariant AllTypesEmbedded? value) =>
+      RealmObjectBase.set(this, 'singleObject', value);
 
   @override
-  RealmList<AllTypesEmbedded> get list => RealmObjectBase.get<AllTypesEmbedded>(this, 'list') as RealmList<AllTypesEmbedded>;
+  RealmList<AllTypesEmbedded> get list =>
+      RealmObjectBase.get<AllTypesEmbedded>(this, 'list')
+          as RealmList<AllTypesEmbedded>;
   @override
-  set list(covariant RealmList<AllTypesEmbedded> value) => throw RealmUnsupportedSetError();
+  set list(covariant RealmList<AllTypesEmbedded> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RecursiveEmbedded1? get recursiveObject => RealmObjectBase.get<RecursiveEmbedded1>(this, 'recursiveObject') as RecursiveEmbedded1?;
+  RecursiveEmbedded1? get recursiveObject =>
+      RealmObjectBase.get<RecursiveEmbedded1>(this, 'recursiveObject')
+          as RecursiveEmbedded1?;
   @override
-  set recursiveObject(covariant RecursiveEmbedded1? value) => RealmObjectBase.set(this, 'recursiveObject', value);
+  set recursiveObject(covariant RecursiveEmbedded1? value) =>
+      RealmObjectBase.set(this, 'recursiveObject', value);
 
   @override
-  RealmList<RecursiveEmbedded1> get recursiveList => RealmObjectBase.get<RecursiveEmbedded1>(this, 'recursiveList') as RealmList<RecursiveEmbedded1>;
+  RealmList<RecursiveEmbedded1> get recursiveList =>
+      RealmObjectBase.get<RecursiveEmbedded1>(this, 'recursiveList')
+          as RealmList<RecursiveEmbedded1>;
   @override
-  set recursiveList(covariant RealmList<RecursiveEmbedded1> value) => throw RealmUnsupportedSetError();
+  set recursiveList(covariant RealmList<RecursiveEmbedded1> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<ObjectWithEmbedded>> get changes => RealmObjectBase.getChanges<ObjectWithEmbedded>(this);
+  Stream<RealmObjectChanges<ObjectWithEmbedded>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithEmbedded>(this);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithEmbedded>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<ObjectWithEmbedded>(this, keyPaths);
+  Stream<RealmObjectChanges<ObjectWithEmbedded>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithEmbedded>(this, keyPaths);
 
   @override
-  ObjectWithEmbedded freeze() => RealmObjectBase.freezeObject<ObjectWithEmbedded>(this);
+  ObjectWithEmbedded freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithEmbedded>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -2612,13 +3120,21 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded with RealmEntity, RealmObje
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithEmbedded._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, ObjectWithEmbedded, 'ObjectWithEmbedded', [
-      SchemaProperty('id', RealmPropertyType.string, mapTo: '_id', primaryKey: true),
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithEmbedded, 'ObjectWithEmbedded', [
+      SchemaProperty('id', RealmPropertyType.string,
+          mapTo: '_id', primaryKey: true),
       SchemaProperty('differentiator', RealmPropertyType.uuid, optional: true),
-      SchemaProperty('singleObject', RealmPropertyType.object, optional: true, linkTarget: 'AllTypesEmbedded'),
-      SchemaProperty('list', RealmPropertyType.object, linkTarget: 'AllTypesEmbedded', collectionType: RealmCollectionType.list),
-      SchemaProperty('recursiveObject', RealmPropertyType.object, optional: true, linkTarget: 'RecursiveEmbedded1'),
-      SchemaProperty('recursiveList', RealmPropertyType.object, linkTarget: 'RecursiveEmbedded1', collectionType: RealmCollectionType.list),
+      SchemaProperty('singleObject', RealmPropertyType.object,
+          optional: true, linkTarget: 'AllTypesEmbedded'),
+      SchemaProperty('list', RealmPropertyType.object,
+          linkTarget: 'AllTypesEmbedded',
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('recursiveObject', RealmPropertyType.object,
+          optional: true, linkTarget: 'RecursiveEmbedded1'),
+      SchemaProperty('recursiveList', RealmPropertyType.object,
+          linkTarget: 'RecursiveEmbedded1',
+          collectionType: RealmCollectionType.list),
     ]);
   }();
 
@@ -2626,7 +3142,8 @@ class ObjectWithEmbedded extends _ObjectWithEmbedded with RealmEntity, RealmObje
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class RecursiveEmbedded1 extends _RecursiveEmbedded1 with RealmEntity, RealmObjectBase, EmbeddedObject {
+class RecursiveEmbedded1 extends _RecursiveEmbedded1
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
   RecursiveEmbedded1(
     String value, {
     RecursiveEmbedded2? child,
@@ -2635,7 +3152,8 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1 with RealmEntity, RealmObje
   }) {
     RealmObjectBase.set(this, 'value', value);
     RealmObjectBase.set(this, 'child', child);
-    RealmObjectBase.set<RealmList<RecursiveEmbedded2>>(this, 'children', RealmList<RecursiveEmbedded2>(children));
+    RealmObjectBase.set<RealmList<RecursiveEmbedded2>>(
+        this, 'children', RealmList<RecursiveEmbedded2>(children));
     RealmObjectBase.set(this, 'realmObject', realmObject);
   }
 
@@ -2647,28 +3165,41 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1 with RealmEntity, RealmObje
   set value(String value) => RealmObjectBase.set(this, 'value', value);
 
   @override
-  RecursiveEmbedded2? get child => RealmObjectBase.get<RecursiveEmbedded2>(this, 'child') as RecursiveEmbedded2?;
+  RecursiveEmbedded2? get child =>
+      RealmObjectBase.get<RecursiveEmbedded2>(this, 'child')
+          as RecursiveEmbedded2?;
   @override
-  set child(covariant RecursiveEmbedded2? value) => RealmObjectBase.set(this, 'child', value);
+  set child(covariant RecursiveEmbedded2? value) =>
+      RealmObjectBase.set(this, 'child', value);
 
   @override
-  RealmList<RecursiveEmbedded2> get children => RealmObjectBase.get<RecursiveEmbedded2>(this, 'children') as RealmList<RecursiveEmbedded2>;
+  RealmList<RecursiveEmbedded2> get children =>
+      RealmObjectBase.get<RecursiveEmbedded2>(this, 'children')
+          as RealmList<RecursiveEmbedded2>;
   @override
-  set children(covariant RealmList<RecursiveEmbedded2> value) => throw RealmUnsupportedSetError();
+  set children(covariant RealmList<RecursiveEmbedded2> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  ObjectWithEmbedded? get realmObject => RealmObjectBase.get<ObjectWithEmbedded>(this, 'realmObject') as ObjectWithEmbedded?;
+  ObjectWithEmbedded? get realmObject =>
+      RealmObjectBase.get<ObjectWithEmbedded>(this, 'realmObject')
+          as ObjectWithEmbedded?;
   @override
-  set realmObject(covariant ObjectWithEmbedded? value) => RealmObjectBase.set(this, 'realmObject', value);
+  set realmObject(covariant ObjectWithEmbedded? value) =>
+      RealmObjectBase.set(this, 'realmObject', value);
 
   @override
-  Stream<RealmObjectChanges<RecursiveEmbedded1>> get changes => RealmObjectBase.getChanges<RecursiveEmbedded1>(this);
+  Stream<RealmObjectChanges<RecursiveEmbedded1>> get changes =>
+      RealmObjectBase.getChanges<RecursiveEmbedded1>(this);
 
   @override
-  Stream<RealmObjectChanges<RecursiveEmbedded1>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<RecursiveEmbedded1>(this, keyPaths);
+  Stream<RealmObjectChanges<RecursiveEmbedded1>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RecursiveEmbedded1>(this, keyPaths);
 
   @override
-  RecursiveEmbedded1 freeze() => RealmObjectBase.freezeObject<RecursiveEmbedded1>(this);
+  RecursiveEmbedded1 freeze() =>
+      RealmObjectBase.freezeObject<RecursiveEmbedded1>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -2699,11 +3230,16 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1 with RealmEntity, RealmObje
   static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded1._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, RecursiveEmbedded1, 'RecursiveEmbedded1', [
+    return const SchemaObject(
+        ObjectType.embeddedObject, RecursiveEmbedded1, 'RecursiveEmbedded1', [
       SchemaProperty('value', RealmPropertyType.string),
-      SchemaProperty('child', RealmPropertyType.object, optional: true, linkTarget: 'RecursiveEmbedded2'),
-      SchemaProperty('children', RealmPropertyType.object, linkTarget: 'RecursiveEmbedded2', collectionType: RealmCollectionType.list),
-      SchemaProperty('realmObject', RealmPropertyType.object, optional: true, linkTarget: 'ObjectWithEmbedded'),
+      SchemaProperty('child', RealmPropertyType.object,
+          optional: true, linkTarget: 'RecursiveEmbedded2'),
+      SchemaProperty('children', RealmPropertyType.object,
+          linkTarget: 'RecursiveEmbedded2',
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('realmObject', RealmPropertyType.object,
+          optional: true, linkTarget: 'ObjectWithEmbedded'),
     ]);
   }();
 
@@ -2711,7 +3247,8 @@ class RecursiveEmbedded1 extends _RecursiveEmbedded1 with RealmEntity, RealmObje
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class RecursiveEmbedded2 extends _RecursiveEmbedded2 with RealmEntity, RealmObjectBase, EmbeddedObject {
+class RecursiveEmbedded2 extends _RecursiveEmbedded2
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
   RecursiveEmbedded2(
     String value, {
     RecursiveEmbedded3? child,
@@ -2720,7 +3257,8 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2 with RealmEntity, RealmObje
   }) {
     RealmObjectBase.set(this, 'value', value);
     RealmObjectBase.set(this, 'child', child);
-    RealmObjectBase.set<RealmList<RecursiveEmbedded3>>(this, 'children', RealmList<RecursiveEmbedded3>(children));
+    RealmObjectBase.set<RealmList<RecursiveEmbedded3>>(
+        this, 'children', RealmList<RecursiveEmbedded3>(children));
     RealmObjectBase.set(this, 'realmObject', realmObject);
   }
 
@@ -2732,28 +3270,41 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2 with RealmEntity, RealmObje
   set value(String value) => RealmObjectBase.set(this, 'value', value);
 
   @override
-  RecursiveEmbedded3? get child => RealmObjectBase.get<RecursiveEmbedded3>(this, 'child') as RecursiveEmbedded3?;
+  RecursiveEmbedded3? get child =>
+      RealmObjectBase.get<RecursiveEmbedded3>(this, 'child')
+          as RecursiveEmbedded3?;
   @override
-  set child(covariant RecursiveEmbedded3? value) => RealmObjectBase.set(this, 'child', value);
+  set child(covariant RecursiveEmbedded3? value) =>
+      RealmObjectBase.set(this, 'child', value);
 
   @override
-  RealmList<RecursiveEmbedded3> get children => RealmObjectBase.get<RecursiveEmbedded3>(this, 'children') as RealmList<RecursiveEmbedded3>;
+  RealmList<RecursiveEmbedded3> get children =>
+      RealmObjectBase.get<RecursiveEmbedded3>(this, 'children')
+          as RealmList<RecursiveEmbedded3>;
   @override
-  set children(covariant RealmList<RecursiveEmbedded3> value) => throw RealmUnsupportedSetError();
+  set children(covariant RealmList<RecursiveEmbedded3> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  ObjectWithEmbedded? get realmObject => RealmObjectBase.get<ObjectWithEmbedded>(this, 'realmObject') as ObjectWithEmbedded?;
+  ObjectWithEmbedded? get realmObject =>
+      RealmObjectBase.get<ObjectWithEmbedded>(this, 'realmObject')
+          as ObjectWithEmbedded?;
   @override
-  set realmObject(covariant ObjectWithEmbedded? value) => RealmObjectBase.set(this, 'realmObject', value);
+  set realmObject(covariant ObjectWithEmbedded? value) =>
+      RealmObjectBase.set(this, 'realmObject', value);
 
   @override
-  Stream<RealmObjectChanges<RecursiveEmbedded2>> get changes => RealmObjectBase.getChanges<RecursiveEmbedded2>(this);
+  Stream<RealmObjectChanges<RecursiveEmbedded2>> get changes =>
+      RealmObjectBase.getChanges<RecursiveEmbedded2>(this);
 
   @override
-  Stream<RealmObjectChanges<RecursiveEmbedded2>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<RecursiveEmbedded2>(this, keyPaths);
+  Stream<RealmObjectChanges<RecursiveEmbedded2>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RecursiveEmbedded2>(this, keyPaths);
 
   @override
-  RecursiveEmbedded2 freeze() => RealmObjectBase.freezeObject<RecursiveEmbedded2>(this);
+  RecursiveEmbedded2 freeze() =>
+      RealmObjectBase.freezeObject<RecursiveEmbedded2>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -2784,11 +3335,16 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2 with RealmEntity, RealmObje
   static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded2._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, RecursiveEmbedded2, 'RecursiveEmbedded2', [
+    return const SchemaObject(
+        ObjectType.embeddedObject, RecursiveEmbedded2, 'RecursiveEmbedded2', [
       SchemaProperty('value', RealmPropertyType.string),
-      SchemaProperty('child', RealmPropertyType.object, optional: true, linkTarget: 'RecursiveEmbedded3'),
-      SchemaProperty('children', RealmPropertyType.object, linkTarget: 'RecursiveEmbedded3', collectionType: RealmCollectionType.list),
-      SchemaProperty('realmObject', RealmPropertyType.object, optional: true, linkTarget: 'ObjectWithEmbedded'),
+      SchemaProperty('child', RealmPropertyType.object,
+          optional: true, linkTarget: 'RecursiveEmbedded3'),
+      SchemaProperty('children', RealmPropertyType.object,
+          linkTarget: 'RecursiveEmbedded3',
+          collectionType: RealmCollectionType.list),
+      SchemaProperty('realmObject', RealmPropertyType.object,
+          optional: true, linkTarget: 'ObjectWithEmbedded'),
     ]);
   }();
 
@@ -2796,7 +3352,8 @@ class RecursiveEmbedded2 extends _RecursiveEmbedded2 with RealmEntity, RealmObje
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class RecursiveEmbedded3 extends _RecursiveEmbedded3 with RealmEntity, RealmObjectBase, EmbeddedObject {
+class RecursiveEmbedded3 extends _RecursiveEmbedded3
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
   RecursiveEmbedded3(
     String value,
   ) {
@@ -2811,13 +3368,17 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3 with RealmEntity, RealmObje
   set value(String value) => RealmObjectBase.set(this, 'value', value);
 
   @override
-  Stream<RealmObjectChanges<RecursiveEmbedded3>> get changes => RealmObjectBase.getChanges<RecursiveEmbedded3>(this);
+  Stream<RealmObjectChanges<RecursiveEmbedded3>> get changes =>
+      RealmObjectBase.getChanges<RecursiveEmbedded3>(this);
 
   @override
-  Stream<RealmObjectChanges<RecursiveEmbedded3>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<RecursiveEmbedded3>(this, keyPaths);
+  Stream<RealmObjectChanges<RecursiveEmbedded3>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<RecursiveEmbedded3>(this, keyPaths);
 
   @override
-  RecursiveEmbedded3 freeze() => RealmObjectBase.freezeObject<RecursiveEmbedded3>(this);
+  RecursiveEmbedded3 freeze() =>
+      RealmObjectBase.freezeObject<RecursiveEmbedded3>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -2842,7 +3403,8 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3 with RealmEntity, RealmObje
   static final schema = () {
     RealmObjectBase.registerFactory(RecursiveEmbedded3._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, RecursiveEmbedded3, 'RecursiveEmbedded3', [
+    return const SchemaObject(
+        ObjectType.embeddedObject, RecursiveEmbedded3, 'RecursiveEmbedded3', [
       SchemaProperty('value', RealmPropertyType.string),
     ]);
   }();
@@ -2851,7 +3413,8 @@ class RecursiveEmbedded3 extends _RecursiveEmbedded3 with RealmEntity, RealmObje
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class ObjectWithDecimal extends _ObjectWithDecimal with RealmEntity, RealmObjectBase, RealmObject {
+class ObjectWithDecimal extends _ObjectWithDecimal
+    with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithDecimal(
     Decimal128 decimal, {
     Decimal128? nullableDecimal,
@@ -2863,23 +3426,30 @@ class ObjectWithDecimal extends _ObjectWithDecimal with RealmEntity, RealmObject
   ObjectWithDecimal._();
 
   @override
-  Decimal128 get decimal => RealmObjectBase.get<Decimal128>(this, 'decimal') as Decimal128;
+  Decimal128 get decimal =>
+      RealmObjectBase.get<Decimal128>(this, 'decimal') as Decimal128;
   @override
   set decimal(Decimal128 value) => RealmObjectBase.set(this, 'decimal', value);
 
   @override
-  Decimal128? get nullableDecimal => RealmObjectBase.get<Decimal128>(this, 'nullableDecimal') as Decimal128?;
+  Decimal128? get nullableDecimal =>
+      RealmObjectBase.get<Decimal128>(this, 'nullableDecimal') as Decimal128?;
   @override
-  set nullableDecimal(Decimal128? value) => RealmObjectBase.set(this, 'nullableDecimal', value);
+  set nullableDecimal(Decimal128? value) =>
+      RealmObjectBase.set(this, 'nullableDecimal', value);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithDecimal>> get changes => RealmObjectBase.getChanges<ObjectWithDecimal>(this);
+  Stream<RealmObjectChanges<ObjectWithDecimal>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithDecimal>(this);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithDecimal>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<ObjectWithDecimal>(this, keyPaths);
+  Stream<RealmObjectChanges<ObjectWithDecimal>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithDecimal>(this, keyPaths);
 
   @override
-  ObjectWithDecimal freeze() => RealmObjectBase.freezeObject<ObjectWithDecimal>(this);
+  ObjectWithDecimal freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithDecimal>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -2906,9 +3476,11 @@ class ObjectWithDecimal extends _ObjectWithDecimal with RealmEntity, RealmObject
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithDecimal._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithDecimal, 'ObjectWithDecimal', [
       SchemaProperty('decimal', RealmPropertyType.decimal128),
-      SchemaProperty('nullableDecimal', RealmPropertyType.decimal128, optional: true),
+      SchemaProperty('nullableDecimal', RealmPropertyType.decimal128,
+          optional: true),
     ]);
   }();
 
@@ -2916,7 +3488,8 @@ class ObjectWithDecimal extends _ObjectWithDecimal with RealmEntity, RealmObject
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class Embedded extends _Embedded with RealmEntity, RealmObjectBase, EmbeddedObject {
+class Embedded extends _Embedded
+    with RealmEntity, RealmObjectBase, EmbeddedObject {
   Embedded(
     int value, {
     RealmValue any = const RealmValue.nullValue(),
@@ -2935,20 +3508,25 @@ class Embedded extends _Embedded with RealmEntity, RealmObjectBase, EmbeddedObje
   set value(int value) => RealmObjectBase.set(this, 'value', value);
 
   @override
-  RealmValue get any => RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue;
+  RealmValue get any =>
+      RealmObjectBase.get<RealmValue>(this, 'any') as RealmValue;
   @override
   set any(RealmValue value) => RealmObjectBase.set(this, 'any', value);
 
   @override
-  Symmetric? get symmetric => RealmObjectBase.get<Symmetric>(this, 'symmetric') as Symmetric?;
+  Symmetric? get symmetric =>
+      RealmObjectBase.get<Symmetric>(this, 'symmetric') as Symmetric?;
   @override
-  set symmetric(covariant Symmetric? value) => RealmObjectBase.set(this, 'symmetric', value);
+  set symmetric(covariant Symmetric? value) =>
+      RealmObjectBase.set(this, 'symmetric', value);
 
   @override
-  Stream<RealmObjectChanges<Embedded>> get changes => RealmObjectBase.getChanges<Embedded>(this);
+  Stream<RealmObjectChanges<Embedded>> get changes =>
+      RealmObjectBase.getChanges<Embedded>(this);
 
   @override
-  Stream<RealmObjectChanges<Embedded>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Embedded>(this, keyPaths);
+  Stream<RealmObjectChanges<Embedded>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Embedded>(this, keyPaths);
 
   @override
   Embedded freeze() => RealmObjectBase.freezeObject<Embedded>(this);
@@ -2983,7 +3561,8 @@ class Embedded extends _Embedded with RealmEntity, RealmObjectBase, EmbeddedObje
     return const SchemaObject(ObjectType.embeddedObject, Embedded, 'Embedded', [
       SchemaProperty('value', RealmPropertyType.int),
       SchemaProperty('any', RealmPropertyType.mixed, optional: true),
-      SchemaProperty('symmetric', RealmPropertyType.object, optional: true, linkTarget: 'Symmetric'),
+      SchemaProperty('symmetric', RealmPropertyType.object,
+          optional: true, linkTarget: 'Symmetric'),
     ]);
   }();
 
@@ -2991,7 +3570,8 @@ class Embedded extends _Embedded with RealmEntity, RealmObjectBase, EmbeddedObje
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class Symmetric extends _Symmetric with RealmEntity, RealmObjectBase, RealmObject {
+class Symmetric extends _Symmetric
+    with RealmEntity, RealmObjectBase, RealmObject {
   Symmetric(
     ObjectId id,
   ) {
@@ -3006,10 +3586,12 @@ class Symmetric extends _Symmetric with RealmEntity, RealmObjectBase, RealmObjec
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  Stream<RealmObjectChanges<Symmetric>> get changes => RealmObjectBase.getChanges<Symmetric>(this);
+  Stream<RealmObjectChanges<Symmetric>> get changes =>
+      RealmObjectBase.getChanges<Symmetric>(this);
 
   @override
-  Stream<RealmObjectChanges<Symmetric>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<Symmetric>(this, keyPaths);
+  Stream<RealmObjectChanges<Symmetric>> changesFor([List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<Symmetric>(this, keyPaths);
 
   @override
   Symmetric freeze() => RealmObjectBase.freezeObject<Symmetric>(this);
@@ -3038,7 +3620,8 @@ class Symmetric extends _Symmetric with RealmEntity, RealmObjectBase, RealmObjec
     RealmObjectBase.registerFactory(Symmetric._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Symmetric, 'Symmetric', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
     ]);
   }();
 
@@ -3046,7 +3629,8 @@ class Symmetric extends _Symmetric with RealmEntity, RealmObjectBase, RealmObjec
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class ObjectWithRealmValue extends _ObjectWithRealmValue with RealmEntity, RealmObjectBase, RealmObject {
+class ObjectWithRealmValue extends _ObjectWithRealmValue
+    with RealmEntity, RealmObjectBase, RealmObject {
   ObjectWithRealmValue(
     ObjectId id, {
     ObjectId? differentiator,
@@ -3058,9 +3642,12 @@ class ObjectWithRealmValue extends _ObjectWithRealmValue with RealmEntity, Realm
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'differentiator', differentiator);
     RealmObjectBase.set(this, 'oneAny', oneAny);
-    RealmObjectBase.set<RealmList<RealmValue>>(this, 'manyAny', RealmList<RealmValue>(manyAny));
-    RealmObjectBase.set<RealmMap<RealmValue>>(this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
-    RealmObjectBase.set<RealmSet<RealmValue>>(this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
+    RealmObjectBase.set<RealmList<RealmValue>>(
+        this, 'manyAny', RealmList<RealmValue>(manyAny));
+    RealmObjectBase.set<RealmMap<RealmValue>>(
+        this, 'dictOfAny', RealmMap<RealmValue>(dictOfAny));
+    RealmObjectBase.set<RealmSet<RealmValue>>(
+        this, 'setOfAny', RealmSet<RealmValue>(setOfAny));
   }
 
   ObjectWithRealmValue._();
@@ -3071,38 +3658,52 @@ class ObjectWithRealmValue extends _ObjectWithRealmValue with RealmEntity, Realm
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  ObjectId? get differentiator => RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
   @override
-  set differentiator(ObjectId? value) => RealmObjectBase.set(this, 'differentiator', value);
+  set differentiator(ObjectId? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
 
   @override
-  RealmValue get oneAny => RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
+  RealmValue get oneAny =>
+      RealmObjectBase.get<RealmValue>(this, 'oneAny') as RealmValue;
   @override
   set oneAny(RealmValue value) => RealmObjectBase.set(this, 'oneAny', value);
 
   @override
-  RealmList<RealmValue> get manyAny => RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
+  RealmList<RealmValue> get manyAny =>
+      RealmObjectBase.get<RealmValue>(this, 'manyAny') as RealmList<RealmValue>;
   @override
-  set manyAny(covariant RealmList<RealmValue> value) => throw RealmUnsupportedSetError();
+  set manyAny(covariant RealmList<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmMap<RealmValue> get dictOfAny => RealmObjectBase.get<RealmValue>(this, 'dictOfAny') as RealmMap<RealmValue>;
+  RealmMap<RealmValue> get dictOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'dictOfAny')
+          as RealmMap<RealmValue>;
   @override
-  set dictOfAny(covariant RealmMap<RealmValue> value) => throw RealmUnsupportedSetError();
+  set dictOfAny(covariant RealmMap<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  RealmSet<RealmValue> get setOfAny => RealmObjectBase.get<RealmValue>(this, 'setOfAny') as RealmSet<RealmValue>;
+  RealmSet<RealmValue> get setOfAny =>
+      RealmObjectBase.get<RealmValue>(this, 'setOfAny') as RealmSet<RealmValue>;
   @override
-  set setOfAny(covariant RealmSet<RealmValue> value) => throw RealmUnsupportedSetError();
+  set setOfAny(covariant RealmSet<RealmValue> value) =>
+      throw RealmUnsupportedSetError();
 
   @override
-  Stream<RealmObjectChanges<ObjectWithRealmValue>> get changes => RealmObjectBase.getChanges<ObjectWithRealmValue>(this);
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithRealmValue>(this);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithRealmValue>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<ObjectWithRealmValue>(this, keyPaths);
+  Stream<RealmObjectChanges<ObjectWithRealmValue>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithRealmValue>(this, keyPaths);
 
   @override
-  ObjectWithRealmValue freeze() => RealmObjectBase.freezeObject<ObjectWithRealmValue>(this);
+  ObjectWithRealmValue freeze() =>
+      RealmObjectBase.freezeObject<ObjectWithRealmValue>(this);
 
   EJsonValue toEJson() {
     return <String, dynamic>{
@@ -3137,13 +3738,20 @@ class ObjectWithRealmValue extends _ObjectWithRealmValue with RealmEntity, Realm
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithRealmValue._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, ObjectWithRealmValue, 'ObjectWithRealmValue', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
-      SchemaProperty('differentiator', RealmPropertyType.objectid, optional: true),
-      SchemaProperty('oneAny', RealmPropertyType.mixed, optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('manyAny', RealmPropertyType.mixed, optional: true, collectionType: RealmCollectionType.list),
-      SchemaProperty('dictOfAny', RealmPropertyType.mixed, optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('setOfAny', RealmPropertyType.mixed, optional: true, collectionType: RealmCollectionType.set),
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithRealmValue, 'ObjectWithRealmValue', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
+      SchemaProperty('oneAny', RealmPropertyType.mixed,
+          optional: true, indexType: RealmIndexType.regular),
+      SchemaProperty('manyAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.list),
+      SchemaProperty('dictOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.map),
+      SchemaProperty('setOfAny', RealmPropertyType.mixed,
+          optional: true, collectionType: RealmCollectionType.set),
     ]);
   }();
 
@@ -3151,7 +3759,8 @@ class ObjectWithRealmValue extends _ObjectWithRealmValue with RealmEntity, Realm
   SchemaObject get objectSchema => RealmObjectBase.getSchema(this) ?? schema;
 }
 
-class ObjectWithInt extends _ObjectWithInt with RealmEntity, RealmObjectBase, RealmObject {
+class ObjectWithInt extends _ObjectWithInt
+    with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
   ObjectWithInt(
@@ -3177,9 +3786,11 @@ class ObjectWithInt extends _ObjectWithInt with RealmEntity, RealmObjectBase, Re
   set id(ObjectId value) => RealmObjectBase.set(this, '_id', value);
 
   @override
-  ObjectId? get differentiator => RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
+  ObjectId? get differentiator =>
+      RealmObjectBase.get<ObjectId>(this, 'differentiator') as ObjectId?;
   @override
-  set differentiator(ObjectId? value) => RealmObjectBase.set(this, 'differentiator', value);
+  set differentiator(ObjectId? value) =>
+      RealmObjectBase.set(this, 'differentiator', value);
 
   @override
   int get i => RealmObjectBase.get<int>(this, 'i') as int;
@@ -3187,10 +3798,13 @@ class ObjectWithInt extends _ObjectWithInt with RealmEntity, RealmObjectBase, Re
   set i(int value) => RealmObjectBase.set(this, 'i', value);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithInt>> get changes => RealmObjectBase.getChanges<ObjectWithInt>(this);
+  Stream<RealmObjectChanges<ObjectWithInt>> get changes =>
+      RealmObjectBase.getChanges<ObjectWithInt>(this);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithInt>> changesFor([List<String>? keyPaths]) => RealmObjectBase.getChangesFor<ObjectWithInt>(this, keyPaths);
+  Stream<RealmObjectChanges<ObjectWithInt>> changesFor(
+          [List<String>? keyPaths]) =>
+      RealmObjectBase.getChangesFor<ObjectWithInt>(this, keyPaths);
 
   @override
   ObjectWithInt freeze() => RealmObjectBase.freezeObject<ObjectWithInt>(this);
@@ -3222,9 +3836,12 @@ class ObjectWithInt extends _ObjectWithInt with RealmEntity, RealmObjectBase, Re
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectWithInt._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, ObjectWithInt, 'ObjectWithInt', [
-      SchemaProperty('id', RealmPropertyType.objectid, mapTo: '_id', primaryKey: true),
-      SchemaProperty('differentiator', RealmPropertyType.objectid, optional: true),
+    return const SchemaObject(
+        ObjectType.realmObject, ObjectWithInt, 'ObjectWithInt', [
+      SchemaProperty('id', RealmPropertyType.objectid,
+          mapTo: '_id', primaryKey: true),
+      SchemaProperty('differentiator', RealmPropertyType.objectid,
+          optional: true),
       SchemaProperty('i', RealmPropertyType.int),
     ]);
   }();
