@@ -394,18 +394,18 @@ class RealmLibrary {
 
   void realm_app_config_set_metadata_mode(
     ffi.Pointer<realm_app_config_t> arg0,
-    int arg1,
+    realm_sync_client_metadata_mode arg1,
   ) {
     return _realm_app_config_set_metadata_mode(
       arg0,
-      arg1,
+      arg1.value,
     );
   }
 
   late final _realm_app_config_set_metadata_modePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_app_config_t>,
-              ffi.Int32)>>('realm_app_config_set_metadata_mode');
+              ffi.UnsignedInt)>>('realm_app_config_set_metadata_mode');
   late final _realm_app_config_set_metadata_mode =
       _realm_app_config_set_metadata_modePtr
           .asFunction<void Function(ffi.Pointer<realm_app_config_t>, int)>();
@@ -2079,17 +2079,17 @@ class RealmLibrary {
   late final _realm_attach_finalizer = _realm_attach_finalizerPtr.asFunction<
       ffi.Pointer<ffi.Void> Function(Object, ffi.Pointer<ffi.Void>, int)>();
 
-  int realm_auth_credentials_get_provider(
+  realm_auth_provider realm_auth_credentials_get_provider(
     ffi.Pointer<realm_app_credentials_t> arg0,
   ) {
-    return _realm_auth_credentials_get_provider(
+    return realm_auth_provider.fromValue(_realm_auth_credentials_get_provider(
       arg0,
-    );
+    ));
   }
 
   late final _realm_auth_credentials_get_providerPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Int32 Function(ffi.Pointer<realm_app_credentials_t>)>>(
+              ffi.UnsignedInt Function(ffi.Pointer<realm_app_credentials_t>)>>(
       'realm_auth_credentials_get_provider');
   late final _realm_auth_credentials_get_provider =
       _realm_auth_credentials_get_providerPtr
@@ -2661,33 +2661,36 @@ class RealmLibrary {
   /// Get the schema mode.
   ///
   /// This function cannot fail.
-  int realm_config_get_schema_mode(
+  realm_schema_mode realm_config_get_schema_mode(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_schema_mode(
+    return realm_schema_mode.fromValue(_realm_config_get_schema_mode(
       arg0,
-    );
+    ));
   }
 
   late final _realm_config_get_schema_modePtr = _lookup<
-          ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_schema_mode');
+      ffi.NativeFunction<
+          ffi.UnsignedInt Function(
+              ffi.Pointer<realm_config_t>)>>('realm_config_get_schema_mode');
   late final _realm_config_get_schema_mode = _realm_config_get_schema_modePtr
       .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
 
   /// Get the subset schema mode.
   ///
   /// This function cannot fail.
-  int realm_config_get_schema_subset_mode(
+  realm_schema_subset_mode realm_config_get_schema_subset_mode(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_schema_subset_mode(
+    return realm_schema_subset_mode
+        .fromValue(_realm_config_get_schema_subset_mode(
       arg0,
-    );
+    ));
   }
 
   late final _realm_config_get_schema_subset_modePtr = _lookup<
-          ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<realm_config_t>)>>(
+          ffi.NativeFunction<
+              ffi.UnsignedInt Function(ffi.Pointer<realm_config_t>)>>(
       'realm_config_get_schema_subset_mode');
   late final _realm_config_get_schema_subset_mode =
       _realm_config_get_schema_subset_modePtr
@@ -3095,18 +3098,18 @@ class RealmLibrary {
   /// This function cannot fail.
   void realm_config_set_schema_mode(
     ffi.Pointer<realm_config_t> arg0,
-    int arg1,
+    realm_schema_mode arg1,
   ) {
     return _realm_config_set_schema_mode(
       arg0,
-      arg1,
+      arg1.value,
     );
   }
 
   late final _realm_config_set_schema_modePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Int32)>>('realm_config_set_schema_mode');
+              ffi.UnsignedInt)>>('realm_config_set_schema_mode');
   late final _realm_config_set_schema_mode = _realm_config_set_schema_modePtr
       .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
 
@@ -3115,18 +3118,18 @@ class RealmLibrary {
   /// This function cannot fail
   void realm_config_set_schema_subset_mode(
     ffi.Pointer<realm_config_t> arg0,
-    int arg1,
+    realm_schema_subset_mode arg1,
   ) {
     return _realm_config_set_schema_subset_mode(
       arg0,
-      arg1,
+      arg1.value,
     );
   }
 
   late final _realm_config_set_schema_subset_modePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Int32)>>('realm_config_set_schema_subset_mode');
+              ffi.UnsignedInt)>>('realm_config_set_schema_subset_mode');
   late final _realm_config_set_schema_subset_mode =
       _realm_config_set_schema_subset_modePtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
@@ -3786,12 +3789,12 @@ class RealmLibrary {
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   void realm_dart_log(
-    int level,
+    realm_log_level level,
     ffi.Pointer<ffi.Char> category,
     ffi.Pointer<ffi.Char> message,
   ) {
     return _realm_dart_log(
-      level,
+      level.value,
       category,
       message,
     );
@@ -3799,7 +3802,7 @@ class RealmLibrary {
 
   late final _realm_dart_logPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Void Function(ffi.Int32, ffi.Pointer<ffi.Char>,
+          ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>)>>('realm_dart_log');
   late final _realm_dart_log = _realm_dart_logPtr.asFunction<
       void Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
@@ -5221,17 +5224,17 @@ class RealmLibrary {
       ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
 
   /// Get the logging level for given category.
-  int realm_get_log_level_category(
+  realm_log_level realm_get_log_level_category(
     ffi.Pointer<ffi.Char> arg0,
   ) {
-    return _realm_get_log_level_category(
+    return realm_log_level.fromValue(_realm_get_log_level_category(
       arg0,
-    );
+    ));
   }
 
-  late final _realm_get_log_level_categoryPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ffi.Char>)>>(
-          'realm_get_log_level_category');
+  late final _realm_get_log_level_categoryPtr = _lookup<
+          ffi.NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<ffi.Char>)>>(
+      'realm_get_log_level_category');
   late final _realm_get_log_level_category = _realm_get_log_level_categoryPtr
       .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
@@ -8865,34 +8868,34 @@ class RealmLibrary {
           realm_free_userdata_func_t)>();
 
   void realm_set_log_level(
-    int arg0,
+    realm_log_level arg0,
   ) {
     return _realm_set_log_level(
-      arg0,
+      arg0.value,
     );
   }
 
   late final _realm_set_log_levelPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int32)>>(
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.UnsignedInt)>>(
           'realm_set_log_level');
   late final _realm_set_log_level =
       _realm_set_log_levelPtr.asFunction<void Function(int)>();
 
   /// Set the logging level for given category. Return the previous level.
-  int realm_set_log_level_category(
+  realm_log_level realm_set_log_level_category(
     ffi.Pointer<ffi.Char> arg0,
-    int arg1,
+    realm_log_level arg1,
   ) {
-    return _realm_set_log_level_category(
+    return realm_log_level.fromValue(_realm_set_log_level_category(
       arg0,
-      arg1,
-    );
+      arg1.value,
+    ));
   }
 
   late final _realm_set_log_level_categoryPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ffi.Char>,
-              ffi.Int32)>>('realm_set_log_level_category');
+          ffi.UnsignedInt Function(ffi.Pointer<ffi.Char>,
+              ffi.UnsignedInt)>>('realm_set_log_level_category');
   late final _realm_set_log_level_category = _realm_set_log_level_categoryPtr
       .asFunction<int Function(ffi.Pointer<ffi.Char>, int)>();
 
@@ -9241,18 +9244,18 @@ class RealmLibrary {
 
   void realm_sync_client_config_set_reconnect_mode(
     ffi.Pointer<realm_sync_client_config_t> arg0,
-    int arg1,
+    realm_sync_client_reconnect_mode arg1,
   ) {
     return _realm_sync_client_config_set_reconnect_mode(
       arg0,
-      arg1,
+      arg1.value,
     );
   }
 
   late final _realm_sync_client_config_set_reconnect_modePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_sync_client_config_t>,
-              ffi.Int32)>>('realm_sync_client_config_set_reconnect_mode');
+              ffi.UnsignedInt)>>('realm_sync_client_config_set_reconnect_mode');
   late final _realm_sync_client_config_set_reconnect_mode =
       _realm_sync_client_config_set_reconnect_modePtr.asFunction<
           void Function(ffi.Pointer<realm_sync_client_config_t>, int)>();
@@ -9604,36 +9607,36 @@ class RealmLibrary {
 
   void realm_sync_config_set_resync_mode(
     ffi.Pointer<realm_sync_config_t> arg0,
-    int arg1,
+    realm_sync_session_resync_mode arg1,
   ) {
     return _realm_sync_config_set_resync_mode(
       arg0,
-      arg1,
+      arg1.value,
     );
   }
 
   late final _realm_sync_config_set_resync_modePtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_sync_config_t>,
-              ffi.Int32)>>('realm_sync_config_set_resync_mode');
+              ffi.UnsignedInt)>>('realm_sync_config_set_resync_mode');
   late final _realm_sync_config_set_resync_mode =
       _realm_sync_config_set_resync_modePtr
           .asFunction<void Function(ffi.Pointer<realm_sync_config_t>, int)>();
 
   void realm_sync_config_set_session_stop_policy(
     ffi.Pointer<realm_sync_config_t> arg0,
-    int arg1,
+    realm_sync_session_stop_policy arg1,
   ) {
     return _realm_sync_config_set_session_stop_policy(
       arg0,
-      arg1,
+      arg1.value,
     );
   }
 
   late final _realm_sync_config_set_session_stop_policyPtr = _lookup<
       ffi.NativeFunction<
           ffi.Void Function(ffi.Pointer<realm_sync_config_t>,
-              ffi.Int32)>>('realm_sync_config_set_session_stop_policy');
+              ffi.UnsignedInt)>>('realm_sync_config_set_session_stop_policy');
   late final _realm_sync_config_set_session_stop_policy =
       _realm_sync_config_set_session_stop_policyPtr
           .asFunction<void Function(ffi.Pointer<realm_sync_config_t>, int)>();
@@ -9860,14 +9863,14 @@ class RealmLibrary {
   /// @return true/false if the handler was registered correctly
   bool realm_sync_on_subscription_set_state_change_async(
     ffi.Pointer<realm_flx_sync_subscription_set_t> subscription_set,
-    int notify_when,
+    realm_flx_sync_subscription_set_state notify_when,
     realm_sync_on_subscription_state_changed_t arg2,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
     return _realm_sync_on_subscription_set_state_change_async(
       subscription_set,
-      notify_when,
+      notify_when.value,
       arg2,
       userdata,
       userdata_free,
@@ -9878,7 +9881,7 @@ class RealmLibrary {
           ffi.NativeFunction<
               ffi.Bool Function(
                   ffi.Pointer<realm_flx_sync_subscription_set_t>,
-                  ffi.Int32,
+                  ffi.UnsignedInt,
                   realm_sync_on_subscription_state_changed_t,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
@@ -9895,20 +9898,24 @@ class RealmLibrary {
   /// Wait until subscripton set state is equal to the state passed as parameter.
   /// This is a blocking operation.
   /// @return the current subscription state
-  int realm_sync_on_subscription_set_state_change_wait(
+  realm_flx_sync_subscription_set_state
+      realm_sync_on_subscription_set_state_change_wait(
     ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
-    int arg1,
+    realm_flx_sync_subscription_set_state arg1,
   ) {
-    return _realm_sync_on_subscription_set_state_change_wait(
+    return realm_flx_sync_subscription_set_state
+        .fromValue(_realm_sync_on_subscription_set_state_change_wait(
       arg0,
-      arg1,
-    );
+      arg1.value,
+    ));
   }
 
   late final _realm_sync_on_subscription_set_state_change_waitPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<realm_flx_sync_subscription_set_t>,
-              ffi.Int32)>>('realm_sync_on_subscription_set_state_change_wait');
+          ffi.NativeFunction<
+              ffi.UnsignedInt Function(
+                  ffi.Pointer<realm_flx_sync_subscription_set_t>,
+                  ffi.UnsignedInt)>>(
+      'realm_sync_on_subscription_set_state_change_wait');
   late final _realm_sync_on_subscription_set_state_change_wait =
       _realm_sync_on_subscription_set_state_change_waitPtr.asFunction<
           int Function(ffi.Pointer<realm_flx_sync_subscription_set_t>, int)>();
@@ -9937,17 +9944,18 @@ class RealmLibrary {
   /// Fetch connection state for the session passed as parameter
   /// @param session ptr to the sync session to retrieve the state for
   /// @return realm_sync_connection_state_e value
-  int realm_sync_session_get_connection_state(
+  realm_sync_connection_state realm_sync_session_get_connection_state(
     ffi.Pointer<realm_sync_session_t> session,
   ) {
-    return _realm_sync_session_get_connection_state(
+    return realm_sync_connection_state
+        .fromValue(_realm_sync_session_get_connection_state(
       session,
-    );
+    ));
   }
 
   late final _realm_sync_session_get_connection_statePtr = _lookup<
           ffi.NativeFunction<
-              ffi.Int32 Function(ffi.Pointer<realm_sync_session_t>)>>(
+              ffi.UnsignedInt Function(ffi.Pointer<realm_sync_session_t>)>>(
       'realm_sync_session_get_connection_state');
   late final _realm_sync_session_get_connection_state =
       _realm_sync_session_get_connection_statePtr
@@ -10016,17 +10024,17 @@ class RealmLibrary {
   /// Fetch state for the session passed as parameter
   /// @param session ptr to the sync session to retrieve the state for
   /// @return realm_sync_session_state_e value
-  int realm_sync_session_get_state(
+  realm_sync_session_state realm_sync_session_get_state(
     ffi.Pointer<realm_sync_session_t> session,
   ) {
-    return _realm_sync_session_get_state(
+    return realm_sync_session_state.fromValue(_realm_sync_session_get_state(
       session,
-    );
+    ));
   }
 
   late final _realm_sync_session_get_statePtr = _lookup<
           ffi.NativeFunction<
-              ffi.Int32 Function(ffi.Pointer<realm_sync_session_t>)>>(
+              ffi.UnsignedInt Function(ffi.Pointer<realm_sync_session_t>)>>(
       'realm_sync_session_get_state');
   late final _realm_sync_session_get_state = _realm_sync_session_get_statePtr
       .asFunction<int Function(ffi.Pointer<realm_sync_session_t>)>();
@@ -10059,13 +10067,13 @@ class RealmLibrary {
   /// @param is_fatal boolean to signal if the error is fatal or not
   void realm_sync_session_handle_error_for_testing(
     ffi.Pointer<realm_sync_session_t> session,
-    int error_code,
+    realm_errno error_code,
     ffi.Pointer<ffi.Char> error_str,
     bool is_fatal,
   ) {
     return _realm_sync_session_handle_error_for_testing(
       session,
-      error_code,
+      error_code.value,
       error_str,
       is_fatal,
     );
@@ -10075,7 +10083,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Void Function(
               ffi.Pointer<realm_sync_session_t>,
-              ffi.Int32,
+              ffi.UnsignedInt,
               ffi.Pointer<ffi.Char>,
               ffi.Bool)>>('realm_sync_session_handle_error_for_testing');
   late final _realm_sync_session_handle_error_for_testing =
@@ -10148,7 +10156,7 @@ class RealmLibrary {
       realm_sync_session_register_progress_notifier(
     ffi.Pointer<realm_sync_session_t> arg0,
     realm_sync_progress_func_t arg1,
-    int arg2,
+    realm_sync_progress_direction arg2,
     bool is_streaming,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -10156,7 +10164,7 @@ class RealmLibrary {
     return _realm_sync_session_register_progress_notifier(
       arg0,
       arg1,
-      arg2,
+      arg2.value,
       is_streaming,
       userdata,
       userdata_free,
@@ -10168,7 +10176,7 @@ class RealmLibrary {
               ffi.Pointer<realm_sync_session_connection_state_notification_token_t> Function(
                   ffi.Pointer<realm_sync_session_t>,
                   realm_sync_progress_func_t,
-                  ffi.Int32,
+                  ffi.UnsignedInt,
                   ffi.Bool,
                   ffi.Pointer<ffi.Void>,
                   realm_free_userdata_func_t)>>(
@@ -10340,12 +10348,12 @@ class RealmLibrary {
   /// NOTE: This function must be called by the event loop execution thread.
   void realm_sync_socket_post_complete(
     ffi.Pointer<realm_sync_socket_post_callback_t> post_handler,
-    int result,
+    realm_sync_socket_callback_result result,
     ffi.Pointer<ffi.Char> reason,
   ) {
     return _realm_sync_socket_post_complete(
       post_handler,
-      result,
+      result.value,
       reason,
     );
   }
@@ -10354,7 +10362,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Void Function(
               ffi.Pointer<realm_sync_socket_post_callback_t>,
-              ffi.Int32,
+              ffi.UnsignedInt,
               ffi.Pointer<ffi.Char>)>>('realm_sync_socket_post_complete');
   late final _realm_sync_socket_post_complete =
       _realm_sync_socket_post_completePtr.asFunction<
@@ -10391,12 +10399,12 @@ class RealmLibrary {
   /// NOTE: This function must be called by the event loop execution thread.
   void realm_sync_socket_timer_complete(
     ffi.Pointer<realm_sync_socket_timer_callback_t> timer_handler,
-    int result,
+    realm_sync_socket_callback_result result,
     ffi.Pointer<ffi.Char> reason,
   ) {
     return _realm_sync_socket_timer_complete(
       timer_handler,
-      result,
+      result.value,
       reason,
     );
   }
@@ -10405,7 +10413,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Void Function(
               ffi.Pointer<realm_sync_socket_timer_callback_t>,
-              ffi.Int32,
+              ffi.UnsignedInt,
               ffi.Pointer<ffi.Char>)>>('realm_sync_socket_timer_complete');
   late final _realm_sync_socket_timer_complete =
       _realm_sync_socket_timer_completePtr.asFunction<
@@ -10428,13 +10436,13 @@ class RealmLibrary {
   bool realm_sync_socket_websocket_closed(
     ffi.Pointer<realm_websocket_observer_t> realm_websocket_observer,
     bool was_clean,
-    int code,
+    realm_web_socket_errno code,
     ffi.Pointer<ffi.Char> reason,
   ) {
     return _realm_sync_socket_websocket_closed(
       realm_websocket_observer,
       was_clean,
-      code,
+      code.value,
       reason,
     );
   }
@@ -10444,7 +10452,7 @@ class RealmLibrary {
           ffi.Bool Function(
               ffi.Pointer<realm_websocket_observer_t>,
               ffi.Bool,
-              ffi.Int32,
+              ffi.UnsignedInt,
               ffi.Pointer<ffi.Char>)>>('realm_sync_socket_websocket_closed');
   late final _realm_sync_socket_websocket_closed =
       _realm_sync_socket_websocket_closedPtr.asFunction<
@@ -10540,12 +10548,12 @@ class RealmLibrary {
   /// NOTE: This function must be called by the event loop execution thread.
   void realm_sync_socket_write_complete(
     ffi.Pointer<realm_sync_socket_write_callback_t> write_handler,
-    int result,
+    realm_sync_socket_callback_result result,
     ffi.Pointer<ffi.Char> reason,
   ) {
     return _realm_sync_socket_write_complete(
       write_handler,
-      result,
+      result.value,
       reason,
     );
   }
@@ -10554,7 +10562,7 @@ class RealmLibrary {
       ffi.NativeFunction<
           ffi.Void Function(
               ffi.Pointer<realm_sync_socket_write_callback_t>,
-              ffi.Int32,
+              ffi.UnsignedInt,
               ffi.Pointer<ffi.Char>)>>('realm_sync_socket_write_complete');
   late final _realm_sync_socket_write_complete =
       _realm_sync_socket_write_completePtr.asFunction<
@@ -10990,17 +10998,18 @@ class RealmLibrary {
 
   /// Fetch current state for the subscription set passed as parameter
   /// @return the current state of the subscription_set
-  int realm_sync_subscription_set_state(
+  realm_flx_sync_subscription_set_state realm_sync_subscription_set_state(
     ffi.Pointer<realm_flx_sync_subscription_set_t> arg0,
   ) {
-    return _realm_sync_subscription_set_state(
+    return realm_flx_sync_subscription_set_state
+        .fromValue(_realm_sync_subscription_set_state(
       arg0,
-    );
+    ));
   }
 
   late final _realm_sync_subscription_set_statePtr = _lookup<
           ffi.NativeFunction<
-              ffi.Int32 Function(
+              ffi.UnsignedInt Function(
                   ffi.Pointer<realm_flx_sync_subscription_set_t>)>>(
       'realm_sync_subscription_set_state');
   late final _realm_sync_subscription_set_state =
@@ -11329,16 +11338,17 @@ class RealmLibrary {
   /// Retrieve the state for the user passed as argument
   /// @param user ptr to the user for which the state has to be retrieved
   /// @return realm_user_state_e value
-  int realm_user_get_state(
+  realm_user_state realm_user_get_state(
     ffi.Pointer<realm_user_t> user,
   ) {
-    return _realm_user_get_state(
+    return realm_user_state.fromValue(_realm_user_get_state(
       user,
-    );
+    ));
   }
 
   late final _realm_user_get_statePtr = _lookup<
-          ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<realm_user_t>)>>(
+          ffi
+          .NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<realm_user_t>)>>(
       'realm_user_get_state');
   late final _realm_user_get_state = _realm_user_get_statePtr
       .asFunction<int Function(ffi.Pointer<realm_user_t>)>();
@@ -11488,10 +11498,10 @@ class _SymbolAddresses {
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
       get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Int32, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>>
-      get realm_dart_log => _library._realm_dart_logPtr;
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Char>)>> get realm_dart_log =>
+      _library._realm_dart_logPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
       get realm_dart_object_to_persistent_handle =>
           _library._realm_dart_object_to_persistent_handlePtr;
@@ -11571,7 +11581,7 @@ typedef realm_app_credentials_t = realm_app_credentials;
 /// Pointers to this struct and its pointer members are only valid inside the scope
 /// of the callback they were passed to.
 final class realm_app_error extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int error;
 
   @realm_error_categories()
@@ -11689,16 +11699,33 @@ typedef realm_async_open_task_progress_notification_token_t
     = realm_async_open_task_progress_notification_token;
 typedef realm_async_open_task_t = realm_async_open_task;
 
-abstract class realm_auth_provider {
-  static const int RLM_AUTH_PROVIDER_ANONYMOUS = 0;
-  static const int RLM_AUTH_PROVIDER_ANONYMOUS_NO_REUSE = 1;
-  static const int RLM_AUTH_PROVIDER_FACEBOOK = 2;
-  static const int RLM_AUTH_PROVIDER_GOOGLE = 3;
-  static const int RLM_AUTH_PROVIDER_APPLE = 4;
-  static const int RLM_AUTH_PROVIDER_CUSTOM = 5;
-  static const int RLM_AUTH_PROVIDER_EMAIL_PASSWORD = 6;
-  static const int RLM_AUTH_PROVIDER_FUNCTION = 7;
-  static const int RLM_AUTH_PROVIDER_API_KEY = 8;
+enum realm_auth_provider {
+  RLM_AUTH_PROVIDER_ANONYMOUS(0),
+  RLM_AUTH_PROVIDER_ANONYMOUS_NO_REUSE(1),
+  RLM_AUTH_PROVIDER_FACEBOOK(2),
+  RLM_AUTH_PROVIDER_GOOGLE(3),
+  RLM_AUTH_PROVIDER_APPLE(4),
+  RLM_AUTH_PROVIDER_CUSTOM(5),
+  RLM_AUTH_PROVIDER_EMAIL_PASSWORD(6),
+  RLM_AUTH_PROVIDER_FUNCTION(7),
+  RLM_AUTH_PROVIDER_API_KEY(8);
+
+  final int value;
+  const realm_auth_provider(this.value);
+
+  static realm_auth_provider fromValue(int value) => switch (value) {
+        0 => RLM_AUTH_PROVIDER_ANONYMOUS,
+        1 => RLM_AUTH_PROVIDER_ANONYMOUS_NO_REUSE,
+        2 => RLM_AUTH_PROVIDER_FACEBOOK,
+        3 => RLM_AUTH_PROVIDER_GOOGLE,
+        4 => RLM_AUTH_PROVIDER_APPLE,
+        5 => RLM_AUTH_PROVIDER_CUSTOM,
+        6 => RLM_AUTH_PROVIDER_EMAIL_PASSWORD,
+        7 => RLM_AUTH_PROVIDER_FUNCTION,
+        8 => RLM_AUTH_PROVIDER_API_KEY,
+        _ =>
+          throw ArgumentError("Unknown value for realm_auth_provider: $value"),
+      };
 }
 
 final class realm_binary extends ffi.Struct {
@@ -11714,11 +11741,22 @@ final class realm_callback_token extends ffi.Opaque {}
 
 typedef realm_callback_token_t = realm_callback_token;
 
-abstract class realm_class_flags {
-  static const int RLM_CLASS_NORMAL = 0;
-  static const int RLM_CLASS_EMBEDDED = 1;
-  static const int RLM_CLASS_ASYMMETRIC = 2;
-  static const int RLM_CLASS_MASK = 3;
+enum realm_class_flags {
+  RLM_CLASS_NORMAL(0),
+  RLM_CLASS_EMBEDDED(1),
+  RLM_CLASS_ASYMMETRIC(2),
+  RLM_CLASS_MASK(3);
+
+  final int value;
+  const realm_class_flags(this.value);
+
+  static realm_class_flags fromValue(int value) => switch (value) {
+        0 => RLM_CLASS_NORMAL,
+        1 => RLM_CLASS_EMBEDDED,
+        2 => RLM_CLASS_ASYMMETRIC,
+        3 => RLM_CLASS_MASK,
+        _ => throw ArgumentError("Unknown value for realm_class_flags: $value"),
+      };
 }
 
 final class realm_class_info extends ffi.Struct {
@@ -11759,25 +11797,53 @@ final class realm_collection_move extends ffi.Struct {
 
 typedef realm_collection_move_t = realm_collection_move;
 
-abstract class realm_collection_type {
-  static const int RLM_COLLECTION_TYPE_NONE = 0;
-  static const int RLM_COLLECTION_TYPE_LIST = 1;
-  static const int RLM_COLLECTION_TYPE_SET = 2;
-  static const int RLM_COLLECTION_TYPE_DICTIONARY = 4;
+enum realm_collection_type {
+  RLM_COLLECTION_TYPE_NONE(0),
+  RLM_COLLECTION_TYPE_LIST(1),
+  RLM_COLLECTION_TYPE_SET(2),
+  RLM_COLLECTION_TYPE_DICTIONARY(4);
+
+  final int value;
+  const realm_collection_type(this.value);
+
+  static realm_collection_type fromValue(int value) => switch (value) {
+        0 => RLM_COLLECTION_TYPE_NONE,
+        1 => RLM_COLLECTION_TYPE_LIST,
+        2 => RLM_COLLECTION_TYPE_SET,
+        4 => RLM_COLLECTION_TYPE_DICTIONARY,
+        _ => throw ArgumentError(
+            "Unknown value for realm_collection_type: $value"),
+      };
 }
 
 /// Schema types
-abstract class realm_column_attr {
+enum realm_column_attr {
   /// Values matching `realm::ColumnAttr`.
-  static const int RLM_COLUMN_ATTR_NONE = 0;
-  static const int RLM_COLUMN_ATTR_INDEXED = 1;
-  static const int RLM_COLUMN_ATTR_UNIQUE = 2;
-  static const int RLM_COLUMN_ATTR_RESERVED = 4;
-  static const int RLM_COLUMN_ATTR_STRONG_LINKS = 8;
-  static const int RLM_COLUMN_ATTR_NULLABLE = 16;
-  static const int RLM_COLUMN_ATTR_LIST = 32;
-  static const int RLM_COLUMN_ATTR_DICTIONARY = 64;
-  static const int RLM_COLUMN_ATTR_COLLECTION = 96;
+  RLM_COLUMN_ATTR_NONE(0),
+  RLM_COLUMN_ATTR_INDEXED(1),
+  RLM_COLUMN_ATTR_UNIQUE(2),
+  RLM_COLUMN_ATTR_RESERVED(4),
+  RLM_COLUMN_ATTR_STRONG_LINKS(8),
+  RLM_COLUMN_ATTR_NULLABLE(16),
+  RLM_COLUMN_ATTR_LIST(32),
+  RLM_COLUMN_ATTR_DICTIONARY(64),
+  RLM_COLUMN_ATTR_COLLECTION(96);
+
+  final int value;
+  const realm_column_attr(this.value);
+
+  static realm_column_attr fromValue(int value) => switch (value) {
+        0 => RLM_COLUMN_ATTR_NONE,
+        1 => RLM_COLUMN_ATTR_INDEXED,
+        2 => RLM_COLUMN_ATTR_UNIQUE,
+        4 => RLM_COLUMN_ATTR_RESERVED,
+        8 => RLM_COLUMN_ATTR_STRONG_LINKS,
+        16 => RLM_COLUMN_ATTR_NULLABLE,
+        32 => RLM_COLUMN_ATTR_LIST,
+        64 => RLM_COLUMN_ATTR_DICTIONARY,
+        96 => RLM_COLUMN_ATTR_COLLECTION,
+        _ => throw ArgumentError("Unknown value for realm_column_attr: $value"),
+      };
 }
 
 final class realm_config extends ffi.Opaque {}
@@ -11809,178 +11875,348 @@ final class realm_dictionary_changes extends ffi.Opaque {}
 typedef realm_dictionary_changes_t = realm_dictionary_changes;
 typedef realm_dictionary_t = realm_dictionary;
 
-abstract class realm_errno {
-  static const int RLM_ERR_NONE = 0;
-  static const int RLM_ERR_RUNTIME = 1000;
-  static const int RLM_ERR_RANGE_ERROR = 1001;
-  static const int RLM_ERR_BROKEN_INVARIANT = 1002;
-  static const int RLM_ERR_OUT_OF_MEMORY = 1003;
-  static const int RLM_ERR_OUT_OF_DISK_SPACE = 1004;
-  static const int RLM_ERR_ADDRESS_SPACE_EXHAUSTED = 1005;
-  static const int RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED = 1006;
-  static const int RLM_ERR_INCOMPATIBLE_SESSION = 1007;
-  static const int RLM_ERR_INCOMPATIBLE_LOCK_FILE = 1008;
-  static const int RLM_ERR_INVALID_QUERY = 1009;
-  static const int RLM_ERR_BAD_VERSION = 1010;
-  static const int RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION = 1011;
-  static const int RLM_ERR_MULTIPLE_SYNC_AGENTS = 1012;
-  static const int RLM_ERR_OBJECT_ALREADY_EXISTS = 1013;
-  static const int RLM_ERR_NOT_CLONABLE = 1014;
-  static const int RLM_ERR_BAD_CHANGESET = 1015;
-  static const int RLM_ERR_SUBSCRIPTION_FAILED = 1016;
-  static const int RLM_ERR_FILE_OPERATION_FAILED = 1017;
-  static const int RLM_ERR_FILE_PERMISSION_DENIED = 1018;
-  static const int RLM_ERR_FILE_NOT_FOUND = 1019;
-  static const int RLM_ERR_FILE_ALREADY_EXISTS = 1020;
-  static const int RLM_ERR_INVALID_DATABASE = 1021;
-  static const int RLM_ERR_DECRYPTION_FAILED = 1022;
-  static const int RLM_ERR_INCOMPATIBLE_HISTORIES = 1023;
-  static const int RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED = 1024;
-  static const int RLM_ERR_SCHEMA_VERSION_MISMATCH = 1025;
-  static const int RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE = 1026;
-  static const int RLM_ERR_OPERATION_ABORTED = 1027;
-  static const int RLM_ERR_AUTO_CLIENT_RESET_FAILED = 1028;
-  static const int RLM_ERR_BAD_SYNC_PARTITION_VALUE = 1029;
-  static const int RLM_ERR_CONNECTION_CLOSED = 1030;
-  static const int RLM_ERR_INVALID_SUBSCRIPTION_QUERY = 1031;
-  static const int RLM_ERR_SYNC_CLIENT_RESET_REQUIRED = 1032;
-  static const int RLM_ERR_SYNC_COMPENSATING_WRITE = 1033;
-  static const int RLM_ERR_SYNC_CONNECT_FAILED = 1034;
-  static const int RLM_ERR_SYNC_CONNECT_TIMEOUT = 1035;
-  static const int RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE = 1036;
-  static const int RLM_ERR_SYNC_PERMISSION_DENIED = 1037;
-  static const int RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED = 1038;
-  static const int RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED = 1039;
-  static const int RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED = 1040;
-  static const int RLM_ERR_SYNC_USER_MISMATCH = 1041;
-  static const int RLM_ERR_TLS_HANDSHAKE_FAILED = 1042;
-  static const int RLM_ERR_WRONG_SYNC_TYPE = 1043;
-  static const int RLM_ERR_SYNC_WRITE_NOT_ALLOWED = 1044;
-  static const int RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH = 1045;
-  static const int RLM_ERR_SYNC_SCHEMA_MIGRATION_ERROR = 1046;
-  static const int RLM_ERR_SYSTEM_ERROR = 1999;
-  static const int RLM_ERR_LOGIC = 2000;
-  static const int RLM_ERR_NOT_SUPPORTED = 2001;
-  static const int RLM_ERR_BROKEN_PROMISE = 2002;
-  static const int RLM_ERR_CROSS_TABLE_LINK_TARGET = 2003;
-  static const int RLM_ERR_KEY_ALREADY_USED = 2004;
-  static const int RLM_ERR_WRONG_TRANSACTION_STATE = 2005;
-  static const int RLM_ERR_WRONG_THREAD = 2006;
-  static const int RLM_ERR_ILLEGAL_OPERATION = 2007;
-  static const int RLM_ERR_SERIALIZATION_ERROR = 2008;
-  static const int RLM_ERR_STALE_ACCESSOR = 2009;
-  static const int RLM_ERR_INVALIDATED_OBJECT = 2010;
-  static const int RLM_ERR_READ_ONLY_DB = 2011;
-  static const int RLM_ERR_DELETE_OPENED_REALM = 2012;
-  static const int RLM_ERR_MISMATCHED_CONFIG = 2013;
-  static const int RLM_ERR_CLOSED_REALM = 2014;
-  static const int RLM_ERR_INVALID_TABLE_REF = 2015;
-  static const int RLM_ERR_SCHEMA_VALIDATION_FAILED = 2016;
-  static const int RLM_ERR_SCHEMA_MISMATCH = 2017;
-  static const int RLM_ERR_INVALID_SCHEMA_VERSION = 2018;
-  static const int RLM_ERR_INVALID_SCHEMA_CHANGE = 2019;
-  static const int RLM_ERR_MIGRATION_FAILED = 2020;
-  static const int RLM_ERR_TOP_LEVEL_OBJECT = 2021;
-  static const int RLM_ERR_INVALID_ARGUMENT = 3000;
-  static const int RLM_ERR_PROPERTY_TYPE_MISMATCH = 3001;
-  static const int RLM_ERR_PROPERTY_NOT_NULLABLE = 3002;
-  static const int RLM_ERR_READ_ONLY_PROPERTY = 3003;
-  static const int RLM_ERR_MISSING_PROPERTY_VALUE = 3004;
-  static const int RLM_ERR_MISSING_PRIMARY_KEY = 3005;
-  static const int RLM_ERR_UNEXPECTED_PRIMARY_KEY = 3006;
-  static const int RLM_ERR_MODIFY_PRIMARY_KEY = 3007;
-  static const int RLM_ERR_INVALID_QUERY_STRING = 3008;
-  static const int RLM_ERR_INVALID_PROPERTY = 3009;
-  static const int RLM_ERR_INVALID_NAME = 3010;
-  static const int RLM_ERR_INVALID_DICTIONARY_KEY = 3011;
-  static const int RLM_ERR_INVALID_DICTIONARY_VALUE = 3012;
-  static const int RLM_ERR_INVALID_SORT_DESCRIPTOR = 3013;
-  static const int RLM_ERR_INVALID_ENCRYPTION_KEY = 3014;
-  static const int RLM_ERR_INVALID_QUERY_ARG = 3015;
-  static const int RLM_ERR_NO_SUCH_OBJECT = 3016;
-  static const int RLM_ERR_INDEX_OUT_OF_BOUNDS = 3017;
-  static const int RLM_ERR_LIMIT_EXCEEDED = 3018;
-  static const int RLM_ERR_OBJECT_TYPE_MISMATCH = 3019;
-  static const int RLM_ERR_NO_SUCH_TABLE = 3020;
-  static const int RLM_ERR_TABLE_NAME_IN_USE = 3021;
-  static const int RLM_ERR_ILLEGAL_COMBINATION = 3022;
-  static const int RLM_ERR_BAD_SERVER_URL = 3023;
-  static const int RLM_ERR_CUSTOM_ERROR = 4000;
-  static const int RLM_ERR_CLIENT_USER_NOT_FOUND = 4100;
-  static const int RLM_ERR_CLIENT_USER_NOT_LOGGED_IN = 4101;
-  static const int RLM_ERR_CLIENT_REDIRECT_ERROR = 4103;
-  static const int RLM_ERR_CLIENT_TOO_MANY_REDIRECTS = 4104;
-  static const int RLM_ERR_CLIENT_USER_ALREADY_NAMED = 4105;
-  static const int RLM_ERR_BAD_TOKEN = 4200;
-  static const int RLM_ERR_MALFORMED_JSON = 4201;
-  static const int RLM_ERR_MISSING_JSON_KEY = 4202;
-  static const int RLM_ERR_BAD_BSON_PARSE = 4203;
-  static const int RLM_ERR_MISSING_AUTH_REQ = 4300;
-  static const int RLM_ERR_INVALID_SESSION = 4301;
-  static const int RLM_ERR_USER_APP_DOMAIN_MISMATCH = 4302;
-  static const int RLM_ERR_DOMAIN_NOT_ALLOWED = 4303;
-  static const int RLM_ERR_READ_SIZE_LIMIT_EXCEEDED = 4304;
-  static const int RLM_ERR_INVALID_PARAMETER = 4305;
-  static const int RLM_ERR_MISSING_PARAMETER = 4306;
-  static const int RLM_ERR_TWILIO_ERROR = 4307;
-  static const int RLM_ERR_GCM_ERROR = 4308;
-  static const int RLM_ERR_HTTP_ERROR = 4309;
-  static const int RLM_ERR_AWS_ERROR = 4310;
-  static const int RLM_ERR_MONGODB_ERROR = 4311;
-  static const int RLM_ERR_ARGUMENTS_NOT_ALLOWED = 4312;
-  static const int RLM_ERR_FUNCTION_EXECUTION_ERROR = 4313;
-  static const int RLM_ERR_NO_MATCHING_RULE_FOUND = 4314;
-  static const int RLM_ERR_INTERNAL_SERVER_ERROR = 4315;
-  static const int RLM_ERR_AUTH_PROVIDER_NOT_FOUND = 4316;
-  static const int RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS = 4317;
-  static const int RLM_ERR_SERVICE_NOT_FOUND = 4318;
-  static const int RLM_ERR_SERVICE_TYPE_NOT_FOUND = 4319;
-  static const int RLM_ERR_SERVICE_ALREADY_EXISTS = 4320;
-  static const int RLM_ERR_SERVICE_COMMAND_NOT_FOUND = 4321;
-  static const int RLM_ERR_VALUE_NOT_FOUND = 4322;
-  static const int RLM_ERR_VALUE_ALREADY_EXISTS = 4323;
-  static const int RLM_ERR_VALUE_DUPLICATE_NAME = 4324;
-  static const int RLM_ERR_FUNCTION_NOT_FOUND = 4325;
-  static const int RLM_ERR_FUNCTION_ALREADY_EXISTS = 4326;
-  static const int RLM_ERR_FUNCTION_DUPLICATE_NAME = 4327;
-  static const int RLM_ERR_FUNCTION_SYNTAX_ERROR = 4328;
-  static const int RLM_ERR_FUNCTION_INVALID = 4329;
-  static const int RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND = 4330;
-  static const int RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS = 4331;
-  static const int RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME = 4332;
-  static const int RLM_ERR_RULE_NOT_FOUND = 4333;
-  static const int RLM_ERR_API_KEY_NOT_FOUND = 4334;
-  static const int RLM_ERR_RULE_ALREADY_EXISTS = 4335;
-  static const int RLM_ERR_RULE_DUPLICATE_NAME = 4336;
-  static const int RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME = 4337;
-  static const int RLM_ERR_RESTRICTED_HOST = 4338;
-  static const int RLM_ERR_API_KEY_ALREADY_EXISTS = 4339;
-  static const int RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED = 4340;
-  static const int RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED = 4341;
-  static const int RLM_ERR_NOT_CALLABLE = 4342;
-  static const int RLM_ERR_USER_ALREADY_CONFIRMED = 4343;
-  static const int RLM_ERR_USER_NOT_FOUND = 4344;
-  static const int RLM_ERR_USER_DISABLED = 4345;
-  static const int RLM_ERR_AUTH_ERROR = 4346;
-  static const int RLM_ERR_BAD_REQUEST = 4347;
-  static const int RLM_ERR_ACCOUNT_NAME_IN_USE = 4348;
-  static const int RLM_ERR_INVALID_PASSWORD = 4349;
-  static const int RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE = 4350;
-  static const int RLM_ERR_APP_UNKNOWN = 4351;
-  static const int RLM_ERR_MAINTENANCE_IN_PROGRESS = 4352;
-  static const int RLM_ERR_USERPASS_TOKEN_INVALID = 4353;
-  static const int RLM_ERR_INVALID_SERVER_RESPONSE = 4354;
-  static const int RLM_ERR_APP_SERVER_ERROR = 4355;
+enum realm_errno {
+  RLM_ERR_NONE(0),
+  RLM_ERR_RUNTIME(1000),
+  RLM_ERR_RANGE_ERROR(1001),
+  RLM_ERR_BROKEN_INVARIANT(1002),
+  RLM_ERR_OUT_OF_MEMORY(1003),
+  RLM_ERR_OUT_OF_DISK_SPACE(1004),
+  RLM_ERR_ADDRESS_SPACE_EXHAUSTED(1005),
+  RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED(1006),
+  RLM_ERR_INCOMPATIBLE_SESSION(1007),
+  RLM_ERR_INCOMPATIBLE_LOCK_FILE(1008),
+  RLM_ERR_INVALID_QUERY(1009),
+  RLM_ERR_BAD_VERSION(1010),
+  RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION(1011),
+  RLM_ERR_MULTIPLE_SYNC_AGENTS(1012),
+  RLM_ERR_OBJECT_ALREADY_EXISTS(1013),
+  RLM_ERR_NOT_CLONABLE(1014),
+  RLM_ERR_BAD_CHANGESET(1015),
+  RLM_ERR_SUBSCRIPTION_FAILED(1016),
+  RLM_ERR_FILE_OPERATION_FAILED(1017),
+  RLM_ERR_FILE_PERMISSION_DENIED(1018),
+  RLM_ERR_FILE_NOT_FOUND(1019),
+  RLM_ERR_FILE_ALREADY_EXISTS(1020),
+  RLM_ERR_INVALID_DATABASE(1021),
+  RLM_ERR_DECRYPTION_FAILED(1022),
+  RLM_ERR_INCOMPATIBLE_HISTORIES(1023),
+  RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED(1024),
+  RLM_ERR_SCHEMA_VERSION_MISMATCH(1025),
+  RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE(1026),
+  RLM_ERR_OPERATION_ABORTED(1027),
+  RLM_ERR_AUTO_CLIENT_RESET_FAILED(1028),
+  RLM_ERR_BAD_SYNC_PARTITION_VALUE(1029),
+  RLM_ERR_CONNECTION_CLOSED(1030),
+  RLM_ERR_INVALID_SUBSCRIPTION_QUERY(1031),
+  RLM_ERR_SYNC_CLIENT_RESET_REQUIRED(1032),
+  RLM_ERR_SYNC_COMPENSATING_WRITE(1033),
+  RLM_ERR_SYNC_CONNECT_FAILED(1034),
+  RLM_ERR_SYNC_CONNECT_TIMEOUT(1035),
+  RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE(1036),
+  RLM_ERR_SYNC_PERMISSION_DENIED(1037),
+  RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED(1038),
+  RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED(1039),
+  RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED(1040),
+  RLM_ERR_SYNC_USER_MISMATCH(1041),
+  RLM_ERR_TLS_HANDSHAKE_FAILED(1042),
+  RLM_ERR_WRONG_SYNC_TYPE(1043),
+  RLM_ERR_SYNC_WRITE_NOT_ALLOWED(1044),
+  RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH(1045),
+  RLM_ERR_SYNC_SCHEMA_MIGRATION_ERROR(1046),
+  RLM_ERR_SYSTEM_ERROR(1999),
+  RLM_ERR_LOGIC(2000),
+  RLM_ERR_NOT_SUPPORTED(2001),
+  RLM_ERR_BROKEN_PROMISE(2002),
+  RLM_ERR_CROSS_TABLE_LINK_TARGET(2003),
+  RLM_ERR_KEY_ALREADY_USED(2004),
+  RLM_ERR_WRONG_TRANSACTION_STATE(2005),
+  RLM_ERR_WRONG_THREAD(2006),
+  RLM_ERR_ILLEGAL_OPERATION(2007),
+  RLM_ERR_SERIALIZATION_ERROR(2008),
+  RLM_ERR_STALE_ACCESSOR(2009),
+  RLM_ERR_INVALIDATED_OBJECT(2010),
+  RLM_ERR_READ_ONLY_DB(2011),
+  RLM_ERR_DELETE_OPENED_REALM(2012),
+  RLM_ERR_MISMATCHED_CONFIG(2013),
+  RLM_ERR_CLOSED_REALM(2014),
+  RLM_ERR_INVALID_TABLE_REF(2015),
+  RLM_ERR_SCHEMA_VALIDATION_FAILED(2016),
+  RLM_ERR_SCHEMA_MISMATCH(2017),
+  RLM_ERR_INVALID_SCHEMA_VERSION(2018),
+  RLM_ERR_INVALID_SCHEMA_CHANGE(2019),
+  RLM_ERR_MIGRATION_FAILED(2020),
+  RLM_ERR_TOP_LEVEL_OBJECT(2021),
+  RLM_ERR_INVALID_ARGUMENT(3000),
+  RLM_ERR_PROPERTY_TYPE_MISMATCH(3001),
+  RLM_ERR_PROPERTY_NOT_NULLABLE(3002),
+  RLM_ERR_READ_ONLY_PROPERTY(3003),
+  RLM_ERR_MISSING_PROPERTY_VALUE(3004),
+  RLM_ERR_MISSING_PRIMARY_KEY(3005),
+  RLM_ERR_UNEXPECTED_PRIMARY_KEY(3006),
+  RLM_ERR_MODIFY_PRIMARY_KEY(3007),
+  RLM_ERR_INVALID_QUERY_STRING(3008),
+  RLM_ERR_INVALID_PROPERTY(3009),
+  RLM_ERR_INVALID_NAME(3010),
+  RLM_ERR_INVALID_DICTIONARY_KEY(3011),
+  RLM_ERR_INVALID_DICTIONARY_VALUE(3012),
+  RLM_ERR_INVALID_SORT_DESCRIPTOR(3013),
+  RLM_ERR_INVALID_ENCRYPTION_KEY(3014),
+  RLM_ERR_INVALID_QUERY_ARG(3015),
+  RLM_ERR_NO_SUCH_OBJECT(3016),
+  RLM_ERR_INDEX_OUT_OF_BOUNDS(3017),
+  RLM_ERR_LIMIT_EXCEEDED(3018),
+  RLM_ERR_OBJECT_TYPE_MISMATCH(3019),
+  RLM_ERR_NO_SUCH_TABLE(3020),
+  RLM_ERR_TABLE_NAME_IN_USE(3021),
+  RLM_ERR_ILLEGAL_COMBINATION(3022),
+  RLM_ERR_BAD_SERVER_URL(3023),
+  RLM_ERR_CUSTOM_ERROR(4000),
+  RLM_ERR_CLIENT_USER_NOT_FOUND(4100),
+  RLM_ERR_CLIENT_USER_NOT_LOGGED_IN(4101),
+  RLM_ERR_CLIENT_REDIRECT_ERROR(4103),
+  RLM_ERR_CLIENT_TOO_MANY_REDIRECTS(4104),
+  RLM_ERR_CLIENT_USER_ALREADY_NAMED(4105),
+  RLM_ERR_BAD_TOKEN(4200),
+  RLM_ERR_MALFORMED_JSON(4201),
+  RLM_ERR_MISSING_JSON_KEY(4202),
+  RLM_ERR_BAD_BSON_PARSE(4203),
+  RLM_ERR_MISSING_AUTH_REQ(4300),
+  RLM_ERR_INVALID_SESSION(4301),
+  RLM_ERR_USER_APP_DOMAIN_MISMATCH(4302),
+  RLM_ERR_DOMAIN_NOT_ALLOWED(4303),
+  RLM_ERR_READ_SIZE_LIMIT_EXCEEDED(4304),
+  RLM_ERR_INVALID_PARAMETER(4305),
+  RLM_ERR_MISSING_PARAMETER(4306),
+  RLM_ERR_TWILIO_ERROR(4307),
+  RLM_ERR_GCM_ERROR(4308),
+  RLM_ERR_HTTP_ERROR(4309),
+  RLM_ERR_AWS_ERROR(4310),
+  RLM_ERR_MONGODB_ERROR(4311),
+  RLM_ERR_ARGUMENTS_NOT_ALLOWED(4312),
+  RLM_ERR_FUNCTION_EXECUTION_ERROR(4313),
+  RLM_ERR_NO_MATCHING_RULE_FOUND(4314),
+  RLM_ERR_INTERNAL_SERVER_ERROR(4315),
+  RLM_ERR_AUTH_PROVIDER_NOT_FOUND(4316),
+  RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS(4317),
+  RLM_ERR_SERVICE_NOT_FOUND(4318),
+  RLM_ERR_SERVICE_TYPE_NOT_FOUND(4319),
+  RLM_ERR_SERVICE_ALREADY_EXISTS(4320),
+  RLM_ERR_SERVICE_COMMAND_NOT_FOUND(4321),
+  RLM_ERR_VALUE_NOT_FOUND(4322),
+  RLM_ERR_VALUE_ALREADY_EXISTS(4323),
+  RLM_ERR_VALUE_DUPLICATE_NAME(4324),
+  RLM_ERR_FUNCTION_NOT_FOUND(4325),
+  RLM_ERR_FUNCTION_ALREADY_EXISTS(4326),
+  RLM_ERR_FUNCTION_DUPLICATE_NAME(4327),
+  RLM_ERR_FUNCTION_SYNTAX_ERROR(4328),
+  RLM_ERR_FUNCTION_INVALID(4329),
+  RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND(4330),
+  RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS(4331),
+  RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME(4332),
+  RLM_ERR_RULE_NOT_FOUND(4333),
+  RLM_ERR_API_KEY_NOT_FOUND(4334),
+  RLM_ERR_RULE_ALREADY_EXISTS(4335),
+  RLM_ERR_RULE_DUPLICATE_NAME(4336),
+  RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME(4337),
+  RLM_ERR_RESTRICTED_HOST(4338),
+  RLM_ERR_API_KEY_ALREADY_EXISTS(4339),
+  RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED(4340),
+  RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED(4341),
+  RLM_ERR_NOT_CALLABLE(4342),
+  RLM_ERR_USER_ALREADY_CONFIRMED(4343),
+  RLM_ERR_USER_NOT_FOUND(4344),
+  RLM_ERR_USER_DISABLED(4345),
+  RLM_ERR_AUTH_ERROR(4346),
+  RLM_ERR_BAD_REQUEST(4347),
+  RLM_ERR_ACCOUNT_NAME_IN_USE(4348),
+  RLM_ERR_INVALID_PASSWORD(4349),
+  RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE(4350),
+  RLM_ERR_APP_UNKNOWN(4351),
+  RLM_ERR_MAINTENANCE_IN_PROGRESS(4352),
+  RLM_ERR_USERPASS_TOKEN_INVALID(4353),
+  RLM_ERR_INVALID_SERVER_RESPONSE(4354),
+  RLM_ERR_APP_SERVER_ERROR(4355),
 
   /// < A user-provided callback failed.
-  static const int RLM_ERR_CALLBACK = 1000000;
+  RLM_ERR_CALLBACK(1000000),
 
   /// Should not be used in code
-  static const int RLM_ERR_UNKNOWN = 2000000;
+  RLM_ERR_UNKNOWN(2000000);
+
+  final int value;
+  const realm_errno(this.value);
+
+  static realm_errno fromValue(int value) => switch (value) {
+        0 => RLM_ERR_NONE,
+        1000 => RLM_ERR_RUNTIME,
+        1001 => RLM_ERR_RANGE_ERROR,
+        1002 => RLM_ERR_BROKEN_INVARIANT,
+        1003 => RLM_ERR_OUT_OF_MEMORY,
+        1004 => RLM_ERR_OUT_OF_DISK_SPACE,
+        1005 => RLM_ERR_ADDRESS_SPACE_EXHAUSTED,
+        1006 => RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED,
+        1007 => RLM_ERR_INCOMPATIBLE_SESSION,
+        1008 => RLM_ERR_INCOMPATIBLE_LOCK_FILE,
+        1009 => RLM_ERR_INVALID_QUERY,
+        1010 => RLM_ERR_BAD_VERSION,
+        1011 => RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION,
+        1012 => RLM_ERR_MULTIPLE_SYNC_AGENTS,
+        1013 => RLM_ERR_OBJECT_ALREADY_EXISTS,
+        1014 => RLM_ERR_NOT_CLONABLE,
+        1015 => RLM_ERR_BAD_CHANGESET,
+        1016 => RLM_ERR_SUBSCRIPTION_FAILED,
+        1017 => RLM_ERR_FILE_OPERATION_FAILED,
+        1018 => RLM_ERR_FILE_PERMISSION_DENIED,
+        1019 => RLM_ERR_FILE_NOT_FOUND,
+        1020 => RLM_ERR_FILE_ALREADY_EXISTS,
+        1021 => RLM_ERR_INVALID_DATABASE,
+        1022 => RLM_ERR_DECRYPTION_FAILED,
+        1023 => RLM_ERR_INCOMPATIBLE_HISTORIES,
+        1024 => RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED,
+        1025 => RLM_ERR_SCHEMA_VERSION_MISMATCH,
+        1026 => RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE,
+        1027 => RLM_ERR_OPERATION_ABORTED,
+        1028 => RLM_ERR_AUTO_CLIENT_RESET_FAILED,
+        1029 => RLM_ERR_BAD_SYNC_PARTITION_VALUE,
+        1030 => RLM_ERR_CONNECTION_CLOSED,
+        1031 => RLM_ERR_INVALID_SUBSCRIPTION_QUERY,
+        1032 => RLM_ERR_SYNC_CLIENT_RESET_REQUIRED,
+        1033 => RLM_ERR_SYNC_COMPENSATING_WRITE,
+        1034 => RLM_ERR_SYNC_CONNECT_FAILED,
+        1035 => RLM_ERR_SYNC_CONNECT_TIMEOUT,
+        1036 => RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE,
+        1037 => RLM_ERR_SYNC_PERMISSION_DENIED,
+        1038 => RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED,
+        1039 => RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED,
+        1040 => RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED,
+        1041 => RLM_ERR_SYNC_USER_MISMATCH,
+        1042 => RLM_ERR_TLS_HANDSHAKE_FAILED,
+        1043 => RLM_ERR_WRONG_SYNC_TYPE,
+        1044 => RLM_ERR_SYNC_WRITE_NOT_ALLOWED,
+        1045 => RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH,
+        1046 => RLM_ERR_SYNC_SCHEMA_MIGRATION_ERROR,
+        1999 => RLM_ERR_SYSTEM_ERROR,
+        2000 => RLM_ERR_LOGIC,
+        2001 => RLM_ERR_NOT_SUPPORTED,
+        2002 => RLM_ERR_BROKEN_PROMISE,
+        2003 => RLM_ERR_CROSS_TABLE_LINK_TARGET,
+        2004 => RLM_ERR_KEY_ALREADY_USED,
+        2005 => RLM_ERR_WRONG_TRANSACTION_STATE,
+        2006 => RLM_ERR_WRONG_THREAD,
+        2007 => RLM_ERR_ILLEGAL_OPERATION,
+        2008 => RLM_ERR_SERIALIZATION_ERROR,
+        2009 => RLM_ERR_STALE_ACCESSOR,
+        2010 => RLM_ERR_INVALIDATED_OBJECT,
+        2011 => RLM_ERR_READ_ONLY_DB,
+        2012 => RLM_ERR_DELETE_OPENED_REALM,
+        2013 => RLM_ERR_MISMATCHED_CONFIG,
+        2014 => RLM_ERR_CLOSED_REALM,
+        2015 => RLM_ERR_INVALID_TABLE_REF,
+        2016 => RLM_ERR_SCHEMA_VALIDATION_FAILED,
+        2017 => RLM_ERR_SCHEMA_MISMATCH,
+        2018 => RLM_ERR_INVALID_SCHEMA_VERSION,
+        2019 => RLM_ERR_INVALID_SCHEMA_CHANGE,
+        2020 => RLM_ERR_MIGRATION_FAILED,
+        2021 => RLM_ERR_TOP_LEVEL_OBJECT,
+        3000 => RLM_ERR_INVALID_ARGUMENT,
+        3001 => RLM_ERR_PROPERTY_TYPE_MISMATCH,
+        3002 => RLM_ERR_PROPERTY_NOT_NULLABLE,
+        3003 => RLM_ERR_READ_ONLY_PROPERTY,
+        3004 => RLM_ERR_MISSING_PROPERTY_VALUE,
+        3005 => RLM_ERR_MISSING_PRIMARY_KEY,
+        3006 => RLM_ERR_UNEXPECTED_PRIMARY_KEY,
+        3007 => RLM_ERR_MODIFY_PRIMARY_KEY,
+        3008 => RLM_ERR_INVALID_QUERY_STRING,
+        3009 => RLM_ERR_INVALID_PROPERTY,
+        3010 => RLM_ERR_INVALID_NAME,
+        3011 => RLM_ERR_INVALID_DICTIONARY_KEY,
+        3012 => RLM_ERR_INVALID_DICTIONARY_VALUE,
+        3013 => RLM_ERR_INVALID_SORT_DESCRIPTOR,
+        3014 => RLM_ERR_INVALID_ENCRYPTION_KEY,
+        3015 => RLM_ERR_INVALID_QUERY_ARG,
+        3016 => RLM_ERR_NO_SUCH_OBJECT,
+        3017 => RLM_ERR_INDEX_OUT_OF_BOUNDS,
+        3018 => RLM_ERR_LIMIT_EXCEEDED,
+        3019 => RLM_ERR_OBJECT_TYPE_MISMATCH,
+        3020 => RLM_ERR_NO_SUCH_TABLE,
+        3021 => RLM_ERR_TABLE_NAME_IN_USE,
+        3022 => RLM_ERR_ILLEGAL_COMBINATION,
+        3023 => RLM_ERR_BAD_SERVER_URL,
+        4000 => RLM_ERR_CUSTOM_ERROR,
+        4100 => RLM_ERR_CLIENT_USER_NOT_FOUND,
+        4101 => RLM_ERR_CLIENT_USER_NOT_LOGGED_IN,
+        4103 => RLM_ERR_CLIENT_REDIRECT_ERROR,
+        4104 => RLM_ERR_CLIENT_TOO_MANY_REDIRECTS,
+        4105 => RLM_ERR_CLIENT_USER_ALREADY_NAMED,
+        4200 => RLM_ERR_BAD_TOKEN,
+        4201 => RLM_ERR_MALFORMED_JSON,
+        4202 => RLM_ERR_MISSING_JSON_KEY,
+        4203 => RLM_ERR_BAD_BSON_PARSE,
+        4300 => RLM_ERR_MISSING_AUTH_REQ,
+        4301 => RLM_ERR_INVALID_SESSION,
+        4302 => RLM_ERR_USER_APP_DOMAIN_MISMATCH,
+        4303 => RLM_ERR_DOMAIN_NOT_ALLOWED,
+        4304 => RLM_ERR_READ_SIZE_LIMIT_EXCEEDED,
+        4305 => RLM_ERR_INVALID_PARAMETER,
+        4306 => RLM_ERR_MISSING_PARAMETER,
+        4307 => RLM_ERR_TWILIO_ERROR,
+        4308 => RLM_ERR_GCM_ERROR,
+        4309 => RLM_ERR_HTTP_ERROR,
+        4310 => RLM_ERR_AWS_ERROR,
+        4311 => RLM_ERR_MONGODB_ERROR,
+        4312 => RLM_ERR_ARGUMENTS_NOT_ALLOWED,
+        4313 => RLM_ERR_FUNCTION_EXECUTION_ERROR,
+        4314 => RLM_ERR_NO_MATCHING_RULE_FOUND,
+        4315 => RLM_ERR_INTERNAL_SERVER_ERROR,
+        4316 => RLM_ERR_AUTH_PROVIDER_NOT_FOUND,
+        4317 => RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS,
+        4318 => RLM_ERR_SERVICE_NOT_FOUND,
+        4319 => RLM_ERR_SERVICE_TYPE_NOT_FOUND,
+        4320 => RLM_ERR_SERVICE_ALREADY_EXISTS,
+        4321 => RLM_ERR_SERVICE_COMMAND_NOT_FOUND,
+        4322 => RLM_ERR_VALUE_NOT_FOUND,
+        4323 => RLM_ERR_VALUE_ALREADY_EXISTS,
+        4324 => RLM_ERR_VALUE_DUPLICATE_NAME,
+        4325 => RLM_ERR_FUNCTION_NOT_FOUND,
+        4326 => RLM_ERR_FUNCTION_ALREADY_EXISTS,
+        4327 => RLM_ERR_FUNCTION_DUPLICATE_NAME,
+        4328 => RLM_ERR_FUNCTION_SYNTAX_ERROR,
+        4329 => RLM_ERR_FUNCTION_INVALID,
+        4330 => RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND,
+        4331 => RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS,
+        4332 => RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME,
+        4333 => RLM_ERR_RULE_NOT_FOUND,
+        4334 => RLM_ERR_API_KEY_NOT_FOUND,
+        4335 => RLM_ERR_RULE_ALREADY_EXISTS,
+        4336 => RLM_ERR_RULE_DUPLICATE_NAME,
+        4337 => RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME,
+        4338 => RLM_ERR_RESTRICTED_HOST,
+        4339 => RLM_ERR_API_KEY_ALREADY_EXISTS,
+        4340 => RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED,
+        4341 => RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED,
+        4342 => RLM_ERR_NOT_CALLABLE,
+        4343 => RLM_ERR_USER_ALREADY_CONFIRMED,
+        4344 => RLM_ERR_USER_NOT_FOUND,
+        4345 => RLM_ERR_USER_DISABLED,
+        4346 => RLM_ERR_AUTH_ERROR,
+        4347 => RLM_ERR_BAD_REQUEST,
+        4348 => RLM_ERR_ACCOUNT_NAME_IN_USE,
+        4349 => RLM_ERR_INVALID_PASSWORD,
+        4350 => RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE,
+        4351 => RLM_ERR_APP_UNKNOWN,
+        4352 => RLM_ERR_MAINTENANCE_IN_PROGRESS,
+        4353 => RLM_ERR_USERPASS_TOKEN_INVALID,
+        4354 => RLM_ERR_INVALID_SERVER_RESPONSE,
+        4355 => RLM_ERR_APP_SERVER_ERROR,
+        1000000 => RLM_ERR_CALLBACK,
+        2000000 => RLM_ERR_UNKNOWN,
+        _ => throw ArgumentError("Unknown value for realm_errno: $value"),
+      };
 }
 
 final class realm_error extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int error;
 
   @realm_error_categories()
@@ -12010,14 +12246,30 @@ final class realm_flx_sync_subscription_desc extends ffi.Opaque {}
 
 final class realm_flx_sync_subscription_set extends ffi.Opaque {}
 
-abstract class realm_flx_sync_subscription_set_state {
-  static const int RLM_SYNC_SUBSCRIPTION_UNCOMMITTED = 0;
-  static const int RLM_SYNC_SUBSCRIPTION_PENDING = 1;
-  static const int RLM_SYNC_SUBSCRIPTION_BOOTSTRAPPING = 2;
-  static const int RLM_SYNC_SUBSCRIPTION_COMPLETE = 3;
-  static const int RLM_SYNC_SUBSCRIPTION_ERROR = 4;
-  static const int RLM_SYNC_SUBSCRIPTION_SUPERSEDED = 5;
-  static const int RLM_SYNC_SUBSCRIPTION_AWAITING_MARK = 6;
+enum realm_flx_sync_subscription_set_state {
+  RLM_SYNC_SUBSCRIPTION_UNCOMMITTED(0),
+  RLM_SYNC_SUBSCRIPTION_PENDING(1),
+  RLM_SYNC_SUBSCRIPTION_BOOTSTRAPPING(2),
+  RLM_SYNC_SUBSCRIPTION_COMPLETE(3),
+  RLM_SYNC_SUBSCRIPTION_ERROR(4),
+  RLM_SYNC_SUBSCRIPTION_SUPERSEDED(5),
+  RLM_SYNC_SUBSCRIPTION_AWAITING_MARK(6);
+
+  final int value;
+  const realm_flx_sync_subscription_set_state(this.value);
+
+  static realm_flx_sync_subscription_set_state fromValue(int value) =>
+      switch (value) {
+        0 => RLM_SYNC_SUBSCRIPTION_UNCOMMITTED,
+        1 => RLM_SYNC_SUBSCRIPTION_PENDING,
+        2 => RLM_SYNC_SUBSCRIPTION_BOOTSTRAPPING,
+        3 => RLM_SYNC_SUBSCRIPTION_COMPLETE,
+        4 => RLM_SYNC_SUBSCRIPTION_ERROR,
+        5 => RLM_SYNC_SUBSCRIPTION_SUPERSEDED,
+        6 => RLM_SYNC_SUBSCRIPTION_AWAITING_MARK,
+        _ => throw ArgumentError(
+            "Unknown value for realm_flx_sync_subscription_set_state: $value"),
+      };
 }
 
 typedef realm_flx_sync_subscription_set_t = realm_flx_sync_subscription_set;
@@ -12038,7 +12290,7 @@ final class realm_http_header extends ffi.Struct {
 typedef realm_http_header_t = realm_http_header;
 
 final class realm_http_request extends ffi.Struct {
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int method;
 
   external ffi.Pointer<ffi.Char> url;
@@ -12077,12 +12329,25 @@ typedef Dartrealm_http_request_func_tFunction = void Function(
     ffi.Pointer<ffi.Void> request_context);
 
 /// HTTP transport
-abstract class realm_http_request_method {
-  static const int RLM_HTTP_REQUEST_METHOD_GET = 0;
-  static const int RLM_HTTP_REQUEST_METHOD_POST = 1;
-  static const int RLM_HTTP_REQUEST_METHOD_PATCH = 2;
-  static const int RLM_HTTP_REQUEST_METHOD_PUT = 3;
-  static const int RLM_HTTP_REQUEST_METHOD_DELETE = 4;
+enum realm_http_request_method {
+  RLM_HTTP_REQUEST_METHOD_GET(0),
+  RLM_HTTP_REQUEST_METHOD_POST(1),
+  RLM_HTTP_REQUEST_METHOD_PATCH(2),
+  RLM_HTTP_REQUEST_METHOD_PUT(3),
+  RLM_HTTP_REQUEST_METHOD_DELETE(4);
+
+  final int value;
+  const realm_http_request_method(this.value);
+
+  static realm_http_request_method fromValue(int value) => switch (value) {
+        0 => RLM_HTTP_REQUEST_METHOD_GET,
+        1 => RLM_HTTP_REQUEST_METHOD_POST,
+        2 => RLM_HTTP_REQUEST_METHOD_PATCH,
+        3 => RLM_HTTP_REQUEST_METHOD_PUT,
+        4 => RLM_HTTP_REQUEST_METHOD_DELETE,
+        _ => throw ArgumentError(
+            "Unknown value for realm_http_request_method: $value"),
+      };
 }
 
 typedef realm_http_request_t = realm_http_request;
@@ -12143,26 +12408,42 @@ typedef realm_log_func_t
 typedef realm_log_func_tFunction = ffi.Void Function(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<ffi.Char> category,
-    ffi.Int32 level,
+    ffi.UnsignedInt level,
     ffi.Pointer<ffi.Char> message);
 typedef Dartrealm_log_func_tFunction = void Function(
     ffi.Pointer<ffi.Void> userdata,
     ffi.Pointer<ffi.Char> category,
-    int level,
+    realm_log_level level,
     ffi.Pointer<ffi.Char> message);
 
 /// Logging */
 /// // equivalent to realm::util::Logger::Level in util/logger.hpp and must be kept in sync.
-abstract class realm_log_level {
-  static const int RLM_LOG_LEVEL_ALL = 0;
-  static const int RLM_LOG_LEVEL_TRACE = 1;
-  static const int RLM_LOG_LEVEL_DEBUG = 2;
-  static const int RLM_LOG_LEVEL_DETAIL = 3;
-  static const int RLM_LOG_LEVEL_INFO = 4;
-  static const int RLM_LOG_LEVEL_WARNING = 5;
-  static const int RLM_LOG_LEVEL_ERROR = 6;
-  static const int RLM_LOG_LEVEL_FATAL = 7;
-  static const int RLM_LOG_LEVEL_OFF = 8;
+enum realm_log_level {
+  RLM_LOG_LEVEL_ALL(0),
+  RLM_LOG_LEVEL_TRACE(1),
+  RLM_LOG_LEVEL_DEBUG(2),
+  RLM_LOG_LEVEL_DETAIL(3),
+  RLM_LOG_LEVEL_INFO(4),
+  RLM_LOG_LEVEL_WARNING(5),
+  RLM_LOG_LEVEL_ERROR(6),
+  RLM_LOG_LEVEL_FATAL(7),
+  RLM_LOG_LEVEL_OFF(8);
+
+  final int value;
+  const realm_log_level(this.value);
+
+  static realm_log_level fromValue(int value) => switch (value) {
+        0 => RLM_LOG_LEVEL_ALL,
+        1 => RLM_LOG_LEVEL_TRACE,
+        2 => RLM_LOG_LEVEL_DEBUG,
+        3 => RLM_LOG_LEVEL_DETAIL,
+        4 => RLM_LOG_LEVEL_INFO,
+        5 => RLM_LOG_LEVEL_WARNING,
+        6 => RLM_LOG_LEVEL_ERROR,
+        7 => RLM_LOG_LEVEL_FATAL,
+        8 => RLM_LOG_LEVEL_OFF,
+        _ => throw ArgumentError("Unknown value for realm_log_level: $value"),
+      };
 }
 
 typedef realm_migration_func_t
@@ -12294,12 +12575,25 @@ typedef realm_on_schema_change_func_tFunction = ffi.Void Function(
 typedef Dartrealm_on_schema_change_func_tFunction = void Function(
     ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_schema_t> new_schema);
 
-abstract class realm_property_flags {
-  static const int RLM_PROPERTY_NORMAL = 0;
-  static const int RLM_PROPERTY_NULLABLE = 1;
-  static const int RLM_PROPERTY_PRIMARY_KEY = 2;
-  static const int RLM_PROPERTY_INDEXED = 4;
-  static const int RLM_PROPERTY_FULLTEXT_INDEXED = 8;
+enum realm_property_flags {
+  RLM_PROPERTY_NORMAL(0),
+  RLM_PROPERTY_NULLABLE(1),
+  RLM_PROPERTY_PRIMARY_KEY(2),
+  RLM_PROPERTY_INDEXED(4),
+  RLM_PROPERTY_FULLTEXT_INDEXED(8);
+
+  final int value;
+  const realm_property_flags(this.value);
+
+  static realm_property_flags fromValue(int value) => switch (value) {
+        0 => RLM_PROPERTY_NORMAL,
+        1 => RLM_PROPERTY_NULLABLE,
+        2 => RLM_PROPERTY_PRIMARY_KEY,
+        4 => RLM_PROPERTY_INDEXED,
+        8 => RLM_PROPERTY_FULLTEXT_INDEXED,
+        _ =>
+          throw ArgumentError("Unknown value for realm_property_flags: $value"),
+      };
 }
 
 final class realm_property_info extends ffi.Struct {
@@ -12307,10 +12601,10 @@ final class realm_property_info extends ffi.Struct {
 
   external ffi.Pointer<ffi.Char> public_name;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int type;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int collection_type;
 
   external ffi.Pointer<ffi.Char> link_target;
@@ -12328,21 +12622,42 @@ typedef realm_property_info_t = realm_property_info;
 typedef realm_property_key_t = ffi.Int64;
 typedef Dartrealm_property_key_t = int;
 
-abstract class realm_property_type {
+enum realm_property_type {
   /// Values matching `realm::ColumnType`.
-  static const int RLM_PROPERTY_TYPE_INT = 0;
-  static const int RLM_PROPERTY_TYPE_BOOL = 1;
-  static const int RLM_PROPERTY_TYPE_STRING = 2;
-  static const int RLM_PROPERTY_TYPE_BINARY = 4;
-  static const int RLM_PROPERTY_TYPE_MIXED = 6;
-  static const int RLM_PROPERTY_TYPE_TIMESTAMP = 8;
-  static const int RLM_PROPERTY_TYPE_FLOAT = 9;
-  static const int RLM_PROPERTY_TYPE_DOUBLE = 10;
-  static const int RLM_PROPERTY_TYPE_DECIMAL128 = 11;
-  static const int RLM_PROPERTY_TYPE_OBJECT = 12;
-  static const int RLM_PROPERTY_TYPE_LINKING_OBJECTS = 14;
-  static const int RLM_PROPERTY_TYPE_OBJECT_ID = 15;
-  static const int RLM_PROPERTY_TYPE_UUID = 17;
+  RLM_PROPERTY_TYPE_INT(0),
+  RLM_PROPERTY_TYPE_BOOL(1),
+  RLM_PROPERTY_TYPE_STRING(2),
+  RLM_PROPERTY_TYPE_BINARY(4),
+  RLM_PROPERTY_TYPE_MIXED(6),
+  RLM_PROPERTY_TYPE_TIMESTAMP(8),
+  RLM_PROPERTY_TYPE_FLOAT(9),
+  RLM_PROPERTY_TYPE_DOUBLE(10),
+  RLM_PROPERTY_TYPE_DECIMAL128(11),
+  RLM_PROPERTY_TYPE_OBJECT(12),
+  RLM_PROPERTY_TYPE_LINKING_OBJECTS(14),
+  RLM_PROPERTY_TYPE_OBJECT_ID(15),
+  RLM_PROPERTY_TYPE_UUID(17);
+
+  final int value;
+  const realm_property_type(this.value);
+
+  static realm_property_type fromValue(int value) => switch (value) {
+        0 => RLM_PROPERTY_TYPE_INT,
+        1 => RLM_PROPERTY_TYPE_BOOL,
+        2 => RLM_PROPERTY_TYPE_STRING,
+        4 => RLM_PROPERTY_TYPE_BINARY,
+        6 => RLM_PROPERTY_TYPE_MIXED,
+        8 => RLM_PROPERTY_TYPE_TIMESTAMP,
+        9 => RLM_PROPERTY_TYPE_FLOAT,
+        10 => RLM_PROPERTY_TYPE_DOUBLE,
+        11 => RLM_PROPERTY_TYPE_DECIMAL128,
+        12 => RLM_PROPERTY_TYPE_OBJECT,
+        14 => RLM_PROPERTY_TYPE_LINKING_OBJECTS,
+        15 => RLM_PROPERTY_TYPE_OBJECT_ID,
+        17 => RLM_PROPERTY_TYPE_UUID,
+        _ =>
+          throw ArgumentError("Unknown value for realm_property_type: $value"),
+      };
 }
 
 final class realm_query extends ffi.Opaque {}
@@ -12447,31 +12762,70 @@ typedef realm_scheduler_t = realm_scheduler;
 
 final class realm_schema extends ffi.Opaque {}
 
-abstract class realm_schema_mode {
-  static const int RLM_SCHEMA_MODE_AUTOMATIC = 0;
-  static const int RLM_SCHEMA_MODE_IMMUTABLE = 1;
-  static const int RLM_SCHEMA_MODE_READ_ONLY = 2;
-  static const int RLM_SCHEMA_MODE_SOFT_RESET_FILE = 3;
-  static const int RLM_SCHEMA_MODE_HARD_RESET_FILE = 4;
-  static const int RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED = 5;
-  static const int RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT = 6;
-  static const int RLM_SCHEMA_MODE_MANUAL = 7;
+enum realm_schema_mode {
+  RLM_SCHEMA_MODE_AUTOMATIC(0),
+  RLM_SCHEMA_MODE_IMMUTABLE(1),
+  RLM_SCHEMA_MODE_READ_ONLY(2),
+  RLM_SCHEMA_MODE_SOFT_RESET_FILE(3),
+  RLM_SCHEMA_MODE_HARD_RESET_FILE(4),
+  RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED(5),
+  RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT(6),
+  RLM_SCHEMA_MODE_MANUAL(7);
+
+  final int value;
+  const realm_schema_mode(this.value);
+
+  static realm_schema_mode fromValue(int value) => switch (value) {
+        0 => RLM_SCHEMA_MODE_AUTOMATIC,
+        1 => RLM_SCHEMA_MODE_IMMUTABLE,
+        2 => RLM_SCHEMA_MODE_READ_ONLY,
+        3 => RLM_SCHEMA_MODE_SOFT_RESET_FILE,
+        4 => RLM_SCHEMA_MODE_HARD_RESET_FILE,
+        5 => RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED,
+        6 => RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT,
+        7 => RLM_SCHEMA_MODE_MANUAL,
+        _ => throw ArgumentError("Unknown value for realm_schema_mode: $value"),
+      };
 }
 
-abstract class realm_schema_subset_mode {
-  static const int RLM_SCHEMA_SUBSET_MODE_STRICT = 0;
-  static const int RLM_SCHEMA_SUBSET_MODE_ALL_CLASSES = 1;
-  static const int RLM_SCHEMA_SUBSET_MODE_ALL_PROPERTIES = 2;
-  static const int RLM_SCHEMA_SUBSET_MODE_COMPLETE = 3;
+enum realm_schema_subset_mode {
+  RLM_SCHEMA_SUBSET_MODE_STRICT(0),
+  RLM_SCHEMA_SUBSET_MODE_ALL_CLASSES(1),
+  RLM_SCHEMA_SUBSET_MODE_ALL_PROPERTIES(2),
+  RLM_SCHEMA_SUBSET_MODE_COMPLETE(3);
+
+  final int value;
+  const realm_schema_subset_mode(this.value);
+
+  static realm_schema_subset_mode fromValue(int value) => switch (value) {
+        0 => RLM_SCHEMA_SUBSET_MODE_STRICT,
+        1 => RLM_SCHEMA_SUBSET_MODE_ALL_CLASSES,
+        2 => RLM_SCHEMA_SUBSET_MODE_ALL_PROPERTIES,
+        3 => RLM_SCHEMA_SUBSET_MODE_COMPLETE,
+        _ => throw ArgumentError(
+            "Unknown value for realm_schema_subset_mode: $value"),
+      };
 }
 
 typedef realm_schema_t = realm_schema;
 
-abstract class realm_schema_validation_mode {
-  static const int RLM_SCHEMA_VALIDATION_BASIC = 0;
-  static const int RLM_SCHEMA_VALIDATION_SYNC_PBS = 1;
-  static const int RLM_SCHEMA_VALIDATION_REJECT_EMBEDDED_ORPHANS = 2;
-  static const int RLM_SCHEMA_VALIDATION_SYNC_FLX = 4;
+enum realm_schema_validation_mode {
+  RLM_SCHEMA_VALIDATION_BASIC(0),
+  RLM_SCHEMA_VALIDATION_SYNC_PBS(1),
+  RLM_SCHEMA_VALIDATION_REJECT_EMBEDDED_ORPHANS(2),
+  RLM_SCHEMA_VALIDATION_SYNC_FLX(4);
+
+  final int value;
+  const realm_schema_validation_mode(this.value);
+
+  static realm_schema_validation_mode fromValue(int value) => switch (value) {
+        0 => RLM_SCHEMA_VALIDATION_BASIC,
+        1 => RLM_SCHEMA_VALIDATION_SYNC_PBS,
+        2 => RLM_SCHEMA_VALIDATION_REJECT_EMBEDDED_ORPHANS,
+        4 => RLM_SCHEMA_VALIDATION_SYNC_FLX,
+        _ => throw ArgumentError(
+            "Unknown value for realm_schema_validation_mode: $value"),
+      };
 }
 
 final class realm_set extends ffi.Opaque {}
@@ -12537,34 +12891,72 @@ final class realm_sync_client_config extends ffi.Opaque {}
 
 typedef realm_sync_client_config_t = realm_sync_client_config;
 
-abstract class realm_sync_client_metadata_mode {
-  static const int RLM_SYNC_CLIENT_METADATA_MODE_PLAINTEXT = 0;
-  static const int RLM_SYNC_CLIENT_METADATA_MODE_ENCRYPTED = 1;
-  static const int RLM_SYNC_CLIENT_METADATA_MODE_DISABLED = 2;
+enum realm_sync_client_metadata_mode {
+  RLM_SYNC_CLIENT_METADATA_MODE_PLAINTEXT(0),
+  RLM_SYNC_CLIENT_METADATA_MODE_ENCRYPTED(1),
+  RLM_SYNC_CLIENT_METADATA_MODE_DISABLED(2);
+
+  final int value;
+  const realm_sync_client_metadata_mode(this.value);
+
+  static realm_sync_client_metadata_mode fromValue(int value) =>
+      switch (value) {
+        0 => RLM_SYNC_CLIENT_METADATA_MODE_PLAINTEXT,
+        1 => RLM_SYNC_CLIENT_METADATA_MODE_ENCRYPTED,
+        2 => RLM_SYNC_CLIENT_METADATA_MODE_DISABLED,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_client_metadata_mode: $value"),
+      };
 }
 
 /// Sync
-abstract class realm_sync_client_reconnect_mode {
-  static const int RLM_SYNC_CLIENT_RECONNECT_MODE_NORMAL = 0;
-  static const int RLM_SYNC_CLIENT_RECONNECT_MODE_TESTING = 1;
+enum realm_sync_client_reconnect_mode {
+  RLM_SYNC_CLIENT_RECONNECT_MODE_NORMAL(0),
+  RLM_SYNC_CLIENT_RECONNECT_MODE_TESTING(1);
+
+  final int value;
+  const realm_sync_client_reconnect_mode(this.value);
+
+  static realm_sync_client_reconnect_mode fromValue(int value) =>
+      switch (value) {
+        0 => RLM_SYNC_CLIENT_RECONNECT_MODE_NORMAL,
+        1 => RLM_SYNC_CLIENT_RECONNECT_MODE_TESTING,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_client_reconnect_mode: $value"),
+      };
 }
 
 final class realm_sync_config extends ffi.Opaque {}
 
 typedef realm_sync_config_t = realm_sync_config;
 
-abstract class realm_sync_connection_state {
-  static const int RLM_SYNC_CONNECTION_STATE_DISCONNECTED = 0;
-  static const int RLM_SYNC_CONNECTION_STATE_CONNECTING = 1;
-  static const int RLM_SYNC_CONNECTION_STATE_CONNECTED = 2;
+enum realm_sync_connection_state {
+  RLM_SYNC_CONNECTION_STATE_DISCONNECTED(0),
+  RLM_SYNC_CONNECTION_STATE_CONNECTING(1),
+  RLM_SYNC_CONNECTION_STATE_CONNECTED(2);
+
+  final int value;
+  const realm_sync_connection_state(this.value);
+
+  static realm_sync_connection_state fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_CONNECTION_STATE_DISCONNECTED,
+        1 => RLM_SYNC_CONNECTION_STATE_CONNECTING,
+        2 => RLM_SYNC_CONNECTION_STATE_CONNECTED,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_connection_state: $value"),
+      };
 }
 
 typedef realm_sync_connection_state_changed_func_t = ffi.Pointer<
     ffi.NativeFunction<realm_sync_connection_state_changed_func_tFunction>>;
 typedef realm_sync_connection_state_changed_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Int32 old_state, ffi.Int32 new_state);
+    ffi.Pointer<ffi.Void> userdata,
+    ffi.UnsignedInt old_state,
+    ffi.UnsignedInt new_state);
 typedef Dartrealm_sync_connection_state_changed_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, int old_state, int new_state);
+    ffi.Pointer<ffi.Void> userdata,
+    realm_sync_connection_state old_state,
+    realm_sync_connection_state new_state);
 
 /// This type should never be returned from a function.
 /// It's only meant as an asynchronous callback argument.
@@ -12586,7 +12978,7 @@ final class realm_sync_error extends ffi.Struct {
   @ffi.Bool()
   external bool is_client_reset_requested;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int server_requests_action;
 
   external ffi.Pointer<realm_sync_error_user_info_t> user_info_map;
@@ -12603,17 +12995,35 @@ final class realm_sync_error extends ffi.Struct {
   external ffi.Pointer<ffi.Void> user_code_error;
 }
 
-abstract class realm_sync_error_action {
-  static const int RLM_SYNC_ERROR_ACTION_NO_ACTION = 0;
-  static const int RLM_SYNC_ERROR_ACTION_PROTOCOL_VIOLATION = 1;
-  static const int RLM_SYNC_ERROR_ACTION_APPLICATION_BUG = 2;
-  static const int RLM_SYNC_ERROR_ACTION_WARNING = 3;
-  static const int RLM_SYNC_ERROR_ACTION_TRANSIENT = 4;
-  static const int RLM_SYNC_ERROR_ACTION_DELETE_REALM = 5;
-  static const int RLM_SYNC_ERROR_ACTION_CLIENT_RESET = 6;
-  static const int RLM_SYNC_ERROR_ACTION_CLIENT_RESET_NO_RECOVERY = 7;
-  static const int RLM_SYNC_ERROR_ACTION_MIGRATE_TO_FLX = 8;
-  static const int RLM_SYNC_ERROR_ACTION_REVERT_TO_PBS = 9;
+enum realm_sync_error_action {
+  RLM_SYNC_ERROR_ACTION_NO_ACTION(0),
+  RLM_SYNC_ERROR_ACTION_PROTOCOL_VIOLATION(1),
+  RLM_SYNC_ERROR_ACTION_APPLICATION_BUG(2),
+  RLM_SYNC_ERROR_ACTION_WARNING(3),
+  RLM_SYNC_ERROR_ACTION_TRANSIENT(4),
+  RLM_SYNC_ERROR_ACTION_DELETE_REALM(5),
+  RLM_SYNC_ERROR_ACTION_CLIENT_RESET(6),
+  RLM_SYNC_ERROR_ACTION_CLIENT_RESET_NO_RECOVERY(7),
+  RLM_SYNC_ERROR_ACTION_MIGRATE_TO_FLX(8),
+  RLM_SYNC_ERROR_ACTION_REVERT_TO_PBS(9);
+
+  final int value;
+  const realm_sync_error_action(this.value);
+
+  static realm_sync_error_action fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_ERROR_ACTION_NO_ACTION,
+        1 => RLM_SYNC_ERROR_ACTION_PROTOCOL_VIOLATION,
+        2 => RLM_SYNC_ERROR_ACTION_APPLICATION_BUG,
+        3 => RLM_SYNC_ERROR_ACTION_WARNING,
+        4 => RLM_SYNC_ERROR_ACTION_TRANSIENT,
+        5 => RLM_SYNC_ERROR_ACTION_DELETE_REALM,
+        6 => RLM_SYNC_ERROR_ACTION_CLIENT_RESET,
+        7 => RLM_SYNC_ERROR_ACTION_CLIENT_RESET_NO_RECOVERY,
+        8 => RLM_SYNC_ERROR_ACTION_MIGRATE_TO_FLX,
+        9 => RLM_SYNC_ERROR_ACTION_REVERT_TO_PBS,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_error_action: $value"),
+      };
 }
 
 final class realm_sync_error_compensating_write_info extends ffi.Struct {
@@ -12651,9 +13061,19 @@ final class realm_sync_error_user_info extends ffi.Struct {
 
 typedef realm_sync_error_user_info_t = realm_sync_error_user_info;
 
-abstract class realm_sync_file_action {
-  static const int RLM_SYNC_FILE_ACTION_DELETE_REALM = 0;
-  static const int RLM_SYNC_FILE_ACTION_BACK_UP_THEN_DELETE_REALM = 1;
+enum realm_sync_file_action {
+  RLM_SYNC_FILE_ACTION_DELETE_REALM(0),
+  RLM_SYNC_FILE_ACTION_BACK_UP_THEN_DELETE_REALM(1);
+
+  final int value;
+  const realm_sync_file_action(this.value);
+
+  static realm_sync_file_action fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_FILE_ACTION_DELETE_REALM,
+        1 => RLM_SYNC_FILE_ACTION_BACK_UP_THEN_DELETE_REALM,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_file_action: $value"),
+      };
 }
 
 final class realm_sync_manager extends ffi.Opaque {}
@@ -12661,19 +13081,30 @@ final class realm_sync_manager extends ffi.Opaque {}
 typedef realm_sync_on_subscription_state_changed_t = ffi.Pointer<
     ffi.NativeFunction<realm_sync_on_subscription_state_changed_tFunction>>;
 typedef realm_sync_on_subscription_state_changed_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Int32 state);
+    ffi.Pointer<ffi.Void> userdata, ffi.UnsignedInt state);
 typedef Dartrealm_sync_on_subscription_state_changed_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, int state);
+    ffi.Pointer<ffi.Void> userdata,
+    realm_flx_sync_subscription_set_state state);
 typedef realm_sync_on_user_state_changed_t = ffi
     .Pointer<ffi.NativeFunction<realm_sync_on_user_state_changed_tFunction>>;
 typedef realm_sync_on_user_state_changed_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Int32 s);
+    ffi.Pointer<ffi.Void> userdata, ffi.UnsignedInt s);
 typedef Dartrealm_sync_on_user_state_changed_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, int s);
+    ffi.Pointer<ffi.Void> userdata, realm_user_state s);
 
-abstract class realm_sync_progress_direction {
-  static const int RLM_SYNC_PROGRESS_DIRECTION_UPLOAD = 0;
-  static const int RLM_SYNC_PROGRESS_DIRECTION_DOWNLOAD = 1;
+enum realm_sync_progress_direction {
+  RLM_SYNC_PROGRESS_DIRECTION_UPLOAD(0),
+  RLM_SYNC_PROGRESS_DIRECTION_DOWNLOAD(1);
+
+  final int value;
+  const realm_sync_progress_direction(this.value);
+
+  static realm_sync_progress_direction fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_PROGRESS_DIRECTION_UPLOAD,
+        1 => RLM_SYNC_PROGRESS_DIRECTION_DOWNLOAD,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_progress_direction: $value"),
+      };
 }
 
 typedef realm_sync_progress_func_t
@@ -12697,25 +13128,61 @@ final class realm_sync_session_connection_state_notification_token
 typedef realm_sync_session_connection_state_notification_token_t
     = realm_sync_session_connection_state_notification_token;
 
-abstract class realm_sync_session_resync_mode {
-  static const int RLM_SYNC_SESSION_RESYNC_MODE_MANUAL = 0;
-  static const int RLM_SYNC_SESSION_RESYNC_MODE_DISCARD_LOCAL = 1;
-  static const int RLM_SYNC_SESSION_RESYNC_MODE_RECOVER = 2;
-  static const int RLM_SYNC_SESSION_RESYNC_MODE_RECOVER_OR_DISCARD = 3;
+enum realm_sync_session_resync_mode {
+  RLM_SYNC_SESSION_RESYNC_MODE_MANUAL(0),
+  RLM_SYNC_SESSION_RESYNC_MODE_DISCARD_LOCAL(1),
+  RLM_SYNC_SESSION_RESYNC_MODE_RECOVER(2),
+  RLM_SYNC_SESSION_RESYNC_MODE_RECOVER_OR_DISCARD(3);
+
+  final int value;
+  const realm_sync_session_resync_mode(this.value);
+
+  static realm_sync_session_resync_mode fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_SESSION_RESYNC_MODE_MANUAL,
+        1 => RLM_SYNC_SESSION_RESYNC_MODE_DISCARD_LOCAL,
+        2 => RLM_SYNC_SESSION_RESYNC_MODE_RECOVER,
+        3 => RLM_SYNC_SESSION_RESYNC_MODE_RECOVER_OR_DISCARD,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_session_resync_mode: $value"),
+      };
 }
 
-abstract class realm_sync_session_state {
-  static const int RLM_SYNC_SESSION_STATE_ACTIVE = 0;
-  static const int RLM_SYNC_SESSION_STATE_DYING = 1;
-  static const int RLM_SYNC_SESSION_STATE_INACTIVE = 2;
-  static const int RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN = 3;
-  static const int RLM_SYNC_SESSION_STATE_PAUSED = 4;
+enum realm_sync_session_state {
+  RLM_SYNC_SESSION_STATE_ACTIVE(0),
+  RLM_SYNC_SESSION_STATE_DYING(1),
+  RLM_SYNC_SESSION_STATE_INACTIVE(2),
+  RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN(3),
+  RLM_SYNC_SESSION_STATE_PAUSED(4);
+
+  final int value;
+  const realm_sync_session_state(this.value);
+
+  static realm_sync_session_state fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_SESSION_STATE_ACTIVE,
+        1 => RLM_SYNC_SESSION_STATE_DYING,
+        2 => RLM_SYNC_SESSION_STATE_INACTIVE,
+        3 => RLM_SYNC_SESSION_STATE_WAITING_FOR_ACCESS_TOKEN,
+        4 => RLM_SYNC_SESSION_STATE_PAUSED,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_session_state: $value"),
+      };
 }
 
-abstract class realm_sync_session_stop_policy {
-  static const int RLM_SYNC_SESSION_STOP_POLICY_IMMEDIATELY = 0;
-  static const int RLM_SYNC_SESSION_STOP_POLICY_LIVE_INDEFINITELY = 1;
-  static const int RLM_SYNC_SESSION_STOP_POLICY_AFTER_CHANGES_UPLOADED = 2;
+enum realm_sync_session_stop_policy {
+  RLM_SYNC_SESSION_STOP_POLICY_IMMEDIATELY(0),
+  RLM_SYNC_SESSION_STOP_POLICY_LIVE_INDEFINITELY(1),
+  RLM_SYNC_SESSION_STOP_POLICY_AFTER_CHANGES_UPLOADED(2);
+
+  final int value;
+  const realm_sync_session_stop_policy(this.value);
+
+  static realm_sync_session_stop_policy fromValue(int value) => switch (value) {
+        0 => RLM_SYNC_SESSION_STOP_POLICY_IMMEDIATELY,
+        1 => RLM_SYNC_SESSION_STOP_POLICY_LIVE_INDEFINITELY,
+        2 => RLM_SYNC_SESSION_STOP_POLICY_AFTER_CHANGES_UPLOADED,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_session_stop_policy: $value"),
+      };
 }
 
 typedef realm_sync_session_t = realm_sync_session;
@@ -12724,16 +13191,33 @@ final class realm_sync_socket extends ffi.Opaque {}
 
 final class realm_sync_socket_callback extends ffi.Opaque {}
 
-abstract class realm_sync_socket_callback_result {
+enum realm_sync_socket_callback_result {
   /// These error values are pulled directly from realm_errno_e
-  static const int RLM_ERR_SYNC_SOCKET_SUCCESS = 0;
-  static const int RLM_ERR_SYNC_SOCKET_OPERATION_ABORTED = 1027;
-  static const int RLM_ERR_SYNC_SOCKET_RUNTIME = 1000;
-  static const int RLM_ERR_SYNC_SOCKET_OUT_OF_MEMORY = 1003;
-  static const int RLM_ERR_SYNC_SOCKET_ADDRESS_SPACE_EXHAUSTED = 1005;
-  static const int RLM_ERR_SYNC_SOCKET_CONNECTION_CLOSED = 1030;
-  static const int RLM_ERR_SYNC_SOCKET_NOT_SUPPORTED = 2001;
-  static const int RLM_ERR_SYNC_SOCKET_INVALID_ARGUMENT = 3000;
+  RLM_ERR_SYNC_SOCKET_SUCCESS(0),
+  RLM_ERR_SYNC_SOCKET_OPERATION_ABORTED(1027),
+  RLM_ERR_SYNC_SOCKET_RUNTIME(1000),
+  RLM_ERR_SYNC_SOCKET_OUT_OF_MEMORY(1003),
+  RLM_ERR_SYNC_SOCKET_ADDRESS_SPACE_EXHAUSTED(1005),
+  RLM_ERR_SYNC_SOCKET_CONNECTION_CLOSED(1030),
+  RLM_ERR_SYNC_SOCKET_NOT_SUPPORTED(2001),
+  RLM_ERR_SYNC_SOCKET_INVALID_ARGUMENT(3000);
+
+  final int value;
+  const realm_sync_socket_callback_result(this.value);
+
+  static realm_sync_socket_callback_result fromValue(int value) =>
+      switch (value) {
+        0 => RLM_ERR_SYNC_SOCKET_SUCCESS,
+        1027 => RLM_ERR_SYNC_SOCKET_OPERATION_ABORTED,
+        1000 => RLM_ERR_SYNC_SOCKET_RUNTIME,
+        1003 => RLM_ERR_SYNC_SOCKET_OUT_OF_MEMORY,
+        1005 => RLM_ERR_SYNC_SOCKET_ADDRESS_SPACE_EXHAUSTED,
+        1030 => RLM_ERR_SYNC_SOCKET_CONNECTION_CLOSED,
+        2001 => RLM_ERR_SYNC_SOCKET_NOT_SUPPORTED,
+        3000 => RLM_ERR_SYNC_SOCKET_INVALID_ARGUMENT,
+        _ => throw ArgumentError(
+            "Unknown value for realm_sync_socket_callback_result: $value"),
+      };
 }
 
 /// Called when the Sync Client is initiating a connection to the server. The endpoint
@@ -12899,16 +13383,26 @@ final class realm_user_identity extends ffi.Struct {
   external ffi.Pointer<ffi.Char> id;
 
   /// Enum representing the list of auth providers
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int provider_type;
 }
 
 typedef realm_user_identity_t = realm_user_identity;
 
-abstract class realm_user_state {
-  static const int RLM_USER_STATE_LOGGED_OUT = 0;
-  static const int RLM_USER_STATE_LOGGED_IN = 1;
-  static const int RLM_USER_STATE_REMOVED = 2;
+enum realm_user_state {
+  RLM_USER_STATE_LOGGED_OUT(0),
+  RLM_USER_STATE_LOGGED_IN(1),
+  RLM_USER_STATE_REMOVED(2);
+
+  final int value;
+  const realm_user_state(this.value);
+
+  static realm_user_state fromValue(int value) => switch (value) {
+        0 => RLM_USER_STATE_LOGGED_OUT,
+        1 => RLM_USER_STATE_LOGGED_IN,
+        2 => RLM_USER_STATE_REMOVED,
+        _ => throw ArgumentError("Unknown value for realm_user_state: $value"),
+      };
 }
 
 /// App
@@ -12924,28 +13418,49 @@ typedef realm_uuid_t = realm_uuid;
 final class realm_value extends ffi.Struct {
   external UnnamedUnion1 values;
 
-  @ffi.Int32()
+  @ffi.UnsignedInt()
   external int type;
 }
 
 typedef realm_value_t = realm_value;
 
 /// Value types
-abstract class realm_value_type {
-  static const int RLM_TYPE_NULL = 0;
-  static const int RLM_TYPE_INT = 1;
-  static const int RLM_TYPE_BOOL = 2;
-  static const int RLM_TYPE_STRING = 3;
-  static const int RLM_TYPE_BINARY = 4;
-  static const int RLM_TYPE_TIMESTAMP = 5;
-  static const int RLM_TYPE_FLOAT = 6;
-  static const int RLM_TYPE_DOUBLE = 7;
-  static const int RLM_TYPE_DECIMAL128 = 8;
-  static const int RLM_TYPE_OBJECT_ID = 9;
-  static const int RLM_TYPE_LINK = 10;
-  static const int RLM_TYPE_UUID = 11;
-  static const int RLM_TYPE_LIST = 12;
-  static const int RLM_TYPE_DICTIONARY = 13;
+enum realm_value_type {
+  RLM_TYPE_NULL(0),
+  RLM_TYPE_INT(1),
+  RLM_TYPE_BOOL(2),
+  RLM_TYPE_STRING(3),
+  RLM_TYPE_BINARY(4),
+  RLM_TYPE_TIMESTAMP(5),
+  RLM_TYPE_FLOAT(6),
+  RLM_TYPE_DOUBLE(7),
+  RLM_TYPE_DECIMAL128(8),
+  RLM_TYPE_OBJECT_ID(9),
+  RLM_TYPE_LINK(10),
+  RLM_TYPE_UUID(11),
+  RLM_TYPE_LIST(12),
+  RLM_TYPE_DICTIONARY(13);
+
+  final int value;
+  const realm_value_type(this.value);
+
+  static realm_value_type fromValue(int value) => switch (value) {
+        0 => RLM_TYPE_NULL,
+        1 => RLM_TYPE_INT,
+        2 => RLM_TYPE_BOOL,
+        3 => RLM_TYPE_STRING,
+        4 => RLM_TYPE_BINARY,
+        5 => RLM_TYPE_TIMESTAMP,
+        6 => RLM_TYPE_FLOAT,
+        7 => RLM_TYPE_DOUBLE,
+        8 => RLM_TYPE_DECIMAL128,
+        9 => RLM_TYPE_OBJECT_ID,
+        10 => RLM_TYPE_LINK,
+        11 => RLM_TYPE_UUID,
+        12 => RLM_TYPE_LIST,
+        13 => RLM_TYPE_DICTIONARY,
+        _ => throw ArgumentError("Unknown value for realm_value_type: $value"),
+      };
 }
 
 final class realm_version_id extends ffi.Struct {
@@ -12958,32 +13473,65 @@ final class realm_version_id extends ffi.Struct {
 
 typedef realm_version_id_t = realm_version_id;
 
-abstract class realm_web_socket_errno {
-  static const int RLM_ERR_WEBSOCKET_OK = 1000;
-  static const int RLM_ERR_WEBSOCKET_GOINGAWAY = 1001;
-  static const int RLM_ERR_WEBSOCKET_PROTOCOLERROR = 1002;
-  static const int RLM_ERR_WEBSOCKET_UNSUPPORTEDDATA = 1003;
-  static const int RLM_ERR_WEBSOCKET_RESERVED = 1004;
-  static const int RLM_ERR_WEBSOCKET_NOSTATUSRECEIVED = 1005;
-  static const int RLM_ERR_WEBSOCKET_ABNORMALCLOSURE = 1006;
-  static const int RLM_ERR_WEBSOCKET_INVALIDPAYLOADDATA = 1007;
-  static const int RLM_ERR_WEBSOCKET_POLICYVIOLATION = 1008;
-  static const int RLM_ERR_WEBSOCKET_MESSAGETOOBIG = 1009;
-  static const int RLM_ERR_WEBSOCKET_INAVALIDEXTENSION = 1010;
-  static const int RLM_ERR_WEBSOCKET_INTERNALSERVERERROR = 1011;
-  static const int RLM_ERR_WEBSOCKET_TLSHANDSHAKEFAILED = 1015;
-  static const int RLM_ERR_WEBSOCKET_UNAUTHORIZED = 4001;
-  static const int RLM_ERR_WEBSOCKET_FORBIDDEN = 4002;
-  static const int RLM_ERR_WEBSOCKET_MOVEDPERMANENTLY = 4003;
-  static const int RLM_ERR_WEBSOCKET_CLIENT_TOO_OLD = 4004;
-  static const int RLM_ERR_WEBSOCKET_CLIENT_TOO_NEW = 4005;
-  static const int RLM_ERR_WEBSOCKET_PROTOCOL_MISMATCH = 4006;
-  static const int RLM_ERR_WEBSOCKET_RESOLVE_FAILED = 4400;
-  static const int RLM_ERR_WEBSOCKET_CONNECTION_FAILED = 4401;
-  static const int RLM_ERR_WEBSOCKET_READ_ERROR = 4402;
-  static const int RLM_ERR_WEBSOCKET_WRITE_ERROR = 4403;
-  static const int RLM_ERR_WEBSOCKET_RETRY_ERROR = 4404;
-  static const int RLM_ERR_WEBSOCKET_FATAL_ERROR = 4405;
+enum realm_web_socket_errno {
+  RLM_ERR_WEBSOCKET_OK(1000),
+  RLM_ERR_WEBSOCKET_GOINGAWAY(1001),
+  RLM_ERR_WEBSOCKET_PROTOCOLERROR(1002),
+  RLM_ERR_WEBSOCKET_UNSUPPORTEDDATA(1003),
+  RLM_ERR_WEBSOCKET_RESERVED(1004),
+  RLM_ERR_WEBSOCKET_NOSTATUSRECEIVED(1005),
+  RLM_ERR_WEBSOCKET_ABNORMALCLOSURE(1006),
+  RLM_ERR_WEBSOCKET_INVALIDPAYLOADDATA(1007),
+  RLM_ERR_WEBSOCKET_POLICYVIOLATION(1008),
+  RLM_ERR_WEBSOCKET_MESSAGETOOBIG(1009),
+  RLM_ERR_WEBSOCKET_INAVALIDEXTENSION(1010),
+  RLM_ERR_WEBSOCKET_INTERNALSERVERERROR(1011),
+  RLM_ERR_WEBSOCKET_TLSHANDSHAKEFAILED(1015),
+  RLM_ERR_WEBSOCKET_UNAUTHORIZED(4001),
+  RLM_ERR_WEBSOCKET_FORBIDDEN(4002),
+  RLM_ERR_WEBSOCKET_MOVEDPERMANENTLY(4003),
+  RLM_ERR_WEBSOCKET_CLIENT_TOO_OLD(4004),
+  RLM_ERR_WEBSOCKET_CLIENT_TOO_NEW(4005),
+  RLM_ERR_WEBSOCKET_PROTOCOL_MISMATCH(4006),
+  RLM_ERR_WEBSOCKET_RESOLVE_FAILED(4400),
+  RLM_ERR_WEBSOCKET_CONNECTION_FAILED(4401),
+  RLM_ERR_WEBSOCKET_READ_ERROR(4402),
+  RLM_ERR_WEBSOCKET_WRITE_ERROR(4403),
+  RLM_ERR_WEBSOCKET_RETRY_ERROR(4404),
+  RLM_ERR_WEBSOCKET_FATAL_ERROR(4405);
+
+  final int value;
+  const realm_web_socket_errno(this.value);
+
+  static realm_web_socket_errno fromValue(int value) => switch (value) {
+        1000 => RLM_ERR_WEBSOCKET_OK,
+        1001 => RLM_ERR_WEBSOCKET_GOINGAWAY,
+        1002 => RLM_ERR_WEBSOCKET_PROTOCOLERROR,
+        1003 => RLM_ERR_WEBSOCKET_UNSUPPORTEDDATA,
+        1004 => RLM_ERR_WEBSOCKET_RESERVED,
+        1005 => RLM_ERR_WEBSOCKET_NOSTATUSRECEIVED,
+        1006 => RLM_ERR_WEBSOCKET_ABNORMALCLOSURE,
+        1007 => RLM_ERR_WEBSOCKET_INVALIDPAYLOADDATA,
+        1008 => RLM_ERR_WEBSOCKET_POLICYVIOLATION,
+        1009 => RLM_ERR_WEBSOCKET_MESSAGETOOBIG,
+        1010 => RLM_ERR_WEBSOCKET_INAVALIDEXTENSION,
+        1011 => RLM_ERR_WEBSOCKET_INTERNALSERVERERROR,
+        1015 => RLM_ERR_WEBSOCKET_TLSHANDSHAKEFAILED,
+        4001 => RLM_ERR_WEBSOCKET_UNAUTHORIZED,
+        4002 => RLM_ERR_WEBSOCKET_FORBIDDEN,
+        4003 => RLM_ERR_WEBSOCKET_MOVEDPERMANENTLY,
+        4004 => RLM_ERR_WEBSOCKET_CLIENT_TOO_OLD,
+        4005 => RLM_ERR_WEBSOCKET_CLIENT_TOO_NEW,
+        4006 => RLM_ERR_WEBSOCKET_PROTOCOL_MISMATCH,
+        4400 => RLM_ERR_WEBSOCKET_RESOLVE_FAILED,
+        4401 => RLM_ERR_WEBSOCKET_CONNECTION_FAILED,
+        4402 => RLM_ERR_WEBSOCKET_READ_ERROR,
+        4403 => RLM_ERR_WEBSOCKET_WRITE_ERROR,
+        4404 => RLM_ERR_WEBSOCKET_RETRY_ERROR,
+        4405 => RLM_ERR_WEBSOCKET_FATAL_ERROR,
+        _ => throw ArgumentError(
+            "Unknown value for realm_web_socket_errno: $value"),
+      };
 }
 
 /// Sync Socket Provider types

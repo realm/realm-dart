@@ -28,7 +28,7 @@ extension BoolEx on bool {
 }
 
 class LastError {
-  final int code;
+  final realm_errno code;
   final String? message;
   final Object? userError;
 
@@ -64,6 +64,6 @@ Never _raiseLastError([String? errorMessage]) {
 extension RealmErrorEx on realm_error {
   LastError toDart() {
     final message = this.message.cast<Utf8>().toRealmDartString();
-    return LastError(error, message, user_code_error.toUserCodeError());
+    return LastError(realm_errno.fromValue(error), message, user_code_error.toUserCodeError());
   }
 }

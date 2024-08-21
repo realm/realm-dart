@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
@@ -20,8 +19,11 @@ const int _nanosecondsPerMicrosecond = 1000;
 extension RealmValueEx on realm_value_t {
   Object? toPrimitiveValue() => toDartValue(realm: null, getList: null, getMap: null);
 
+  realm_value_type get typeEnum => realm_value_type.fromValue(type);
+  void set typeEnum(realm_value_type value) => type = value.value;
+
   Object? toDartValue({required Realm? realm, required Pointer<realm_list_t> Function()? getList, required Pointer<realm_dictionary_t> Function()? getMap}) {
-    switch (type) {
+    switch (typeEnum) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
       case realm_value_type.RLM_TYPE_INT:
@@ -149,8 +151,8 @@ extension RealmPropertyInfoEx on realm_property_info {
   SchemaProperty toSchemaProperty() {
     final linkTarget = link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
     return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
-        optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE == realm_property_flags.RLM_PROPERTY_NULLABLE,
-        primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY,
+        optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE.value == realm_property_flags.RLM_PROPERTY_NULLABLE.value,
+        primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value,
         linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
         collectionType: RealmCollectionType.values[collection_type]);
   }

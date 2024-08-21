@@ -6,6 +6,7 @@ import 'package:realm_common/realm_common.dart' hide Decimal128;
 
 import '../../realm_object.dart';
 import 'decimal128.dart';
+import 'from_native.dart';
 import 'realm_bindings.dart';
 import 'realm_library.dart';
 
@@ -104,19 +105,19 @@ void _intoRealmValueHack(Object? value, realm_value realmValue, Allocator alloca
 
 void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator) {
   if (value == null) {
-    realmValue.type = realm_value_type.RLM_TYPE_NULL;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_NULL;
   } else if (value is RealmObjectBase) {
     // when converting a RealmObjectBase to realm_value.link we assume the object is managed
     final link = value.handle.asLink;
     realmValue.values.link.target = link.targetKey;
     realmValue.values.link.target_table = link.classKey;
-    realmValue.type = realm_value_type.RLM_TYPE_LINK;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_LINK;
   } else if (value is int) {
     realmValue.values.integer = value;
-    realmValue.type = realm_value_type.RLM_TYPE_INT;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_INT;
   } else if (value is bool) {
     realmValue.values.boolean = value;
-    realmValue.type = realm_value_type.RLM_TYPE_BOOL;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_BOOL;
   } else if (value is String) {
     String string = value;
     final units = utf8.encode(string);
@@ -125,22 +126,22 @@ void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator)
     nativeString.setAll(0, units);
     realmValue.values.string.data = result.cast();
     realmValue.values.string.size = units.length;
-    realmValue.type = realm_value_type.RLM_TYPE_STRING;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_STRING;
   } else if (value is double) {
     realmValue.values.dnum = value;
-    realmValue.type = realm_value_type.RLM_TYPE_DOUBLE;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_DOUBLE;
   } else if (value is ObjectId) {
     final bytes = value.bytes;
     for (var i = 0; i < 12; i++) {
       realmValue.values.object_id.bytes[i] = bytes[i];
     }
-    realmValue.type = realm_value_type.RLM_TYPE_OBJECT_ID;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_OBJECT_ID;
   } else if (value is Uuid) {
     final bytes = value.bytes;
     for (var i = 0; i < 16; i++) {
       realmValue.values.uuid.bytes[i] = bytes[i];
     }
-    realmValue.type = realm_value_type.RLM_TYPE_UUID;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_UUID;
   } else if (value is DateTime) {
     final microseconds = value.toUtc().microsecondsSinceEpoch;
     final seconds = microseconds ~/ _microsecondsPerSecond;
@@ -150,20 +151,20 @@ void _intoRealmValue(Object? value, realm_value realmValue, Allocator allocator)
     }
     realmValue.values.timestamp.seconds = seconds;
     realmValue.values.timestamp.nanoseconds = nanoseconds;
-    realmValue.type = realm_value_type.RLM_TYPE_TIMESTAMP;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_TIMESTAMP;
   } else if (value is Decimal128) {
     realmValue.values.decimal128 = value.value;
-    realmValue.type = realm_value_type.RLM_TYPE_DECIMAL128;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_DECIMAL128;
   } else if (value is Uint8List) {
-    realmValue.type = realm_value_type.RLM_TYPE_BINARY;
+    realmValue.typeEnum = realm_value_type.RLM_TYPE_BINARY;
     realmValue.values.binary.size = value.length;
     realmValue.values.binary.data = allocator<Uint8>(value.length);
     realmValue.values.binary.data.asTypedList(value.length).setAll(0, value);
   } else if (value is RealmValue) {
     if (value is List<RealmValue>) {
-      realmValue.type = realm_value_type.RLM_TYPE_LIST;
+      realmValue.typeEnum = realm_value_type.RLM_TYPE_LIST;
     } else if (value is Map<String, RealmValue>) {
-      realmValue.type = realm_value_type.RLM_TYPE_DICTIONARY;
+      realmValue.typeEnum = realm_value_type.RLM_TYPE_DICTIONARY;
     } else {
       return _intoRealmValue(value.value, realmValue, allocator);
     }

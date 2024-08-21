@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:path/path.dart' as path;
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/handles/native/realm_bindings.dart';
 
 import 'convert_native.dart';
 import 'error_handling.dart';
@@ -109,14 +110,14 @@ class RealmCore implements intf.RealmCore {
   @override
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
-      realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
+      realmLib.realm_dart_log(logLevel.nativeLevel(), category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
   @override
   void setLogLevel(LogLevel level, {required LogCategory category}) {
     using((arena) {
-      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
+      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.nativeLevel());
     });
   }
 
@@ -147,4 +148,18 @@ class RealmCore implements intf.RealmCore {
   bool checkIfRealmExists(String path) {
     return File(path).existsSync(); // TODO: Should this not check that file is an actual realm file?
   }
+}
+
+extension on LogLevel {
+  realm_log_level nativeLevel() => switch (this) {
+        LogLevel.all => realm_log_level.RLM_LOG_LEVEL_ALL,
+        LogLevel.debug => realm_log_level.RLM_LOG_LEVEL_DEBUG,
+        LogLevel.detail => realm_log_level.RLM_LOG_LEVEL_DETAIL,
+        LogLevel.trace => realm_log_level.RLM_LOG_LEVEL_TRACE,
+        LogLevel.info => realm_log_level.RLM_LOG_LEVEL_INFO,
+        LogLevel.warn => realm_log_level.RLM_LOG_LEVEL_WARNING,
+        LogLevel.error => realm_log_level.RLM_LOG_LEVEL_ERROR,
+        LogLevel.fatal => realm_log_level.RLM_LOG_LEVEL_FATAL,
+        LogLevel.off => realm_log_level.RLM_LOG_LEVEL_OFF,
+      };
 }

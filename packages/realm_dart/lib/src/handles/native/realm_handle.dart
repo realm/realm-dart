@@ -455,7 +455,7 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
       final propertyName = property.ref.name.cast<Utf8>().toRealmDartString()!;
       final objectType = property.ref.link_target.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
       final linkOriginProperty = property.ref.link_origin_property_name.cast<Utf8>().toRealmDartString(treatEmptyAsNull: true);
-      final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE != 0;
+      final isNullable = property.ref.flags & realm_property_flags.RLM_PROPERTY_NULLABLE.value != 0;
       final isPrimaryKey = propertyName == primaryKeyName;
       final propertyMeta = RealmPropertyMetadata(property.ref.key, objectType, linkOriginProperty, RealmPropertyType.values.elementAt(property.ref.type),
           isNullable, isPrimaryKey, RealmCollectionType.values.elementAt(property.ref.collection_type));
