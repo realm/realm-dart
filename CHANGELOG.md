@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
-### Enhancements
-* None
+### Breaking Changes
+* Removed all functionality related to App Services/Atlas Device Sync.
 
 ### Fixed
 * None
@@ -10,7 +10,7 @@
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 20.0.1.
 
 ## 3.4.1 (2024-08-14)
 
