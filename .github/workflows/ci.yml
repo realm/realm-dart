@@ -343,7 +343,7 @@ jobs:
 
       - name: Run ffigen
         run: >-
-          dart pub global activate ffigen &&
+          dart pub global activate ffigen "<14.0.0" &&
           dart pub global run ffigen --config ffigen.yaml
         working-directory: packages/realm_dart/
 

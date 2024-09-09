@@ -194,7 +194,7 @@ jobs:
       with:
         bodyFile: release/ExtractedChangelog.md
         name: ${{ needs.prepare-packages.outputs.version }}
-        commit: main
+        commit: community
         tag: ${{ needs.prepare-packages.outputs.version }}
         token: ${{ secrets.REALM_CI_PAT }}
         draft: false
@@ -236,7 +236,7 @@ jobs:
         body: Update Changelog for vNext
         labels: no-jira-ticket
         delete-branch: true
-        base: main
+        base: community
         commit-message: Add vNext Changelog header
 
     - name: Merge Pull Request
