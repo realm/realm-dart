@@ -1,14 +1,12 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as path;
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/handles/native/realm_bindings.dart';
 
 import 'convert_native.dart';
 import 'error_handling.dart';
@@ -47,11 +45,6 @@ class RealmCore implements intf.RealmCore {
   // For debugging
   @override
   int get threadId => realmLib.realm_dart_get_thread_id();
-
-  @override
-  void clearCachedApps() {
-    realmLib.realm_clear_cached_apps();
-  }
 
   // for debugging only. Enable in realm_dart.cpp
   // void invokeGC() {
@@ -109,68 +102,6 @@ class RealmCore implements intf.RealmCore {
   }
 
   @override
-  String getBundleId() {
-    readBundleId() {
-      try {
-        if (!isFlutterPlatform || Platform.environment.containsKey('FLUTTER_TEST')) {
-          var pubspecPath = path.join(path.current, 'pubspec.yaml');
-          var pubspecFile = File(pubspecPath);
-
-          if (pubspecFile.existsSync()) {
-            final pubspec = Pubspec.parse(pubspecFile.readAsStringSync());
-            return pubspec.name;
-          }
-        }
-
-        if (Platform.isAndroid) {
-          return realmLib.realm_dart_get_bundle_id().cast<Utf8>().toDartString();
-        }
-
-        final getBundleIdFunc = _pluginLib.lookupFunction<Pointer<Int8> Function(), Pointer<Int8> Function()>("realm_dart_get_bundle_id");
-        final bundleIdPtr = getBundleIdFunc();
-        return bundleIdPtr.cast<Utf8>().toDartString();
-      } on Exception catch (_) {
-        //Never fail on bundleId. Use fallback value.
-      }
-
-      //Fallback value
-      return "realm_bundle_id";
-    }
-
-    String bundleId = readBundleId();
-    const salt = [82, 101, 97, 108, 109, 32, 105, 115, 32, 103, 114, 101, 97, 116];
-    return base64Encode(sha256.convert([...salt, ...utf8.encode(bundleId)]).bytes);
-  }
-
-  @override
-  String getDefaultBaseUrl() {
-    return realmLib.realm_app_get_default_base_url().cast<Utf8>().toRealmDartString()!;
-  }
-
-  @override
-  String getDeviceName() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmLib.realm_dart_get_device_name().cast<Utf8>().toRealmDartString()!;
-    }
-
-    return "";
-  }
-
-  @override
-  String getDeviceVersion() {
-    if (Platform.isAndroid || Platform.isIOS) {
-      return realmLib.realm_dart_get_device_version().cast<Utf8>().toRealmDartString()!;
-    }
-
-    return "";
-  }
-
-  @override
-  String getRealmLibraryCpuArchitecture() {
-    return realmLib.realm_get_library_cpu_arch().cast<Utf8>().toDartString();
-  }
-
-  @override
   void loggerAttach() => realmLib.realm_dart_attach_logger(schedulerHandle.sendPort.nativePort);
 
   @override
@@ -179,14 +110,14 @@ class RealmCore implements intf.RealmCore {
   @override
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
-      realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
+      realmLib.realm_dart_log(logLevel.nativeLevel(), category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
   @override
   void setLogLevel(LogLevel level, {required LogCategory category}) {
     using((arena) {
-      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
+      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.nativeLevel());
     });
   }
 
@@ -217,4 +148,18 @@ class RealmCore implements intf.RealmCore {
   bool checkIfRealmExists(String path) {
     return File(path).existsSync(); // TODO: Should this not check that file is an actual realm file?
   }
+}
+
+extension on LogLevel {
+  realm_log_level nativeLevel() => switch (this) {
+        LogLevel.all => realm_log_level.RLM_LOG_LEVEL_ALL,
+        LogLevel.debug => realm_log_level.RLM_LOG_LEVEL_DEBUG,
+        LogLevel.detail => realm_log_level.RLM_LOG_LEVEL_DETAIL,
+        LogLevel.trace => realm_log_level.RLM_LOG_LEVEL_TRACE,
+        LogLevel.info => realm_log_level.RLM_LOG_LEVEL_INFO,
+        LogLevel.warn => realm_log_level.RLM_LOG_LEVEL_WARNING,
+        LogLevel.error => realm_log_level.RLM_LOG_LEVEL_ERROR,
+        LogLevel.fatal => realm_log_level.RLM_LOG_LEVEL_FATAL,
+        LogLevel.off => realm_log_level.RLM_LOG_LEVEL_OFF,
+      };
 }

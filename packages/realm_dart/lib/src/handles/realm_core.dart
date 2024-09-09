@@ -8,15 +8,7 @@ import 'native/realm_core.dart' if (dart.library.js_interop) 'web/realm_core.dar
 abstract interface class RealmCore {
   int get threadId;
 
-  void clearCachedApps();
-
   String getAppDirectory();
-  String getBundleId();
-  String getDeviceName();
-  String getDeviceVersion();
-  String getRealmLibraryCpuArchitecture();
-
-  String getDefaultBaseUrl();
 
   void loggerAttach();
   void loggerDetach();

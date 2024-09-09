@@ -17,9 +17,9 @@ if realmLibraryPath.include?("packages/realm/") && !File.exist?(realmLibraryPath
   if !File.exist?(absoluteRealRealmLibPath)
     raise "Realm macos library does not exists in realm-dart repo at path #{absoluteRealRealmLibPath}"
   end
-    
+
   # create an absolute symlink to realm flutter macos lib librealm_dart.dylib
-  File.symlink(absoluteRealRealmLibPath, realmLibraryPath); 
+  File.symlink(absoluteRealRealmLibPath, realmLibraryPath);
 end
 
 # This works cause realm plugin is always accessed through the .symlinks directory.
@@ -59,10 +59,6 @@ Pod::Spec.new do |s|
                                     #Use --debug to debug the install command
                                     :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type macos',
                                     :execution_position => :before_headers
-                                  },
-                                  { :name => 'Report Metrics',
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm metrics --flutter-root "$FLUTTER_ROOT" --target-os-type macos --target-os-version "$MACOSX_DEPLOYMENT_TARGET"',
-                                    :execution_position => :before_compile
                                   }
                                 ]
   s.resource_bundles          = { 'realm_privacy' => [ 'Resources/PrivacyInfo.xcprivacy' ] }

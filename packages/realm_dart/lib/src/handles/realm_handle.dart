@@ -7,8 +7,6 @@ import 'handle_base.dart';
 import 'object_handle.dart';
 import 'results_handle.dart';
 import 'schema_handle.dart';
-import 'session_handle.dart';
-import 'subscription_set_handle.dart';
 
 import 'native/realm_handle.dart' if (dart.library.js_interop) 'web/realm_handle.dart' as impl;
 
@@ -31,10 +29,7 @@ abstract interface class RealmHandle extends HandleBase {
   void writeCopy(Configuration config);
   ResultsHandle queryClass(int classKey, String query, List<Object?> args);
   RealmHandle freeze();
-  SessionHandle getSession();
   bool get isFrozen;
-
-  SubscriptionSetHandle get subscriptions;
 
   void disableAutoRefreshForTesting();
   void close();

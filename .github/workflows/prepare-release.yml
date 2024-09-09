@@ -78,30 +78,6 @@ jobs:
             exit 1
           fi
 
-      - name: Read Core version
-        id: get-core-version
-        run: |
-          pkgVersion=$(yq '.VERSION' dependencies.yml)
-          echo "core-version=$pkgVersion" >> $GITHUB_OUTPUT
-          echo "Realm Core version: $pkgVersion"
-        shell: bash
-        working-directory: packages/realm_dart/src/realm-core
-
-      - name: Update realmCoreVersion in metrics_command.dart
-        id: update-realmCoreVersion
-        uses: jacobtomlinson/gha-find-replace@b76729678e8d52dadb12e0e16454a93e301a919d #! 2.0.0
-        with:
-          find: "const realmCoreVersion = '[^']*';"
-          replace: "const realmCoreVersion = '${{ steps.get-core-version.outputs.core-version }}';"
-          include: 'packages/realm_dart/lib/src/cli/metrics/metrics_command.dart'
-
-      - name: Make sure we updated realmCoreVersion in metrics
-        run: |
-          if [ ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }} -gt 1 ]; then
-            echo 'At most one modified file expected, got ${{ steps.update-realmCoreVersion.outputs.modifiedFiles }}'
-            exit 1
-          fi
-
       - name: Create Release PR
         uses: peter-evans/create-pull-request@7380612b49221684fefa025244f2ef4008ae50ad #! 3.10.1
         with:

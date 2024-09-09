@@ -9,7 +9,6 @@ import 'package:collection/collection.dart';
 import 'package:realm_common/realm_common.dart';
 
 import 'configuration.dart';
-import 'handles/async_open_task_handle.dart';
 import 'handles/handle_base.dart';
 import 'handles/list_handle.dart';
 import 'handles/map_handle.dart';
@@ -24,9 +23,7 @@ import 'map.dart';
 import 'realm_object.dart';
 import 'results.dart';
 import 'scheduler.dart';
-import 'session.dart';
 import 'set.dart';
-import 'subscription.dart';
 
 export 'package:cancellation_token/cancellation_token.dart' show CancellationToken, TimeoutCancellationToken, CancelledException;
 export 'package:realm_common/realm_common.dart'
@@ -59,35 +56,18 @@ export 'package:realm_common/realm_common.dart'
         Uuid;
 
 // always expose with `show` to explicitly control the public API surface
-export 'app.dart' show AppException, App, MetadataPersistenceMode, AppConfiguration, SyncTimeoutOptions;
 export 'collections.dart' show Move;
 export "configuration.dart"
     show
         encryptionKeySize,
-        AfterResetCallback,
-        BeforeResetCallback,
-        ClientResetCallback,
-        ClientResetError,
-        ClientResetHandler,
-        CompensatingWriteError,
-        CompensatingWriteInfo,
         Configuration,
-        DiscardUnsyncedChangesHandler,
-        DisconnectedSyncConfiguration,
-        FlexibleSyncConfiguration,
         InitialDataCallback,
         InMemoryConfiguration,
         LocalConfiguration,
-        ManualRecoveryHandler,
         MigrationCallback,
         RealmSchema,
-        RecoverOrDiscardUnsyncedChangesHandler,
-        RecoverUnsyncedChangesHandler,
         SchemaObject,
-        ShouldCompactCallback,
-        SyncError,
-        SyncErrorHandler;
-export 'credentials.dart' show AuthProviderType, Credentials, EmailPasswordAuthProvider;
+        ShouldCompactCallback;
 export 'handles/decimal128.dart' show Decimal128;
 export 'list.dart' show RealmList, RealmListOfObject, RealmListChanges, ListExtension;
 export 'logging.dart' hide RealmLoggerInternal;
@@ -95,7 +75,6 @@ export 'map.dart' show RealmMap, RealmMapChanges, RealmMapOfObject;
 export 'migration.dart' show Migration;
 export 'realm_object.dart'
     show
-        AsymmetricObject,
         DynamicRealmObject,
         EmbeddedObject,
         EmbeddedObjectExtension,
@@ -106,11 +85,8 @@ export 'realm_object.dart'
         RealmObjectChanges,
         UserCallbackException;
 export 'realm_property.dart';
-export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode, RealmResultsOfRealmObject;
-export 'session.dart' show ConnectionStateChange, SyncProgress, ProgressDirection, ProgressMode, ConnectionState, Session, SessionState, SyncErrorCode;
+export 'results.dart' show RealmResultsOfObject, RealmResultsChanges, RealmResults, WaitForSyncMode;
 export 'set.dart' show RealmSet, RealmSetChanges, RealmSetOfObject;
-export 'subscription.dart' show Subscription, SubscriptionSet, SubscriptionSetState, MutableSubscriptionSet;
-export 'user.dart' show User, UserState, ApiKeyClient, UserIdentity, ApiKey, FunctionsClient, UserChanges;
 
 /// A [Realm] instance represents a `Realm` database.
 ///
@@ -143,11 +119,11 @@ class Realm {
   Realm._(this.config, [RealmHandle? handle, this._isInMigration = false]) : _handle = handle ?? _openRealm(config) {
     _populateMetadata();
 
-    // The schema of a Realm file may change due to sync adding new properties/classes. We subscribe for notifications
+    // The schema of a Realm file may change due to another process adding new properties/classes. We subscribe for notifications
     // in order to update the managed schema instance in case this happens. The same is true for dynamic Realms. For
     // local Realms with user-supplied schema, the schema on disk may still change, but Core doesn't report the updated
     // schema, so even if we subscribe, we wouldn't be able to see the updates.
-    if (config is FlexibleSyncConfiguration || config.schemaObjects.isEmpty) {
+    if (config.schemaObjects.isEmpty) {
       // TODO: enable once https://github.com/realm/realm-core/issues/7426 is fixed.
       //_schemaCallbackHandle = handle!.subscribeForSchemaNotifications(this);
       _schemaCallbackHandle = null;
@@ -158,48 +134,19 @@ class Realm {
 
   /// A method for asynchronously opening a [Realm].
   ///
-  /// When the configuration is [FlexibleSyncConfiguration], the realm will be downloaded and fully
-  /// synchronized with the server prior to the completion of the returned [Future].
-  /// This method could be called also for opening a local [Realm] with [LocalConfiguration].
-  ///
   /// * `config`- a configuration object that describes the realm.
   /// * `cancellationToken` - an optional [CancellationToken] used to cancel the operation.
-  /// * `onProgressCallback` - a callback for receiving download progress notifications for synced [Realm]s.
   ///
   /// Returns `Future<Realm>` that completes with the [Realm] once the remote [Realm] is fully synchronized or with a [CancelledException] if operation is canceled.
   /// When the configuration is [LocalConfiguration] this completes right after the local [Realm] is opened.
   /// Using [Realm.open] for opening a local Realm is equivalent to using the constructor of [Realm].
-  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken, ProgressCallback? onProgressCallback}) async {
+  static Future<Realm> open(Configuration config, {CancellationToken? cancellationToken}) async {
     if (cancellationToken != null && cancellationToken.isCancelled) {
       throw cancellationToken.exception!;
     }
 
-    if (config is! FlexibleSyncConfiguration) {
-      final realm = Realm(config);
-      return await CancellableFuture.value(realm, cancellationToken);
-    }
-
-    final asyncOpenHandle = AsyncOpenTaskHandle.from(config);
-    return await CancellableFuture.from<Realm>(() async {
-      if (cancellationToken != null && cancellationToken.isCancelled) {
-        throw cancellationToken.exception!;
-      }
-
-      StreamSubscription<SyncProgress>? progressSubscription;
-      if (onProgressCallback != null) {
-        final progressController = RealmAsyncOpenProgressNotificationsController._(asyncOpenHandle);
-        final progressStream = progressController.createStream();
-        progressSubscription = progressStream.listen(onProgressCallback);
-      }
-
-      late final RealmHandle realmHandle;
-      try {
-        realmHandle = await asyncOpenHandle.openAsync(cancellationToken);
-        return Realm._(config, realmHandle);
-      } finally {
-        await progressSubscription?.cancel();
-      }
-    }, cancellationToken, onCancel: () => asyncOpenHandle.cancel());
+    final realm = Realm(config);
+    return await CancellableFuture.value(realm, cancellationToken);
   }
 
   static RealmHandle _openRealm(Configuration config) {
@@ -256,19 +203,6 @@ class Realm {
     object.manage(this, handle, accessor, update);
 
     return object;
-  }
-
-  /// Ingest an [AsymmetricObject] to the [Realm].
-  ///
-  /// Ingesting is a write only operation. The ingested objects synchronizes to
-  /// the App Services backend and are deleted from the device. An [AsymmetricObject]
-  /// can never be read from the Realm.
-  void ingest<T extends AsymmetricObject>(T object) {
-    final metadata = _metadata.getByType(object.runtimeType);
-    final handle = _createObject(object, metadata, false);
-
-    final accessor = RealmCoreAccessor(metadata, _isInMigration);
-    object.manage(this, handle, accessor, false);
   }
 
   ObjectHandle _createObject(RealmObjectBase object, RealmObjectMetadata metadata, bool update) {
@@ -460,44 +394,6 @@ class Realm {
     return Realm._(config, handle.freeze());
   }
 
-  WeakReference<SubscriptionSet>? _subscriptions;
-
-  /// The active [SubscriptionSet] for this [Realm]
-  SubscriptionSet get subscriptions {
-    if (config is! FlexibleSyncConfiguration) {
-      throw RealmError('subscriptions is only valid on Realms opened with a FlexibleSyncConfiguration');
-    }
-
-    var result = _subscriptions?.target;
-
-    if (result == null || result.handle.released) {
-      result = SubscriptionSetInternal.create(this, handle.subscriptions);
-      result.handle.refresh();
-      _subscriptions = WeakReference(result);
-    }
-
-    return result;
-  }
-
-  WeakReference<Session>? _syncSession;
-
-  /// The [Session] for this [Realm]. The sync session is responsible for two-way synchronization
-  /// with MongoDB Atlas. If the [Realm] is not synchronized, accessing this property will throw.
-  Session get syncSession {
-    if (config is! FlexibleSyncConfiguration) {
-      throw RealmError('session is only valid on synchronized Realms (i.e. opened with FlexibleSyncConfiguration)');
-    }
-
-    var result = _syncSession?.target;
-
-    if (result == null || result.handle.released) {
-      result = SessionInternal.create(handle.getSession());
-      _syncSession = WeakReference(result);
-    }
-
-    return result;
-  }
-
   @override
   // ignore: hash_and_equals
   bool operator ==(Object other) {
@@ -506,7 +402,7 @@ class Realm {
     return handle == other.handle;
   }
 
-  /// The logger that will emit log messages from the database and sync operations.
+  /// The logger that will emit log messages from the database and SDK operations.
   /// To receive log messages, use the [RealmLogger.onRecord] stream.
   ///
   /// If no isolate subscribes to the stream, the trace messages will go to stdout.
@@ -550,9 +446,6 @@ class Realm {
     }
 
     final realm = Realm(config);
-    if (config is FlexibleSyncConfiguration) {
-      realm.syncSession.pause();
-    }
     try {
       return realm.handle.compact();
     } finally {
@@ -992,45 +885,6 @@ class MigrationRealm extends DynamicRealm {
   RealmSchema get schema => _realm.schema;
 
   MigrationRealm._(super.realm) : super._();
-}
-
-/// The signature of a callback that will be executed while the Realm is opened asynchronously with [Realm.open].
-/// This is the registered onProgressCallback when calling [Realm.open] that receives progress notifications while the download is in progress.
-///
-/// * syncProgress - an object of [SyncProgress] that contains `transferredBytes` and `transferableBytes`.
-/// {@category Realm}
-typedef ProgressCallback = void Function(SyncProgress syncProgress);
-
-/// @nodoc
-class RealmAsyncOpenProgressNotificationsController implements ProgressNotificationsController {
-  final AsyncOpenTaskHandle _handle;
-  AsyncOpenTaskProgressNotificationTokenHandle? _tokenHandle;
-  late final StreamController<SyncProgress> _streamController;
-
-  RealmAsyncOpenProgressNotificationsController._(this._handle);
-
-  Stream<SyncProgress> createStream() {
-    _streamController = StreamController<SyncProgress>(onListen: _start, onCancel: _stop);
-    return _streamController.stream;
-  }
-
-  @override
-  void onProgress(double progressEstimate) {
-    _streamController.add(SessionInternal.createSyncProgress(progressEstimate));
-  }
-
-  void _start() {
-    if (_tokenHandle != null) {
-      throw RealmStateError("Progress subscription already started.");
-    }
-
-    _tokenHandle = _handle.registerProgressNotifier(this);
-  }
-
-  void _stop() {
-    _tokenHandle?.release();
-    _tokenHandle = null;
-  }
 }
 
 /// @nodoc

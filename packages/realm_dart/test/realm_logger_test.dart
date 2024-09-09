@@ -122,7 +122,9 @@ void main() {
   });
 
   group('Category mapping', () {
-    final nativeCategoryNames = realmCore.getAllCategoryNames();
+    // Filter out sync/app category names since this is a local-only build
+    final nativeCategoryNames = realmCore.getAllCategoryNames().where((name) => !name.startsWith("Realm.Sync") && !name.contains("Realm.App")).toList();
+
     for (final name in nativeCategoryNames) {
       test('$name can parse', () {
         expect(() => LogCategory.fromString(name), returnsNormally);

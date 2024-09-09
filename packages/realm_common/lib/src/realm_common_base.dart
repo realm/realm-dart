@@ -13,12 +13,7 @@ enum ObjectType {
 
   /// An object that can be embedded in other objects. It is considered owned
   /// by its parent and will be deleted if its parent is deleted.
-  embeddedObject('EmbeddedObject', 1),
-
-  /// A special type of object used to facilitate unidirectional synchronization
-  /// with Atlas App Services. It is used to push data to Realm without the ability
-  /// to query or modify it.
-  asymmetricObject('AsymmetricObject', 2);
+  embeddedObject('EmbeddedObject', 1);
 
   const ObjectType(this._className, this._flags);
 

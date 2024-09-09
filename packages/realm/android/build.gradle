@@ -36,7 +36,7 @@ android {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
     }
-	
+
 	sourceSets {
         main {
             java {
@@ -45,7 +45,7 @@ android {
             jniLibs.srcDirs += ["src/main/cpp/lib/"]
         }
     }
-	
+
     lintOptions {
         disable 'InvalidPackage'
     }
@@ -81,27 +81,6 @@ def getPaths() {
     return [flutterRoot, dartExecutable]
 }
 
-tasks.register("runMetrics", Exec) {
-    outputs.upToDateWhen { false }
-
-    try {
-        def appProject = project.rootProject.subprojects.find { p -> p.name == 'app' }
-        def (flutterRoot, dartExecutable) = getPaths()
-
-        workingDir "${project.rootProject.projectDir}${File.separator}.."
-
-        String targetOsVersion
-        if (appProject != null) {
-            def conf = appProject.android.defaultConfig
-            targetOsVersion = "API Level ${conf.targetSdkVersion.apiLevel}"
-        }
-        commandLine dartExecutable, 'run', 'realm', 'metrics', '--flutter-root', flutterRoot, '--target-os-type', 'android', '--target-os-version', targetOsVersion
-    }
-    catch (e) {
-        logger.error "Error running metrics command $e"
-    }
-}
-
 tasks.register("downloadRealmBinaries", Exec) {
     outputs.upToDateWhen { false }
 
@@ -134,11 +113,11 @@ def getBundleId() {
 
 tasks.register("generateRealmConfig", Copy) {
     outputs.upToDateWhen { false }
-    
+
     def bundleId = getBundleId();
     from 'src/gen'
     into "$buildDir/realm-generated"
     filter { line -> line.replaceAll('realm_bundle_id', "${bundleId}") }
 }
 
-preBuild.dependsOn runMetrics, downloadRealmBinaries, generateRealmConfig
+preBuild.dependsOn downloadRealmBinaries, generateRealmConfig

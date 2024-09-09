@@ -7,8 +7,6 @@ import 'dart:isolate';
 
 import 'package:path/path.dart' as p;
 import 'package:realm_dart/realm.dart';
-import 'package:realm_dart/src/configuration.dart';
-import 'package:realm_dart/src/handles/realm_core.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -981,21 +979,6 @@ void main() {
     openEncryptedRealm(generateEncryptionKey(), generateEncryptionKey(), afterEncrypt: (realm) => realm.close());
   });
 
-  baasTest('Realm - open synced encrypted realm with encryption key', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final configuration = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key);
-
-    final realm = getRealm(configuration);
-    expect(realm.isClosed, false);
-    expect(
-      () => getRealm(Configuration.flexibleSync(user, getSyncSchema())),
-      throws<RealmException>("already opened with a different encryption key"),
-    );
-  });
-
   test('Realm.beginWriteAsync starts write transaction', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final transaction = await realm.beginWriteAsync();
@@ -1228,16 +1211,6 @@ void main() {
     expect(realm.isInTransaction, true);
   });
 
-  baasTest('Realm.open (flexibleSync)', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    final realm = await getRealmAsync(configuration);
-    expect(realm.isClosed, false);
-  });
-
   test('Realm.open (local)', () async {
     final configuration = Configuration.local([Car.schema]);
     final realm = await getRealmAsync(configuration);
@@ -1249,159 +1222,6 @@ void main() {
     final cancellationToken = CancellationToken();
     cancellationToken.cancel();
     await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
-  });
-
-  baasTest('Realm.open (flexibleSync) - cancel before open', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    final cancellationToken = CancellationToken();
-    cancellationToken.cancel();
-    await expectLater(getRealmAsync(configuration, cancellationToken: cancellationToken), throwsA(isA<CancelledException>()));
-  });
-
-  baasTest('Realm.open (flexibleSync) - cancel right after open', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    final cancellationToken = CancellationToken();
-    final isRealmCancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
-    cancellationToken.cancel();
-    expect(await isRealmCancelled, isTrue);
-  });
-
-  baasTest('Realm.open (flexibleSync) - open twice the same realm with the same CancelationToken cancels all', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    final cancellationToken = CancellationToken();
-
-    Future<void>.delayed(const Duration(milliseconds: 10), () => cancellationToken.cancel());
-    final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
-    final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken).isCancelled();
-    expect(await isRealm1Cancelled, isTrue);
-    expect(await isRealm2Cancelled, isTrue);
-  });
-
-  baasTest('Realm.open (flexibleSync) - open the same realm twice and only cancel the first call', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    final cancellationToken1 = CancellationToken();
-    final isRealm1Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken1).isCancelled();
-
-    final cancellationToken2 = CancellationToken();
-    final isRealm2Cancelled = getRealmAsync(configuration, cancellationToken: cancellationToken2).isCancelled();
-    cancellationToken1.cancel();
-    expect(await isRealm1Cancelled, isTrue);
-    expect(await isRealm2Cancelled, isFalse);
-  });
-
-  baasTest('Realm.open (flexibleSync) - open two different Realms for two different users and cancel only the second call', (appConfiguration) async {
-    final app = App(appConfiguration);
-
-    final user1 = await app.logIn(Credentials.anonymous());
-    final configuration1 = Configuration.flexibleSync(user1, getSyncSchema());
-    final cancellationToken1 = CancellationToken();
-    final isRealm1Cancelled = getRealmAsync(configuration1, cancellationToken: cancellationToken1).isCancelled();
-
-    final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final configuration2 = Configuration.flexibleSync(user2, getSyncSchema());
-    final cancellationToken2 = CancellationToken();
-    final isRealm2Cancelled = getRealmAsync(configuration2, cancellationToken: cancellationToken2).isCancelled();
-
-    cancellationToken2.cancel();
-    expect(await isRealm2Cancelled, isTrue);
-    expect(await isRealm1Cancelled, isFalse);
-  });
-
-  baasTest('Realm.open (flexibleSync) - cancel after realm is returned is no-op', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    final cancellationToken = CancellationToken();
-    final realm = await getRealmAsync(configuration, cancellationToken: cancellationToken);
-
-    expect(realm, isNotNull);
-    expect(realm.isClosed, false);
-
-    cancellationToken.cancel();
-    expect(realm.isClosed, false);
-  });
-
-  baasTest('Realm.open (flexibleSync) - listen for download progress on an empty realm', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous();
-    final user = await app.logIn(credentials);
-    final configuration = Configuration.flexibleSync(user, getSyncSchema());
-
-    double progressEstimate = -1;
-    bool progressReported = false;
-    var syncedRealm = await getRealmAsync(configuration, onProgressCallback: (syncProgress) {
-      progressEstimate = syncProgress.progressEstimate;
-      progressReported = true;
-    });
-
-    await Future<void>.delayed(Duration(milliseconds: 500));
-
-    expect(syncedRealm.isClosed, false);
-
-    // For FLX realms with no subscriptions, the server won't report any progress before it resolves the
-    // Realm.open future.
-    expect(progressEstimate, -1);
-    expect(progressReported, false);
-  });
-
-  baasTest('Realm.open (flexibleSync) - download a populated realm', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final queryDifferentiator = generateRandomString(10);
-    const itemsCount = 200;
-    final config = await _subscribeForAtlasAddedData(app, queryDifferentiator: queryDifferentiator, itemsCount: itemsCount);
-    var syncedRealm = await getRealmAsync(config);
-    expect(syncedRealm.isClosed, false);
-    final data = syncedRealm.query<Product>(r'name BEGINSWITH $0', [queryDifferentiator]);
-    expect(data.length, itemsCount);
-  });
-
-  baasTest('Realm.open (flexibleSync) - listen for download progress of a populated realm', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final config = await _subscribeForAtlasAddedData(app);
-
-    int printCount = 0;
-    double progressEstimate = 0;
-
-    final syncedRealm = await getRealmAsync(config, onProgressCallback: (syncProgress) {
-      printCount++;
-      progressEstimate = syncProgress.progressEstimate;
-    });
-
-    expect(syncedRealm.isClosed, false);
-    expect(printCount, isNot(0));
-    expect(progressEstimate, 1.0);
-  });
-
-  baasTest('Realm.open (flexibleSync) - listen and cancel download progress of a populated realm', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final config = await _subscribeForAtlasAddedData(app);
-
-    final cancellationToken = CancellationToken();
-    bool progressReturned = false;
-    final realmIsCancelled = getRealmAsync(config, cancellationToken: cancellationToken, onProgressCallback: (syncProgress) {
-      progressReturned = true;
-    }).isCancelled();
-    cancellationToken.cancel();
-    expect(await realmIsCancelled, isTrue);
-    expect(progressReturned, isFalse);
   });
 
   void addDataForCompact(Realm realm, String compactTest) {
@@ -1424,19 +1244,7 @@ void main() {
     var realm = getRealm(config);
     final compactTest = generateRandomString(10);
 
-    if (config is FlexibleSyncConfiguration) {
-      realm.subscriptions.update((mutableSubscriptions) {
-        mutableSubscriptions.add(realm.query<Product>("name CONTAINS '$compactTest'"));
-      });
-      await realm.subscriptions.waitForSynchronization();
-    }
-
     addDataForCompact(realm, compactTest);
-
-    if (config is FlexibleSyncConfiguration) {
-      await realm.syncSession.waitForDownload();
-      await realm.syncSession.waitForUpload();
-    }
 
     final beforeSize = platformUtil.sizeOnStorage(config);
 
@@ -1519,46 +1327,6 @@ void main() {
     expect(() => getRealm(config), returnsNormally);
   });
 
-  baasTest('Realm - disconnected sync realm can be compacted', (appConfiguration) async {
-    final config = Configuration.disconnectedSync([Product.schema], path: generateRandomRealmPath());
-
-    final beforeCompactSize = await createRealmForCompact(config);
-
-    final compacted = Realm.compact(config);
-
-    validateCompact(compacted, config, beforeCompactSize);
-
-    // test the realm can be opened.
-    expect(() => getRealm(config), returnsNormally);
-  });
-
-  baasTest('Realm - synced realm can be compacted', (appConfiguration) async {
-    final user = await getIntegrationUser(appConfig: appConfiguration);
-    final config = Configuration.flexibleSync(user, getSyncSchema(), path: generateRandomRealmPath());
-    final beforeCompactSize = await createRealmForCompact(config);
-
-    final compacted = await runWithRetries(() => Realm.compact(config));
-    validateCompact(compacted, config, beforeCompactSize);
-
-    // test the realm can be opened.
-    expect(() => getRealm(config), returnsNormally);
-  });
-
-  baasTest('Realm - synced encrypted realm can be compacted', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous(reuseCredentials: false);
-    var user = await app.logIn(credentials);
-    List<int> key = List<int>.generate(encryptionKeySize, (i) => random.nextInt(256));
-    final config = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: key, path: generateRandomRealmPath());
-    final beforeCompactSize = await createRealmForCompact(config);
-
-    final compacted = await runWithRetries(() => Realm.compact(config));
-    validateCompact(compacted, config, beforeCompactSize);
-
-    // test the realm can be opened.
-    expect(() => getRealm(config), returnsNormally);
-  });
-
   test('Realm writeCopy local to existing file', () {
     final config = Configuration.local([Car.schema]);
     final realm = getRealm(config);
@@ -1574,18 +1342,6 @@ void main() {
         () => realm.writeCopy(Configuration.local([Car.schema], path: path)),
         throws<RealmException>(
             Platform.isWindows ? "The system cannot find the path specified." : "Failed to open file at path '$path': parent directory does not exist"));
-  });
-
-  baasTest('Realm writeCopy Local->Sync is not supported', (appConfiguration) async {
-    final originalConfig = Configuration.local([Product.schema]);
-    final originalRealm = getRealm(originalConfig);
-
-    final app = App(appConfiguration);
-    final credentials = Credentials.anonymous(reuseCredentials: false);
-    var user = await app.logIn(credentials);
-    final configCopy = Configuration.flexibleSync(user, getSyncSchema());
-    expect(() => originalRealm.writeCopy(configCopy),
-        throws<RealmException>("Realm cannot be converted to a flexible sync realm unless flexible sync is already enabled"));
   });
 
   test('Realm writeCopy Local->Local inside a write block is not allowed.', () {
@@ -1689,82 +1445,6 @@ void main() {
     }
   }
 
-  // writeCopy Sync to Sync realm
-  for (List<int>? sourceEncryptedKey in [null, generateEncryptionKey()]) {
-    for (List<int>? destinationEncryptedKey in [sourceEncryptedKey, generateEncryptionKey()]) {
-      final sourceEncryptedState = '${sourceEncryptedKey != null ? "encrypted " : ""}Sync';
-      final destinationEncryptedState =
-          'to ${destinationEncryptedKey != null ? "encrypted with ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "the same" : "different"} key " : ""}Sync';
-      final testDescription = '$sourceEncryptedState $destinationEncryptedState';
-      baasTest('Realm writeCopy Sync->Sync - $testDescription can be opened and synced', (appConfiguration) async {
-        final app = App(appConfiguration);
-        var user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final originalConfig = Configuration.flexibleSync(user1, getSyncSchema(), encryptionKey: sourceEncryptedKey);
-        final originalRealm = getRealm(originalConfig);
-        var itemsCount = 2;
-        final productNamePrefix = generateRandomString(10);
-        await _addDataToAtlas(originalRealm, productNamePrefix, itemsCount: itemsCount);
-
-        var user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final configCopy = Configuration.flexibleSync(user2, getSyncSchema(), encryptionKey: destinationEncryptedKey);
-        originalRealm.writeCopy(configCopy);
-        originalRealm.close();
-
-        expect(Realm.existsSync(configCopy.path), isTrue);
-        // Check data in copied realm before synchronization
-        final disconnectedConfig = Configuration.disconnectedSync([Product.schema], path: configCopy.path, encryptionKey: destinationEncryptedKey);
-        final disconnectedCopiedRealm = getRealm(disconnectedConfig);
-        expect(disconnectedCopiedRealm.all<Product>().length, itemsCount);
-        disconnectedCopiedRealm.close();
-
-        // Sync copied realm to the server
-        final copiedRealm = getRealm(configCopy);
-        await _addSubscriptions(copiedRealm, productNamePrefix);
-        await copiedRealm.syncSession.waitForUpload();
-        await copiedRealm.syncSession.waitForDownload();
-        expect(copiedRealm.all<Product>().length, itemsCount);
-        copiedRealm.close();
-
-        // Create another user's realm and download the data
-        var anotherUser = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final anotherUserRealm = getRealm(Configuration.flexibleSync(anotherUser, getSyncSchema()));
-        await _addSubscriptions(anotherUserRealm, productNamePrefix);
-        await anotherUserRealm.syncSession.waitForUpload();
-        await anotherUserRealm.syncSession.waitForDownload();
-        expect(anotherUserRealm.all<Product>().length, itemsCount);
-        anotherUserRealm.close();
-      });
-    }
-  }
-
-  // writeCopy Sync to Local realm
-  for (List<int>? sourceEncryptedKey in [null, generateEncryptionKey()]) {
-    for (List<int>? destinationEncryptedKey in [sourceEncryptedKey, generateEncryptionKey()]) {
-      final sourceEncryptedState = '${sourceEncryptedKey != null ? "encrypted " : ""}Sync';
-      final destinationEncryptedState =
-          'to ${destinationEncryptedKey != null ? "encrypted with ${sourceEncryptedKey != null && sourceEncryptedKey == destinationEncryptedKey ? "the same" : "different"} key " : ""}Local';
-      final testDescription = '$sourceEncryptedState $destinationEncryptedState';
-      baasTest('Realm writeCopy Sync->Local - $testDescription can be opened and synced', (appConfiguration) async {
-        final app = App(appConfiguration);
-        var user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-        final originalConfig = Configuration.flexibleSync(user, getSyncSchema(), encryptionKey: sourceEncryptedKey);
-        final originalRealm = getRealm(originalConfig);
-        var itemsCount = 2;
-        final productNamePrefix = generateRandomString(10);
-        await _addDataToAtlas(originalRealm, productNamePrefix, itemsCount: itemsCount);
-
-        final pathCopy = originalConfig.path.replaceFirst(p.basenameWithoutExtension(originalConfig.path), generateRandomString(10));
-        final configCopy = Configuration.local([Product.schema], path: pathCopy, encryptionKey: destinationEncryptedKey);
-        originalRealm.writeCopy(configCopy);
-        originalRealm.close();
-
-        expect(Realm.existsSync(pathCopy), isTrue);
-        final copiedRealm = getRealm(configCopy);
-        expect(copiedRealm.all<Product>().length, itemsCount);
-        copiedRealm.close();
-      });
-    }
-  }
   test('Realm.refresh no changes', () async {
     final realm = getRealm(Configuration.local([Person.schema]));
     final result = realm.refresh();
@@ -1853,18 +1533,6 @@ void main() {
     receivePort.close();
   });
 
-  test('Device info', () {
-    late Matcher matcher;
-    if (Platform.isAndroid || Platform.isIOS) {
-      matcher = isNotEmpty;
-    } else {
-      matcher = isEmpty;
-    }
-
-    expect(realmCore.getDeviceName(), matcher);
-    expect(realmCore.getDeviceVersion(), matcher);
-  });
-
   test('Realm path with unicode symbols', () {
     final config = Configuration.local([Car.schema], path: generateRandomRealmPath(useUnicodeCharacters: true));
     var realm = getRealm(config);
@@ -1881,19 +1549,6 @@ void main() {
     expect(query[0].name, productName);
   });
 
-  baasTest('Realm synced add/query/sync data with unicode symbols', (appConfiguration) async {
-    final app = App(appConfiguration);
-    final productName = generateRandomUnicodeString();
-    final user = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-    final realm = getRealm(config);
-    await _addSubscriptions(realm, productName);
-    realm.write(() => realm.add(Product(ObjectId(), productName)));
-    final query = realm.query<Product>(r'name == $0', [productName]);
-    expect(query.length, 1);
-    expect(query[0].name, productName);
-  });
-
   test('Realm case-insensitive query', () {
     final productName = generateRandomString(10).toUpperCase();
     final config = Configuration.local([Product.schema]);
@@ -1904,73 +1559,9 @@ void main() {
     expect(query[0].name, productName);
   });
 
-  baasTest('Synchronized Realm can be opened on multiple isolates', (appConfiguration) async {
-    clearCachedApps();
-
-    final app = App(appConfiguration);
-    final user = await getAnonymousUser(app);
-    final config = Configuration.flexibleSync(user, getSyncSchema());
-    final realm = getRealm(config);
-
-    final receivePort = ReceivePort();
-
-    final subscriptionId = ObjectId();
-
-    await Isolate.spawn((List<Object> args) async {
-      Realm? bgRealm;
-
-      final sendPort = args[0] as SendPort;
-      try {
-        final appId = args[1] as String;
-        final baseUrl = args[2] as Uri;
-        final userId = args[3] as String;
-        final realmPath = args[4] as String;
-        final subscriptionId = args[5] as ObjectId;
-        final bgApp = App.getById(appId, baseUrl: baseUrl)!;
-        if (bgApp.id != appId) throw 'Expected App.id ${bgApp.id} == $appId';
-        if (bgApp.currentUser?.id != userId) throw 'Expected User.id ${bgApp.currentUser?.id} == $userId';
-        if (bgApp.users.length != 1) throw 'Expected users.length == 1';
-
-        final bgUser = bgApp.users.singleWhere((element) => element.id == userId);
-        final bgConfig = Configuration.flexibleSync(bgUser, getSyncSchema(), path: realmPath);
-        bgRealm = Realm(bgConfig);
-        await bgRealm.query<Product>('id == \$0', [subscriptionId]).subscribe();
-
-        bgRealm.write(() {
-          bgRealm!.add(Product(subscriptionId, 'abc'));
-        });
-
-        Isolate.exit(sendPort, null);
-      } catch (e) {
-        Isolate.exit(sendPort, e);
-      } finally {
-        bgRealm?.close();
-      }
-    }, [receivePort.sendPort, app.id, appConfiguration.baseUrl, user.id, realm.config.path, subscriptionId]);
-
-    final exitInfo = await receivePort.first;
-    expect(exitInfo, null);
-
-    realm.refresh();
-
-    final product = realm.all<Product>().single;
-    expect(product.id, subscriptionId);
-    expect(product.name, 'abc');
-  });
-
   test('Local realm can be opened with orphaned embedded objects', () {
     final config = Configuration.local([Car.schema, AllTypesEmbedded.schema], path: generateRandomRealmPath());
     expect(() => getRealm(config), returnsNormally);
-  });
-
-  baasTest('Sync realm with orphaned embedded objects, throws', (appConfig) async {
-    final user = await getIntegrationUser(appConfig: appConfig);
-    final config = Configuration.flexibleSync(user, [Task.schema, AllTypesEmbedded.schema])..sessionStopPolicy = SessionStopPolicy.immediately;
-
-    expect(
-        () => getRealm(config),
-        throwsA(isA<RealmException>()
-            .having((e) => e.message, 'message', contains("Embedded object 'AllTypesEmbedded' is unreachable by any link path from top level objects"))));
   });
 }
 
@@ -1994,54 +1585,6 @@ void openEncryptedRealm(List<int>? encryptionKey, List<int>? decryptionKey, {voi
       throws<RealmException>(realm.isClosed ? "Realm file decryption failed" : "already opened with a different encryption key"),
     );
   }
-}
-
-extension on Future<Realm> {
-  Future<bool> isCancelled() async {
-    try {
-      final value = await this;
-      expect(value, isNotNull);
-      expect(value.isClosed, false);
-      return false;
-    } on CancelledException {
-      return true;
-    }
-  }
-}
-
-Future<Configuration> _subscribeForAtlasAddedData(App app, {String? queryDifferentiator, int itemsCount = 100}) async {
-  final productNamePrefix = queryDifferentiator ?? generateRandomString(10);
-  final user1 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final config1 = Configuration.flexibleSync(user1, getSyncSchema());
-  final realm1 = getRealm(config1);
-  await _addSubscriptions(realm1, productNamePrefix);
-  realm1.close();
-
-  final user2 = await app.logIn(Credentials.anonymous(reuseCredentials: false));
-  final config2 = Configuration.flexibleSync(user2, getSyncSchema());
-  final realm2 = getRealm(config2);
-  await _addDataToAtlas(realm2, productNamePrefix, itemsCount: itemsCount);
-  realm2.close();
-  return config1;
-}
-
-Future<void> _addDataToAtlas(Realm realm, String productNamePrefix, {int itemsCount = 100}) async {
-  await _addSubscriptions(realm, productNamePrefix);
-  realm.write(() {
-    for (var i = 0; i < itemsCount; i++) {
-      realm.add(Product(ObjectId(), "${productNamePrefix}_${i + 1}"));
-    }
-  });
-  await realm.syncSession.waitForUpload();
-  await realm.syncSession.waitForDownload();
-}
-
-Future<void> _addSubscriptions(Realm realm, String searchByPrefix) async {
-  final query = realm.query<Product>(r'name BEGINSWITH $0', [searchByPrefix]);
-  if (realm.subscriptions.find(query) == null) {
-    realm.subscriptions.update((mutableSubscriptions) => mutableSubscriptions.add(query));
-  }
-  await realm.subscriptions.waitForSynchronization();
 }
 
 extension on When {

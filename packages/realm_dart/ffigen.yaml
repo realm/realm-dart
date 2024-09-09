@@ -1,7 +1,7 @@
 # Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
 name: RealmLibrary
 description: Realm native lib bindings.
-output: "lib/src/native/realm_bindings.dart"
+output: "lib/src/handles/native/realm_bindings.dart"
 headers:
   entry-points:
     - 'src/realm-core/src/realm.h'
@@ -9,14 +9,12 @@ headers:
     - 'src/realm_dart_logger.h'
     - 'src/realm_dart_decimal128.h'
     - 'src/realm_dart_scheduler.h'
-    - 'src/realm_dart_sync.h'
   include-directives: # generate only for these headers
     - 'src/realm-core/src/realm.h'
     - 'src/realm_dart.h'
     - 'src/realm_dart_logger.h'
     - 'src/realm_dart_decimal128.h'
     - 'src/realm_dart_scheduler.h'
-    - 'src/realm_dart_sync.h'
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types
@@ -27,7 +25,6 @@ comments:
 compiler-opts:
   - '-DRLM_NO_ANON_UNIONS'
   - '-DFFI_GEN'
-  - '-DREALM_APP_SERVICES'
   - '-I src/realm-core/src'
   - '-I src/dart-dl'
 sort: true
