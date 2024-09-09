@@ -4,10 +4,8 @@
 // ignore_for_file: unused_local_variable, avoid_relative_lib_imports
 
 import 'dart:typed_data';
-import 'package:test/test.dart' hide test, throws;
 import 'package:realm_dart/realm.dart';
 
-import 'backlinks_test.dart';
 import 'test.dart';
 
 part 'realm_object_test.realm.dart';
@@ -645,7 +643,7 @@ void main() {
         tno.link?.link?.link?.stringProperty = "test";
       });
 
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
 
       subscription.cancel();
     });
@@ -685,8 +683,7 @@ void main() {
         tno.link?.link?.link?.link?.link?.link?.stringProperty = "test";
       });
 
-      // Why is it still raising a notification for link?
-      await verifyNotifications<TestNotificationObject>(tno, externalChanges, ["link"]);
+      await verifyNotifications<TestNotificationObject>(tno, externalChanges, null);
 
       subscription.cancel();
     });
