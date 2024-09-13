@@ -28,12 +28,21 @@
       "name": "windows",
       "inherits": "default",
       "generator": "Visual Studio 17 2022",
-      "architecture": "x64",
       "condition": {
         "lhs": "${hostSystemName}",
         "type": "equals",
         "rhs": "Windows"
       }
+    },
+    {
+      "name": "windows-x64",
+      "inherits": "windows",
+      "architecture": "x64"
+    },
+    {
+      "name": "windows-arm64",
+      "inherits": "windows",
+      "architecture": "ARM64"
     },
     {
       "name": "macos",
@@ -125,9 +134,15 @@
       "configuration": "Debug"
     },
     {
-      "name": "windows",
-      "configurePreset": "windows",
+      "name": "windows-x64",
+      "configurePreset": "windows-x64",
       "displayName": "x64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-arm64",
+      "configurePreset": "windows-arm64",
+      "displayName": "arm64",
       "configuration": "Debug"
     },
     {
