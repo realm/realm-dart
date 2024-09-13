@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 
+if(POLICY CMP0152)
+  cmake_policy(SET CMP0152 OLD)
+endif()
+
 set(PROJECT_NAME "realm")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
