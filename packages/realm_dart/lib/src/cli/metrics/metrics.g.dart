@@ -39,36 +39,31 @@ Properties _$PropertiesFromJson(Map<String, dynamic> json) => Properties(
       realmCoreVersion: json['Core Version'] as String?,
     );
 
-Map<String, dynamic> _$PropertiesToJson(Properties instance) {
-  final val = <String, dynamic>{
-    'token': instance.token,
-    'distinct_id': _digestToJson(instance.distinctId),
-    'builder_id': _digestToJson(instance.builderId),
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('Anonymized MAC Address',
-      const DigestConverter().toJson(instance.anonymizedMacAddress));
-  writeNotNull('Anonymized Bundle ID',
-      const DigestConverter().toJson(instance.anonymizedBundleId));
-  val['Binding'] = instance.binding;
-  val['Language'] = instance.language;
-  val['Framework'] = instance.framework;
-  val['Framework Version'] = instance.frameworkVersion;
-  writeNotNull('Sync Enabled', instance.syncEnabled);
-  val['Realm Version'] = instance.realmVersion;
-  val['Host OS Type'] = instance.hostOsType;
-  val['Host OS Version'] = instance.hostOsVersion;
-  writeNotNull('Target OS Type', _$TargetOsTypeEnumMap[instance.targetOsType]);
-  writeNotNull('Target OS Version', instance.targetOsVersion);
-  writeNotNull('Core Version', instance.realmCoreVersion);
-  return val;
-}
+Map<String, dynamic> _$PropertiesToJson(Properties instance) =>
+    <String, dynamic>{
+      'token': instance.token,
+      'distinct_id': _digestToJson(instance.distinctId),
+      'builder_id': _digestToJson(instance.builderId),
+      if (const DigestConverter().toJson(instance.anonymizedMacAddress)
+          case final value?)
+        'Anonymized MAC Address': value,
+      if (const DigestConverter().toJson(instance.anonymizedBundleId)
+          case final value?)
+        'Anonymized Bundle ID': value,
+      'Binding': instance.binding,
+      'Language': instance.language,
+      'Framework': instance.framework,
+      'Framework Version': instance.frameworkVersion,
+      if (instance.syncEnabled case final value?) 'Sync Enabled': value,
+      'Realm Version': instance.realmVersion,
+      'Host OS Type': instance.hostOsType,
+      'Host OS Version': instance.hostOsVersion,
+      if (_$TargetOsTypeEnumMap[instance.targetOsType] case final value?)
+        'Target OS Type': value,
+      if (instance.targetOsVersion case final value?)
+        'Target OS Version': value,
+      if (instance.realmCoreVersion case final value?) 'Core Version': value,
+    };
 
 const _$TargetOsTypeEnumMap = {
   TargetOsType.android: 'android',
