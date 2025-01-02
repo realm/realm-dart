@@ -23,6 +23,18 @@
 ### Internal
 * Using Core 20.0.1.
 
+## 3.4.2 (2025-01-02)
+
+### Fixed
+* For the Android platform, changed compileSdkVersion into 31 from 28 to fix the fatal `android:attr/lStar not found` error when using Flutter 3.24.
+* Fix breakage of `PseudoType` after Flutter 3.27.1. (Issue [#1813](https://github.com/realm/realm-dart/issues/1813))
+
+### Compatibility
+* Realm Studio: 15.0.0 or later.
+
+### Internal
+* Using Core 14.11.0.
+
 ## 3.4.1 (2024-08-14)
 
 ### Fixed
