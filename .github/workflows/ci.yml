@@ -437,7 +437,7 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-33-x86_64
+          key: avd-31-x86_64_2
 
       - name: Create Android Emulator and generate snapshot for caching
         if: ${{ steps.avd-cache.outputs.cache-hit != 'true' }}
@@ -448,8 +448,6 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           api-level: 31
           arch: x86_64
-          ndk: 25.2.9519653
-          cmake: 3.10.2.4988404
           script: echo "Generated Emulator snapshot for caching."
 
       - name: Run tests on Android Emulator
