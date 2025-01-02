@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  realm: ^3.4.1
+  realm: ^3.4.2
   characters: ^1.1.0
 
 dev_dependencies:
