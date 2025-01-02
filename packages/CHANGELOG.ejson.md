@@ -1,3 +1,7 @@
+## 0.4.1
+
+- Avoid name conflict on `LinkCode`. 
+
 ## 0.4.0
 
 - `fromEJson<T>` now accepts a `defaultValue` argument that is returned if  
