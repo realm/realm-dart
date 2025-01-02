@@ -27,9 +27,9 @@ jobs:
     name: Build MacOS
     uses: ./.github/workflows/build-native.yml
     with:
-     runner: macos-latest
-     binary: macos
-     build: '["macos"]'
+      runner: macos-latest
+      binary: macos
+      build: '["macos"]'
 
   build-linux:
     name: Build Linux
@@ -460,8 +460,6 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           api-level: 31
           arch: x86_64
-          ndk: 25.2.9519653
-          cmake: 3.10.2.4988404
           script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
 
       - name: Publish Test Report
@@ -592,7 +590,7 @@ jobs:
             *<https://github.com/realm/realm-dart/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}|_{{workflow}}_ run id: ${{ github.run_id }} has status _{{jobStatus}}_ >*
             <{{refUrl}}|`{{ref}}` - {{description}}>
             {{#if description}}<{{diffUrl}}|branch: `{{diffRef}}`>{{/if}}
-    
+
   web-compile:
     name: Compile for web
     runs-on: ubuntu-latest
