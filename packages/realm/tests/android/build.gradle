@@ -18,10 +18,6 @@ allprojects {
 }
 
 rootProject.buildDir = '../build'
-
-android {
-    namespace 'io.realm'
-}
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
