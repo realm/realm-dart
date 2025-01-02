@@ -1,7 +1,4 @@
-## vNext (TBD)
-
-### Enhancements
-* None
+## 20.0.1 (2025-01-02)
 
 ### Fixed
 * For the Android platform, changed compileSdkVersion into 31 from 28 to fix the fatal `android:attr/lStar not found` error when using Flutter 3.24.
