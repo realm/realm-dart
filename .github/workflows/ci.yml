@@ -414,6 +414,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-write-only: true
 
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
