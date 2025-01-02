@@ -414,8 +414,6 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-disabled: true
 
       - name: Fetch artifacts
         uses: actions/download-artifact@v4
@@ -451,6 +449,7 @@ jobs:
           api-level: 31
           arch: x86_64
           script: echo "Generated Emulator snapshot for caching."
+          ndk: 27.0.12077973
 
       - name: Run tests on Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -461,6 +460,7 @@ jobs:
           api-level: 31
           arch: x86_64
           script: cd packages/realm/tests && flutter test integration_test/all_tests.dart --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR --file-reporter=json:test-results.json --suppress-analytics
+          ndk: 27.0.12077973
 
       - name: Publish Test Report
         uses: dorny/test-reporter@v1.8.0
