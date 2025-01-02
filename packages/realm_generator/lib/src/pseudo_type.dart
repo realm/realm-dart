@@ -20,13 +20,8 @@ class PseudoType extends TypeImpl {
 
   PseudoType(this._name, {this.nullabilitySuffix = NullabilitySuffix.none});
 
-  Never get _never => throw UnimplementedError();
-
   @override
-  R accept<R>(TypeVisitor<R> visitor) => _never;
-
-  @override
-  R acceptWithArgument<R, A>(TypeVisitorWithArgument<R, A> visitor, A argument) => _never;
+  R acceptWithArgument<R, A>(TypeVisitorWithArgument<R, A> visitor, A argument) => throw UnimplementedError();
 
   @override
   void appendTo(ElementDisplayStringBuilder builder) {
@@ -47,16 +42,13 @@ class PseudoType extends TypeImpl {
   }
 
   @override
-  String? get name => _never;
-
-  @override
   PseudoType withNullability(NullabilitySuffix nullabilitySuffix) {
     return PseudoType(_name, nullabilitySuffix: nullabilitySuffix);
   }
 
   @override
-  Element? get element2 => _never;
+  Element? get element => null;
 
   @override
-  Element? get element => null;
+  Never noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }

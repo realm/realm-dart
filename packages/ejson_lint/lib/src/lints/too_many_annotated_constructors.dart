@@ -1,7 +1,7 @@
 // Copyright 2024 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'package:analyzer/error/error.dart';
+import 'package:analyzer/error/error.dart' as error;
 import 'package:analyzer/error/listener.dart';
 import 'package:custom_lint_builder/custom_lint_builder.dart';
 import 'package:ejson_analyzer/ejson_analyzer.dart';
@@ -21,7 +21,7 @@ class TooManyAnnotatedConstructors extends DartLintRule {
           code: const LintCode(
             name: 'too_many_annotated_constructors',
             problemMessage: 'Only one constructor can be annotated',
-            errorSeverity: ErrorSeverity.ERROR,
+            errorSeverity: error.ErrorSeverity.ERROR,
           ),
         );
 
