@@ -49,7 +49,7 @@ class RealmObjectGenerator extends Generator {
             if (codeLines.isEmpty) {
               return '';
             }
-            return ['// ignore_for_file: type=lint', ...codeLines].join('\n');
+            return ['// coverage:ignore-file', '// ignore_for_file: type=lint', ...codeLines].join('\n');
           },
           color: stdout.supportsAnsiEscapes,
         );

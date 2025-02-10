@@ -6,6 +6,7 @@ part of 'mapto.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class Original extends $Original
     with RealmEntity, RealmObjectBase, RealmObject {
