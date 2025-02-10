@@ -6,6 +6,7 @@ part of 'sync_migration_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class NullablesV0 extends _NullablesV0
     with RealmEntity, RealmObjectBase, RealmObject {
