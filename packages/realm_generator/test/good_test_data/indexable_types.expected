@@ -6,6 +6,7 @@ part of 'indexable_types.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class Indexable extends _Indexable
     with RealmEntity, RealmObjectBase, RealmObject {
