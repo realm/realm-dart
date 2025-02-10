@@ -6,6 +6,7 @@ part of 'realm_value_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class TuckedIn extends _TuckedIn
     with RealmEntity, RealmObjectBase, EmbeddedObject {

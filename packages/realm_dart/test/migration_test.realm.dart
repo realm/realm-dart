@@ -6,6 +6,7 @@ part of 'migration_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class PersonIntName extends _PersonIntName
     with RealmEntity, RealmObjectBase, RealmObject {
