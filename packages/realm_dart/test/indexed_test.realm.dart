@@ -6,6 +6,7 @@ part of 'indexed_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class WithIndexes extends _WithIndexes
     with RealmEntity, RealmObjectBase, RealmObject {

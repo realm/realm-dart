@@ -6,6 +6,7 @@ part of 'private_fields.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class WithPrivateFields extends _WithPrivateFields
     with RealmEntity, RealmObjectBase, RealmObject {
