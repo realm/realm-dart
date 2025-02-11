@@ -6,6 +6,7 @@ part of 'realm_object_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class ObjectIdPrimaryKey extends _ObjectIdPrimaryKey
     with RealmEntity, RealmObjectBase, RealmObject {

@@ -6,6 +6,7 @@ part of 'dynamic_realm_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
   Taskv2(

@@ -6,6 +6,7 @@ part of 'geospatial_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class Location extends _Location
     with RealmEntity, RealmObjectBase, EmbeddedObject {

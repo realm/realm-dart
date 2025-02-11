@@ -6,6 +6,7 @@ part of 'primary_key.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   IntPK(

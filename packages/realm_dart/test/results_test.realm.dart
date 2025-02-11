@@ -6,6 +6,7 @@ part of 'results_test.dart';
 // RealmObjectGenerator
 // **************************************************************************
 
+// coverage:ignore-file
 // ignore_for_file: type=lint
 class TestNotificationObject extends _TestNotificationObject
     with RealmEntity, RealmObjectBase, RealmObject {
