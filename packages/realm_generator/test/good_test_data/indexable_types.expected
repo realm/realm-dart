@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'indexable_types.dart';
@@ -224,38 +225,94 @@ class Indexable extends _Indexable
     RealmObjectBase.registerFactory(Indexable._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Indexable, 'Indexable', [
-      SchemaProperty('aBool', RealmPropertyType.bool,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aNullableBool', RealmPropertyType.bool,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('anInt', RealmPropertyType.int,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aNullableInt', RealmPropertyType.int,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('aString', RealmPropertyType.string,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aNullableString', RealmPropertyType.string,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('anObjectId', RealmPropertyType.objectid,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aNullableObjectId', RealmPropertyType.objectid,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('anUuid', RealmPropertyType.uuid,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aNullableUuid', RealmPropertyType.uuid,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('aDateTime', RealmPropertyType.timestamp,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aNullableDateTime', RealmPropertyType.timestamp,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('aRealmValue', RealmPropertyType.mixed,
-          optional: true, indexType: RealmIndexType.regular),
-      SchemaProperty('generalStringIndex', RealmPropertyType.string,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('ftsStringValue', RealmPropertyType.string,
-          indexType: RealmIndexType.fullText),
-      SchemaProperty('nullableFtsStringValue', RealmPropertyType.string,
-          optional: true, indexType: RealmIndexType.fullText),
+      SchemaProperty(
+        'aBool',
+        RealmPropertyType.bool,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aNullableBool',
+        RealmPropertyType.bool,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'anInt',
+        RealmPropertyType.int,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aNullableInt',
+        RealmPropertyType.int,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aString',
+        RealmPropertyType.string,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aNullableString',
+        RealmPropertyType.string,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'anObjectId',
+        RealmPropertyType.objectid,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aNullableObjectId',
+        RealmPropertyType.objectid,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'anUuid',
+        RealmPropertyType.uuid,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aNullableUuid',
+        RealmPropertyType.uuid,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aDateTime',
+        RealmPropertyType.timestamp,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aNullableDateTime',
+        RealmPropertyType.timestamp,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'aRealmValue',
+        RealmPropertyType.mixed,
+        optional: true,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'generalStringIndex',
+        RealmPropertyType.string,
+        indexType: RealmIndexType.regular,
+      ),
+      SchemaProperty(
+        'ftsStringValue',
+        RealmPropertyType.string,
+        indexType: RealmIndexType.fullText,
+      ),
+      SchemaProperty(
+        'nullableFtsStringValue',
+        RealmPropertyType.string,
+        optional: true,
+        indexType: RealmIndexType.fullText,
+      ),
     ]);
   }();
 

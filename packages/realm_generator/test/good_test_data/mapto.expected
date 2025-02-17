@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'mapto.dart';
@@ -25,7 +26,10 @@ class Original extends $Original
     RealmObjectBase.set(this, 'remapped primitive', primitiveProperty);
     RealmObjectBase.set(this, 'remapped object', objectProperty);
     RealmObjectBase.set<RealmList<Original>>(
-        this, 'remapped list', RealmList<Original>(listProperty));
+      this,
+      'remapped list',
+      RealmList<Original>(listProperty),
+    );
   }
 
   Original._();
@@ -75,8 +79,10 @@ class Original extends $Original
   static Original _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return Original(
-      primitiveProperty:
-          fromEJson(ejson['remapped primitive'], defaultValue: 0),
+      primitiveProperty: fromEJson(
+        ejson['remapped primitive'],
+        defaultValue: 0,
+      ),
       objectProperty: fromEJson(ejson['remapped object']),
       listProperty: fromEJson(ejson['remapped list']),
     );
@@ -85,16 +91,32 @@ class Original extends $Original
   static final schema = () {
     RealmObjectBase.registerFactory(Original._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, Original, 'another type', [
-      SchemaProperty('primitiveProperty', RealmPropertyType.int,
-          mapTo: 'remapped primitive'),
-      SchemaProperty('objectProperty', RealmPropertyType.object,
-          mapTo: 'remapped object', optional: true, linkTarget: 'another type'),
-      SchemaProperty('listProperty', RealmPropertyType.object,
+    return const SchemaObject(
+      ObjectType.realmObject,
+      Original,
+      'another type',
+      [
+        SchemaProperty(
+          'primitiveProperty',
+          RealmPropertyType.int,
+          mapTo: 'remapped primitive',
+        ),
+        SchemaProperty(
+          'objectProperty',
+          RealmPropertyType.object,
+          mapTo: 'remapped object',
+          optional: true,
+          linkTarget: 'another type',
+        ),
+        SchemaProperty(
+          'listProperty',
+          RealmPropertyType.object,
           mapTo: 'remapped list',
           linkTarget: 'another type',
-          collectionType: RealmCollectionType.list),
-    ]);
+          collectionType: RealmCollectionType.list,
+        ),
+      ],
+    );
   }();
 
   @override

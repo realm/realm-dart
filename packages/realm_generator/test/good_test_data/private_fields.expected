@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'private_fields.dart';
@@ -12,10 +13,7 @@ class WithPrivateFields extends _WithPrivateFields
     with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  WithPrivateFields(
-    String _plain, {
-    int withDefault = 0,
-  }) {
+  WithPrivateFields(String _plain, {int withDefault = 0}) {
     if (!_defaultsSet) {
       _defaultsSet = RealmObjectBase.setDefaults<WithPrivateFields>({
         '_withDefault': 0,
@@ -43,8 +41,9 @@ class WithPrivateFields extends _WithPrivateFields
       RealmObjectBase.getChanges<WithPrivateFields>(this);
 
   @override
-  Stream<RealmObjectChanges<WithPrivateFields>> changesFor(
-          [List<String>? keyPaths]) =>
+  Stream<RealmObjectChanges<WithPrivateFields>> changesFor([
+    List<String>? keyPaths,
+  ]) =>
       RealmObjectBase.getChangesFor<WithPrivateFields>(this, keyPaths);
 
   @override
@@ -62,10 +61,7 @@ class WithPrivateFields extends _WithPrivateFields
   static WithPrivateFields _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        '_plain': EJsonValue _plain,
-      } =>
-        WithPrivateFields(
+      {'_plain': EJsonValue _plain} => WithPrivateFields(
           fromEJson(_plain),
           withDefault: fromEJson(ejson['_withDefault'], defaultValue: 0),
         ),
@@ -77,10 +73,14 @@ class WithPrivateFields extends _WithPrivateFields
     RealmObjectBase.registerFactory(WithPrivateFields._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, WithPrivateFields, 'WithPrivateFields', [
-      SchemaProperty('_plain', RealmPropertyType.string),
-      SchemaProperty('_withDefault', RealmPropertyType.int),
-    ]);
+      ObjectType.realmObject,
+      WithPrivateFields,
+      'WithPrivateFields',
+      [
+        SchemaProperty('_plain', RealmPropertyType.string),
+        SchemaProperty('_withDefault', RealmPropertyType.int),
+      ],
+    );
   }();
 
   @override

@@ -204,7 +204,7 @@ class BuildNativeCommand extends BaseCommand {
     final iosSdkOptions = argResults['ios-sdk'] as List<String>;
     final iosSdks = iosSdkOptions.contains('all') // if 'all' is specified, build for all available SDKs
         ? iOSSdk.values
-        : iosSdkOptions.map((o) => iOSSdk.from(o)).whereNotNull();
+        : iosSdkOptions.map((o) => iOSSdk.from(o)).nonNulls;
 
     for (final target in targets) {
       logger.info('Building for ${target.name} in ${buildMode.name} mode');

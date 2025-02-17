@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:realm_dart/realm.dart';
-import 'package:test/test.dart' hide test, throws;
 
 import 'test.dart';
 

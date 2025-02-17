@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'required_argument_with_default_value.dart';
@@ -11,13 +12,9 @@ part of 'required_argument_with_default_value.dart';
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  Person({
-    int age = 47,
-  }) {
+  Person({int age = 47}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Person>({
-        'age': 47,
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Person>({'age': 47});
     }
     RealmObjectBase.set(this, 'age', age);
   }
@@ -41,17 +38,13 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'age': age.toEJson(),
-    };
+    return <String, dynamic>{'age': age.toEJson()};
   }
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
-    return Person(
-      age: fromEJson(ejson['age'], defaultValue: 47),
-    );
+    return Person(age: fromEJson(ejson['age'], defaultValue: 47));
   }
 
   static final schema = () {

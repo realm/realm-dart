@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'const_initializer.dart';
@@ -61,17 +62,35 @@ class ConstInitializer extends _ConstInitializer
     RealmObjectBase.set(this, 'fooEnv', fooEnv);
     RealmObjectBase.set(this, 'fooLit', fooLit);
     RealmObjectBase.set<RealmList<int>>(
-        this, 'constEmptyList', RealmList<int>(constEmptyList));
+      this,
+      'constEmptyList',
+      RealmList<int>(constEmptyList),
+    );
     RealmObjectBase.set<RealmMap<int>>(
-        this, 'constEmptyMap', RealmMap<int>(constEmptyMap));
+      this,
+      'constEmptyMap',
+      RealmMap<int>(constEmptyMap),
+    );
     RealmObjectBase.set<RealmSet<int>>(
-        this, 'constEmptySet', RealmSet<int>(constEmptySet));
+      this,
+      'constEmptySet',
+      RealmSet<int>(constEmptySet),
+    );
     RealmObjectBase.set<RealmList<int>>(
-        this, 'emptyList', RealmList<int>(emptyList));
+      this,
+      'emptyList',
+      RealmList<int>(emptyList),
+    );
     RealmObjectBase.set<RealmMap<int>>(
-        this, 'emptyMao', RealmMap<int>(emptyMao));
+      this,
+      'emptyMao',
+      RealmMap<int>(emptyMao),
+    );
     RealmObjectBase.set<RealmSet<int>>(
-        this, 'emptySet', RealmSet<int>(emptySet));
+      this,
+      'emptySet',
+      RealmSet<int>(emptySet),
+    );
   }
 
   ConstInitializer._();
@@ -188,8 +207,9 @@ class ConstInitializer extends _ConstInitializer
       RealmObjectBase.getChanges<ConstInitializer>(this);
 
   @override
-  Stream<RealmObjectChanges<ConstInitializer>> changesFor(
-          [List<String>? keyPaths]) =>
+  Stream<RealmObjectChanges<ConstInitializer>> changesFor([
+    List<String>? keyPaths,
+  ]) =>
       RealmObjectBase.getChangesFor<ConstInitializer>(this, keyPaths);
 
   @override
@@ -225,21 +245,29 @@ class ConstInitializer extends _ConstInitializer
     return ConstInitializer(
       zero: fromEJson(ejson['zero'], defaultValue: 0),
       minusOne: fromEJson(ejson['minusOne'], defaultValue: -1),
-      fooOrOne: fromEJson(ejson['fooOrOne'],
-          defaultValue: const int.fromEnvironment('FOO', defaultValue: 1)),
+      fooOrOne: fromEJson(
+        ejson['fooOrOne'],
+        defaultValue: const int.fromEnvironment('FOO', defaultValue: 1),
+      ),
       parenthesis: fromEJson(ejson['parenthesis'], defaultValue: (1)),
       minusMinusOne: fromEJson(ejson['minusMinusOne'], defaultValue: -(-1)),
       add: fromEJson(ejson['add'], defaultValue: 1 + 1),
       identifier: fromEJson(ejson['identifier'], defaultValue: myConst),
       infinity: fromEJson(ejson['infinity'], defaultValue: double.infinity),
       nan: fromEJson(ejson['nan'], defaultValue: double.nan),
-      negativeInfinity: fromEJson(ejson['negativeInfinity'],
-          defaultValue: double.negativeInfinity),
-      fooEnv: fromEJson(ejson['fooEnv'],
-          defaultValue: const String.fromEnvironment('FOO')),
+      negativeInfinity: fromEJson(
+        ejson['negativeInfinity'],
+        defaultValue: double.negativeInfinity,
+      ),
+      fooEnv: fromEJson(
+        ejson['fooEnv'],
+        defaultValue: const String.fromEnvironment('FOO'),
+      ),
       fooLit: fromEJson(ejson['fooLit'], defaultValue: 'foo'),
-      constEmptyList:
-          fromEJson(ejson['constEmptyList'], defaultValue: const []),
+      constEmptyList: fromEJson(
+        ejson['constEmptyList'],
+        defaultValue: const [],
+      ),
       constEmptyMap: fromEJson(ejson['constEmptyMap'], defaultValue: const {}),
       constEmptySet: fromEJson(ejson['constEmptySet'], defaultValue: const {}),
       emptyList: fromEJson(ejson['emptyList'], defaultValue: const []),
@@ -252,32 +280,54 @@ class ConstInitializer extends _ConstInitializer
     RealmObjectBase.registerFactory(ConstInitializer._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, ConstInitializer, 'ConstInitializer', [
-      SchemaProperty('zero', RealmPropertyType.int),
-      SchemaProperty('minusOne', RealmPropertyType.int),
-      SchemaProperty('fooOrOne', RealmPropertyType.int),
-      SchemaProperty('parenthesis', RealmPropertyType.int),
-      SchemaProperty('minusMinusOne', RealmPropertyType.int),
-      SchemaProperty('add', RealmPropertyType.int),
-      SchemaProperty('identifier', RealmPropertyType.int),
-      SchemaProperty('infinity', RealmPropertyType.double),
-      SchemaProperty('nan', RealmPropertyType.double),
-      SchemaProperty('negativeInfinity', RealmPropertyType.double),
-      SchemaProperty('fooEnv', RealmPropertyType.string),
-      SchemaProperty('fooLit', RealmPropertyType.string),
-      SchemaProperty('constEmptyList', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('constEmptyMap', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('constEmptySet', RealmPropertyType.int,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('emptyList', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('emptyMao', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('emptySet', RealmPropertyType.int,
-          collectionType: RealmCollectionType.set),
-    ]);
+      ObjectType.realmObject,
+      ConstInitializer,
+      'ConstInitializer',
+      [
+        SchemaProperty('zero', RealmPropertyType.int),
+        SchemaProperty('minusOne', RealmPropertyType.int),
+        SchemaProperty('fooOrOne', RealmPropertyType.int),
+        SchemaProperty('parenthesis', RealmPropertyType.int),
+        SchemaProperty('minusMinusOne', RealmPropertyType.int),
+        SchemaProperty('add', RealmPropertyType.int),
+        SchemaProperty('identifier', RealmPropertyType.int),
+        SchemaProperty('infinity', RealmPropertyType.double),
+        SchemaProperty('nan', RealmPropertyType.double),
+        SchemaProperty('negativeInfinity', RealmPropertyType.double),
+        SchemaProperty('fooEnv', RealmPropertyType.string),
+        SchemaProperty('fooLit', RealmPropertyType.string),
+        SchemaProperty(
+          'constEmptyList',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.list,
+        ),
+        SchemaProperty(
+          'constEmptyMap',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'constEmptySet',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'emptyList',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.list,
+        ),
+        SchemaProperty(
+          'emptyMao',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'emptySet',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.set,
+        ),
+      ],
+    );
   }();
 
   @override

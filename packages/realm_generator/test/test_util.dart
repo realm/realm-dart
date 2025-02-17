@@ -6,8 +6,9 @@ import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:realm_generator/realm_generator.dart';
 import 'package:test/test.dart';
+import 'package:pub_semver/src/version.dart';
 
-final _formatter = DartFormatter(lineEnding: '\n');
+final _formatter = DartFormatter(lineEnding: '\n', languageVersion: Version(3, 3, 0));
 
 /// Used to test both correct an erroneous compilation.
 /// [source] can be a [File] or a [String].

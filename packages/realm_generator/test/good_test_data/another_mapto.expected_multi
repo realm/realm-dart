@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'another_mapto.dart';
@@ -10,13 +11,13 @@ part of 'another_mapto.dart';
 // ignore_for_file: type=lint
 class MappedToo extends _MappedToo
     with RealmEntity, RealmObjectBase, RealmObject {
-  MappedToo({
-    Original? singleLink,
-    Iterable<Original> listLink = const [],
-  }) {
+  MappedToo({Original? singleLink, Iterable<Original> listLink = const []}) {
     RealmObjectBase.set(this, 'singleLink', singleLink);
     RealmObjectBase.set<RealmList<Original>>(
-        this, 'listLink', RealmList<Original>(listLink));
+        this,
+        'listLink',
+        RealmList<Original>(listLink),
+    );
   }
 
   MappedToo._();
@@ -66,12 +67,24 @@ class MappedToo extends _MappedToo
     RealmObjectBase.registerFactory(MappedToo._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, MappedToo, 'this is also mapped', [
-      SchemaProperty('singleLink', RealmPropertyType.object,
-          optional: true, linkTarget: 'another type'),
-      SchemaProperty('listLink', RealmPropertyType.object,
-          linkTarget: 'another type', collectionType: RealmCollectionType.list),
-    ]);
+      ObjectType.realmObject,
+      MappedToo,
+      'this is also mapped',
+      [
+        SchemaProperty(
+          'singleLink',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'another type',
+        ),
+        SchemaProperty(
+          'listLink',
+          RealmPropertyType.object,
+          linkTarget: 'another type',
+          collectionType: RealmCollectionType.list,
+        ),
+      ],
+    );
   }();
 
   @override

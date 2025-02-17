@@ -4,9 +4,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:realm_common/realm_common.dart';
-import 'package:test/test.dart' hide test, throws;
-
 import 'package:realm_dart/realm.dart';
 import 'test.dart';
 

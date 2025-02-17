@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'pinhole.dart';
@@ -11,13 +12,9 @@ part of 'pinhole.dart';
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  Foo({
-    int x = 0,
-  }) {
+  Foo({int x = 0}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Foo>({
-        'x': 0,
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Foo>({'x': 0});
     }
     RealmObjectBase.set(this, 'x', x);
   }
@@ -41,17 +38,13 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   Foo freeze() => RealmObjectBase.freezeObject<Foo>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'x': x.toEJson(),
-    };
+    return <String, dynamic>{'x': x.toEJson()};
   }
 
   static EJsonValue _toEJson(Foo value) => value.toEJson();
   static Foo _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
-    return Foo(
-      x: fromEJson(ejson['x'], defaultValue: 0),
-    );
+    return Foo(x: fromEJson(ejson['x'], defaultValue: 0));
   }
 
   static final schema = () {

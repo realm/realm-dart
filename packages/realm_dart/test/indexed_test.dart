@@ -4,7 +4,6 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:test/test.dart' hide test, throws;
 import 'test.dart';
 
 import 'package:realm_dart/realm.dart';
