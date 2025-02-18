@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'map.dart';
@@ -24,23 +25,47 @@ class LotsOfMaps extends _LotsOfMaps
     Map<String, Uuid> uuids = const {},
   }) {
     RealmObjectBase.set<RealmMap<Person?>>(
-        this, 'persons', RealmMap<Person?>(persons));
+      this,
+      'persons',
+      RealmMap<Person?>(persons),
+    );
     RealmObjectBase.set<RealmMap<bool>>(this, 'bools', RealmMap<bool>(bools));
     RealmObjectBase.set<RealmMap<DateTime>>(
-        this, 'dateTimes', RealmMap<DateTime>(dateTimes));
+      this,
+      'dateTimes',
+      RealmMap<DateTime>(dateTimes),
+    );
     RealmObjectBase.set<RealmMap<Decimal128>>(
-        this, 'decimals', RealmMap<Decimal128>(decimals));
+      this,
+      'decimals',
+      RealmMap<Decimal128>(decimals),
+    );
     RealmObjectBase.set<RealmMap<double>>(
-        this, 'doubles', RealmMap<double>(doubles));
+      this,
+      'doubles',
+      RealmMap<double>(doubles),
+    );
     RealmObjectBase.set<RealmMap<int>>(this, 'ints', RealmMap<int>(ints));
     RealmObjectBase.set<RealmMap<ObjectId>>(
-        this, 'objectIds', RealmMap<ObjectId>(objectIds));
+      this,
+      'objectIds',
+      RealmMap<ObjectId>(objectIds),
+    );
     RealmObjectBase.set<RealmMap<RealmValue>>(
-        this, 'any', RealmMap<RealmValue>(any));
+      this,
+      'any',
+      RealmMap<RealmValue>(any),
+    );
     RealmObjectBase.set<RealmMap<String>>(
-        this, 'strings', RealmMap<String>(strings));
+      this,
+      'strings',
+      RealmMap<String>(strings),
+    );
     RealmObjectBase.set<RealmMap<Uint8List>>(
-        this, 'binary', RealmMap<Uint8List>(binary));
+      this,
+      'binary',
+      RealmMap<Uint8List>(binary),
+    );
     RealmObjectBase.set<RealmMap<Uuid>>(this, 'uuids', RealmMap<Uuid>(uuids));
   }
 
@@ -168,32 +193,71 @@ class LotsOfMaps extends _LotsOfMaps
   static final schema = () {
     RealmObjectBase.registerFactory(LotsOfMaps._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
-      SchemaProperty('persons', RealmPropertyType.object,
+    return const SchemaObject(
+      ObjectType.realmObject,
+      LotsOfMaps,
+      'LotsOfMaps',
+      [
+        SchemaProperty(
+          'persons',
+          RealmPropertyType.object,
           optional: true,
           linkTarget: 'Person',
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('bools', RealmPropertyType.bool,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('dateTimes', RealmPropertyType.timestamp,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('decimals', RealmPropertyType.decimal128,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('doubles', RealmPropertyType.double,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('ints', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('objectIds', RealmPropertyType.objectid,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('any', RealmPropertyType.mixed,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('strings', RealmPropertyType.string,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('binary', RealmPropertyType.binary,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('uuids', RealmPropertyType.uuid,
-          collectionType: RealmCollectionType.map),
-    ]);
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'bools',
+          RealmPropertyType.bool,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'dateTimes',
+          RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'decimals',
+          RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'doubles',
+          RealmPropertyType.double,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'ints',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'objectIds',
+          RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'any',
+          RealmPropertyType.mixed,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'strings',
+          RealmPropertyType.string,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'binary',
+          RealmPropertyType.binary,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'uuids',
+          RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.map,
+        ),
+      ],
+    );
   }();
 
   @override
@@ -201,9 +265,7 @@ class LotsOfMaps extends _LotsOfMaps
 }
 
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
-  Person(
-    String name,
-  ) {
+  Person(String name) {
     RealmObjectBase.set(this, 'name', name);
   }
 
@@ -226,21 +288,14 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson()};
   }
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        Person(
-          fromEJson(name),
-        ),
+      {'name': EJsonValue name} => Person(fromEJson(name)),
       _ => raiseInvalidEJson(ejson),
     };
   }

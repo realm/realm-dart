@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'required_argument.dart';
@@ -9,9 +10,7 @@ part of 'required_argument.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
-  Person(
-    String name,
-  ) {
+  Person(String name) {
     RealmObjectBase.set(this, 'name', name);
   }
 
@@ -34,21 +33,14 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson()};
   }
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        Person(
-          fromEJson(name),
-        ),
+      {'name': EJsonValue name} => Person(fromEJson(name)),
       _ => raiseInvalidEJson(ejson),
     };
   }

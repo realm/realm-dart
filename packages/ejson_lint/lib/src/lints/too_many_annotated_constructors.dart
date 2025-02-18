@@ -38,7 +38,7 @@ class TooManyAnnotatedConstructors extends DartLintRule {
       final annotatedConstructors = cls.constructors.where((ctor) => isEJsonAnnotated(ctor));
       if (annotatedConstructors.length > 1) {
         for (final ctor in annotatedConstructors) {
-          reporter.reportErrorForElement(code, ctor);
+          reporter.atElement(ctor, code);
         }
       }
     });

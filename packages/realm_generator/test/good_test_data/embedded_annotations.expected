@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'embedded_annotations.dart';
@@ -9,13 +10,13 @@ part of 'embedded_annotations.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
-  Parent({
-    Child1? child,
-    Iterable<Child1> children = const [],
-  }) {
+  Parent({Child1? child, Iterable<Child1> children = const []}) {
     RealmObjectBase.set(this, 'single child', child);
     RealmObjectBase.set<RealmList<Child1>>(
-        this, 'CHILDREN', RealmList<Child1>(children));
+      this,
+      'CHILDREN',
+      RealmList<Child1>(children),
+    );
   }
 
   Parent._();
@@ -65,12 +66,20 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Parent._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
-      SchemaProperty('child', RealmPropertyType.object,
-          mapTo: 'single child', optional: true, linkTarget: 'MySuperChild'),
-      SchemaProperty('children', RealmPropertyType.object,
-          mapTo: 'CHILDREN',
-          linkTarget: 'MySuperChild',
-          collectionType: RealmCollectionType.list),
+      SchemaProperty(
+        'child',
+        RealmPropertyType.object,
+        mapTo: 'single child',
+        optional: true,
+        linkTarget: 'MySuperChild',
+      ),
+      SchemaProperty(
+        'children',
+        RealmPropertyType.object,
+        mapTo: 'CHILDREN',
+        linkTarget: 'MySuperChild',
+        collectionType: RealmCollectionType.list,
+      ),
     ]);
   }();
 
@@ -79,11 +88,7 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
 }
 
 class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
-  Child1(
-    String value,
-    String indexedString, {
-    Parent? linkToParent,
-  }) {
+  Child1(String value, String indexedString, {Parent? linkToParent}) {
     RealmObjectBase.set(this, '_value', value);
     RealmObjectBase.set(this, '_parent', linkToParent);
     RealmObjectBase.set(this, 'indexedString', indexedString);
@@ -133,10 +138,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static Child1 _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        '_value': EJsonValue value,
-        'indexedString': EJsonValue indexedString,
-      } =>
+      {'_value': EJsonValue value, 'indexedString': EJsonValue indexedString} =>
         Child1(
           fromEJson(value),
           fromEJson(indexedString),
@@ -149,13 +151,26 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
-      SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
-      SchemaProperty('linkToParent', RealmPropertyType.object,
-          mapTo: '_parent', optional: true, linkTarget: 'Parent'),
-      SchemaProperty('indexedString', RealmPropertyType.string,
-          indexType: RealmIndexType.regular),
-    ]);
+    return const SchemaObject(
+      ObjectType.embeddedObject,
+      Child1,
+      'MySuperChild',
+      [
+        SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
+        SchemaProperty(
+          'linkToParent',
+          RealmPropertyType.object,
+          mapTo: '_parent',
+          optional: true,
+          linkTarget: 'Parent',
+        ),
+        SchemaProperty(
+          'indexedString',
+          RealmPropertyType.string,
+          indexType: RealmIndexType.regular,
+        ),
+      ],
+    );
   }();
 
   @override

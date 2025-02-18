@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'embedded_objects.dart';
@@ -9,13 +10,13 @@ part of 'embedded_objects.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
-  Parent({
-    Child1? child,
-    Iterable<Child1> children = const [],
-  }) {
+  Parent({Child1? child, Iterable<Child1> children = const []}) {
     RealmObjectBase.set(this, 'child', child);
     RealmObjectBase.set<RealmList<Child1>>(
-        this, 'children', RealmList<Child1>(children));
+      this,
+      'children',
+      RealmList<Child1>(children),
+    );
   }
 
   Parent._();
@@ -64,10 +65,18 @@ class Parent extends _Parent with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Parent._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Parent, 'Parent', [
-      SchemaProperty('child', RealmPropertyType.object,
-          optional: true, linkTarget: 'Child1'),
-      SchemaProperty('children', RealmPropertyType.object,
-          linkTarget: 'Child1', collectionType: RealmCollectionType.list),
+      SchemaProperty(
+        'child',
+        RealmPropertyType.object,
+        optional: true,
+        linkTarget: 'Child1',
+      ),
+      SchemaProperty(
+        'children',
+        RealmPropertyType.object,
+        linkTarget: 'Child1',
+        collectionType: RealmCollectionType.list,
+      ),
     ]);
   }();
 
@@ -85,7 +94,10 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
     RealmObjectBase.set(this, 'value', value);
     RealmObjectBase.set(this, 'child', child);
     RealmObjectBase.set<RealmList<Child2>>(
-        this, 'children', RealmList<Child2>(children));
+      this,
+      'children',
+      RealmList<Child2>(children),
+    );
     RealmObjectBase.set(this, 'linkToParent', linkToParent);
   }
 
@@ -140,10 +152,7 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static Child1 _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'value': EJsonValue value,
-      } =>
-        Child1(
+      {'value': EJsonValue value} => Child1(
           fromEJson(value),
           child: fromEJson(ejson['child']),
           children: fromEJson(ejson['children']),
@@ -158,12 +167,24 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.embeddedObject, Child1, 'Child1', [
       SchemaProperty('value', RealmPropertyType.string),
-      SchemaProperty('child', RealmPropertyType.object,
-          optional: true, linkTarget: 'Child2'),
-      SchemaProperty('children', RealmPropertyType.object,
-          linkTarget: 'Child2', collectionType: RealmCollectionType.list),
-      SchemaProperty('linkToParent', RealmPropertyType.object,
-          optional: true, linkTarget: 'Parent'),
+      SchemaProperty(
+        'child',
+        RealmPropertyType.object,
+        optional: true,
+        linkTarget: 'Child2',
+      ),
+      SchemaProperty(
+        'children',
+        RealmPropertyType.object,
+        linkTarget: 'Child2',
+        collectionType: RealmCollectionType.list,
+      ),
+      SchemaProperty(
+        'linkToParent',
+        RealmPropertyType.object,
+        optional: true,
+        linkTarget: 'Parent',
+      ),
     ]);
   }();
 
@@ -371,19 +392,37 @@ class Child2 extends _Child2 with RealmEntity, RealmObjectBase, EmbeddedObject {
       SchemaProperty('dateProp', RealmPropertyType.timestamp),
       SchemaProperty('objectIdProp', RealmPropertyType.objectid),
       SchemaProperty('uuidProp', RealmPropertyType.uuid),
-      SchemaProperty('nullableBoolProp', RealmPropertyType.bool,
-          optional: true),
+      SchemaProperty(
+        'nullableBoolProp',
+        RealmPropertyType.bool,
+        optional: true,
+      ),
       SchemaProperty('nullableIntProp', RealmPropertyType.int, optional: true),
-      SchemaProperty('nullableDoubleProp', RealmPropertyType.double,
-          optional: true),
-      SchemaProperty('nullableStringProp', RealmPropertyType.string,
-          optional: true),
-      SchemaProperty('nullableDateProp', RealmPropertyType.timestamp,
-          optional: true),
-      SchemaProperty('nullableObjectIdProp', RealmPropertyType.objectid,
-          optional: true),
-      SchemaProperty('nullableUuidProp', RealmPropertyType.uuid,
-          optional: true),
+      SchemaProperty(
+        'nullableDoubleProp',
+        RealmPropertyType.double,
+        optional: true,
+      ),
+      SchemaProperty(
+        'nullableStringProp',
+        RealmPropertyType.string,
+        optional: true,
+      ),
+      SchemaProperty(
+        'nullableDateProp',
+        RealmPropertyType.timestamp,
+        optional: true,
+      ),
+      SchemaProperty(
+        'nullableObjectIdProp',
+        RealmPropertyType.objectid,
+        optional: true,
+      ),
+      SchemaProperty(
+        'nullableUuidProp',
+        RealmPropertyType.uuid,
+        optional: true,
+      ),
     ]);
   }();
 

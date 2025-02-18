@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'optional_argument.dart';
@@ -9,9 +10,7 @@ part of 'optional_argument.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
-  Person({
-    Person? spouse,
-  }) {
+  Person({Person? spouse}) {
     RealmObjectBase.set(this, 'spouse', spouse);
   }
 
@@ -35,25 +34,25 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'spouse': spouse.toEJson(),
-    };
+    return <String, dynamic>{'spouse': spouse.toEJson()};
   }
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
-    return Person(
-      spouse: fromEJson(ejson['spouse']),
-    );
+    return Person(spouse: fromEJson(ejson['spouse']));
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
-      SchemaProperty('spouse', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
+      SchemaProperty(
+        'spouse',
+        RealmPropertyType.object,
+        optional: true,
+        linkTarget: 'Person',
+      ),
     ]);
   }();
 

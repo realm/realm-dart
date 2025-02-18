@@ -6,8 +6,9 @@ import 'package:ejson_generator/ejson_generator.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:test/test.dart';
 import 'package:meta/meta.dart';
+import 'package:pub_semver/pub_semver.dart';
 
-final _formatter = DartFormatter(lineEnding: '\n');
+final _formatter = DartFormatter(lineEnding: '\n', languageVersion: Version(3, 3, 0));
 final _tag = RegExp(r'// \*.*\n// EJsonGenerator\n// \*.*');
 
 @isTest

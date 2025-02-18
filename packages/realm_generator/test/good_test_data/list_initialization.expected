@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'list_initialization.dart';
@@ -22,23 +23,47 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
     Map<String, int> initMapConst = const {},
   }) {
     RealmObjectBase.set<RealmList<Person>>(
-        this, 'children', RealmList<Person>(children));
+      this,
+      'children',
+      RealmList<Person>(children),
+    );
     RealmObjectBase.set<RealmList<int>>(
-        this, 'initList', RealmList<int>(initList));
+      this,
+      'initList',
+      RealmList<int>(initList),
+    );
     RealmObjectBase.set<RealmList<int>>(
-        this, 'initListWithType', RealmList<int>(initListWithType));
+      this,
+      'initListWithType',
+      RealmList<int>(initListWithType),
+    );
     RealmObjectBase.set<RealmList<int>>(
-        this, 'initListConst', RealmList<int>(initListConst));
+      this,
+      'initListConst',
+      RealmList<int>(initListConst),
+    );
     RealmObjectBase.set<RealmSet<int>>(this, 'initSet', RealmSet<int>(initSet));
     RealmObjectBase.set<RealmSet<int>>(
-        this, 'initSetWithType', RealmSet<int>(initSetWithType));
+      this,
+      'initSetWithType',
+      RealmSet<int>(initSetWithType),
+    );
     RealmObjectBase.set<RealmSet<int>>(
-        this, 'initSetConst', RealmSet<int>(initSetConst));
+      this,
+      'initSetConst',
+      RealmSet<int>(initSetConst),
+    );
     RealmObjectBase.set<RealmMap<int>>(this, 'initMap', RealmMap<int>(initMap));
     RealmObjectBase.set<RealmMap<int>>(
-        this, 'initMapWithType', RealmMap<int>(initMapWithType));
+      this,
+      'initMapWithType',
+      RealmMap<int>(initMapWithType),
+    );
     RealmObjectBase.set<RealmMap<int>>(
-        this, 'initMapConst', RealmMap<int>(initMapConst));
+      this,
+      'initMapConst',
+      RealmMap<int>(initMapConst),
+    );
   }
 
   Person._();
@@ -145,16 +170,22 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
     return Person(
       children: fromEJson(ejson['children']),
       initList: fromEJson(ejson['initList'], defaultValue: const []),
-      initListWithType:
-          fromEJson(ejson['initListWithType'], defaultValue: const []),
+      initListWithType: fromEJson(
+        ejson['initListWithType'],
+        defaultValue: const [],
+      ),
       initListConst: fromEJson(ejson['initListConst'], defaultValue: const []),
       initSet: fromEJson(ejson['initSet'], defaultValue: const {}),
-      initSetWithType:
-          fromEJson(ejson['initSetWithType'], defaultValue: const {}),
+      initSetWithType: fromEJson(
+        ejson['initSetWithType'],
+        defaultValue: const {},
+      ),
       initSetConst: fromEJson(ejson['initSetConst'], defaultValue: const {}),
       initMap: fromEJson(ejson['initMap'], defaultValue: const {}),
-      initMapWithType:
-          fromEJson(ejson['initMapWithType'], defaultValue: const {}),
+      initMapWithType: fromEJson(
+        ejson['initMapWithType'],
+        defaultValue: const {},
+      ),
       initMapConst: fromEJson(ejson['initMapConst'], defaultValue: const {}),
     );
   }
@@ -163,26 +194,57 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Person._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Person, 'Person', [
-      SchemaProperty('children', RealmPropertyType.object,
-          linkTarget: 'Person', collectionType: RealmCollectionType.list),
-      SchemaProperty('initList', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('initListWithType', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('initListConst', RealmPropertyType.int,
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('initSet', RealmPropertyType.int,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('initSetWithType', RealmPropertyType.int,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('initSetConst', RealmPropertyType.int,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('initMap', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('initMapWithType', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('initMapConst', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
+      SchemaProperty(
+        'children',
+        RealmPropertyType.object,
+        linkTarget: 'Person',
+        collectionType: RealmCollectionType.list,
+      ),
+      SchemaProperty(
+        'initList',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.list,
+      ),
+      SchemaProperty(
+        'initListWithType',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.list,
+      ),
+      SchemaProperty(
+        'initListConst',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.list,
+      ),
+      SchemaProperty(
+        'initSet',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.set,
+      ),
+      SchemaProperty(
+        'initSetWithType',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.set,
+      ),
+      SchemaProperty(
+        'initSetConst',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.set,
+      ),
+      SchemaProperty(
+        'initMap',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.map,
+      ),
+      SchemaProperty(
+        'initMapWithType',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.map,
+      ),
+      SchemaProperty(
+        'initMapConst',
+        RealmPropertyType.int,
+        collectionType: RealmCollectionType.map,
+      ),
     ]);
   }();
 

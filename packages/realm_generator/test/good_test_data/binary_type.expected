@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'binary_type.dart';
@@ -9,10 +10,7 @@ part of 'binary_type.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
-  Foo(
-    Uint8List requiredBinaryProp, {
-    Uint8List? nullableBinaryProp,
-  }) {
+  Foo(Uint8List requiredBinaryProp, {Uint8List? nullableBinaryProp}) {
     RealmObjectBase.set(this, 'requiredBinaryProp', requiredBinaryProp);
     RealmObjectBase.set(this, 'nullableBinaryProp', nullableBinaryProp);
   }
@@ -55,10 +53,7 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
   static Foo _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'requiredBinaryProp': EJsonValue requiredBinaryProp,
-      } =>
-        Foo(
+      {'requiredBinaryProp': EJsonValue requiredBinaryProp} => Foo(
           fromEJson(requiredBinaryProp),
           nullableBinaryProp: fromEJson(ejson['nullableBinaryProp']),
         ),
@@ -71,8 +66,11 @@ class Foo extends _Foo with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Foo, 'Foo', [
       SchemaProperty('requiredBinaryProp', RealmPropertyType.binary),
-      SchemaProperty('nullableBinaryProp', RealmPropertyType.binary,
-          optional: true),
+      SchemaProperty(
+        'nullableBinaryProp',
+        RealmPropertyType.binary,
+        optional: true,
+      ),
     ]);
   }();
 

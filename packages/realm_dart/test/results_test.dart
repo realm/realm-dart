@@ -4,7 +4,6 @@
 // ignore_for_file: unused_local_variable
 
 import 'dart:typed_data';
-import 'package:test/test.dart' hide test, throws;
 
 import 'package:realm_dart/realm.dart';
 import 'test.dart';

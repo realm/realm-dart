@@ -66,14 +66,15 @@ EJsonValue _encodeRequiredNamedParameters(RequiredNamedParameters value) {
 
 RequiredNamedParameters _decodeRequiredNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'requiredNamed': EJsonValue requiredNamed} =>
-      RequiredNamedParameters(requiredNamed: fromEJson(requiredNamed)),
+    {'requiredNamed': EJsonValue requiredNamed} => RequiredNamedParameters(
+      requiredNamed: fromEJson(requiredNamed),
+    ),
     _ => raiseInvalidEJson(ejson),
   };
 }
 
 extension RequiredNamedParametersEJsonEncoderExtension
-    on RequiredNamedParameters {
+on RequiredNamedParameters {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeRequiredNamedParameters(this);
 }
@@ -87,14 +88,15 @@ EJsonValue _encodeOptionalNamedParameters(OptionalNamedParameters value) {
 
 OptionalNamedParameters _decodeOptionalNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'optionalNamed': EJsonValue optionalNamed} =>
-      OptionalNamedParameters(optionalNamed: fromEJson(optionalNamed)),
+    {'optionalNamed': EJsonValue optionalNamed} => OptionalNamedParameters(
+      optionalNamed: fromEJson(optionalNamed),
+    ),
     _ => raiseInvalidEJson(ejson),
   };
 }
 
 extension OptionalNamedParametersEJsonEncoderExtension
-    on OptionalNamedParameters {
+on OptionalNamedParameters {
   @pragma('vm:prefer-inline')
   EJsonValue toEJson() => _encodeOptionalNamedParameters(this);
 }
@@ -108,8 +110,9 @@ EJsonValue _encodeOptionalParameters(OptionalParameters value) {
 
 OptionalParameters _decodeOptionalParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'optional': EJsonValue optional} =>
-      OptionalParameters(fromEJson(optional)),
+    {'optional': EJsonValue optional} => OptionalParameters(
+      fromEJson(optional),
+    ),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -147,21 +150,26 @@ EJsonValue _encodePerson(Person value) {
     'birthDate': value.birthDate.toEJson(),
     'income': value.income.toEJson(),
     'spouse': value.spouse.toEJson(),
-    'cprNumber': value.cprNumber.toEJson()
+    'cprNumber': value.cprNumber.toEJson(),
   };
 }
 
 Person _decodePerson(EJsonValue ejson) {
   return switch (ejson) {
     {
-      'name': EJsonValue name,
-      'birthDate': EJsonValue birthDate,
-      'income': EJsonValue income,
-      'spouse': EJsonValue spouse,
-      'cprNumber': EJsonValue cprNumber
+    'name': EJsonValue name,
+    'birthDate': EJsonValue birthDate,
+    'income': EJsonValue income,
+    'spouse': EJsonValue spouse,
+    'cprNumber': EJsonValue cprNumber,
     } =>
-      Person(fromEJson(name), fromEJson(birthDate), fromEJson(income),
-          spouse: fromEJson(spouse), cprNumber: fromEJson(cprNumber)),
+        Person(
+          fromEJson(name),
+          fromEJson(birthDate),
+          fromEJson(income),
+          spouse: fromEJson(spouse),
+          cprNumber: fromEJson(cprNumber),
+        ),
     _ => raiseInvalidEJson(ejson),
   };
 }

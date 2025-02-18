@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'primary_key.dart';
@@ -9,9 +10,7 @@ part of 'primary_key.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
-  IntPK(
-    int id,
-  ) {
+  IntPK(int id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -34,21 +33,14 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
   IntPK freeze() => RealmObjectBase.freezeObject<IntPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(IntPK value) => value.toEJson();
   static IntPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        IntPK(
-          fromEJson(id),
-        ),
+      {'id': EJsonValue id} => IntPK(fromEJson(id)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -67,9 +59,7 @@ class IntPK extends _IntPK with RealmEntity, RealmObjectBase, RealmObject {
 
 class NullableIntPK extends _NullableIntPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  NullableIntPK(
-    int? id,
-  ) {
+  NullableIntPK(int? id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -85,29 +75,23 @@ class NullableIntPK extends _NullableIntPK
       RealmObjectBase.getChanges<NullableIntPK>(this);
 
   @override
-  Stream<RealmObjectChanges<NullableIntPK>> changesFor(
-          [List<String>? keyPaths]) =>
+  Stream<RealmObjectChanges<NullableIntPK>> changesFor([
+    List<String>? keyPaths,
+  ]) =>
       RealmObjectBase.getChangesFor<NullableIntPK>(this, keyPaths);
 
   @override
   NullableIntPK freeze() => RealmObjectBase.freezeObject<NullableIntPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(NullableIntPK value) => value.toEJson();
   static NullableIntPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        NullableIntPK(
-          fromEJson(ejson['id']),
-        ),
+      {'id': EJsonValue id} => NullableIntPK(fromEJson(ejson['id'])),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -116,10 +100,18 @@ class NullableIntPK extends _NullableIntPK
     RealmObjectBase.registerFactory(NullableIntPK._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, NullableIntPK, 'NullableIntPK', [
-      SchemaProperty('id', RealmPropertyType.int,
-          optional: true, primaryKey: true),
-    ]);
+      ObjectType.realmObject,
+      NullableIntPK,
+      'NullableIntPK',
+      [
+        SchemaProperty(
+          'id',
+          RealmPropertyType.int,
+          optional: true,
+          primaryKey: true,
+        ),
+      ],
+    );
   }();
 
   @override
@@ -128,9 +120,7 @@ class NullableIntPK extends _NullableIntPK
 
 class StringPK extends _StringPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  StringPK(
-    String id,
-  ) {
+  StringPK(String id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -153,21 +143,14 @@ class StringPK extends _StringPK
   StringPK freeze() => RealmObjectBase.freezeObject<StringPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(StringPK value) => value.toEJson();
   static StringPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        StringPK(
-          fromEJson(id),
-        ),
+      {'id': EJsonValue id} => StringPK(fromEJson(id)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -186,9 +169,7 @@ class StringPK extends _StringPK
 
 class NullableStringPK extends _NullableStringPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  NullableStringPK(
-    String? id,
-  ) {
+  NullableStringPK(String? id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -204,8 +185,9 @@ class NullableStringPK extends _NullableStringPK
       RealmObjectBase.getChanges<NullableStringPK>(this);
 
   @override
-  Stream<RealmObjectChanges<NullableStringPK>> changesFor(
-          [List<String>? keyPaths]) =>
+  Stream<RealmObjectChanges<NullableStringPK>> changesFor([
+    List<String>? keyPaths,
+  ]) =>
       RealmObjectBase.getChangesFor<NullableStringPK>(this, keyPaths);
 
   @override
@@ -213,21 +195,14 @@ class NullableStringPK extends _NullableStringPK
       RealmObjectBase.freezeObject<NullableStringPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(NullableStringPK value) => value.toEJson();
   static NullableStringPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        NullableStringPK(
-          fromEJson(ejson['id']),
-        ),
+      {'id': EJsonValue id} => NullableStringPK(fromEJson(ejson['id'])),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -236,10 +211,18 @@ class NullableStringPK extends _NullableStringPK
     RealmObjectBase.registerFactory(NullableStringPK._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, NullableStringPK, 'NullableStringPK', [
-      SchemaProperty('id', RealmPropertyType.string,
-          optional: true, primaryKey: true),
-    ]);
+      ObjectType.realmObject,
+      NullableStringPK,
+      'NullableStringPK',
+      [
+        SchemaProperty(
+          'id',
+          RealmPropertyType.string,
+          optional: true,
+          primaryKey: true,
+        ),
+      ],
+    );
   }();
 
   @override
@@ -248,9 +231,7 @@ class NullableStringPK extends _NullableStringPK
 
 class ObjectIdPK extends _ObjectIdPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  ObjectIdPK(
-    ObjectId id,
-  ) {
+  ObjectIdPK(ObjectId id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -273,21 +254,14 @@ class ObjectIdPK extends _ObjectIdPK
   ObjectIdPK freeze() => RealmObjectBase.freezeObject<ObjectIdPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(ObjectIdPK value) => value.toEJson();
   static ObjectIdPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        ObjectIdPK(
-          fromEJson(id),
-        ),
+      {'id': EJsonValue id} => ObjectIdPK(fromEJson(id)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -295,9 +269,12 @@ class ObjectIdPK extends _ObjectIdPK
   static final schema = () {
     RealmObjectBase.registerFactory(ObjectIdPK._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, ObjectIdPK, 'ObjectIdPK', [
-      SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true),
-    ]);
+    return const SchemaObject(
+      ObjectType.realmObject,
+      ObjectIdPK,
+      'ObjectIdPK',
+      [SchemaProperty('id', RealmPropertyType.objectid, primaryKey: true)],
+    );
   }();
 
   @override
@@ -306,9 +283,7 @@ class ObjectIdPK extends _ObjectIdPK
 
 class NullableObjectIdPK extends _NullableObjectIdPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  NullableObjectIdPK(
-    ObjectId? id,
-  ) {
+  NullableObjectIdPK(ObjectId? id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -324,8 +299,9 @@ class NullableObjectIdPK extends _NullableObjectIdPK
       RealmObjectBase.getChanges<NullableObjectIdPK>(this);
 
   @override
-  Stream<RealmObjectChanges<NullableObjectIdPK>> changesFor(
-          [List<String>? keyPaths]) =>
+  Stream<RealmObjectChanges<NullableObjectIdPK>> changesFor([
+    List<String>? keyPaths,
+  ]) =>
       RealmObjectBase.getChangesFor<NullableObjectIdPK>(this, keyPaths);
 
   @override
@@ -333,21 +309,14 @@ class NullableObjectIdPK extends _NullableObjectIdPK
       RealmObjectBase.freezeObject<NullableObjectIdPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(NullableObjectIdPK value) => value.toEJson();
   static NullableObjectIdPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        NullableObjectIdPK(
-          fromEJson(ejson['id']),
-        ),
+      {'id': EJsonValue id} => NullableObjectIdPK(fromEJson(ejson['id'])),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -356,10 +325,18 @@ class NullableObjectIdPK extends _NullableObjectIdPK
     RealmObjectBase.registerFactory(NullableObjectIdPK._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, NullableObjectIdPK, 'NullableObjectIdPK', [
-      SchemaProperty('id', RealmPropertyType.objectid,
-          optional: true, primaryKey: true),
-    ]);
+      ObjectType.realmObject,
+      NullableObjectIdPK,
+      'NullableObjectIdPK',
+      [
+        SchemaProperty(
+          'id',
+          RealmPropertyType.objectid,
+          optional: true,
+          primaryKey: true,
+        ),
+      ],
+    );
   }();
 
   @override
@@ -367,9 +344,7 @@ class NullableObjectIdPK extends _NullableObjectIdPK
 }
 
 class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
-  UuidPK(
-    Uuid id,
-  ) {
+  UuidPK(Uuid id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -392,21 +367,14 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
   UuidPK freeze() => RealmObjectBase.freezeObject<UuidPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(UuidPK value) => value.toEJson();
   static UuidPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        UuidPK(
-          fromEJson(id),
-        ),
+      {'id': EJsonValue id} => UuidPK(fromEJson(id)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -425,9 +393,7 @@ class UuidPK extends _UuidPK with RealmEntity, RealmObjectBase, RealmObject {
 
 class NullableUuidPK extends _NullableUuidPK
     with RealmEntity, RealmObjectBase, RealmObject {
-  NullableUuidPK(
-    Uuid? id,
-  ) {
+  NullableUuidPK(Uuid? id) {
     RealmObjectBase.set(this, 'id', id);
   }
 
@@ -443,29 +409,23 @@ class NullableUuidPK extends _NullableUuidPK
       RealmObjectBase.getChanges<NullableUuidPK>(this);
 
   @override
-  Stream<RealmObjectChanges<NullableUuidPK>> changesFor(
-          [List<String>? keyPaths]) =>
+  Stream<RealmObjectChanges<NullableUuidPK>> changesFor([
+    List<String>? keyPaths,
+  ]) =>
       RealmObjectBase.getChangesFor<NullableUuidPK>(this, keyPaths);
 
   @override
   NullableUuidPK freeze() => RealmObjectBase.freezeObject<NullableUuidPK>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'id': id.toEJson(),
-    };
+    return <String, dynamic>{'id': id.toEJson()};
   }
 
   static EJsonValue _toEJson(NullableUuidPK value) => value.toEJson();
   static NullableUuidPK _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'id': EJsonValue id,
-      } =>
-        NullableUuidPK(
-          fromEJson(ejson['id']),
-        ),
+      {'id': EJsonValue id} => NullableUuidPK(fromEJson(ejson['id'])),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -474,10 +434,18 @@ class NullableUuidPK extends _NullableUuidPK
     RealmObjectBase.registerFactory(NullableUuidPK._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, NullableUuidPK, 'NullableUuidPK', [
-      SchemaProperty('id', RealmPropertyType.uuid,
-          optional: true, primaryKey: true),
-    ]);
+      ObjectType.realmObject,
+      NullableUuidPK,
+      'NullableUuidPK',
+      [
+        SchemaProperty(
+          'id',
+          RealmPropertyType.uuid,
+          optional: true,
+          primaryKey: true,
+        ),
+      ],
+    );
   }();
 
   @override

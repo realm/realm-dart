@@ -12,4 +12,4 @@ environment:
   sdk: ^3.3.0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^5.0.0
