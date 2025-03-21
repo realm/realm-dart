@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'map.dart';
@@ -168,7 +169,8 @@ class LotsOfMaps extends _LotsOfMaps
   static final schema = () {
     RealmObjectBase.registerFactory(LotsOfMaps._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
+    return const SchemaObject(
+        ObjectType.realmObject, LotsOfMaps, 'LotsOfMaps', [
       SchemaProperty('persons', RealmPropertyType.object,
           optional: true,
           linkTarget: 'Person',

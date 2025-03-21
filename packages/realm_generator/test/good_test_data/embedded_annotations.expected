@@ -1,3 +1,4 @@
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'embedded_annotations.dart';
@@ -149,7 +150,8 @@ class Child1 extends _Child1 with RealmEntity, RealmObjectBase, EmbeddedObject {
   static final schema = () {
     RealmObjectBase.registerFactory(Child1._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject, Child1, 'MySuperChild', [
+    return const SchemaObject(
+        ObjectType.embeddedObject, Child1, 'MySuperChild', [
       SchemaProperty('value', RealmPropertyType.string, mapTo: '_value'),
       SchemaProperty('linkToParent', RealmPropertyType.object,
           mapTo: '_parent', optional: true, linkTarget: 'Parent'),
