@@ -5,8 +5,8 @@ version: 2.0.0-alpha.2
 publish_to: "none"
 
 environment:
-  sdk: ^3.3.0
-  flutter: ^3.19.0
+  sdk: ^3.6.0
+  flutter: ^3.27.0
 
 dependencies:
   flutter:
@@ -15,7 +15,7 @@ dependencies:
   characters: ^1.1.0
 
 dev_dependencies:
-  flutter_lints: ^3.0.1
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true

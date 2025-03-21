@@ -14,10 +14,10 @@ packages:
 command:
   bootstrap:
     environment:
-      sdk: ^3.3.0
-      flutter: ^3.19.0
+      sdk: ^3.6.0
+      flutter: ^3.27.0
     dev_dependencies:
-      lints: ^3.0.0
+      lints: ^5.1.1
 
   clean:
     hooks:

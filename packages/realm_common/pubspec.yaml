@@ -10,12 +10,12 @@ repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
 environment:
-  sdk: ^3.3.0
+  sdk: ^3.6.0
 
 dependencies:
   collection: ^1.18.0
-  objectid: ^3.0.0
+  objectid: ^4.0.0
   sane_uuid: ^1.0.0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^5.1.1

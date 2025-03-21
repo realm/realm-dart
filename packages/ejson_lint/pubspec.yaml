@@ -9,13 +9,13 @@ version: 0.4.0
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson_lint
 
 environment:
-  sdk: ^3.3.0
+  sdk: ^3.6.0
 
 dependencies:
-  analyzer: ^6.0.0
-  custom_lint_builder: ^0.6.2
+  analyzer: ^7.3.0
+  custom_lint_builder: ^0.7.0
   ejson_analyzer: ^0.4.0
 
 dev_dependencies:
-  lints: ^3.0.0
+  lints: ^5.1.1
   test: ^1.21.0
