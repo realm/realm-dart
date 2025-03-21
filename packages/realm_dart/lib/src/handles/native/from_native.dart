@@ -17,12 +17,16 @@ const int _microsecondsPerSecond = 1000 * 1000;
 const int _nanosecondsPerMicrosecond = 1000;
 
 extension RealmValueEx on realm_value_t {
-  Object? toPrimitiveValue() => toDartValue(realm: null, getList: null, getMap: null);
+  Object? toPrimitiveValue() =>
+      toDartValue(realm: null, getList: null, getMap: null);
 
   realm_value_type get typeEnum => realm_value_type.fromValue(type);
   void set typeEnum(realm_value_type value) => type = value.value;
 
-  Object? toDartValue({required Realm? realm, required Pointer<realm_list_t> Function()? getList, required Pointer<realm_dictionary_t> Function()? getMap}) {
+  Object? toDartValue(
+      {required Realm? realm,
+      required Pointer<realm_list_t> Function()? getList,
+      required Pointer<realm_dictionary_t> Function()? getMap}) {
     switch (typeEnum) {
       case realm_value_type.RLM_TYPE_NULL:
         return null;
@@ -31,7 +35,9 @@ extension RealmValueEx on realm_value_t {
       case realm_value_type.RLM_TYPE_BOOL:
         return values.boolean;
       case realm_value_type.RLM_TYPE_STRING:
-        return values.string.data.cast<Utf8>().toRealmDartString(length: values.string.size)!;
+        return values.string.data
+            .cast<Utf8>()
+            .toRealmDartString(length: values.string.size)!;
       case realm_value_type.RLM_TYPE_FLOAT:
         return values.fnum;
       case realm_value_type.RLM_TYPE_DOUBLE:
@@ -42,17 +48,23 @@ extension RealmValueEx on realm_value_t {
         }
         final objectKey = values.link.target;
         final classKey = values.link.target_table;
-        if (realm.metadata.getByClassKeyIfExists(classKey) == null) return null; // temporary workaround to avoid crash on assertion
+        if (realm.metadata.getByClassKeyIfExists(classKey) == null)
+          return null; // temporary workaround to avoid crash on assertion
         return realm.handle.getObject(classKey, objectKey);
       case realm_value_type.RLM_TYPE_BINARY:
-        return Uint8List.fromList(values.binary.data.asTypedList(values.binary.size));
+        return Uint8List.fromList(
+            values.binary.data.asTypedList(values.binary.size));
       case realm_value_type.RLM_TYPE_TIMESTAMP:
         final seconds = values.timestamp.seconds;
         final nanoseconds = values.timestamp.nanoseconds;
-        return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ _nanosecondsPerMicrosecond, isUtc: true);
+        return DateTime.fromMicrosecondsSinceEpoch(
+            seconds * _microsecondsPerSecond +
+                nanoseconds ~/ _nanosecondsPerMicrosecond,
+            isUtc: true);
       case realm_value_type.RLM_TYPE_DECIMAL128:
         var decimal = values.decimal128; // NOTE: Does not copy the struct!
-        decimal = realmLib.realm_dart_decimal128_copy(decimal); // This is a workaround to that
+        decimal = realmLib.realm_dart_decimal128_copy(
+            decimal); // This is a workaround to that
         return Decimal128Internal.fromNative(decimal);
       case realm_value_type.RLM_TYPE_OBJECT_ID:
         return ObjectId.fromBytes(values.object_id.bytes.toList(12));
@@ -61,14 +73,16 @@ extension RealmValueEx on realm_value_t {
         return Uuid.fromBytes(Uint8List.fromList(listInt));
       case realm_value_type.RLM_TYPE_LIST:
         if (getList == null || realm == null) {
-          throw RealmException('toDartValue called with a list argument but without a list getter');
+          throw RealmException(
+              'toDartValue called with a list argument but without a list getter');
         }
 
         final listHandle = ListHandle(getList(), realm.handle as RealmHandle);
         return realm.createList<RealmValue>(listHandle, null);
       case realm_value_type.RLM_TYPE_DICTIONARY:
         if (getMap == null || realm == null) {
-          throw RealmException('toDartValue called with a list argument but without a list getter');
+          throw RealmException(
+              'toDartValue called with a list argument but without a list getter');
         }
 
         final mapHandle = MapHandle(getMap(), realm.handle as RealmHandle);
@@ -121,7 +135,10 @@ extension PointerVoidEx on Pointer<Void> {
 }
 
 extension PointerUtf8Ex on Pointer<Utf8> {
-  String? toRealmDartString({bool treatEmptyAsNull = false, int? length, bool freeRealmMemory = false}) {
+  String? toRealmDartString(
+      {bool treatEmptyAsNull = false,
+      int? length,
+      bool freeRealmMemory = false}) {
     if (this == nullptr) {
       return null;
     }
@@ -149,18 +166,26 @@ extension ObjectEx on Object {
 
 extension RealmPropertyInfoEx on realm_property_info {
   SchemaProperty toSchemaProperty() {
-    final linkTarget = link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
-    return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
-        optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE.value == realm_property_flags.RLM_PROPERTY_NULLABLE.value,
-        primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value,
-        linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
+    final linkTarget =
+        link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
+    return SchemaProperty(
+        name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
+        optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE.value ==
+            realm_property_flags.RLM_PROPERTY_NULLABLE.value,
+        primaryKey:
+            flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value ==
+                realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value,
+        linkTarget:
+            linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
         collectionType: RealmCollectionType.values[collection_type]);
   }
 }
 
 extension RealmTimestampEx on realm_timestamp_t {
   DateTime toDart() {
-    return DateTime.fromMicrosecondsSinceEpoch(seconds * _microsecondsPerSecond + nanoseconds ~/ 1000, isUtc: true);
+    return DateTime.fromMicrosecondsSinceEpoch(
+        seconds * _microsecondsPerSecond + nanoseconds ~/ 1000,
+        isUtc: true);
   }
 }
 
@@ -200,7 +225,8 @@ extension PlatformEx on Platform {
 }
 
 extension PointerRealmValueEx on Pointer<realm_value_t> {
-  Object? toDartValue(Realm realm, Pointer<realm_list_t> Function()? getList, Pointer<realm_dictionary_t> Function()? getMap) {
+  Object? toDartValue(Realm realm, Pointer<realm_list_t> Function()? getList,
+      Pointer<realm_dictionary_t> Function()? getMap) {
     if (this == nullptr) {
       throw RealmException("Can not convert nullptr realm_value to Dart value");
     }
@@ -211,7 +237,8 @@ extension PointerRealmValueEx on Pointer<realm_value_t> {
     final result = List.filled(count, '');
     for (var i = 0; i < count; i++) {
       final strValue = (this + i).ref.values.string;
-      result[i] = strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
+      result[i] =
+          strValue.data.cast<Utf8>().toRealmDartString(length: strValue.size)!;
     }
 
     return result;
