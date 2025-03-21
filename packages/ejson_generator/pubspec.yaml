@@ -2,7 +2,7 @@ name: ejson_generator
 description: >-
   EJSON serialization.
 
-  BSON is a binary format used to store JSON-like documents efficiently. 
+  BSON is a binary format used to store JSON-like documents efficiently.
   EJSON extends JSON defining how all BSON types should be represented in JSON.
 
 topics:
@@ -33,3 +33,4 @@ dev_dependencies:
   lints: ^5.1.1
   meta: ^1.15.0
   test: ^1.25.9
+  pub_semver: ^2.2.0
