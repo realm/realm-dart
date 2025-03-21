@@ -26,7 +26,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   integration_test:
     sdk: flutter
-  test: any
+  test: ^1.25.13
   timezone: ^0.10.0
   universal_platform: ^1.1.0
 
