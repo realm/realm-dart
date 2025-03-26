@@ -27,7 +27,7 @@ This repository holds the source code for the Realm SDK for Flutterâ„¢ and Dartâ
 
 ## Getting Started
 
-* Import Realm in a dart file `app.dart`
+* Import Realm in a dart file `app.dart`. Remember to add `part 'app<the file name>.realm.dart'` below the imports or Realm won't generate needed objects automatically, although the language server may complain the URI does not exist.
 
     ```dart
     import 'package:realm/realm.dart';  // import realm package
@@ -149,7 +149,7 @@ Realm Flutter package is published to [realm](https://pub.dev/packages/realm).
 
 * Create a data model class.
 
-    It should start with an underscore `_Item` and be annotated with `@RealmModel()`
+    It should start with an underscore `_Item` and be annotated with `@RealmModel()`. If the object needs to be used inside other data model classes, annotate with `@RealmModel(ObjectType.embeddedObject)` instead.
 
     ```dart
     @RealmModel()
