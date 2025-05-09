@@ -47,10 +47,10 @@ class PlatformUtil implements intf.PlatformUtil {
 
   @override
   Map<String, String> get environment => Platform.environment;
-  
+
   @override
   int get maxInt => 0x7FFFFFFFFFFFFFFF;
-  
+
   @override
   int get minInt => -0x8000000000000000;
 }

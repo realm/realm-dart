@@ -35,7 +35,7 @@ jobs:
     name: Build Linux
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: ubuntu-20.04 # Building on the lowest possible Linux (Ubuntu) version for compatibility
+      runner: ubuntu-22.04 # Building on the lowest possible Linux (Ubuntu) version for compatibility
       binary: linux
       build: '["linux"]'
 
@@ -43,7 +43,7 @@ jobs:
     name: Build Android
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: ubuntu-20.04
+      runner: ubuntu-22.04
       binary: android
       build: '["android-x86_64", "android-armeabi-v7a", "android-arm64-v8a"]'
 

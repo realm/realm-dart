@@ -27,10 +27,10 @@ class MissingGetter extends DartLintRule {
       final ctor = node.declaredElement;
       if (ctor == null) return; // not resolved;
       if (isEJsonAnnotated(ctor)) {
-        final cls = ctor.enclosingElement as ClassElement;
+        final cls = ctor.enclosingElement3 as ClassElement;
         for (final param in ctor.parameters) {
           final getter = cls.getGetter(param.name);
-          if (getter == null) reporter.reportErrorForElement(code, param);
+          if (getter == null) reporter.atElement(param, code);
         }
       }
     });

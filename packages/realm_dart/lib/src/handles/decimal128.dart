@@ -3,8 +3,7 @@
 
 import 'package:realm_common/realm_common.dart' as common;
 
-import 'native/decimal128.dart'
-    if (dart.library.js_interop) 'web/decimal128.dart' as impl;
+import 'native/decimal128.dart' if (dart.library.js_interop) 'web/decimal128.dart' as impl;
 
 abstract interface class Decimal128 implements Comparable<Decimal128>, common.Decimal128 {
   /// The value 0.
@@ -76,4 +75,4 @@ abstract interface class Decimal128 implements Comparable<Decimal128>, common.De
   /// Compares `this` to `other`.
   @override
   int compareTo(Decimal128 other);
-} 
+}

@@ -24,7 +24,7 @@ import 'type_checkers.dart';
 extension FieldElementEx on FieldElement {
   static const realmSetUnsupportedRealmTypes = [RealmPropertyType.linkingObjects];
 
-  ClassElement get enclosingClassElement => enclosingElement as ClassElement;
+  ClassElement get enclosingClassElement => enclosingElement3 as ClassElement;
 
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
@@ -163,7 +163,7 @@ extension FieldElementEx on FieldElement {
       String? linkOriginProperty;
 
       // Validate field type
-      final modelSpan = enclosingElement.span!;
+      final modelSpan = enclosingElement3.span!;
       final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
@@ -185,7 +185,7 @@ extension FieldElementEx on FieldElement {
           primarySpan: typeSpan(file),
           primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement.displayName}'",
+            modelSpan: "in realm model '${enclosingElement3.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },
@@ -293,7 +293,7 @@ extension FieldElementEx on FieldElement {
             );
           }
 
-          final thisType = (enclosingElement as ClassElement).thisType;
+          final thisType = (enclosingElement3 as ClassElement).thisType;
           final linkType = thisType.asNullable;
           final listOf = session.typeProvider.listType(thisType);
           if (sourceField.type != linkType && sourceField.type != listOf) {
@@ -398,7 +398,7 @@ extension FieldElementEx on FieldElement {
       ParenthesizedExpression i => _isValidFieldInitializer(i.expression),
       PrefixExpression e => _isValidFieldInitializer(e.operand),
       BinaryExpression b => _isValidFieldInitializer(b.leftOperand) && _isValidFieldInitializer(b.rightOperand),
-      Identifier i => (i.staticElement as PropertyAccessorElement?)?.variable.isConst ?? false,
+      Identifier i => (i.staticElement as PropertyAccessorElement?)?.variable2?.isConst ?? false,
       _ => false,
     };
   }

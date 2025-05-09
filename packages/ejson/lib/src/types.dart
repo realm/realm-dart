@@ -32,7 +32,7 @@ enum EJsonType {
 enum BsonKey { min, max }
 
 /// See [DBRef](https://github.com/mongodb/specifications/blob/master/source/dbref.md)
-/// This is not technically a BSON type, but a common convention. 
+/// This is not technically a BSON type, but a common convention.
 final class DBRef<KeyT> {
   // Do we need to support the database name?
   final String collection;

@@ -26,9 +26,11 @@ class Options {
 
 String get usage => _$parserForOptions.usage;
 
-ArgParser populateOptionsParser(ArgParser parser, {
+ArgParser populateOptionsParser(
+  ArgParser parser, {
   TargetOsType? targetOsTypeDefaultOverride,
   Flavor? flavorDefaultOverride,
-}) => _$populateOptionsParser(parser, targetOsTypeDefaultOverride: targetOsTypeDefaultOverride, flavorDefaultOverride: flavorDefaultOverride);
+}) =>
+    _$populateOptionsParser(parser, targetOsTypeDefaultOverride: targetOsTypeDefaultOverride, flavorDefaultOverride: flavorDefaultOverride);
 
 Options parseOptionsResult(ArgResults results) => _$parseOptionsResult(results);

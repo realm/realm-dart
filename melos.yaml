@@ -14,10 +14,10 @@ packages:
 command:
   bootstrap:
     environment:
-      sdk: ^3.3.0
-      flutter: ^3.19.0
+      sdk: ^3.6.0
+      flutter: ^3.27.0
     dev_dependencies:
-      lints: ^3.0.0
+      lints: ^5.1.1
 
   clean:
     hooks:
@@ -120,7 +120,7 @@ scripts:
     # while we wait for https://github.com/dart-lang/dart_style/issues/864
     run: >-
       find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
-      | xargs dart format --fix --line-length 160
+      | xargs dart format --line-length 160
     exec:
       concurrency: 1 # only one project at a time to keep output sane
 
@@ -142,7 +142,7 @@ scripts:
     # while we wait for https://github.com/dart-lang/dart_style/issues/864
     run: >-
       find lib test integration_test -name '*.dart' -not -name '*.g.dart' -not -name '*.realm.dart' -not -name 'realm_bindings.dart' 2> /dev/null
-      | xargs dart format --fix --line-length 160 --output none --set-exit-if-changed
+      | xargs dart format --line-length 160 --output none --set-exit-if-changed
     exec:
       concurrency: 1 # only one project at a time to keep output sane
 

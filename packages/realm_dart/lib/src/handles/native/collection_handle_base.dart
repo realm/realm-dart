@@ -13,6 +13,7 @@ import 'rooted_handle.dart';
 abstract class CollectionHandleBase<T extends NativeType> extends RootedHandleBase<T> {
   CollectionHandleBase(super.root, super.pointer, super.size);
 }
+
 void createCollection(Realm realm, RealmValue value, Pointer<realm_list> Function() createList, Pointer<realm_dictionary> Function() createMap) {
   CollectionHandleBase? collectionHandle;
   try {

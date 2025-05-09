@@ -1,4 +1,3 @@
-
 extension NullableObjectEx<T> on T? {
   U? convert<U>(U Function(T) convertor) {
     final self = this;
