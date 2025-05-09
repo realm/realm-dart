@@ -1,4 +1,4 @@
-## vNext (TBD)
+## 20.1.0 (2025-05-09)
 
 ### Enhancements
 * Ignore coverage in generated files. (Issue [#1826](https://github.com/realm/realm-dart/issues/1826))
