@@ -21,13 +21,13 @@ class Scheduler {
     // There be dragons here!!!
     //
     // As of Dart 3.4 (Flutter 3.22) we started seeing uncaught exceptions on
-    // the receivePort handler (issue #1676), stating that: 
-    // "argument value for 'return_value' is null" in 
-    // RealmLibrary.realm_scheduler_perform_work, but obviously a void method 
+    // the receivePort handler (issue #1676), stating that:
+    // "argument value for 'return_value' is null" in
+    // RealmLibrary.realm_scheduler_perform_work, but obviously a void method
     // don't return anything, so this is really a Dart issue.
     //
-    // However, by ensuring the callback happens in the current zone (as it 
-    // rightfully should), and using bindUnaryCallbackGuarded, we can avoid 
+    // However, by ensuring the callback happens in the current zone (as it
+    // rightfully should), and using bindUnaryCallbackGuarded, we can avoid
     // these.
     _receivePort.handler = Zone.current.bindUnaryCallbackGuarded(_handle);
     final sendPort = _receivePort.sendPort;

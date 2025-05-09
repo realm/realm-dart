@@ -1,12 +1,13 @@
 ## 0.4.1
 
-- Avoid name conflict on `LinkCode`. 
+- Upgrade min Dart SDK to 3.6.0, update all dependencies to latest stable version, and tighten lower bounds.
+- Avoid name conflict on `LinkCode`.
 
 ## 0.4.0
 
-- `fromEJson<T>` now accepts a `defaultValue` argument that is returned if  
+- `fromEJson<T>` now accepts a `defaultValue` argument that is returned if
   `null` is passed as `ejson`.
-- `register<T>` takes an optional `superTypes` argument to specify the super 
+- `register<T>` takes an optional `superTypes` argument to specify the super
   types of `T` if needed.
 
 ## 0.3.1
