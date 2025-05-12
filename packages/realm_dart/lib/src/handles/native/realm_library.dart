@@ -10,7 +10,7 @@ import 'realm_bindings.dart';
 const bugInTheSdkMessage = "This is likely a bug in the Realm SDK - please file an issue at https://github.com/realm/realm-dart/issues";
 
 // stamped into the library by the build system (see prepare-release.yml)
-const libraryVersion = '3.4.2';
+const libraryVersion = '20.1.1';
 
 final realmLib = () {
   final result = RealmLibrary(initRealm());

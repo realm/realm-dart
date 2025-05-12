@@ -12,7 +12,7 @@ topics:
   - build-runner
   - codegen
 
-version: 0.4.0
+version: 0.4.1
 repository: https://github.com/realm/realm-dart/ejson/packages/ejson
 
 environment:
@@ -20,13 +20,13 @@ environment:
 
 dependencies:
   collection: ^1.17.0
-  ejson_annotation: ^0.4.0
+  ejson_annotation: ^0.4.1
   objectid: ^3.0.0
   sane_uuid: ^1.0.0
   type_plus: ^2.0.0
 
 dev_dependencies:
   build_runner: ^2.0.0
-  ejson_generator: ^0.4.0
+  ejson_generator: ^0.4.1
   lints: ^3.0.0
   test: ^1.21.0
