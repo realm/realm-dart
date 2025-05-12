@@ -1,0 +1,37 @@
+name: Windows Build Combine
+
+on:
+  workflow_call:
+
+jobs:
+  build-windows-combined:
+    name: Combine Windows binaries
+    timeout-minutes: 15
+    runs-on:  windows-latest
+    steps:
+      - name: Fetch x64 build
+        uses: actions/download-artifact@v4
+        with:
+          name: librealm-windows-x64
+          path: packages/realm_dart/binary/windows
+
+      - name: Fetch arm64 build
+        uses: actions/download-artifact@v4
+        with:
+          name: librealm-windows-arm64
+          path: packages/realm_dart/binary/windows
+
+      - name: Store combined artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: librealm-windows
+          path: packages/realm_dart/binary/windows
+          retention-days: 1
+
+      - name: Delete individual build artifacts
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: |
+            librealm-windows-x64
+            librealm-windows-arm64
+          failOnError: false
