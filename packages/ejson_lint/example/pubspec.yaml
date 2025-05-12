@@ -8,9 +8,9 @@ environment:
   sdk: ^3.6.0
 
 dependencies:
-  ejson_annotation: ^0.4.0
+  ejson_annotation: ^0.4.1
 
 dev_dependencies:
   custom_lint: ^0.7.1
-  ejson_lint: ^0.4.0
+  ejson_lint: ^0.4.1
   lints: ^5.1.1
