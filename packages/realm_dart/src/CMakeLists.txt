@@ -64,6 +64,10 @@ if(ANDROID)
     # Add a custom target to strip the binary
     add_custom_target(strip ${CMAKE_STRIP} $<TARGET_FILE:realm_dart>)
 
+    # 16 KB page size compatibility
+    target_link_options(realm_dart PRIVATE "-Wl,-z,max-page-size=16384")
+    target_link_options(realm_dart PRIVATE "-Wl,-z,common-page-size=16384")
+
 elseif(CMAKE_SYSTEM_NAME STREQUAL iOS)
     target_sources(realm_dart PRIVATE
         ios/platform.mm
