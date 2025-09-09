@@ -6,8 +6,8 @@
 > For a version of `realm-dart` without sync features, install version 20 or see the `community` branch.
 
 <picture>
-    <source srcset="./media/logo-dark.svg" media="(prefers-color-scheme: dark)" alt="realm by MongoDB">
-    <img src="./media/logo.svg" alt="realm by MongoDB">
+    <source srcset="./media/logo-dark.svg" media="(prefers-color-scheme: dark)" alt="realm">
+    <img src="./media/logo.svg" alt="realm">
 </picture>
 
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE)
@@ -97,14 +97,10 @@ For API documentation go to
 
 Use [realm](https://pub.dev/packages/realm) package for Flutter and [realm_dart](https://pub.dev/packages/realm_dart) package for Dart applications.
 
-For complete documentation of the SDKs, go to the [Realm SDK documentation](https://www.mongodb.com/docs/atlas/device-sdks/sdk/flutter/).
+For complete documentation of the SDKs, refer to the
+[docs/guides](docs/README.md).
 
-If you are using the Realm SDK for the first time, refer to the [Quick Start documentation](https://www.mongodb.com/docs/realm/sdk/flutter/quick-start/).
-
-To learn more about using Realm with Atlas App Services and Device Sync, refer to the following Realm SDK documentation:
-
-- [App Services Overview](https://www.mongodb.com/docs/realm/sdk/flutter/app-services/)
-- [Device Sync Overview](https://www.mongodb.com/docs/realm/sdk/flutter/sync/)
+If you are using the Realm SDK for the first time, refer to the [Quick Start documentation](docs/guides/quick-start.md).
 
 # Realm Flutter SDK
 
