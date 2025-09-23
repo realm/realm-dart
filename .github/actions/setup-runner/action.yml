@@ -32,7 +32,7 @@ runs:
         echo "week=$(date +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Restore cache
-      # TODO: Avoid skipping restore on Windows 
+      # TODO: Avoid skipping restore on Windows
       # (see https://github.com/pingbird/puro/issues/87)
       if: runner.os != 'Windows'
       id: restore
@@ -47,7 +47,7 @@ runs:
       # Skip on any cache hit (partial or full)
       if: runner.os != 'Windows' && steps.restore.outputs.cache-matched-key == ''
       shell: bash
-      run: curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.6" bash
+      run: curl -sS -o- https://puro.dev/install.sh | PURO_VERSION="1.4.11" bash
 
     - name: Install puro (windows)
       # We always install on windows, as we currently don't restore a cache (see TODO above)
@@ -55,7 +55,7 @@ runs:
       shell: pwsh
       run: >-
         Invoke-WebRequest
-        -Uri "https://puro.dev/builds/1.4.6/windows-x64/puro.exe"
+        -Uri "https://puro.dev/builds/1.4.11/windows-x64/puro.exe"
         -OutFile "$Env:PURO_ROOT";
         &"$Env:PURO_ROOT\puro.exe" install-puro --promote
 

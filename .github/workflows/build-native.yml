@@ -27,12 +27,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-         build: ${{ fromJSON(inputs.build) }}
+        build: ${{ fromJSON(inputs.build) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
 
       - name: Check cache
         id: check-cache
@@ -55,7 +55,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           xcodes installed
-          sudo xcodes select 15.4
+          sudo xcodes select 16.4
 
       - name: Build
         if: steps.check-cache.outputs.cache-hit != 'true'
