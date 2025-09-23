@@ -7,7 +7,7 @@ jobs:
   build-android-combined:
     name: Combine Android binaries
     timeout-minutes: 15
-    runs-on:  ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Fetch x86_64 build
         uses: actions/download-artifact@v4
@@ -35,7 +35,7 @@ jobs:
           retention-days: 1
 
       - name: Delete individual build artifacts
-        uses: geekyeggo/delete-artifact@v4
+        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: |
             librealm-android-x86_64
