@@ -49,5 +49,4 @@ Explore engineering and expert-provided example projects to learn best
 practices and common development patterns using the Flutter SDK.
 
 Check out the following for sample apps:
-- Example Projects page
 - [Realm Dart Samples](https://github.com/realm/realm-dart-samples) GitHub repo
