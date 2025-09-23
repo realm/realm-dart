@@ -51,7 +51,7 @@ jobs:
     name: Build IOS
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: macos-14
+      runner: macos-latest
       binary: ios
       build: '["ios-device", "ios-simulator"]'
 
