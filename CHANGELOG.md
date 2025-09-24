@@ -3,6 +3,8 @@
 ### Enhancements
 * Ignore coverage in generated files. (Issue [#1826](https://github.com/realm/realm-dart/issues/1826))
 * Upgrade min Dart SDK to 3.6.0, update all dependencies to latest stable version, and tighten lower bounds. (Issue [#1825](https://github.com/realm/realm-dart/issues/1825))
+* Adds support for Android 16 KB page size. (Issue [#1801](https://github.com/realm/realm-dart/issues/1801)
+
 
 ### Fixed
 * Update source_gen to latest stable version (^2.0.0). (Issue [#1825](https://github.com/realm/realm-dart/issues/1825))
