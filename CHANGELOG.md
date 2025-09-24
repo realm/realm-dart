@@ -1,10 +1,7 @@
-## vNext (TBD)
+## 20.2.0 (2025-09-24)
 
 ### Enhancements
 * Adds support for Android 16 KB page size. (Issue [#1801](https://github.com/realm/realm-dart/issues/1801)
-
-### Fixed
-* None
 
 ### Compatibility
 * Realm Studio: 15.0.0 or later.
