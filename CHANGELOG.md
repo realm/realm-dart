@@ -1,7 +1,7 @@
 ## vNext (TBD)
 
 ### Enhancements
-* None
+* Adds support for Android 16 KB page size. (Issue [#1801](https://github.com/realm/realm-dart/issues/1801)
 
 ### Fixed
 * None
@@ -10,7 +10,7 @@
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 20.0.1.
 
 ## 20.1.1 (2025-05-12)
 
@@ -18,7 +18,7 @@
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 20.0.1.
 
 ## 20.1.0 (2025-05-09)
 
@@ -33,7 +33,7 @@
 * Realm Studio: 15.0.0 or later.
 
 ### Internal
-* Using Core x.y.z.
+* Using Core 20.0.1.
 
 ## 20.0.1 (2025-01-02)
 
