@@ -7,10 +7,6 @@ on:
         description: GitHub runner image to execute on.
         required: true
         type: string
-      differentiator:
-        description: Differentiator for the BaaS container.
-        required: true
-        type: string
       arch:
         description: Architecture to execute on.
         default: x64
@@ -24,12 +20,9 @@ jobs:
     runs-on: ${{ inputs.runner }}
     name: Flutter tests on ${{ inputs.runner }}-${{ inputs.arch }}
     timeout-minutes: 45
-    env:
-      BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
-      BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
     defaults:
       run:
-        working-directory: packages/realm/tests  
+        working-directory: packages/realm/tests
 
     steps:
 
@@ -44,7 +37,7 @@ jobs:
         shell: bash
 
       - id: runner_os_lowercase
-        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯ 
+        # there is no such thing as ${{ tolower(runner.os) }}, hence this abomination ¯\_(ツ)_/¯
         # use with steps.runner_os_lowercase.outputs.os
         run: echo ${{ runner.os }} | awk '{print "os=" tolower($0)}' >> $GITHUB_OUTPUT
         shell: bash
@@ -74,8 +67,6 @@ jobs:
         run: |
           ${{ runner.os == 'linux' && 'xvfb-run' || '' }} \
           flutter test integration_test/all_tests.dart \
-            --dart-define=BAAS_BAASAAS_API_KEY=$BAAS_BAASAAS_API_KEY \
-            --dart-define=BAAS_DIFFERENTIATOR=$BAAS_DIFFERENTIATOR \
             --device-id=${{ steps.runner_os_lowercase.outputs.os }} \
             --file-reporter=json:test-results.json \
             --suppress-analytics

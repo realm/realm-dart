@@ -7,10 +7,6 @@ on:
         description: GitHub runner image to execute on.
         required: true
         type: string
-      differentiator:
-        description: Differentiator for the BaaS container.
-        required: true
-        type: string
       arch:
         description: Architecture to execute on.
         default: x64
@@ -18,8 +14,6 @@ on:
 
 env:
   REALM_CI: true
-  BAAS_BAASAAS_API_KEY: ${{ secrets.BAASAAS_API_KEY}}
-  BAAS_DIFFERENTIATOR: ${{ inputs.differentiator }}
 
 jobs:
   dart-tests:
