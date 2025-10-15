@@ -1,7 +1,7 @@
 # Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
 name: RealmLibrary
 description: Realm native lib bindings.
-output: "lib/src/native/realm_bindings.dart"
+output: "lib/src/handles/native/realm_bindings.dart"
 headers:
   entry-points:
     - 'src/realm-core/src/realm.h'

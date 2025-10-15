@@ -23,8 +23,8 @@ const int _nanosecondsPerMicrosecond = 1000;
 extension RealmValueEx on realm_value_t {
   Object? toPrimitiveValue() => toDartValue(realm: null, getList: null, getMap: null);
 
-  realm_value_type get typeEnum => realm_value_type.fromValue(type);
-  void set typeEnum(realm_value_type value) => type = value.value;
+  realm_value_type get typeEnum => realm_value_type.fromValue(typeAsInt);
+  set typeEnum(realm_value_type value) => typeAsInt = value.value;
 
   Object? toDartValue({required Realm? realm, required Pointer<realm_list_t> Function()? getList, required Pointer<realm_dictionary_t> Function()? getMap}) {
     switch (typeEnum) {
@@ -154,7 +154,7 @@ extension RealmSyncErrorEx on realm_sync_error {
 
     return SyncErrorDetails(
       message,
-      status.error.toSyncErrorCode(),
+      status.error.value.toSyncErrorCode(),
       user_code_error.toUserCodeError(),
       isFatal: is_fatal,
       isClientResetRequested: is_client_reset_requested,
@@ -201,48 +201,48 @@ extension PointerRealmSyncErrorCompensatingWriteInfoEx on Pointer<realm_sync_err
 extension PointerRealmErrorEx on Pointer<realm_error_t> {
   SyncError toDart() {
     final message = ref.message.cast<Utf8>().toDartString();
-    final details = SyncErrorDetails(message, ref.error.toSyncErrorCode(), ref.user_code_error.toUserCodeError());
+    final details = SyncErrorDetails(message, ref.error.value.toSyncErrorCode(), ref.user_code_error.toUserCodeError());
     return SyncErrorInternal.createSyncError(details);
   }
 }
 
 extension IntEx on int {
-  SyncErrorCode toSyncErrorCode() => switch (this) {
-    realm_errno.RLM_ERR_RUNTIME => SyncErrorCode.runtimeError,
-    realm_errno.RLM_ERR_BAD_CHANGESET => SyncErrorCode.badChangeset,
-    realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE => SyncErrorCode.badPartitionValue,
-    realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED => SyncErrorCode.protocolInvariantFailed,
-    realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY => SyncErrorCode.invalidSubscriptionQuery,
-    realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED => SyncErrorCode.clientReset,
-    realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE => SyncErrorCode.invalidSchemaChange,
-    realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED => SyncErrorCode.permissionDenied,
-    realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED => SyncErrorCode.serverPermissionsChanged,
-    realm_errno.RLM_ERR_SYNC_USER_MISMATCH => SyncErrorCode.userMismatch,
-    realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED => SyncErrorCode.writeNotAllowed,
-    realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED => SyncErrorCode.autoClientResetFailed,
-    realm_errno.RLM_ERR_WRONG_SYNC_TYPE => SyncErrorCode.wrongSyncType,
-    realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE => SyncErrorCode.compensatingWrite,
-    _ => throw RealmError("Unknown sync error code $this"),
-  };
+  SyncErrorCode toSyncErrorCode() => switch (realm_errno.fromValue(this)) {
+        realm_errno.RLM_ERR_RUNTIME => SyncErrorCode.runtimeError,
+        realm_errno.RLM_ERR_BAD_CHANGESET => SyncErrorCode.badChangeset,
+        realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE => SyncErrorCode.badPartitionValue,
+        realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED => SyncErrorCode.protocolInvariantFailed,
+        realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY => SyncErrorCode.invalidSubscriptionQuery,
+        realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED => SyncErrorCode.clientReset,
+        realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE => SyncErrorCode.invalidSchemaChange,
+        realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED => SyncErrorCode.permissionDenied,
+        realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED => SyncErrorCode.serverPermissionsChanged,
+        realm_errno.RLM_ERR_SYNC_USER_MISMATCH => SyncErrorCode.userMismatch,
+        realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED => SyncErrorCode.writeNotAllowed,
+        realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED => SyncErrorCode.autoClientResetFailed,
+        realm_errno.RLM_ERR_WRONG_SYNC_TYPE => SyncErrorCode.wrongSyncType,
+        realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE => SyncErrorCode.compensatingWrite,
+        _ => throw RealmError("Unknown sync error code $this"),
+      };
 }
 
 extension SyncErrorCodeEx on SyncErrorCode {
-  int get code  => switch (this) {
-    SyncErrorCode.runtimeError => realm_errno.RLM_ERR_RUNTIME,
-    SyncErrorCode.badChangeset => realm_errno.RLM_ERR_BAD_CHANGESET,
-    SyncErrorCode.badPartitionValue => realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE,
-    SyncErrorCode.protocolInvariantFailed => realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED,
-    SyncErrorCode.invalidSubscriptionQuery => realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY,
-    SyncErrorCode.clientReset => realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED,
-    SyncErrorCode.invalidSchemaChange => realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE,
-    SyncErrorCode.permissionDenied => realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED,
-    SyncErrorCode.serverPermissionsChanged => realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED,
-    SyncErrorCode.userMismatch => realm_errno.RLM_ERR_SYNC_USER_MISMATCH,
-    SyncErrorCode.writeNotAllowed => realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED,
-    SyncErrorCode.autoClientResetFailed => realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED,
-    SyncErrorCode.wrongSyncType => realm_errno.RLM_ERR_WRONG_SYNC_TYPE,
-    SyncErrorCode.compensatingWrite => realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE,
-  };
+  int get code => switch (this) {
+        SyncErrorCode.runtimeError => realm_errno.RLM_ERR_RUNTIME.value,
+        SyncErrorCode.badChangeset => realm_errno.RLM_ERR_BAD_CHANGESET.value,
+        SyncErrorCode.badPartitionValue => realm_errno.RLM_ERR_BAD_SYNC_PARTITION_VALUE.value,
+        SyncErrorCode.protocolInvariantFailed => realm_errno.RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED.value,
+        SyncErrorCode.invalidSubscriptionQuery => realm_errno.RLM_ERR_INVALID_SUBSCRIPTION_QUERY.value,
+        SyncErrorCode.clientReset => realm_errno.RLM_ERR_SYNC_CLIENT_RESET_REQUIRED.value,
+        SyncErrorCode.invalidSchemaChange => realm_errno.RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE.value,
+        SyncErrorCode.permissionDenied => realm_errno.RLM_ERR_SYNC_PERMISSION_DENIED.value,
+        SyncErrorCode.serverPermissionsChanged => realm_errno.RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED.value,
+        SyncErrorCode.userMismatch => realm_errno.RLM_ERR_SYNC_USER_MISMATCH.value,
+        SyncErrorCode.writeNotAllowed => realm_errno.RLM_ERR_SYNC_WRITE_NOT_ALLOWED.value,
+        SyncErrorCode.autoClientResetFailed => realm_errno.RLM_ERR_AUTO_CLIENT_RESET_FAILED.value,
+        SyncErrorCode.wrongSyncType => realm_errno.RLM_ERR_WRONG_SYNC_TYPE.value,
+        SyncErrorCode.compensatingWrite => realm_errno.RLM_ERR_SYNC_COMPENSATING_WRITE.value,
+      };
 }
 
 extension ObjectEx on Object {
@@ -264,11 +264,11 @@ extension ListUserStateEx on List<UserState> {
 extension RealmPropertyInfoEx on realm_property_info {
   SchemaProperty toSchemaProperty() {
     final linkTarget = link_target == nullptr ? null : link_target.cast<Utf8>().toDartString();
-    return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[type],
+    return SchemaProperty(name.cast<Utf8>().toDartString(), RealmPropertyType.values[typeAsInt],
         optional: flags & realm_property_flags.RLM_PROPERTY_NULLABLE.value == realm_property_flags.RLM_PROPERTY_NULLABLE.value,
         primaryKey: flags & realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value == realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value,
         linkTarget: linkTarget == null || linkTarget.isEmpty ? null : linkTarget,
-        collectionType: RealmCollectionType.values[collection_type]);
+        collectionType: RealmCollectionType.values[collection_typeAsInt]);
   }
 }
 
