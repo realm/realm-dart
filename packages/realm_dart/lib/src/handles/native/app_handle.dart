@@ -432,7 +432,7 @@ _AppConfigHandle _createAppConfig(AppConfiguration configuration, HttpTransportH
     realmLib.realm_app_config_set_bundle_id(handle.pointer, realmCore.getBundleId().toCharPtr(arena));
 
     realmLib.realm_app_config_set_base_file_path(handle.pointer, configuration.baseFilePath.toCharPtr(arena));
-    realmLib.realm_app_config_set_metadata_mode(handle.pointer, configuration.metadataPersistenceMode.index);
+    realmLib.realm_app_config_set_metadata_mode(handle.pointer, realm_sync_client_metadata_mode.fromValue(configuration.metadataPersistenceMode.index));
 
     if (configuration.metadataEncryptionKey != null && configuration.metadataPersistenceMode == MetadataPersistenceMode.encrypted) {
       realmLib.realm_app_config_set_metadata_encryption_key(handle.pointer, configuration.metadataEncryptionKey!.toUint8Ptr(arena));

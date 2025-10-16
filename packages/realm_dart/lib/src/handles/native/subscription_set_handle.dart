@@ -19,6 +19,7 @@ import 'results_handle.dart';
 import 'rooted_handle.dart';
 import 'scheduler_handle.dart';
 import 'subscription_handle.dart';
+
 class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription_set> implements intf.SubscriptionSetHandle {
   @override
   bool get shouldRoot => true;
@@ -65,7 +66,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
   int get version => realmLib.realm_sync_subscription_set_version(pointer);
 
   @override
-  SubscriptionSetState get state => SubscriptionSetState.values[realmLib.realm_sync_subscription_set_state(pointer)];
+  SubscriptionSetState get state => SubscriptionSetState.values[realmLib.realm_sync_subscription_set_state(pointer).value];
 
   @override
   MutableSubscriptionSetHandle toMutable() => MutableSubscriptionSetHandle(realmLib.realm_sync_make_subscription_set_mutable(pointer), root);
@@ -83,7 +84,7 @@ class SubscriptionSetHandle extends RootedHandleBase<realm_flx_sync_subscription
     if (!completer.isCancelled) {
       final callback = Pointer.fromFunction<Void Function(Handle, Int32)>(_stateChangeCallback);
       final userdata = realmLib.realm_dart_userdata_async_new(completer, callback.cast(), schedulerHandle.pointer);
-      realmLib.realm_sync_on_subscription_set_state_change_async(pointer, notifyWhen.index,
+      realmLib.realm_sync_on_subscription_set_state_change_async(pointer, realm_flx_sync_subscription_set_state.fromValue(notifyWhen.index),
           realmLib.addresses.realm_dart_sync_on_subscription_state_changed_callback, userdata.cast(), realmLib.addresses.realm_dart_userdata_async_free);
     }
     return completer.future;

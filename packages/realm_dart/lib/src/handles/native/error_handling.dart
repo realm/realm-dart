@@ -64,6 +64,6 @@ Never _raiseLastError([String? errorMessage]) {
 extension RealmErrorEx on realm_error {
   LastError toDart() {
     final message = this.message.cast<Utf8>().toRealmDartString();
-    return LastError(error, message, user_code_error.toUserCodeError());
+    return LastError(error.value, message, user_code_error.toUserCodeError());
   }
 }

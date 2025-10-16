@@ -89,8 +89,8 @@ class ConfigHandle extends HandleBase<realm_config> {
         realmLib.realm_config_set_schema_mode(configHandle.pointer, realm_schema_mode.RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT);
         final syncConfigPtr = realmLib.realm_flx_sync_config_new((config.user.handle as UserHandle).pointer).raiseLastErrorIfNull();
         try {
-          realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, config.sessionStopPolicy.index);
-          realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, config.clientResetHandler.clientResyncMode.index);
+          realmLib.realm_sync_config_set_session_stop_policy(syncConfigPtr, realm_sync_session_stop_policy.fromValue(config.sessionStopPolicy.index));
+          realmLib.realm_sync_config_set_resync_mode(syncConfigPtr, realm_sync_session_resync_mode.fromValue(config.clientResetHandler.clientResyncMode.index));
           realmLib.realm_sync_config_set_cancel_waits_on_nonfatal_error(syncConfigPtr, config.cancelAsyncOperationsOnNonFatalErrors);
 
           final errorHandlerCallback =

@@ -32,7 +32,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> implements in
   @override
   ConnectionState get connectionState {
     final value = realmLib.realm_sync_session_get_connection_state(pointer);
-    return ConnectionState.values[value];
+    return ConnectionState.values[value.value];
   }
 
   @override
@@ -43,7 +43,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> implements in
   @override
   SessionState get state {
     final value = realmLib.realm_sync_session_get_state(pointer);
-    return _convertCoreSessionState(value);
+    return _convertCoreSessionState(value.value);
   }
 
   SessionState _convertCoreSessionState(int value) {
@@ -74,7 +74,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> implements in
   void raiseError(int errorCode, bool isFatal) {
     using((arena) {
       final message = "Simulated session error".toCharPtr(arena);
-      realmLib.realm_sync_session_handle_error_for_testing(pointer, errorCode, message, isFatal);
+      realmLib.realm_sync_session_handle_error_for_testing(pointer, realm_errno.fromValue(errorCode), message, isFatal);
     });
   }
 
@@ -150,7 +150,7 @@ class SessionHandle extends RootedHandleBase<realm_sync_session_t> implements in
       realmLib.realm_sync_session_register_progress_notifier(
         pointer,
         realmLib.addresses.realm_dart_sync_progress_callback,
-        direction.index,
+        realm_sync_progress_direction.fromValue(direction.index),
         isStreaming,
         userdata.cast(),
         realmLib.addresses.realm_dart_userdata_async_free,

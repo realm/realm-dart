@@ -57,7 +57,7 @@ void _requestCallback(Object userData, realm_http_request request, Pointer<Void>
     headers[name] = value;
   }
 
-  _requestCallbackAsync(client, request.method, url, body, headers, timeLimit, requestContext);
+  _requestCallbackAsync(client, request.method.value, url, body, headers, timeLimit, requestContext);
   // The request struct dies here!
 }
 

@@ -49,20 +49,20 @@ class SchemaHandle extends HandleBase<realm_schema> implements intf.SchemaHandle
           propInfo.public_name = (schemaProperty.mapTo != schemaProperty.name ? schemaProperty.name : '').toCharPtr(arena);
           propInfo.link_target = (schemaProperty.linkTarget ?? "").toCharPtr(arena);
           propInfo.link_origin_property_name = (schemaProperty.linkOriginProperty ?? "").toCharPtr(arena);
-          propInfo.type = schemaProperty.propertyType.index;
-          propInfo.collection_type = schemaProperty.collectionType.index;
-          propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL;
+          propInfo.typeAsInt = schemaProperty.propertyType.index;
+          propInfo.collection_typeAsInt = schemaProperty.collectionType.index;
+          propInfo.flags = realm_property_flags.RLM_PROPERTY_NORMAL.value;
 
           if (schemaProperty.optional) {
-            propInfo.flags |= realm_property_flags.RLM_PROPERTY_NULLABLE;
+            propInfo.flags |= realm_property_flags.RLM_PROPERTY_NULLABLE.value;
           }
 
           switch (schemaProperty.indexType) {
             case RealmIndexType.regular:
-              propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED;
+              propInfo.flags |= realm_property_flags.RLM_PROPERTY_INDEXED.value;
               break;
             case RealmIndexType.fullText:
-              propInfo.flags |= realm_property_flags.RLM_PROPERTY_FULLTEXT_INDEXED;
+              propInfo.flags |= realm_property_flags.RLM_PROPERTY_FULLTEXT_INDEXED.value;
               break;
             default:
               break;
@@ -70,7 +70,7 @@ class SchemaHandle extends HandleBase<realm_schema> implements intf.SchemaHandle
 
           if (schemaProperty.primaryKey) {
             classInfo.primary_key = schemaProperty.mapTo.toCharPtr(arena);
-            propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY;
+            propInfo.flags |= realm_property_flags.RLM_PROPERTY_PRIMARY_KEY.value;
           }
         }
 

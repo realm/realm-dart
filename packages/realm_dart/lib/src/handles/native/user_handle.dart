@@ -33,7 +33,7 @@ class UserHandle extends HandleBase<realm_user> implements intf.UserHandle {
   @override
   UserState get state {
     final nativeUserState = realmLib.realm_user_get_state(pointer);
-    return UserState.values.fromIndex(nativeUserState);
+    return UserState.values.fromIndex(nativeUserState.value);
   }
 
   @override
@@ -66,7 +66,7 @@ class UserHandle extends HandleBase<realm_user> implements intf.UserHandle {
       final identity = (identitiesPtr + i).ref;
 
       result.add(UserIdentityInternal.create(
-          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type)));
+          identity.id.cast<Utf8>().toRealmDartString(freeRealmMemory: true)!, AuthProviderTypeInternal.getByValue(identity.provider_type.value)));
     }
 
     return result;

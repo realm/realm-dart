@@ -79,6 +79,6 @@ class CredentialsHandle extends HandleBase<realm_app_credentials> implements int
 
   AuthProviderType get providerType {
     final provider = realmLib.realm_auth_credentials_get_provider(pointer);
-    return AuthProviderTypeInternal.getByValue(provider);
+    return AuthProviderTypeInternal.getByValue(provider.value);
   }
 }
