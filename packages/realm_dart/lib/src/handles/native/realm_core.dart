@@ -9,6 +9,7 @@ import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:realm_dart/realm.dart';
+import 'package:realm_dart/src/handles/native/realm_bindings.dart';
 
 import 'convert_native.dart';
 import 'error_handling.dart';
@@ -179,14 +180,14 @@ class RealmCore implements intf.RealmCore {
   @override
   void logMessage(LogCategory category, LogLevel logLevel, String message) {
     return using((arena) {
-      realmLib.realm_dart_log(logLevel.index, category.toString().toCharPtr(arena), message.toCharPtr(arena));
+      realmLib.realm_dart_log(realm_log_level.fromValue(logLevel.index), category.toString().toCharPtr(arena), message.toCharPtr(arena));
     });
   }
 
   @override
   void setLogLevel(LogLevel level, {required LogCategory category}) {
     using((arena) {
-      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), level.index);
+      realmLib.realm_set_log_level_category(category.toString().toCharPtr(arena), realm_log_level.fromValue(level.index));
     });
   }
 
