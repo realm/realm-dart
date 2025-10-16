@@ -23,7 +23,7 @@ const int _nanosecondsPerMicrosecond = 1000;
 extension RealmValueEx on realm_value_t {
   Object? toPrimitiveValue() => toDartValue(realm: null, getList: null, getMap: null);
 
-  realm_value_type get typeEnum => realm_value_type.fromValue(typeAsInt);
+  realm_value_type get typeEnum => type;
   set typeEnum(realm_value_type value) => typeAsInt = value.value;
 
   Object? toDartValue({required Realm? realm, required Pointer<realm_list_t> Function()? getList, required Pointer<realm_dictionary_t> Function()? getMap}) {
@@ -77,8 +77,6 @@ extension RealmValueEx on realm_value_t {
 
         final mapHandle = MapHandle(getMap(), realm.handle as RealmHandle);
         return realm.createMap<RealmValue>(mapHandle, null);
-      default:
-        throw RealmException("realm_value_type $type not supported");
     }
   }
 }

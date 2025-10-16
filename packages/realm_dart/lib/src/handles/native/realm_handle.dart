@@ -430,8 +430,6 @@ class RealmHandle extends HandleBase<shared_realm> implements intf.RealmHandle {
       case ObjectType.asymmetricObject:
         type = AsymmetricObject;
         break;
-      default:
-        throw RealmError('$baseType is not supported yet');
     }
 
     return SchemaObject(baseType, type, name, result);
