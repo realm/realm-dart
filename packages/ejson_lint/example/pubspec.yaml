@@ -5,12 +5,12 @@ version: 1.0.0
 publish_to: none
 
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.7.0
 
 dependencies:
-  ejson_annotation: ^0.4.1
+  ejson_annotation: ^0.4.2
 
 dev_dependencies:
-  custom_lint: ^0.7.1
-  ejson_lint: ^0.4.1
-  lints: ^5.1.1
+  custom_lint: ^0.8.1
+  ejson_lint: ^0.4.2
+  lints: ^6.0.0

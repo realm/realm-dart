@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:build_test/build_test.dart';
@@ -43,17 +44,16 @@ void testCompile(
 
   test(description, () async {
     generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
+      final result = await testBuilder(
         generateRealmObjects(),
         {'pkg|$assetName': '$source'},
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
         onLog: onLog,
       );
-      return _formatter.format(
-        String.fromCharCodes(writer.assets.entries.single.value),
-      );
+      final rw = result.readerWriter;
+      final outId = rw.testing.assetsWritten.single;
+      final bytes = await rw.readAsBytes(outId);
+
+      return _formatter.format(utf8.decode(bytes));
     }
 
     expect(generate(), matcher);
@@ -90,8 +90,7 @@ void testCompileMany(
 
   test(description, () {
     generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
+      final result = await testBuilder(
         generateRealmObjects(),
         Map<String, Object>.fromEntries(
           inputs.map((x) {
@@ -99,12 +98,15 @@ void testCompileMany(
             return MapEntry(id, source);
           }),
         ),
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
       );
-      return writer.assets.values.map(
-        (charCodes) => String.fromCharCodes(charCodes),
-      );
+      final rw = result.readerWriter;
+      final assets = rw.testing.assetsWritten;
+      final formattedOutputs = <String>[];
+      for (final outId in assets) {
+        final bytes = await rw.readAsBytes(outId);
+        formattedOutputs.add(_formatter.format(utf8.decode(bytes)));
+      }
+      return formattedOutputs;
     }
 
     expect(generate(), matcher);

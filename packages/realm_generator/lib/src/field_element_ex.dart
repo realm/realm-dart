@@ -24,7 +24,7 @@ import 'type_checkers.dart';
 extension FieldElementEx on FieldElement {
   static const realmSetUnsupportedRealmTypes = [RealmPropertyType.linkingObjects];
 
-  ClassElement get enclosingClassElement => enclosingElement3 as ClassElement;
+  ClassElement get enclosingClassElement => enclosingElement as ClassElement;
 
   FieldDeclaration get declarationAstNode => getDeclarationFromElement(this)!.node.parent!.parent as FieldDeclaration;
 
@@ -38,7 +38,7 @@ extension FieldElementEx on FieldElement {
 
   TypeAnnotation? get typeAnnotation => declarationAstNode.fields.type;
 
-  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.toString() == name).initializer;
+  Expression? get initializerExpression => declarationAstNode.fields.variables.singleWhere((v) => v.name.toString() == displayName).initializer;
 
   FileSpan? typeSpan(SourceFile file) => ExpandedContextSpan(
         ExpandedContextSpan(
@@ -163,7 +163,7 @@ extension FieldElementEx on FieldElement {
       String? linkOriginProperty;
 
       // Validate field type
-      final modelSpan = enclosingElement3.span!;
+      final modelSpan = enclosingElement.span!;
       final file = modelSpan.file;
       final realmType = type.realmType;
       if (realmType == null) {
@@ -185,7 +185,7 @@ extension FieldElementEx on FieldElement {
           primarySpan: typeSpan(file),
           primaryLabel: '$modelTypeName is not a realm model type',
           secondarySpans: {
-            modelSpan: "in realm model '${enclosingElement3.displayName}'",
+            modelSpan: "in realm model '${enclosingElement.displayName}'",
             // may go both above and below, or stem from another file
             if (notARealmTypeSpan != null) notARealmTypeSpan: ''
           },
@@ -281,7 +281,7 @@ extension FieldElementEx on FieldElement {
 
           final sourceFieldName = backlink.value.getField('fieldName')?.toSymbolValue();
           final sourceType = (type as ParameterizedType).typeArguments.first;
-          final sourceField = (sourceType.element as ClassElement?)?.fields.where((f) => f.name == sourceFieldName).singleOrNull;
+          final sourceField = (sourceType.element as ClassElement?)?.fields.where((f) => f.displayName == sourceFieldName).singleOrNull;
 
           if (sourceField == null) {
             throw RealmInvalidGenerationSourceError(
@@ -293,7 +293,7 @@ extension FieldElementEx on FieldElement {
             );
           }
 
-          final thisType = (enclosingElement3 as ClassElement).thisType;
+          final thisType = (enclosingElement as ClassElement).thisType;
           final linkType = thisType.asNullable;
           final listOf = session.typeProvider.listType(thisType);
           if (sourceField.type != linkType && sourceField.type != listOf) {
@@ -307,7 +307,7 @@ extension FieldElementEx on FieldElement {
           }
 
           // everything is kosher, just need to account for @MapTo!
-          linkOriginProperty = sourceField.remappedRealmName ?? sourceField.name;
+          linkOriginProperty = sourceField.remappedRealmName ?? sourceField.displayName;
         }
 
         // Validate object references
@@ -398,7 +398,7 @@ extension FieldElementEx on FieldElement {
       ParenthesizedExpression i => _isValidFieldInitializer(i.expression),
       PrefixExpression e => _isValidFieldInitializer(e.operand),
       BinaryExpression b => _isValidFieldInitializer(b.leftOperand) && _isValidFieldInitializer(b.rightOperand),
-      Identifier i => (i.staticElement as PropertyAccessorElement?)?.variable2?.isConst ?? false,
+      Identifier i => (i.element as PropertyAccessorElement?)?.variable.isConst ?? false,
       _ => false,
     };
   }
