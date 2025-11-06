@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:build_test/build_test.dart';
@@ -30,14 +31,15 @@ void testCompile(String description, dynamic source, dynamic matcher, {dynamic s
 
   test(description, () {
     generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
+      final result = await testBuilder(
         getEJsonGenerator(),
         {'pkg|source.dart': source as Object},
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
       );
-      return _formatter.format(String.fromCharCodes(writer.assets.entries.single.value));
+      final rw = result.readerWriter;
+      final outId = rw.testing.assetsWritten.single;
+      final bytes = await rw.readAsBytes(outId);
+
+      return _formatter.format(utf8.decode(bytes));
     }
 
     expect(generate(), matcher);

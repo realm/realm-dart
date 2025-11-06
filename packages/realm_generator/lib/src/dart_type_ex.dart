@@ -13,10 +13,16 @@ import 'session.dart';
 import 'type_checkers.dart';
 
 extension DartTypeEx on DartType {
-  bool isExactly<T>() => TypeChecker.fromRuntime(T).isExactlyType(this);
-  bool isA<T>() => TypeChecker.fromRuntime(T).isAssignableFromType(this);
+  bool isExactly<T>({
+    String? inPackage,
+    bool? inSdk,
+  }) => TypeChecker.typeNamed(T, inPackage: inPackage, inSdk: inSdk).isExactlyType(this);
+  bool isA<T>({
+    String? inPackage,
+    bool? inSdk,
+  }) => TypeChecker.typeNamed(T, inPackage: inPackage, inSdk: inSdk).isAssignableFromType(this);
 
-  bool get isRealmValue => const TypeChecker.fromRuntime(RealmValue).isAssignableFromType(this);
+  bool get isRealmValue => const TypeChecker.typeNamed(RealmValue, inPackage: 'realm_common').isAssignableFromType(this);
   bool get isRealmCollection => realmCollectionType != RealmCollectionType.none;
   bool get isRealmSet => realmCollectionType == RealmCollectionType.set;
 
@@ -31,7 +37,7 @@ extension DartTypeEx on DartType {
   bool get isRealmModel => realmObjectType != null;
   bool isRealmModelOfType(ObjectType type) => realmObjectType == type;
 
-  bool get isUint8List => isExactly<Uint8List>();
+  bool get isUint8List => isExactly<Uint8List>(inSdk: true);
 
   bool get isNullable => session.typeSystem.isNullable(this);
   DartType get asNonNullable => session.typeSystem.promoteToNonNull(this);
@@ -100,15 +106,15 @@ extension DartTypeEx on DartType {
     if (isDartCoreInt) return RealmPropertyType.int;
     if (isDartCoreBool) return RealmPropertyType.bool;
     if (isDartCoreString) return RealmPropertyType.string;
-    if (isExactly<Uint8List>()) return RealmPropertyType.binary;
+    if (isExactly<Uint8List>(inSdk: true)) return RealmPropertyType.binary;
     if (isRealmValue) return RealmPropertyType.mixed;
-    if (isExactly<DateTime>()) return RealmPropertyType.timestamp;
+    if (isExactly<DateTime>(inSdk: true)) return RealmPropertyType.timestamp;
     if (isDartCoreNum || isDartCoreDouble) return RealmPropertyType.double;
-    if (isA<Decimal128>()) return RealmPropertyType.decimal128;
+    if (isA<Decimal128>(inPackage: 'realm_common')) return RealmPropertyType.decimal128;
     if (isRealmModel) return RealmPropertyType.object;
     if (isDartCoreIterable) return RealmPropertyType.linkingObjects;
-    if (isExactly<ObjectId>()) return RealmPropertyType.objectid;
-    if (isExactly<Uuid>()) return RealmPropertyType.uuid;
+    if (isExactly<ObjectId>(inPackage: 'objectid')) return RealmPropertyType.objectid;
+    if (isExactly<Uuid>(inPackage: 'sane_uuid')) return RealmPropertyType.uuid;
 
     return null;
   }

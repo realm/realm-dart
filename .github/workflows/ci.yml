@@ -83,7 +83,7 @@ jobs:
       - build-macos
     secrets: inherit
     with:
-      runner: macos-13
+      runner: macos-15-intel
 
   dart-tests-macos-arm:
     name: Dart Tests MacOS Arm
@@ -121,7 +121,7 @@ jobs:
       - build-macos
     secrets: inherit
     with:
-      runner: macos-13
+      runner: macos-15-intel
 
   flutter-tests-macos-arm:
     name: Flutter Tests MacOS Arm
