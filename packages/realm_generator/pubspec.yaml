@@ -10,15 +10,15 @@ repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.7.0
 
 dependencies:
-  analyzer: ^7.3.0
+  analyzer: ^8.0.0
   build_resolvers: ^2.4.3
-  build: '2.4.2'
+  build: 4.0.2
   dart_style: ^3.0.1
   realm_common: ^3.5.0
-  source_gen: ^2.0.0
+  source_gen: ^4.1.1
   source_span: ^1.8.0
   collection: ^1.19.0
 
