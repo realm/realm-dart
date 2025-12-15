@@ -30,7 +30,7 @@ dev_dependencies:
   dart_style: ^3.0.1
   ejson: ^0.4.2
   ejson_annotation: ^0.4.2
-  lints: ^6.0.0
+  lints: ^5.1.1
   meta: ^1.15.0
   test: ^1.26.3
   pub_semver: ^2.2.0

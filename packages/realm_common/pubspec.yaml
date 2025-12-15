@@ -18,4 +18,4 @@ dependencies:
   sane_uuid: ^1.0.0
 
 dev_dependencies:
-  lints: ^6.0.0
+  lints: ^5.1.1
