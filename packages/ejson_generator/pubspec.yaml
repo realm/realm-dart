@@ -32,5 +32,5 @@ dev_dependencies:
   ejson_annotation: ^0.4.2
   lints: ^6.0.0
   meta: ^1.15.0
-  test: ^1.27.0
+  test: ^1.26.3
   pub_semver: ^2.2.0

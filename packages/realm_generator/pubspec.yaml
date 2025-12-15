@@ -29,5 +29,5 @@ dev_dependencies:
   meta: ^1.15.0
   path: ^1.9.0
   term_glyph: ^1.2.0
-  test: ^1.27.0
+  test: ^1.26.3
   pub_semver: ^2.2.0
