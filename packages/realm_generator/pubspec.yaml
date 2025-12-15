@@ -14,8 +14,8 @@ environment:
 
 dependencies:
   analyzer: ^8.0.0
-  build_resolvers: ^2.4.3
-  build: 4.0.2
+  build_resolvers: ^3.0.4
+  build: 4.0.0
   dart_style: ^3.0.1
   realm_common: ^3.5.0
   source_gen: ^4.1.1
@@ -30,5 +30,5 @@ dev_dependencies:
   meta: ^1.15.0
   path: ^1.9.0
   term_glyph: ^1.2.0
-  test: ^1.25.9
+  test: ^1.26.3
   pub_semver: ^2.2.0

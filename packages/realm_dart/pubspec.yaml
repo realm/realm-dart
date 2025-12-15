@@ -7,7 +7,7 @@ repository: https://github.com/realm/realm-dart
 issue_tracker: https://github.com/realm/realm-dart/issues
 
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.7.0
 
 dependencies:
   args: ^2.6.0
@@ -38,6 +38,6 @@ dev_dependencies:
   ffigen: ^18.0.0
   json_serializable: ^6.9.2
   lints: ^5.1.1
-  test: ^1.25.9
+  test: ^1.26.3
   timezone: ^0.10.0
   universal_platform: ^1.1.0
