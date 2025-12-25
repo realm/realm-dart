@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 final _formatter = DartFormatter(
-  languageVersion: Version(3, 7, 0),
+  languageVersion: Version(3, 8, 0),
   lineEnding: '\n',
 );
 
@@ -43,17 +43,32 @@ void testCompile(
 
   test(description, () async {
     generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
-        generateRealmObjects(),
-        {'pkg|$assetName': '$source'},
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
+      final readerWriter = TestReaderWriter(rootPackage: 'pkg');
+      await readerWriter.testing.loadIsolateSources();
+
+      // Use lib/ prefix for non-test files, keep test/ prefix for test files
+      final assetPath = assetName.startsWith('test/')
+          ? 'pkg|$assetName'
+          : 'pkg|lib/$assetName';
+
+      final result = await testBuilders(
+        [generateRealmObjects()],
+        {assetPath: '$source'},
+        readerWriter: readerWriter,
         onLog: onLog,
+        flattenOutput: true,
       );
-      return _formatter.format(
-        String.fromCharCodes(writer.assets.entries.single.value),
-      );
+      if (result.outputs.isEmpty) {
+        throw StateError('No outputs generated. Errors: ${result.errors}');
+      }
+      // Find the .realm.dart output
+      final realmOutputs = result.outputs.where((id) => id.path.endsWith('.realm.dart'));
+      if (realmOutputs.isEmpty) {
+        throw StateError('No .realm.dart outputs found. Outputs: ${result.outputs}');
+      }
+      final output = realmOutputs.first;
+      final content = await result.readerWriter.readAsString(output);
+      return _formatter.format(content);
     }
 
     expect(generate(), matcher);
@@ -88,26 +103,41 @@ void testCompileMany(
     _ => throw ArgumentError.value(matcher, 'matcher'),
   };
 
-  test(description, () {
-    generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
-        generateRealmObjects(),
-        Map<String, Object>.fromEntries(
-          inputs.map((x) {
-            final (id, source) = x;
-            return MapEntry(id, source);
-          }),
-        ),
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
-      );
-      return writer.assets.values.map(
-        (charCodes) => String.fromCharCodes(charCodes),
-      );
+  test(description, () async {
+    final readerWriter = TestReaderWriter(rootPackage: 'pkg');
+    await readerWriter.testing.loadIsolateSources();
+
+    // Convert inputs to use lib/ prefix for proper resolution
+    final inputsWithLib = inputs.map((x) {
+      final (id, source) = x;
+      final newId = id.replaceFirst('pkg|', 'pkg|lib/');
+      return MapEntry(newId, source);
+    });
+
+    final result = await testBuilders(
+      [generateRealmObjects()],
+      Map<String, Object>.fromEntries(inputsWithLib),
+      readerWriter: readerWriter,
+      flattenOutput: true,
+    );
+
+    if (result.outputs.isEmpty) {
+      throw StateError('No outputs generated. Errors: ${result.errors}');
     }
 
-    expect(generate(), matcher);
+    // Find .realm.dart outputs
+    final realmOutputs = result.outputs.where((id) => id.path.endsWith('.realm.dart')).toList();
+    if (realmOutputs.isEmpty) {
+      throw StateError('No .realm.dart outputs found. Outputs: ${result.outputs}');
+    }
+
+    final contents = <String>[];
+    for (final output in realmOutputs) {
+      final content = await result.readerWriter.readAsString(output);
+      contents.add(_formatter.format(content));
+    }
+
+    expect(Future.value(contents), matcher);
   });
 }
 

@@ -42,7 +42,7 @@ class RealmFieldInfo {
   bool get isDartCoreSet => type.isDartCoreSet;
   bool get isDartCoreMap => type.isDartCoreMap;
 
-  String get name => fieldElement.name;
+  String get name => fieldElement.name!;
   String get realmName => mapTo ?? name;
 
   String get basicMappedTypeName => type.basicMappedName;

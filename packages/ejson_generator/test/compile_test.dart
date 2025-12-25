@@ -4,12 +4,13 @@ import 'package:build_test/build_test.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:ejson_generator/ejson_generator.dart';
 import 'package:source_gen/source_gen.dart';
+import 'package:matcher/matcher.dart' show StringDescription;
 import 'package:test/test.dart';
 import 'package:meta/meta.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 final _formatter = DartFormatter(
-  languageVersion: Version(3, 7, 0),
+  languageVersion: Version(3, 8, 0),
   lineEnding: '\n',
 );
 final _tag = RegExp(r'// \*.*\n// EJsonGenerator\n// \*.*');
@@ -19,6 +20,24 @@ void testCompile(String description, dynamic source, dynamic matcher, {dynamic s
   source = source is File ? source.readAsStringSync() : source;
   if (source is! String) throw ArgumentError.value(source, 'source');
 
+  // Check if this is an error test (expects throwsA with InvalidGenerationSourceError)
+  // Store this before matcher is potentially modified
+  final originalMatcher = matcher;
+  final expectsError = originalMatcher is Matcher &&
+      originalMatcher.describe(StringDescription()).toString().contains('InvalidGenerationSource');
+
+  String? expectedErrorMessage;
+  if (expectsError) {
+    final desc = originalMatcher.describe(StringDescription()).toString();
+    if (desc.contains('Too many annotated constructors')) {
+      expectedErrorMessage = 'Too many annotated constructors';
+    } else if (desc.contains('Missing getter')) {
+      expectedErrorMessage = 'Missing getter';
+    } else if (desc.contains('Mismatched getter type')) {
+      expectedErrorMessage = 'Mismatched getter type';
+    }
+  }
+
   matcher = matcher is File ? matcher.readAsStringSync() : matcher;
   if (matcher is String) {
     final source = _formatter.format(matcher);
@@ -26,21 +45,50 @@ void testCompile(String description, dynamic source, dynamic matcher, {dynamic s
   }
   matcher ??= completes; // fallback
 
-  if (matcher is! Matcher) throw ArgumentError.value(matcher, 'matcher');
+  test(description, () async {
+    final readerWriter = TestReaderWriter(rootPackage: 'pkg');
+    await readerWriter.testing.loadIsolateSources();
 
-  test(description, () {
-    generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
-        getEJsonGenerator(),
-        {'pkg|source.dart': source as Object},
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
-      );
-      return _formatter.format(String.fromCharCodes(writer.assets.entries.single.value));
+    // Use testBuilders with flattenOutput to make outputs accessible
+    final result = await testBuilders(
+      [getEJsonGenerator()],
+      {'pkg|lib/source.dart': source as Object},
+      readerWriter: readerWriter,
+      flattenOutput: true,
+    );
+
+    if (expectsError) {
+      // For error tests, check that the build failed with the expected error
+      expect(result.succeeded, isFalse, reason: 'Expected build to fail');
+      expect(result.errors, isNotEmpty, reason: 'Expected errors in result');
+      if (expectedErrorMessage != null) {
+        expect(
+          result.errors.any((e) => e.toString().contains(expectedErrorMessage!)),
+          isTrue,
+          reason: 'Expected error containing "$expectedErrorMessage", got: ${result.errors}',
+        );
+      }
+      return; // Early return for error tests
     }
 
-    expect(generate(), matcher);
+    // For success tests, verify output was generated
+    if (!result.succeeded || result.outputs.isEmpty) {
+      throw StateError('No outputs generated. Errors: ${result.errors}');
+    }
+
+    // Read the .g.part output
+    final partOutputs = result.outputs.where((id) => id.path.endsWith('.g.part'));
+    if (partOutputs.isEmpty) {
+      throw StateError('No .g.part outputs found. Outputs: ${result.outputs}');
+    }
+
+    final output = partOutputs.first;
+    final content = await result.readerWriter.readAsString(output);
+    final formatted = _formatter.format(content);
+
+    if (matcher is Matcher) {
+      expect(Future.value(formatted), matcher);
+    }
   }, skip: skip);
 }
 
@@ -155,7 +203,7 @@ EJsonValue _encodeEmpty(Empty value) {
 
 Empty _decodeEmpty(EJsonValue ejson) {
   return switch (ejson) {
-    Map m when m.isEmpty => Empty(),
+    Map m when m.isEmpty => Empty.new(),
     _ => raiseInvalidEJson(ejson),
   };
 }

@@ -56,7 +56,7 @@ extension ClassElementEx on ClassElement {
         return null;
       }
 
-      final modelName = this.name;
+      final modelName = this.name!;
 
       // ensure a valid prefix and suffix is used.
       final prefix = session.prefix;

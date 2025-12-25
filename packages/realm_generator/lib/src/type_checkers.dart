@@ -1,18 +1,19 @@
 // Copyright 2021 MongoDB, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import 'package:realm_common/realm_common.dart';
 import 'package:source_gen/source_gen.dart';
 
-const ignoredChecker = TypeChecker.fromRuntime(Ignored);
+const _realmCommonUrl = 'package:realm_common/realm_common.dart';
 
-const indexedChecker = TypeChecker.fromRuntime(Indexed);
+const ignoredChecker = TypeChecker.fromUrl('$_realmCommonUrl#Ignored');
 
-const mapToChecker = TypeChecker.fromRuntime(MapTo);
+const indexedChecker = TypeChecker.fromUrl('$_realmCommonUrl#Indexed');
 
-const primaryKeyChecker = TypeChecker.fromRuntime(PrimaryKey);
+const mapToChecker = TypeChecker.fromUrl('$_realmCommonUrl#MapTo');
 
-const backlinkChecker = TypeChecker.fromRuntime(Backlink);
+const primaryKeyChecker = TypeChecker.fromUrl('$_realmCommonUrl#PrimaryKey');
+
+const backlinkChecker = TypeChecker.fromUrl('$_realmCommonUrl#Backlink');
 
 const realmAnnotationChecker = TypeChecker.any([
   ignoredChecker,
@@ -21,4 +22,4 @@ const realmAnnotationChecker = TypeChecker.any([
   primaryKeyChecker,
 ]);
 
-const realmModelChecker = TypeChecker.fromRuntime(RealmModel);
+const realmModelChecker = TypeChecker.fromUrl('$_realmCommonUrl#RealmModel');

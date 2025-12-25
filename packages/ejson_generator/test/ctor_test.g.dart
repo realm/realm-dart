@@ -12,7 +12,7 @@ EJsonValue _encodeEmpty(Empty value) {
 
 Empty _decodeEmpty(EJsonValue ejson) {
   return switch (ejson) {
-    Map m when m.isEmpty => Empty(),
+    Map m when m.isEmpty => Empty.new(),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -30,7 +30,7 @@ EJsonValue _encodeSimple(Simple value) {
 
 Simple _decodeSimple(EJsonValue ejson) {
   return switch (ejson) {
-    {'i': EJsonValue i} => Simple(fromEJson(i)),
+    {'i': EJsonValue i} => Simple.new(fromEJson(i)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -66,8 +66,9 @@ EJsonValue _encodeRequiredNamedParameters(RequiredNamedParameters value) {
 
 RequiredNamedParameters _decodeRequiredNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'requiredNamed': EJsonValue requiredNamed} =>
-      RequiredNamedParameters(requiredNamed: fromEJson(requiredNamed)),
+    {'requiredNamed': EJsonValue requiredNamed} => RequiredNamedParameters.new(
+      requiredNamed: fromEJson(requiredNamed),
+    ),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -87,8 +88,9 @@ EJsonValue _encodeOptionalNamedParameters(OptionalNamedParameters value) {
 
 OptionalNamedParameters _decodeOptionalNamedParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'optionalNamed': EJsonValue optionalNamed} =>
-      OptionalNamedParameters(optionalNamed: fromEJson(optionalNamed)),
+    {'optionalNamed': EJsonValue optionalNamed} => OptionalNamedParameters.new(
+      optionalNamed: fromEJson(optionalNamed),
+    ),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -108,8 +110,9 @@ EJsonValue _encodeOptionalParameters(OptionalParameters value) {
 
 OptionalParameters _decodeOptionalParameters(EJsonValue ejson) {
   return switch (ejson) {
-    {'optional': EJsonValue optional} =>
-      OptionalParameters(fromEJson(optional)),
+    {'optional': EJsonValue optional} => OptionalParameters.new(
+      fromEJson(optional),
+    ),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -128,7 +131,7 @@ EJsonValue _encodePrivateMembers(PrivateMembers value) {
 
 PrivateMembers _decodePrivateMembers(EJsonValue ejson) {
   return switch (ejson) {
-    {'id': EJsonValue id} => PrivateMembers(fromEJson(id)),
+    {'id': EJsonValue id} => PrivateMembers.new(fromEJson(id)),
     _ => raiseInvalidEJson(ejson),
   };
 }
@@ -147,7 +150,7 @@ EJsonValue _encodePerson(Person value) {
     'birthDate': value.birthDate.toEJson(),
     'income': value.income.toEJson(),
     'spouse': value.spouse.toEJson(),
-    'cprNumber': value.cprNumber.toEJson()
+    'cprNumber': value.cprNumber.toEJson(),
   };
 }
 
@@ -158,10 +161,15 @@ Person _decodePerson(EJsonValue ejson) {
       'birthDate': EJsonValue birthDate,
       'income': EJsonValue income,
       'spouse': EJsonValue spouse,
-      'cprNumber': EJsonValue cprNumber
+      'cprNumber': EJsonValue cprNumber,
     } =>
-      Person(fromEJson(name), fromEJson(birthDate), fromEJson(income),
-          spouse: fromEJson(spouse), cprNumber: fromEJson(cprNumber)),
+      Person.new(
+        fromEJson(name),
+        fromEJson(birthDate),
+        fromEJson(income),
+        spouse: fromEJson(spouse),
+        cprNumber: fromEJson(cprNumber),
+      ),
     _ => raiseInvalidEJson(ejson),
   };
 }

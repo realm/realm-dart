@@ -66,9 +66,9 @@ class EJsonGenerator extends Generator {
         EJsonError.noExplicitConstructor.raise();
       }
 
-      for (final p in ctor.parameters) {
+      for (final p in ctor.formalParameters) {
         // check that all ctor parameters have a getter with the same name and type
-        final getter = cls.getGetter(p.name);
+        final getter = cls.getGetter(p.name!);
         if (getter == null) {
           EJsonError.missingGetter.raise();
         }
@@ -79,17 +79,18 @@ class EJsonGenerator extends Generator {
 
       // generate the codec pair
       log.info('Generating EJson for $className');
+      final ctorName = ctor.name ?? '';
       return '''
         EJsonValue _encode$className($className value) {
           return {
-            ${ctor.parameters.map((p) => "'${p.name}': value.${p.name}.toEJson()").join(',\n')}
+            ${ctor.formalParameters.map((p) => "'${p.name}': value.${p.name}.toEJson()").join(',\n')}
           };
         }
 
         $className _decode$className(EJsonValue ejson) {
           return switch (ejson) {
-              ${decodePattern(ctor.parameters)} => $className${ctor.name.isEmpty ? '' : '.${ctor.name}'}(
-              ${ctor.parameters.map((p) => "${p.isNamed ? '${p.name} : ' : ''}fromEJson(${p.name})").join(',\n')}
+              ${decodePattern(ctor.formalParameters)} => $className${ctorName.isEmpty ? '' : '.$ctorName'}(
+              ${ctor.formalParameters.map((p) => "${p.isNamed ? '${p.name} : ' : ''}fromEJson(${p.name})").join(',\n')}
             ),
             _ => raiseInvalidEJson(ejson),
           };
@@ -106,11 +107,11 @@ class EJsonGenerator extends Generator {
   }
 }
 
-String decodePattern(Iterable<ParameterElement> parameters) {
+String decodePattern(Iterable<FormalParameterElement> parameters) {
   if (parameters.isEmpty) {
     return 'Map m when m.isEmpty';
   }
   return '''{
-    ${parameters.map((p) => "'${p.name}': EJsonValue ${p.name}").join(',\n')} 
+    ${parameters.map((p) => "'${p.name}': EJsonValue ${p.name}").join(',\n')}
   }''';
 }

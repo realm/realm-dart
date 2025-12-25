@@ -11,7 +11,7 @@ EJsonValue _encodePerson(Person value) {
     'name': value.name.toEJson(),
     'birthDate': value.birthDate.toEJson(),
     'income': value.income.toEJson(),
-    'spouse': value.spouse.toEJson()
+    'spouse': value.spouse.toEJson(),
   };
 }
 
@@ -21,10 +21,14 @@ Person _decodePerson(EJsonValue ejson) {
       'name': EJsonValue name,
       'birthDate': EJsonValue birthDate,
       'income': EJsonValue income,
-      'spouse': EJsonValue spouse
+      'spouse': EJsonValue spouse,
     } =>
-      Person(fromEJson(name), fromEJson(birthDate), fromEJson(income),
-          spouse: fromEJson(spouse)),
+      Person.new(
+        fromEJson(name),
+        fromEJson(birthDate),
+        fromEJson(income),
+        spouse: fromEJson(spouse),
+      ),
     _ => raiseInvalidEJson(ejson),
   };
 }
