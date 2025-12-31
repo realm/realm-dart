@@ -1,6 +1,6 @@
 Field initializers must be constant
 
-in: asset:pkg/test/error_test_data/const_initializer.dart:9:12
+in: asset:realm_generator/test/error_test_data/const_initializer.dart:9:12
   ╷
 7 │ @RealmModel()
 8 │ class _Bad {

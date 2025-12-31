@@ -1,6 +1,6 @@
 Non-empty default values for lists are not supported.
 
-in: asset:pkg/test/error_test_data/list_non_empty_initializer.dart:8:31
+in: asset:realm_generator/test/error_test_data/list_non_empty_initializer.dart:8:31
     ╷
 5   │ @RealmModel()
 6   │ class _Bad {

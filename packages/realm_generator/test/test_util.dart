@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:logging/logging.dart';
@@ -43,20 +44,35 @@ void testCompile(
   if (matcher is! Matcher) throw ArgumentError.value(matcher, 'matcher');
 
   test(description, () async {
+    final readerWriter = TestReaderWriter(
+      rootPackage: 'realm_generator',
+    );
+
+    await readerWriter.testing.loadIsolateSources();
+
     generate() async {
-      final result = await testBuilders(
-        [generateRealmObjects()],
-        {'pkg|$assetName': '$source'},
+      final result = await testBuilder(
+        generateRealmObjects(),
+        {'realm_generator|$assetName': '$source'},
+        readerWriter: readerWriter,
         onLog: onLog,
       );
 
-      final rw = result.readerWriter;
+      if (!result.succeeded) {
+        return result.errors.first.trim().normalizeLineEndings();
+      }
 
-      final outId = rw.testing.assetsWritten.firstWhere(
-            (id) => id.path.endsWith('.realm.dart'),
+      // The “logical” AssetId of the generated file
+      final logicalId = AssetId.parse('realm_generator|$assetName')
+          .changeExtension('.realm.dart');
+
+      // Convert to “physical” AssetId in .dart_tool/build/generated
+      final generatedId = AssetId(
+        logicalId.package,
+        '.dart_tool/build/generated/${logicalId.package}/${logicalId.path}',
       );
 
-      final bytes = await rw.readAsBytes(outId);
+      final bytes = readerWriter.testing.readBytes(generatedId);
 
       return _formatter.format(utf8.decode(bytes));
     }
@@ -73,11 +89,11 @@ void testCompileMany(
 ) async {
   final inputs = switch (sources) {
     Iterable<File> files => files.map((file) {
-        return ('pkg|${file.path}', _formatter.format(file.readAsStringSync()));
+        return ('realm_generator|${file.path}', _formatter.format(file.readAsStringSync()));
       }),
     Iterable<String> strings => strings.indexed.map((x) {
         final (index, text) = x;
-        return ('pkg|source_$index.dart', _formatter.format(text));
+        return ('realm_generator|source_$index.dart', _formatter.format(text));
       }),
     _ => throw ArgumentError.value(sources, 'sources'),
   };
@@ -93,16 +109,23 @@ void testCompileMany(
     _ => throw ArgumentError.value(matcher, 'matcher'),
   };
 
-  test(description, () {
+  test(description, () async {
+    final readerWriter = TestReaderWriter(
+      rootPackage: 'realm_generator',
+    );
+
+    await readerWriter.testing.loadIsolateSources();
+
     generate() async {
-      final result = await testBuilders(
-        [generateRealmObjects()],
+      final result = await testBuilder(
+        generateRealmObjects(),
         Map<String, Object>.fromEntries(
           inputs.map((x) {
             final (id, source) = x;
             return MapEntry(id, source);
           }),
         ),
+        readerWriter: readerWriter,
       );
       final rw = result.readerWriter;
       final assets = rw.testing.assetsWritten;

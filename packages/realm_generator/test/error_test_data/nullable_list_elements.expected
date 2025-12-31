@@ -1,6 +1,6 @@
 Realm objects in lists must be non-nullable
 
-in: asset:pkg/test/error_test_data/nullable_list_elements.dart:14:8
+in: asset:realm_generator/test/error_test_data/nullable_list_elements.dart:14:8
     ╷
 8   │ @RealmModel()
 9   │ class _Bad {

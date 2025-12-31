@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'all_named_ctor.dart';
 
@@ -12,14 +12,9 @@ part of 'all_named_ctor.dart';
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  Person({
-    required String name,
-    int age = 42,
-  }) {
+  Person({required String name, int age = 42}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Person>({
-        'age': 42,
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Person>({'age': 42});
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'age', age);
@@ -49,23 +44,17 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-      'age': age.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson(), 'age': age.toEJson()};
   }
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        Person(
-          name: fromEJson(name),
-          age: fromEJson(ejson['age'], defaultValue: 42),
-        ),
+      {'name': EJsonValue name} => Person(
+        name: fromEJson(name),
+        age: fromEJson(ejson['age'], defaultValue: 42),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }

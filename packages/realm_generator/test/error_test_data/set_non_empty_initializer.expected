@@ -1,6 +1,6 @@
 Non-empty default values for sets are not supported.
 
-in: asset:pkg/test/error_test_data/set_non_empty_initializer.dart:8:30
+in: asset:realm_generator/test/error_test_data/set_non_empty_initializer.dart:8:30
     ╷
 5   │ @RealmModel()
 6   │ class _Bad {

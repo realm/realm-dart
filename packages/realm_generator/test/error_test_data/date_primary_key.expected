@@ -2,7 +2,7 @@ Realm only supports the @PrimaryKey annotation on fields of type
 int, String, ObjectId, Uuid
 as well as their nullable versions
 
-in: asset:pkg/test/error_test_data/date_primary_key.dart:8:8
+in: asset:realm_generator/test/error_test_data/date_primary_key.dart:8:8
   ╷
 5 │ @RealmModel()
 6 │ class _Bad {
