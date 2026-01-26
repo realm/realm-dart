@@ -331,8 +331,8 @@ jobs:
 
       - name: Run generator in realm/example
         run: |
-          dart pub get
-          dart run build_runner build --delete-conflicting-outputs
+          flutter pub get
+          flutter pub run build_runner build --delete-conflicting-outputs
         working-directory: packages/realm/example
 
       - name: Install LLVM

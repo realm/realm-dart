@@ -13,6 +13,7 @@ packages:
 
 command:
   bootstrap:
+    runPubGetInParallel: false
     environment:
       sdk: ^3.7.0
       flutter: ^3.38.0
