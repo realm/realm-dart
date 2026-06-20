@@ -1,8 +1,8 @@
 # melos_managed_dependency_overrides: ejson_analyzer,ejson_annotation,ejson_lint
 dependency_overrides:
   ejson_analyzer:
-    path: ..\\..\\ejson_analyzer
+    path: ../../ejson_analyzer
   ejson_annotation:
-    path: ..\\..\\ejson_annotation
+    path: ../../ejson_annotation
   ejson_lint:
     path: ..
