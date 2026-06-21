@@ -54,7 +54,11 @@ void main() {
     expect(double.nan, isNot(greaterThan(0.0)));
     expect(double.nan, isNot(greaterThanOrEqualTo(0.0)));
 
-    expect(double.nan, isNot(double.nan));
+    // `package:matcher`'s `equals` treats a value as equal to itself via
+    // `identical`, and `identical(double.nan, double.nan)` is true, so
+    // `isNot(double.nan)` no longer expresses "NaN != NaN". Check the operator.
+    // ignore: unnecessary_nan_comparison
+    expect(double.nan == double.nan, isFalse);
     expect(double.nan, isNot(lessThan(double.nan)));
     expect(double.nan, isNot(lessThanOrEqualTo(double.nan)));
     expect(double.nan, isNot(greaterThan(double.nan)));
@@ -82,7 +86,9 @@ void main() {
     expect(Decimal128.nan, isNot(greaterThan(Decimal128.zero)));
     expect(Decimal128.nan, isNot(greaterThanOrEqualTo(Decimal128.zero)));
 
-    expect(Decimal128.nan, isNot(Decimal128.nan));
+    // See the note above: `isNot(Decimal128.nan)` matches via `identical`,
+    // so assert the `==` operator (which is unordered for NaN) directly.
+    expect(Decimal128.nan == Decimal128.nan, isFalse);
     expect(Decimal128.nan, isNot(lessThan(Decimal128.nan)));
     expect(Decimal128.nan, isNot(lessThanOrEqualTo(Decimal128.nan)));
     expect(Decimal128.nan, isNot(greaterThan(Decimal128.nan)));
