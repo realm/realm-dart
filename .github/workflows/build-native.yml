@@ -54,8 +54,11 @@ jobs:
         # (e.g. missing <cstdlib> for std::strtol). r27 (27.0.12077973) matches
         # the version used for the Flutter Android tests in ci.yml.
         run: |
-          yes | sdkmanager --install "ndk;27.0.12077973" > /dev/null
-          echo "ANDROID_NDK=$ANDROID_SDK_ROOT/ndk/27.0.12077973" >> $GITHUB_ENV
+          ndk="$ANDROID_SDK_ROOT/ndk/27.0.12077973"
+          if [ ! -d "$ndk" ]; then
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.0.12077973"
+          fi
+          echo "ANDROID_NDK=$ndk" >> $GITHUB_ENV
 
       - name: Select XCode for MacOS
         if: runner.os == 'macOS'
