@@ -12,17 +12,16 @@ import 'dart:ffi' as ffi;
 class RealmLibrary {
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   RealmLibrary(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
   RealmLibrary.fromLookup(
-      ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-          lookup)
-      : _lookup = lookup;
+    ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
+  ) : _lookup = lookup;
 
   /// Add a callback that will be invoked every time the view of this file is updated.
   ///
@@ -45,19 +44,25 @@ class RealmLibrary {
   }
 
   late final _realm_add_realm_changed_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_callback_token_t> Function(
-              ffi.Pointer<realm_t>,
-              realm_on_realm_change_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>>('realm_add_realm_changed_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_callback_token_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_on_realm_change_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_add_realm_changed_callback');
   late final _realm_add_realm_changed_callback =
-      _realm_add_realm_changed_callbackPtr.asFunction<
-          ffi.Pointer<realm_callback_token_t> Function(
+      _realm_add_realm_changed_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_callback_token_t> Function(
               ffi.Pointer<realm_t>,
               realm_on_realm_change_func_t,
               ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
+              realm_free_userdata_func_t,
+            )
+          >();
 
   /// Add a callback that will be invoked the first time that the given realm is refreshed to the version which is the
   /// latest version at the time when this is called.
@@ -77,19 +82,25 @@ class RealmLibrary {
   }
 
   late final _realm_add_realm_refresh_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_refresh_callback_token_t> Function(
-              ffi.Pointer<realm_t>,
-              realm_on_realm_refresh_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>>('realm_add_realm_refresh_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_refresh_callback_token_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_on_realm_refresh_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_add_realm_refresh_callback');
   late final _realm_add_realm_refresh_callback =
-      _realm_add_realm_refresh_callbackPtr.asFunction<
-          ffi.Pointer<realm_refresh_callback_token_t> Function(
+      _realm_add_realm_refresh_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_refresh_callback_token_t> Function(
               ffi.Pointer<realm_t>,
               realm_on_realm_refresh_func_t,
               ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
+              realm_free_userdata_func_t,
+            )
+          >();
 
   /// Add a callback that will be invoked every time the schema of this realm is changed.
   ///
@@ -109,20 +120,25 @@ class RealmLibrary {
   }
 
   late final _realm_add_schema_changed_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_callback_token_t> Function(
-                  ffi.Pointer<realm_t>,
-                  realm_on_schema_change_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>>(
-      'realm_add_schema_changed_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_callback_token_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_on_schema_change_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_add_schema_changed_callback');
   late final _realm_add_schema_changed_callback =
-      _realm_add_schema_changed_callbackPtr.asFunction<
-          ffi.Pointer<realm_callback_token_t> Function(
+      _realm_add_schema_changed_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_callback_token_t> Function(
               ffi.Pointer<realm_t>,
               realm_on_schema_change_func_t,
               ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
+              realm_free_userdata_func_t,
+            )
+          >();
 
   /// start a new write transaction asynchronously for the realm passed as argument.
   bool realm_async_begin_write(
@@ -144,22 +160,29 @@ class RealmLibrary {
   }
 
   late final _realm_async_begin_writePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_async_begin_write_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Bool,
+        ffi.Pointer<ffi.UnsignedInt>,
+      )
+    >
+  >('realm_async_begin_write');
+  late final _realm_async_begin_write =
+      _realm_async_begin_writePtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               realm_async_begin_write_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              ffi.Bool,
-              ffi.Pointer<ffi.UnsignedInt>)>>('realm_async_begin_write');
-  late final _realm_async_begin_write = _realm_async_begin_writePtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_t>,
-          realm_async_begin_write_func_t,
-          ffi.Pointer<ffi.Void>,
-          realm_free_userdata_func_t,
-          bool,
-          ffi.Pointer<ffi.UnsignedInt>)>();
+              bool,
+              ffi.Pointer<ffi.UnsignedInt>,
+            )
+          >();
 
   /// Cancel the transaction referenced by the token passed as argument and set the optional boolean flag in order to
   /// inform the caller if the transaction was cancelled.
@@ -168,19 +191,23 @@ class RealmLibrary {
     int token,
     ffi.Pointer<ffi.Bool> cancelled,
   ) {
-    return _realm_async_cancel(
-      realm,
-      token,
-      cancelled,
-    );
+    return _realm_async_cancel(realm, token, cancelled);
   }
 
   late final _realm_async_cancelPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.UnsignedInt,
-              ffi.Pointer<ffi.Bool>)>>('realm_async_cancel');
-  late final _realm_async_cancel = _realm_async_cancelPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.UnsignedInt,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_async_cancel');
+  late final _realm_async_cancel =
+      _realm_async_cancelPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Bool>)
+          >();
 
   /// commit a transaction asynchronously for the realm passed as argument.
   bool realm_async_commit(
@@ -202,22 +229,29 @@ class RealmLibrary {
   }
 
   late final _realm_async_commitPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_async_commit_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Bool,
+        ffi.Pointer<ffi.UnsignedInt>,
+      )
+    >
+  >('realm_async_commit');
+  late final _realm_async_commit =
+      _realm_async_commitPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               realm_async_commit_func_t,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
-              ffi.Bool,
-              ffi.Pointer<ffi.UnsignedInt>)>>('realm_async_commit');
-  late final _realm_async_commit = _realm_async_commitPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_t>,
-          realm_async_commit_func_t,
-          ffi.Pointer<ffi.Void>,
-          realm_free_userdata_func_t,
-          bool,
-          ffi.Pointer<ffi.UnsignedInt>)>();
+              bool,
+              ffi.Pointer<ffi.UnsignedInt>,
+            )
+          >();
 
   /// for debugging only. Enable in realm_dart.cpp
   /// RLM_API void realm_dart_gc();
@@ -226,51 +260,45 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> realmPtr,
     int size,
   ) {
-    return _realm_attach_finalizer(
-      handle,
-      realmPtr,
-      size,
-    );
+    return _realm_attach_finalizer(handle, realmPtr, size);
   }
 
   late final _realm_attach_finalizerPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(ffi.Handle, ffi.Pointer<ffi.Void>,
-              ffi.Int)>>('realm_attach_finalizer');
-  late final _realm_attach_finalizer = _realm_attach_finalizerPtr.asFunction<
-      ffi.Pointer<ffi.Void> Function(Object, ffi.Pointer<ffi.Void>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Void> Function(ffi.Handle, ffi.Pointer<ffi.Void>, ffi.Int)
+    >
+  >('realm_attach_finalizer');
+  late final _realm_attach_finalizer =
+      _realm_attach_finalizerPtr
+          .asFunction<
+            ffi.Pointer<ffi.Void> Function(Object, ffi.Pointer<ffi.Void>, int)
+          >();
 
   /// Begin a read transaction for the Realm file.
   ///
   /// @return True if no exception occurred.
-  bool realm_begin_read(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_begin_read(
-      arg0,
-    );
+  bool realm_begin_read(ffi.Pointer<realm_t> arg0) {
+    return _realm_begin_read(arg0);
   }
 
   late final _realm_begin_readPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_begin_read');
+        'realm_begin_read',
+      );
   late final _realm_begin_read =
       _realm_begin_readPtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
   /// Begin a write transaction for the Realm file.
   ///
   /// @return True if no exception occurred.
-  bool realm_begin_write(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_begin_write(
-      arg0,
-    );
+  bool realm_begin_write(ffi.Pointer<realm_t> arg0) {
+    return _realm_begin_write(arg0);
   }
 
   late final _realm_begin_writePtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_begin_write');
+        'realm_begin_write',
+      );
   late final _realm_begin_write =
       _realm_begin_writePtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
@@ -286,7 +314,8 @@ class RealmLibrary {
 
   late final _realm_clear_last_errorPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function()>>(
-          'realm_clear_last_error');
+        'realm_clear_last_error',
+      );
   late final _realm_clear_last_error =
       _realm_clear_last_errorPtr.asFunction<bool Function()>();
 
@@ -296,20 +325,16 @@ class RealmLibrary {
   ///
   /// @return A pointer to an object of the same type as the input, or NULL if
   /// cloning failed.
-  ffi.Pointer<ffi.Void> realm_clone(
-    ffi.Pointer<ffi.Void> arg0,
-  ) {
-    return _realm_clone(
-      arg0,
-    );
+  ffi.Pointer<ffi.Void> realm_clone(ffi.Pointer<ffi.Void> arg0) {
+    return _realm_clone(arg0);
   }
 
   late final _realm_clonePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Void> Function(
-              ffi.Pointer<ffi.Void>)>>('realm_clone');
-  late final _realm_clone = _realm_clonePtr
-      .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
+    ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>
+  >('realm_clone');
+  late final _realm_clone =
+      _realm_clonePtr
+          .asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
   /// Forcibly close a Realm file.
   ///
@@ -319,17 +344,14 @@ class RealmLibrary {
   /// including references to objects within the Realm.
   ///
   /// @return True if no exception occurred.
-  bool realm_close(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_close(
-      arg0,
-    );
+  bool realm_close(ffi.Pointer<realm_t> arg0) {
+    return _realm_close(arg0);
   }
 
   late final _realm_closePtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_close');
+        'realm_close',
+      );
   late final _realm_close =
       _realm_closePtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
@@ -391,22 +413,26 @@ class RealmLibrary {
   }
 
   late final _realm_collection_changes_get_changesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_collection_changes_t>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Size,
-              ffi.Pointer<ffi.Size>,
-              ffi.Size,
-              ffi.Pointer<ffi.Size>,
-              ffi.Size,
-              ffi.Pointer<ffi.Size>,
-              ffi.Size,
-              ffi.Pointer<realm_collection_move_t>,
-              ffi.Size)>>('realm_collection_changes_get_changes');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_collection_changes_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Size,
+        ffi.Pointer<ffi.Size>,
+        ffi.Size,
+        ffi.Pointer<ffi.Size>,
+        ffi.Size,
+        ffi.Pointer<ffi.Size>,
+        ffi.Size,
+        ffi.Pointer<realm_collection_move_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_collection_changes_get_changes');
   late final _realm_collection_changes_get_changes =
-      _realm_collection_changes_get_changesPtr.asFunction<
-          void Function(
+      _realm_collection_changes_get_changesPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_collection_changes_t>,
               ffi.Pointer<ffi.Size>,
               int,
@@ -417,7 +443,9 @@ class RealmLibrary {
               ffi.Pointer<ffi.Size>,
               int,
               ffi.Pointer<realm_collection_move_t>,
-              int)>();
+              int,
+            )
+          >();
 
   /// Get the number of various types of changes in a collection notification.
   ///
@@ -448,26 +476,31 @@ class RealmLibrary {
   }
 
   late final _realm_collection_changes_get_num_changesPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_collection_changes_t>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Bool>,
-                  ffi.Pointer<ffi.Bool>)>>(
-      'realm_collection_changes_get_num_changes');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_collection_changes_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_collection_changes_get_num_changes');
   late final _realm_collection_changes_get_num_changes =
-      _realm_collection_changes_get_num_changesPtr.asFunction<
-          void Function(
+      _realm_collection_changes_get_num_changesPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_collection_changes_t>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Bool>,
-              ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get the number of various types of changes in a collection notification,
   /// suitable for acquiring the change indices as ranges, which is much more
@@ -496,22 +529,27 @@ class RealmLibrary {
   }
 
   late final _realm_collection_changes_get_num_rangesPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_collection_changes_t>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Size>)>>(
-      'realm_collection_changes_get_num_ranges');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_collection_changes_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+      )
+    >
+  >('realm_collection_changes_get_num_ranges');
   late final _realm_collection_changes_get_num_ranges =
-      _realm_collection_changes_get_num_rangesPtr.asFunction<
-          void Function(
+      _realm_collection_changes_get_num_rangesPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_collection_changes_t>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Size>)>();
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
 
   void realm_collection_changes_get_ranges(
     ffi.Pointer<realm_collection_changes_t> arg0,
@@ -542,22 +580,26 @@ class RealmLibrary {
   }
 
   late final _realm_collection_changes_get_rangesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_collection_changes_t>,
-              ffi.Pointer<realm_index_range_t>,
-              ffi.Size,
-              ffi.Pointer<realm_index_range_t>,
-              ffi.Size,
-              ffi.Pointer<realm_index_range_t>,
-              ffi.Size,
-              ffi.Pointer<realm_index_range_t>,
-              ffi.Size,
-              ffi.Pointer<realm_collection_move_t>,
-              ffi.Size)>>('realm_collection_changes_get_ranges');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_collection_changes_t>,
+        ffi.Pointer<realm_index_range_t>,
+        ffi.Size,
+        ffi.Pointer<realm_index_range_t>,
+        ffi.Size,
+        ffi.Pointer<realm_index_range_t>,
+        ffi.Size,
+        ffi.Pointer<realm_index_range_t>,
+        ffi.Size,
+        ffi.Pointer<realm_collection_move_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_collection_changes_get_ranges');
   late final _realm_collection_changes_get_ranges =
-      _realm_collection_changes_get_rangesPtr.asFunction<
-          void Function(
+      _realm_collection_changes_get_rangesPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_collection_changes_t>,
               ffi.Pointer<realm_index_range_t>,
               int,
@@ -568,22 +610,21 @@ class RealmLibrary {
               ffi.Pointer<realm_index_range_t>,
               int,
               ffi.Pointer<realm_collection_move_t>,
-              int)>();
+              int,
+            )
+          >();
 
   /// Commit a write transaction.
   ///
   /// @return True if the commit succeeded and no exceptions were thrown.
-  bool realm_commit(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_commit(
-      arg0,
-    );
+  bool realm_commit(ffi.Pointer<realm_t> arg0) {
+    return _realm_commit(arg0);
   }
 
   late final _realm_commitPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_commit');
+        'realm_commit',
+      );
   late final _realm_commit =
       _realm_commitPtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
@@ -594,18 +635,19 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<ffi.Bool> did_compact,
   ) {
-    return _realm_compact(
-      arg0,
-      did_compact,
-    );
+    return _realm_compact(arg0, did_compact);
   }
 
   late final _realm_compactPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>>('realm_compact');
-  late final _realm_compact = _realm_compactPtr
-      .asFunction<bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)
+    >
+  >('realm_compact');
+  late final _realm_compact =
+      _realm_compactPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)
+          >();
 
   /// True if automatic change notifications should be generated.
   ///
@@ -613,32 +655,27 @@ class RealmLibrary {
   bool realm_config_get_automatic_change_notifications(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_automatic_change_notifications(
-      arg0,
-    );
+    return _realm_config_get_automatic_change_notifications(arg0);
   }
 
   late final _realm_config_get_automatic_change_notificationsPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_automatic_change_notifications');
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_automatic_change_notifications');
   late final _realm_config_get_automatic_change_notifications =
       _realm_config_get_automatic_change_notificationsPtr
           .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
 
   /// Check if realms are cached
-  bool realm_config_get_cached(
-    ffi.Pointer<realm_config_t> arg0,
-  ) {
-    return _realm_config_get_cached(
-      arg0,
-    );
+  bool realm_config_get_cached(ffi.Pointer<realm_config_t> arg0) {
+    return _realm_config_get_cached(arg0);
   }
 
   late final _realm_config_get_cachedPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_cached');
-  late final _realm_config_get_cached = _realm_config_get_cachedPtr
-      .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_cached');
+  late final _realm_config_get_cached =
+      _realm_config_get_cachedPtr
+          .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
 
   /// True if file format upgrades on open are disabled.
   ///
@@ -646,14 +683,12 @@ class RealmLibrary {
   bool realm_config_get_disable_format_upgrade(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_disable_format_upgrade(
-      arg0,
-    );
+    return _realm_config_get_disable_format_upgrade(arg0);
   }
 
   late final _realm_config_get_disable_format_upgradePtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_disable_format_upgrade');
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_disable_format_upgrade');
   late final _realm_config_get_disable_format_upgrade =
       _realm_config_get_disable_format_upgradePtr
           .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
@@ -667,51 +702,49 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     ffi.Pointer<ffi.Uint8> out_key,
   ) {
-    return _realm_config_get_encryption_key(
-      arg0,
-      out_key,
-    );
+    return _realm_config_get_encryption_key(arg0, out_key);
   }
 
   late final _realm_config_get_encryption_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Size Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<ffi.Uint8>)>>('realm_config_get_encryption_key');
+    ffi.NativeFunction<
+      ffi.Size Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Uint8>)
+    >
+  >('realm_config_get_encryption_key');
   late final _realm_config_get_encryption_key =
-      _realm_config_get_encryption_keyPtr.asFunction<
-          int Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Uint8>)>();
+      _realm_config_get_encryption_keyPtr
+          .asFunction<
+            int Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Uint8>)
+          >();
 
   /// Check realm FIFO path
   ffi.Pointer<ffi.Char> realm_config_get_fifo_path(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_fifo_path(
-      arg0,
-    );
+    return _realm_config_get_fifo_path(arg0);
   }
 
   late final _realm_config_get_fifo_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<realm_config_t>)>>('realm_config_get_fifo_path');
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)
+    >
+  >('realm_config_get_fifo_path');
   late final _realm_config_get_fifo_path =
-      _realm_config_get_fifo_pathPtr.asFunction<
-          ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)>();
+      _realm_config_get_fifo_pathPtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)
+          >();
 
   /// Check if realm is configured in memory
-  bool realm_config_get_in_memory(
-    ffi.Pointer<realm_config_t> arg0,
-  ) {
-    return _realm_config_get_in_memory(
-      arg0,
-    );
+  bool realm_config_get_in_memory(ffi.Pointer<realm_config_t> arg0) {
+    return _realm_config_get_in_memory(arg0);
   }
 
   late final _realm_config_get_in_memoryPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_in_memory');
-  late final _realm_config_get_in_memory = _realm_config_get_in_memoryPtr
-      .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_in_memory');
+  late final _realm_config_get_in_memory =
+      _realm_config_get_in_memoryPtr
+          .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
 
   /// Get maximum number of active versions in the realm file allowed before an
   /// exception is thrown.
@@ -720,14 +753,12 @@ class RealmLibrary {
   int realm_config_get_max_number_of_active_versions(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_max_number_of_active_versions(
-      arg0,
-    );
+    return _realm_config_get_max_number_of_active_versions(arg0);
   }
 
   late final _realm_config_get_max_number_of_active_versionsPtr = _lookup<
-          ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_max_number_of_active_versions');
+    ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_max_number_of_active_versions');
   late final _realm_config_get_max_number_of_active_versions =
       _realm_config_get_max_number_of_active_versionsPtr
           .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
@@ -738,17 +769,19 @@ class RealmLibrary {
   ffi.Pointer<ffi.Char> realm_config_get_path(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_path(
-      arg0,
-    );
+    return _realm_config_get_path(arg0);
   }
 
   late final _realm_config_get_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<realm_config_t>)>>('realm_config_get_path');
-  late final _realm_config_get_path = _realm_config_get_pathPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)
+    >
+  >('realm_config_get_path');
+  late final _realm_config_get_path =
+      _realm_config_get_pathPtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_config_t>)
+          >();
 
   /// Get the schema for this realm.
   ///
@@ -759,17 +792,19 @@ class RealmLibrary {
   ffi.Pointer<realm_schema_t> realm_config_get_schema(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_get_schema(
-      arg0,
-    );
+    return _realm_config_get_schema(arg0);
   }
 
   late final _realm_config_get_schemaPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_schema_t> Function(
-              ffi.Pointer<realm_config_t>)>>('realm_config_get_schema');
-  late final _realm_config_get_schema = _realm_config_get_schemaPtr.asFunction<
-      ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_config_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_config_t>)
+    >
+  >('realm_config_get_schema');
+  late final _realm_config_get_schema =
+      _realm_config_get_schemaPtr
+          .asFunction<
+            ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_config_t>)
+          >();
 
   /// Get the schema mode.
   ///
@@ -777,17 +812,15 @@ class RealmLibrary {
   realm_schema_mode realm_config_get_schema_mode(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return realm_schema_mode.fromValue(_realm_config_get_schema_mode(
-      arg0,
-    ));
+    return realm_schema_mode.fromValue(_realm_config_get_schema_mode(arg0));
   }
 
   late final _realm_config_get_schema_modePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.UnsignedInt Function(
-              ffi.Pointer<realm_config_t>)>>('realm_config_get_schema_mode');
-  late final _realm_config_get_schema_mode = _realm_config_get_schema_modePtr
-      .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
+    ffi.NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_schema_mode');
+  late final _realm_config_get_schema_mode =
+      _realm_config_get_schema_modePtr
+          .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
 
   /// Get the subset schema mode.
   ///
@@ -795,16 +828,14 @@ class RealmLibrary {
   realm_schema_subset_mode realm_config_get_schema_subset_mode(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return realm_schema_subset_mode
-        .fromValue(_realm_config_get_schema_subset_mode(
-      arg0,
-    ));
+    return realm_schema_subset_mode.fromValue(
+      _realm_config_get_schema_subset_mode(arg0),
+    );
   }
 
   late final _realm_config_get_schema_subset_modePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.UnsignedInt Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_schema_subset_mode');
+    ffi.NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_schema_subset_mode');
   late final _realm_config_get_schema_subset_mode =
       _realm_config_get_schema_subset_modePtr
           .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
@@ -812,17 +843,13 @@ class RealmLibrary {
   /// Get the schema version of the schema.
   ///
   /// This function cannot fail.
-  int realm_config_get_schema_version(
-    ffi.Pointer<realm_config_t> arg0,
-  ) {
-    return _realm_config_get_schema_version(
-      arg0,
-    );
+  int realm_config_get_schema_version(ffi.Pointer<realm_config_t> arg0) {
+    return _realm_config_get_schema_version(arg0);
   }
 
   late final _realm_config_get_schema_versionPtr = _lookup<
-          ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_get_schema_version');
+    ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_get_schema_version');
   late final _realm_config_get_schema_version =
       _realm_config_get_schema_versionPtr
           .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
@@ -831,14 +858,12 @@ class RealmLibrary {
   bool realm_config_needs_file_format_upgrade(
     ffi.Pointer<realm_config_t> arg0,
   ) {
-    return _realm_config_needs_file_format_upgrade(
-      arg0,
-    );
+    return _realm_config_needs_file_format_upgrade(arg0);
   }
 
   late final _realm_config_needs_file_format_upgradePtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_config_needs_file_format_upgrade');
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_config_t>)>
+  >('realm_config_needs_file_format_upgrade');
   late final _realm_config_needs_file_format_upgrade =
       _realm_config_needs_file_format_upgradePtr
           .asFunction<bool Function(ffi.Pointer<realm_config_t>)>();
@@ -850,7 +875,8 @@ class RealmLibrary {
 
   late final _realm_config_newPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<realm_config_t> Function()>>(
-          'realm_config_new');
+        'realm_config_new',
+      );
   late final _realm_config_new =
       _realm_config_newPtr.asFunction<ffi.Pointer<realm_config_t> Function()>();
 
@@ -859,16 +885,12 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     bool arg1,
   ) {
-    return _realm_config_set_automatic_backlink_handling(
-      arg0,
-      arg1,
-    );
+    return _realm_config_set_automatic_backlink_handling(arg0, arg1);
   }
 
   late final _realm_config_set_automatic_backlink_handlingPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Bool)>>('realm_config_set_automatic_backlink_handling');
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Bool)>
+  >('realm_config_set_automatic_backlink_handling');
   late final _realm_config_set_automatic_backlink_handling =
       _realm_config_set_automatic_backlink_handlingPtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
@@ -880,37 +902,27 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     bool arg1,
   ) {
-    return _realm_config_set_automatic_change_notifications(
-      arg0,
-      arg1,
-    );
+    return _realm_config_set_automatic_change_notifications(arg0, arg1);
   }
 
   late final _realm_config_set_automatic_change_notificationsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Bool)>>('realm_config_set_automatic_change_notifications');
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Bool)>
+  >('realm_config_set_automatic_change_notifications');
   late final _realm_config_set_automatic_change_notifications =
       _realm_config_set_automatic_change_notificationsPtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
 
   /// If 'cached' is false, always return a new Realm instance.
-  void realm_config_set_cached(
-    ffi.Pointer<realm_config_t> arg0,
-    bool cached,
-  ) {
-    return _realm_config_set_cached(
-      arg0,
-      cached,
-    );
+  void realm_config_set_cached(ffi.Pointer<realm_config_t> arg0, bool cached) {
+    return _realm_config_set_cached(arg0, cached);
   }
 
   late final _realm_config_set_cachedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Bool)>>('realm_config_set_cached');
-  late final _realm_config_set_cached = _realm_config_set_cachedPtr
-      .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Bool)>
+  >('realm_config_set_cached');
+  late final _realm_config_set_cached =
+      _realm_config_set_cachedPtr
+          .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
 
   /// Set the data initialization function.
   ///
@@ -935,20 +947,25 @@ class RealmLibrary {
   }
 
   late final _realm_config_set_data_initialization_functionPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_config_t>,
-                  realm_data_initialization_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>>(
-      'realm_config_set_data_initialization_function');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_config_t>,
+        realm_data_initialization_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_config_set_data_initialization_function');
   late final _realm_config_set_data_initialization_function =
-      _realm_config_set_data_initialization_functionPtr.asFunction<
-          void Function(
+      _realm_config_set_data_initialization_functionPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_config_t>,
               realm_data_initialization_func_t,
               ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
+              realm_free_userdata_func_t,
+            )
+          >();
 
   /// Disable file format upgrade on open (default: false).
   ///
@@ -960,16 +977,12 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     bool arg1,
   ) {
-    return _realm_config_set_disable_format_upgrade(
-      arg0,
-      arg1,
-    );
+    return _realm_config_set_disable_format_upgrade(arg0, arg1);
   }
 
   late final _realm_config_set_disable_format_upgradePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Bool)>>('realm_config_set_disable_format_upgrade');
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Bool)>
+  >('realm_config_set_disable_format_upgrade');
   late final _realm_config_set_disable_format_upgrade =
       _realm_config_set_disable_format_upgradePtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
@@ -985,58 +998,58 @@ class RealmLibrary {
     ffi.Pointer<ffi.Uint8> key,
     int key_size,
   ) {
-    return _realm_config_set_encryption_key(
-      arg0,
-      key,
-      key_size,
-    );
+    return _realm_config_set_encryption_key(arg0, key, key_size);
   }
 
   late final _realm_config_set_encryption_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Uint8>,
-              ffi.Size)>>('realm_config_set_encryption_key');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_config_t>,
+        ffi.Pointer<ffi.Uint8>,
+        ffi.Size,
+      )
+    >
+  >('realm_config_set_encryption_key');
   late final _realm_config_set_encryption_key =
-      _realm_config_set_encryption_keyPtr.asFunction<
-          bool Function(
-              ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Uint8>, int)>();
+      _realm_config_set_encryption_keyPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_config_t>,
+              ffi.Pointer<ffi.Uint8>,
+              int,
+            )
+          >();
 
   /// Set FIFO path
   void realm_config_set_fifo_path(
     ffi.Pointer<realm_config_t> arg0,
     ffi.Pointer<ffi.Char> arg1,
   ) {
-    return _realm_config_set_fifo_path(
-      arg0,
-      arg1,
-    );
+    return _realm_config_set_fifo_path(arg0, arg1);
   }
 
   late final _realm_config_set_fifo_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_config_set_fifo_path');
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)
+    >
+  >('realm_config_set_fifo_path');
   late final _realm_config_set_fifo_path =
-      _realm_config_set_fifo_pathPtr.asFunction<
-          void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)>();
+      _realm_config_set_fifo_pathPtr
+          .asFunction<
+            void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)
+          >();
 
   /// Configure realm to be in memory
-  void realm_config_set_in_memory(
-    ffi.Pointer<realm_config_t> arg0,
-    bool arg1,
-  ) {
-    return _realm_config_set_in_memory(
-      arg0,
-      arg1,
-    );
+  void realm_config_set_in_memory(ffi.Pointer<realm_config_t> arg0, bool arg1) {
+    return _realm_config_set_in_memory(arg0, arg1);
   }
 
   late final _realm_config_set_in_memoryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Bool)>>('realm_config_set_in_memory');
-  late final _realm_config_set_in_memory = _realm_config_set_in_memoryPtr
-      .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Bool)>
+  >('realm_config_set_in_memory');
+  late final _realm_config_set_in_memory =
+      _realm_config_set_in_memoryPtr
+          .asFunction<void Function(ffi.Pointer<realm_config_t>, bool)>();
 
   /// Set maximum number of active versions in the realm file allowed before an
   /// exception is thrown (default: UINT64_MAX).
@@ -1046,16 +1059,14 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     int arg1,
   ) {
-    return _realm_config_set_max_number_of_active_versions(
-      arg0,
-      arg1,
-    );
+    return _realm_config_set_max_number_of_active_versions(arg0, arg1);
   }
 
   late final _realm_config_set_max_number_of_active_versionsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Uint64)>>('realm_config_set_max_number_of_active_versions');
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Uint64)
+    >
+  >('realm_config_set_max_number_of_active_versions');
   late final _realm_config_set_max_number_of_active_versions =
       _realm_config_set_max_number_of_active_versionsPtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
@@ -1083,17 +1094,25 @@ class RealmLibrary {
   }
 
   late final _realm_config_set_migration_functionPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_config_t>,
-                  realm_migration_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>>(
-      'realm_config_set_migration_function');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_config_t>,
+        realm_migration_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_config_set_migration_function');
   late final _realm_config_set_migration_function =
-      _realm_config_set_migration_functionPtr.asFunction<
-          void Function(ffi.Pointer<realm_config_t>, realm_migration_func_t,
-              ffi.Pointer<ffi.Void>, realm_free_userdata_func_t)>();
+      _realm_config_set_migration_functionPtr
+          .asFunction<
+            void Function(
+              ffi.Pointer<realm_config_t>,
+              realm_migration_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+            )
+          >();
 
   /// Set the path of the realm being opened.
   ///
@@ -1102,18 +1121,19 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     ffi.Pointer<ffi.Char> path,
   ) {
-    return _realm_config_set_path(
-      arg0,
-      path,
-    );
+    return _realm_config_set_path(arg0, path);
   }
 
   late final _realm_config_set_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_config_set_path');
-  late final _realm_config_set_path = _realm_config_set_pathPtr.asFunction<
-      void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)
+    >
+  >('realm_config_set_path');
+  late final _realm_config_set_path =
+      _realm_config_set_pathPtr
+          .asFunction<
+            void Function(ffi.Pointer<realm_config_t>, ffi.Pointer<ffi.Char>)
+          >();
 
   /// The scheduler which this realm should be bound to (default: NULL).
   ///
@@ -1124,20 +1144,25 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     ffi.Pointer<realm_scheduler_t> arg1,
   ) {
-    return _realm_config_set_scheduler(
-      arg0,
-      arg1,
-    );
+    return _realm_config_set_scheduler(arg0, arg1);
   }
 
   late final _realm_config_set_schedulerPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<realm_scheduler_t>)>>('realm_config_set_scheduler');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_config_t>,
+        ffi.Pointer<realm_scheduler_t>,
+      )
+    >
+  >('realm_config_set_scheduler');
   late final _realm_config_set_scheduler =
-      _realm_config_set_schedulerPtr.asFunction<
-          void Function(
-              ffi.Pointer<realm_config_t>, ffi.Pointer<realm_scheduler_t>)>();
+      _realm_config_set_schedulerPtr
+          .asFunction<
+            void Function(
+              ffi.Pointer<realm_config_t>,
+              ffi.Pointer<realm_scheduler_t>,
+            )
+          >();
 
   /// Set the schema object for this realm.
   ///
@@ -1151,19 +1176,25 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     ffi.Pointer<realm_schema_t> schema,
   ) {
-    return _realm_config_set_schema(
-      arg0,
-      schema,
-    );
+    return _realm_config_set_schema(arg0, schema);
   }
 
   late final _realm_config_set_schemaPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Pointer<realm_schema_t>)>>('realm_config_set_schema');
-  late final _realm_config_set_schema = _realm_config_set_schemaPtr.asFunction<
-      void Function(
-          ffi.Pointer<realm_config_t>, ffi.Pointer<realm_schema_t>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_config_t>,
+        ffi.Pointer<realm_schema_t>,
+      )
+    >
+  >('realm_config_set_schema');
+  late final _realm_config_set_schema =
+      _realm_config_set_schemaPtr
+          .asFunction<
+            void Function(
+              ffi.Pointer<realm_config_t>,
+              ffi.Pointer<realm_schema_t>,
+            )
+          >();
 
   /// Set the schema mode.
   ///
@@ -1172,18 +1203,17 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     realm_schema_mode arg1,
   ) {
-    return _realm_config_set_schema_mode(
-      arg0,
-      arg1.value,
-    );
+    return _realm_config_set_schema_mode(arg0, arg1.value);
   }
 
   late final _realm_config_set_schema_modePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.UnsignedInt)>>('realm_config_set_schema_mode');
-  late final _realm_config_set_schema_mode = _realm_config_set_schema_modePtr
-      .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.UnsignedInt)
+    >
+  >('realm_config_set_schema_mode');
+  late final _realm_config_set_schema_mode =
+      _realm_config_set_schema_modePtr
+          .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
 
   /// Set schema subset mode
   ///
@@ -1192,16 +1222,14 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     realm_schema_subset_mode arg1,
   ) {
-    return _realm_config_set_schema_subset_mode(
-      arg0,
-      arg1.value,
-    );
+    return _realm_config_set_schema_subset_mode(arg0, arg1.value);
   }
 
   late final _realm_config_set_schema_subset_modePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.UnsignedInt)>>('realm_config_set_schema_subset_mode');
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.UnsignedInt)
+    >
+  >('realm_config_set_schema_subset_mode');
   late final _realm_config_set_schema_subset_mode =
       _realm_config_set_schema_subset_modePtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
@@ -1213,16 +1241,14 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> arg0,
     int version,
   ) {
-    return _realm_config_set_schema_version(
-      arg0,
-      version,
-    );
+    return _realm_config_set_schema_version(arg0, version);
   }
 
   late final _realm_config_set_schema_versionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<realm_config_t>,
-              ffi.Uint64)>>('realm_config_set_schema_version');
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<realm_config_t>, ffi.Uint64)
+    >
+  >('realm_config_set_schema_version');
   late final _realm_config_set_schema_version =
       _realm_config_set_schema_versionPtr
           .asFunction<void Function(ffi.Pointer<realm_config_t>, int)>();
@@ -1250,20 +1276,25 @@ class RealmLibrary {
   }
 
   late final _realm_config_set_should_compact_on_launch_functionPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(
-                  ffi.Pointer<realm_config_t>,
-                  realm_should_compact_on_launch_func_t,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t)>>(
-      'realm_config_set_should_compact_on_launch_function');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_config_t>,
+        realm_should_compact_on_launch_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_config_set_should_compact_on_launch_function');
   late final _realm_config_set_should_compact_on_launch_function =
-      _realm_config_set_should_compact_on_launch_functionPtr.asFunction<
-          void Function(
+      _realm_config_set_should_compact_on_launch_functionPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_config_t>,
               realm_should_compact_on_launch_func_t,
               ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>();
+              realm_free_userdata_func_t,
+            )
+          >();
 
   /// The overloaded Realm::convert function offers a way to copy and/or convert a realm.
   ///
@@ -1297,21 +1328,27 @@ class RealmLibrary {
     ffi.Pointer<realm_config_t> config,
     bool merge_with_existing,
   ) {
-    return _realm_convert_with_config(
-      realm,
-      config,
-      merge_with_existing,
-    );
+    return _realm_convert_with_config(realm, config, merge_with_existing);
   }
 
   late final _realm_convert_with_configPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>,
-              ffi.Bool)>>('realm_convert_with_config');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_config_t>,
+        ffi.Bool,
+      )
+    >
+  >('realm_convert_with_config');
   late final _realm_convert_with_config =
-      _realm_convert_with_configPtr.asFunction<
-          bool Function(
-              ffi.Pointer<realm_t>, ffi.Pointer<realm_config_t>, bool)>();
+      _realm_convert_with_configPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_config_t>,
+              bool,
+            )
+          >();
 
   /// Copy a Realm using a path.
   ///
@@ -1336,12 +1373,25 @@ class RealmLibrary {
   }
 
   late final _realm_convert_with_pathPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
-              realm_binary_t, ffi.Bool)>>('realm_convert_with_path');
-  late final _realm_convert_with_path = _realm_convert_with_pathPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>, realm_binary_t, bool)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Char>,
+        realm_binary_t,
+        ffi.Bool,
+      )
+    >
+  >('realm_convert_with_path');
+  late final _realm_convert_with_path =
+      _realm_convert_with_pathPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Char>,
+              realm_binary_t,
+              bool,
+            )
+          >();
 
   /// Helper method for making it easier to to convert SDK input to the underlying
   /// `realm_key_path_array_t`.
@@ -1362,17 +1412,25 @@ class RealmLibrary {
   }
 
   late final _realm_create_key_path_arrayPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_key_path_array_t> Function(
-                  ffi.Pointer<realm_t>,
-                  realm_class_key_t,
-                  ffi.Size,
-                  ffi.Pointer<ffi.Pointer<ffi.Char>>)>>(
-      'realm_create_key_path_array');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_key_path_array_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Size,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >('realm_create_key_path_array');
   late final _realm_create_key_path_array =
-      _realm_create_key_path_arrayPtr.asFunction<
-          ffi.Pointer<realm_key_path_array_t> Function(ffi.Pointer<realm_t>,
-              int, int, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+      _realm_create_key_path_arrayPtr
+          .asFunction<
+            ffi.Pointer<realm_key_path_array_t> Function(
+              ffi.Pointer<realm_t>,
+              int,
+              int,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+            )
+          >();
 
   /// Get a thread-safe reference representing the same underlying object as some
   /// API object.
@@ -1397,31 +1455,30 @@ class RealmLibrary {
   ffi.Pointer<realm_thread_safe_reference_t> realm_create_thread_safe_reference(
     ffi.Pointer<ffi.Void> arg0,
   ) {
-    return _realm_create_thread_safe_reference(
-      arg0,
-    );
+    return _realm_create_thread_safe_reference(arg0);
   }
 
   late final _realm_create_thread_safe_referencePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_thread_safe_reference_t> Function(
-              ffi.Pointer<ffi.Void>)>>('realm_create_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_thread_safe_reference_t> Function(ffi.Pointer<ffi.Void>)
+    >
+  >('realm_create_thread_safe_reference');
   late final _realm_create_thread_safe_reference =
-      _realm_create_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_thread_safe_reference_t> Function(
-              ffi.Pointer<ffi.Void>)>();
+      _realm_create_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_thread_safe_reference_t> Function(
+              ffi.Pointer<ffi.Void>,
+            )
+          >();
 
-  void realm_dart_attach_logger(
-    int port,
-  ) {
-    return _realm_dart_attach_logger(
-      port,
-    );
+  void realm_dart_attach_logger(int port) {
+    return _realm_dart_attach_logger(port);
   }
 
   late final _realm_dart_attach_loggerPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
-          'realm_dart_attach_logger');
+        'realm_dart_attach_logger',
+      );
   late final _realm_dart_attach_logger =
       _realm_dart_attach_loggerPtr.asFunction<void Function(int)>();
 
@@ -1429,118 +1486,101 @@ class RealmLibrary {
     int isolateId,
     int port,
   ) {
-    return _realm_dart_create_scheduler(
-      isolateId,
-      port,
-    );
+    return _realm_dart_create_scheduler(isolateId, port);
   }
 
   late final _realm_dart_create_schedulerPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_scheduler_t> Function(
-              ffi.Uint64, Dart_Port)>>('realm_dart_create_scheduler');
-  late final _realm_dart_create_scheduler = _realm_dart_create_schedulerPtr
-      .asFunction<ffi.Pointer<realm_scheduler_t> Function(int, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)
+    >
+  >('realm_dart_create_scheduler');
+  late final _realm_dart_create_scheduler =
+      _realm_dart_create_schedulerPtr
+          .asFunction<ffi.Pointer<realm_scheduler_t> Function(int, int)>();
 
   realm_decimal128_t realm_dart_decimal128_add(
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_add(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_add(x, y);
   }
 
   late final _realm_dart_decimal128_addPtr = _lookup<
-      ffi.NativeFunction<
-          realm_decimal128_t Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_add');
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_add');
   late final _realm_dart_decimal128_add =
-      _realm_dart_decimal128_addPtr.asFunction<
-          realm_decimal128_t Function(
-              realm_decimal128_t, realm_decimal128_t)>();
+      _realm_dart_decimal128_addPtr
+          .asFunction<
+            realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+          >();
 
   int realm_dart_decimal128_compare_to(
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_compare_to(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_compare_to(x, y);
   }
 
   late final _realm_dart_decimal128_compare_toPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_compare_to');
+    ffi.NativeFunction<ffi.Int Function(realm_decimal128_t, realm_decimal128_t)>
+  >('realm_dart_decimal128_compare_to');
   late final _realm_dart_decimal128_compare_to =
       _realm_dart_decimal128_compare_toPtr
           .asFunction<int Function(realm_decimal128_t, realm_decimal128_t)>();
 
   /// work-around for Dart FFI issue
-  realm_decimal128_t realm_dart_decimal128_copy(
-    realm_decimal128_t x,
-  ) {
-    return _realm_dart_decimal128_copy(
-      x,
-    );
+  realm_decimal128_t realm_dart_decimal128_copy(realm_decimal128_t x) {
+    return _realm_dart_decimal128_copy(x);
   }
 
   late final _realm_dart_decimal128_copyPtr = _lookup<
-          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>(
-      'realm_dart_decimal128_copy');
-  late final _realm_dart_decimal128_copy = _realm_dart_decimal128_copyPtr
-      .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
+    ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>
+  >('realm_dart_decimal128_copy');
+  late final _realm_dart_decimal128_copy =
+      _realm_dart_decimal128_copyPtr
+          .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
 
   realm_decimal128_t realm_dart_decimal128_divide(
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_divide(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_divide(x, y);
   }
 
   late final _realm_dart_decimal128_dividePtr = _lookup<
-      ffi.NativeFunction<
-          realm_decimal128_t Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_divide');
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_divide');
   late final _realm_dart_decimal128_divide =
-      _realm_dart_decimal128_dividePtr.asFunction<
-          realm_decimal128_t Function(
-              realm_decimal128_t, realm_decimal128_t)>();
+      _realm_dart_decimal128_dividePtr
+          .asFunction<
+            realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+          >();
 
-  bool realm_dart_decimal128_equal(
-    realm_decimal128_t x,
-    realm_decimal128_t y,
-  ) {
-    return _realm_dart_decimal128_equal(
-      x,
-      y,
-    );
+  bool realm_dart_decimal128_equal(realm_decimal128_t x, realm_decimal128_t y) {
+    return _realm_dart_decimal128_equal(x, y);
   }
 
   late final _realm_dart_decimal128_equalPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_equal');
-  late final _realm_dart_decimal128_equal = _realm_dart_decimal128_equalPtr
-      .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_equal');
+  late final _realm_dart_decimal128_equal =
+      _realm_dart_decimal128_equalPtr
+          .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
 
-  realm_decimal128_t realm_dart_decimal128_from_int64(
-    int low,
-  ) {
-    return _realm_dart_decimal128_from_int64(
-      low,
-    );
+  realm_decimal128_t realm_dart_decimal128_from_int64(int low) {
+    return _realm_dart_decimal128_from_int64(low);
   }
 
   late final _realm_dart_decimal128_from_int64Ptr =
       _lookup<ffi.NativeFunction<realm_decimal128_t Function(ffi.Int64)>>(
-          'realm_dart_decimal128_from_int64');
+        'realm_dart_decimal128_from_int64',
+      );
   late final _realm_dart_decimal128_from_int64 =
       _realm_dart_decimal128_from_int64Ptr
           .asFunction<realm_decimal128_t Function(int)>();
@@ -1548,15 +1588,12 @@ class RealmLibrary {
   realm_decimal128_t realm_dart_decimal128_from_string(
     ffi.Pointer<ffi.Char> string,
   ) {
-    return _realm_dart_decimal128_from_string(
-      string,
-    );
+    return _realm_dart_decimal128_from_string(string);
   }
 
   late final _realm_dart_decimal128_from_stringPtr = _lookup<
-          ffi
-          .NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>(
-      'realm_dart_decimal128_from_string');
+    ffi.NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>
+  >('realm_dart_decimal128_from_string');
   late final _realm_dart_decimal128_from_string =
       _realm_dart_decimal128_from_stringPtr
           .asFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>();
@@ -1565,48 +1602,42 @@ class RealmLibrary {
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_greater_than(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_greater_than(x, y);
   }
 
   late final _realm_dart_decimal128_greater_thanPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_greater_than');
+    ffi.NativeFunction<
+      ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_greater_than');
   late final _realm_dart_decimal128_greater_than =
       _realm_dart_decimal128_greater_thanPtr
           .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
 
-  bool realm_dart_decimal128_is_nan(
-    realm_decimal128_t x,
-  ) {
-    return _realm_dart_decimal128_is_nan(
-      x,
-    );
+  bool realm_dart_decimal128_is_nan(realm_decimal128_t x) {
+    return _realm_dart_decimal128_is_nan(x);
   }
 
   late final _realm_dart_decimal128_is_nanPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(realm_decimal128_t)>>(
-          'realm_dart_decimal128_is_nan');
-  late final _realm_dart_decimal128_is_nan = _realm_dart_decimal128_is_nanPtr
-      .asFunction<bool Function(realm_decimal128_t)>();
+        'realm_dart_decimal128_is_nan',
+      );
+  late final _realm_dart_decimal128_is_nan =
+      _realm_dart_decimal128_is_nanPtr
+          .asFunction<bool Function(realm_decimal128_t)>();
 
   bool realm_dart_decimal128_less_than(
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_less_than(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_less_than(x, y);
   }
 
   late final _realm_dart_decimal128_less_thanPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_less_than');
+    ffi.NativeFunction<
+      ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_less_than');
   late final _realm_dart_decimal128_less_than =
       _realm_dart_decimal128_less_thanPtr
           .asFunction<bool Function(realm_decimal128_t, realm_decimal128_t)>();
@@ -1615,20 +1646,19 @@ class RealmLibrary {
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_multiply(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_multiply(x, y);
   }
 
   late final _realm_dart_decimal128_multiplyPtr = _lookup<
-      ffi.NativeFunction<
-          realm_decimal128_t Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_multiply');
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_multiply');
   late final _realm_dart_decimal128_multiply =
-      _realm_dart_decimal128_multiplyPtr.asFunction<
-          realm_decimal128_t Function(
-              realm_decimal128_t, realm_decimal128_t)>();
+      _realm_dart_decimal128_multiplyPtr
+          .asFunction<
+            realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+          >();
 
   realm_decimal128_t realm_dart_decimal128_nan() {
     return _realm_dart_decimal128_nan();
@@ -1636,99 +1666,84 @@ class RealmLibrary {
 
   late final _realm_dart_decimal128_nanPtr =
       _lookup<ffi.NativeFunction<realm_decimal128_t Function()>>(
-          'realm_dart_decimal128_nan');
+        'realm_dart_decimal128_nan',
+      );
   late final _realm_dart_decimal128_nan =
       _realm_dart_decimal128_nanPtr.asFunction<realm_decimal128_t Function()>();
 
-  realm_decimal128_t realm_dart_decimal128_negate(
-    realm_decimal128_t x,
-  ) {
-    return _realm_dart_decimal128_negate(
-      x,
-    );
+  realm_decimal128_t realm_dart_decimal128_negate(realm_decimal128_t x) {
+    return _realm_dart_decimal128_negate(x);
   }
 
   late final _realm_dart_decimal128_negatePtr = _lookup<
-          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>(
-      'realm_dart_decimal128_negate');
-  late final _realm_dart_decimal128_negate = _realm_dart_decimal128_negatePtr
-      .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
+    ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>
+  >('realm_dart_decimal128_negate');
+  late final _realm_dart_decimal128_negate =
+      _realm_dart_decimal128_negatePtr
+          .asFunction<realm_decimal128_t Function(realm_decimal128_t)>();
 
   realm_decimal128_t realm_dart_decimal128_subtract(
     realm_decimal128_t x,
     realm_decimal128_t y,
   ) {
-    return _realm_dart_decimal128_subtract(
-      x,
-      y,
-    );
+    return _realm_dart_decimal128_subtract(x, y);
   }
 
   late final _realm_dart_decimal128_subtractPtr = _lookup<
-      ffi.NativeFunction<
-          realm_decimal128_t Function(realm_decimal128_t,
-              realm_decimal128_t)>>('realm_dart_decimal128_subtract');
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >('realm_dart_decimal128_subtract');
   late final _realm_dart_decimal128_subtract =
-      _realm_dart_decimal128_subtractPtr.asFunction<
-          realm_decimal128_t Function(
-              realm_decimal128_t, realm_decimal128_t)>();
+      _realm_dart_decimal128_subtractPtr
+          .asFunction<
+            realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+          >();
 
-  int realm_dart_decimal128_to_int64(
-    realm_decimal128_t x,
-  ) {
-    return _realm_dart_decimal128_to_int64(
-      x,
-    );
+  int realm_dart_decimal128_to_int64(realm_decimal128_t x) {
+    return _realm_dart_decimal128_to_int64(x);
   }
 
   late final _realm_dart_decimal128_to_int64Ptr =
       _lookup<ffi.NativeFunction<ffi.Int64 Function(realm_decimal128_t)>>(
-          'realm_dart_decimal128_to_int64');
+        'realm_dart_decimal128_to_int64',
+      );
   late final _realm_dart_decimal128_to_int64 =
       _realm_dart_decimal128_to_int64Ptr
           .asFunction<int Function(realm_decimal128_t)>();
 
-  realm_string_t realm_dart_decimal128_to_string(
-    realm_decimal128_t x,
-  ) {
-    return _realm_dart_decimal128_to_string(
-      x,
-    );
+  realm_string_t realm_dart_decimal128_to_string(realm_decimal128_t x) {
+    return _realm_dart_decimal128_to_string(x);
   }
 
   late final _realm_dart_decimal128_to_stringPtr =
       _lookup<ffi.NativeFunction<realm_string_t Function(realm_decimal128_t)>>(
-          'realm_dart_decimal128_to_string');
+        'realm_dart_decimal128_to_string',
+      );
   late final _realm_dart_decimal128_to_string =
       _realm_dart_decimal128_to_stringPtr
           .asFunction<realm_string_t Function(realm_decimal128_t)>();
 
-  void realm_dart_delete_persistent_handle(
-    ffi.Pointer<ffi.Void> handle,
-  ) {
-    return _realm_dart_delete_persistent_handle(
-      handle,
-    );
+  void realm_dart_delete_persistent_handle(ffi.Pointer<ffi.Void> handle) {
+    return _realm_dart_delete_persistent_handle(handle);
   }
 
   late final _realm_dart_delete_persistent_handlePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_delete_persistent_handle');
+        'realm_dart_delete_persistent_handle',
+      );
   late final _realm_dart_delete_persistent_handle =
       _realm_dart_delete_persistent_handlePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
-  void realm_dart_detach_logger(
-    int port,
-  ) {
-    return _realm_dart_detach_logger(
-      port,
-    );
+  void realm_dart_detach_logger(int port) {
+    return _realm_dart_detach_logger(port);
   }
 
   late final _realm_dart_detach_loggerPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>(
-          'realm_dart_detach_logger');
+        'realm_dart_detach_logger',
+      );
   late final _realm_dart_detach_logger =
       _realm_dart_detach_loggerPtr.asFunction<void Function(int)>();
 
@@ -1739,9 +1754,11 @@ class RealmLibrary {
 
   late final _realm_dart_get_bundle_idPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_dart_get_bundle_id');
-  late final _realm_dart_get_bundle_id = _realm_dart_get_bundle_idPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_dart_get_bundle_id',
+      );
+  late final _realm_dart_get_bundle_id =
+      _realm_dart_get_bundle_idPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   ffi.Pointer<ffi.Char> realm_dart_get_device_name() {
     return _realm_dart_get_device_name();
@@ -1749,9 +1766,11 @@ class RealmLibrary {
 
   late final _realm_dart_get_device_namePtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_dart_get_device_name');
-  late final _realm_dart_get_device_name = _realm_dart_get_device_namePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_dart_get_device_name',
+      );
+  late final _realm_dart_get_device_name =
+      _realm_dart_get_device_namePtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   ffi.Pointer<ffi.Char> realm_dart_get_device_version() {
     return _realm_dart_get_device_version();
@@ -1759,9 +1778,11 @@ class RealmLibrary {
 
   late final _realm_dart_get_device_versionPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_dart_get_device_version');
-  late final _realm_dart_get_device_version = _realm_dart_get_device_versionPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_dart_get_device_version',
+      );
+  late final _realm_dart_get_device_version =
+      _realm_dart_get_device_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// implemented for iOS and Android only
   ffi.Pointer<ffi.Char> realm_dart_get_files_path() {
@@ -1770,9 +1791,11 @@ class RealmLibrary {
 
   late final _realm_dart_get_files_pathPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_dart_get_files_path');
-  late final _realm_dart_get_files_path = _realm_dart_get_files_pathPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_dart_get_files_path',
+      );
+  late final _realm_dart_get_files_path =
+      _realm_dart_get_files_pathPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   int realm_dart_get_thread_id() {
     return _realm_dart_get_thread_id();
@@ -1780,7 +1803,8 @@ class RealmLibrary {
 
   late final _realm_dart_get_thread_idPtr =
       _lookup<ffi.NativeFunction<ffi.Uint64 Function()>>(
-          'realm_dart_get_thread_id');
+        'realm_dart_get_thread_id',
+      );
   late final _realm_dart_get_thread_id =
       _realm_dart_get_thread_idPtr.asFunction<int Function()>();
 
@@ -1790,21 +1814,19 @@ class RealmLibrary {
 
   late final _realm_dart_init_debug_loggerPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'realm_dart_init_debug_logger');
+        'realm_dart_init_debug_logger',
+      );
   late final _realm_dart_init_debug_logger =
       _realm_dart_init_debug_loggerPtr.asFunction<void Function()>();
 
-  void realm_dart_initializeDartApiDL(
-    ffi.Pointer<ffi.Void> data,
-  ) {
-    return _realm_dart_initializeDartApiDL(
-      data,
-    );
+  void realm_dart_initializeDartApiDL(ffi.Pointer<ffi.Void> data) {
+    return _realm_dart_initializeDartApiDL(data);
   }
 
   late final _realm_dart_initializeDartApiDLPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_initializeDartApiDL');
+        'realm_dart_initializeDartApiDL',
+      );
   late final _realm_dart_initializeDartApiDL =
       _realm_dart_initializeDartApiDLPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
@@ -1813,19 +1835,19 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> error,
     ffi.Pointer<ffi.Void> unlockFunc,
   ) {
-    return _realm_dart_invoke_unlock_callback(
-      error,
-      unlockFunc,
-    );
+    return _realm_dart_invoke_unlock_callback(error, unlockFunc);
   }
 
   late final _realm_dart_invoke_unlock_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Void>)>>('realm_dart_invoke_unlock_callback');
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)
+    >
+  >('realm_dart_invoke_unlock_callback');
   late final _realm_dart_invoke_unlock_callback =
-      _realm_dart_invoke_unlock_callbackPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
+      _realm_dart_invoke_unlock_callbackPtr
+          .asFunction<
+            void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)
+          >();
 
   ffi.Pointer<ffi.Char> realm_dart_library_version() {
     return _realm_dart_library_version();
@@ -1833,55 +1855,55 @@ class RealmLibrary {
 
   late final _realm_dart_library_versionPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_dart_library_version');
-  late final _realm_dart_library_version = _realm_dart_library_versionPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_dart_library_version',
+      );
+  late final _realm_dart_library_version =
+      _realm_dart_library_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   void realm_dart_log(
     realm_log_level level,
     ffi.Pointer<ffi.Char> category,
     ffi.Pointer<ffi.Char> message,
   ) {
-    return _realm_dart_log(
-      level.value,
-      category,
-      message,
-    );
+    return _realm_dart_log(level.value, category, message);
   }
 
   late final _realm_dart_logPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('realm_dart_log');
-  late final _realm_dart_log = _realm_dart_logPtr.asFunction<
-      void Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.UnsignedInt,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >('realm_dart_log');
+  late final _realm_dart_log =
+      _realm_dart_logPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Char>)
+          >();
 
-  ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(
-    Object handle,
-  ) {
-    return _realm_dart_object_to_persistent_handle(
-      handle,
-    );
+  ffi.Pointer<ffi.Void> realm_dart_object_to_persistent_handle(Object handle) {
+    return _realm_dart_object_to_persistent_handle(handle);
   }
 
   late final _realm_dart_object_to_persistent_handlePtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>(
-          'realm_dart_object_to_persistent_handle');
+        'realm_dart_object_to_persistent_handle',
+      );
   late final _realm_dart_object_to_persistent_handle =
       _realm_dart_object_to_persistent_handlePtr
           .asFunction<ffi.Pointer<ffi.Void> Function(Object)>();
 
-  Object realm_dart_persistent_handle_to_object(
-    ffi.Pointer<ffi.Void> handle,
-  ) {
-    return _realm_dart_persistent_handle_to_object(
-      handle,
-    );
+  Object realm_dart_persistent_handle_to_object(ffi.Pointer<ffi.Void> handle) {
+    return _realm_dart_persistent_handle_to_object(handle);
   }
 
   late final _realm_dart_persistent_handle_to_objectPtr =
       _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_persistent_handle_to_object');
+        'realm_dart_persistent_handle_to_object',
+      );
   late final _realm_dart_persistent_handle_to_object =
       _realm_dart_persistent_handle_to_objectPtr
           .asFunction<Object Function(ffi.Pointer<ffi.Void>)>();
@@ -1890,18 +1912,15 @@ class RealmLibrary {
     int isolateId,
     ffi.Pointer<ffi.Void> userData,
   ) {
-    return _realm_dart_scheduler_invoke(
-      isolateId,
-      userData,
-    );
+    return _realm_dart_scheduler_invoke(isolateId, userData);
   }
 
   late final _realm_dart_scheduler_invokePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Uint64,
-              ffi.Pointer<ffi.Void>)>>('realm_dart_scheduler_invoke');
-  late final _realm_dart_scheduler_invoke = _realm_dart_scheduler_invokePtr
-      .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>
+  >('realm_dart_scheduler_invoke');
+  late final _realm_dart_scheduler_invoke =
+      _realm_dart_scheduler_invokePtr
+          .asFunction<void Function(int, ffi.Pointer<ffi.Void>)>();
 
   /// implemented for iOS only (for now - valid for all posix)
   /// /**
@@ -1917,30 +1936,24 @@ class RealmLibrary {
     int limit,
     ffi.Pointer<ffi.Long> out_limit,
   ) {
-    return _realm_dart_set_and_get_rlimit(
-      limit,
-      out_limit,
-    );
+    return _realm_dart_set_and_get_rlimit(limit, out_limit);
   }
 
   late final _realm_dart_set_and_get_rlimitPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>>(
-      'realm_dart_set_and_get_rlimit');
-  late final _realm_dart_set_and_get_rlimit = _realm_dart_set_and_get_rlimitPtr
-      .asFunction<bool Function(int, ffi.Pointer<ffi.Long>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>
+  >('realm_dart_set_and_get_rlimit');
+  late final _realm_dart_set_and_get_rlimit =
+      _realm_dart_set_and_get_rlimitPtr
+          .asFunction<bool Function(int, ffi.Pointer<ffi.Long>)>();
 
-  void realm_dart_userdata_async_free(
-    ffi.Pointer<ffi.Void> userdata,
-  ) {
-    return _realm_dart_userdata_async_free(
-      userdata,
-    );
+  void realm_dart_userdata_async_free(ffi.Pointer<ffi.Void> userdata) {
+    return _realm_dart_userdata_async_free(userdata);
   }
 
   late final _realm_dart_userdata_async_freePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_dart_userdata_async_free');
+        'realm_dart_userdata_async_free',
+      );
   late final _realm_dart_userdata_async_free =
       _realm_dart_userdata_async_freePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
@@ -1950,22 +1963,27 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> callback,
     ffi.Pointer<realm_scheduler_t> scheduler,
   ) {
-    return _realm_dart_userdata_async_new(
-      handle,
-      callback,
-      scheduler,
-    );
+    return _realm_dart_userdata_async_new(handle, callback, scheduler);
   }
 
   late final _realm_dart_userdata_async_newPtr = _lookup<
-          ffi.NativeFunction<
-              realm_dart_userdata_async_t Function(ffi.Handle,
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_dart_userdata_async_new');
+    ffi.NativeFunction<
+      realm_dart_userdata_async_t Function(
+        ffi.Handle,
+        ffi.Pointer<ffi.Void>,
+        ffi.Pointer<realm_scheduler_t>,
+      )
+    >
+  >('realm_dart_userdata_async_new');
   late final _realm_dart_userdata_async_new =
-      _realm_dart_userdata_async_newPtr.asFunction<
-          realm_dart_userdata_async_t Function(
-              Object, ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>();
+      _realm_dart_userdata_async_newPtr
+          .asFunction<
+            realm_dart_userdata_async_t Function(
+              Object,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<realm_scheduler_t>,
+            )
+          >();
 
   /// Deletes the following files for the given `realm_file_path` if they exist:
   /// - the Realm file itself
@@ -1990,41 +2008,39 @@ class RealmLibrary {
     ffi.Pointer<ffi.Char> realm_file_path,
     ffi.Pointer<ffi.Bool> did_delete_realm,
   ) {
-    return _realm_delete_files(
-      realm_file_path,
-      did_delete_realm,
-    );
+    return _realm_delete_files(realm_file_path, did_delete_realm);
   }
 
   late final _realm_delete_filesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Bool>)>>('realm_delete_files');
-  late final _realm_delete_files = _realm_delete_filesPtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)
+    >
+  >('realm_delete_files');
+  late final _realm_delete_files =
+      _realm_delete_filesPtr
+          .asFunction<
+            bool Function(ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Bool>)
+          >();
 
   void realm_detach_finalizer(
     ffi.Pointer<ffi.Void> finalizableHandle,
     Object handle,
   ) {
-    return _realm_detach_finalizer(
-      finalizableHandle,
-      handle,
-    );
+    return _realm_detach_finalizer(finalizableHandle, handle);
   }
 
   late final _realm_detach_finalizerPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<ffi.Void>, ffi.Handle)>>('realm_detach_finalizer');
-  late final _realm_detach_finalizer = _realm_detach_finalizerPtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>, Object)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Handle)>
+  >('realm_detach_finalizer');
+  late final _realm_detach_finalizer =
+      _realm_detach_finalizerPtr
+          .asFunction<void Function(ffi.Pointer<ffi.Void>, Object)>();
 
   /// Subscribe to notifications for this object.
   ///
   /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_notification_token_t>
-      realm_dictionary_add_notification_callback(
+  realm_dictionary_add_notification_callback(
     ffi.Pointer<realm_dictionary_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -2041,40 +2057,41 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_dictionary_t>,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_key_path_array_t>,
-                  realm_on_dictionary_change_func_t)>>(
-      'realm_dictionary_add_notification_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_notification_token_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Pointer<realm_key_path_array_t>,
+        realm_on_dictionary_change_func_t,
+      )
+    >
+  >('realm_dictionary_add_notification_callback');
   late final _realm_dictionary_add_notification_callback =
-      _realm_dictionary_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
+      _realm_dictionary_add_notification_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_notification_token_t> Function(
               ffi.Pointer<realm_dictionary_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
-              realm_on_dictionary_change_func_t)>();
+              realm_on_dictionary_change_func_t,
+            )
+          >();
 
   /// Clear a dictionary.
   ///
   /// @return True if no exception occurred.
-  bool realm_dictionary_clear(
-    ffi.Pointer<realm_dictionary_t> arg0,
-  ) {
-    return _realm_dictionary_clear(
-      arg0,
-    );
+  bool realm_dictionary_clear(ffi.Pointer<realm_dictionary_t> arg0) {
+    return _realm_dictionary_clear(arg0);
   }
 
   late final _realm_dictionary_clearPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>>(
-      'realm_dictionary_clear');
-  late final _realm_dictionary_clear = _realm_dictionary_clearPtr
-      .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>
+  >('realm_dictionary_clear');
+  late final _realm_dictionary_clear =
+      _realm_dictionary_clearPtr
+          .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
 
   /// Check if the dictionary contains a certain key
   ///
@@ -2086,21 +2103,27 @@ class RealmLibrary {
     realm_value_t key,
     ffi.Pointer<ffi.Bool> found,
   ) {
-    return _realm_dictionary_contains_key(
-      arg0,
-      key,
-      found,
-    );
+    return _realm_dictionary_contains_key(arg0, key, found);
   }
 
   late final _realm_dictionary_contains_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-              ffi.Pointer<ffi.Bool>)>>('realm_dictionary_contains_key');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_dictionary_contains_key');
   late final _realm_dictionary_contains_key =
-      _realm_dictionary_contains_keyPtr.asFunction<
-          bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-              ffi.Pointer<ffi.Bool>)>();
+      _realm_dictionary_contains_keyPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Check if the dictionary contains a certain value
   ///
@@ -2112,21 +2135,27 @@ class RealmLibrary {
     realm_value_t value,
     ffi.Pointer<ffi.Size> index,
   ) {
-    return _realm_dictionary_contains_value(
-      arg0,
-      value,
-      index,
-    );
+    return _realm_dictionary_contains_value(arg0, value, index);
   }
 
   late final _realm_dictionary_contains_valuePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-              ffi.Pointer<ffi.Size>)>>('realm_dictionary_contains_value');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+        ffi.Pointer<ffi.Size>,
+      )
+    >
+  >('realm_dictionary_contains_value');
   late final _realm_dictionary_contains_value =
-      _realm_dictionary_contains_valuePtr.asFunction<
-          bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-              ffi.Pointer<ffi.Size>)>();
+      _realm_dictionary_contains_valuePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
 
   /// Erase a dictionary element.
   ///
@@ -2139,20 +2168,27 @@ class RealmLibrary {
     realm_value_t key,
     ffi.Pointer<ffi.Bool> out_erased,
   ) {
-    return _realm_dictionary_erase(
-      arg0,
-      key,
-      out_erased,
-    );
+    return _realm_dictionary_erase(arg0, key, out_erased);
   }
 
   late final _realm_dictionary_erasePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-              ffi.Pointer<ffi.Bool>)>>('realm_dictionary_erase');
-  late final _realm_dictionary_erase = _realm_dictionary_erasePtr.asFunction<
-      bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-          ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_dictionary_erase');
+  late final _realm_dictionary_erase =
+      _realm_dictionary_erasePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Find an element in a dictionary.
   ///
@@ -2166,24 +2202,29 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_value,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_dictionary_find(
-      arg0,
-      key,
-      out_value,
-      out_found,
-    );
+    return _realm_dictionary_find(arg0, key, out_value, out_found);
   }
 
   late final _realm_dictionary_findPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_dictionary_find');
+  late final _realm_dictionary_find =
+      _realm_dictionary_findPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_dictionary_t>,
               realm_value_t,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_dictionary_find');
-  late final _realm_dictionary_find = _realm_dictionary_findPtr.asFunction<
-      bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-          ffi.Pointer<realm_value_t>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get an dictionary from a thread-safe reference, potentially originating in a
   /// different `realm_t` instance
@@ -2191,21 +2232,25 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<realm_thread_safe_reference_t> arg1,
   ) {
-    return _realm_dictionary_from_thread_safe_reference(
-      arg0,
-      arg1,
-    );
+    return _realm_dictionary_from_thread_safe_reference(arg0, arg1);
   }
 
   late final _realm_dictionary_from_thread_safe_referencePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_t>,
-                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
-      'realm_dictionary_from_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_thread_safe_reference_t>,
+      )
+    >
+  >('realm_dictionary_from_thread_safe_reference');
   late final _realm_dictionary_from_thread_safe_reference =
-      _realm_dictionary_from_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>)>();
+      _realm_dictionary_from_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+            )
+          >();
 
   /// Get the key-value pair at @a index.
   ///
@@ -2222,24 +2267,29 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_key,
     ffi.Pointer<realm_value_t> out_value,
   ) {
-    return _realm_dictionary_get(
-      arg0,
-      index,
-      out_key,
-      out_value,
-    );
+    return _realm_dictionary_get(arg0, index, out_key, out_value);
   }
 
   late final _realm_dictionary_getPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        ffi.Size,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_dictionary_get');
+  late final _realm_dictionary_get =
+      _realm_dictionary_getPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_dictionary_t>,
-              ffi.Size,
+              int,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<realm_value_t>)>>('realm_dictionary_get');
-  late final _realm_dictionary_get = _realm_dictionary_getPtr.asFunction<
-      bool Function(ffi.Pointer<realm_dictionary_t>, int,
-          ffi.Pointer<realm_value_t>, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Returns the list of keys changed for the dictionary passed as argument.
   /// The user must assure that there is enough memory to accomodate all the keys
@@ -2276,19 +2326,23 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_get_changed_keysPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_dictionary_changes_t>,
-              ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_dictionary_get_changed_keys');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_dictionary_changes_t>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_dictionary_get_changed_keys');
   late final _realm_dictionary_get_changed_keys =
-      _realm_dictionary_get_changed_keysPtr.asFunction<
-          void Function(
+      _realm_dictionary_get_changed_keysPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_dictionary_changes_t>,
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<ffi.Size>,
@@ -2296,7 +2350,9 @@ class RealmLibrary {
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Returns the number of changes occurred to the dictionary passed as argument
   ///
@@ -2322,21 +2378,27 @@ class RealmLibrary {
   }
 
   late final _realm_dictionary_get_changesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(
-              ffi.Pointer<realm_dictionary_changes_t>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_dictionary_get_changes');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<realm_dictionary_changes_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_dictionary_get_changes');
   late final _realm_dictionary_get_changes =
-      _realm_dictionary_get_changesPtr.asFunction<
-          void Function(
+      _realm_dictionary_get_changesPtr
+          .asFunction<
+            void Function(
               ffi.Pointer<realm_dictionary_changes_t>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Fetch a dictioanry from a dictionary.
   /// @return a valid dictionary that needs to be deleted by the caller or nullptr in case of an error.
@@ -2344,21 +2406,25 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> dictionary,
     realm_value_t key,
   ) {
-    return _realm_dictionary_get_dictionary(
-      dictionary,
-      key,
-    );
+    return _realm_dictionary_get_dictionary(dictionary, key);
   }
 
   late final _realm_dictionary_get_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_dictionary_t>,
-              realm_value_t)>>('realm_dictionary_get_dictionary');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+      )
+    >
+  >('realm_dictionary_get_dictionary');
   late final _realm_dictionary_get_dictionary =
-      _realm_dictionary_get_dictionaryPtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_dictionary_t>, realm_value_t)>();
+      _realm_dictionary_get_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+            )
+          >();
 
   /// Return the list of keys stored in the dictionary
   ///
@@ -2370,24 +2436,27 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_size,
     ffi.Pointer<ffi.Pointer<realm_results_t>> out_keys,
   ) {
-    return _realm_dictionary_get_keys(
-      arg0,
-      out_size,
-      out_keys,
-    );
+    return _realm_dictionary_get_keys(arg0, out_size, out_keys);
   }
 
   late final _realm_dictionary_get_keysPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<realm_dictionary_t>,
-                  ffi.Pointer<ffi.Size>,
-                  ffi.Pointer<ffi.Pointer<realm_results_t>>)>>(
-      'realm_dictionary_get_keys');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Pointer<realm_results_t>>,
+      )
+    >
+  >('realm_dictionary_get_keys');
   late final _realm_dictionary_get_keys =
-      _realm_dictionary_get_keysPtr.asFunction<
-          bool Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Pointer<realm_results_t>>)>();
+      _realm_dictionary_get_keysPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Pointer<realm_results_t>>,
+            )
+          >();
 
   /// Get object identified by key
   ///
@@ -2396,20 +2465,25 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
   ) {
-    return _realm_dictionary_get_linked_object(
-      arg0,
-      key,
-    );
+    return _realm_dictionary_get_linked_object(arg0, key);
   }
 
   late final _realm_dictionary_get_linked_objectPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_dictionary_t>,
-              realm_value_t)>>('realm_dictionary_get_linked_object');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+      )
+    >
+  >('realm_dictionary_get_linked_object');
   late final _realm_dictionary_get_linked_object =
-      _realm_dictionary_get_linked_objectPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_dictionary_t>, realm_value_t)>();
+      _realm_dictionary_get_linked_objectPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+            )
+          >();
 
   /// Fetch a list from a dictionary.
   /// @return a valid list that needs to be deleted by the caller or nullptr in case of an error.
@@ -2417,20 +2491,25 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> dictionary,
     realm_value_t key,
   ) {
-    return _realm_dictionary_get_list(
-      dictionary,
-      key,
-    );
+    return _realm_dictionary_get_list(dictionary, key);
   }
 
   late final _realm_dictionary_get_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_dictionary_t>,
-              realm_value_t)>>('realm_dictionary_get_list');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+      )
+    >
+  >('realm_dictionary_get_list');
   late final _realm_dictionary_get_list =
-      _realm_dictionary_get_listPtr.asFunction<
-          ffi.Pointer<realm_list_t> Function(
-              ffi.Pointer<realm_dictionary_t>, realm_value_t)>();
+      _realm_dictionary_get_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+            )
+          >();
 
   /// Get the property that this dictionary came from.
   ///
@@ -2439,21 +2518,25 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     ffi.Pointer<realm_property_info_t> out_info,
   ) {
-    return _realm_dictionary_get_property(
-      arg0,
-      out_info,
-    );
+    return _realm_dictionary_get_property(arg0, out_info);
   }
 
   late final _realm_dictionary_get_propertyPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<realm_dictionary_t>,
-                  ffi.Pointer<realm_property_info_t>)>>(
-      'realm_dictionary_get_property');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_dictionary_get_property');
   late final _realm_dictionary_get_property =
-      _realm_dictionary_get_propertyPtr.asFunction<
-          bool Function(ffi.Pointer<realm_dictionary_t>,
-              ffi.Pointer<realm_property_info_t>)>();
+      _realm_dictionary_get_propertyPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Insert or update an element in a dictionary.
   ///
@@ -2473,46 +2556,55 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Bool> out_inserted,
   ) {
-    return _realm_dictionary_insert(
-      arg0,
-      key,
-      value,
-      out_index,
-      out_inserted,
-    );
+    return _realm_dictionary_insert(arg0, key, value, out_index, out_inserted);
   }
 
   late final _realm_dictionary_insertPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+        realm_value_t,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_dictionary_insert');
+  late final _realm_dictionary_insert =
+      _realm_dictionary_insertPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_dictionary_t>,
               realm_value_t,
               realm_value_t,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_dictionary_insert');
-  late final _realm_dictionary_insert = _realm_dictionary_insertPtr.asFunction<
-      bool Function(ffi.Pointer<realm_dictionary_t>, realm_value_t,
-          realm_value_t, ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   ffi.Pointer<realm_dictionary_t> realm_dictionary_insert_dictionary(
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t arg1,
   ) {
-    return _realm_dictionary_insert_dictionary(
-      arg0,
-      arg1,
-    );
+    return _realm_dictionary_insert_dictionary(arg0, arg1);
   }
 
   late final _realm_dictionary_insert_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_dictionary_t>,
-              realm_value_t)>>('realm_dictionary_insert_dictionary');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+      )
+    >
+  >('realm_dictionary_insert_dictionary');
   late final _realm_dictionary_insert_dictionary =
-      _realm_dictionary_insert_dictionaryPtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_dictionary_t>, realm_value_t)>();
+      _realm_dictionary_insert_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+            )
+          >();
 
   /// Insert an embedded object.
   ///
@@ -2521,20 +2613,25 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     realm_value_t key,
   ) {
-    return _realm_dictionary_insert_embedded(
-      arg0,
-      key,
-    );
+    return _realm_dictionary_insert_embedded(arg0, key);
   }
 
   late final _realm_dictionary_insert_embeddedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_dictionary_t>,
-              realm_value_t)>>('realm_dictionary_insert_embedded');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+      )
+    >
+  >('realm_dictionary_insert_embedded');
   late final _realm_dictionary_insert_embedded =
-      _realm_dictionary_insert_embeddedPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_dictionary_t>, realm_value_t)>();
+      _realm_dictionary_insert_embeddedPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+            )
+          >();
 
   /// Insert a collection inside a dictionary (only available for mixed types)
   ///
@@ -2545,38 +2642,39 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> dictionary,
     realm_value_t key,
   ) {
-    return _realm_dictionary_insert_list(
-      dictionary,
-      key,
-    );
+    return _realm_dictionary_insert_list(dictionary, key);
   }
 
   late final _realm_dictionary_insert_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_dictionary_t>,
-              realm_value_t)>>('realm_dictionary_insert_list');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(
+        ffi.Pointer<realm_dictionary_t>,
+        realm_value_t,
+      )
+    >
+  >('realm_dictionary_insert_list');
   late final _realm_dictionary_insert_list =
-      _realm_dictionary_insert_listPtr.asFunction<
-          ffi.Pointer<realm_list_t> Function(
-              ffi.Pointer<realm_dictionary_t>, realm_value_t)>();
+      _realm_dictionary_insert_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+              realm_value_t,
+            )
+          >();
 
   /// Check if a list is valid.
   ///
   /// @return True if the list is valid.
-  bool realm_dictionary_is_valid(
-    ffi.Pointer<realm_dictionary_t> arg0,
-  ) {
-    return _realm_dictionary_is_valid(
-      arg0,
-    );
+  bool realm_dictionary_is_valid(ffi.Pointer<realm_dictionary_t> arg0) {
+    return _realm_dictionary_is_valid(arg0);
   }
 
   late final _realm_dictionary_is_validPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>>(
-      'realm_dictionary_is_valid');
-  late final _realm_dictionary_is_valid = _realm_dictionary_is_validPtr
-      .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_dictionary_t>)>
+  >('realm_dictionary_is_valid');
+  late final _realm_dictionary_is_valid =
+      _realm_dictionary_is_validPtr
+          .asFunction<bool Function(ffi.Pointer<realm_dictionary_t>)>();
 
   /// Resolve the list in the context of a given Realm instance.
   ///
@@ -2591,24 +2689,27 @@ class RealmLibrary {
     ffi.Pointer<realm_t> target_realm,
     ffi.Pointer<ffi.Pointer<realm_dictionary_t>> resolved,
   ) {
-    return _realm_dictionary_resolve_in(
-      list,
-      target_realm,
-      resolved,
-    );
+    return _realm_dictionary_resolve_in(list, target_realm, resolved);
   }
 
   late final _realm_dictionary_resolve_inPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<realm_dictionary_t>,
-                  ffi.Pointer<realm_t>,
-                  ffi.Pointer<ffi.Pointer<realm_dictionary_t>>)>>(
-      'realm_dictionary_resolve_in');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_dictionary_t>,
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Pointer<realm_dictionary_t>>,
+      )
+    >
+  >('realm_dictionary_resolve_in');
   late final _realm_dictionary_resolve_in =
-      _realm_dictionary_resolve_inPtr.asFunction<
-          bool Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<realm_t>,
-              ffi.Pointer<ffi.Pointer<realm_dictionary_t>>)>();
+      _realm_dictionary_resolve_inPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Pointer<realm_dictionary_t>>,
+            )
+          >();
 
   /// Get the size of a dictionary (the number of unique keys).
   ///
@@ -2620,18 +2721,22 @@ class RealmLibrary {
     ffi.Pointer<realm_dictionary_t> arg0,
     ffi.Pointer<ffi.Size> out_size,
   ) {
-    return _realm_dictionary_size(
-      arg0,
-      out_size,
-    );
+    return _realm_dictionary_size(arg0, out_size);
   }
 
   late final _realm_dictionary_sizePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_dictionary_t>,
-              ffi.Pointer<ffi.Size>)>>('realm_dictionary_size');
-  late final _realm_dictionary_size = _realm_dictionary_sizePtr.asFunction<
-      bool Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.Size>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_dictionary_t>, ffi.Pointer<ffi.Size>)
+    >
+  >('realm_dictionary_size');
+  late final _realm_dictionary_size =
+      _realm_dictionary_sizePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_dictionary_t>,
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
 
   /// Convert a dictionary to results.
   ///
@@ -2639,19 +2744,21 @@ class RealmLibrary {
   ffi.Pointer<realm_results_t> realm_dictionary_to_results(
     ffi.Pointer<realm_dictionary_t> arg0,
   ) {
-    return _realm_dictionary_to_results(
-      arg0,
-    );
+    return _realm_dictionary_to_results(arg0);
   }
 
   late final _realm_dictionary_to_resultsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_dictionary_t>)>>('realm_dictionary_to_results');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_dictionary_t>)
+    >
+  >('realm_dictionary_to_results');
   late final _realm_dictionary_to_results =
-      _realm_dictionary_to_resultsPtr.asFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_dictionary_t>)>();
+      _realm_dictionary_to_resultsPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_dictionary_t>,
+            )
+          >();
 
   /// Return true if two API objects refer to the same underlying data. Objects
   /// with different types are never equal.
@@ -2676,22 +2783,20 @@ class RealmLibrary {
   /// exception instance.
   ///
   /// This function cannot fail.
-  bool realm_equals(
-    ffi.Pointer<ffi.Void> arg0,
-    ffi.Pointer<ffi.Void> arg1,
-  ) {
-    return _realm_equals(
-      arg0,
-      arg1,
-    );
+  bool realm_equals(ffi.Pointer<ffi.Void> arg0, ffi.Pointer<ffi.Void> arg1) {
+    return _realm_equals(arg0, arg1);
   }
 
   late final _realm_equalsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>('realm_equals');
-  late final _realm_equals = _realm_equalsPtr.asFunction<
-      bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)
+    >
+  >('realm_equals');
+  late final _realm_equals =
+      _realm_equalsPtr
+          .asFunction<
+            bool Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)
+          >();
 
   /// Find a by the name of @a name.
   ///
@@ -2708,24 +2813,29 @@ class RealmLibrary {
     ffi.Pointer<ffi.Bool> out_found,
     ffi.Pointer<realm_class_info_t> out_class_info,
   ) {
-    return _realm_find_class(
-      arg0,
-      name,
-      out_found,
-      out_class_info,
-    );
+    return _realm_find_class(arg0, name, out_found, out_class_info);
   }
 
   late final _realm_find_classPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Bool>,
+        ffi.Pointer<realm_class_info_t>,
+      )
+    >
+  >('realm_find_class');
+  late final _realm_find_class =
+      _realm_find_classPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Bool>,
-              ffi.Pointer<realm_class_info_t>)>>('realm_find_class');
-  late final _realm_find_class = _realm_find_classPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Bool>, ffi.Pointer<realm_class_info_t>)>();
+              ffi.Pointer<realm_class_info_t>,
+            )
+          >();
 
   /// Find the primary key property for a class, if it has one.
   ///
@@ -2751,14 +2861,25 @@ class RealmLibrary {
   }
 
   late final _realm_find_primary_key_propertyPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<realm_t>, realm_class_key_t,
-                  ffi.Pointer<ffi.Bool>, ffi.Pointer<realm_property_info_t>)>>(
-      'realm_find_primary_key_property');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<ffi.Bool>,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_find_primary_key_property');
   late final _realm_find_primary_key_property =
-      _realm_find_primary_key_propertyPtr.asFunction<
-          bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Bool>,
-              ffi.Pointer<realm_property_info_t>)>();
+      _realm_find_primary_key_propertyPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              int,
+              ffi.Pointer<ffi.Bool>,
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Find a property by the internal (non-public) name of @a name.
   ///
@@ -2787,16 +2908,27 @@ class RealmLibrary {
   }
 
   late final _realm_find_propertyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Bool>,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_find_property');
+  late final _realm_find_property =
+      _realm_find_propertyPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
-              realm_class_key_t,
+              int,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Bool>,
-              ffi.Pointer<realm_property_info_t>)>>('realm_find_property');
-  late final _realm_find_property = _realm_find_propertyPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Bool>, ffi.Pointer<realm_property_info_t>)>();
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Find a property with the public name of @a name.
   ///
@@ -2825,54 +2957,57 @@ class RealmLibrary {
   }
 
   late final _realm_find_property_by_public_namePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<realm_t>,
-                  realm_class_key_t,
-                  ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<ffi.Bool>,
-                  ffi.Pointer<realm_property_info_t>)>>(
-      'realm_find_property_by_public_name');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Bool>,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_find_property_by_public_name');
   late final _realm_find_property_by_public_name =
-      _realm_find_property_by_public_namePtr.asFunction<
-          bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Bool>, ffi.Pointer<realm_property_info_t>)>();
+      _realm_find_property_by_public_namePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              int,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Bool>,
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Free memory allocated by the module this library was linked into.
   ///
   /// This is needed for raw memory buffers such as string copies or arrays
   /// returned from a library function. Realm C Wrapper objects on the other hand
   /// should always be freed with realm_release() only.
-  void realm_free(
-    ffi.Pointer<ffi.Void> buffer,
-  ) {
-    return _realm_free(
-      buffer,
-    );
+  void realm_free(ffi.Pointer<ffi.Void> buffer) {
+    return _realm_free(buffer);
   }
 
   late final _realm_freePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_free');
+        'realm_free',
+      );
   late final _realm_free =
       _realm_freePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   /// Produce a frozen view of this realm.
   ///
   /// @return A non-NULL realm instance representing the frozen state.
-  ffi.Pointer<realm_t> realm_freeze(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_freeze(
-      arg0,
-    );
+  ffi.Pointer<realm_t> realm_freeze(ffi.Pointer<realm_t> arg0) {
+    return _realm_freeze(arg0);
   }
 
   late final _realm_freezePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>>('realm_freeze');
-  late final _realm_freeze = _realm_freezePtr
-      .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>();
+    ffi.NativeFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>
+  >('realm_freeze');
+  late final _realm_freeze =
+      _realm_freezePtr
+          .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_t>)>();
 
   /// Create a `realm_t` object from a thread-safe reference to the same realm.
   ///
@@ -2886,23 +3021,25 @@ class RealmLibrary {
     ffi.Pointer<realm_thread_safe_reference_t> tsr,
     ffi.Pointer<realm_scheduler_t> scheduler,
   ) {
-    return _realm_from_thread_safe_reference(
-      tsr,
-      scheduler,
-    );
+    return _realm_from_thread_safe_reference(tsr, scheduler);
   }
 
   late final _realm_from_thread_safe_referencePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_t> Function(
-                  ffi.Pointer<realm_thread_safe_reference_t>,
-                  ffi.Pointer<realm_scheduler_t>)>>(
-      'realm_from_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_t> Function(
+        ffi.Pointer<realm_thread_safe_reference_t>,
+        ffi.Pointer<realm_scheduler_t>,
+      )
+    >
+  >('realm_from_thread_safe_reference');
   late final _realm_from_thread_safe_reference =
-      _realm_from_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_t> Function(
+      _realm_from_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_t> Function(
               ffi.Pointer<realm_thread_safe_reference_t>,
-              ffi.Pointer<realm_scheduler_t>)>();
+              ffi.Pointer<realm_scheduler_t>,
+            )
+          >();
 
   /// Get information about an async error, potentially coming from another thread.
   ///
@@ -2916,19 +3053,25 @@ class RealmLibrary {
     ffi.Pointer<realm_async_error_t> err,
     ffi.Pointer<realm_error_t> out_err,
   ) {
-    return _realm_get_async_error(
-      err,
-      out_err,
-    );
+    return _realm_get_async_error(err, out_err);
   }
 
   late final _realm_get_async_errorPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_async_error_t>,
-              ffi.Pointer<realm_error_t>)>>('realm_get_async_error');
-  late final _realm_get_async_error = _realm_get_async_errorPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_async_error_t>, ffi.Pointer<realm_error_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_async_error_t>,
+        ffi.Pointer<realm_error_t>,
+      )
+    >
+  >('realm_get_async_error');
+  late final _realm_get_async_error =
+      _realm_get_async_errorPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_async_error_t>,
+              ffi.Pointer<realm_error_t>,
+            )
+          >();
 
   /// Fetch the backlinks for the object passed as argument.
   /// @return a valid ptr to realm results that contains all the backlinks for the object, or null in case of errors.
@@ -2937,20 +3080,27 @@ class RealmLibrary {
     int source_table_key,
     int property_key,
   ) {
-    return _realm_get_backlinks(
-      object,
-      source_table_key,
-      property_key,
-    );
+    return _realm_get_backlinks(object, source_table_key, property_key);
   }
 
   late final _realm_get_backlinksPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_object_t>,
-              realm_class_key_t, realm_property_key_t)>>('realm_get_backlinks');
-  late final _realm_get_backlinks = _realm_get_backlinksPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_object_t>, int, int)>();
+        ffi.Pointer<realm_object_t>,
+        realm_class_key_t,
+        realm_property_key_t,
+      )
+    >
+  >('realm_get_backlinks');
+  late final _realm_get_backlinks =
+      _realm_get_backlinksPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+              int,
+            )
+          >();
 
   /// Get the actual log category names (currently 15)
   /// @param num_values number of values in the out_values array
@@ -2961,18 +3111,17 @@ class RealmLibrary {
     int num_values,
     ffi.Pointer<ffi.Pointer<ffi.Char>> out_values,
   ) {
-    return _realm_get_category_names(
-      num_values,
-      out_values,
-    );
+    return _realm_get_category_names(num_values, out_values);
   }
 
   late final _realm_get_category_namesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Size Function(ffi.Size,
-              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('realm_get_category_names');
-  late final _realm_get_category_names = _realm_get_category_namesPtr
-      .asFunction<int Function(int, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+    ffi.NativeFunction<
+      ffi.Size Function(ffi.Size, ffi.Pointer<ffi.Pointer<ffi.Char>>)
+    >
+  >('realm_get_category_names');
+  late final _realm_get_category_names =
+      _realm_get_category_namesPtr
+          .asFunction<int Function(int, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
 
   /// Get the class with @a key from the schema.
   ///
@@ -2988,20 +3137,27 @@ class RealmLibrary {
     int key,
     ffi.Pointer<realm_class_info_t> out_class_info,
   ) {
-    return _realm_get_class(
-      arg0,
-      key,
-      out_class_info,
-    );
+    return _realm_get_class(arg0, key, out_class_info);
   }
 
   late final _realm_get_classPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, realm_class_key_t,
-              ffi.Pointer<realm_class_info_t>)>>('realm_get_class');
-  late final _realm_get_class = _realm_get_classPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_t>, int, ffi.Pointer<realm_class_info_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<realm_class_info_t>,
+      )
+    >
+  >('realm_get_class');
+  late final _realm_get_class =
+      _realm_get_classPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              int,
+              ffi.Pointer<realm_class_info_t>,
+            )
+          >();
 
   /// Get the table keys for classes in the schema.
   /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
@@ -3019,24 +3175,29 @@ class RealmLibrary {
     int max,
     ffi.Pointer<ffi.Size> out_n,
   ) {
-    return _realm_get_class_keys(
-      arg0,
-      out_keys,
-      max,
-      out_n,
-    );
+    return _realm_get_class_keys(arg0, out_keys, max, out_n);
   }
 
   late final _realm_get_class_keysPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_class_key_t>,
+        ffi.Size,
+        ffi.Pointer<ffi.Size>,
+      )
+    >
+  >('realm_get_class_keys');
+  late final _realm_get_class_keys =
+      _realm_get_class_keysPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<realm_class_key_t>,
-              ffi.Size,
-              ffi.Pointer<ffi.Size>)>>('realm_get_class_keys');
-  late final _realm_get_class_keys = _realm_get_class_keysPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_class_key_t>, int,
-          ffi.Pointer<ffi.Size>)>();
+              int,
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
 
   /// Get the list of properties for the class with this @a key.
   /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
@@ -3057,31 +3218,31 @@ class RealmLibrary {
     int max,
     ffi.Pointer<ffi.Size> out_n,
   ) {
-    return _realm_get_class_properties(
-      arg0,
-      key,
-      out_properties,
-      max,
-      out_n,
-    );
+    return _realm_get_class_properties(arg0, key, out_properties, max, out_n);
   }
 
   late final _realm_get_class_propertiesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_t>,
-              realm_class_key_t,
-              ffi.Pointer<realm_property_info_t>,
-              ffi.Size,
-              ffi.Pointer<ffi.Size>)>>('realm_get_class_properties');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<realm_property_info_t>,
+        ffi.Size,
+        ffi.Pointer<ffi.Size>,
+      )
+    >
+  >('realm_get_class_properties');
   late final _realm_get_class_properties =
-      _realm_get_class_propertiesPtr.asFunction<
-          bool Function(
+      _realm_get_class_propertiesPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               int,
               ffi.Pointer<realm_property_info_t>,
               int,
-              ffi.Pointer<ffi.Size>)>();
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
 
   /// Get a dictionary instance for the property of an object.
   ///
@@ -3092,19 +3253,25 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_get_dictionary(
-      arg0,
-      arg1,
-    );
+    return _realm_get_dictionary(arg0, arg1);
   }
 
   late final _realm_get_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_get_dictionary');
-  late final _realm_get_dictionary = _realm_get_dictionaryPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_dictionary_t> Function(
-          ffi.Pointer<realm_object_t>, int)>();
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_get_dictionary');
+  late final _realm_get_dictionary =
+      _realm_get_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+            )
+          >();
 
   /// Get the last error that happened on this thread.
   ///
@@ -3126,19 +3293,16 @@ class RealmLibrary {
   /// @param err A pointer to a `realm_error_t` struct that will be populated with
   /// information about the last error, if there is one. May be NULL.
   /// @return True if an error occurred.
-  bool realm_get_last_error(
-    ffi.Pointer<realm_error_t> err,
-  ) {
-    return _realm_get_last_error(
-      err,
-    );
+  bool realm_get_last_error(ffi.Pointer<realm_error_t> err) {
+    return _realm_get_last_error(err);
   }
 
   late final _realm_get_last_errorPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_error_t>)>>(
-      'realm_get_last_error');
-  late final _realm_get_last_error = _realm_get_last_errorPtr
-      .asFunction<bool Function(ffi.Pointer<realm_error_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_error_t>)>
+  >('realm_get_last_error');
+  late final _realm_get_last_error =
+      _realm_get_last_errorPtr
+          .asFunction<bool Function(ffi.Pointer<realm_error_t>)>();
 
   /// Convert the last error to `realm_async_error_t`, which can safely be passed
   /// between threads.
@@ -3155,7 +3319,8 @@ class RealmLibrary {
 
   late final _realm_get_last_error_as_async_errorPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<realm_async_error_t> Function()>>(
-          'realm_get_last_error_as_async_error');
+        'realm_get_last_error_as_async_error',
+      );
   late final _realm_get_last_error_as_async_error =
       _realm_get_last_error_as_async_errorPtr
           .asFunction<ffi.Pointer<realm_async_error_t> Function()>();
@@ -3166,9 +3331,11 @@ class RealmLibrary {
 
   late final _realm_get_library_cpu_archPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_get_library_cpu_arch');
-  late final _realm_get_library_cpu_arch = _realm_get_library_cpu_archPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_get_library_cpu_arch',
+      );
+  late final _realm_get_library_cpu_arch =
+      _realm_get_library_cpu_archPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Get a string representing the version number of the Realm library.
   ///
@@ -3179,9 +3346,11 @@ class RealmLibrary {
 
   late final _realm_get_library_versionPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-          'realm_get_library_version');
-  late final _realm_get_library_version = _realm_get_library_versionPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
+        'realm_get_library_version',
+      );
+  late final _realm_get_library_version =
+      _realm_get_library_versionPtr
+          .asFunction<ffi.Pointer<ffi.Char> Function()>();
 
   /// Get individual components of the version number of the Realm library.
   ///
@@ -3204,14 +3373,25 @@ class RealmLibrary {
   }
 
   late final _realm_get_library_version_numbersPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>,
-                  ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>>(
-      'realm_get_library_version_numbers');
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.Pointer<ffi.Int>,
+        ffi.Pointer<ffi.Int>,
+        ffi.Pointer<ffi.Int>,
+        ffi.Pointer<ffi.Pointer<ffi.Char>>,
+      )
+    >
+  >('realm_get_library_version_numbers');
   late final _realm_get_library_version_numbers =
-      _realm_get_library_version_numbersPtr.asFunction<
-          void Function(ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>,
-              ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+      _realm_get_library_version_numbersPtr
+          .asFunction<
+            void Function(
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Int>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+            )
+          >();
 
   /// Return the object linked by the given property
   ///
@@ -3220,18 +3400,25 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_get_linked_object(
-      arg0,
-      arg1,
-    );
+    return _realm_get_linked_object(arg0, arg1);
   }
 
   late final _realm_get_linked_objectPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_get_linked_object');
-  late final _realm_get_linked_object = _realm_get_linked_objectPtr.asFunction<
-      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_object_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_get_linked_object');
+  late final _realm_get_linked_object =
+      _realm_get_linked_objectPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+            )
+          >();
 
   /// Get a list instance for the property of an object.
   ///
@@ -3242,50 +3429,49 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_get_list(
-      arg0,
-      arg1,
-    );
+    return _realm_get_list(arg0, arg1);
   }
 
   late final _realm_get_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_get_list');
-  late final _realm_get_list = _realm_get_listPtr.asFunction<
-      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_get_list');
+  late final _realm_get_list =
+      _realm_get_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)
+          >();
 
   /// Get the logging level for given category.
-  realm_log_level realm_get_log_level_category(
-    ffi.Pointer<ffi.Char> arg0,
-  ) {
-    return realm_log_level.fromValue(_realm_get_log_level_category(
-      arg0,
-    ));
+  realm_log_level realm_get_log_level_category(ffi.Pointer<ffi.Char> arg0) {
+    return realm_log_level.fromValue(_realm_get_log_level_category(arg0));
   }
 
   late final _realm_get_log_level_categoryPtr = _lookup<
-          ffi.NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<ffi.Char>)>>(
-      'realm_get_log_level_category');
-  late final _realm_get_log_level_category = _realm_get_log_level_categoryPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<ffi.UnsignedInt Function(ffi.Pointer<ffi.Char>)>
+  >('realm_get_log_level_category');
+  late final _realm_get_log_level_category =
+      _realm_get_log_level_categoryPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
 
   /// Return the number of classes in the Realm's schema.
   ///
   /// This cannot fail.
-  int realm_get_num_classes(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_get_num_classes(
-      arg0,
-    );
+  int realm_get_num_classes(ffi.Pointer<realm_t> arg0) {
+    return _realm_get_num_classes(arg0);
   }
 
   late final _realm_get_num_classesPtr =
       _lookup<ffi.NativeFunction<ffi.Size Function(ffi.Pointer<realm_t>)>>(
-          'realm_get_num_classes');
-  late final _realm_get_num_classes = _realm_get_num_classesPtr
-      .asFunction<int Function(ffi.Pointer<realm_t>)>();
+        'realm_get_num_classes',
+      );
+  late final _realm_get_num_classes =
+      _realm_get_num_classesPtr
+          .asFunction<int Function(ffi.Pointer<realm_t>)>();
 
   /// Get the number of objects in a table (class).
   ///
@@ -3297,19 +3483,23 @@ class RealmLibrary {
     int arg1,
     ffi.Pointer<ffi.Size> out_count,
   ) {
-    return _realm_get_num_objects(
-      arg0,
-      arg1,
-      out_count,
-    );
+    return _realm_get_num_objects(arg0, arg1, out_count);
   }
 
   late final _realm_get_num_objectsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, realm_class_key_t,
-              ffi.Pointer<ffi.Size>)>>('realm_get_num_objects');
-  late final _realm_get_num_objects = _realm_get_num_objectsPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Size>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<ffi.Size>,
+      )
+    >
+  >('realm_get_num_objects');
+  late final _realm_get_num_objects =
+      _realm_get_num_objectsPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_t>, int, ffi.Pointer<ffi.Size>)
+          >();
 
   /// Get the number of versions found in the Realm file.
   ///
@@ -3320,18 +3510,19 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<ffi.Uint64> out_versions_count,
   ) {
-    return _realm_get_num_versions(
-      arg0,
-      out_versions_count,
-    );
+    return _realm_get_num_versions(arg0, out_versions_count);
   }
 
   late final _realm_get_num_versionsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<ffi.Uint64>)>>('realm_get_num_versions');
-  late final _realm_get_num_versions = _realm_get_num_versionsPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Uint64>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Uint64>)
+    >
+  >('realm_get_num_versions');
+  late final _realm_get_num_versions =
+      _realm_get_num_versionsPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Uint64>)
+          >();
 
   /// Get an object with a particular object key.
   ///
@@ -3344,32 +3535,32 @@ class RealmLibrary {
     int class_key,
     int obj_key,
   ) {
-    return _realm_get_object(
-      arg0,
-      class_key,
-      obj_key,
-    );
+    return _realm_get_object(arg0, class_key, obj_key);
   }
 
   late final _realm_get_objectPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>,
-              realm_class_key_t, realm_object_key_t)>>('realm_get_object');
-  late final _realm_get_object = _realm_get_objectPtr.asFunction<
-      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        realm_object_key_t,
+      )
+    >
+  >('realm_get_object');
+  late final _realm_get_object =
+      _realm_get_objectPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int, int)
+          >();
 
   /// Get the schema version for this realm at the path.
-  int realm_get_persisted_schema_version(
-    ffi.Pointer<realm_config_t> config,
-  ) {
-    return _realm_get_persisted_schema_version(
-      config,
-    );
+  int realm_get_persisted_schema_version(ffi.Pointer<realm_config_t> config) {
+    return _realm_get_persisted_schema_version(config);
   }
 
   late final _realm_get_persisted_schema_versionPtr = _lookup<
-          ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>>(
-      'realm_get_persisted_schema_version');
+    ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_config_t>)>
+  >('realm_get_persisted_schema_version');
   late final _realm_get_persisted_schema_version =
       _realm_get_persisted_schema_versionPtr
           .asFunction<int Function(ffi.Pointer<realm_config_t>)>();
@@ -3389,24 +3580,29 @@ class RealmLibrary {
     int key,
     ffi.Pointer<realm_property_info_t> out_property_info,
   ) {
-    return _realm_get_property(
-      arg0,
-      class_key,
-      key,
-      out_property_info,
-    );
+    return _realm_get_property(arg0, class_key, key, out_property_info);
   }
 
   late final _realm_get_propertyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        realm_property_key_t,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_get_property');
+  late final _realm_get_property =
+      _realm_get_propertyPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
-              realm_class_key_t,
-              realm_property_key_t,
-              ffi.Pointer<realm_property_info_t>)>>('realm_get_property');
-  late final _realm_get_property = _realm_get_propertyPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, int, int,
-          ffi.Pointer<realm_property_info_t>)>();
+              int,
+              int,
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Get the property keys for the class with this @a key.
   /// In case of errors this function will return false (errors to be fetched via `realm_get_last_error()`).
@@ -3428,62 +3624,65 @@ class RealmLibrary {
     int max,
     ffi.Pointer<ffi.Size> out_n,
   ) {
-    return _realm_get_property_keys(
-      arg0,
-      key,
-      out_col_keys,
-      max,
-      out_n,
-    );
+    return _realm_get_property_keys(arg0, key, out_col_keys, max, out_n);
   }
 
   late final _realm_get_property_keysPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<realm_property_key_t>,
+        ffi.Size,
+        ffi.Pointer<ffi.Size>,
+      )
+    >
+  >('realm_get_property_keys');
+  late final _realm_get_property_keys =
+      _realm_get_property_keysPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
-              realm_class_key_t,
+              int,
               ffi.Pointer<realm_property_key_t>,
-              ffi.Size,
-              ffi.Pointer<ffi.Size>)>>('realm_get_property_keys');
-  late final _realm_get_property_keys = _realm_get_property_keysPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, int,
-          ffi.Pointer<realm_property_key_t>, int, ffi.Pointer<ffi.Size>)>();
+              int,
+              ffi.Pointer<ffi.Size>,
+            )
+          >();
 
   /// Get the schema for this realm.
   ///
   /// Note: The returned value is allocated by this function, so `realm_release()`
   /// must be called on it.
-  ffi.Pointer<realm_schema_t> realm_get_schema(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_get_schema(
-      arg0,
-    );
+  ffi.Pointer<realm_schema_t> realm_get_schema(ffi.Pointer<realm_t> arg0) {
+    return _realm_get_schema(arg0);
   }
 
   late final _realm_get_schemaPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_schema_t> Function(
-              ffi.Pointer<realm_t>)>>('realm_get_schema');
-  late final _realm_get_schema = _realm_get_schemaPtr
-      .asFunction<ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_t>)
+    >
+  >('realm_get_schema');
+  late final _realm_get_schema =
+      _realm_get_schemaPtr
+          .asFunction<
+            ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_t>)
+          >();
 
   /// Get the schema version for this realm.
   ///
   /// This function cannot fail.
-  int realm_get_schema_version(
-    ffi.Pointer<realm_t> realm,
-  ) {
-    return _realm_get_schema_version(
-      realm,
-    );
+  int realm_get_schema_version(ffi.Pointer<realm_t> realm) {
+    return _realm_get_schema_version(realm);
   }
 
   late final _realm_get_schema_versionPtr =
       _lookup<ffi.NativeFunction<ffi.Uint64 Function(ffi.Pointer<realm_t>)>>(
-          'realm_get_schema_version');
-  late final _realm_get_schema_version = _realm_get_schema_versionPtr
-      .asFunction<int Function(ffi.Pointer<realm_t>)>();
+        'realm_get_schema_version',
+      );
+  late final _realm_get_schema_version =
+      _realm_get_schema_versionPtr
+          .asFunction<int Function(ffi.Pointer<realm_t>)>();
 
   /// Get a set instance for the property of an object.
   ///
@@ -3494,18 +3693,22 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_get_set(
-      arg0,
-      arg1,
-    );
+    return _realm_get_set(arg0, arg1);
   }
 
   late final _realm_get_setPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_get_set');
-  late final _realm_get_set = _realm_get_setPtr.asFunction<
-      ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_object_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_set_t> Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_get_set');
+  late final _realm_get_set =
+      _realm_get_setPtr
+          .asFunction<
+            ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_object_t>, int)
+          >();
 
   /// Get the value for a property.
   ///
@@ -3515,20 +3718,27 @@ class RealmLibrary {
     int arg1,
     ffi.Pointer<realm_value_t> out_value,
   ) {
-    return _realm_get_value(
-      arg0,
-      arg1,
-      out_value,
-    );
+    return _realm_get_value(arg0, arg1, out_value);
   }
 
   late final _realm_get_valuePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>, realm_property_key_t,
-              ffi.Pointer<realm_value_t>)>>('realm_get_value');
-  late final _realm_get_value = _realm_get_valuePtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_object_t>, int, ffi.Pointer<realm_value_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_get_value');
+  late final _realm_get_value =
+      _realm_get_valuePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Get the value for the property at the specified index in the object's schema.
   /// @param prop_index The index of the property in the class properties array the realm was opened with.
@@ -3538,22 +3748,27 @@ class RealmLibrary {
     int prop_index,
     ffi.Pointer<realm_value_t> out_value,
   ) {
-    return _realm_get_value_by_property_index(
-      object,
-      prop_index,
-      out_value,
-    );
+    return _realm_get_value_by_property_index(object, prop_index, out_value);
   }
 
   late final _realm_get_value_by_property_indexPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<realm_object_t>, ffi.Size,
-                  ffi.Pointer<realm_value_t>)>>(
-      'realm_get_value_by_property_index');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        ffi.Size,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_get_value_by_property_index');
   late final _realm_get_value_by_property_index =
-      _realm_get_value_by_property_indexPtr.asFunction<
-          bool Function(
-              ffi.Pointer<realm_object_t>, int, ffi.Pointer<realm_value_t>)>();
+      _realm_get_value_by_property_indexPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Get the values for several properties.
   ///
@@ -3580,24 +3795,29 @@ class RealmLibrary {
     ffi.Pointer<realm_property_key_t> properties,
     ffi.Pointer<realm_value_t> out_values,
   ) {
-    return _realm_get_values(
-      arg0,
-      num_values,
-      properties,
-      out_values,
-    );
+    return _realm_get_values(arg0, num_values, properties, out_values);
   }
 
   late final _realm_get_valuesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        ffi.Size,
+        ffi.Pointer<realm_property_key_t>,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_get_values');
+  late final _realm_get_values =
+      _realm_get_valuesPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_object_t>,
-              ffi.Size,
+              int,
               ffi.Pointer<realm_property_key_t>,
-              ffi.Pointer<realm_value_t>)>>('realm_get_values');
-  late final _realm_get_values = _realm_get_valuesPtr.asFunction<
-      bool Function(ffi.Pointer<realm_object_t>, int,
-          ffi.Pointer<realm_property_key_t>, ffi.Pointer<realm_value_t>)>();
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Get the VersionID of the current transaction.
   ///
@@ -3609,35 +3829,39 @@ class RealmLibrary {
     ffi.Pointer<ffi.Bool> out_found,
     ffi.Pointer<realm_version_id_t> out_version,
   ) {
-    return _realm_get_version_id(
-      arg0,
-      out_found,
-      out_version,
-    );
+    return _realm_get_version_id(arg0, out_found, out_version);
   }
 
   late final _realm_get_version_idPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>,
-              ffi.Pointer<realm_version_id_t>)>>('realm_get_version_id');
-  late final _realm_get_version_id = _realm_get_version_idPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>,
-          ffi.Pointer<realm_version_id_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Bool>,
+        ffi.Pointer<realm_version_id_t>,
+      )
+    >
+  >('realm_get_version_id');
+  late final _realm_get_version_id =
+      _realm_get_version_idPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Bool>,
+              ffi.Pointer<realm_version_id_t>,
+            )
+          >();
 
   /// True if the Realm file is closed.
   ///
   /// This function cannot fail.
-  bool realm_is_closed(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_is_closed(
-      arg0,
-    );
+  bool realm_is_closed(ffi.Pointer<realm_t> arg0) {
+    return _realm_is_closed(arg0);
   }
 
   late final _realm_is_closedPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_is_closed');
+        'realm_is_closed',
+      );
   late final _realm_is_closed =
       _realm_is_closedPtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
@@ -3645,34 +3869,28 @@ class RealmLibrary {
   ///
   /// Objects, collections, and results can be frozen. For all other types, this
   /// function always returns false.
-  bool realm_is_frozen(
-    ffi.Pointer<ffi.Void> arg0,
-  ) {
-    return _realm_is_frozen(
-      arg0,
-    );
+  bool realm_is_frozen(ffi.Pointer<ffi.Void> arg0) {
+    return _realm_is_frozen(arg0);
   }
 
   late final _realm_is_frozenPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_is_frozen');
+        'realm_is_frozen',
+      );
   late final _realm_is_frozen =
       _realm_is_frozenPtr.asFunction<bool Function(ffi.Pointer<ffi.Void>)>();
 
   /// Return true if the realm is in a write transaction.
   ///
   /// This function cannot fail.
-  bool realm_is_writable(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_is_writable(
-      arg0,
-    );
+  bool realm_is_writable(ffi.Pointer<realm_t> arg0) {
+    return _realm_is_writable(arg0);
   }
 
   late final _realm_is_writablePtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_is_writable');
+        'realm_is_writable',
+      );
   late final _realm_is_writable =
       _realm_is_writablePtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
@@ -3696,60 +3914,57 @@ class RealmLibrary {
   }
 
   late final _realm_list_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_list_t>,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_key_path_array_t>,
-                  realm_on_collection_change_func_t)>>(
-      'realm_list_add_notification_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_notification_token_t> Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Pointer<realm_key_path_array_t>,
+        realm_on_collection_change_func_t,
+      )
+    >
+  >('realm_list_add_notification_callback');
   late final _realm_list_add_notification_callback =
-      _realm_list_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
+      _realm_list_add_notification_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_notification_token_t> Function(
               ffi.Pointer<realm_list_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
-              realm_on_collection_change_func_t)>();
+              realm_on_collection_change_func_t,
+            )
+          >();
 
   /// Clear a list, removing all elements in the list. In a list of links, this
   /// does *NOT* delete the target objects.
   ///
   /// @return True if no exception occurred.
-  bool realm_list_clear(
-    ffi.Pointer<realm_list_t> arg0,
-  ) {
-    return _realm_list_clear(
-      arg0,
-    );
+  bool realm_list_clear(ffi.Pointer<realm_list_t> arg0) {
+    return _realm_list_clear(arg0);
   }
 
   late final _realm_list_clearPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_list_t>)>>(
-          'realm_list_clear');
-  late final _realm_list_clear = _realm_list_clearPtr
-      .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
+        'realm_list_clear',
+      );
+  late final _realm_list_clear =
+      _realm_list_clearPtr
+          .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
 
   /// Erase the element at @a index.
   ///
   /// @return True if no exception occurred.
-  bool realm_list_erase(
-    ffi.Pointer<realm_list_t> arg0,
-    int index,
-  ) {
-    return _realm_list_erase(
-      arg0,
-      index,
-    );
+  bool realm_list_erase(ffi.Pointer<realm_list_t> arg0, int index) {
+    return _realm_list_erase(arg0, index);
   }
 
   late final _realm_list_erasePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_erase');
-  late final _realm_list_erase = _realm_list_erasePtr
-      .asFunction<bool Function(ffi.Pointer<realm_list_t>, int)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size)>
+  >('realm_list_erase');
+  late final _realm_list_erase =
+      _realm_list_erasePtr
+          .asFunction<bool Function(ffi.Pointer<realm_list_t>, int)>();
 
   /// Find the value in the list passed as parameter.
   /// @param value to search in the list
@@ -3762,24 +3977,29 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_list_find(
-      arg0,
-      value,
-      out_index,
-      out_found,
-    );
+    return _realm_list_find(arg0, value, out_index, out_found);
   }
 
   late final _realm_list_findPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_list_find');
+  late final _realm_list_find =
+      _realm_list_findPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_list_t>,
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_list_find');
-  late final _realm_list_find = _realm_list_findPtr.asFunction<
-      bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<realm_value_t>,
-          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get an list from a thread-safe reference, potentially originating in a
   /// different `realm_t` instance
@@ -3787,21 +4007,25 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<realm_thread_safe_reference_t> arg1,
   ) {
-    return _realm_list_from_thread_safe_reference(
-      arg0,
-      arg1,
-    );
+    return _realm_list_from_thread_safe_reference(arg0, arg1);
   }
 
   late final _realm_list_from_thread_safe_referencePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_t>,
-                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
-      'realm_list_from_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_thread_safe_reference_t>,
+      )
+    >
+  >('realm_list_from_thread_safe_reference');
   late final _realm_list_from_thread_safe_reference =
-      _realm_list_from_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>)>();
+      _realm_list_from_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+            )
+          >();
 
   /// Get the value at @a index.
   ///
@@ -3813,20 +4037,27 @@ class RealmLibrary {
     int index,
     ffi.Pointer<realm_value_t> out_value,
   ) {
-    return _realm_list_get(
-      arg0,
-      index,
-      out_value,
-    );
+    return _realm_list_get(arg0, index, out_value);
   }
 
   late final _realm_list_getPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_list_get');
-  late final _realm_list_get = _realm_list_getPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_list_t>, int, ffi.Pointer<realm_value_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Size,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_list_get');
+  late final _realm_list_get =
+      _realm_list_getPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_list_t>,
+              int,
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Returns a nested dictionary if such collection exists, NULL otherwise.
   ///
@@ -3837,20 +4068,25 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> list,
     int index,
   ) {
-    return _realm_list_get_dictionary(
-      list,
-      index,
-    );
+    return _realm_list_get_dictionary(list, index);
   }
 
   late final _realm_list_get_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Size)>>('realm_list_get_dictionary');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_list_get_dictionary');
   late final _realm_list_get_dictionary =
-      _realm_list_get_dictionaryPtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_list_t>, int)>();
+      _realm_list_get_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_list_t>,
+              int,
+            )
+          >();
 
   /// Get object identified at index
   ///
@@ -3859,20 +4095,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     int index,
   ) {
-    return _realm_list_get_linked_object(
-      arg0,
-      index,
-    );
+    return _realm_list_get_linked_object(arg0, index);
   }
 
   late final _realm_list_get_linked_objectPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Size)>>('realm_list_get_linked_object');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, ffi.Size)
+    >
+  >('realm_list_get_linked_object');
   late final _realm_list_get_linked_object =
-      _realm_list_get_linked_objectPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_list_t>, int)>();
+      _realm_list_get_linked_objectPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, int)
+          >();
 
   /// Returns a nested list if such collection exists, NULL otherwise.
   ///
@@ -3883,18 +4118,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> list,
     int index,
   ) {
-    return _realm_list_get_list(
-      list,
-      index,
-    );
+    return _realm_list_get_list(list, index);
   }
 
   late final _realm_list_get_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(
-              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_get_list');
-  late final _realm_list_get_list = _realm_list_get_listPtr.asFunction<
-      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, ffi.Size)
+    >
+  >('realm_list_get_list');
+  late final _realm_list_get_list =
+      _realm_list_get_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, int)
+          >();
 
   /// Get the property that this list came from.
   ///
@@ -3903,19 +4139,25 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     ffi.Pointer<realm_property_info_t> out_property_info,
   ) {
-    return _realm_list_get_property(
-      arg0,
-      out_property_info,
-    );
+    return _realm_list_get_property(arg0, out_property_info);
   }
 
   late final _realm_list_get_propertyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<realm_property_info_t>)>>('realm_list_get_property');
-  late final _realm_list_get_property = _realm_list_get_propertyPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_list_t>, ffi.Pointer<realm_property_info_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_list_get_property');
+  late final _realm_list_get_property =
+      _realm_list_get_propertyPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_list_t>,
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Insert @a value at @a index.
   ///
@@ -3926,38 +4168,43 @@ class RealmLibrary {
     int index,
     realm_value_t value,
   ) {
-    return _realm_list_insert(
-      arg0,
-      index,
-      value,
-    );
+    return _realm_list_insert(arg0, index, value);
   }
 
   late final _realm_list_insertPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size,
-              realm_value_t)>>('realm_list_insert');
-  late final _realm_list_insert = _realm_list_insertPtr.asFunction<
-      bool Function(ffi.Pointer<realm_list_t>, int, realm_value_t)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size, realm_value_t)
+    >
+  >('realm_list_insert');
+  late final _realm_list_insert =
+      _realm_list_insertPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_list_t>, int, realm_value_t)
+          >();
 
   ffi.Pointer<realm_dictionary_t> realm_list_insert_dictionary(
     ffi.Pointer<realm_list_t> list,
     int index,
   ) {
-    return _realm_list_insert_dictionary(
-      list,
-      index,
-    );
+    return _realm_list_insert_dictionary(list, index);
   }
 
   late final _realm_list_insert_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Size)>>('realm_list_insert_dictionary');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_list_insert_dictionary');
   late final _realm_list_insert_dictionary =
-      _realm_list_insert_dictionaryPtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_list_t>, int)>();
+      _realm_list_insert_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_list_t>,
+              int,
+            )
+          >();
 
   /// Insert an embedded object at a given position.
   ///
@@ -3966,20 +4213,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     int index,
   ) {
-    return _realm_list_insert_embedded(
-      arg0,
-      index,
-    );
+    return _realm_list_insert_embedded(arg0, index);
   }
 
   late final _realm_list_insert_embeddedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Size)>>('realm_list_insert_embedded');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, ffi.Size)
+    >
+  >('realm_list_insert_embedded');
   late final _realm_list_insert_embedded =
-      _realm_list_insert_embeddedPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_list_t>, int)>();
+      _realm_list_insert_embeddedPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, int)
+          >();
 
   /// Insert a collection inside a list (only available for mixed types)
   ///
@@ -3990,35 +4236,34 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> list,
     int index,
   ) {
-    return _realm_list_insert_list(
-      list,
-      index,
-    );
+    return _realm_list_insert_list(list, index);
   }
 
   late final _realm_list_insert_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(
-              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_insert_list');
-  late final _realm_list_insert_list = _realm_list_insert_listPtr.asFunction<
-      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, ffi.Size)
+    >
+  >('realm_list_insert_list');
+  late final _realm_list_insert_list =
+      _realm_list_insert_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, int)
+          >();
 
   /// Check if a list is valid.
   ///
   /// @return True if the list is valid.
-  bool realm_list_is_valid(
-    ffi.Pointer<realm_list_t> arg0,
-  ) {
-    return _realm_list_is_valid(
-      arg0,
-    );
+  bool realm_list_is_valid(ffi.Pointer<realm_list_t> arg0) {
+    return _realm_list_is_valid(arg0);
   }
 
   late final _realm_list_is_validPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_list_t>)>>(
-          'realm_list_is_valid');
-  late final _realm_list_is_valid = _realm_list_is_validPtr
-      .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
+        'realm_list_is_valid',
+      );
+  late final _realm_list_is_valid =
+      _realm_list_is_validPtr
+          .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
 
   /// Move the element at @a from_index to @a to_index.
   ///
@@ -4030,37 +4275,33 @@ class RealmLibrary {
     int from_index,
     int to_index,
   ) {
-    return _realm_list_move(
-      arg0,
-      from_index,
-      to_index,
-    );
+    return _realm_list_move(arg0, from_index, to_index);
   }
 
   late final _realm_list_movePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size,
-              ffi.Size)>>('realm_list_move');
-  late final _realm_list_move = _realm_list_movePtr
-      .asFunction<bool Function(ffi.Pointer<realm_list_t>, int, int)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size, ffi.Size)
+    >
+  >('realm_list_move');
+  late final _realm_list_move =
+      _realm_list_movePtr
+          .asFunction<bool Function(ffi.Pointer<realm_list_t>, int, int)>();
 
   /// In a list of objects, delete all objects in the list and clear the list. In a
   /// list of values, clear the list.
   ///
   /// @return True if no exception occurred.
-  bool realm_list_remove_all(
-    ffi.Pointer<realm_list_t> arg0,
-  ) {
-    return _realm_list_remove_all(
-      arg0,
-    );
+  bool realm_list_remove_all(ffi.Pointer<realm_list_t> arg0) {
+    return _realm_list_remove_all(arg0);
   }
 
   late final _realm_list_remove_allPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_list_t>)>>(
-          'realm_list_remove_all');
-  late final _realm_list_remove_all = _realm_list_remove_allPtr
-      .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
+        'realm_list_remove_all',
+      );
+  late final _realm_list_remove_all =
+      _realm_list_remove_allPtr
+          .asFunction<bool Function(ffi.Pointer<realm_list_t>)>();
 
   /// Resolve the list in the context of a given Realm instance.
   ///
@@ -4075,21 +4316,27 @@ class RealmLibrary {
     ffi.Pointer<realm_t> target_realm,
     ffi.Pointer<ffi.Pointer<realm_list_t>> resolved,
   ) {
-    return _realm_list_resolve_in(
-      list,
-      target_realm,
-      resolved,
-    );
+    return _realm_list_resolve_in(list, target_realm, resolved);
   }
 
   late final _realm_list_resolve_inPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<realm_t>,
-                  ffi.Pointer<ffi.Pointer<realm_list_t>>)>>(
-      'realm_list_resolve_in');
-  late final _realm_list_resolve_in = _realm_list_resolve_inPtr.asFunction<
-      bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<realm_t>,
-          ffi.Pointer<ffi.Pointer<realm_list_t>>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Pointer<realm_list_t>>,
+      )
+    >
+  >('realm_list_resolve_in');
+  late final _realm_list_resolve_in =
+      _realm_list_resolve_inPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_list_t>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Pointer<realm_list_t>>,
+            )
+          >();
 
   /// Set the value at @a index.
   ///
@@ -4100,38 +4347,43 @@ class RealmLibrary {
     int index,
     realm_value_t value,
   ) {
-    return _realm_list_set(
-      arg0,
-      index,
-      value,
-    );
+    return _realm_list_set(arg0, index, value);
   }
 
   late final _realm_list_setPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size,
-              realm_value_t)>>('realm_list_set');
-  late final _realm_list_set = _realm_list_setPtr.asFunction<
-      bool Function(ffi.Pointer<realm_list_t>, int, realm_value_t)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Size, realm_value_t)
+    >
+  >('realm_list_set');
+  late final _realm_list_set =
+      _realm_list_setPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_list_t>, int, realm_value_t)
+          >();
 
   ffi.Pointer<realm_dictionary_t> realm_list_set_dictionary(
     ffi.Pointer<realm_list_t> list,
     int index,
   ) {
-    return _realm_list_set_dictionary(
-      list,
-      index,
-    );
+    return _realm_list_set_dictionary(list, index);
   }
 
   late final _realm_list_set_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Size)>>('realm_list_set_dictionary');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_list_set_dictionary');
   late final _realm_list_set_dictionary =
-      _realm_list_set_dictionaryPtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_list_t>, int)>();
+      _realm_list_set_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_list_t>,
+              int,
+            )
+          >();
 
   /// Create an embedded object at a given position.
   ///
@@ -4140,18 +4392,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     int index,
   ) {
-    return _realm_list_set_embedded(
-      arg0,
-      index,
-    );
+    return _realm_list_set_embedded(arg0, index);
   }
 
   late final _realm_list_set_embeddedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_set_embedded');
-  late final _realm_list_set_embedded = _realm_list_set_embeddedPtr.asFunction<
-      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, ffi.Size)
+    >
+  >('realm_list_set_embedded');
+  late final _realm_list_set_embedded =
+      _realm_list_set_embeddedPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_list_t>, int)
+          >();
 
   /// Set a collection inside a list (only available for mixed types).
   /// If the list already contains a collection of the requested type, the
@@ -4164,18 +4417,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> list,
     int index,
   ) {
-    return _realm_list_set_list(
-      list,
-      index,
-    );
+    return _realm_list_set_list(list, index);
   }
 
   late final _realm_list_set_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(
-              ffi.Pointer<realm_list_t>, ffi.Size)>>('realm_list_set_list');
-  late final _realm_list_set_list = _realm_list_set_listPtr.asFunction<
-      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, ffi.Size)
+    >
+  >('realm_list_set_list');
+  late final _realm_list_set_list =
+      _realm_list_set_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_list_t>, int)
+          >();
 
   /// Get the size of a list, in number of elements.
   ///
@@ -4187,18 +4441,19 @@ class RealmLibrary {
     ffi.Pointer<realm_list_t> arg0,
     ffi.Pointer<ffi.Size> out_size,
   ) {
-    return _realm_list_size(
-      arg0,
-      out_size,
-    );
+    return _realm_list_size(arg0, out_size);
   }
 
   late final _realm_list_sizePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.Size>)>>('realm_list_size');
-  late final _realm_list_size = _realm_list_sizePtr.asFunction<
-      bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.Size>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.Size>)
+    >
+  >('realm_list_size');
+  late final _realm_list_size =
+      _realm_list_sizePtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_list_t>, ffi.Pointer<ffi.Size>)
+          >();
 
   /// Convert a list to results.
   ///
@@ -4206,17 +4461,19 @@ class RealmLibrary {
   ffi.Pointer<realm_results_t> realm_list_to_results(
     ffi.Pointer<realm_list_t> arg0,
   ) {
-    return _realm_list_to_results(
-      arg0,
-    );
+    return _realm_list_to_results(arg0);
   }
 
   late final _realm_list_to_resultsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_list_t>)>>('realm_list_to_results');
-  late final _realm_list_to_results = _realm_list_to_resultsPtr.asFunction<
-      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_list_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_list_t>)
+    >
+  >('realm_list_to_results');
+  late final _realm_list_to_results =
+      _realm_list_to_resultsPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_list_t>)
+          >();
 
   /// Increment atomically property specified as parameter by value, for the object passed as argument.
   /// @param object valid ptr to an object store in the database
@@ -4228,25 +4485,27 @@ class RealmLibrary {
     int property_key,
     int value,
   ) {
-    return _realm_object_add_int(
-      object,
-      property_key,
-      value,
-    );
+    return _realm_object_add_int(object, property_key, value);
   }
 
   late final _realm_object_add_intPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>, realm_property_key_t,
-              ffi.Int64)>>('realm_object_add_int');
-  late final _realm_object_add_int = _realm_object_add_intPtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>, int, int)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+        ffi.Int64,
+      )
+    >
+  >('realm_object_add_int');
+  late final _realm_object_add_int =
+      _realm_object_add_intPtr
+          .asFunction<bool Function(ffi.Pointer<realm_object_t>, int, int)>();
 
   /// Subscribe to notifications for this object.
   ///
   /// @return A non-null pointer if no exception occurred.
   ffi.Pointer<realm_notification_token_t>
-      realm_object_add_notification_callback(
+  realm_object_add_notification_callback(
     ffi.Pointer<realm_object_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -4263,40 +4522,41 @@ class RealmLibrary {
   }
 
   late final _realm_object_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_object_t>,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_key_path_array_t>,
-                  realm_on_object_change_func_t)>>(
-      'realm_object_add_notification_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_notification_token_t> Function(
+        ffi.Pointer<realm_object_t>,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Pointer<realm_key_path_array_t>,
+        realm_on_object_change_func_t,
+      )
+    >
+  >('realm_object_add_notification_callback');
   late final _realm_object_add_notification_callback =
-      _realm_object_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
+      _realm_object_add_notification_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_notification_token_t> Function(
               ffi.Pointer<realm_object_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
-              realm_on_object_change_func_t)>();
+              realm_on_object_change_func_t,
+            )
+          >();
 
   /// Get a `realm_link_t` representing a link to @a object.
   ///
   /// This function cannot fail.
-  realm_link_t realm_object_as_link(
-    ffi.Pointer<realm_object_t> object,
-  ) {
-    return _realm_object_as_link(
-      object,
-    );
+  realm_link_t realm_object_as_link(ffi.Pointer<realm_object_t> object) {
+    return _realm_object_as_link(object);
   }
 
   late final _realm_object_as_linkPtr = _lookup<
-          ffi
-          .NativeFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>>(
-      'realm_object_as_link');
-  late final _realm_object_as_link = _realm_object_as_linkPtr
-      .asFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>();
+    ffi.NativeFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>
+  >('realm_object_as_link');
+  late final _realm_object_as_link =
+      _realm_object_as_linkPtr
+          .asFunction<realm_link_t Function(ffi.Pointer<realm_object_t>)>();
 
   /// Get the column keys for the properties that were modified in an object
   /// notification.
@@ -4320,15 +4580,23 @@ class RealmLibrary {
   }
 
   late final _realm_object_changes_get_modified_propertiesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Size Function(
+    ffi.NativeFunction<
+      ffi.Size Function(
+        ffi.Pointer<realm_object_changes_t>,
+        ffi.Pointer<realm_property_key_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_object_changes_get_modified_properties');
+  late final _realm_object_changes_get_modified_properties =
+      _realm_object_changes_get_modified_propertiesPtr
+          .asFunction<
+            int Function(
               ffi.Pointer<realm_object_changes_t>,
               ffi.Pointer<realm_property_key_t>,
-              ffi.Size)>>('realm_object_changes_get_modified_properties');
-  late final _realm_object_changes_get_modified_properties =
-      _realm_object_changes_get_modified_propertiesPtr.asFunction<
-          int Function(ffi.Pointer<realm_object_changes_t>,
-              ffi.Pointer<realm_property_key_t>, int)>();
+              int,
+            )
+          >();
 
   /// Get the number of properties that were modified in an object notification.
   ///
@@ -4336,15 +4604,12 @@ class RealmLibrary {
   int realm_object_changes_get_num_modified_properties(
     ffi.Pointer<realm_object_changes_t> arg0,
   ) {
-    return _realm_object_changes_get_num_modified_properties(
-      arg0,
-    );
+    return _realm_object_changes_get_num_modified_properties(arg0);
   }
 
   late final _realm_object_changes_get_num_modified_propertiesPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Size Function(ffi.Pointer<realm_object_changes_t>)>>(
-      'realm_object_changes_get_num_modified_properties');
+    ffi.NativeFunction<ffi.Size Function(ffi.Pointer<realm_object_changes_t>)>
+  >('realm_object_changes_get_num_modified_properties');
   late final _realm_object_changes_get_num_modified_properties =
       _realm_object_changes_get_num_modified_propertiesPtr
           .asFunction<int Function(ffi.Pointer<realm_object_changes_t>)>();
@@ -4355,15 +4620,12 @@ class RealmLibrary {
   bool realm_object_changes_is_deleted(
     ffi.Pointer<realm_object_changes_t> arg0,
   ) {
-    return _realm_object_changes_is_deleted(
-      arg0,
-    );
+    return _realm_object_changes_is_deleted(arg0);
   }
 
   late final _realm_object_changes_is_deletedPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(ffi.Pointer<realm_object_changes_t>)>>(
-      'realm_object_changes_is_deleted');
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_object_changes_t>)>
+  >('realm_object_changes_is_deleted');
   late final _realm_object_changes_is_deleted =
       _realm_object_changes_is_deletedPtr
           .asFunction<bool Function(ffi.Pointer<realm_object_changes_t>)>();
@@ -4375,18 +4637,22 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     int arg1,
   ) {
-    return _realm_object_create(
-      arg0,
-      arg1,
-    );
+    return _realm_object_create(arg0, arg1);
   }
 
   late final _realm_object_createPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_t>, realm_class_key_t)>>('realm_object_create');
-  late final _realm_object_create = _realm_object_createPtr.asFunction<
-      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+      )
+    >
+  >('realm_object_create');
+  late final _realm_object_create =
+      _realm_object_createPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int)
+          >();
 
   /// Create an object in a class with a primary key. Will not succeed if an
   /// object with the given primary key value already exists.
@@ -4397,42 +4663,43 @@ class RealmLibrary {
     int arg1,
     realm_value_t pk,
   ) {
-    return _realm_object_create_with_primary_key(
-      arg0,
-      arg1,
-      pk,
-    );
+    return _realm_object_create_with_primary_key(arg0, arg1, pk);
   }
 
   late final _realm_object_create_with_primary_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_t>,
-              realm_class_key_t,
-              realm_value_t)>>('realm_object_create_with_primary_key');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        realm_value_t,
+      )
+    >
+  >('realm_object_create_with_primary_key');
   late final _realm_object_create_with_primary_key =
-      _realm_object_create_with_primary_keyPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_t>, int, realm_value_t)>();
+      _realm_object_create_with_primary_keyPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_t>,
+              int,
+              realm_value_t,
+            )
+          >();
 
   /// Delete a realm object.
   ///
   /// Note: This does not call `realm_release()` on the `realm_object_t` instance.
   ///
   /// @return True if no exception occurred.
-  bool realm_object_delete(
-    ffi.Pointer<realm_object_t> arg0,
-  ) {
-    return _realm_object_delete(
-      arg0,
-    );
+  bool realm_object_delete(ffi.Pointer<realm_object_t> arg0) {
+    return _realm_object_delete(arg0);
   }
 
   late final _realm_object_deletePtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_object_t>)>>(
-      'realm_object_delete');
-  late final _realm_object_delete = _realm_object_deletePtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_object_t>)>
+  >('realm_object_delete');
+  late final _realm_object_delete =
+      _realm_object_deletePtr
+          .asFunction<bool Function(ffi.Pointer<realm_object_t>)>();
 
   /// Find all objects in class.
   ///
@@ -4444,18 +4711,22 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     int arg1,
   ) {
-    return _realm_object_find_all(
-      arg0,
-      arg1,
-    );
+    return _realm_object_find_all(arg0, arg1);
   }
 
   late final _realm_object_find_allPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_t>,
-              realm_class_key_t)>>('realm_object_find_all');
-  late final _realm_object_find_all = _realm_object_find_allPtr.asFunction<
-      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+      )
+    >
+  >('realm_object_find_all');
+  late final _realm_object_find_all =
+      _realm_object_find_allPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_t>, int)
+          >();
 
   /// Find an object with a particular primary key value.
   ///
@@ -4468,25 +4739,29 @@ class RealmLibrary {
     realm_value_t pk,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_object_find_with_primary_key(
-      arg0,
-      arg1,
-      pk,
-      out_found,
-    );
+    return _realm_object_find_with_primary_key(arg0, arg1, pk, out_found);
   }
 
   late final _realm_object_find_with_primary_keyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_t>,
-              realm_class_key_t,
-              realm_value_t,
-              ffi.Pointer<ffi.Bool>)>>('realm_object_find_with_primary_key');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        realm_value_t,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_object_find_with_primary_key');
   late final _realm_object_find_with_primary_key =
-      _realm_object_find_with_primary_keyPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int,
-              realm_value_t, ffi.Pointer<ffi.Bool>)>();
+      _realm_object_find_with_primary_keyPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_t>,
+              int,
+              realm_value_t,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get an object from a thread-safe reference, potentially originating in a
   /// different `realm_t` instance
@@ -4494,39 +4769,39 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<realm_thread_safe_reference_t> arg1,
   ) {
-    return _realm_object_from_thread_safe_reference(
-      arg0,
-      arg1,
-    );
+    return _realm_object_from_thread_safe_reference(arg0, arg1);
   }
 
   late final _realm_object_from_thread_safe_referencePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>,
-                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
-      'realm_object_from_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_thread_safe_reference_t>,
+      )
+    >
+  >('realm_object_from_thread_safe_reference');
   late final _realm_object_from_thread_safe_reference =
-      _realm_object_from_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>)>();
+      _realm_object_from_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+            )
+          >();
 
   /// Get the key for this object.
   ///
   /// This function cannot fail.
-  int realm_object_get_key(
-    ffi.Pointer<realm_object_t> object,
-  ) {
-    return _realm_object_get_key(
-      object,
-    );
+  int realm_object_get_key(ffi.Pointer<realm_object_t> object) {
+    return _realm_object_get_key(object);
   }
 
   late final _realm_object_get_keyPtr = _lookup<
-      ffi.NativeFunction<
-          realm_object_key_t Function(
-              ffi.Pointer<realm_object_t>)>>('realm_object_get_key');
-  late final _realm_object_get_key = _realm_object_get_keyPtr
-      .asFunction<int Function(ffi.Pointer<realm_object_t>)>();
+    ffi.NativeFunction<realm_object_key_t Function(ffi.Pointer<realm_object_t>)>
+  >('realm_object_get_key');
+  late final _realm_object_get_key =
+      _realm_object_get_keyPtr
+          .asFunction<int Function(ffi.Pointer<realm_object_t>)>();
 
   /// Create an object in a class with a primary key. If an object with the given
   /// primary key value already exists, that object will be returned.
@@ -4547,14 +4822,25 @@ class RealmLibrary {
   }
 
   late final _realm_object_get_or_create_with_primary_keyPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>,
-                  realm_class_key_t, realm_value_t, ffi.Pointer<ffi.Bool>)>>(
-      'realm_object_get_or_create_with_primary_key');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        realm_value_t,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_object_get_or_create_with_primary_key');
   late final _realm_object_get_or_create_with_primary_key =
-      _realm_object_get_or_create_with_primary_keyPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_t>, int,
-              realm_value_t, ffi.Pointer<ffi.Bool>)>();
+      _realm_object_get_or_create_with_primary_keyPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_t>,
+              int,
+              realm_value_t,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get the parent object for the object passed as argument. Only works for embedded objects.
   /// @return true, if no errors occurred.
@@ -4563,59 +4849,55 @@ class RealmLibrary {
     ffi.Pointer<ffi.Pointer<realm_object_t>> parent,
     ffi.Pointer<realm_class_key_t> class_key,
   ) {
-    return _realm_object_get_parent(
-      object,
-      parent,
-      class_key,
-    );
+    return _realm_object_get_parent(object, parent, class_key);
   }
 
   late final _realm_object_get_parentPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        ffi.Pointer<ffi.Pointer<realm_object_t>>,
+        ffi.Pointer<realm_class_key_t>,
+      )
+    >
+  >('realm_object_get_parent');
+  late final _realm_object_get_parent =
+      _realm_object_get_parentPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_object_t>,
               ffi.Pointer<ffi.Pointer<realm_object_t>>,
-              ffi.Pointer<realm_class_key_t>)>>('realm_object_get_parent');
-  late final _realm_object_get_parent = _realm_object_get_parentPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_object_t>,
-          ffi.Pointer<ffi.Pointer<realm_object_t>>,
-          ffi.Pointer<realm_class_key_t>)>();
+              ffi.Pointer<realm_class_key_t>,
+            )
+          >();
 
   /// Get the table for this object.
   ///
   /// This function cannot fail.
-  int realm_object_get_table(
-    ffi.Pointer<realm_object_t> object,
-  ) {
-    return _realm_object_get_table(
-      object,
-    );
+  int realm_object_get_table(ffi.Pointer<realm_object_t> object) {
+    return _realm_object_get_table(object);
   }
 
   late final _realm_object_get_tablePtr = _lookup<
-      ffi.NativeFunction<
-          realm_class_key_t Function(
-              ffi.Pointer<realm_object_t>)>>('realm_object_get_table');
-  late final _realm_object_get_table = _realm_object_get_tablePtr
-      .asFunction<int Function(ffi.Pointer<realm_object_t>)>();
+    ffi.NativeFunction<realm_class_key_t Function(ffi.Pointer<realm_object_t>)>
+  >('realm_object_get_table');
+  late final _realm_object_get_table =
+      _realm_object_get_tablePtr
+          .asFunction<int Function(ffi.Pointer<realm_object_t>)>();
 
   /// True if this object still exists in the realm.
   ///
   /// This function cannot fail.
-  bool realm_object_is_valid(
-    ffi.Pointer<realm_object_t> arg0,
-  ) {
-    return _realm_object_is_valid(
-      arg0,
-    );
+  bool realm_object_is_valid(ffi.Pointer<realm_object_t> arg0) {
+    return _realm_object_is_valid(arg0);
   }
 
   late final _realm_object_is_validPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_object_t>)>>(
-      'realm_object_is_valid');
-  late final _realm_object_is_valid = _realm_object_is_validPtr
-      .asFunction<bool Function(ffi.Pointer<realm_object_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_object_t>)>
+  >('realm_object_is_valid');
+  late final _realm_object_is_valid =
+      _realm_object_is_validPtr
+          .asFunction<bool Function(ffi.Pointer<realm_object_t>)>();
 
   /// Resolve the Realm object in the provided Realm.
   ///
@@ -4629,23 +4911,27 @@ class RealmLibrary {
     ffi.Pointer<realm_t> target_realm,
     ffi.Pointer<ffi.Pointer<realm_object_t>> resolved,
   ) {
-    return _realm_object_resolve_in(
-      live_object,
-      target_realm,
-      resolved,
-    );
+    return _realm_object_resolve_in(live_object, target_realm, resolved);
   }
 
   late final _realm_object_resolve_inPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Bool Function(
-                  ffi.Pointer<realm_object_t>,
-                  ffi.Pointer<realm_t>,
-                  ffi.Pointer<ffi.Pointer<realm_object_t>>)>>(
-      'realm_object_resolve_in');
-  late final _realm_object_resolve_in = _realm_object_resolve_inPtr.asFunction<
-      bool Function(ffi.Pointer<realm_object_t>, ffi.Pointer<realm_t>,
-          ffi.Pointer<ffi.Pointer<realm_object_t>>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Pointer<realm_object_t>>,
+      )
+    >
+  >('realm_object_resolve_in');
+  late final _realm_object_resolve_in =
+      _realm_object_resolve_inPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_object_t>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Pointer<realm_object_t>>,
+            )
+          >();
 
   /// Serializes an object to json and returns it as string. Serializes a single level of properties only.
   ///
@@ -4653,17 +4939,19 @@ class RealmLibrary {
   ffi.Pointer<ffi.Char> realm_object_to_string(
     ffi.Pointer<realm_object_t> arg0,
   ) {
-    return _realm_object_to_string(
-      arg0,
-    );
+    return _realm_object_to_string(arg0);
   }
 
   late final _realm_object_to_stringPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<realm_object_t>)>>('realm_object_to_string');
-  late final _realm_object_to_string = _realm_object_to_stringPtr.asFunction<
-      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_object_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_object_t>)
+    >
+  >('realm_object_to_string');
+  late final _realm_object_to_string =
+      _realm_object_to_stringPtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_object_t>)
+          >();
 
   /// Open a Realm file.
   ///
@@ -4671,20 +4959,20 @@ class RealmLibrary {
   /// thread, validate that the given configuration is compatible
   /// with the existing one.
   /// @return If successful, the Realm object. Otherwise, NULL.
-  ffi.Pointer<realm_t> realm_open(
-    ffi.Pointer<realm_config_t> config,
-  ) {
-    return _realm_open(
-      config,
-    );
+  ffi.Pointer<realm_t> realm_open(ffi.Pointer<realm_config_t> config) {
+    return _realm_open(config);
   }
 
   late final _realm_openPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_t> Function(
-              ffi.Pointer<realm_config_t>)>>('realm_open');
-  late final _realm_open = _realm_openPtr
-      .asFunction<ffi.Pointer<realm_t> Function(ffi.Pointer<realm_config_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_t> Function(ffi.Pointer<realm_config_t>)
+    >
+  >('realm_open');
+  late final _realm_open =
+      _realm_openPtr
+          .asFunction<
+            ffi.Pointer<realm_t> Function(ffi.Pointer<realm_config_t>)
+          >();
 
   /// Parse a query string and append it to an existing query via logical &&.
   /// The query string applies to the same table and Realm as the existing query.
@@ -4705,58 +4993,60 @@ class RealmLibrary {
     int num_args,
     ffi.Pointer<realm_query_arg_t> args,
   ) {
-    return _realm_query_append_query(
-      arg0,
-      query_string,
-      num_args,
-      args,
-    );
+    return _realm_query_append_query(arg0, query_string, num_args, args);
   }
 
   late final _realm_query_append_queryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
+    ffi.NativeFunction<
+      ffi.Pointer<realm_query_t> Function(
+        ffi.Pointer<realm_query_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Size,
+        ffi.Pointer<realm_query_arg_t>,
+      )
+    >
+  >('realm_query_append_query');
+  late final _realm_query_append_query =
+      _realm_query_append_queryPtr
+          .asFunction<
+            ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_query_t>,
               ffi.Pointer<ffi.Char>,
-              ffi.Size,
-              ffi.Pointer<realm_query_arg_t>)>>('realm_query_append_query');
-  late final _realm_query_append_query =
-      _realm_query_append_queryPtr.asFunction<
-          ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+              int,
+              ffi.Pointer<realm_query_arg_t>,
+            )
+          >();
 
   /// Count the number of objects found by this query.
   bool realm_query_count(
     ffi.Pointer<realm_query_t> arg0,
     ffi.Pointer<ffi.Size> out_count,
   ) {
-    return _realm_query_count(
-      arg0,
-      out_count,
-    );
+    return _realm_query_count(arg0, out_count);
   }
 
   late final _realm_query_countPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_query_t>,
-              ffi.Pointer<ffi.Size>)>>('realm_query_count');
-  late final _realm_query_count = _realm_query_countPtr.asFunction<
-      bool Function(ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.Size>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.Size>)
+    >
+  >('realm_query_count');
+  late final _realm_query_count =
+      _realm_query_countPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_query_t>, ffi.Pointer<ffi.Size>)
+          >();
 
   /// Delete all objects matched by a query.
-  bool realm_query_delete_all(
-    ffi.Pointer<realm_query_t> arg0,
-  ) {
-    return _realm_query_delete_all(
-      arg0,
-    );
+  bool realm_query_delete_all(ffi.Pointer<realm_query_t> arg0) {
+    return _realm_query_delete_all(arg0);
   }
 
   late final _realm_query_delete_allPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_query_t>)>>(
-      'realm_query_delete_all');
-  late final _realm_query_delete_all = _realm_query_delete_allPtr
-      .asFunction<bool Function(ffi.Pointer<realm_query_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_query_t>)>
+  >('realm_query_delete_all');
+  late final _realm_query_delete_all =
+      _realm_query_delete_allPtr
+          .asFunction<bool Function(ffi.Pointer<realm_query_t>)>();
 
   /// Produce a results object for this query.
   ///
@@ -4767,17 +5057,19 @@ class RealmLibrary {
   ffi.Pointer<realm_results_t> realm_query_find_all(
     ffi.Pointer<realm_query_t> arg0,
   ) {
-    return _realm_query_find_all(
-      arg0,
-    );
+    return _realm_query_find_all(arg0);
   }
 
   late final _realm_query_find_allPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_query_t>)>>('realm_query_find_all');
-  late final _realm_query_find_all = _realm_query_find_allPtr.asFunction<
-      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_query_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_query_t>)
+    >
+  >('realm_query_find_all');
+  late final _realm_query_find_all =
+      _realm_query_find_allPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_query_t>)
+          >();
 
   /// Return the first object matched by this query.
   ///
@@ -4794,22 +5086,27 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_value,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_query_find_first(
-      arg0,
-      out_value,
-      out_found,
-    );
+    return _realm_query_find_first(arg0, out_value, out_found);
   }
 
   late final _realm_query_find_firstPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_query_t>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_query_find_first');
+  late final _realm_query_find_first =
+      _realm_query_find_firstPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_query_t>,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_query_find_first');
-  late final _realm_query_find_first = _realm_query_find_firstPtr.asFunction<
-      bool Function(ffi.Pointer<realm_query_t>, ffi.Pointer<realm_value_t>,
-          ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get textual representation of query
   ///
@@ -4817,17 +5114,19 @@ class RealmLibrary {
   ffi.Pointer<ffi.Char> realm_query_get_description(
     ffi.Pointer<realm_query_t> arg0,
   ) {
-    return _realm_query_get_description(
-      arg0,
-    );
+    return _realm_query_get_description(arg0);
   }
 
   late final _realm_query_get_descriptionPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<ffi.Char> Function(
-              ffi.Pointer<realm_query_t>)>>('realm_query_get_description');
-  late final _realm_query_get_description = _realm_query_get_descriptionPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_query_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_query_t>)
+    >
+  >('realm_query_get_description');
+  late final _realm_query_get_description =
+      _realm_query_get_descriptionPtr
+          .asFunction<
+            ffi.Pointer<ffi.Char> Function(ffi.Pointer<realm_query_t>)
+          >();
 
   /// Parse a query string and bind it to a table.
   ///
@@ -4849,26 +5148,31 @@ class RealmLibrary {
     int num_args,
     ffi.Pointer<realm_query_arg_t> args,
   ) {
-    return _realm_query_parse(
-      arg0,
-      target_table,
-      query_string,
-      num_args,
-      args,
-    );
+    return _realm_query_parse(arg0, target_table, query_string, num_args, args);
   }
 
   late final _realm_query_parsePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
+    ffi.NativeFunction<
+      ffi.Pointer<realm_query_t> Function(
+        ffi.Pointer<realm_t>,
+        realm_class_key_t,
+        ffi.Pointer<ffi.Char>,
+        ffi.Size,
+        ffi.Pointer<realm_query_arg_t>,
+      )
+    >
+  >('realm_query_parse');
+  late final _realm_query_parse =
+      _realm_query_parsePtr
+          .asFunction<
+            ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_t>,
-              realm_class_key_t,
+              int,
               ffi.Pointer<ffi.Char>,
-              ffi.Size,
-              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse');
-  late final _realm_query_parse = _realm_query_parsePtr.asFunction<
-      ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_t>, int,
-          ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+              int,
+              ffi.Pointer<realm_query_arg_t>,
+            )
+          >();
 
   /// Parse a query string and bind it to a list.
   ///
@@ -4897,16 +5201,25 @@ class RealmLibrary {
   }
 
   late final _realm_query_parse_for_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
+    ffi.NativeFunction<
+      ffi.Pointer<realm_query_t> Function(
+        ffi.Pointer<realm_list_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Size,
+        ffi.Pointer<realm_query_arg_t>,
+      )
+    >
+  >('realm_query_parse_for_list');
+  late final _realm_query_parse_for_list =
+      _realm_query_parse_for_listPtr
+          .asFunction<
+            ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_list_t>,
               ffi.Pointer<ffi.Char>,
-              ffi.Size,
-              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse_for_list');
-  late final _realm_query_parse_for_list =
-      _realm_query_parse_for_listPtr.asFunction<
-          ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_list_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+              int,
+              ffi.Pointer<realm_query_arg_t>,
+            )
+          >();
 
   /// Parse a query string and bind it to another query result.
   ///
@@ -4936,17 +5249,25 @@ class RealmLibrary {
   }
 
   late final _realm_query_parse_for_resultsPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_query_t> Function(
-                  ffi.Pointer<realm_results_t>,
-                  ffi.Pointer<ffi.Char>,
-                  ffi.Size,
-                  ffi.Pointer<realm_query_arg_t>)>>(
-      'realm_query_parse_for_results');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_query_t> Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Size,
+        ffi.Pointer<realm_query_arg_t>,
+      )
+    >
+  >('realm_query_parse_for_results');
   late final _realm_query_parse_for_results =
-      _realm_query_parse_for_resultsPtr.asFunction<
-          ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+      _realm_query_parse_for_resultsPtr
+          .asFunction<
+            ffi.Pointer<realm_query_t> Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Char>,
+              int,
+              ffi.Pointer<realm_query_arg_t>,
+            )
+          >();
 
   /// Parse a query string and bind it to a set.
   ///
@@ -4966,25 +5287,29 @@ class RealmLibrary {
     int num_args,
     ffi.Pointer<realm_query_arg_t> args,
   ) {
-    return _realm_query_parse_for_set(
-      target_set,
-      query_string,
-      num_args,
-      args,
-    );
+    return _realm_query_parse_for_set(target_set, query_string, num_args, args);
   }
 
   late final _realm_query_parse_for_setPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
+    ffi.NativeFunction<
+      ffi.Pointer<realm_query_t> Function(
+        ffi.Pointer<realm_set_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Size,
+        ffi.Pointer<realm_query_arg_t>,
+      )
+    >
+  >('realm_query_parse_for_set');
+  late final _realm_query_parse_for_set =
+      _realm_query_parse_for_setPtr
+          .asFunction<
+            ffi.Pointer<realm_query_t> Function(
               ffi.Pointer<realm_set_t>,
               ffi.Pointer<ffi.Char>,
-              ffi.Size,
-              ffi.Pointer<realm_query_arg_t>)>>('realm_query_parse_for_set');
-  late final _realm_query_parse_for_set =
-      _realm_query_parse_for_setPtr.asFunction<
-          ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_set_t>,
-              ffi.Pointer<ffi.Char>, int, ffi.Pointer<realm_query_arg_t>)>();
+              int,
+              ffi.Pointer<realm_query_arg_t>,
+            )
+          >();
 
   /// Refresh the view of the realm file.
   ///
@@ -4998,18 +5323,19 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<ffi.Bool> did_refresh,
   ) {
-    return _realm_refresh(
-      arg0,
-      did_refresh,
-    );
+    return _realm_refresh(arg0, did_refresh);
   }
 
   late final _realm_refreshPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>>('realm_refresh');
-  late final _realm_refresh = _realm_refreshPtr
-      .asFunction<bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)
+    >
+  >('realm_refresh');
+  late final _realm_refresh =
+      _realm_refreshPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Bool>)
+          >();
 
   /// In case of exception thrown in user code callbacks, this api will allow the sdk to store the user code exception
   /// and retrieve a it later via realm_get_last_error.
@@ -5018,14 +5344,13 @@ class RealmLibrary {
   void realm_register_user_code_callback_error(
     ffi.Pointer<ffi.Void> usercode_error,
   ) {
-    return _realm_register_user_code_callback_error(
-      usercode_error,
-    );
+    return _realm_register_user_code_callback_error(usercode_error);
   }
 
   late final _realm_register_user_code_callback_errorPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_register_user_code_callback_error');
+        'realm_register_user_code_callback_error',
+      );
   late final _realm_register_user_code_callback_error =
       _realm_register_user_code_callback_errorPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
@@ -5041,17 +5366,14 @@ class RealmLibrary {
   /// exception will crash the process.
   ///
   /// @param ptr A pointer to a Realm C Wrapper object. May be NULL.
-  void realm_release(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _realm_release(
-      ptr,
-    );
+  void realm_release(ffi.Pointer<ffi.Void> ptr) {
+    return _realm_release(ptr);
   }
 
   late final _realm_releasePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'realm_release');
+        'realm_release',
+      );
   late final _realm_release =
       _realm_releasePtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
@@ -5064,23 +5386,30 @@ class RealmLibrary {
     ffi.Pointer<ffi.Char> table_name,
     ffi.Pointer<ffi.Bool> table_deleted,
   ) {
-    return _realm_remove_table(
-      arg0,
-      table_name,
-      table_deleted,
-    );
+    return _realm_remove_table(arg0, table_name, table_deleted);
   }
 
   late final _realm_remove_tablePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Bool>)>>('realm_remove_table');
-  late final _realm_remove_table = _realm_remove_tablePtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<ffi.Char>,
-          ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_remove_table');
+  late final _realm_remove_table =
+      _realm_remove_tablePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Char>,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   ffi.Pointer<realm_notification_token_t>
-      realm_results_add_notification_callback(
+  realm_results_add_notification_callback(
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
@@ -5097,22 +5426,27 @@ class RealmLibrary {
   }
 
   late final _realm_results_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_results_t>,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_key_path_array_t>,
-                  realm_on_collection_change_func_t)>>(
-      'realm_results_add_notification_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_notification_token_t> Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Pointer<realm_key_path_array_t>,
+        realm_on_collection_change_func_t,
+      )
+    >
+  >('realm_results_add_notification_callback');
   late final _realm_results_add_notification_callback =
-      _realm_results_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
+      _realm_results_add_notification_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_notification_token_t> Function(
               ffi.Pointer<realm_results_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
-              realm_on_collection_change_func_t)>();
+              realm_on_collection_change_func_t,
+            )
+          >();
 
   /// Compute the average value of a property in the results.
   ///
@@ -5127,24 +5461,29 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_average,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_results_average(
-      arg0,
-      arg1,
-      out_average,
-      out_found,
-    );
+    return _realm_results_average(arg0, arg1, out_average, out_found);
   }
 
   late final _realm_results_averagePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        realm_property_key_t,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_results_average');
+  late final _realm_results_average =
+      _realm_results_averagePtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_results_t>,
-              realm_property_key_t,
+              int,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_average');
-  late final _realm_results_average = _realm_results_averagePtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, int,
-          ffi.Pointer<realm_value_t>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Count the number of results.
   ///
@@ -5156,18 +5495,19 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<ffi.Size> out_count,
   ) {
-    return _realm_results_count(
-      arg0,
-      out_count,
-    );
+    return _realm_results_count(arg0, out_count);
   }
 
   late final _realm_results_countPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Size>)>>('realm_results_count');
-  late final _realm_results_count = _realm_results_countPtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Size>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Size>)
+    >
+  >('realm_results_count');
+  late final _realm_results_count =
+      _realm_results_countPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Size>)
+          >();
 
   /// Delete all objects in the result.
   ///
@@ -5175,19 +5515,16 @@ class RealmLibrary {
   /// have changed.
   ///
   /// @return True if no exception occurred.
-  bool realm_results_delete_all(
-    ffi.Pointer<realm_results_t> arg0,
-  ) {
-    return _realm_results_delete_all(
-      arg0,
-    );
+  bool realm_results_delete_all(ffi.Pointer<realm_results_t> arg0) {
+    return _realm_results_delete_all(arg0);
   }
 
   late final _realm_results_delete_allPtr = _lookup<
-          ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_results_t>)>>(
-      'realm_results_delete_all');
-  late final _realm_results_delete_all = _realm_results_delete_allPtr
-      .asFunction<bool Function(ffi.Pointer<realm_results_t>)>();
+    ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_results_t>)>
+  >('realm_results_delete_all');
+  late final _realm_results_delete_all =
+      _realm_results_delete_allPtr
+          .asFunction<bool Function(ffi.Pointer<realm_results_t>)>();
 
   /// Create a new results object by removing duplicates
   ///
@@ -5199,19 +5536,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> results,
     ffi.Pointer<ffi.Char> distinct_string,
   ) {
-    return _realm_results_distinct(
-      results,
-      distinct_string,
-    );
+    return _realm_results_distinct(results, distinct_string);
   }
 
   late final _realm_results_distinctPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_results_distinct');
-  late final _realm_results_distinct = _realm_results_distinctPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Char>)>();
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >('realm_results_distinct');
+  late final _realm_results_distinct =
+      _realm_results_distinctPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
 
   /// Create a new results object by further filtering existing result.
   ///
@@ -5220,19 +5563,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<realm_query_t> arg1,
   ) {
-    return _realm_results_filter(
-      arg0,
-      arg1,
-    );
+    return _realm_results_filter(arg0, arg1);
   }
 
   late final _realm_results_filterPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<realm_query_t>)>>('realm_results_filter');
-  late final _realm_results_filter = _realm_results_filterPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_results_t>, ffi.Pointer<realm_query_t>)>();
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<realm_query_t>,
+      )
+    >
+  >('realm_results_filter');
+  late final _realm_results_filter =
+      _realm_results_filterPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_query_t>,
+            )
+          >();
 
   /// Find the index for the value passed as parameter inside realm results pointer passed a input parameter.
   /// @param value the value to find inside the realm results
@@ -5245,24 +5594,29 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_results_find(
-      arg0,
-      value,
-      out_index,
-      out_found,
-    );
+    return _realm_results_find(arg0, value, out_index, out_found);
   }
 
   late final _realm_results_findPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_results_find');
+  late final _realm_results_find =
+      _realm_results_findPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_results_t>,
               ffi.Pointer<realm_value_t>,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_find');
-  late final _realm_results_find = _realm_results_findPtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<realm_value_t>,
-          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Find the index for the realm object passed as parameter inside realm results pointer passed a input parameter.
   /// @param value the value to find inside the realm results
@@ -5275,28 +5629,29 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_results_find_object(
-      arg0,
-      value,
-      out_index,
-      out_found,
-    );
+    return _realm_results_find_object(arg0, value, out_index, out_found);
   }
 
   late final _realm_results_find_objectPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_results_t>,
-              ffi.Pointer<realm_object_t>,
-              ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_find_object');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<realm_object_t>,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_results_find_object');
   late final _realm_results_find_object =
-      _realm_results_find_objectPtr.asFunction<
-          bool Function(
+      _realm_results_find_objectPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_results_t>,
               ffi.Pointer<realm_object_t>,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get an results object from a thread-safe reference, potentially originating
   /// in a different `realm_t` instance
@@ -5304,21 +5659,25 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<realm_thread_safe_reference_t> arg1,
   ) {
-    return _realm_results_from_thread_safe_reference(
-      arg0,
-      arg1,
-    );
+    return _realm_results_from_thread_safe_reference(arg0, arg1);
   }
 
   late final _realm_results_from_thread_safe_referencePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_t>,
-                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
-      'realm_results_from_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_thread_safe_reference_t>,
+      )
+    >
+  >('realm_results_from_thread_safe_reference');
   late final _realm_results_from_thread_safe_reference =
-      _realm_results_from_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>)>();
+      _realm_results_from_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+            )
+          >();
 
   /// Get the matching element at @a index in the results.
   ///
@@ -5338,20 +5697,27 @@ class RealmLibrary {
     int index,
     ffi.Pointer<realm_value_t> out_value,
   ) {
-    return _realm_results_get(
-      arg0,
-      index,
-      out_value,
-    );
+    return _realm_results_get(arg0, index, out_value);
   }
 
   late final _realm_results_getPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_results_t>, ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_results_get');
-  late final _realm_results_get = _realm_results_getPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_results_t>, int, ffi.Pointer<realm_value_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Size,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_results_get');
+  late final _realm_results_get =
+      _realm_results_getPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_results_t>,
+              int,
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Returns an instance of realm_dictionary for the index passed as argument.
   /// @return A valid ptr to a dictionary instance or nullptr in case of errors
@@ -5359,20 +5725,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     int index,
   ) {
-    return _realm_results_get_dictionary(
-      arg0,
-      index,
-    );
+    return _realm_results_get_dictionary(arg0, index);
   }
 
   late final _realm_results_get_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Size)>>('realm_results_get_dictionary');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_dictionary_t> Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_results_get_dictionary');
   late final _realm_results_get_dictionary =
-      _realm_results_get_dictionaryPtr.asFunction<
-          ffi.Pointer<realm_dictionary_t> Function(
-              ffi.Pointer<realm_results_t>, int)>();
+      _realm_results_get_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_results_t>,
+              int,
+            )
+          >();
 
   /// Returns an instance of realm_list at the index passed as argument.
   /// @return A valid ptr to a list instance or nullptr in case of errors
@@ -5380,18 +5751,22 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     int index,
   ) {
-    return _realm_results_get_list(
-      arg0,
-      index,
-    );
+    return _realm_results_get_list(arg0, index);
   }
 
   late final _realm_results_get_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Size)>>('realm_results_get_list');
-  late final _realm_results_get_list = _realm_results_get_listPtr.asFunction<
-      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_results_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_results_t>, ffi.Size)
+    >
+  >('realm_results_get_list');
+  late final _realm_results_get_list =
+      _realm_results_get_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(
+              ffi.Pointer<realm_results_t>,
+              int,
+            )
+          >();
 
   /// Get the matching object at @a index in the results.
   ///
@@ -5410,20 +5785,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     int index,
   ) {
-    return _realm_results_get_object(
-      arg0,
-      index,
-    );
+    return _realm_results_get_object(arg0, index);
   }
 
   late final _realm_results_get_objectPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Size)>>('realm_results_get_object');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_results_get_object');
   late final _realm_results_get_object =
-      _realm_results_get_objectPtr.asFunction<
-          ffi.Pointer<realm_object_t> Function(
-              ffi.Pointer<realm_results_t>, int)>();
+      _realm_results_get_objectPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_results_t>,
+              int,
+            )
+          >();
 
   /// Return the query associated to the results passed as argument.
   ///
@@ -5432,17 +5812,19 @@ class RealmLibrary {
   ffi.Pointer<realm_query_t> realm_results_get_query(
     ffi.Pointer<realm_results_t> results,
   ) {
-    return _realm_results_get_query(
-      results,
-    );
+    return _realm_results_get_query(results);
   }
 
   late final _realm_results_get_queryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_query_t> Function(
-              ffi.Pointer<realm_results_t>)>>('realm_results_get_query');
-  late final _realm_results_get_query = _realm_results_get_queryPtr.asFunction<
-      ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>)
+    >
+  >('realm_results_get_query');
+  late final _realm_results_get_query =
+      _realm_results_get_queryPtr
+          .asFunction<
+            ffi.Pointer<realm_query_t> Function(ffi.Pointer<realm_results_t>)
+          >();
 
   /// Set the boolean passed as argument to true or false whether the realm_results passed is valid or not
   /// @return true/false if no exception has occurred.
@@ -5450,18 +5832,19 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> arg0,
     ffi.Pointer<ffi.Bool> arg1,
   ) {
-    return _realm_results_is_valid(
-      arg0,
-      arg1,
-    );
+    return _realm_results_is_valid(arg0, arg1);
   }
 
   late final _realm_results_is_validPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_is_valid');
-  late final _realm_results_is_valid = _realm_results_is_validPtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Bool>)
+    >
+  >('realm_results_is_valid');
+  late final _realm_results_is_valid =
+      _realm_results_is_validPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Bool>)
+          >();
 
   /// Create a new results object by limiting the number of items
   ///
@@ -5471,19 +5854,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> results,
     int max_count,
   ) {
-    return _realm_results_limit(
-      results,
-      max_count,
-    );
+    return _realm_results_limit(results, max_count);
   }
 
   late final _realm_results_limitPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_results_t>, ffi.Size)>>('realm_results_limit');
-  late final _realm_results_limit = _realm_results_limitPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_results_t>, int)>();
+        ffi.Pointer<realm_results_t>,
+        ffi.Size,
+      )
+    >
+  >('realm_results_limit');
+  late final _realm_results_limit =
+      _realm_results_limitPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_results_t>,
+              int,
+            )
+          >();
 
   /// Compute the maximum value of a property in the results.
   ///
@@ -5496,24 +5885,29 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_max,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_results_max(
-      arg0,
-      arg1,
-      out_max,
-      out_found,
-    );
+    return _realm_results_max(arg0, arg1, out_max, out_found);
   }
 
   late final _realm_results_maxPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        realm_property_key_t,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_results_max');
+  late final _realm_results_max =
+      _realm_results_maxPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_results_t>,
-              realm_property_key_t,
+              int,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_max');
-  late final _realm_results_max = _realm_results_maxPtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, int,
-          ffi.Pointer<realm_value_t>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Compute the minimum value of a property in the results.
   ///
@@ -5526,24 +5920,29 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_min,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_results_min(
-      arg0,
-      arg1,
-      out_min,
-      out_found,
-    );
+    return _realm_results_min(arg0, arg1, out_min, out_found);
   }
 
   late final _realm_results_minPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        realm_property_key_t,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_results_min');
+  late final _realm_results_min =
+      _realm_results_minPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_results_t>,
-              realm_property_key_t,
+              int,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_min');
-  late final _realm_results_min = _realm_results_minPtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, int,
-          ffi.Pointer<realm_value_t>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Map the Results into a live Realm instance.
   ///
@@ -5554,20 +5953,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> from_results,
     ffi.Pointer<realm_t> target_realm,
   ) {
-    return _realm_results_resolve_in(
-      from_results,
-      target_realm,
-    );
+    return _realm_results_resolve_in(from_results, target_realm);
   }
 
   late final _realm_results_resolve_inPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<realm_t>)>>('realm_results_resolve_in');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<realm_t>,
+      )
+    >
+  >('realm_results_resolve_in');
   late final _realm_results_resolve_in =
-      _realm_results_resolve_inPtr.asFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_results_t>, ffi.Pointer<realm_t>)>();
+      _realm_results_resolve_inPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<realm_t>,
+            )
+          >();
 
   /// Return a snapshot of the results that never automatically updates.
   ///
@@ -5576,17 +5980,19 @@ class RealmLibrary {
   ffi.Pointer<realm_results_t> realm_results_snapshot(
     ffi.Pointer<realm_results_t> arg0,
   ) {
-    return _realm_results_snapshot(
-      arg0,
-    );
+    return _realm_results_snapshot(arg0);
   }
 
   late final _realm_results_snapshotPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_results_t>)>>('realm_results_snapshot');
-  late final _realm_results_snapshot = _realm_results_snapshotPtr.asFunction<
-      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>)
+    >
+  >('realm_results_snapshot');
+  late final _realm_results_snapshot =
+      _realm_results_snapshotPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>)
+          >();
 
   /// Create a new results object by further sorting existing result.
   ///
@@ -5599,19 +6005,25 @@ class RealmLibrary {
     ffi.Pointer<realm_results_t> results,
     ffi.Pointer<ffi.Char> sort_string,
   ) {
-    return _realm_results_sort(
-      results,
-      sort_string,
-    );
+    return _realm_results_sort(results, sort_string);
   }
 
   late final _realm_results_sortPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_results_t>,
-              ffi.Pointer<ffi.Char>)>>('realm_results_sort');
-  late final _realm_results_sort = _realm_results_sortPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_results_t> Function(
-          ffi.Pointer<realm_results_t>, ffi.Pointer<ffi.Char>)>();
+        ffi.Pointer<realm_results_t>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >('realm_results_sort');
+  late final _realm_results_sort =
+      _realm_results_sortPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(
+              ffi.Pointer<realm_results_t>,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
 
   /// Compute the sum value of a property in the results.
   ///
@@ -5624,39 +6036,41 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> out_sum,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_results_sum(
-      arg0,
-      arg1,
-      out_sum,
-      out_found,
-    );
+    return _realm_results_sum(arg0, arg1, out_sum, out_found);
   }
 
   late final _realm_results_sumPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_results_t>,
+        realm_property_key_t,
+        ffi.Pointer<realm_value_t>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_results_sum');
+  late final _realm_results_sum =
+      _realm_results_sumPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_results_t>,
-              realm_property_key_t,
+              int,
               ffi.Pointer<realm_value_t>,
-              ffi.Pointer<ffi.Bool>)>>('realm_results_sum');
-  late final _realm_results_sum = _realm_results_sumPtr.asFunction<
-      bool Function(ffi.Pointer<realm_results_t>, int,
-          ffi.Pointer<realm_value_t>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Roll back a write transaction.
   ///
   /// @return True if the rollback succeeded and no exceptions were thrown.
-  bool realm_rollback(
-    ffi.Pointer<realm_t> arg0,
-  ) {
-    return _realm_rollback(
-      arg0,
-    );
+  bool realm_rollback(ffi.Pointer<realm_t> arg0) {
+    return _realm_rollback(arg0);
   }
 
   late final _realm_rollbackPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_t>)>>(
-          'realm_rollback');
+        'realm_rollback',
+      );
   late final _realm_rollback =
       _realm_rollbackPtr.asFunction<bool Function(ffi.Pointer<realm_t>)>();
 
@@ -5670,9 +6084,11 @@ class RealmLibrary {
 
   late final _realm_scheduler_get_frozenPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<realm_scheduler_t> Function()>>(
-          'realm_scheduler_get_frozen');
-  late final _realm_scheduler_get_frozen = _realm_scheduler_get_frozenPtr
-      .asFunction<ffi.Pointer<realm_scheduler_t> Function()>();
+        'realm_scheduler_get_frozen',
+      );
+  late final _realm_scheduler_get_frozen =
+      _realm_scheduler_get_frozenPtr
+          .asFunction<ffi.Pointer<realm_scheduler_t> Function()>();
 
   /// Create an instance of the default scheduler for the current platform,
   /// normally confined to the calling thread.
@@ -5682,9 +6098,11 @@ class RealmLibrary {
 
   late final _realm_scheduler_make_defaultPtr =
       _lookup<ffi.NativeFunction<ffi.Pointer<realm_scheduler_t> Function()>>(
-          'realm_scheduler_make_default');
-  late final _realm_scheduler_make_default = _realm_scheduler_make_defaultPtr
-      .asFunction<ffi.Pointer<realm_scheduler_t> Function()>();
+        'realm_scheduler_make_default',
+      );
+  late final _realm_scheduler_make_default =
+      _realm_scheduler_make_defaultPtr
+          .asFunction<ffi.Pointer<realm_scheduler_t> Function()>();
 
   /// Create a custom scheduler object from callback functions.
   ///
@@ -5718,43 +6136,45 @@ class RealmLibrary {
   }
 
   late final _realm_scheduler_newPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_scheduler_t> Function(
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  realm_scheduler_notify_func_t,
-                  realm_scheduler_is_on_thread_func_t,
-                  realm_scheduler_is_same_as_func_t,
-                  realm_scheduler_can_deliver_notifications_func_t)>>(
-      'realm_scheduler_new');
-  late final _realm_scheduler_new = _realm_scheduler_newPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_scheduler_t> Function(
-          ffi.Pointer<ffi.Void>,
-          realm_free_userdata_func_t,
-          realm_scheduler_notify_func_t,
-          realm_scheduler_is_on_thread_func_t,
-          realm_scheduler_is_same_as_func_t,
-          realm_scheduler_can_deliver_notifications_func_t)>();
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        realm_scheduler_notify_func_t,
+        realm_scheduler_is_on_thread_func_t,
+        realm_scheduler_is_same_as_func_t,
+        realm_scheduler_can_deliver_notifications_func_t,
+      )
+    >
+  >('realm_scheduler_new');
+  late final _realm_scheduler_new =
+      _realm_scheduler_newPtr
+          .asFunction<
+            ffi.Pointer<realm_scheduler_t> Function(
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+              realm_scheduler_notify_func_t,
+              realm_scheduler_is_on_thread_func_t,
+              realm_scheduler_is_same_as_func_t,
+              realm_scheduler_can_deliver_notifications_func_t,
+            )
+          >();
 
   /// Performs all of the pending work for the given scheduler.
   ///
   /// This function must be called from within the scheduler's event loop. It must
   /// be called each time the notify callback passed to the scheduler
   /// is invoked.
-  void realm_scheduler_perform_work(
-    ffi.Pointer<realm_work_queue_t> arg0,
-  ) {
-    return _realm_scheduler_perform_work(
-      arg0,
-    );
+  void realm_scheduler_perform_work(ffi.Pointer<realm_work_queue_t> arg0) {
+    return _realm_scheduler_perform_work(arg0);
   }
 
   late final _realm_scheduler_perform_workPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_work_queue_t>)>>(
-      'realm_scheduler_perform_work');
-  late final _realm_scheduler_perform_work = _realm_scheduler_perform_workPtr
-      .asFunction<void Function(ffi.Pointer<realm_work_queue_t>)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_work_queue_t>)>
+  >('realm_scheduler_perform_work');
+  late final _realm_scheduler_perform_work =
+      _realm_scheduler_perform_workPtr
+          .asFunction<void Function(ffi.Pointer<realm_work_queue_t>)>();
 
   /// Create a new schema from classes and their properties.
   ///
@@ -5771,23 +6191,27 @@ class RealmLibrary {
     int num_classes,
     ffi.Pointer<ffi.Pointer<realm_property_info_t>> class_properties,
   ) {
-    return _realm_schema_new(
-      classes,
-      num_classes,
-      class_properties,
-    );
+    return _realm_schema_new(classes, num_classes, class_properties);
   }
 
   late final _realm_schema_newPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_schema_t> Function(
-                  ffi.Pointer<realm_class_info_t>,
-                  ffi.Size,
-                  ffi.Pointer<ffi.Pointer<realm_property_info_t>>)>>(
-      'realm_schema_new');
-  late final _realm_schema_new = _realm_schema_newPtr.asFunction<
-      ffi.Pointer<realm_schema_t> Function(ffi.Pointer<realm_class_info_t>, int,
-          ffi.Pointer<ffi.Pointer<realm_property_info_t>>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_schema_t> Function(
+        ffi.Pointer<realm_class_info_t>,
+        ffi.Size,
+        ffi.Pointer<ffi.Pointer<realm_property_info_t>>,
+      )
+    >
+  >('realm_schema_new');
+  late final _realm_schema_new =
+      _realm_schema_newPtr
+          .asFunction<
+            ffi.Pointer<realm_schema_t> Function(
+              ffi.Pointer<realm_class_info_t>,
+              int,
+              ffi.Pointer<ffi.Pointer<realm_property_info_t>>,
+            )
+          >();
 
   /// Rename a property for the schame  of the open realm.
   /// @param realm The realm for which the property schema has to be renamed
@@ -5812,21 +6236,27 @@ class RealmLibrary {
   }
 
   late final _realm_schema_rename_propertyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_schema_t>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>>('realm_schema_rename_property');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_schema_t>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >('realm_schema_rename_property');
   late final _realm_schema_rename_property =
-      _realm_schema_rename_propertyPtr.asFunction<
-          bool Function(
+      _realm_schema_rename_propertyPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<realm_schema_t>,
               ffi.Pointer<ffi.Char>,
               ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>();
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
 
   /// Validate the schema.
   ///
@@ -5840,18 +6270,17 @@ class RealmLibrary {
     ffi.Pointer<realm_schema_t> arg0,
     int validation_mode,
   ) {
-    return _realm_schema_validate(
-      arg0,
-      validation_mode,
-    );
+    return _realm_schema_validate(arg0, validation_mode);
   }
 
   late final _realm_schema_validatePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_schema_t>,
-              ffi.Uint64)>>('realm_schema_validate');
-  late final _realm_schema_validate = _realm_schema_validatePtr
-      .asFunction<bool Function(ffi.Pointer<realm_schema_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_schema_t>, ffi.Uint64)
+    >
+  >('realm_schema_validate');
+  late final _realm_schema_validate =
+      _realm_schema_validatePtr
+          .asFunction<bool Function(ffi.Pointer<realm_schema_t>, int)>();
 
   /// Subscribe to notifications for this object.
   ///
@@ -5873,54 +6302,50 @@ class RealmLibrary {
   }
 
   late final _realm_set_add_notification_callbackPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_notification_token_t> Function(
-                  ffi.Pointer<realm_set_t>,
-                  ffi.Pointer<ffi.Void>,
-                  realm_free_userdata_func_t,
-                  ffi.Pointer<realm_key_path_array_t>,
-                  realm_on_collection_change_func_t)>>(
-      'realm_set_add_notification_callback');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_notification_token_t> Function(
+        ffi.Pointer<realm_set_t>,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+        ffi.Pointer<realm_key_path_array_t>,
+        realm_on_collection_change_func_t,
+      )
+    >
+  >('realm_set_add_notification_callback');
   late final _realm_set_add_notification_callback =
-      _realm_set_add_notification_callbackPtr.asFunction<
-          ffi.Pointer<realm_notification_token_t> Function(
+      _realm_set_add_notification_callbackPtr
+          .asFunction<
+            ffi.Pointer<realm_notification_token_t> Function(
               ffi.Pointer<realm_set_t>,
               ffi.Pointer<ffi.Void>,
               realm_free_userdata_func_t,
               ffi.Pointer<realm_key_path_array_t>,
-              realm_on_collection_change_func_t)>();
+              realm_on_collection_change_func_t,
+            )
+          >();
 
-  void realm_set_auto_refresh(
-    ffi.Pointer<realm_t> realm,
-    bool enable,
-  ) {
-    return _realm_set_auto_refresh(
-      realm,
-      enable,
-    );
+  void realm_set_auto_refresh(ffi.Pointer<realm_t> realm, bool enable) {
+    return _realm_set_auto_refresh(realm, enable);
   }
 
   late final _realm_set_auto_refreshPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Pointer<realm_t>, ffi.Bool)>>(
-      'realm_set_auto_refresh');
-  late final _realm_set_auto_refresh = _realm_set_auto_refreshPtr
-      .asFunction<void Function(ffi.Pointer<realm_t>, bool)>();
+    ffi.NativeFunction<ffi.Void Function(ffi.Pointer<realm_t>, ffi.Bool)>
+  >('realm_set_auto_refresh');
+  late final _realm_set_auto_refresh =
+      _realm_set_auto_refreshPtr
+          .asFunction<void Function(ffi.Pointer<realm_t>, bool)>();
 
   /// Clear a set of values.
   ///
   /// @return True if no exception occurred.
-  bool realm_set_clear(
-    ffi.Pointer<realm_set_t> arg0,
-  ) {
-    return _realm_set_clear(
-      arg0,
-    );
+  bool realm_set_clear(ffi.Pointer<realm_set_t> arg0) {
+    return _realm_set_clear(arg0);
   }
 
   late final _realm_set_clearPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_set_t>)>>(
-          'realm_set_clear');
+        'realm_set_clear',
+      );
   late final _realm_set_clear =
       _realm_set_clearPtr.asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
 
@@ -5928,19 +6353,25 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_set_dictionary(
-      arg0,
-      arg1,
-    );
+    return _realm_set_dictionary(arg0, arg1);
   }
 
   late final _realm_set_dictionaryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_dictionary_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_set_dictionary');
-  late final _realm_set_dictionary = _realm_set_dictionaryPtr.asFunction<
+    ffi.NativeFunction<
       ffi.Pointer<realm_dictionary_t> Function(
-          ffi.Pointer<realm_object_t>, int)>();
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_set_dictionary');
+  late final _realm_set_dictionary =
+      _realm_set_dictionaryPtr
+          .asFunction<
+            ffi.Pointer<realm_dictionary_t> Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+            )
+          >();
 
   /// Create an embedded object in a given property.
   ///
@@ -5949,18 +6380,25 @@ class RealmLibrary {
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_set_embedded(
-      arg0,
-      arg1,
-    );
+    return _realm_set_embedded(arg0, arg1);
   }
 
   late final _realm_set_embeddedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_set_embedded');
-  late final _realm_set_embedded = _realm_set_embeddedPtr.asFunction<
-      ffi.Pointer<realm_object_t> Function(ffi.Pointer<realm_object_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_object_t> Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_set_embedded');
+  late final _realm_set_embedded =
+      _realm_set_embeddedPtr
+          .asFunction<
+            ffi.Pointer<realm_object_t> Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+            )
+          >();
 
   /// Erase an element from a set.
   ///
@@ -5976,20 +6414,27 @@ class RealmLibrary {
     realm_value_t value,
     ffi.Pointer<ffi.Bool> out_erased,
   ) {
-    return _realm_set_erase(
-      arg0,
-      value,
-      out_erased,
-    );
+    return _realm_set_erase(arg0, value, out_erased);
   }
 
   late final _realm_set_erasePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_set_t>, realm_value_t,
-              ffi.Pointer<ffi.Bool>)>>('realm_set_erase');
-  late final _realm_set_erase = _realm_set_erasePtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_set_t>, realm_value_t, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_set_t>,
+        realm_value_t,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_set_erase');
+  late final _realm_set_erase =
+      _realm_set_erasePtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_set_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Find an element in a set.
   ///
@@ -6008,21 +6453,29 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Bool> out_found,
   ) {
-    return _realm_set_find(
-      arg0,
-      value,
-      out_index,
-      out_found,
-    );
+    return _realm_set_find(arg0, value, out_index, out_found);
   }
 
   late final _realm_set_findPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_set_t>, realm_value_t,
-              ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>>('realm_set_find');
-  late final _realm_set_find = _realm_set_findPtr.asFunction<
-      bool Function(ffi.Pointer<realm_set_t>, realm_value_t,
-          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_set_t>,
+        realm_value_t,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_set_find');
+  late final _realm_set_find =
+      _realm_set_findPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_set_t>,
+              realm_value_t,
+              ffi.Pointer<ffi.Size>,
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Get an set from a thread-safe reference, potentially originating in a
   /// different `realm_t` instance
@@ -6030,21 +6483,25 @@ class RealmLibrary {
     ffi.Pointer<realm_t> arg0,
     ffi.Pointer<realm_thread_safe_reference_t> arg1,
   ) {
-    return _realm_set_from_thread_safe_reference(
-      arg0,
-      arg1,
-    );
+    return _realm_set_from_thread_safe_reference(arg0, arg1);
   }
 
   late final _realm_set_from_thread_safe_referencePtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_t>,
-                  ffi.Pointer<realm_thread_safe_reference_t>)>>(
-      'realm_set_from_thread_safe_reference');
+    ffi.NativeFunction<
+      ffi.Pointer<realm_set_t> Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_thread_safe_reference_t>,
+      )
+    >
+  >('realm_set_from_thread_safe_reference');
   late final _realm_set_from_thread_safe_reference =
-      _realm_set_from_thread_safe_referencePtr.asFunction<
-          ffi.Pointer<realm_set_t> Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_thread_safe_reference_t>)>();
+      _realm_set_from_thread_safe_referencePtr
+          .asFunction<
+            ffi.Pointer<realm_set_t> Function(
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<realm_thread_safe_reference_t>,
+            )
+          >();
 
   /// Get the value at @a index.
   ///
@@ -6059,20 +6516,27 @@ class RealmLibrary {
     int index,
     ffi.Pointer<realm_value_t> out_value,
   ) {
-    return _realm_set_get(
-      arg0,
-      index,
-      out_value,
-    );
+    return _realm_set_get(arg0, index, out_value);
   }
 
   late final _realm_set_getPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_set_t>, ffi.Size,
-              ffi.Pointer<realm_value_t>)>>('realm_set_get');
-  late final _realm_set_get = _realm_set_getPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_set_t>, int, ffi.Pointer<realm_value_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_set_t>,
+        ffi.Size,
+        ffi.Pointer<realm_value_t>,
+      )
+    >
+  >('realm_set_get');
+  late final _realm_set_get =
+      _realm_set_getPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_set_t>,
+              int,
+              ffi.Pointer<realm_value_t>,
+            )
+          >();
 
   /// Get the property that this set came from.
   ///
@@ -6081,19 +6545,25 @@ class RealmLibrary {
     ffi.Pointer<realm_set_t> arg0,
     ffi.Pointer<realm_property_info_t> out_property_info,
   ) {
-    return _realm_set_get_property(
-      arg0,
-      out_property_info,
-    );
+    return _realm_set_get_property(arg0, out_property_info);
   }
 
   late final _realm_set_get_propertyPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_set_t>,
-              ffi.Pointer<realm_property_info_t>)>>('realm_set_get_property');
-  late final _realm_set_get_property = _realm_set_get_propertyPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_set_t>, ffi.Pointer<realm_property_info_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_set_t>,
+        ffi.Pointer<realm_property_info_t>,
+      )
+    >
+  >('realm_set_get_property');
+  late final _realm_set_get_property =
+      _realm_set_get_propertyPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_set_t>,
+              ffi.Pointer<realm_property_info_t>,
+            )
+          >();
 
   /// Insert an element in a set.
   ///
@@ -6112,41 +6582,44 @@ class RealmLibrary {
     ffi.Pointer<ffi.Size> out_index,
     ffi.Pointer<ffi.Bool> out_inserted,
   ) {
-    return _realm_set_insert(
-      arg0,
-      value,
-      out_index,
-      out_inserted,
-    );
+    return _realm_set_insert(arg0, value, out_index, out_inserted);
   }
 
   late final _realm_set_insertPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_set_t>,
+        realm_value_t,
+        ffi.Pointer<ffi.Size>,
+        ffi.Pointer<ffi.Bool>,
+      )
+    >
+  >('realm_set_insert');
+  late final _realm_set_insert =
+      _realm_set_insertPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_set_t>,
               realm_value_t,
               ffi.Pointer<ffi.Size>,
-              ffi.Pointer<ffi.Bool>)>>('realm_set_insert');
-  late final _realm_set_insert = _realm_set_insertPtr.asFunction<
-      bool Function(ffi.Pointer<realm_set_t>, realm_value_t,
-          ffi.Pointer<ffi.Size>, ffi.Pointer<ffi.Bool>)>();
+              ffi.Pointer<ffi.Bool>,
+            )
+          >();
 
   /// Check if a set is valid.
   ///
   /// @return True if the set is valid.
-  bool realm_set_is_valid(
-    ffi.Pointer<realm_set_t> arg0,
-  ) {
-    return _realm_set_is_valid(
-      arg0,
-    );
+  bool realm_set_is_valid(ffi.Pointer<realm_set_t> arg0) {
+    return _realm_set_is_valid(arg0);
   }
 
   late final _realm_set_is_validPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_set_t>)>>(
-          'realm_set_is_valid');
-  late final _realm_set_is_valid = _realm_set_is_validPtr
-      .asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
+        'realm_set_is_valid',
+      );
+  late final _realm_set_is_valid =
+      _realm_set_is_validPtr
+          .asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
 
   /// Assign a JSON formatted string to a Mixed property. Underlying structures will be created as needed
   ///
@@ -6157,37 +6630,49 @@ class RealmLibrary {
     int arg1,
     ffi.Pointer<ffi.Char> json_string,
   ) {
-    return _realm_set_json(
-      arg0,
-      arg1,
-      json_string,
-    );
+    return _realm_set_json(arg0, arg1, json_string);
   }
 
   late final _realm_set_jsonPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>, realm_property_key_t,
-              ffi.Pointer<ffi.Char>)>>('realm_set_json');
-  late final _realm_set_json = _realm_set_jsonPtr.asFunction<
-      bool Function(ffi.Pointer<realm_object_t>, int, ffi.Pointer<ffi.Char>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >('realm_set_json');
+  late final _realm_set_json =
+      _realm_set_jsonPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_object_t>,
+              int,
+              ffi.Pointer<ffi.Char>,
+            )
+          >();
 
   /// Create a collection in a given Mixed property.
   ffi.Pointer<realm_list_t> realm_set_list(
     ffi.Pointer<realm_object_t> arg0,
     int arg1,
   ) {
-    return _realm_set_list(
-      arg0,
-      arg1,
-    );
+    return _realm_set_list(arg0, arg1);
   }
 
   late final _realm_set_listPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>,
-              realm_property_key_t)>>('realm_set_list');
-  late final _realm_set_list = _realm_set_listPtr.asFunction<
-      ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_list_t> Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+      )
+    >
+  >('realm_set_list');
+  late final _realm_set_list =
+      _realm_set_listPtr
+          .asFunction<
+            ffi.Pointer<realm_list_t> Function(ffi.Pointer<realm_object_t>, int)
+          >();
 
   /// Install the default logger
   void realm_set_log_callback(
@@ -6195,32 +6680,36 @@ class RealmLibrary {
     ffi.Pointer<ffi.Void> userdata,
     realm_free_userdata_func_t userdata_free,
   ) {
-    return _realm_set_log_callback(
-      arg0,
-      userdata,
-      userdata_free,
-    );
+    return _realm_set_log_callback(arg0, userdata, userdata_free);
   }
 
   late final _realm_set_log_callbackPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(realm_log_func_t, ffi.Pointer<ffi.Void>,
-              realm_free_userdata_func_t)>>('realm_set_log_callback');
-  late final _realm_set_log_callback = _realm_set_log_callbackPtr.asFunction<
-      void Function(realm_log_func_t, ffi.Pointer<ffi.Void>,
-          realm_free_userdata_func_t)>();
+    ffi.NativeFunction<
+      ffi.Void Function(
+        realm_log_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_free_userdata_func_t,
+      )
+    >
+  >('realm_set_log_callback');
+  late final _realm_set_log_callback =
+      _realm_set_log_callbackPtr
+          .asFunction<
+            void Function(
+              realm_log_func_t,
+              ffi.Pointer<ffi.Void>,
+              realm_free_userdata_func_t,
+            )
+          >();
 
-  void realm_set_log_level(
-    realm_log_level arg0,
-  ) {
-    return _realm_set_log_level(
-      arg0.value,
-    );
+  void realm_set_log_level(realm_log_level arg0) {
+    return _realm_set_log_level(arg0.value);
   }
 
   late final _realm_set_log_levelPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.UnsignedInt)>>(
-          'realm_set_log_level');
+        'realm_set_log_level',
+      );
   late final _realm_set_log_level =
       _realm_set_log_levelPtr.asFunction<void Function(int)>();
 
@@ -6229,36 +6718,35 @@ class RealmLibrary {
     ffi.Pointer<ffi.Char> arg0,
     realm_log_level arg1,
   ) {
-    return realm_log_level.fromValue(_realm_set_log_level_category(
-      arg0,
-      arg1.value,
-    ));
+    return realm_log_level.fromValue(
+      _realm_set_log_level_category(arg0, arg1.value),
+    );
   }
 
   late final _realm_set_log_level_categoryPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.UnsignedInt Function(ffi.Pointer<ffi.Char>,
-              ffi.UnsignedInt)>>('realm_set_log_level_category');
-  late final _realm_set_log_level_category = _realm_set_log_level_categoryPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Char>, int)>();
+    ffi.NativeFunction<
+      ffi.UnsignedInt Function(ffi.Pointer<ffi.Char>, ffi.UnsignedInt)
+    >
+  >('realm_set_log_level_category');
+  late final _realm_set_log_level_category =
+      _realm_set_log_level_categoryPtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>, int)>();
 
   /// In a set of objects, delete all objects in the set and clear the set. In a
   /// set of values, clear the set.
   ///
   /// @return True if no exception occurred.
-  bool realm_set_remove_all(
-    ffi.Pointer<realm_set_t> arg0,
-  ) {
-    return _realm_set_remove_all(
-      arg0,
-    );
+  bool realm_set_remove_all(ffi.Pointer<realm_set_t> arg0) {
+    return _realm_set_remove_all(arg0);
   }
 
   late final _realm_set_remove_allPtr =
       _lookup<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<realm_set_t>)>>(
-          'realm_set_remove_all');
-  late final _realm_set_remove_all = _realm_set_remove_allPtr
-      .asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
+        'realm_set_remove_all',
+      );
+  late final _realm_set_remove_all =
+      _realm_set_remove_allPtr
+          .asFunction<bool Function(ffi.Pointer<realm_set_t>)>();
 
   /// Resolve the set in the context of a given Realm instance.
   ///
@@ -6273,20 +6761,27 @@ class RealmLibrary {
     ffi.Pointer<realm_t> target_realm,
     ffi.Pointer<ffi.Pointer<realm_set_t>> resolved,
   ) {
-    return _realm_set_resolve_in(
-      list,
-      target_realm,
-      resolved,
-    );
+    return _realm_set_resolve_in(list, target_realm, resolved);
   }
 
   late final _realm_set_resolve_inPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_set_t>, ffi.Pointer<realm_t>,
-              ffi.Pointer<ffi.Pointer<realm_set_t>>)>>('realm_set_resolve_in');
-  late final _realm_set_resolve_in = _realm_set_resolve_inPtr.asFunction<
-      bool Function(ffi.Pointer<realm_set_t>, ffi.Pointer<realm_t>,
-          ffi.Pointer<ffi.Pointer<realm_set_t>>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_set_t>,
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<ffi.Pointer<realm_set_t>>,
+      )
+    >
+  >('realm_set_resolve_in');
+  late final _realm_set_resolve_in =
+      _realm_set_resolve_inPtr
+          .asFunction<
+            bool Function(
+              ffi.Pointer<realm_set_t>,
+              ffi.Pointer<realm_t>,
+              ffi.Pointer<ffi.Pointer<realm_set_t>>,
+            )
+          >();
 
   /// Get the size of a set, in number of unique elements.
   ///
@@ -6298,18 +6793,19 @@ class RealmLibrary {
     ffi.Pointer<realm_set_t> arg0,
     ffi.Pointer<ffi.Size> out_size,
   ) {
-    return _realm_set_size(
-      arg0,
-      out_size,
-    );
+    return _realm_set_size(arg0, out_size);
   }
 
   late final _realm_set_sizePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_set_t>,
-              ffi.Pointer<ffi.Size>)>>('realm_set_size');
-  late final _realm_set_size = _realm_set_sizePtr.asFunction<
-      bool Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.Size>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.Size>)
+    >
+  >('realm_set_size');
+  late final _realm_set_size =
+      _realm_set_sizePtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_set_t>, ffi.Pointer<ffi.Size>)
+          >();
 
   /// Convert a set to results.
   ///
@@ -6317,17 +6813,19 @@ class RealmLibrary {
   ffi.Pointer<realm_results_t> realm_set_to_results(
     ffi.Pointer<realm_set_t> arg0,
   ) {
-    return _realm_set_to_results(
-      arg0,
-    );
+    return _realm_set_to_results(arg0);
   }
 
   late final _realm_set_to_resultsPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Pointer<realm_results_t> Function(
-              ffi.Pointer<realm_set_t>)>>('realm_set_to_results');
-  late final _realm_set_to_results = _realm_set_to_resultsPtr.asFunction<
-      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_set_t>)>();
+    ffi.NativeFunction<
+      ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_set_t>)
+    >
+  >('realm_set_to_results');
+  late final _realm_set_to_results =
+      _realm_set_to_resultsPtr
+          .asFunction<
+            ffi.Pointer<realm_results_t> Function(ffi.Pointer<realm_set_t>)
+          >();
 
   /// Set the value for a property.
   ///
@@ -6342,20 +6840,24 @@ class RealmLibrary {
     realm_value_t new_value,
     bool is_default,
   ) {
-    return _realm_set_value(
-      arg0,
-      arg1,
-      new_value,
-      is_default,
-    );
+    return _realm_set_value(arg0, arg1, new_value, is_default);
   }
 
   late final _realm_set_valuePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_object_t>, realm_property_key_t,
-              realm_value_t, ffi.Bool)>>('realm_set_value');
-  late final _realm_set_value = _realm_set_valuePtr.asFunction<
-      bool Function(ffi.Pointer<realm_object_t>, int, realm_value_t, bool)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        realm_property_key_t,
+        realm_value_t,
+        ffi.Bool,
+      )
+    >
+  >('realm_set_value');
+  late final _realm_set_value =
+      _realm_set_valuePtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_object_t>, int, realm_value_t, bool)
+          >();
 
   /// Set the values for several properties.
   ///
@@ -6388,30 +6890,31 @@ class RealmLibrary {
     ffi.Pointer<realm_value_t> values,
     bool is_default,
   ) {
-    return _realm_set_values(
-      arg0,
-      num_values,
-      properties,
-      values,
-      is_default,
-    );
+    return _realm_set_values(arg0, num_values, properties, values, is_default);
   }
 
   late final _realm_set_valuesPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_object_t>,
+        ffi.Size,
+        ffi.Pointer<realm_property_key_t>,
+        ffi.Pointer<realm_value_t>,
+        ffi.Bool,
+      )
+    >
+  >('realm_set_values');
+  late final _realm_set_values =
+      _realm_set_valuesPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_object_t>,
-              ffi.Size,
+              int,
               ffi.Pointer<realm_property_key_t>,
               ffi.Pointer<realm_value_t>,
-              ffi.Bool)>>('realm_set_values');
-  late final _realm_set_values = _realm_set_valuesPtr.asFunction<
-      bool Function(
-          ffi.Pointer<realm_object_t>,
-          int,
-          ffi.Pointer<realm_property_key_t>,
-          ffi.Pointer<realm_value_t>,
-          bool)>();
+              bool,
+            )
+          >();
 
   /// Update the schema of an open realm.
   ///
@@ -6421,18 +6924,19 @@ class RealmLibrary {
     ffi.Pointer<realm_t> realm,
     ffi.Pointer<realm_schema_t> schema,
   ) {
-    return _realm_update_schema(
-      realm,
-      schema,
-    );
+    return _realm_update_schema(realm, schema);
   }
 
   late final _realm_update_schemaPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_schema_t>)>>('realm_update_schema');
-  late final _realm_update_schema = _realm_update_schemaPtr.asFunction<
-      bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_schema_t>)>();
+    ffi.NativeFunction<
+      ffi.Bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_schema_t>)
+    >
+  >('realm_update_schema');
+  late final _realm_update_schema =
+      _realm_update_schemaPtr
+          .asFunction<
+            bool Function(ffi.Pointer<realm_t>, ffi.Pointer<realm_schema_t>)
+          >();
 
   /// Update the schema of an open realm, with options to customize certain steps
   /// of the process.
@@ -6475,19 +6979,23 @@ class RealmLibrary {
   }
 
   late final _realm_update_schema_advancedPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Bool Function(
-              ffi.Pointer<realm_t>,
-              ffi.Pointer<realm_schema_t>,
-              ffi.Uint64,
-              realm_migration_func_t,
-              ffi.Pointer<ffi.Void>,
-              realm_data_initialization_func_t,
-              ffi.Pointer<ffi.Void>,
-              ffi.Bool)>>('realm_update_schema_advanced');
+    ffi.NativeFunction<
+      ffi.Bool Function(
+        ffi.Pointer<realm_t>,
+        ffi.Pointer<realm_schema_t>,
+        ffi.Uint64,
+        realm_migration_func_t,
+        ffi.Pointer<ffi.Void>,
+        realm_data_initialization_func_t,
+        ffi.Pointer<ffi.Void>,
+        ffi.Bool,
+      )
+    >
+  >('realm_update_schema_advanced');
   late final _realm_update_schema_advanced =
-      _realm_update_schema_advancedPtr.asFunction<
-          bool Function(
+      _realm_update_schema_advancedPtr
+          .asFunction<
+            bool Function(
               ffi.Pointer<realm_t>,
               ffi.Pointer<realm_schema_t>,
               int,
@@ -6495,7 +7003,9 @@ class RealmLibrary {
               ffi.Pointer<ffi.Void>,
               realm_data_initialization_func_t,
               ffi.Pointer<ffi.Void>,
-              bool)>();
+              bool,
+            )
+          >();
 
   late final addresses = _SymbolAddresses(this);
 }
@@ -6504,142 +7014,161 @@ class _SymbolAddresses {
   final RealmLibrary _library;
   _SymbolAddresses(this._library);
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
-      get realm_dart_attach_logger => _library._realm_dart_attach_loggerPtr;
+  get realm_dart_attach_logger => _library._realm_dart_attach_loggerPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)>>
-      get realm_dart_create_scheduler =>
-          _library._realm_dart_create_schedulerPtr;
+    ffi.NativeFunction<
+      ffi.Pointer<realm_scheduler_t> Function(ffi.Uint64, Dart_Port)
+    >
+  >
+  get realm_dart_create_scheduler => _library._realm_dart_create_schedulerPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              realm_decimal128_t Function(
-                  realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_add => _library._realm_dart_decimal128_addPtr;
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_add => _library._realm_dart_decimal128_addPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Int Function(realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_compare_to =>
-          _library._realm_dart_decimal128_compare_toPtr;
+    ffi.NativeFunction<ffi.Int Function(realm_decimal128_t, realm_decimal128_t)>
+  >
+  get realm_dart_decimal128_compare_to =>
+      _library._realm_dart_decimal128_compare_toPtr;
   ffi.Pointer<
-          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>
-      get realm_dart_decimal128_copy => _library._realm_dart_decimal128_copyPtr;
+    ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>
+  >
+  get realm_dart_decimal128_copy => _library._realm_dart_decimal128_copyPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              realm_decimal128_t Function(
-                  realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_divide =>
-          _library._realm_dart_decimal128_dividePtr;
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_divide => _library._realm_dart_decimal128_dividePtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_equal =>
-          _library._realm_dart_decimal128_equalPtr;
+    ffi.NativeFunction<
+      ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_equal => _library._realm_dart_decimal128_equalPtr;
   ffi.Pointer<ffi.NativeFunction<realm_decimal128_t Function(ffi.Int64)>>
-      get realm_dart_decimal128_from_int64 =>
-          _library._realm_dart_decimal128_from_int64Ptr;
+  get realm_dart_decimal128_from_int64 =>
+      _library._realm_dart_decimal128_from_int64Ptr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>>
-      get realm_dart_decimal128_from_string =>
-          _library._realm_dart_decimal128_from_stringPtr;
+    ffi.NativeFunction<realm_decimal128_t Function(ffi.Pointer<ffi.Char>)>
+  >
+  get realm_dart_decimal128_from_string =>
+      _library._realm_dart_decimal128_from_stringPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_greater_than =>
-          _library._realm_dart_decimal128_greater_thanPtr;
+    ffi.NativeFunction<
+      ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_greater_than =>
+      _library._realm_dart_decimal128_greater_thanPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(realm_decimal128_t)>>
-      get realm_dart_decimal128_is_nan =>
-          _library._realm_dart_decimal128_is_nanPtr;
+  get realm_dart_decimal128_is_nan => _library._realm_dart_decimal128_is_nanPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_less_than =>
-          _library._realm_dart_decimal128_less_thanPtr;
+    ffi.NativeFunction<
+      ffi.Bool Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_less_than =>
+      _library._realm_dart_decimal128_less_thanPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              realm_decimal128_t Function(
-                  realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_multiply =>
-          _library._realm_dart_decimal128_multiplyPtr;
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_multiply =>
+      _library._realm_dart_decimal128_multiplyPtr;
   ffi.Pointer<ffi.NativeFunction<realm_decimal128_t Function()>>
-      get realm_dart_decimal128_nan => _library._realm_dart_decimal128_nanPtr;
+  get realm_dart_decimal128_nan => _library._realm_dart_decimal128_nanPtr;
   ffi.Pointer<
-          ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>>
-      get realm_dart_decimal128_negate =>
-          _library._realm_dart_decimal128_negatePtr;
+    ffi.NativeFunction<realm_decimal128_t Function(realm_decimal128_t)>
+  >
+  get realm_dart_decimal128_negate => _library._realm_dart_decimal128_negatePtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              realm_decimal128_t Function(
-                  realm_decimal128_t, realm_decimal128_t)>>
-      get realm_dart_decimal128_subtract =>
-          _library._realm_dart_decimal128_subtractPtr;
+    ffi.NativeFunction<
+      realm_decimal128_t Function(realm_decimal128_t, realm_decimal128_t)
+    >
+  >
+  get realm_dart_decimal128_subtract =>
+      _library._realm_dart_decimal128_subtractPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Int64 Function(realm_decimal128_t)>>
-      get realm_dart_decimal128_to_int64 =>
-          _library._realm_dart_decimal128_to_int64Ptr;
+  get realm_dart_decimal128_to_int64 =>
+      _library._realm_dart_decimal128_to_int64Ptr;
   ffi.Pointer<ffi.NativeFunction<realm_string_t Function(realm_decimal128_t)>>
-      get realm_dart_decimal128_to_string =>
-          _library._realm_dart_decimal128_to_stringPtr;
+  get realm_dart_decimal128_to_string =>
+      _library._realm_dart_decimal128_to_stringPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
-      get realm_dart_delete_persistent_handle =>
-          _library._realm_dart_delete_persistent_handlePtr;
+  get realm_dart_delete_persistent_handle =>
+      _library._realm_dart_delete_persistent_handlePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(Dart_Port)>>
-      get realm_dart_detach_logger => _library._realm_dart_detach_loggerPtr;
+  get realm_dart_detach_logger => _library._realm_dart_detach_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
-      get realm_dart_get_bundle_id => _library._realm_dart_get_bundle_idPtr;
+  get realm_dart_get_bundle_id => _library._realm_dart_get_bundle_idPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
-      get realm_dart_get_device_name => _library._realm_dart_get_device_namePtr;
+  get realm_dart_get_device_name => _library._realm_dart_get_device_namePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
-      get realm_dart_get_device_version =>
-          _library._realm_dart_get_device_versionPtr;
+  get realm_dart_get_device_version =>
+      _library._realm_dart_get_device_versionPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
-      get realm_dart_get_files_path => _library._realm_dart_get_files_pathPtr;
+  get realm_dart_get_files_path => _library._realm_dart_get_files_pathPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Uint64 Function()>>
-      get realm_dart_get_thread_id => _library._realm_dart_get_thread_idPtr;
+  get realm_dart_get_thread_id => _library._realm_dart_get_thread_idPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function()>>
-      get realm_dart_init_debug_logger =>
-          _library._realm_dart_init_debug_loggerPtr;
+  get realm_dart_init_debug_logger => _library._realm_dart_init_debug_loggerPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
-      get realm_dart_initializeDartApiDL =>
-          _library._realm_dart_initializeDartApiDLPtr;
+  get realm_dart_initializeDartApiDL =>
+      _library._realm_dart_initializeDartApiDLPtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)>>
-      get realm_dart_invoke_unlock_callback =>
-          _library._realm_dart_invoke_unlock_callbackPtr;
+    ffi.NativeFunction<
+      ffi.Void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>)
+    >
+  >
+  get realm_dart_invoke_unlock_callback =>
+      _library._realm_dart_invoke_unlock_callbackPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>
-      get realm_dart_library_version => _library._realm_dart_library_versionPtr;
+  get realm_dart_library_version => _library._realm_dart_library_versionPtr;
   ffi.Pointer<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.UnsignedInt, ffi.Pointer<ffi.Char>,
-              ffi.Pointer<ffi.Char>)>> get realm_dart_log =>
-      _library._realm_dart_logPtr;
+    ffi.NativeFunction<
+      ffi.Void Function(
+        ffi.UnsignedInt,
+        ffi.Pointer<ffi.Char>,
+        ffi.Pointer<ffi.Char>,
+      )
+    >
+  >
+  get realm_dart_log => _library._realm_dart_logPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Handle)>>
-      get realm_dart_object_to_persistent_handle =>
-          _library._realm_dart_object_to_persistent_handlePtr;
+  get realm_dart_object_to_persistent_handle =>
+      _library._realm_dart_object_to_persistent_handlePtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Handle Function(ffi.Pointer<ffi.Void>)>>
-      get realm_dart_persistent_handle_to_object =>
-          _library._realm_dart_persistent_handle_to_objectPtr;
+  get realm_dart_persistent_handle_to_object =>
+      _library._realm_dart_persistent_handle_to_objectPtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>>
-      get realm_dart_scheduler_invoke =>
-          _library._realm_dart_scheduler_invokePtr;
+    ffi.NativeFunction<ffi.Void Function(ffi.Uint64, ffi.Pointer<ffi.Void>)>
+  >
+  get realm_dart_scheduler_invoke => _library._realm_dart_scheduler_invokePtr;
   ffi.Pointer<
-          ffi
-          .NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>>
-      get realm_dart_set_and_get_rlimit =>
-          _library._realm_dart_set_and_get_rlimitPtr;
+    ffi.NativeFunction<ffi.Bool Function(ffi.Long, ffi.Pointer<ffi.Long>)>
+  >
+  get realm_dart_set_and_get_rlimit =>
+      _library._realm_dart_set_and_get_rlimitPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
-      get realm_dart_userdata_async_free =>
-          _library._realm_dart_userdata_async_freePtr;
+  get realm_dart_userdata_async_free =>
+      _library._realm_dart_userdata_async_freePtr;
   ffi.Pointer<
-          ffi.NativeFunction<
-              realm_dart_userdata_async_t Function(ffi.Handle,
-                  ffi.Pointer<ffi.Void>, ffi.Pointer<realm_scheduler_t>)>>
-      get realm_dart_userdata_async_new =>
-          _library._realm_dart_userdata_async_newPtr;
+    ffi.NativeFunction<
+      realm_dart_userdata_async_t Function(
+        ffi.Handle,
+        ffi.Pointer<ffi.Void>,
+        ffi.Pointer<realm_scheduler_t>,
+      )
+    >
+  >
+  get realm_dart_userdata_async_new =>
+      _library._realm_dart_userdata_async_newPtr;
   ffi.Pointer<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>
-      get realm_release => _library._realm_releasePtr;
+  get realm_release => _library._realm_releasePtr;
 }
 
 /// A port is used to send or receive inter-isolate messages
@@ -6677,18 +7206,26 @@ final class UnnamedUnion1 extends ffi.Union {
   external ffi.Array<ffi.Char> data;
 }
 
-typedef realm_async_begin_write_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_async_begin_write_func_tFunction>>;
-typedef realm_async_begin_write_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_async_begin_write_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef realm_async_commit_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_async_commit_func_tFunction>>;
-typedef realm_async_commit_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Bool error, ffi.Pointer<ffi.Char> desc);
-typedef Dartrealm_async_commit_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, bool error, ffi.Pointer<ffi.Char> desc);
+typedef realm_async_begin_write_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_async_begin_write_func_tFunction>>;
+typedef realm_async_begin_write_func_tFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_async_begin_write_func_tFunction =
+    void Function(ffi.Pointer<ffi.Void> userdata);
+typedef realm_async_commit_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_async_commit_func_tFunction>>;
+typedef realm_async_commit_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Bool error,
+      ffi.Pointer<ffi.Char> desc,
+    );
+typedef Dartrealm_async_commit_func_tFunction =
+    void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      bool error,
+      ffi.Pointer<ffi.Char> desc,
+    );
 
 final class realm_async_error extends ffi.Opaque {}
 
@@ -6718,12 +7255,12 @@ enum realm_class_flags {
   const realm_class_flags(this.value);
 
   static realm_class_flags fromValue(int value) => switch (value) {
-        0 => RLM_CLASS_NORMAL,
-        1 => RLM_CLASS_EMBEDDED,
-        2 => RLM_CLASS_ASYMMETRIC,
-        3 => RLM_CLASS_MASK,
-        _ => throw ArgumentError("Unknown value for realm_class_flags: $value"),
-      };
+    0 => RLM_CLASS_NORMAL,
+    1 => RLM_CLASS_EMBEDDED,
+    2 => RLM_CLASS_ASYMMETRIC,
+    3 => RLM_CLASS_MASK,
+    _ => throw ArgumentError("Unknown value for realm_class_flags: $value"),
+  };
 }
 
 final class realm_class_info extends ffi.Struct {
@@ -6774,13 +7311,12 @@ enum realm_collection_type {
   const realm_collection_type(this.value);
 
   static realm_collection_type fromValue(int value) => switch (value) {
-        0 => RLM_COLLECTION_TYPE_NONE,
-        1 => RLM_COLLECTION_TYPE_LIST,
-        2 => RLM_COLLECTION_TYPE_SET,
-        4 => RLM_COLLECTION_TYPE_DICTIONARY,
-        _ => throw ArgumentError(
-            "Unknown value for realm_collection_type: $value"),
-      };
+    0 => RLM_COLLECTION_TYPE_NONE,
+    1 => RLM_COLLECTION_TYPE_LIST,
+    2 => RLM_COLLECTION_TYPE_SET,
+    4 => RLM_COLLECTION_TYPE_DICTIONARY,
+    _ => throw ArgumentError("Unknown value for realm_collection_type: $value"),
+  };
 }
 
 /// Schema types
@@ -6800,17 +7336,17 @@ enum realm_column_attr {
   const realm_column_attr(this.value);
 
   static realm_column_attr fromValue(int value) => switch (value) {
-        0 => RLM_COLUMN_ATTR_NONE,
-        1 => RLM_COLUMN_ATTR_INDEXED,
-        2 => RLM_COLUMN_ATTR_UNIQUE,
-        4 => RLM_COLUMN_ATTR_RESERVED,
-        8 => RLM_COLUMN_ATTR_STRONG_LINKS,
-        16 => RLM_COLUMN_ATTR_NULLABLE,
-        32 => RLM_COLUMN_ATTR_LIST,
-        64 => RLM_COLUMN_ATTR_DICTIONARY,
-        96 => RLM_COLUMN_ATTR_COLLECTION,
-        _ => throw ArgumentError("Unknown value for realm_column_attr: $value"),
-      };
+    0 => RLM_COLUMN_ATTR_NONE,
+    1 => RLM_COLUMN_ATTR_INDEXED,
+    2 => RLM_COLUMN_ATTR_UNIQUE,
+    4 => RLM_COLUMN_ATTR_RESERVED,
+    8 => RLM_COLUMN_ATTR_STRONG_LINKS,
+    16 => RLM_COLUMN_ATTR_NULLABLE,
+    32 => RLM_COLUMN_ATTR_LIST,
+    64 => RLM_COLUMN_ATTR_DICTIONARY,
+    96 => RLM_COLUMN_ATTR_COLLECTION,
+    _ => throw ArgumentError("Unknown value for realm_column_attr: $value"),
+  };
 }
 
 final class realm_config extends ffi.Opaque {}
@@ -6821,12 +7357,15 @@ typedef realm_config_t = realm_config;
 final class realm_dart_userdata_async extends ffi.Opaque {}
 
 typedef realm_dart_userdata_async_t = ffi.Pointer<realm_dart_userdata_async>;
-typedef realm_data_initialization_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_data_initialization_func_tFunction>>;
-typedef realm_data_initialization_func_tFunction = ffi.Bool Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_t> realm);
-typedef Dartrealm_data_initialization_func_tFunction = bool Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_t> realm);
+typedef realm_data_initialization_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_data_initialization_func_tFunction>>;
+typedef realm_data_initialization_func_tFunction =
+    ffi.Bool Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_t> realm,
+    );
+typedef Dartrealm_data_initialization_func_tFunction =
+    bool Function(ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_t> realm);
 
 final class realm_decimal128 extends ffi.Struct {
   @ffi.Array.multi([2])
@@ -7015,171 +7554,171 @@ enum realm_errno {
   const realm_errno(this.value);
 
   static realm_errno fromValue(int value) => switch (value) {
-        0 => RLM_ERR_NONE,
-        1000 => RLM_ERR_RUNTIME,
-        1001 => RLM_ERR_RANGE_ERROR,
-        1002 => RLM_ERR_BROKEN_INVARIANT,
-        1003 => RLM_ERR_OUT_OF_MEMORY,
-        1004 => RLM_ERR_OUT_OF_DISK_SPACE,
-        1005 => RLM_ERR_ADDRESS_SPACE_EXHAUSTED,
-        1006 => RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED,
-        1007 => RLM_ERR_INCOMPATIBLE_SESSION,
-        1008 => RLM_ERR_INCOMPATIBLE_LOCK_FILE,
-        1009 => RLM_ERR_INVALID_QUERY,
-        1010 => RLM_ERR_BAD_VERSION,
-        1011 => RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION,
-        1012 => RLM_ERR_MULTIPLE_SYNC_AGENTS,
-        1013 => RLM_ERR_OBJECT_ALREADY_EXISTS,
-        1014 => RLM_ERR_NOT_CLONABLE,
-        1015 => RLM_ERR_BAD_CHANGESET,
-        1016 => RLM_ERR_SUBSCRIPTION_FAILED,
-        1017 => RLM_ERR_FILE_OPERATION_FAILED,
-        1018 => RLM_ERR_FILE_PERMISSION_DENIED,
-        1019 => RLM_ERR_FILE_NOT_FOUND,
-        1020 => RLM_ERR_FILE_ALREADY_EXISTS,
-        1021 => RLM_ERR_INVALID_DATABASE,
-        1022 => RLM_ERR_DECRYPTION_FAILED,
-        1023 => RLM_ERR_INCOMPATIBLE_HISTORIES,
-        1024 => RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED,
-        1025 => RLM_ERR_SCHEMA_VERSION_MISMATCH,
-        1026 => RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE,
-        1027 => RLM_ERR_OPERATION_ABORTED,
-        1028 => RLM_ERR_AUTO_CLIENT_RESET_FAILED,
-        1029 => RLM_ERR_BAD_SYNC_PARTITION_VALUE,
-        1030 => RLM_ERR_CONNECTION_CLOSED,
-        1031 => RLM_ERR_INVALID_SUBSCRIPTION_QUERY,
-        1032 => RLM_ERR_SYNC_CLIENT_RESET_REQUIRED,
-        1033 => RLM_ERR_SYNC_COMPENSATING_WRITE,
-        1034 => RLM_ERR_SYNC_CONNECT_FAILED,
-        1035 => RLM_ERR_SYNC_CONNECT_TIMEOUT,
-        1036 => RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE,
-        1037 => RLM_ERR_SYNC_PERMISSION_DENIED,
-        1038 => RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED,
-        1039 => RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED,
-        1040 => RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED,
-        1041 => RLM_ERR_SYNC_USER_MISMATCH,
-        1042 => RLM_ERR_TLS_HANDSHAKE_FAILED,
-        1043 => RLM_ERR_WRONG_SYNC_TYPE,
-        1044 => RLM_ERR_SYNC_WRITE_NOT_ALLOWED,
-        1045 => RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH,
-        1046 => RLM_ERR_SYNC_SCHEMA_MIGRATION_ERROR,
-        1999 => RLM_ERR_SYSTEM_ERROR,
-        2000 => RLM_ERR_LOGIC,
-        2001 => RLM_ERR_NOT_SUPPORTED,
-        2002 => RLM_ERR_BROKEN_PROMISE,
-        2003 => RLM_ERR_CROSS_TABLE_LINK_TARGET,
-        2004 => RLM_ERR_KEY_ALREADY_USED,
-        2005 => RLM_ERR_WRONG_TRANSACTION_STATE,
-        2006 => RLM_ERR_WRONG_THREAD,
-        2007 => RLM_ERR_ILLEGAL_OPERATION,
-        2008 => RLM_ERR_SERIALIZATION_ERROR,
-        2009 => RLM_ERR_STALE_ACCESSOR,
-        2010 => RLM_ERR_INVALIDATED_OBJECT,
-        2011 => RLM_ERR_READ_ONLY_DB,
-        2012 => RLM_ERR_DELETE_OPENED_REALM,
-        2013 => RLM_ERR_MISMATCHED_CONFIG,
-        2014 => RLM_ERR_CLOSED_REALM,
-        2015 => RLM_ERR_INVALID_TABLE_REF,
-        2016 => RLM_ERR_SCHEMA_VALIDATION_FAILED,
-        2017 => RLM_ERR_SCHEMA_MISMATCH,
-        2018 => RLM_ERR_INVALID_SCHEMA_VERSION,
-        2019 => RLM_ERR_INVALID_SCHEMA_CHANGE,
-        2020 => RLM_ERR_MIGRATION_FAILED,
-        2021 => RLM_ERR_TOP_LEVEL_OBJECT,
-        3000 => RLM_ERR_INVALID_ARGUMENT,
-        3001 => RLM_ERR_PROPERTY_TYPE_MISMATCH,
-        3002 => RLM_ERR_PROPERTY_NOT_NULLABLE,
-        3003 => RLM_ERR_READ_ONLY_PROPERTY,
-        3004 => RLM_ERR_MISSING_PROPERTY_VALUE,
-        3005 => RLM_ERR_MISSING_PRIMARY_KEY,
-        3006 => RLM_ERR_UNEXPECTED_PRIMARY_KEY,
-        3007 => RLM_ERR_MODIFY_PRIMARY_KEY,
-        3008 => RLM_ERR_INVALID_QUERY_STRING,
-        3009 => RLM_ERR_INVALID_PROPERTY,
-        3010 => RLM_ERR_INVALID_NAME,
-        3011 => RLM_ERR_INVALID_DICTIONARY_KEY,
-        3012 => RLM_ERR_INVALID_DICTIONARY_VALUE,
-        3013 => RLM_ERR_INVALID_SORT_DESCRIPTOR,
-        3014 => RLM_ERR_INVALID_ENCRYPTION_KEY,
-        3015 => RLM_ERR_INVALID_QUERY_ARG,
-        3016 => RLM_ERR_NO_SUCH_OBJECT,
-        3017 => RLM_ERR_INDEX_OUT_OF_BOUNDS,
-        3018 => RLM_ERR_LIMIT_EXCEEDED,
-        3019 => RLM_ERR_OBJECT_TYPE_MISMATCH,
-        3020 => RLM_ERR_NO_SUCH_TABLE,
-        3021 => RLM_ERR_TABLE_NAME_IN_USE,
-        3022 => RLM_ERR_ILLEGAL_COMBINATION,
-        3023 => RLM_ERR_BAD_SERVER_URL,
-        4000 => RLM_ERR_CUSTOM_ERROR,
-        4100 => RLM_ERR_CLIENT_USER_NOT_FOUND,
-        4101 => RLM_ERR_CLIENT_USER_NOT_LOGGED_IN,
-        4103 => RLM_ERR_CLIENT_REDIRECT_ERROR,
-        4104 => RLM_ERR_CLIENT_TOO_MANY_REDIRECTS,
-        4105 => RLM_ERR_CLIENT_USER_ALREADY_NAMED,
-        4200 => RLM_ERR_BAD_TOKEN,
-        4201 => RLM_ERR_MALFORMED_JSON,
-        4202 => RLM_ERR_MISSING_JSON_KEY,
-        4203 => RLM_ERR_BAD_BSON_PARSE,
-        4300 => RLM_ERR_MISSING_AUTH_REQ,
-        4301 => RLM_ERR_INVALID_SESSION,
-        4302 => RLM_ERR_USER_APP_DOMAIN_MISMATCH,
-        4303 => RLM_ERR_DOMAIN_NOT_ALLOWED,
-        4304 => RLM_ERR_READ_SIZE_LIMIT_EXCEEDED,
-        4305 => RLM_ERR_INVALID_PARAMETER,
-        4306 => RLM_ERR_MISSING_PARAMETER,
-        4307 => RLM_ERR_TWILIO_ERROR,
-        4308 => RLM_ERR_GCM_ERROR,
-        4309 => RLM_ERR_HTTP_ERROR,
-        4310 => RLM_ERR_AWS_ERROR,
-        4311 => RLM_ERR_MONGODB_ERROR,
-        4312 => RLM_ERR_ARGUMENTS_NOT_ALLOWED,
-        4313 => RLM_ERR_FUNCTION_EXECUTION_ERROR,
-        4314 => RLM_ERR_NO_MATCHING_RULE_FOUND,
-        4315 => RLM_ERR_INTERNAL_SERVER_ERROR,
-        4316 => RLM_ERR_AUTH_PROVIDER_NOT_FOUND,
-        4317 => RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS,
-        4318 => RLM_ERR_SERVICE_NOT_FOUND,
-        4319 => RLM_ERR_SERVICE_TYPE_NOT_FOUND,
-        4320 => RLM_ERR_SERVICE_ALREADY_EXISTS,
-        4321 => RLM_ERR_SERVICE_COMMAND_NOT_FOUND,
-        4322 => RLM_ERR_VALUE_NOT_FOUND,
-        4323 => RLM_ERR_VALUE_ALREADY_EXISTS,
-        4324 => RLM_ERR_VALUE_DUPLICATE_NAME,
-        4325 => RLM_ERR_FUNCTION_NOT_FOUND,
-        4326 => RLM_ERR_FUNCTION_ALREADY_EXISTS,
-        4327 => RLM_ERR_FUNCTION_DUPLICATE_NAME,
-        4328 => RLM_ERR_FUNCTION_SYNTAX_ERROR,
-        4329 => RLM_ERR_FUNCTION_INVALID,
-        4330 => RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND,
-        4331 => RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS,
-        4332 => RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME,
-        4333 => RLM_ERR_RULE_NOT_FOUND,
-        4334 => RLM_ERR_API_KEY_NOT_FOUND,
-        4335 => RLM_ERR_RULE_ALREADY_EXISTS,
-        4336 => RLM_ERR_RULE_DUPLICATE_NAME,
-        4337 => RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME,
-        4338 => RLM_ERR_RESTRICTED_HOST,
-        4339 => RLM_ERR_API_KEY_ALREADY_EXISTS,
-        4340 => RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED,
-        4341 => RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED,
-        4342 => RLM_ERR_NOT_CALLABLE,
-        4343 => RLM_ERR_USER_ALREADY_CONFIRMED,
-        4344 => RLM_ERR_USER_NOT_FOUND,
-        4345 => RLM_ERR_USER_DISABLED,
-        4346 => RLM_ERR_AUTH_ERROR,
-        4347 => RLM_ERR_BAD_REQUEST,
-        4348 => RLM_ERR_ACCOUNT_NAME_IN_USE,
-        4349 => RLM_ERR_INVALID_PASSWORD,
-        4350 => RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE,
-        4351 => RLM_ERR_APP_UNKNOWN,
-        4352 => RLM_ERR_MAINTENANCE_IN_PROGRESS,
-        4353 => RLM_ERR_USERPASS_TOKEN_INVALID,
-        4354 => RLM_ERR_INVALID_SERVER_RESPONSE,
-        4355 => RLM_ERR_APP_SERVER_ERROR,
-        1000000 => RLM_ERR_CALLBACK,
-        2000000 => RLM_ERR_UNKNOWN,
-        _ => throw ArgumentError("Unknown value for realm_errno: $value"),
-      };
+    0 => RLM_ERR_NONE,
+    1000 => RLM_ERR_RUNTIME,
+    1001 => RLM_ERR_RANGE_ERROR,
+    1002 => RLM_ERR_BROKEN_INVARIANT,
+    1003 => RLM_ERR_OUT_OF_MEMORY,
+    1004 => RLM_ERR_OUT_OF_DISK_SPACE,
+    1005 => RLM_ERR_ADDRESS_SPACE_EXHAUSTED,
+    1006 => RLM_ERR_MAXIMUM_FILE_SIZE_EXCEEDED,
+    1007 => RLM_ERR_INCOMPATIBLE_SESSION,
+    1008 => RLM_ERR_INCOMPATIBLE_LOCK_FILE,
+    1009 => RLM_ERR_INVALID_QUERY,
+    1010 => RLM_ERR_BAD_VERSION,
+    1011 => RLM_ERR_UNSUPPORTED_FILE_FORMAT_VERSION,
+    1012 => RLM_ERR_MULTIPLE_SYNC_AGENTS,
+    1013 => RLM_ERR_OBJECT_ALREADY_EXISTS,
+    1014 => RLM_ERR_NOT_CLONABLE,
+    1015 => RLM_ERR_BAD_CHANGESET,
+    1016 => RLM_ERR_SUBSCRIPTION_FAILED,
+    1017 => RLM_ERR_FILE_OPERATION_FAILED,
+    1018 => RLM_ERR_FILE_PERMISSION_DENIED,
+    1019 => RLM_ERR_FILE_NOT_FOUND,
+    1020 => RLM_ERR_FILE_ALREADY_EXISTS,
+    1021 => RLM_ERR_INVALID_DATABASE,
+    1022 => RLM_ERR_DECRYPTION_FAILED,
+    1023 => RLM_ERR_INCOMPATIBLE_HISTORIES,
+    1024 => RLM_ERR_FILE_FORMAT_UPGRADE_REQUIRED,
+    1025 => RLM_ERR_SCHEMA_VERSION_MISMATCH,
+    1026 => RLM_ERR_NO_SUBSCRIPTION_FOR_WRITE,
+    1027 => RLM_ERR_OPERATION_ABORTED,
+    1028 => RLM_ERR_AUTO_CLIENT_RESET_FAILED,
+    1029 => RLM_ERR_BAD_SYNC_PARTITION_VALUE,
+    1030 => RLM_ERR_CONNECTION_CLOSED,
+    1031 => RLM_ERR_INVALID_SUBSCRIPTION_QUERY,
+    1032 => RLM_ERR_SYNC_CLIENT_RESET_REQUIRED,
+    1033 => RLM_ERR_SYNC_COMPENSATING_WRITE,
+    1034 => RLM_ERR_SYNC_CONNECT_FAILED,
+    1035 => RLM_ERR_SYNC_CONNECT_TIMEOUT,
+    1036 => RLM_ERR_SYNC_INVALID_SCHEMA_CHANGE,
+    1037 => RLM_ERR_SYNC_PERMISSION_DENIED,
+    1038 => RLM_ERR_SYNC_PROTOCOL_INVARIANT_FAILED,
+    1039 => RLM_ERR_SYNC_PROTOCOL_NEGOTIATION_FAILED,
+    1040 => RLM_ERR_SYNC_SERVER_PERMISSIONS_CHANGED,
+    1041 => RLM_ERR_SYNC_USER_MISMATCH,
+    1042 => RLM_ERR_TLS_HANDSHAKE_FAILED,
+    1043 => RLM_ERR_WRONG_SYNC_TYPE,
+    1044 => RLM_ERR_SYNC_WRITE_NOT_ALLOWED,
+    1045 => RLM_ERR_SYNC_LOCAL_CLOCK_BEFORE_EPOCH,
+    1046 => RLM_ERR_SYNC_SCHEMA_MIGRATION_ERROR,
+    1999 => RLM_ERR_SYSTEM_ERROR,
+    2000 => RLM_ERR_LOGIC,
+    2001 => RLM_ERR_NOT_SUPPORTED,
+    2002 => RLM_ERR_BROKEN_PROMISE,
+    2003 => RLM_ERR_CROSS_TABLE_LINK_TARGET,
+    2004 => RLM_ERR_KEY_ALREADY_USED,
+    2005 => RLM_ERR_WRONG_TRANSACTION_STATE,
+    2006 => RLM_ERR_WRONG_THREAD,
+    2007 => RLM_ERR_ILLEGAL_OPERATION,
+    2008 => RLM_ERR_SERIALIZATION_ERROR,
+    2009 => RLM_ERR_STALE_ACCESSOR,
+    2010 => RLM_ERR_INVALIDATED_OBJECT,
+    2011 => RLM_ERR_READ_ONLY_DB,
+    2012 => RLM_ERR_DELETE_OPENED_REALM,
+    2013 => RLM_ERR_MISMATCHED_CONFIG,
+    2014 => RLM_ERR_CLOSED_REALM,
+    2015 => RLM_ERR_INVALID_TABLE_REF,
+    2016 => RLM_ERR_SCHEMA_VALIDATION_FAILED,
+    2017 => RLM_ERR_SCHEMA_MISMATCH,
+    2018 => RLM_ERR_INVALID_SCHEMA_VERSION,
+    2019 => RLM_ERR_INVALID_SCHEMA_CHANGE,
+    2020 => RLM_ERR_MIGRATION_FAILED,
+    2021 => RLM_ERR_TOP_LEVEL_OBJECT,
+    3000 => RLM_ERR_INVALID_ARGUMENT,
+    3001 => RLM_ERR_PROPERTY_TYPE_MISMATCH,
+    3002 => RLM_ERR_PROPERTY_NOT_NULLABLE,
+    3003 => RLM_ERR_READ_ONLY_PROPERTY,
+    3004 => RLM_ERR_MISSING_PROPERTY_VALUE,
+    3005 => RLM_ERR_MISSING_PRIMARY_KEY,
+    3006 => RLM_ERR_UNEXPECTED_PRIMARY_KEY,
+    3007 => RLM_ERR_MODIFY_PRIMARY_KEY,
+    3008 => RLM_ERR_INVALID_QUERY_STRING,
+    3009 => RLM_ERR_INVALID_PROPERTY,
+    3010 => RLM_ERR_INVALID_NAME,
+    3011 => RLM_ERR_INVALID_DICTIONARY_KEY,
+    3012 => RLM_ERR_INVALID_DICTIONARY_VALUE,
+    3013 => RLM_ERR_INVALID_SORT_DESCRIPTOR,
+    3014 => RLM_ERR_INVALID_ENCRYPTION_KEY,
+    3015 => RLM_ERR_INVALID_QUERY_ARG,
+    3016 => RLM_ERR_NO_SUCH_OBJECT,
+    3017 => RLM_ERR_INDEX_OUT_OF_BOUNDS,
+    3018 => RLM_ERR_LIMIT_EXCEEDED,
+    3019 => RLM_ERR_OBJECT_TYPE_MISMATCH,
+    3020 => RLM_ERR_NO_SUCH_TABLE,
+    3021 => RLM_ERR_TABLE_NAME_IN_USE,
+    3022 => RLM_ERR_ILLEGAL_COMBINATION,
+    3023 => RLM_ERR_BAD_SERVER_URL,
+    4000 => RLM_ERR_CUSTOM_ERROR,
+    4100 => RLM_ERR_CLIENT_USER_NOT_FOUND,
+    4101 => RLM_ERR_CLIENT_USER_NOT_LOGGED_IN,
+    4103 => RLM_ERR_CLIENT_REDIRECT_ERROR,
+    4104 => RLM_ERR_CLIENT_TOO_MANY_REDIRECTS,
+    4105 => RLM_ERR_CLIENT_USER_ALREADY_NAMED,
+    4200 => RLM_ERR_BAD_TOKEN,
+    4201 => RLM_ERR_MALFORMED_JSON,
+    4202 => RLM_ERR_MISSING_JSON_KEY,
+    4203 => RLM_ERR_BAD_BSON_PARSE,
+    4300 => RLM_ERR_MISSING_AUTH_REQ,
+    4301 => RLM_ERR_INVALID_SESSION,
+    4302 => RLM_ERR_USER_APP_DOMAIN_MISMATCH,
+    4303 => RLM_ERR_DOMAIN_NOT_ALLOWED,
+    4304 => RLM_ERR_READ_SIZE_LIMIT_EXCEEDED,
+    4305 => RLM_ERR_INVALID_PARAMETER,
+    4306 => RLM_ERR_MISSING_PARAMETER,
+    4307 => RLM_ERR_TWILIO_ERROR,
+    4308 => RLM_ERR_GCM_ERROR,
+    4309 => RLM_ERR_HTTP_ERROR,
+    4310 => RLM_ERR_AWS_ERROR,
+    4311 => RLM_ERR_MONGODB_ERROR,
+    4312 => RLM_ERR_ARGUMENTS_NOT_ALLOWED,
+    4313 => RLM_ERR_FUNCTION_EXECUTION_ERROR,
+    4314 => RLM_ERR_NO_MATCHING_RULE_FOUND,
+    4315 => RLM_ERR_INTERNAL_SERVER_ERROR,
+    4316 => RLM_ERR_AUTH_PROVIDER_NOT_FOUND,
+    4317 => RLM_ERR_AUTH_PROVIDER_ALREADY_EXISTS,
+    4318 => RLM_ERR_SERVICE_NOT_FOUND,
+    4319 => RLM_ERR_SERVICE_TYPE_NOT_FOUND,
+    4320 => RLM_ERR_SERVICE_ALREADY_EXISTS,
+    4321 => RLM_ERR_SERVICE_COMMAND_NOT_FOUND,
+    4322 => RLM_ERR_VALUE_NOT_FOUND,
+    4323 => RLM_ERR_VALUE_ALREADY_EXISTS,
+    4324 => RLM_ERR_VALUE_DUPLICATE_NAME,
+    4325 => RLM_ERR_FUNCTION_NOT_FOUND,
+    4326 => RLM_ERR_FUNCTION_ALREADY_EXISTS,
+    4327 => RLM_ERR_FUNCTION_DUPLICATE_NAME,
+    4328 => RLM_ERR_FUNCTION_SYNTAX_ERROR,
+    4329 => RLM_ERR_FUNCTION_INVALID,
+    4330 => RLM_ERR_INCOMING_WEBHOOK_NOT_FOUND,
+    4331 => RLM_ERR_INCOMING_WEBHOOK_ALREADY_EXISTS,
+    4332 => RLM_ERR_INCOMING_WEBHOOK_DUPLICATE_NAME,
+    4333 => RLM_ERR_RULE_NOT_FOUND,
+    4334 => RLM_ERR_API_KEY_NOT_FOUND,
+    4335 => RLM_ERR_RULE_ALREADY_EXISTS,
+    4336 => RLM_ERR_RULE_DUPLICATE_NAME,
+    4337 => RLM_ERR_AUTH_PROVIDER_DUPLICATE_NAME,
+    4338 => RLM_ERR_RESTRICTED_HOST,
+    4339 => RLM_ERR_API_KEY_ALREADY_EXISTS,
+    4340 => RLM_ERR_INCOMING_WEBHOOK_AUTH_FAILED,
+    4341 => RLM_ERR_EXECUTION_TIME_LIMIT_EXCEEDED,
+    4342 => RLM_ERR_NOT_CALLABLE,
+    4343 => RLM_ERR_USER_ALREADY_CONFIRMED,
+    4344 => RLM_ERR_USER_NOT_FOUND,
+    4345 => RLM_ERR_USER_DISABLED,
+    4346 => RLM_ERR_AUTH_ERROR,
+    4347 => RLM_ERR_BAD_REQUEST,
+    4348 => RLM_ERR_ACCOUNT_NAME_IN_USE,
+    4349 => RLM_ERR_INVALID_PASSWORD,
+    4350 => RLM_ERR_SCHEMA_VALIDATION_FAILED_WRITE,
+    4351 => RLM_ERR_APP_UNKNOWN,
+    4352 => RLM_ERR_MAINTENANCE_IN_PROGRESS,
+    4353 => RLM_ERR_USERPASS_TOKEN_INVALID,
+    4354 => RLM_ERR_INVALID_SERVER_RESPONSE,
+    4355 => RLM_ERR_APP_SERVER_ERROR,
+    1000000 => RLM_ERR_CALLBACK,
+    2000000 => RLM_ERR_UNKNOWN,
+    _ => throw ArgumentError("Unknown value for realm_errno: $value"),
+  };
 }
 
 final class realm_error extends ffi.Struct {
@@ -7201,12 +7740,12 @@ final class realm_error extends ffi.Struct {
 typedef realm_error_categories = ffi.UnsignedInt;
 typedef Dartrealm_error_categories = int;
 typedef realm_error_t = realm_error;
-typedef realm_free_userdata_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_free_userdata_func_tFunction>>;
-typedef realm_free_userdata_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_free_userdata_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata);
+typedef realm_free_userdata_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_free_userdata_func_tFunction>>;
+typedef realm_free_userdata_func_tFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_free_userdata_func_tFunction =
+    void Function(ffi.Pointer<ffi.Void> userdata);
 
 final class realm_index_range extends ffi.Struct {
   @ffi.Size()
@@ -7235,18 +7774,22 @@ typedef realm_link_t = realm_link;
 final class realm_list extends ffi.Opaque {}
 
 typedef realm_list_t = realm_list;
-typedef realm_log_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_log_func_tFunction>>;
-typedef realm_log_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<ffi.Char> category,
-    ffi.UnsignedInt level,
-    ffi.Pointer<ffi.Char> message);
-typedef Dartrealm_log_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<ffi.Char> category,
-    realm_log_level level,
-    ffi.Pointer<ffi.Char> message);
+typedef realm_log_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_log_func_tFunction>>;
+typedef realm_log_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<ffi.Char> category,
+      ffi.UnsignedInt level,
+      ffi.Pointer<ffi.Char> message,
+    );
+typedef Dartrealm_log_func_tFunction =
+    void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<ffi.Char> category,
+      realm_log_level level,
+      ffi.Pointer<ffi.Char> message,
+    );
 
 /// Logging */
 /// // equivalent to realm::util::Logger::Level in util/logger.hpp and must be kept in sync.
@@ -7265,31 +7808,35 @@ enum realm_log_level {
   const realm_log_level(this.value);
 
   static realm_log_level fromValue(int value) => switch (value) {
-        0 => RLM_LOG_LEVEL_ALL,
-        1 => RLM_LOG_LEVEL_TRACE,
-        2 => RLM_LOG_LEVEL_DEBUG,
-        3 => RLM_LOG_LEVEL_DETAIL,
-        4 => RLM_LOG_LEVEL_INFO,
-        5 => RLM_LOG_LEVEL_WARNING,
-        6 => RLM_LOG_LEVEL_ERROR,
-        7 => RLM_LOG_LEVEL_FATAL,
-        8 => RLM_LOG_LEVEL_OFF,
-        _ => throw ArgumentError("Unknown value for realm_log_level: $value"),
-      };
+    0 => RLM_LOG_LEVEL_ALL,
+    1 => RLM_LOG_LEVEL_TRACE,
+    2 => RLM_LOG_LEVEL_DEBUG,
+    3 => RLM_LOG_LEVEL_DETAIL,
+    4 => RLM_LOG_LEVEL_INFO,
+    5 => RLM_LOG_LEVEL_WARNING,
+    6 => RLM_LOG_LEVEL_ERROR,
+    7 => RLM_LOG_LEVEL_FATAL,
+    8 => RLM_LOG_LEVEL_OFF,
+    _ => throw ArgumentError("Unknown value for realm_log_level: $value"),
+  };
 }
 
-typedef realm_migration_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_migration_func_tFunction>>;
-typedef realm_migration_func_tFunction = ffi.Bool Function(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_t> old_realm,
-    ffi.Pointer<realm_t> new_realm,
-    ffi.Pointer<realm_schema_t> schema);
-typedef Dartrealm_migration_func_tFunction = bool Function(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Pointer<realm_t> old_realm,
-    ffi.Pointer<realm_t> new_realm,
-    ffi.Pointer<realm_schema_t> schema);
+typedef realm_migration_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_migration_func_tFunction>>;
+typedef realm_migration_func_tFunction =
+    ffi.Bool Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_t> old_realm,
+      ffi.Pointer<realm_t> new_realm,
+      ffi.Pointer<realm_schema_t> schema,
+    );
+typedef Dartrealm_migration_func_tFunction =
+    bool Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_t> old_realm,
+      ffi.Pointer<realm_t> new_realm,
+      ffi.Pointer<realm_schema_t> schema,
+    );
 
 final class realm_notification_token extends ffi.Opaque {}
 
@@ -7313,47 +7860,68 @@ typedef Dartrealm_object_key_t = int;
 
 /// Accessor types
 typedef realm_object_t = realm_object;
-typedef realm_on_collection_change_func_t = ffi
-    .Pointer<ffi.NativeFunction<realm_on_collection_change_func_tFunction>>;
-typedef realm_on_collection_change_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void>, ffi.Pointer<realm_collection_changes_t>);
-typedef Dartrealm_on_collection_change_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void>, ffi.Pointer<realm_collection_changes_t>);
-typedef realm_on_dictionary_change_func_t = ffi
-    .Pointer<ffi.NativeFunction<realm_on_dictionary_change_func_tFunction>>;
-typedef realm_on_dictionary_change_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void>, ffi.Pointer<realm_dictionary_changes_t>);
-typedef Dartrealm_on_dictionary_change_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void>, ffi.Pointer<realm_dictionary_changes_t>);
-typedef realm_on_object_change_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_on_object_change_func_tFunction>>;
-typedef realm_on_object_change_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>);
-typedef Dartrealm_on_object_change_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>);
-typedef realm_on_realm_change_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_on_realm_change_func_tFunction>>;
-typedef realm_on_realm_change_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_on_realm_change_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef realm_on_realm_refresh_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_on_realm_refresh_func_tFunction>>;
-typedef realm_on_realm_refresh_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_on_realm_refresh_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata);
+typedef realm_on_collection_change_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_on_collection_change_func_tFunction>>;
+typedef realm_on_collection_change_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void>,
+      ffi.Pointer<realm_collection_changes_t>,
+    );
+typedef Dartrealm_on_collection_change_func_tFunction =
+    void Function(
+      ffi.Pointer<ffi.Void>,
+      ffi.Pointer<realm_collection_changes_t>,
+    );
+typedef realm_on_dictionary_change_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_on_dictionary_change_func_tFunction>>;
+typedef realm_on_dictionary_change_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void>,
+      ffi.Pointer<realm_dictionary_changes_t>,
+    );
+typedef Dartrealm_on_dictionary_change_func_tFunction =
+    void Function(
+      ffi.Pointer<ffi.Void>,
+      ffi.Pointer<realm_dictionary_changes_t>,
+    );
+typedef realm_on_object_change_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_on_object_change_func_tFunction>>;
+typedef realm_on_object_change_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void>,
+      ffi.Pointer<realm_object_changes_t>,
+    );
+typedef Dartrealm_on_object_change_func_tFunction =
+    void Function(ffi.Pointer<ffi.Void>, ffi.Pointer<realm_object_changes_t>);
+typedef realm_on_realm_change_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_on_realm_change_func_tFunction>>;
+typedef realm_on_realm_change_func_tFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_on_realm_change_func_tFunction =
+    void Function(ffi.Pointer<ffi.Void> userdata);
+typedef realm_on_realm_refresh_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_on_realm_refresh_func_tFunction>>;
+typedef realm_on_realm_refresh_func_tFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_on_realm_refresh_func_tFunction =
+    void Function(ffi.Pointer<ffi.Void> userdata);
 
 /// Callback for realm schema changed notifications.
 ///
 /// @param new_schema The new schema. This object is released after the callback returns.
 /// Preserve it with realm_clone() if you wish to keep it around for longer.
-typedef realm_on_schema_change_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_on_schema_change_func_tFunction>>;
-typedef realm_on_schema_change_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_schema_t> new_schema);
-typedef Dartrealm_on_schema_change_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_schema_t> new_schema);
+typedef realm_on_schema_change_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_on_schema_change_func_tFunction>>;
+typedef realm_on_schema_change_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_schema_t> new_schema,
+    );
+typedef Dartrealm_on_schema_change_func_tFunction =
+    void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_schema_t> new_schema,
+    );
 
 enum realm_property_flags {
   RLM_PROPERTY_NORMAL(0),
@@ -7366,14 +7934,13 @@ enum realm_property_flags {
   const realm_property_flags(this.value);
 
   static realm_property_flags fromValue(int value) => switch (value) {
-        0 => RLM_PROPERTY_NORMAL,
-        1 => RLM_PROPERTY_NULLABLE,
-        2 => RLM_PROPERTY_PRIMARY_KEY,
-        4 => RLM_PROPERTY_INDEXED,
-        8 => RLM_PROPERTY_FULLTEXT_INDEXED,
-        _ =>
-          throw ArgumentError("Unknown value for realm_property_flags: $value"),
-      };
+    0 => RLM_PROPERTY_NORMAL,
+    1 => RLM_PROPERTY_NULLABLE,
+    2 => RLM_PROPERTY_PRIMARY_KEY,
+    4 => RLM_PROPERTY_INDEXED,
+    8 => RLM_PROPERTY_FULLTEXT_INDEXED,
+    _ => throw ArgumentError("Unknown value for realm_property_flags: $value"),
+  };
 }
 
 final class realm_property_info extends ffi.Struct {
@@ -7422,22 +7989,21 @@ enum realm_property_type {
   const realm_property_type(this.value);
 
   static realm_property_type fromValue(int value) => switch (value) {
-        0 => RLM_PROPERTY_TYPE_INT,
-        1 => RLM_PROPERTY_TYPE_BOOL,
-        2 => RLM_PROPERTY_TYPE_STRING,
-        4 => RLM_PROPERTY_TYPE_BINARY,
-        6 => RLM_PROPERTY_TYPE_MIXED,
-        8 => RLM_PROPERTY_TYPE_TIMESTAMP,
-        9 => RLM_PROPERTY_TYPE_FLOAT,
-        10 => RLM_PROPERTY_TYPE_DOUBLE,
-        11 => RLM_PROPERTY_TYPE_DECIMAL128,
-        12 => RLM_PROPERTY_TYPE_OBJECT,
-        14 => RLM_PROPERTY_TYPE_LINKING_OBJECTS,
-        15 => RLM_PROPERTY_TYPE_OBJECT_ID,
-        17 => RLM_PROPERTY_TYPE_UUID,
-        _ =>
-          throw ArgumentError("Unknown value for realm_property_type: $value"),
-      };
+    0 => RLM_PROPERTY_TYPE_INT,
+    1 => RLM_PROPERTY_TYPE_BOOL,
+    2 => RLM_PROPERTY_TYPE_STRING,
+    4 => RLM_PROPERTY_TYPE_BINARY,
+    6 => RLM_PROPERTY_TYPE_MIXED,
+    8 => RLM_PROPERTY_TYPE_TIMESTAMP,
+    9 => RLM_PROPERTY_TYPE_FLOAT,
+    10 => RLM_PROPERTY_TYPE_DOUBLE,
+    11 => RLM_PROPERTY_TYPE_DECIMAL128,
+    12 => RLM_PROPERTY_TYPE_OBJECT,
+    14 => RLM_PROPERTY_TYPE_LINKING_OBJECTS,
+    15 => RLM_PROPERTY_TYPE_OBJECT_ID,
+    17 => RLM_PROPERTY_TYPE_UUID,
+    _ => throw ArgumentError("Unknown value for realm_property_type: $value"),
+  };
 }
 
 final class realm_query extends ffi.Opaque {}
@@ -7467,35 +8033,50 @@ typedef realm_results_t = realm_results;
 
 final class realm_scheduler extends ffi.Opaque {}
 
-typedef realm_scheduler_can_deliver_notifications_func_t = ffi.Pointer<
-    ffi
-    .NativeFunction<realm_scheduler_can_deliver_notifications_func_tFunction>>;
-typedef realm_scheduler_can_deliver_notifications_func_tFunction = ffi.Bool
-    Function(ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_scheduler_can_deliver_notifications_func_tFunction = bool
-    Function(ffi.Pointer<ffi.Void> userdata);
-typedef realm_scheduler_is_on_thread_func_t = ffi
-    .Pointer<ffi.NativeFunction<realm_scheduler_is_on_thread_func_tFunction>>;
-typedef realm_scheduler_is_on_thread_func_tFunction = ffi.Bool Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef Dartrealm_scheduler_is_on_thread_func_tFunction = bool Function(
-    ffi.Pointer<ffi.Void> userdata);
-typedef realm_scheduler_is_same_as_func_t = ffi
-    .Pointer<ffi.NativeFunction<realm_scheduler_is_same_as_func_tFunction>>;
-typedef realm_scheduler_is_same_as_func_tFunction = ffi.Bool Function(
-    ffi.Pointer<ffi.Void> scheduler_userdata_1,
-    ffi.Pointer<ffi.Void> scheduler_userdata_2);
-typedef Dartrealm_scheduler_is_same_as_func_tFunction = bool Function(
-    ffi.Pointer<ffi.Void> scheduler_userdata_1,
-    ffi.Pointer<ffi.Void> scheduler_userdata_2);
+typedef realm_scheduler_can_deliver_notifications_func_t =
+    ffi.Pointer<
+      ffi.NativeFunction<
+        realm_scheduler_can_deliver_notifications_func_tFunction
+      >
+    >;
+typedef realm_scheduler_can_deliver_notifications_func_tFunction =
+    ffi.Bool Function(ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_scheduler_can_deliver_notifications_func_tFunction =
+    bool Function(ffi.Pointer<ffi.Void> userdata);
+typedef realm_scheduler_is_on_thread_func_t =
+    ffi.Pointer<
+      ffi.NativeFunction<realm_scheduler_is_on_thread_func_tFunction>
+    >;
+typedef realm_scheduler_is_on_thread_func_tFunction =
+    ffi.Bool Function(ffi.Pointer<ffi.Void> userdata);
+typedef Dartrealm_scheduler_is_on_thread_func_tFunction =
+    bool Function(ffi.Pointer<ffi.Void> userdata);
+typedef realm_scheduler_is_same_as_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_scheduler_is_same_as_func_tFunction>>;
+typedef realm_scheduler_is_same_as_func_tFunction =
+    ffi.Bool Function(
+      ffi.Pointer<ffi.Void> scheduler_userdata_1,
+      ffi.Pointer<ffi.Void> scheduler_userdata_2,
+    );
+typedef Dartrealm_scheduler_is_same_as_func_tFunction =
+    bool Function(
+      ffi.Pointer<ffi.Void> scheduler_userdata_1,
+      ffi.Pointer<ffi.Void> scheduler_userdata_2,
+    );
 
 /// Scheduler types
-typedef realm_scheduler_notify_func_t
-    = ffi.Pointer<ffi.NativeFunction<realm_scheduler_notify_func_tFunction>>;
-typedef realm_scheduler_notify_func_tFunction = ffi.Void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_work_queue_t> work_queue);
-typedef Dartrealm_scheduler_notify_func_tFunction = void Function(
-    ffi.Pointer<ffi.Void> userdata, ffi.Pointer<realm_work_queue_t> work_queue);
+typedef realm_scheduler_notify_func_t =
+    ffi.Pointer<ffi.NativeFunction<realm_scheduler_notify_func_tFunction>>;
+typedef realm_scheduler_notify_func_tFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_work_queue_t> work_queue,
+    );
+typedef Dartrealm_scheduler_notify_func_tFunction =
+    void Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Pointer<realm_work_queue_t> work_queue,
+    );
 typedef realm_scheduler_t = realm_scheduler;
 
 final class realm_schema extends ffi.Opaque {}
@@ -7514,16 +8095,16 @@ enum realm_schema_mode {
   const realm_schema_mode(this.value);
 
   static realm_schema_mode fromValue(int value) => switch (value) {
-        0 => RLM_SCHEMA_MODE_AUTOMATIC,
-        1 => RLM_SCHEMA_MODE_IMMUTABLE,
-        2 => RLM_SCHEMA_MODE_READ_ONLY,
-        3 => RLM_SCHEMA_MODE_SOFT_RESET_FILE,
-        4 => RLM_SCHEMA_MODE_HARD_RESET_FILE,
-        5 => RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED,
-        6 => RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT,
-        7 => RLM_SCHEMA_MODE_MANUAL,
-        _ => throw ArgumentError("Unknown value for realm_schema_mode: $value"),
-      };
+    0 => RLM_SCHEMA_MODE_AUTOMATIC,
+    1 => RLM_SCHEMA_MODE_IMMUTABLE,
+    2 => RLM_SCHEMA_MODE_READ_ONLY,
+    3 => RLM_SCHEMA_MODE_SOFT_RESET_FILE,
+    4 => RLM_SCHEMA_MODE_HARD_RESET_FILE,
+    5 => RLM_SCHEMA_MODE_ADDITIVE_DISCOVERED,
+    6 => RLM_SCHEMA_MODE_ADDITIVE_EXPLICIT,
+    7 => RLM_SCHEMA_MODE_MANUAL,
+    _ => throw ArgumentError("Unknown value for realm_schema_mode: $value"),
+  };
 }
 
 enum realm_schema_subset_mode {
@@ -7536,13 +8117,13 @@ enum realm_schema_subset_mode {
   const realm_schema_subset_mode(this.value);
 
   static realm_schema_subset_mode fromValue(int value) => switch (value) {
-        0 => RLM_SCHEMA_SUBSET_MODE_STRICT,
-        1 => RLM_SCHEMA_SUBSET_MODE_ALL_CLASSES,
-        2 => RLM_SCHEMA_SUBSET_MODE_ALL_PROPERTIES,
-        3 => RLM_SCHEMA_SUBSET_MODE_COMPLETE,
-        _ => throw ArgumentError(
-            "Unknown value for realm_schema_subset_mode: $value"),
-      };
+    0 => RLM_SCHEMA_SUBSET_MODE_STRICT,
+    1 => RLM_SCHEMA_SUBSET_MODE_ALL_CLASSES,
+    2 => RLM_SCHEMA_SUBSET_MODE_ALL_PROPERTIES,
+    3 => RLM_SCHEMA_SUBSET_MODE_COMPLETE,
+    _ =>
+      throw ArgumentError("Unknown value for realm_schema_subset_mode: $value"),
+  };
 }
 
 typedef realm_schema_t = realm_schema;
@@ -7557,26 +8138,36 @@ enum realm_schema_validation_mode {
   const realm_schema_validation_mode(this.value);
 
   static realm_schema_validation_mode fromValue(int value) => switch (value) {
-        0 => RLM_SCHEMA_VALIDATION_BASIC,
-        1 => RLM_SCHEMA_VALIDATION_SYNC_PBS,
-        2 => RLM_SCHEMA_VALIDATION_REJECT_EMBEDDED_ORPHANS,
-        4 => RLM_SCHEMA_VALIDATION_SYNC_FLX,
-        _ => throw ArgumentError(
-            "Unknown value for realm_schema_validation_mode: $value"),
-      };
+    0 => RLM_SCHEMA_VALIDATION_BASIC,
+    1 => RLM_SCHEMA_VALIDATION_SYNC_PBS,
+    2 => RLM_SCHEMA_VALIDATION_REJECT_EMBEDDED_ORPHANS,
+    4 => RLM_SCHEMA_VALIDATION_SYNC_FLX,
+    _ =>
+      throw ArgumentError(
+        "Unknown value for realm_schema_validation_mode: $value",
+      ),
+  };
 }
 
 final class realm_set extends ffi.Opaque {}
 
 typedef realm_set_t = realm_set;
-typedef realm_should_compact_on_launch_func_t = ffi
-    .Pointer<ffi.NativeFunction<realm_should_compact_on_launch_func_tFunction>>;
-typedef realm_should_compact_on_launch_func_tFunction = ffi.Bool Function(
-    ffi.Pointer<ffi.Void> userdata,
-    ffi.Uint64 total_bytes,
-    ffi.Uint64 used_bytes);
-typedef Dartrealm_should_compact_on_launch_func_tFunction = bool Function(
-    ffi.Pointer<ffi.Void> userdata, int total_bytes, int used_bytes);
+typedef realm_should_compact_on_launch_func_t =
+    ffi.Pointer<
+      ffi.NativeFunction<realm_should_compact_on_launch_func_tFunction>
+    >;
+typedef realm_should_compact_on_launch_func_tFunction =
+    ffi.Bool Function(
+      ffi.Pointer<ffi.Void> userdata,
+      ffi.Uint64 total_bytes,
+      ffi.Uint64 used_bytes,
+    );
+typedef Dartrealm_should_compact_on_launch_func_tFunction =
+    bool Function(
+      ffi.Pointer<ffi.Void> userdata,
+      int total_bytes,
+      int used_bytes,
+    );
 
 /// Represents a view over a UTF-8 string buffer. The buffer is unowned by this struct.
 ///
@@ -7659,22 +8250,22 @@ enum realm_value_type {
   const realm_value_type(this.value);
 
   static realm_value_type fromValue(int value) => switch (value) {
-        0 => RLM_TYPE_NULL,
-        1 => RLM_TYPE_INT,
-        2 => RLM_TYPE_BOOL,
-        3 => RLM_TYPE_STRING,
-        4 => RLM_TYPE_BINARY,
-        5 => RLM_TYPE_TIMESTAMP,
-        6 => RLM_TYPE_FLOAT,
-        7 => RLM_TYPE_DOUBLE,
-        8 => RLM_TYPE_DECIMAL128,
-        9 => RLM_TYPE_OBJECT_ID,
-        10 => RLM_TYPE_LINK,
-        11 => RLM_TYPE_UUID,
-        12 => RLM_TYPE_LIST,
-        13 => RLM_TYPE_DICTIONARY,
-        _ => throw ArgumentError("Unknown value for realm_value_type: $value"),
-      };
+    0 => RLM_TYPE_NULL,
+    1 => RLM_TYPE_INT,
+    2 => RLM_TYPE_BOOL,
+    3 => RLM_TYPE_STRING,
+    4 => RLM_TYPE_BINARY,
+    5 => RLM_TYPE_TIMESTAMP,
+    6 => RLM_TYPE_FLOAT,
+    7 => RLM_TYPE_DOUBLE,
+    8 => RLM_TYPE_DECIMAL128,
+    9 => RLM_TYPE_OBJECT_ID,
+    10 => RLM_TYPE_LINK,
+    11 => RLM_TYPE_UUID,
+    12 => RLM_TYPE_LIST,
+    13 => RLM_TYPE_DICTIONARY,
+    _ => throw ArgumentError("Unknown value for realm_value_type: $value"),
+  };
 }
 
 final class realm_version_id extends ffi.Struct {

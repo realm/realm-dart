@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'geospatial_test.dart';
 
@@ -13,18 +13,16 @@ class Location extends _Location
     with RealmEntity, RealmObjectBase, EmbeddedObject {
   static var _defaultsSet = false;
 
-  Location({
-    String type = 'Point',
-    Iterable<double> coordinates = const [],
-  }) {
+  Location({String type = 'Point', Iterable<double> coordinates = const []}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Location>({
-        'type': 'Point',
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Location>({'type': 'Point'});
     }
     RealmObjectBase.set(this, 'type', type);
     RealmObjectBase.set<RealmList<double>>(
-        this, 'coordinates', RealmList<double>(coordinates));
+      this,
+      'coordinates',
+      RealmList<double>(coordinates),
+    );
   }
 
   Location._();
@@ -71,8 +69,11 @@ class Location extends _Location
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.embeddedObject, Location, 'Location', [
       SchemaProperty('type', RealmPropertyType.string),
-      SchemaProperty('coordinates', RealmPropertyType.double,
-          collectionType: RealmCollectionType.list),
+      SchemaProperty(
+        'coordinates',
+        RealmPropertyType.double,
+        collectionType: RealmCollectionType.list,
+      ),
     ]);
   }();
 
@@ -82,10 +83,7 @@ class Location extends _Location
 
 class Restaurant extends _Restaurant
     with RealmEntity, RealmObjectBase, RealmObject {
-  Restaurant(
-    String name, {
-    Location? location,
-  }) {
+  Restaurant(String name, {Location? location}) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'location', location);
   }
@@ -126,13 +124,10 @@ class Restaurant extends _Restaurant
   static Restaurant _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        Restaurant(
-          fromEJson(name),
-          location: fromEJson(ejson['location']),
-        ),
+      {'name': EJsonValue name} => Restaurant(
+        fromEJson(name),
+        location: fromEJson(ejson['location']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -141,11 +136,19 @@ class Restaurant extends _Restaurant
     RealmObjectBase.registerFactory(Restaurant._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, Restaurant, 'Restaurant', [
-      SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
-      SchemaProperty('location', RealmPropertyType.object,
-          optional: true, linkTarget: 'Location'),
-    ]);
+      ObjectType.realmObject,
+      Restaurant,
+      'Restaurant',
+      [
+        SchemaProperty('name', RealmPropertyType.string, primaryKey: true),
+        SchemaProperty(
+          'location',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'Location',
+        ),
+      ],
+    );
   }();
 
   @override
@@ -154,11 +157,12 @@ class Restaurant extends _Restaurant
 
 class LocationList extends _LocationList
     with RealmEntity, RealmObjectBase, RealmObject {
-  LocationList({
-    Iterable<Location> locations = const [],
-  }) {
+  LocationList({Iterable<Location> locations = const []}) {
     RealmObjectBase.set<RealmList<Location>>(
-        this, 'locations', RealmList<Location>(locations));
+      this,
+      'locations',
+      RealmList<Location>(locations),
+    );
   }
 
   LocationList._();
@@ -175,35 +179,39 @@ class LocationList extends _LocationList
       RealmObjectBase.getChanges<LocationList>(this);
 
   @override
-  Stream<RealmObjectChanges<LocationList>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<LocationList>(this, keyPaths);
+  Stream<RealmObjectChanges<LocationList>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<LocationList>(this, keyPaths);
 
   @override
   LocationList freeze() => RealmObjectBase.freezeObject<LocationList>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'locations': locations.toEJson(),
-    };
+    return <String, dynamic>{'locations': locations.toEJson()};
   }
 
   static EJsonValue _toEJson(LocationList value) => value.toEJson();
   static LocationList _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
-    return LocationList(
-      locations: fromEJson(ejson['locations']),
-    );
+    return LocationList(locations: fromEJson(ejson['locations']));
   }
 
   static final schema = () {
     RealmObjectBase.registerFactory(LocationList._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, LocationList, 'LocationList', [
-      SchemaProperty('locations', RealmPropertyType.object,
-          linkTarget: 'Location', collectionType: RealmCollectionType.list),
-    ]);
+      ObjectType.realmObject,
+      LocationList,
+      'LocationList',
+      [
+        SchemaProperty(
+          'locations',
+          RealmPropertyType.object,
+          linkTarget: 'Location',
+          collectionType: RealmCollectionType.list,
+        ),
+      ],
+    );
   }();
 
   @override

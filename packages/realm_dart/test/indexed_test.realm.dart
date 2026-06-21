@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'indexed_test.dart';
 
@@ -67,9 +67,9 @@ class WithIndexes extends _WithIndexes
       RealmObjectBase.getChanges<WithIndexes>(this);
 
   @override
-  Stream<RealmObjectChanges<WithIndexes>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<WithIndexes>(this, keyPaths);
+  Stream<RealmObjectChanges<WithIndexes>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<WithIndexes>(this, keyPaths);
 
   @override
   WithIndexes freeze() => RealmObjectBase.freezeObject<WithIndexes>(this);
@@ -113,20 +113,42 @@ class WithIndexes extends _WithIndexes
     RealmObjectBase.registerFactory(WithIndexes._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, WithIndexes, 'WithIndexes', [
-      SchemaProperty('anInt', RealmPropertyType.int,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('aBool', RealmPropertyType.bool,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('string', RealmPropertyType.string,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('timestamp', RealmPropertyType.timestamp,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('objectId', RealmPropertyType.objectid,
-          indexType: RealmIndexType.regular),
-      SchemaProperty('uuid', RealmPropertyType.uuid,
-          indexType: RealmIndexType.regular),
-    ]);
+      ObjectType.realmObject,
+      WithIndexes,
+      'WithIndexes',
+      [
+        SchemaProperty(
+          'anInt',
+          RealmPropertyType.int,
+          indexType: RealmIndexType.regular,
+        ),
+        SchemaProperty(
+          'aBool',
+          RealmPropertyType.bool,
+          indexType: RealmIndexType.regular,
+        ),
+        SchemaProperty(
+          'string',
+          RealmPropertyType.string,
+          indexType: RealmIndexType.regular,
+        ),
+        SchemaProperty(
+          'timestamp',
+          RealmPropertyType.timestamp,
+          indexType: RealmIndexType.regular,
+        ),
+        SchemaProperty(
+          'objectId',
+          RealmPropertyType.objectid,
+          indexType: RealmIndexType.regular,
+        ),
+        SchemaProperty(
+          'uuid',
+          RealmPropertyType.uuid,
+          indexType: RealmIndexType.regular,
+        ),
+      ],
+    );
   }();
 
   @override
@@ -251,11 +273,7 @@ class NoIndexes extends _NoIndexes
 
 class ObjectWithFTSIndex extends _ObjectWithFTSIndex
     with RealmEntity, RealmObjectBase, RealmObject {
-  ObjectWithFTSIndex(
-    String title,
-    String summary, {
-    String? nullableSummary,
-  }) {
+  ObjectWithFTSIndex(String title, String summary, {String? nullableSummary}) {
     RealmObjectBase.set(this, 'title', title);
     RealmObjectBase.set(this, 'summary', summary);
     RealmObjectBase.set(this, 'nullableSummary', nullableSummary);
@@ -285,9 +303,9 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
       RealmObjectBase.getChanges<ObjectWithFTSIndex>(this);
 
   @override
-  Stream<RealmObjectChanges<ObjectWithFTSIndex>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<ObjectWithFTSIndex>(this, keyPaths);
+  Stream<RealmObjectChanges<ObjectWithFTSIndex>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<ObjectWithFTSIndex>(this, keyPaths);
 
   @override
   ObjectWithFTSIndex freeze() =>
@@ -305,10 +323,7 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
   static ObjectWithFTSIndex _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'title': EJsonValue title,
-        'summary': EJsonValue summary,
-      } =>
+      {'title': EJsonValue title, 'summary': EJsonValue summary} =>
         ObjectWithFTSIndex(
           fromEJson(title),
           fromEJson(summary),
@@ -322,13 +337,24 @@ class ObjectWithFTSIndex extends _ObjectWithFTSIndex
     RealmObjectBase.registerFactory(ObjectWithFTSIndex._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, ObjectWithFTSIndex, 'ObjectWithFTSIndex', [
-      SchemaProperty('title', RealmPropertyType.string),
-      SchemaProperty('summary', RealmPropertyType.string,
-          indexType: RealmIndexType.fullText),
-      SchemaProperty('nullableSummary', RealmPropertyType.string,
-          optional: true, indexType: RealmIndexType.fullText),
-    ]);
+      ObjectType.realmObject,
+      ObjectWithFTSIndex,
+      'ObjectWithFTSIndex',
+      [
+        SchemaProperty('title', RealmPropertyType.string),
+        SchemaProperty(
+          'summary',
+          RealmPropertyType.string,
+          indexType: RealmIndexType.fullText,
+        ),
+        SchemaProperty(
+          'nullableSummary',
+          RealmPropertyType.string,
+          optional: true,
+          indexType: RealmIndexType.fullText,
+        ),
+      ],
+    );
   }();
 
   @override
