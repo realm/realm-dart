@@ -26,6 +26,7 @@ void testCompile(
   dynamic matcher, {
   dynamic skip,
   void Function(LogRecord)? onLog,
+  bool verbose = false,
 }) {
   if (source is Iterable) {
     testCompileMany(description, source, matcher);
@@ -56,6 +57,7 @@ void testCompile(
         {'realm_generator|$assetName': '$source'},
         readerWriter: readerWriter,
         onLog: onLog,
+        verbose: verbose,
       );
 
       if (!result.succeeded) {
@@ -117,21 +119,28 @@ void testCompileMany(
     await readerWriter.testing.loadIsolateSources();
 
     generate() async {
-      final result = await testBuilder(
+      final inputList = inputs.toList();
+      await testBuilder(
         generateRealmObjects(),
         Map<String, Object>.fromEntries(
-          inputs.map((x) {
+          inputList.map((x) {
             final (id, source) = x;
             return MapEntry(id, source);
           }),
         ),
         readerWriter: readerWriter,
       );
-      final rw = result.readerWriter;
-      final assets = rw.testing.assetsWritten;
       final formattedOutputs = <String>[];
-      for (final outId in assets) {
-        final bytes = await rw.readAsBytes(outId);
+      for (final (id, _) in inputList) {
+        // Generated outputs are written "hidden" under the build cache, so map
+        // each input's logical `.realm.dart` id to its physical location.
+        final logicalId = AssetId.parse(id).changeExtension('.realm.dart');
+        final generatedId = AssetId(
+          logicalId.package,
+          '.dart_tool/build/generated/${logicalId.package}/${logicalId.path}',
+        );
+        if (!readerWriter.testing.exists(generatedId)) continue;
+        final bytes = readerWriter.testing.readBytes(generatedId);
         formattedOutputs.add(_formatter.format(utf8.decode(bytes)));
       }
       return formattedOutputs;

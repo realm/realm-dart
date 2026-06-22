@@ -21,13 +21,20 @@ runs:
         export PURO_ROOT=$(dirname $GITHUB_WORKSPACE)/puro
         mkdir -p $PURO_ROOT
 
+        # puro 1.5.0 names the env after the channel/version passed to
+        # `puro use --global <flutter-version>` (e.g. `stable`), not `default`.
+        # Keep PATH and MELOS_SDK_PATH on the SAME env that the build/global
+        # shim resolves to, otherwise melos bootstrap and the Flutter app build
+        # use different SDK envs, the package_config goes stale, and the native
+        # binary install step's `dart run realm install` triggers a failing
+        # implicit `dart pub get` ("requires the Flutter SDK, version solving failed").
         echo $PURO_ROOT/bin >> $GITHUB_PATH
         echo $PURO_ROOT/shared/pub_cache/bin/ >> $GITHUB_PATH
-        echo $PURO_ROOT/envs/default/flutter/bin/ >> $GITHUB_PATH
+        echo $PURO_ROOT/envs/${{ inputs.flutter-version }}/flutter/bin/ >> $GITHUB_PATH
 
         echo PURO_ROOT=$PURO_ROOT >> $GITHUB_ENV
         echo PUB_CACHE=$PURO_ROOT/shared/pub_cache >> $GITHUB_ENV
-        echo MELOS_SDK_PATH=$PURO_ROOT/envs/default/flutter/ >> $GITHUB_ENV
+        echo MELOS_SDK_PATH=$PURO_ROOT/envs/${{ inputs.flutter-version }}/flutter/ >> $GITHUB_ENV
 
         echo "week=$(date +'%Y-%U')" >> $GITHUB_OUTPUT
 

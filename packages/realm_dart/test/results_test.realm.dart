@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'results_test.dart';
 
@@ -30,24 +30,36 @@ class TestNotificationObject extends _TestNotificationObject
     RealmObjectBase.set(this, '_remappedIntProperty', remappedIntProperty);
     RealmObjectBase.set(this, 'link', link);
     RealmObjectBase.set<RealmList<TestNotificationObject>>(
-        this, 'list', RealmList<TestNotificationObject>(list));
+      this,
+      'list',
+      RealmList<TestNotificationObject>(list),
+    );
     RealmObjectBase.set<RealmSet<TestNotificationObject>>(
-        this, 'set', RealmSet<TestNotificationObject>(set));
+      this,
+      'set',
+      RealmSet<TestNotificationObject>(set),
+    );
     RealmObjectBase.set<RealmMap<TestNotificationObject?>>(
-        this, 'map', RealmMap<TestNotificationObject?>(map));
+      this,
+      'map',
+      RealmMap<TestNotificationObject?>(map),
+    );
     RealmObjectBase.set(this, 'linkDifferentType', linkDifferentType);
     RealmObjectBase.set<RealmList<TestNotificationDifferentType>>(
-        this,
-        'listDifferentType',
-        RealmList<TestNotificationDifferentType>(listDifferentType));
+      this,
+      'listDifferentType',
+      RealmList<TestNotificationDifferentType>(listDifferentType),
+    );
     RealmObjectBase.set<RealmSet<TestNotificationDifferentType>>(
-        this,
-        'setDifferentType',
-        RealmSet<TestNotificationDifferentType>(setDifferentType));
+      this,
+      'setDifferentType',
+      RealmSet<TestNotificationDifferentType>(setDifferentType),
+    );
     RealmObjectBase.set<RealmMap<TestNotificationDifferentType?>>(
-        this,
-        'mapDifferentType',
-        RealmMap<TestNotificationDifferentType?>(mapDifferentType));
+      this,
+      'mapDifferentType',
+      RealmMap<TestNotificationDifferentType?>(mapDifferentType),
+    );
     RealmObjectBase.set(this, 'embedded', embedded);
   }
 
@@ -108,7 +120,10 @@ class TestNotificationObject extends _TestNotificationObject
   @override
   TestNotificationDifferentType? get linkDifferentType =>
       RealmObjectBase.get<TestNotificationDifferentType>(
-          this, 'linkDifferentType') as TestNotificationDifferentType?;
+            this,
+            'linkDifferentType',
+          )
+          as TestNotificationDifferentType?;
   @override
   set linkDifferentType(covariant TestNotificationDifferentType? value) =>
       RealmObjectBase.set(this, 'linkDifferentType', value);
@@ -116,30 +131,38 @@ class TestNotificationObject extends _TestNotificationObject
   @override
   RealmList<TestNotificationDifferentType> get listDifferentType =>
       RealmObjectBase.get<TestNotificationDifferentType>(
-              this, 'listDifferentType')
+            this,
+            'listDifferentType',
+          )
           as RealmList<TestNotificationDifferentType>;
   @override
   set listDifferentType(
-          covariant RealmList<TestNotificationDifferentType> value) =>
-      throw RealmUnsupportedSetError();
+    covariant RealmList<TestNotificationDifferentType> value,
+  ) => throw RealmUnsupportedSetError();
 
   @override
   RealmSet<TestNotificationDifferentType> get setDifferentType =>
       RealmObjectBase.get<TestNotificationDifferentType>(
-          this, 'setDifferentType') as RealmSet<TestNotificationDifferentType>;
+            this,
+            'setDifferentType',
+          )
+          as RealmSet<TestNotificationDifferentType>;
   @override
   set setDifferentType(
-          covariant RealmSet<TestNotificationDifferentType> value) =>
-      throw RealmUnsupportedSetError();
+    covariant RealmSet<TestNotificationDifferentType> value,
+  ) => throw RealmUnsupportedSetError();
 
   @override
   RealmMap<TestNotificationDifferentType?> get mapDifferentType =>
       RealmObjectBase.get<TestNotificationDifferentType?>(
-          this, 'mapDifferentType') as RealmMap<TestNotificationDifferentType?>;
+            this,
+            'mapDifferentType',
+          )
+          as RealmMap<TestNotificationDifferentType?>;
   @override
   set mapDifferentType(
-          covariant RealmMap<TestNotificationDifferentType?> value) =>
-      throw RealmUnsupportedSetError();
+    covariant RealmMap<TestNotificationDifferentType?> value,
+  ) => throw RealmUnsupportedSetError();
 
   @override
   TestNotificationEmbeddedObject? get embedded =>
@@ -167,9 +190,9 @@ class TestNotificationObject extends _TestNotificationObject
       RealmObjectBase.getChanges<TestNotificationObject>(this);
 
   @override
-  Stream<RealmObjectChanges<TestNotificationObject>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<TestNotificationObject>(this, keyPaths);
+  Stream<RealmObjectChanges<TestNotificationObject>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<TestNotificationObject>(this, keyPaths);
 
   @override
   TestNotificationObject freeze() =>
@@ -214,44 +237,88 @@ class TestNotificationObject extends _TestNotificationObject
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationObject._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject, TestNotificationObject,
-        'TestNotificationObject', [
-      SchemaProperty('stringProperty', RealmPropertyType.string,
-          optional: true),
-      SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
-      SchemaProperty('remappedIntProperty', RealmPropertyType.int,
-          mapTo: '_remappedIntProperty', optional: true),
-      SchemaProperty('link', RealmPropertyType.object,
-          optional: true, linkTarget: 'TestNotificationObject'),
-      SchemaProperty('list', RealmPropertyType.object,
-          linkTarget: 'TestNotificationObject',
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('set', RealmPropertyType.object,
-          linkTarget: 'TestNotificationObject',
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('map', RealmPropertyType.object,
+    return const SchemaObject(
+      ObjectType.realmObject,
+      TestNotificationObject,
+      'TestNotificationObject',
+      [
+        SchemaProperty(
+          'stringProperty',
+          RealmPropertyType.string,
+          optional: true,
+        ),
+        SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
+        SchemaProperty(
+          'remappedIntProperty',
+          RealmPropertyType.int,
+          mapTo: '_remappedIntProperty',
+          optional: true,
+        ),
+        SchemaProperty(
+          'link',
+          RealmPropertyType.object,
           optional: true,
           linkTarget: 'TestNotificationObject',
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('linkDifferentType', RealmPropertyType.object,
-          optional: true, linkTarget: 'TestNotificationDifferentType'),
-      SchemaProperty('listDifferentType', RealmPropertyType.object,
-          linkTarget: 'TestNotificationDifferentType',
-          collectionType: RealmCollectionType.list),
-      SchemaProperty('setDifferentType', RealmPropertyType.object,
-          linkTarget: 'TestNotificationDifferentType',
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('mapDifferentType', RealmPropertyType.object,
+        ),
+        SchemaProperty(
+          'list',
+          RealmPropertyType.object,
+          linkTarget: 'TestNotificationObject',
+          collectionType: RealmCollectionType.list,
+        ),
+        SchemaProperty(
+          'set',
+          RealmPropertyType.object,
+          linkTarget: 'TestNotificationObject',
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'map',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'TestNotificationObject',
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'linkDifferentType',
+          RealmPropertyType.object,
           optional: true,
           linkTarget: 'TestNotificationDifferentType',
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('embedded', RealmPropertyType.object,
-          optional: true, linkTarget: 'TestNotificationEmbeddedObject'),
-      SchemaProperty('backlink', RealmPropertyType.linkingObjects,
+        ),
+        SchemaProperty(
+          'listDifferentType',
+          RealmPropertyType.object,
+          linkTarget: 'TestNotificationDifferentType',
+          collectionType: RealmCollectionType.list,
+        ),
+        SchemaProperty(
+          'setDifferentType',
+          RealmPropertyType.object,
+          linkTarget: 'TestNotificationDifferentType',
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'mapDifferentType',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'TestNotificationDifferentType',
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'embedded',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'TestNotificationEmbeddedObject',
+        ),
+        SchemaProperty(
+          'backlink',
+          RealmPropertyType.linkingObjects,
           linkOriginProperty: 'link',
           collectionType: RealmCollectionType.list,
-          linkTarget: 'TestNotificationObject'),
-    ]);
+          linkTarget: 'TestNotificationObject',
+        ),
+      ],
+    );
   }();
 
   @override
@@ -260,10 +327,7 @@ class TestNotificationObject extends _TestNotificationObject
 
 class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
     with RealmEntity, RealmObjectBase, EmbeddedObject {
-  TestNotificationEmbeddedObject({
-    String? stringProperty,
-    int? intProperty,
-  }) {
+  TestNotificationEmbeddedObject({String? stringProperty, int? intProperty}) {
     RealmObjectBase.set(this, 'stringProperty', stringProperty);
     RealmObjectBase.set(this, 'intProperty', intProperty);
   }
@@ -288,10 +352,12 @@ class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
       RealmObjectBase.getChanges<TestNotificationEmbeddedObject>(this);
 
   @override
-  Stream<RealmObjectChanges<TestNotificationEmbeddedObject>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<TestNotificationEmbeddedObject>(
-          this, keyPaths);
+  Stream<RealmObjectChanges<TestNotificationEmbeddedObject>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<TestNotificationEmbeddedObject>(
+    this,
+    keyPaths,
+  );
 
   @override
   TestNotificationEmbeddedObject freeze() =>
@@ -317,12 +383,19 @@ class TestNotificationEmbeddedObject extends _TestNotificationEmbeddedObject
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationEmbeddedObject._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.embeddedObject,
-        TestNotificationEmbeddedObject, 'TestNotificationEmbeddedObject', [
-      SchemaProperty('stringProperty', RealmPropertyType.string,
-          optional: true),
-      SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
-    ]);
+    return const SchemaObject(
+      ObjectType.embeddedObject,
+      TestNotificationEmbeddedObject,
+      'TestNotificationEmbeddedObject',
+      [
+        SchemaProperty(
+          'stringProperty',
+          RealmPropertyType.string,
+          optional: true,
+        ),
+        SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
+      ],
+    );
   }();
 
   @override
@@ -369,10 +442,12 @@ class TestNotificationDifferentType extends _TestNotificationDifferentType
       RealmObjectBase.getChanges<TestNotificationDifferentType>(this);
 
   @override
-  Stream<RealmObjectChanges<TestNotificationDifferentType>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<TestNotificationDifferentType>(
-          this, keyPaths);
+  Stream<RealmObjectChanges<TestNotificationDifferentType>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<TestNotificationDifferentType>(
+    this,
+    keyPaths,
+  );
 
   @override
   TestNotificationDifferentType freeze() =>
@@ -400,14 +475,25 @@ class TestNotificationDifferentType extends _TestNotificationDifferentType
   static final schema = () {
     RealmObjectBase.registerFactory(TestNotificationDifferentType._);
     register(_toEJson, _fromEJson);
-    return const SchemaObject(ObjectType.realmObject,
-        TestNotificationDifferentType, 'TestNotificationDifferentType', [
-      SchemaProperty('stringProperty', RealmPropertyType.string,
-          optional: true),
-      SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
-      SchemaProperty('link', RealmPropertyType.object,
-          optional: true, linkTarget: 'TestNotificationDifferentType'),
-    ]);
+    return const SchemaObject(
+      ObjectType.realmObject,
+      TestNotificationDifferentType,
+      'TestNotificationDifferentType',
+      [
+        SchemaProperty(
+          'stringProperty',
+          RealmPropertyType.string,
+          optional: true,
+        ),
+        SchemaProperty('intProperty', RealmPropertyType.int, optional: true),
+        SchemaProperty(
+          'link',
+          RealmPropertyType.object,
+          optional: true,
+          linkTarget: 'TestNotificationDifferentType',
+        ),
+      ],
+    );
   }();
 
   @override

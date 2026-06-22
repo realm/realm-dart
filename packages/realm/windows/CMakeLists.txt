@@ -48,7 +48,15 @@ add_definitions(-DBUNDLE_ID="${BUNDLE_ID}")
 
 # message ("FLUTTER_TOOL_ENVIRONMENT is ${FLUTTER_TOOL_ENVIRONMENT}")
 # message ("FLUTTER_ROOT is ${FLUTTER_ROOT}")
-execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\dart.bat" "run" "realm" "install" "--target-os-type" "windows" # "--debug"
+# Use `flutter pub run` rather than bare `dart run`: the tests app depends on
+# the Flutter SDK (`sdk: flutter`), which a bare `dart` cannot resolve. Under
+# puro (as in CI) `dart` is a shim that fails with "realm_tests requires the
+# Flutter SDK, version solving failed"; `flutter pub run` resolves correctly.
+# Run from the app dir (WORKING_DIRECTORY) so pubspec.yaml is found and the
+# path dependency is detected (install becomes a no-op). COMMAND_ERROR_IS_FATAL
+# is kept so a genuine install failure still aborts the build.
+execute_process(COMMAND "${FLUTTER_ROOT}\\bin\\flutter.bat" "pub" "run" "realm" "install" "--target-os-type" "windows" # "--debug"
+  WORKING_DIRECTORY "${APP_DIR}"
   OUTPUT_VARIABLE output
   RESULT_VARIABLE result
   COMMAND_ERROR_IS_FATAL ANY

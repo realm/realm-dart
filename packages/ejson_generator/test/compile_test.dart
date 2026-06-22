@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:ejson_generator/ejson_generator.dart';
@@ -31,15 +32,42 @@ void testCompile(String description, dynamic source, dynamic matcher, {dynamic s
 
   test(description, () {
     generate() async {
-      final result = await testBuilder(
-        getEJsonGenerator(),
-        {'pkg|source.dart': source as Object},
-      );
-      final rw = result.readerWriter;
-      final outId = rw.testing.assetsWritten.single;
-      final bytes = await rw.readAsBytes(outId);
+      final readerWriter = TestReaderWriter(rootPackage: 'pkg');
+      // `testBuilder`'s resolver only resolves assets present in the in-memory
+      // reader; it does not read dependency sources from disk. Seed every
+      // package source so imports such as `package:ejson/ejson.dart` (and the
+      // `@ejson` annotation) resolve.
+      await readerWriter.testing.loadIsolateSources();
 
-      return _formatter.format(utf8.decode(bytes));
+      // `getEJsonGenerator` reports user errors by throwing
+      // `InvalidGenerationSourceError`. The build framework swallows builder
+      // exceptions and surfaces them as a `SEVERE` log instead of rethrowing,
+      // so capture them and re-raise to keep the `throwsA` matchers working.
+      final severeMessages = <String>[];
+      await testBuilder(
+        getEJsonGenerator(),
+        {'pkg|lib/source.dart': source as Object},
+        readerWriter: readerWriter,
+        onLog: (record) {
+          if (record.level.name == 'SEVERE') severeMessages.add(record.message);
+        },
+      );
+
+      if (severeMessages.isNotEmpty) {
+        final message = severeMessages.first;
+        // The message is prefixed with the builder/input description on its own
+        // line; the generator's error text is the last line.
+        final errorText = message.contains('\n') ? message.substring(message.lastIndexOf('\n') + 1).trim() : message.trim();
+        throw InvalidGenerationSourceError(errorText);
+      }
+
+      final outputs = readerWriter.testing.assetsWritten.where((id) => id.path.endsWith('.g.part'));
+      if (outputs.isEmpty) return ''; // generator produced no output
+
+      final outId = outputs.single;
+      // Hidden outputs are written under the build cache; map to that location.
+      final hiddenId = AssetId('pkg', '.dart_tool/build/generated/${outId.package}/${outId.path}');
+      return _formatter.format(utf8.decode(readerWriter.testing.readBytes(hiddenId)));
     }
 
     expect(generate(), matcher);

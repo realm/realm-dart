@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'migration_test.dart';
 
@@ -11,9 +11,7 @@ part of 'migration_test.dart';
 // ignore_for_file: type=lint
 class PersonIntName extends _PersonIntName
     with RealmEntity, RealmObjectBase, RealmObject {
-  PersonIntName(
-    int name,
-  ) {
+  PersonIntName(int name) {
     RealmObjectBase.set(this, 'name', name);
   }
 
@@ -29,29 +27,22 @@ class PersonIntName extends _PersonIntName
       RealmObjectBase.getChanges<PersonIntName>(this);
 
   @override
-  Stream<RealmObjectChanges<PersonIntName>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<PersonIntName>(this, keyPaths);
+  Stream<RealmObjectChanges<PersonIntName>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<PersonIntName>(this, keyPaths);
 
   @override
   PersonIntName freeze() => RealmObjectBase.freezeObject<PersonIntName>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson()};
   }
 
   static EJsonValue _toEJson(PersonIntName value) => value.toEJson();
   static PersonIntName _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        PersonIntName(
-          fromEJson(name),
-        ),
+      {'name': EJsonValue name} => PersonIntName(fromEJson(name)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -70,10 +61,7 @@ class PersonIntName extends _PersonIntName
 
 class StudentV1 extends _StudentV1
     with RealmEntity, RealmObjectBase, RealmObject {
-  StudentV1(
-    String name, {
-    int? yearOfBirth,
-  }) {
+  StudentV1(String name, {int? yearOfBirth}) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'yearOfBirth', yearOfBirth);
   }
@@ -113,13 +101,10 @@ class StudentV1 extends _StudentV1
   static StudentV1 _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        StudentV1(
-          fromEJson(name),
-          yearOfBirth: fromEJson(ejson['yearOfBirth']),
-        ),
+      {'name': EJsonValue name} => StudentV1(
+        fromEJson(name),
+        yearOfBirth: fromEJson(ejson['yearOfBirth']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -139,10 +124,7 @@ class StudentV1 extends _StudentV1
 
 class MyObjectWithTypo extends _MyObjectWithTypo
     with RealmEntity, RealmObjectBase, RealmObject {
-  MyObjectWithTypo(
-    String nmae,
-    int vlaue,
-  ) {
+  MyObjectWithTypo(String nmae, int vlaue) {
     RealmObjectBase.set(this, 'nmae', nmae);
     RealmObjectBase.set(this, 'vlaue', vlaue);
   }
@@ -164,33 +146,26 @@ class MyObjectWithTypo extends _MyObjectWithTypo
       RealmObjectBase.getChanges<MyObjectWithTypo>(this);
 
   @override
-  Stream<RealmObjectChanges<MyObjectWithTypo>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<MyObjectWithTypo>(this, keyPaths);
+  Stream<RealmObjectChanges<MyObjectWithTypo>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<MyObjectWithTypo>(this, keyPaths);
 
   @override
   MyObjectWithTypo freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithTypo>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'nmae': nmae.toEJson(),
-      'vlaue': vlaue.toEJson(),
-    };
+    return <String, dynamic>{'nmae': nmae.toEJson(), 'vlaue': vlaue.toEJson()};
   }
 
   static EJsonValue _toEJson(MyObjectWithTypo value) => value.toEJson();
   static MyObjectWithTypo _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'nmae': EJsonValue nmae,
-        'vlaue': EJsonValue vlaue,
-      } =>
-        MyObjectWithTypo(
-          fromEJson(nmae),
-          fromEJson(vlaue),
-        ),
+      {'nmae': EJsonValue nmae, 'vlaue': EJsonValue vlaue} => MyObjectWithTypo(
+        fromEJson(nmae),
+        fromEJson(vlaue),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -199,10 +174,14 @@ class MyObjectWithTypo extends _MyObjectWithTypo
     RealmObjectBase.registerFactory(MyObjectWithTypo._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, MyObjectWithTypo, 'MyObject', [
-      SchemaProperty('nmae', RealmPropertyType.string),
-      SchemaProperty('vlaue', RealmPropertyType.int),
-    ]);
+      ObjectType.realmObject,
+      MyObjectWithTypo,
+      'MyObject',
+      [
+        SchemaProperty('nmae', RealmPropertyType.string),
+        SchemaProperty('vlaue', RealmPropertyType.int),
+      ],
+    );
   }();
 
   @override
@@ -211,10 +190,7 @@ class MyObjectWithTypo extends _MyObjectWithTypo
 
 class MyObjectWithoutTypo extends _MyObjectWithoutTypo
     with RealmEntity, RealmObjectBase, RealmObject {
-  MyObjectWithoutTypo(
-    String name,
-    int value,
-  ) {
+  MyObjectWithoutTypo(String name, int value) {
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'value', value);
   }
@@ -236,33 +212,24 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
       RealmObjectBase.getChanges<MyObjectWithoutTypo>(this);
 
   @override
-  Stream<RealmObjectChanges<MyObjectWithoutTypo>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<MyObjectWithoutTypo>(this, keyPaths);
+  Stream<RealmObjectChanges<MyObjectWithoutTypo>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<MyObjectWithoutTypo>(this, keyPaths);
 
   @override
   MyObjectWithoutTypo freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithoutTypo>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-      'value': value.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson(), 'value': value.toEJson()};
   }
 
   static EJsonValue _toEJson(MyObjectWithoutTypo value) => value.toEJson();
   static MyObjectWithoutTypo _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-        'value': EJsonValue value,
-      } =>
-        MyObjectWithoutTypo(
-          fromEJson(name),
-          fromEJson(value),
-        ),
+      {'name': EJsonValue name, 'value': EJsonValue value} =>
+        MyObjectWithoutTypo(fromEJson(name), fromEJson(value)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -271,10 +238,14 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
     RealmObjectBase.registerFactory(MyObjectWithoutTypo._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, MyObjectWithoutTypo, 'MyObject', [
-      SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('value', RealmPropertyType.int),
-    ]);
+      ObjectType.realmObject,
+      MyObjectWithoutTypo,
+      'MyObject',
+      [
+        SchemaProperty('name', RealmPropertyType.string),
+        SchemaProperty('value', RealmPropertyType.int),
+      ],
+    );
   }();
 
   @override
@@ -283,9 +254,7 @@ class MyObjectWithoutTypo extends _MyObjectWithoutTypo
 
 class MyObjectWithoutValue extends _MyObjectWithoutValue
     with RealmEntity, RealmObjectBase, RealmObject {
-  MyObjectWithoutValue(
-    String name,
-  ) {
+  MyObjectWithoutValue(String name) {
     RealmObjectBase.set(this, 'name', name);
   }
 
@@ -301,30 +270,23 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
       RealmObjectBase.getChanges<MyObjectWithoutValue>(this);
 
   @override
-  Stream<RealmObjectChanges<MyObjectWithoutValue>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<MyObjectWithoutValue>(this, keyPaths);
+  Stream<RealmObjectChanges<MyObjectWithoutValue>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<MyObjectWithoutValue>(this, keyPaths);
 
   @override
   MyObjectWithoutValue freeze() =>
       RealmObjectBase.freezeObject<MyObjectWithoutValue>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson()};
   }
 
   static EJsonValue _toEJson(MyObjectWithoutValue value) => value.toEJson();
   static MyObjectWithoutValue _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        MyObjectWithoutValue(
-          fromEJson(name),
-        ),
+      {'name': EJsonValue name} => MyObjectWithoutValue(fromEJson(name)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -333,9 +295,11 @@ class MyObjectWithoutValue extends _MyObjectWithoutValue
     RealmObjectBase.registerFactory(MyObjectWithoutValue._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, MyObjectWithoutValue, 'MyObject', [
-      SchemaProperty('name', RealmPropertyType.string),
-    ]);
+      ObjectType.realmObject,
+      MyObjectWithoutValue,
+      'MyObject',
+      [SchemaProperty('name', RealmPropertyType.string)],
+    );
   }();
 
   @override

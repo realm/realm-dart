@@ -19,7 +19,7 @@ jobs:
     name: Build Windows
     uses: ./.github/workflows/build-native.yml
     with:
-      runner: windows-latest
+      runner: windows-2022 # windows-latest moved to VS 2026; pin to the image that still has the "Visual Studio 17 2022" generator used by CMakePresets
       binary: windows
       build: '["windows"]'
 
