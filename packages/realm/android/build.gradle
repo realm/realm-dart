@@ -68,25 +68,29 @@ def getPaths() {
     }
 
     def flutterRoot = localProperties.getProperty('flutter.sdk')
-    def dartExecutable = 'dart'
+    // Use the `flutter` executable (not bare `dart`): the app depends on the
+    // Flutter SDK (`sdk: flutter`), which a bare `dart` cannot resolve, so
+    // `dart run realm install` fails with "version solving failed". `flutter
+    // pub run` resolves correctly.
+    def flutterExecutable = 'flutter'
     if (flutterRoot != null) {
-        dartExecutable = "${flutterRoot}${File.separator}bin${File.separator}${dartExecutable}"
+        flutterExecutable = "${flutterRoot}${File.separator}bin${File.separator}${flutterExecutable}"
     }
 
     //on Windows use flutter.bat instead
     if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
-        dartExecutable += '.bat'
+        flutterExecutable += '.bat'
     }
 
-    return [flutterRoot, dartExecutable]
+    return [flutterRoot, flutterExecutable]
 }
 
 tasks.register("downloadRealmBinaries", Exec) {
     outputs.upToDateWhen { false }
 
-    def (flutterRoot, dartExecutable) = getPaths()
+    def (flutterRoot, flutterExecutable) = getPaths()
     workingDir "${project.rootProject.projectDir}${File.separator}.."
-    commandLine dartExecutable, 'run', 'realm', 'install', '--target-os-type', 'android'
+    commandLine flutterExecutable, 'pub', 'run', 'realm', 'install', '--target-os-type', 'android'
 }
 
 def getBundleId() {

@@ -10,34 +10,36 @@ T _$enumValueHelper<T>(Map<T, String> enumValues, String source) =>
     enumValues.entries
         .singleWhere(
           (e) => e.value == source,
-          orElse: () => throw ArgumentError(
-            '`$source` is not one of the supported values: '
-            '${enumValues.values.join(', ')}',
-          ),
+          orElse:
+              () =>
+                  throw ArgumentError(
+                    '`$source` is not one of the supported values: '
+                    '${enumValues.values.join(', ')}',
+                  ),
         )
         .key;
 
 T? _$nullableEnumValueHelperNullable<T>(
   Map<T, String> enumValues,
   String? source,
-) =>
-    source == null ? null : _$enumValueHelper(enumValues, source);
+) => source == null ? null : _$enumValueHelper(enumValues, source);
 
 Options _$parseOptionsResult(ArgResults result) => Options(
-      targetOsType: _$nullableEnumValueHelperNullable(
-        _$TargetOsTypeEnumMapBuildCli,
-        result['target-os-type'] as String?,
-      ),
-      force: result['force'] as bool,
-      debug: result['debug'] as bool,
-    )..flavor = _$nullableEnumValueHelperNullable(
-        _$FlavorEnumMapBuildCli,
-        result['flavor'] as String?,
-      );
+    targetOsType: _$nullableEnumValueHelperNullable(
+      _$TargetOsTypeEnumMapBuildCli,
+      result['target-os-type'] as String?,
+    ),
+    force: result['force'] as bool,
+    debug: result['debug'] as bool,
+  )
+  ..flavor = _$nullableEnumValueHelperNullable(
+    _$FlavorEnumMapBuildCli,
+    result['flavor'] as String?,
+  );
 
 const _$FlavorEnumMapBuildCli = <Flavor, String>{
   Flavor.flutter: 'flutter',
-  Flavor.dart: 'dart'
+  Flavor.dart: 'dart',
 };
 
 const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
@@ -45,7 +47,7 @@ const _$TargetOsTypeEnumMapBuildCli = <TargetOsType, String>{
   TargetOsType.ios: 'ios',
   TargetOsType.linux: 'linux',
   TargetOsType.macos: 'macos',
-  TargetOsType.windows: 'windows'
+  TargetOsType.windows: 'windows',
 };
 
 ArgParser _$populateOptionsParser(

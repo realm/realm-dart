@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'backlinks_test.dart';
 
@@ -20,17 +20,21 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
     Iterable<Target> dynamicManyTargets = const [],
   }) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Source>({
-        'name': 'source',
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Source>({'name': 'source'});
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'et mål', oneTarget);
     RealmObjectBase.set<RealmList<Target>>(
-        this, 'manyTargets', RealmList<Target>(manyTargets));
+      this,
+      'manyTargets',
+      RealmList<Target>(manyTargets),
+    );
     RealmObjectBase.set(this, 'dynamisk mål', dynamicTarget);
     RealmObjectBase.set<RealmList<Target>>(
-        this, 'dynamicManyTargets', RealmList<Target>(dynamicManyTargets));
+      this,
+      'dynamicManyTargets',
+      RealmList<Target>(dynamicManyTargets),
+    );
   }
 
   Source._();
@@ -107,14 +111,32 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Source, 'Source', [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('oneTarget', RealmPropertyType.object,
-          mapTo: 'et mål', optional: true, linkTarget: 'Target'),
-      SchemaProperty('manyTargets', RealmPropertyType.object,
-          linkTarget: 'Target', collectionType: RealmCollectionType.list),
-      SchemaProperty('dynamicTarget', RealmPropertyType.object,
-          mapTo: 'dynamisk mål', optional: true, linkTarget: 'Target'),
-      SchemaProperty('dynamicManyTargets', RealmPropertyType.object,
-          linkTarget: 'Target', collectionType: RealmCollectionType.list),
+      SchemaProperty(
+        'oneTarget',
+        RealmPropertyType.object,
+        mapTo: 'et mål',
+        optional: true,
+        linkTarget: 'Target',
+      ),
+      SchemaProperty(
+        'manyTargets',
+        RealmPropertyType.object,
+        linkTarget: 'Target',
+        collectionType: RealmCollectionType.list,
+      ),
+      SchemaProperty(
+        'dynamicTarget',
+        RealmPropertyType.object,
+        mapTo: 'dynamisk mål',
+        optional: true,
+        linkTarget: 'Target',
+      ),
+      SchemaProperty(
+        'dynamicManyTargets',
+        RealmPropertyType.object,
+        linkTarget: 'Target',
+        collectionType: RealmCollectionType.list,
+      ),
     ]);
   }();
 
@@ -125,14 +147,9 @@ class Source extends _Source with RealmEntity, RealmObjectBase, RealmObject {
 class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  Target({
-    String name = 'target',
-    Source? source,
-  }) {
+  Target({String name = 'target', Source? source}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Target>({
-        'name': 'target',
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Target>({'name': 'target'});
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'source', source);
@@ -209,16 +226,26 @@ class Target extends _Target with RealmEntity, RealmObjectBase, RealmObject {
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Target, 'Target', [
       SchemaProperty('name', RealmPropertyType.string),
-      SchemaProperty('source', RealmPropertyType.object,
-          optional: true, linkTarget: 'Source'),
-      SchemaProperty('oneToMany', RealmPropertyType.linkingObjects,
-          linkOriginProperty: 'et mål',
-          collectionType: RealmCollectionType.list,
-          linkTarget: 'Source'),
-      SchemaProperty('manyToMany', RealmPropertyType.linkingObjects,
-          linkOriginProperty: 'manyTargets',
-          collectionType: RealmCollectionType.list,
-          linkTarget: 'Source'),
+      SchemaProperty(
+        'source',
+        RealmPropertyType.object,
+        optional: true,
+        linkTarget: 'Source',
+      ),
+      SchemaProperty(
+        'oneToMany',
+        RealmPropertyType.linkingObjects,
+        linkOriginProperty: 'et mål',
+        collectionType: RealmCollectionType.list,
+        linkTarget: 'Source',
+      ),
+      SchemaProperty(
+        'manyToMany',
+        RealmPropertyType.linkingObjects,
+        linkOriginProperty: 'manyTargets',
+        collectionType: RealmCollectionType.list,
+        linkTarget: 'Source',
+      ),
     ]);
   }();
 

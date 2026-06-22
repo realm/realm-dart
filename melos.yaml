@@ -13,11 +13,12 @@ packages:
 
 command:
   bootstrap:
+    runPubGetInParallel: false
     environment:
-      sdk: ^3.6.0
-      flutter: ^3.27.0
+      sdk: ^3.7.0
+      flutter: ^3.38.0
     dev_dependencies:
-      lints: ^5.1.1
+      lints: ^6.0.0
 
   clean:
     hooks:

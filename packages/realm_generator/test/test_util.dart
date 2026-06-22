@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:build/build.dart';
 import 'package:build_test/build_test.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:logging/logging.dart';
@@ -24,6 +26,7 @@ void testCompile(
   dynamic matcher, {
   dynamic skip,
   void Function(LogRecord)? onLog,
+  bool verbose = false,
 }) {
   if (source is Iterable) {
     testCompileMany(description, source, matcher);
@@ -42,18 +45,38 @@ void testCompile(
   if (matcher is! Matcher) throw ArgumentError.value(matcher, 'matcher');
 
   test(description, () async {
+    final readerWriter = TestReaderWriter(
+      rootPackage: 'realm_generator',
+    );
+
+    await readerWriter.testing.loadIsolateSources();
+
     generate() async {
-      final writer = InMemoryAssetWriter();
-      await testBuilder(
+      final result = await testBuilder(
         generateRealmObjects(),
-        {'pkg|$assetName': '$source'},
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
+        {'realm_generator|$assetName': '$source'},
+        readerWriter: readerWriter,
         onLog: onLog,
+        verbose: verbose,
       );
-      return _formatter.format(
-        String.fromCharCodes(writer.assets.entries.single.value),
+
+      if (!result.succeeded) {
+        return result.errors.first.trim().normalizeLineEndings();
+      }
+
+      // The “logical” AssetId of the generated file
+      final logicalId = AssetId.parse('realm_generator|$assetName')
+          .changeExtension('.realm.dart');
+
+      // Convert to “physical” AssetId in .dart_tool/build/generated
+      final generatedId = AssetId(
+        logicalId.package,
+        '.dart_tool/build/generated/${logicalId.package}/${logicalId.path}',
       );
+
+      final bytes = readerWriter.testing.readBytes(generatedId);
+
+      return _formatter.format(utf8.decode(bytes));
     }
 
     expect(generate(), matcher);
@@ -68,11 +91,11 @@ void testCompileMany(
 ) async {
   final inputs = switch (sources) {
     Iterable<File> files => files.map((file) {
-        return ('pkg|${file.path}', _formatter.format(file.readAsStringSync()));
+        return ('realm_generator|${file.path}', _formatter.format(file.readAsStringSync()));
       }),
     Iterable<String> strings => strings.indexed.map((x) {
         final (index, text) = x;
-        return ('pkg|source_$index.dart', _formatter.format(text));
+        return ('realm_generator|source_$index.dart', _formatter.format(text));
       }),
     _ => throw ArgumentError.value(sources, 'sources'),
   };
@@ -88,23 +111,39 @@ void testCompileMany(
     _ => throw ArgumentError.value(matcher, 'matcher'),
   };
 
-  test(description, () {
+  test(description, () async {
+    final readerWriter = TestReaderWriter(
+      rootPackage: 'realm_generator',
+    );
+
+    await readerWriter.testing.loadIsolateSources();
+
     generate() async {
-      final writer = InMemoryAssetWriter();
+      final inputList = inputs.toList();
       await testBuilder(
         generateRealmObjects(),
         Map<String, Object>.fromEntries(
-          inputs.map((x) {
+          inputList.map((x) {
             final (id, source) = x;
             return MapEntry(id, source);
           }),
         ),
-        writer: writer,
-        reader: await PackageAssetReader.currentIsolate(),
+        readerWriter: readerWriter,
       );
-      return writer.assets.values.map(
-        (charCodes) => String.fromCharCodes(charCodes),
-      );
+      final formattedOutputs = <String>[];
+      for (final (id, _) in inputList) {
+        // Generated outputs are written "hidden" under the build cache, so map
+        // each input's logical `.realm.dart` id to its physical location.
+        final logicalId = AssetId.parse(id).changeExtension('.realm.dart');
+        final generatedId = AssetId(
+          logicalId.package,
+          '.dart_tool/build/generated/${logicalId.package}/${logicalId.path}',
+        );
+        if (!readerWriter.testing.exists(generatedId)) continue;
+        final bytes = readerWriter.testing.readBytes(generatedId);
+        formattedOutputs.add(_formatter.format(utf8.decode(bytes)));
+      }
+      return formattedOutputs;
     }
 
     expect(generate(), matcher);

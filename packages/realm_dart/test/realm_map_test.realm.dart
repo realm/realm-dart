@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'realm_map_test.dart';
 
@@ -10,11 +10,7 @@ part of 'realm_map_test.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
-  Car(
-    String make, {
-    String? color,
-    int? year,
-  }) {
+  Car(String make, {String? color, int? year}) {
     RealmObjectBase.set(this, 'make', make);
     RealmObjectBase.set(this, 'color', color);
     RealmObjectBase.set(this, 'year', year);
@@ -60,14 +56,11 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static Car _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'make': EJsonValue make,
-      } =>
-        Car(
-          fromEJson(make),
-          color: fromEJson(ejson['color']),
-          year: fromEJson(ejson['year']),
-        ),
+      {'make': EJsonValue make} => Car(
+        fromEJson(make),
+        color: fromEJson(ejson['color']),
+        year: fromEJson(ejson['year']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -88,9 +81,7 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 
 class EmbeddedValue extends _EmbeddedValue
     with RealmEntity, RealmObjectBase, EmbeddedObject {
-  EmbeddedValue(
-    int intValue,
-  ) {
+  EmbeddedValue(int intValue) {
     RealmObjectBase.set(this, 'intValue', intValue);
   }
 
@@ -106,29 +97,22 @@ class EmbeddedValue extends _EmbeddedValue
       RealmObjectBase.getChanges<EmbeddedValue>(this);
 
   @override
-  Stream<RealmObjectChanges<EmbeddedValue>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<EmbeddedValue>(this, keyPaths);
+  Stream<RealmObjectChanges<EmbeddedValue>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<EmbeddedValue>(this, keyPaths);
 
   @override
   EmbeddedValue freeze() => RealmObjectBase.freezeObject<EmbeddedValue>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'intValue': intValue.toEJson(),
-    };
+    return <String, dynamic>{'intValue': intValue.toEJson()};
   }
 
   static EJsonValue _toEJson(EmbeddedValue value) => value.toEJson();
   static EmbeddedValue _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'intValue': EJsonValue intValue,
-      } =>
-        EmbeddedValue(
-          fromEJson(intValue),
-        ),
+      {'intValue': EJsonValue intValue} => EmbeddedValue(fromEJson(intValue)),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -137,9 +121,11 @@ class EmbeddedValue extends _EmbeddedValue
     RealmObjectBase.registerFactory(EmbeddedValue._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.embeddedObject, EmbeddedValue, 'EmbeddedValue', [
-      SchemaProperty('intValue', RealmPropertyType.int),
-    ]);
+      ObjectType.embeddedObject,
+      EmbeddedValue,
+      'EmbeddedValue',
+      [SchemaProperty('intValue', RealmPropertyType.int)],
+    );
   }();
 
   @override
@@ -174,46 +160,106 @@ class TestRealmMaps extends _TestRealmMaps
   }) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmMap<bool>>(
-        this, 'boolMap', RealmMap<bool>(boolMap));
+      this,
+      'boolMap',
+      RealmMap<bool>(boolMap),
+    );
     RealmObjectBase.set<RealmMap<int>>(this, 'intMap', RealmMap<int>(intMap));
     RealmObjectBase.set<RealmMap<String>>(
-        this, 'stringMap', RealmMap<String>(stringMap));
+      this,
+      'stringMap',
+      RealmMap<String>(stringMap),
+    );
     RealmObjectBase.set<RealmMap<double>>(
-        this, 'doubleMap', RealmMap<double>(doubleMap));
+      this,
+      'doubleMap',
+      RealmMap<double>(doubleMap),
+    );
     RealmObjectBase.set<RealmMap<DateTime>>(
-        this, 'dateTimeMap', RealmMap<DateTime>(dateTimeMap));
+      this,
+      'dateTimeMap',
+      RealmMap<DateTime>(dateTimeMap),
+    );
     RealmObjectBase.set<RealmMap<ObjectId>>(
-        this, 'objectIdMap', RealmMap<ObjectId>(objectIdMap));
+      this,
+      'objectIdMap',
+      RealmMap<ObjectId>(objectIdMap),
+    );
     RealmObjectBase.set<RealmMap<Uuid>>(
-        this, 'uuidMap', RealmMap<Uuid>(uuidMap));
+      this,
+      'uuidMap',
+      RealmMap<Uuid>(uuidMap),
+    );
     RealmObjectBase.set<RealmMap<Uint8List>>(
-        this, 'binaryMap', RealmMap<Uint8List>(binaryMap));
+      this,
+      'binaryMap',
+      RealmMap<Uint8List>(binaryMap),
+    );
     RealmObjectBase.set<RealmMap<Decimal128>>(
-        this, 'decimalMap', RealmMap<Decimal128>(decimalMap));
+      this,
+      'decimalMap',
+      RealmMap<Decimal128>(decimalMap),
+    );
     RealmObjectBase.set<RealmMap<bool?>>(
-        this, 'nullableBoolMap', RealmMap<bool?>(nullableBoolMap));
+      this,
+      'nullableBoolMap',
+      RealmMap<bool?>(nullableBoolMap),
+    );
     RealmObjectBase.set<RealmMap<int?>>(
-        this, 'nullableIntMap', RealmMap<int?>(nullableIntMap));
+      this,
+      'nullableIntMap',
+      RealmMap<int?>(nullableIntMap),
+    );
     RealmObjectBase.set<RealmMap<String?>>(
-        this, 'nullableStringMap', RealmMap<String?>(nullableStringMap));
+      this,
+      'nullableStringMap',
+      RealmMap<String?>(nullableStringMap),
+    );
     RealmObjectBase.set<RealmMap<double?>>(
-        this, 'nullableDoubleMap', RealmMap<double?>(nullableDoubleMap));
+      this,
+      'nullableDoubleMap',
+      RealmMap<double?>(nullableDoubleMap),
+    );
     RealmObjectBase.set<RealmMap<DateTime?>>(
-        this, 'nullableDateTimeMap', RealmMap<DateTime?>(nullableDateTimeMap));
+      this,
+      'nullableDateTimeMap',
+      RealmMap<DateTime?>(nullableDateTimeMap),
+    );
     RealmObjectBase.set<RealmMap<ObjectId?>>(
-        this, 'nullableObjectIdMap', RealmMap<ObjectId?>(nullableObjectIdMap));
+      this,
+      'nullableObjectIdMap',
+      RealmMap<ObjectId?>(nullableObjectIdMap),
+    );
     RealmObjectBase.set<RealmMap<Uuid?>>(
-        this, 'nullableUuidMap', RealmMap<Uuid?>(nullableUuidMap));
+      this,
+      'nullableUuidMap',
+      RealmMap<Uuid?>(nullableUuidMap),
+    );
     RealmObjectBase.set<RealmMap<Uint8List?>>(
-        this, 'nullableBinaryMap', RealmMap<Uint8List?>(nullableBinaryMap));
+      this,
+      'nullableBinaryMap',
+      RealmMap<Uint8List?>(nullableBinaryMap),
+    );
     RealmObjectBase.set<RealmMap<Decimal128?>>(
-        this, 'nullableDecimalMap', RealmMap<Decimal128?>(nullableDecimalMap));
+      this,
+      'nullableDecimalMap',
+      RealmMap<Decimal128?>(nullableDecimalMap),
+    );
     RealmObjectBase.set<RealmMap<Car?>>(
-        this, 'objectsMap', RealmMap<Car?>(objectsMap));
+      this,
+      'objectsMap',
+      RealmMap<Car?>(objectsMap),
+    );
     RealmObjectBase.set<RealmMap<EmbeddedValue?>>(
-        this, 'embeddedMap', RealmMap<EmbeddedValue?>(embeddedMap));
+      this,
+      'embeddedMap',
+      RealmMap<EmbeddedValue?>(embeddedMap),
+    );
     RealmObjectBase.set<RealmMap<RealmValue>>(
-        this, 'mixedMap', RealmMap<RealmValue>(mixedMap));
+      this,
+      'mixedMap',
+      RealmMap<RealmValue>(mixedMap),
+    );
   }
 
   TestRealmMaps._();
@@ -382,9 +428,9 @@ class TestRealmMaps extends _TestRealmMaps
       RealmObjectBase.getChanges<TestRealmMaps>(this);
 
   @override
-  Stream<RealmObjectChanges<TestRealmMaps>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<TestRealmMaps>(this, keyPaths);
+  Stream<RealmObjectChanges<TestRealmMaps>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<TestRealmMaps>(this, keyPaths);
 
   @override
   TestRealmMaps freeze() => RealmObjectBase.freezeObject<TestRealmMaps>(this);
@@ -420,33 +466,30 @@ class TestRealmMaps extends _TestRealmMaps
   static TestRealmMaps _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'key': EJsonValue key,
-      } =>
-        TestRealmMaps(
-          fromEJson(key),
-          boolMap: fromEJson(ejson['boolMap']),
-          intMap: fromEJson(ejson['intMap']),
-          stringMap: fromEJson(ejson['stringMap']),
-          doubleMap: fromEJson(ejson['doubleMap']),
-          dateTimeMap: fromEJson(ejson['dateTimeMap']),
-          objectIdMap: fromEJson(ejson['objectIdMap']),
-          uuidMap: fromEJson(ejson['uuidMap']),
-          binaryMap: fromEJson(ejson['binaryMap']),
-          decimalMap: fromEJson(ejson['decimalMap']),
-          nullableBoolMap: fromEJson(ejson['nullableBoolMap']),
-          nullableIntMap: fromEJson(ejson['nullableIntMap']),
-          nullableStringMap: fromEJson(ejson['nullableStringMap']),
-          nullableDoubleMap: fromEJson(ejson['nullableDoubleMap']),
-          nullableDateTimeMap: fromEJson(ejson['nullableDateTimeMap']),
-          nullableObjectIdMap: fromEJson(ejson['nullableObjectIdMap']),
-          nullableUuidMap: fromEJson(ejson['nullableUuidMap']),
-          nullableBinaryMap: fromEJson(ejson['nullableBinaryMap']),
-          nullableDecimalMap: fromEJson(ejson['nullableDecimalMap']),
-          objectsMap: fromEJson(ejson['objectsMap']),
-          embeddedMap: fromEJson(ejson['embeddedMap']),
-          mixedMap: fromEJson(ejson['mixedMap']),
-        ),
+      {'key': EJsonValue key} => TestRealmMaps(
+        fromEJson(key),
+        boolMap: fromEJson(ejson['boolMap']),
+        intMap: fromEJson(ejson['intMap']),
+        stringMap: fromEJson(ejson['stringMap']),
+        doubleMap: fromEJson(ejson['doubleMap']),
+        dateTimeMap: fromEJson(ejson['dateTimeMap']),
+        objectIdMap: fromEJson(ejson['objectIdMap']),
+        uuidMap: fromEJson(ejson['uuidMap']),
+        binaryMap: fromEJson(ejson['binaryMap']),
+        decimalMap: fromEJson(ejson['decimalMap']),
+        nullableBoolMap: fromEJson(ejson['nullableBoolMap']),
+        nullableIntMap: fromEJson(ejson['nullableIntMap']),
+        nullableStringMap: fromEJson(ejson['nullableStringMap']),
+        nullableDoubleMap: fromEJson(ejson['nullableDoubleMap']),
+        nullableDateTimeMap: fromEJson(ejson['nullableDateTimeMap']),
+        nullableObjectIdMap: fromEJson(ejson['nullableObjectIdMap']),
+        nullableUuidMap: fromEJson(ejson['nullableUuidMap']),
+        nullableBinaryMap: fromEJson(ejson['nullableBinaryMap']),
+        nullableDecimalMap: fromEJson(ejson['nullableDecimalMap']),
+        objectsMap: fromEJson(ejson['objectsMap']),
+        embeddedMap: fromEJson(ejson['embeddedMap']),
+        mixedMap: fromEJson(ejson['mixedMap']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -455,55 +498,132 @@ class TestRealmMaps extends _TestRealmMaps
     RealmObjectBase.registerFactory(TestRealmMaps._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, TestRealmMaps, 'TestRealmMaps', [
-      SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
-      SchemaProperty('boolMap', RealmPropertyType.bool,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('intMap', RealmPropertyType.int,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('stringMap', RealmPropertyType.string,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('doubleMap', RealmPropertyType.double,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('dateTimeMap', RealmPropertyType.timestamp,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('objectIdMap', RealmPropertyType.objectid,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('uuidMap', RealmPropertyType.uuid,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('binaryMap', RealmPropertyType.binary,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('decimalMap', RealmPropertyType.decimal128,
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableBoolMap', RealmPropertyType.bool,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableIntMap', RealmPropertyType.int,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableStringMap', RealmPropertyType.string,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableDoubleMap', RealmPropertyType.double,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableDateTimeMap', RealmPropertyType.timestamp,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableObjectIdMap', RealmPropertyType.objectid,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableUuidMap', RealmPropertyType.uuid,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableBinaryMap', RealmPropertyType.binary,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('nullableDecimalMap', RealmPropertyType.decimal128,
-          optional: true, collectionType: RealmCollectionType.map),
-      SchemaProperty('objectsMap', RealmPropertyType.object,
+      ObjectType.realmObject,
+      TestRealmMaps,
+      'TestRealmMaps',
+      [
+        SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
+        SchemaProperty(
+          'boolMap',
+          RealmPropertyType.bool,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'intMap',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'stringMap',
+          RealmPropertyType.string,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'doubleMap',
+          RealmPropertyType.double,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'dateTimeMap',
+          RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'objectIdMap',
+          RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'uuidMap',
+          RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'binaryMap',
+          RealmPropertyType.binary,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'decimalMap',
+          RealmPropertyType.decimal128,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableBoolMap',
+          RealmPropertyType.bool,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableIntMap',
+          RealmPropertyType.int,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableStringMap',
+          RealmPropertyType.string,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableDoubleMap',
+          RealmPropertyType.double,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableDateTimeMap',
+          RealmPropertyType.timestamp,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableObjectIdMap',
+          RealmPropertyType.objectid,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableUuidMap',
+          RealmPropertyType.uuid,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableBinaryMap',
+          RealmPropertyType.binary,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'nullableDecimalMap',
+          RealmPropertyType.decimal128,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'objectsMap',
+          RealmPropertyType.object,
           optional: true,
           linkTarget: 'Car',
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('embeddedMap', RealmPropertyType.object,
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'embeddedMap',
+          RealmPropertyType.object,
           optional: true,
           linkTarget: 'EmbeddedValue',
-          collectionType: RealmCollectionType.map),
-      SchemaProperty('mixedMap', RealmPropertyType.mixed,
-          optional: true, collectionType: RealmCollectionType.map),
-    ]);
+          collectionType: RealmCollectionType.map,
+        ),
+        SchemaProperty(
+          'mixedMap',
+          RealmPropertyType.mixed,
+          optional: true,
+          collectionType: RealmCollectionType.map,
+        ),
+      ],
+    );
   }();
 
   @override

@@ -1,6 +1,6 @@
 Realm object references should not have default values
 
-in: asset:pkg/test/error_test_data/realm_object_reference_default_values.dart:8:26
+in: asset:realm_generator/test/error_test_data/realm_object_reference_default_values.dart:8:26
     ╷
 5   │ @RealmModel()
 6   │ class _Person {

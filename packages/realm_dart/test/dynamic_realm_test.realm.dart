@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'dynamic_realm_test.dart';
 
@@ -10,10 +10,7 @@ part of 'dynamic_realm_test.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
-  Taskv2(
-    ObjectId id,
-    String description,
-  ) {
+  Taskv2(ObjectId id, String description) {
     RealmObjectBase.set(this, '_id', id);
     RealmObjectBase.set(this, 'description', description);
   }
@@ -54,14 +51,10 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
   static Taskv2 _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        '_id': EJsonValue id,
-        'description': EJsonValue description,
-      } =>
-        Taskv2(
-          fromEJson(id),
-          fromEJson(description),
-        ),
+      {'_id': EJsonValue id, 'description': EJsonValue description} => Taskv2(
+        fromEJson(id),
+        fromEJson(description),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -70,8 +63,12 @@ class Taskv2 extends _Taskv2 with RealmEntity, RealmObjectBase, RealmObject {
     RealmObjectBase.registerFactory(Taskv2._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(ObjectType.realmObject, Taskv2, 'Task', [
-      SchemaProperty('id', RealmPropertyType.objectid,
-          mapTo: '_id', primaryKey: true),
+      SchemaProperty(
+        'id',
+        RealmPropertyType.objectid,
+        mapTo: '_id',
+        primaryKey: true,
+      ),
       SchemaProperty('description', RealmPropertyType.string),
     ]);
   }();

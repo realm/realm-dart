@@ -1,3 +1,7 @@
+## 0.4.2
+
+- Upgrade min Dart SDK to 3.7.0, update all dependencies to latest stable version, and tighten lower bounds.
+
 ## 0.4.1
 
 - Upgrade min Dart SDK to 3.6.0, update all dependencies to latest stable version, and tighten lower bounds.

@@ -1,6 +1,6 @@
 Invalid model name
 
-in: asset:pkg/test/error_test_data/long_mapped_to_name.dart:7:7
+in: asset:realm_generator/test/error_test_data/long_mapped_to_name.dart:7:7
   ╷
 5 │ @RealmModel()
 6 │ @MapTo('ThisIsAVeryLongClassNameSoLongInFactThatItRunsOverThe57CharacterLimit')

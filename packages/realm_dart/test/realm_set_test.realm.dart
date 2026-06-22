@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'realm_set_test.dart';
 
@@ -10,11 +10,7 @@ part of 'realm_set_test.dart';
 // coverage:ignore-file
 // ignore_for_file: type=lint
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
-  Car(
-    String make, {
-    String? color,
-    int? year,
-  }) {
+  Car(String make, {String? color, int? year}) {
     RealmObjectBase.set(this, 'make', make);
     RealmObjectBase.set(this, 'color', color);
     RealmObjectBase.set(this, 'year', year);
@@ -60,14 +56,11 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static Car _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'make': EJsonValue make,
-      } =>
-        Car(
-          fromEJson(make),
-          color: fromEJson(ejson['color']),
-          year: fromEJson(ejson['year']),
-        ),
+      {'make': EJsonValue make} => Car(
+        fromEJson(make),
+        color: fromEJson(ejson['color']),
+        year: fromEJson(ejson['year']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -111,40 +104,91 @@ class TestRealmSets extends _TestRealmSets
   }) {
     RealmObjectBase.set(this, 'key', key);
     RealmObjectBase.set<RealmSet<bool>>(
-        this, 'boolSet', RealmSet<bool>(boolSet));
+      this,
+      'boolSet',
+      RealmSet<bool>(boolSet),
+    );
     RealmObjectBase.set<RealmSet<int>>(this, 'intSet', RealmSet<int>(intSet));
     RealmObjectBase.set<RealmSet<String>>(
-        this, 'stringSet', RealmSet<String>(stringSet));
+      this,
+      'stringSet',
+      RealmSet<String>(stringSet),
+    );
     RealmObjectBase.set<RealmSet<double>>(
-        this, 'doubleSet', RealmSet<double>(doubleSet));
+      this,
+      'doubleSet',
+      RealmSet<double>(doubleSet),
+    );
     RealmObjectBase.set<RealmSet<DateTime>>(
-        this, 'dateTimeSet', RealmSet<DateTime>(dateTimeSet));
+      this,
+      'dateTimeSet',
+      RealmSet<DateTime>(dateTimeSet),
+    );
     RealmObjectBase.set<RealmSet<ObjectId>>(
-        this, 'objectIdSet', RealmSet<ObjectId>(objectIdSet));
+      this,
+      'objectIdSet',
+      RealmSet<ObjectId>(objectIdSet),
+    );
     RealmObjectBase.set<RealmSet<Uuid>>(
-        this, 'uuidSet', RealmSet<Uuid>(uuidSet));
+      this,
+      'uuidSet',
+      RealmSet<Uuid>(uuidSet),
+    );
     RealmObjectBase.set<RealmSet<RealmValue>>(
-        this, 'mixedSet', RealmSet<RealmValue>(mixedSet));
+      this,
+      'mixedSet',
+      RealmSet<RealmValue>(mixedSet),
+    );
     RealmObjectBase.set<RealmSet<Car>>(
-        this, 'objectsSet', RealmSet<Car>(objectsSet));
+      this,
+      'objectsSet',
+      RealmSet<Car>(objectsSet),
+    );
     RealmObjectBase.set<RealmSet<Uint8List>>(
-        this, 'binarySet', RealmSet<Uint8List>(binarySet));
+      this,
+      'binarySet',
+      RealmSet<Uint8List>(binarySet),
+    );
     RealmObjectBase.set<RealmSet<bool?>>(
-        this, 'nullableBoolSet', RealmSet<bool?>(nullableBoolSet));
+      this,
+      'nullableBoolSet',
+      RealmSet<bool?>(nullableBoolSet),
+    );
     RealmObjectBase.set<RealmSet<int?>>(
-        this, 'nullableIntSet', RealmSet<int?>(nullableIntSet));
+      this,
+      'nullableIntSet',
+      RealmSet<int?>(nullableIntSet),
+    );
     RealmObjectBase.set<RealmSet<String?>>(
-        this, 'nullableStringSet', RealmSet<String?>(nullableStringSet));
+      this,
+      'nullableStringSet',
+      RealmSet<String?>(nullableStringSet),
+    );
     RealmObjectBase.set<RealmSet<double?>>(
-        this, 'nullableDoubleSet', RealmSet<double?>(nullableDoubleSet));
+      this,
+      'nullableDoubleSet',
+      RealmSet<double?>(nullableDoubleSet),
+    );
     RealmObjectBase.set<RealmSet<DateTime?>>(
-        this, 'nullableDateTimeSet', RealmSet<DateTime?>(nullableDateTimeSet));
+      this,
+      'nullableDateTimeSet',
+      RealmSet<DateTime?>(nullableDateTimeSet),
+    );
     RealmObjectBase.set<RealmSet<ObjectId?>>(
-        this, 'nullableObjectIdSet', RealmSet<ObjectId?>(nullableObjectIdSet));
+      this,
+      'nullableObjectIdSet',
+      RealmSet<ObjectId?>(nullableObjectIdSet),
+    );
     RealmObjectBase.set<RealmSet<Uuid?>>(
-        this, 'nullableUuidSet', RealmSet<Uuid?>(nullableUuidSet));
+      this,
+      'nullableUuidSet',
+      RealmSet<Uuid?>(nullableUuidSet),
+    );
     RealmObjectBase.set<RealmSet<Uint8List?>>(
-        this, 'nullableBinarySet', RealmSet<Uint8List?>(nullableBinarySet));
+      this,
+      'nullableBinarySet',
+      RealmSet<Uint8List?>(nullableBinarySet),
+    );
   }
 
   TestRealmSets._();
@@ -289,9 +333,9 @@ class TestRealmSets extends _TestRealmSets
       RealmObjectBase.getChanges<TestRealmSets>(this);
 
   @override
-  Stream<RealmObjectChanges<TestRealmSets>> changesFor(
-          [List<String>? keyPaths]) =>
-      RealmObjectBase.getChangesFor<TestRealmSets>(this, keyPaths);
+  Stream<RealmObjectChanges<TestRealmSets>> changesFor([
+    List<String>? keyPaths,
+  ]) => RealmObjectBase.getChangesFor<TestRealmSets>(this, keyPaths);
 
   @override
   TestRealmSets freeze() => RealmObjectBase.freezeObject<TestRealmSets>(this);
@@ -324,30 +368,27 @@ class TestRealmSets extends _TestRealmSets
   static TestRealmSets _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'key': EJsonValue key,
-      } =>
-        TestRealmSets(
-          fromEJson(key),
-          boolSet: fromEJson(ejson['boolSet']),
-          intSet: fromEJson(ejson['intSet']),
-          stringSet: fromEJson(ejson['stringSet']),
-          doubleSet: fromEJson(ejson['doubleSet']),
-          dateTimeSet: fromEJson(ejson['dateTimeSet']),
-          objectIdSet: fromEJson(ejson['objectIdSet']),
-          uuidSet: fromEJson(ejson['uuidSet']),
-          mixedSet: fromEJson(ejson['mixedSet']),
-          objectsSet: fromEJson(ejson['objectsSet']),
-          binarySet: fromEJson(ejson['binarySet']),
-          nullableBoolSet: fromEJson(ejson['nullableBoolSet']),
-          nullableIntSet: fromEJson(ejson['nullableIntSet']),
-          nullableStringSet: fromEJson(ejson['nullableStringSet']),
-          nullableDoubleSet: fromEJson(ejson['nullableDoubleSet']),
-          nullableDateTimeSet: fromEJson(ejson['nullableDateTimeSet']),
-          nullableObjectIdSet: fromEJson(ejson['nullableObjectIdSet']),
-          nullableUuidSet: fromEJson(ejson['nullableUuidSet']),
-          nullableBinarySet: fromEJson(ejson['nullableBinarySet']),
-        ),
+      {'key': EJsonValue key} => TestRealmSets(
+        fromEJson(key),
+        boolSet: fromEJson(ejson['boolSet']),
+        intSet: fromEJson(ejson['intSet']),
+        stringSet: fromEJson(ejson['stringSet']),
+        doubleSet: fromEJson(ejson['doubleSet']),
+        dateTimeSet: fromEJson(ejson['dateTimeSet']),
+        objectIdSet: fromEJson(ejson['objectIdSet']),
+        uuidSet: fromEJson(ejson['uuidSet']),
+        mixedSet: fromEJson(ejson['mixedSet']),
+        objectsSet: fromEJson(ejson['objectsSet']),
+        binarySet: fromEJson(ejson['binarySet']),
+        nullableBoolSet: fromEJson(ejson['nullableBoolSet']),
+        nullableIntSet: fromEJson(ejson['nullableIntSet']),
+        nullableStringSet: fromEJson(ejson['nullableStringSet']),
+        nullableDoubleSet: fromEJson(ejson['nullableDoubleSet']),
+        nullableDateTimeSet: fromEJson(ejson['nullableDateTimeSet']),
+        nullableObjectIdSet: fromEJson(ejson['nullableObjectIdSet']),
+        nullableUuidSet: fromEJson(ejson['nullableUuidSet']),
+        nullableBinarySet: fromEJson(ejson['nullableBinarySet']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -356,45 +397,113 @@ class TestRealmSets extends _TestRealmSets
     RealmObjectBase.registerFactory(TestRealmSets._);
     register(_toEJson, _fromEJson);
     return const SchemaObject(
-        ObjectType.realmObject, TestRealmSets, 'TestRealmSets', [
-      SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
-      SchemaProperty('boolSet', RealmPropertyType.bool,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('intSet', RealmPropertyType.int,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('stringSet', RealmPropertyType.string,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('doubleSet', RealmPropertyType.double,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('dateTimeSet', RealmPropertyType.timestamp,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('objectIdSet', RealmPropertyType.objectid,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('uuidSet', RealmPropertyType.uuid,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('mixedSet', RealmPropertyType.mixed,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('objectsSet', RealmPropertyType.object,
-          linkTarget: 'Car', collectionType: RealmCollectionType.set),
-      SchemaProperty('binarySet', RealmPropertyType.binary,
-          collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableBoolSet', RealmPropertyType.bool,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableIntSet', RealmPropertyType.int,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableStringSet', RealmPropertyType.string,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDoubleSet', RealmPropertyType.double,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableDateTimeSet', RealmPropertyType.timestamp,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableObjectIdSet', RealmPropertyType.objectid,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableUuidSet', RealmPropertyType.uuid,
-          optional: true, collectionType: RealmCollectionType.set),
-      SchemaProperty('nullableBinarySet', RealmPropertyType.binary,
-          optional: true, collectionType: RealmCollectionType.set),
-    ]);
+      ObjectType.realmObject,
+      TestRealmSets,
+      'TestRealmSets',
+      [
+        SchemaProperty('key', RealmPropertyType.int, primaryKey: true),
+        SchemaProperty(
+          'boolSet',
+          RealmPropertyType.bool,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'intSet',
+          RealmPropertyType.int,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'stringSet',
+          RealmPropertyType.string,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'doubleSet',
+          RealmPropertyType.double,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'dateTimeSet',
+          RealmPropertyType.timestamp,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'objectIdSet',
+          RealmPropertyType.objectid,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'uuidSet',
+          RealmPropertyType.uuid,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'mixedSet',
+          RealmPropertyType.mixed,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'objectsSet',
+          RealmPropertyType.object,
+          linkTarget: 'Car',
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'binarySet',
+          RealmPropertyType.binary,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableBoolSet',
+          RealmPropertyType.bool,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableIntSet',
+          RealmPropertyType.int,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableStringSet',
+          RealmPropertyType.string,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableDoubleSet',
+          RealmPropertyType.double,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableDateTimeSet',
+          RealmPropertyType.timestamp,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableObjectIdSet',
+          RealmPropertyType.objectid,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableUuidSet',
+          RealmPropertyType.uuid,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+        SchemaProperty(
+          'nullableBinarySet',
+          RealmPropertyType.binary,
+          optional: true,
+          collectionType: RealmCollectionType.set,
+        ),
+      ],
+    );
   }();
 
   @override

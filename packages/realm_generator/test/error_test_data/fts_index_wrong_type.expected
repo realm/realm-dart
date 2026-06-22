@@ -1,6 +1,6 @@
 Cannot add full-text index on a non-string property
 
-in: asset:pkg/test/error_test_data/fts_index_wrong_type.dart:6:8
+in: asset:realm_generator/test/error_test_data/fts_index_wrong_type.dart:6:8
   ╷
 3 │ @RealmModel()
 4 │ class _Foo {

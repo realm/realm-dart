@@ -18,8 +18,9 @@ import 'session.dart';
 import 'type_checkers.dart';
 import 'utils.dart';
 
-ElementDeclarationResult? getDeclarationFromElement(Element element) {
-  return session.resolvedLibrary.getElementDeclaration(element);
+FragmentDeclarationResult? getDeclarationFromElement(Element element) {
+  final fragment = element.nonSynthetic.firstFragment;
+  return session.resolvedLibrary.getFragmentDeclaration(fragment);
 }
 
 extension on FileSpan {
@@ -94,10 +95,23 @@ extension ElementEx on Element {
   }
 
   FileSpan? get span {
+    final self = this;
+    if (self is ConstructorElement) {
+      // `spanForElement` (used by `_shortSpan`) cannot locate an unnamed
+      // constructor because its `nameOffset` is `null`. Use the offset of the
+      // type name in the constructor declaration instead (e.g. the `_Bad` in
+      // `_Bad(this.id)`), which is what older analyzers reported.
+      final fragment = self.firstFragment;
+      final offset = fragment.typeNameOffset;
+      final typeName = fragment.typeName;
+      final file = self.enclosingElement._shortSpan?.file;
+      if (offset != null && typeName != null && file != null) {
+        return file.span(offset, offset + typeName.length);
+      }
+    }
     FileSpan? elementSpan;
     try {
       elementSpan = _shortSpan!;
-      final self = this;
       if (self is FieldElement) {
         final node = self.declarationAstNode;
         if (node.metadata.isNotEmpty) {

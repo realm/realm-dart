@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
   s.source_files              = 'Classes/**/*'
   s.dependency                  'FlutterMacOS'
 
-  s.platform                  = :osx, '10.11'
+  s.platform                  = :osx, '10.13'
   s.compiler_flags            = "-DBUNDLE_ID='\"#{bundleId}\"'"
   s.pod_target_xcconfig       = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version             = '5.0'
@@ -57,7 +57,9 @@ Pod::Spec.new do |s|
   s.script_phases             = [
                                   { :name => 'Download Realm Flutter macOS Binaries',
                                     #Use --debug to debug the install command
-                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/dart" run realm install --target-os-type macos',
+                                    # Use `flutter pub run` (not bare `dart run`): the app depends on the Flutter SDK
+                                    # (`sdk: flutter`), which a bare `dart` cannot resolve ("version solving failed").
+                                    :script => 'source "$PROJECT_DIR/../Flutter/ephemeral/flutter_export_environment.sh" && cd "$FLUTTER_APPLICATION_PATH" && "$FLUTTER_ROOT/bin/flutter" pub run realm install --target-os-type macos',
                                     :execution_position => :before_headers
                                   }
                                 ]

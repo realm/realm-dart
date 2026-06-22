@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 part of 'main.dart';
 
@@ -12,16 +12,9 @@ part of 'main.dart';
 class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  Car(
-    String make, {
-    String? model,
-    int? kilometers = 500,
-    Person? owner,
-  }) {
+  Car(String make, {String? model, int? kilometers = 500, Person? owner}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Car>({
-        'kilometers': 500,
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Car>({'kilometers': 500});
     }
     RealmObjectBase.set(this, 'make', make);
     RealmObjectBase.set(this, 'model', model);
@@ -76,15 +69,12 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
   static Car _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'make': EJsonValue make,
-      } =>
-        Car(
-          fromEJson(make),
-          model: fromEJson(ejson['model']),
-          kilometers: fromEJson(ejson['kilometers'], defaultValue: 500),
-          owner: fromEJson(ejson['owner']),
-        ),
+      {'make': EJsonValue make} => Car(
+        fromEJson(make),
+        model: fromEJson(ejson['model']),
+        kilometers: fromEJson(ejson['kilometers'], defaultValue: 500),
+        owner: fromEJson(ejson['owner']),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }
@@ -96,8 +86,12 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
       SchemaProperty('make', RealmPropertyType.string),
       SchemaProperty('model', RealmPropertyType.string, optional: true),
       SchemaProperty('kilometers', RealmPropertyType.int, optional: true),
-      SchemaProperty('owner', RealmPropertyType.object,
-          optional: true, linkTarget: 'Person'),
+      SchemaProperty(
+        'owner',
+        RealmPropertyType.object,
+        optional: true,
+        linkTarget: 'Person',
+      ),
     ]);
   }();
 
@@ -108,14 +102,9 @@ class Car extends _Car with RealmEntity, RealmObjectBase, RealmObject {
 class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   static var _defaultsSet = false;
 
-  Person(
-    String name, {
-    int age = 1,
-  }) {
+  Person(String name, {int age = 1}) {
     if (!_defaultsSet) {
-      _defaultsSet = RealmObjectBase.setDefaults<Person>({
-        'age': 1,
-      });
+      _defaultsSet = RealmObjectBase.setDefaults<Person>({'age': 1});
     }
     RealmObjectBase.set(this, 'name', name);
     RealmObjectBase.set(this, 'age', age);
@@ -145,23 +134,17 @@ class Person extends _Person with RealmEntity, RealmObjectBase, RealmObject {
   Person freeze() => RealmObjectBase.freezeObject<Person>(this);
 
   EJsonValue toEJson() {
-    return <String, dynamic>{
-      'name': name.toEJson(),
-      'age': age.toEJson(),
-    };
+    return <String, dynamic>{'name': name.toEJson(), 'age': age.toEJson()};
   }
 
   static EJsonValue _toEJson(Person value) => value.toEJson();
   static Person _fromEJson(EJsonValue ejson) {
     if (ejson is! Map<String, dynamic>) return raiseInvalidEJson(ejson);
     return switch (ejson) {
-      {
-        'name': EJsonValue name,
-      } =>
-        Person(
-          fromEJson(name),
-          age: fromEJson(ejson['age'], defaultValue: 1),
-        ),
+      {'name': EJsonValue name} => Person(
+        fromEJson(name),
+        age: fromEJson(ejson['age'], defaultValue: 1),
+      ),
       _ => raiseInvalidEJson(ejson),
     };
   }

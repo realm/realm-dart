@@ -1,6 +1,6 @@
 Invalid model name
 
-in: asset:pkg/test/error_test_data/long_class_name.dart:6:7
+in: asset:realm_generator/test/error_test_data/long_class_name.dart:6:7
   ╷
 5 │ @RealmModel()
 6 │ class _ThisIsAVeryLongClassNameSoLongInFactThatItRunsOverThe57CharacterLimit {

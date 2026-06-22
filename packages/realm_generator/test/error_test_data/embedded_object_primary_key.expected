@@ -1,6 +1,6 @@
 Primary key not allowed on embedded objects
 
-in: asset:pkg/test/error_test_data/embedded_object_primary_key.dart:8:12
+in: asset:realm_generator/test/error_test_data/embedded_object_primary_key.dart:8:12
   ╷
 5 │ @RealmModel(ObjectType.embeddedObject)
 6 │ class _Bad {

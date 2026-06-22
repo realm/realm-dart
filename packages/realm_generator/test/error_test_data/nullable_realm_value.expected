@@ -1,6 +1,6 @@
 RealmValue fields cannot be nullable
 
-in: asset:pkg/test/error_test_data/nullable_realm_value.dart:7:3
+in: asset:realm_generator/test/error_test_data/nullable_realm_value.dart:7:3
   ╷
 5 │ @RealmModel()
 6 │ class _Bad {
