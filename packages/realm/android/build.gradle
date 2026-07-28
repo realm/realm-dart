@@ -28,7 +28,7 @@ android {
         namespace 'io.realm'
     }
 
-    compileSdkVersion 31
+    compileSdkVersion 37
 
     defaultConfig {
         minSdkVersion 16
